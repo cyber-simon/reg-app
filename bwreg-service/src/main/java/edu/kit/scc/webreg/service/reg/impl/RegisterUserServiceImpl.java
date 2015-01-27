@@ -464,6 +464,32 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	}
 	
 	@Override
+	public void deletePassword(UserEntity user, ServiceEntity service,
+			RegistryEntity registry, String executor) throws RegisterException {
+
+		RegisterUserWorkflow workflow = getWorkflowInstance(registry.getRegisterBean());
+
+		try {
+			ServiceEntity serviceEntity = serviceDao.findByIdWithServiceProps(registry.getService().getId());
+			UserEntity userEntity = userDao.findByIdWithAll(registry.getUser().getId());
+
+			ServiceRegisterAuditor auditor = new ServiceRegisterAuditor(auditDao, auditDetailDao, appConfig);
+			auditor.startAuditTrail(executor);
+			auditor.setName(workflow.getClass().getName() + "-DeletePassword-Audit");
+			auditor.setDetail("Delete service password for user " + registry.getUser().getEppn() + " for service " + serviceEntity.getName());
+			auditor.setRegistry(registry);
+			
+			((SetPasswordCapable) workflow).deletePassword(userEntity, serviceEntity, registry, auditor);
+
+			auditor.finishAuditTrail();
+		} catch (RegisterException e) {
+			throw e;
+		} catch (Throwable t) {
+			throw new RegisterException(t);
+		}    			
+	}
+	
+	@Override
 	public Boolean checkWorkflow(String name) {
 		if (getWorkflowInstance(name) != null) {
 			return true;

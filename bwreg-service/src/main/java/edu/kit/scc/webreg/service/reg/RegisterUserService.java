@@ -45,5 +45,8 @@ public interface RegisterUserService {
 
 	void updateGroups(Set<GroupEntity> groupUpdateSet, String executor)
 			throws RegisterException;
+
+	void deletePassword(UserEntity user, ServiceEntity service,
+			RegistryEntity registry, String executor) throws RegisterException;
 	
 }

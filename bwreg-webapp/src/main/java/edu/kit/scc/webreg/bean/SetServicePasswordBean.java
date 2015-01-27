@@ -121,6 +121,27 @@ public class SetServicePasswordBean implements Serializable {
 		return null;
 	}
 	
+	public String deleteServicePassword() {
+		if (! (RegistryStatus.ACTIVE.equals(registryEntity.getRegistryStatus()) || 
+				RegistryStatus.LOST_ACCESS.equals(registryEntity.getRegistryStatus()))) {
+			FacesContext.getCurrentInstance().addMessage("pw_error", new FacesMessage(FacesMessage.SEVERITY_FATAL, "Fehler:", "Servicepasswort kann für diesen Dienst nicht gelöscht werden"));			
+			return null;
+		}
+
+		RegisterUserWorkflow registerUserWorkflow = registerUserService.getWorkflowInstance(serviceEntity.getRegisterBean());
+		if (registerUserWorkflow instanceof SetPasswordCapable) {
+			try {
+				registerUserService.deletePassword(userEntity, serviceEntity, registryEntity, "user-self");
+			} catch (RegisterException e) {
+				FacesContext.getCurrentInstance().addMessage("pw_error", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Konnte das Passwort nicht löschen:", e.getMessage()));
+			}
+		}
+		else
+			FacesContext.getCurrentInstance().addMessage("pw_error", new FacesMessage(FacesMessage.SEVERITY_FATAL, "Fehler:", "Servicepasswort kann für diesen Dienst nicht geslöscht werden"));
+		
+		return null;
+	}
+	
 	public Long getId() {
 		return id;
 	}
