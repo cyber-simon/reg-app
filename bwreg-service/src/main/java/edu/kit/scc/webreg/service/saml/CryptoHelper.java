@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.security.KeyPair;
+import java.security.PrivateKey;
 import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -23,6 +24,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.openssl.PEMKeyPair;
@@ -60,12 +62,25 @@ public class CryptoHelper implements Serializable {
 		return cert;
 	}
 	
-	public KeyPair getKeyPair(String privateKey) throws IOException {
+	public PrivateKey getPrivateKey(String privateKey) throws IOException {
 		PEMParser pemReader = new PEMParser(new StringReader(privateKey));
-		PEMKeyPair pemPair = (PEMKeyPair) pemReader.readObject();
+		Object o = pemReader.readObject();
 		pemReader.close();
-		KeyPair pair = new JcaPEMKeyConverter().setProvider("BC").getKeyPair(pemPair);
-		return pair;
+
+		if (o instanceof PEMKeyPair) {
+			PEMKeyPair pemPair = (PEMKeyPair) o;
+			KeyPair pair = new JcaPEMKeyConverter().setProvider("BC").getKeyPair(pemPair);
+			return pair.getPrivate();
+		}
+		else if (o instanceof PrivateKeyInfo) {
+			PrivateKeyInfo pki = (PrivateKeyInfo) o;
+			PrivateKey pk = new JcaPEMKeyConverter().setProvider("BC").getPrivateKey(pki);
+			return pk;
+		}
+		else {
+			logger.warn("Cannot load private key of type: {}", o.getClass().getName());
+			return null;
+		}			
 	}
 
 

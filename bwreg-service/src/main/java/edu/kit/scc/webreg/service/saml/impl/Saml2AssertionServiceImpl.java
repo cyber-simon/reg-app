@@ -11,7 +11,7 @@
 package edu.kit.scc.webreg.service.saml.impl;
 
 import java.io.IOException;
-import java.security.KeyPair;
+import java.security.PrivateKey;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -178,19 +178,19 @@ public class Saml2AssertionServiceImpl implements Saml2AssertionService {
 			String privateKey) throws IOException, DecryptionException, SamlAuthenticationException {
 		logger.debug("Decrypting assertion...");
 		
-		KeyPair keyPair;
+		PrivateKey pk;
 		try {
-			keyPair = cryptoHelper.getKeyPair(privateKey);
+			pk = cryptoHelper.getPrivateKey(privateKey);
 		} catch (IOException e) {
 			throw new SamlAuthenticationException("Private key is not set up properly", e);
 		}
 		
-		if (keyPair == null) {
+		if (pk == null) {
 			throw new SamlAuthenticationException("Private key is not set up properly (is null)");
 		}
 			
 		BasicX509Credential decryptCredential = new BasicX509Credential();
-		decryptCredential.setPrivateKey(keyPair.getPrivate());
+		decryptCredential.setPrivateKey(pk);
 		KeyInfoCredentialResolver keyResolver = new StaticKeyInfoCredentialResolver(decryptCredential);
 		InlineEncryptedKeyResolver encryptionKeyResolver = new InlineEncryptedKeyResolver();
 		Decrypter decrypter = new Decrypter(null, keyResolver, encryptionKeyResolver);
@@ -204,19 +204,19 @@ public class Saml2AssertionServiceImpl implements Saml2AssertionService {
 			String privateKey) throws IOException, DecryptionException, SamlAuthenticationException {
 		logger.debug("Decrypting nameID...");
 		
-		KeyPair keyPair;
+		PrivateKey pk;
 		try {
-			keyPair = cryptoHelper.getKeyPair(privateKey);
+			pk = cryptoHelper.getPrivateKey(privateKey);
 		} catch (IOException e) {
 			throw new SamlAuthenticationException("Private key is not set up properly", e);
 		}
 
-		if (keyPair == null) {
+		if (pk == null) {
 			throw new SamlAuthenticationException("Private key is not set up properly");
 		}
 			
 		BasicX509Credential decryptCredential = new BasicX509Credential();
-		decryptCredential.setPrivateKey(keyPair.getPrivate());
+		decryptCredential.setPrivateKey(pk);
 		KeyInfoCredentialResolver keyResolver = new StaticKeyInfoCredentialResolver(decryptCredential);
 		InlineEncryptedKeyResolver encryptionKeyResolver = new InlineEncryptedKeyResolver();
 		Decrypter decrypter = new Decrypter(null, keyResolver, encryptionKeyResolver);
