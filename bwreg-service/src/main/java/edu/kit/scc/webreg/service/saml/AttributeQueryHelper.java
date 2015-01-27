@@ -82,7 +82,7 @@ public class AttributeQueryHelper implements Serializable {
 		try {
 			signingCredential = SecurityHelper.getSimpleCredential(
 					cryptoHelper.getCertificate(spEntity.getCertificate()), 
-					cryptoHelper.getKeyPair(spEntity.getPrivateKey()).getPrivate());
+					cryptoHelper.getPrivateKey(spEntity.getPrivateKey()));
 		} catch (IOException e1) {
 			throw new MetadataException("No signing credential for SP " + spEntity.getEntityId(), e1);
 		}
