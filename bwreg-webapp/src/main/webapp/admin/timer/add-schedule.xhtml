@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+		
+	<h:form id="form">
+		<h2><h:outputText value="#{messages.schedule}: #{messages.add_schedule}"/></h2>
+
+		<div class="panel">
+			<p:panel header="#{messages.schedule}">
+				<p:panelGrid id="baseData" columns="2">
+	
+			        <bw:inputText id="nameField" label="#{messages.name}" 
+		        		value="#{addJobScheduleBean.entity.name}" required="true"/>
+
+				</p:panelGrid>
+
+				<p:commandButton id="save" action="#{addJobScheduleBean.save}" value="#{messages.save}"/>
+			</p:panel>
+		</div>	
+	</h:form>
+	</ui:define>
+</ui:composition>	
+</body>
+</html>

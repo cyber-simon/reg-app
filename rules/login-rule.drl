@@ -1,0 +1,23 @@
+package edu.kit.scc.webreg.dools.login
+
+import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
+import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
+import org.opensaml.saml2.core.Assertion;
+import org.opensaml.saml2.metadata.EntityDescriptor;
+import java.util.Map;
+
+global org.slf4j.Logger logger;
+
+rule "Eppn is set"
+
+    when
+        $idp : SamlIdpMetadataEntity( entityId == 'https://idp.scc.kit.edu/idp/shibboleth' )
+        $user : UserEntity( $genericStore : genericStore )
+        Map( keySet not contains "idp") from $genericStore
+    then
+    	logger.info( "user {} is from kit", $user.getId() );
+    	$genericStore.put ("idp", "kit");
+    	update ( $user )
+
+end

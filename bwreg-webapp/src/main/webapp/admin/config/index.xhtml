@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+
+<f:view>
+	<f:metadata>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{indexConfigBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	
+	<h:form id="form">
+		<div id="panelInline">
+			<p:panel id="basePanel" header="#{messages.server_config}">
+				<p:dataTable value="#{indexConfigBean.keyList}" var="key">
+					<p:column headerText="#{messages.key}">#{key}</p:column>
+					<p:column headerText="#{messages.value}">
+				        <p:inplace id="ajax" editor="true">
+				        	<p:ajax event="save" listener="#{indexConfigBean.saveKey(key)}" update=":form:basePanel" />
+				        	<p:inputText value="#{indexConfigBean.configMap[key]}" label="#{messages.name}" />
+				        </p:inplace>
+					</p:column>
+				</p:dataTable>
+				
+				<h:panelGrid id="newPropTable" columns="3" columnClasses="labelColumn, elementColumn">
+			        <h:inputText id="key_input" value="#{indexConfigBean.newKey}"/>
+	       			<h:inputText id="value_input" value="#{indexConfigBean.newValue}"/>
+					<h:commandLink value="#{messages.add}" action="#{indexConfigBean.addKey()}">
+						<f:ajax execute="form" render=":form:basePanel :form:newPropTable" />
+					</h:commandLink>
+				</h:panelGrid>
+				
+			</p:panel>
+		</div>
+	</h:form>
+
+	</ui:define>
+</ui:composition>		
+</f:view>
+</body>
+</html>

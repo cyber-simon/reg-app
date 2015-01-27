@@ -1,0 +1,182 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+
+	<div class="panel">
+		<p:panel>
+			<div style="margin-top: 4px;">
+				<h:outputText value="#{messages.index_text1}" />
+			</div>
+			<h:panelGroup rendered="#{not empty userIndexBean.userRegistryList}">
+				<div>
+					<ui:repeat var="registry" value="#{userIndexBean.userRegistryList}">
+						<div class="serviceBlock">
+							<div class="serviceBlockHeader">
+								<h:outputText value="#{registry.service.name}" />
+							</div>
+							<h:panelGroup rendered="#{registry.service.image != null}">
+								<div class="serviceBlockImage">
+									<p:graphicImage  
+										value="#{request.contextPath}/rest/image/icon/#{registry.service.image.id}" />
+								</div>
+							</h:panelGroup>
+							<div class="serviceBlockDesc">
+								<h:outputText value="#{registry.service.shortDescription}" />
+							</div>
+							<h:panelGroup rendered="#{not empty userIndexBean.getServiceAccessStatus(registry.service)}">
+								<div class="serviceBlockProblem">
+									<h:outputText value="#{messages.access_rule_problem} " />
+									<h:link outcome="/user/check-access.xhtml" value="#{messages.access_check}">
+										<f:param name="regId" value="#{registry.id}" />
+									</h:link>
+								</div>
+							</h:panelGroup>
+							<div class="serviceBlockLink">
+								<span class="ui-icon ui-icon-script" style="display:inline-block; vertical-align: bottom;" />
+								<h:link outcome="/service/index.xhtml" value="#{messages.service_desc}">
+									<f:param name="serviceId" value="#{registry.service.id}" />
+								</h:link>
+							</div>							
+							<div class="serviceBlockLink">
+								<span class="ui-icon ui-icon-link" style="display:inline-block; vertical-align: bottom;" />
+								<h:link outcome="/service/registry-detail.xhtml" value="#{messages.registry_details}">
+									<f:param name="regId" value="#{registry.id}" />
+								</h:link>
+							</div>
+							<div class="serviceBlockLink">
+								<h:panelGroup rendered="#{authorizationBean.isPasswordCapable(registry.service)}">
+									<span class="ui-icon ui-icon-locked" style="display:inline-block; vertical-align: bottom;" />
+									<h:link outcome="/service/set-password.xhtml" value="#{messages.set_password}">
+										<f:param name="registryId" value="#{registry.id}" />
+									</h:link>
+								</h:panelGroup>
+							</div>
+						</div>
+					</ui:repeat>
+				</div>
+			</h:panelGroup>			
+
+			<h:panelGroup rendered="#{empty userIndexBean.userRegistryList}">
+				<ul>
+					<li>
+						<h:outputText value="#{messages.no_registered_services}"/>
+					</li>
+				</ul>
+			</h:panelGroup>
+
+			<div style="margin-top: 8px;">
+				<h:outputText value="#{messages.index_text2}" />
+			</div>
+		</p:panel>
+		
+		<p:panel rendered="#{not empty userIndexBean.pendingRegistryList}" style="margin-top: 12px;">
+			<div style="margin-top: 4px;">
+				<h:outputText value="#{messages.index_text5}" />
+			</div>
+
+			<h:panelGroup >
+				<div>
+					<ui:repeat var="registry" value="#{userIndexBean.pendingRegistryList}">
+						<div class="serviceBlock">
+							<div class="serviceBlockHeader">
+								<h:outputText value="#{registry.service.name}" />
+							</div>
+							<h:panelGroup rendered="#{registry.service.image != null}">
+								<div class="serviceBlockImage">
+									<p:graphicImage  
+										value="#{request.contextPath}/rest/image/icon/#{registry.service.image.id}" />
+								</div>
+							</h:panelGroup>
+							<div class="serviceBlockDesc">
+								<h:outputText value="#{registry.service.shortDescription}" />
+							</div>
+							<h:panelGroup rendered="#{not empty userIndexBean.getServiceAccessStatus(registry.service)}">
+								<div class="serviceBlockProblem">
+									<h:outputText value="#{messages.access_rule_problem} " />
+									<h:link outcome="/user/check-access.xhtml" value="#{messages.access_check}">
+										<f:param name="regId" value="#{registry.id}" />
+									</h:link>
+								</div>
+							</h:panelGroup>
+							<div class="serviceBlockLink">
+								<span class="ui-icon ui-icon-script" style="display:inline-block; vertical-align: bottom;" />
+								<h:link outcome="/service/index.xhtml" value="#{messages.service_desc}">
+									<f:param name="serviceId" value="#{registry.service.id}" />
+								</h:link>
+							</div>							
+							<div class="serviceBlockLink">
+								<span class="ui-icon ui-icon-link" style="display:inline-block; vertical-align: bottom;" />
+								<h:link outcome="/service/registry-detail.xhtml" value="#{messages.registry_details}">
+									<f:param name="regId" value="#{registry.id}" />
+								</h:link>
+							</div>
+						</div>
+					</ui:repeat>
+				</div>
+			</h:panelGroup>			
+		</p:panel>		
+		
+		<p:panel style="margin-top: 12px;">
+			<div style="margin-top: 4px;">
+				<h:outputText value="#{messages.index_text3}" />
+			</div>
+			<div>
+				<ui:repeat var="service" value="#{userIndexBean.allServiceList}">
+					<h:panelGroup rendered="#{not userIndexBean.isServiceRegistered(service)}">
+						<div class="serviceBlock">
+							<div class="serviceBlockHeader">
+								<h:outputText value="#{service.name}" />
+							</div>
+							<h:panelGroup rendered="#{service.image != null}">
+								<div class="serviceBlockImage">
+									<p:graphicImage  
+										value="#{request.contextPath}/rest/image/icon/#{service.image.id}" />
+								</div>
+							</h:panelGroup>
+							<div class="serviceBlockDesc">
+								<h:outputText value="#{service.shortDescription}" />
+								<br />
+								<h:outputText value="#{userIndexBean.getServiceAccessStatus(registry.service)}" />
+							</div>
+							<div class="serviceBlockLink">
+								<span class="ui-icon ui-icon-script" style="display:inline-block; vertical-align: bottom;" />
+								<h:link outcome="/service/index.xhtml" value="#{messages.service_desc}">
+									<f:param name="serviceId" value="#{service.id}" />
+								</h:link>							
+							</div>
+							<div class="serviceBlockLink">
+								<span class="ui-icon ui-icon-carat-1-e" style="display:inline-block; vertical-align: bottom;" />
+								<h:link outcome="/user/register-service.xhtml" value="#{messages.register}">
+									<f:param name="serviceId" value="#{service.id}" />
+								</h:link>
+							</div>
+						</div>
+					</h:panelGroup>
+				</ui:repeat>				
+			</div>
+			
+			<div style="margin-top: 8px;">
+				<h:outputText value="#{messages.index_text4}" />
+			</div>			
+		</p:panel>	
+	</div>
+		
+	</ui:define>
+</ui:composition>
+</body>
+</html>

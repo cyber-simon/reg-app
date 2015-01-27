@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	
+	<h:form id="form">
+
+		<div class="panel">
+			<p:panel id="uidPanel" header="#{messages.bulk_import}">
+				<p:panelGrid id="baseData" columns="2">
+				
+					<bw:inputText id="spEntityIdField" label="SP #{messages.entity_id}"
+						value="#{bulkUserImportBean.spEntityId}" required="true" />
+		
+					<bw:inputText id="idpEntityIdField" label="IDP #{messages.entity_id}"
+						value="#{bulkUserImportBean.idpEntityId}" required="true" />
+		
+					<bw:inputText id="saltField" label="Salt"
+						value="#{bulkUserImportBean.salt}" required="true" />
+		
+					<h:outputLabel for="uidField" value="UIDs (eine pro Zeile)"/>
+					<p:inputTextarea id="uidField" rows="12" cols="80" autoResize="false"
+		            		value="#{bulkUserImportBean.uidField}"  required="true"/>
+				
+				</p:panelGrid>
+				<p:commandButton action="#{bulkUserImportBean.fillTable()}" value="Tabelle aufbauen"
+					 update=":form:importPanel"/>
+			</p:panel>
+		</div>
+			
+		<div class="panel">
+			<p:panel id="importPanel" header="Import Panel">
+				<p:dataTable id="imports" var="importUser" value="#{bulkUserImportBean.importUserList}"
+						rowKey="#{importUser.uid}" selection="#{bulkUserImportBean.selectedImport}" selectionMode="multiple">
+				
+					<p:column headerText="Uid">#{importUser.uid}</p:column>  
+					<p:column headerText="PersistentId">#{importUser.persistentId}</p:column>  
+					<p:column headerText="Status">#{importUser.status}</p:column>  
+				
+				</p:dataTable>
+				<p:commandButton id="importBtn" action="#{bulkUserImportBean.processSelected()}" value="Auswahl Importieren"
+					 update=":form"/>
+			</p:panel>
+			<p:blockUI block="importPanel" trigger="importBtn">  
+       			<p:graphicImage value="#{resource['/img/ajax-loader.gif']}" alt="#{messages.loading}" />  
+			</p:blockUI>					
+		</div>
+
+	</h:form>
+
+	</ui:define>
+</ui:composition>		
+</f:view>
+</body>
+</html>

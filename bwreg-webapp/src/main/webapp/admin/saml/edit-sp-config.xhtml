@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="id" value="#{editSamlSpConfigurationBean.id}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{editSamlSpConfigurationBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+		<h2><h:outputText value="#{messages.sp_config}: #{editSamlSpConfigurationBean.entity.entityId}"/></h2>
+	
+		<div id="panelInline">
+			<p:panel header="#{messages.sp_config}">
+				<p:panelGrid id="baseData" columns="2">
+		
+			        <h:outputText value="#{messages.id}:"/>
+			        <h:outputText value="#{editSamlSpConfigurationBean.entity.id}"/>
+			
+					<bw:inputText id="entityIdField" label="#{messages.entity_id}"
+						value="#{editSamlSpConfigurationBean.entity.entityId}" required="true" />
+		
+					<bw:inputText id="acsField" label="#{messages.acs_endpoint}"
+						value="#{editSamlSpConfigurationBean.entity.acs}" required="true" />
+		
+					<bw:inputText id="ecpField" label="#{messages.ecp_endpoint}"
+						value="#{editSamlSpConfigurationBean.entity.ecp}" required="true" />
+		
+			        <h:outputText value="#{messages.host_names}:"/>
+					<p:dataTable id="propTable" var="key" 
+						value="#{editSamlSpConfigurationBean.hostNameList}">
+						<p:column>
+							<f:facet name="header"> 
+								<h:outputText value="#{messages.host_name}" />
+							</f:facet>
+							<h:outputText value="#{key}" />
+						</p:column>
+						<p:column>
+							<h:commandLink value="#{messages.delete}" action="#{editSamlSpConfigurationBean.removeHost(key)}">
+								<f:ajax render="@form" />
+							</h:commandLink>
+						</p:column>
+					</p:dataTable>
+					
+			        <h:outputText value="#{messages.new_host_name}:"/>
+					<h:panelGrid id="newPropTable" columns="2">
+				        <h:inputText id="key_input" value="#{editSamlSpConfigurationBean.hostName}"/>
+						<h:commandLink value="#{messages.add}" action="#{editSamlSpConfigurationBean.addHost()}">
+							<f:ajax execute="form" render="form" />
+						</h:commandLink>
+					</h:panelGrid>
+		
+					<h:outputLabel for="private_key" value="#{messages.private_key}:"/>
+					<p:inputTextarea id="private_key" rows="12" cols="80" autoResize="false"
+		            		value="#{editSamlSpConfigurationBean.entity.privateKey}"/>
+		
+					<h:outputLabel for="certificate" value="#{messages.certificate}:"/>
+					<p:inputTextarea id="certificate" rows="12" cols="80" autoResize="false"
+		       	    		value="#{editSamlSpConfigurationBean.entity.certificate}"/>
+
+				</p:panelGrid>
+			<h:commandButton id="save" action="#{editSamlSpConfigurationBean.save}" value="#{messages.save}"/>
+			</p:panel>
+		</div>
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>

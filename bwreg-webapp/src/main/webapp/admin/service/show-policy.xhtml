@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="id" value="#{showPolicyBean.id}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{showPolicyBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+		<h2><h:outputText value="#{messages.policy}: #{showPolicyBean.entity.name}"/></h2>
+	
+		<div id="panelInline">
+			<p:panel header="#{messages.policy}">
+				<p:panelGrid id="baseData" columns="2">
+		
+			        <h:outputText value="#{messages.id}:"/>
+			        <h:outputText value="#{showPolicyBean.entity.id}"/>
+			
+			        <h:outputText value="#{messages.name}:"/>
+			        <h:outputText value="#{showPolicyBean.entity.name} (Service: #{showPolicyBean.entity.service.name})"/>
+						
+			        <h:outputText value="#{messages.actual_agreement}:"/>
+			        <h:outputText value="#{showPolicyBean.entity.actualAgreement.name}"/>
+
+				</p:panelGrid>
+				
+				<h:link outcome="edit-policy.xhtml" value="#{messages.edit}">
+					<f:param name="id" value="#{showPolicyBean.entity.id}"/>
+				</h:link>
+			</p:panel>
+		</div>
+
+		<div id="panelInline">
+			<p:panel header="#{messages.agreement_texts}">
+    	
+		    	<p:dataTable var="agreement" style="min-width: 500px;" 
+		    			value="#{showPolicyBean.entity.agreementTexts.toArray()}">
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.id}" />
+						</f:facet>
+						<h:outputText value="#{agreement.id}" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.name}" />
+						</f:facet>
+						<h:link outcome="edit-agreement.xhtml" value="#{agreement.name}">
+							<f:param name="id" value="#{agreement.id}"/>
+						</h:link>
+					</p:column>			    	
+		    	</p:dataTable>	
+	
+				<h:link outcome="add-agreement.xhtml" value="#{messages.add_text}">
+					<f:param name="policyId" value="#{showPolicyBean.entity.id}"/>
+				</h:link>
+
+			</p:panel>
+		</div>		
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>

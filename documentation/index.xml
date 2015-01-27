@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<book xmlns="http://docbook.org/ns/docbook" 
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:xl="http://www.w3.org/1999/xlink" version="5.0"
+        xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd
+         				http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd">
+
+	<info>
+		<title>bwReg</title>
+		<subtitle>Installation, Configuration &amp; Development</subtitle>
+		<author>
+			<personname>
+				<firstname>Michael</firstname>
+				<surname>Simon</surname>
+			</personname>
+		</author>
+		<author>
+			<personname>
+				<firstname>Jens</firstname>
+				<surname>Köhler</surname>
+			</personname>
+		</author>
+		<author>
+			<personname>
+				<firstname>Saher</firstname>
+				<surname>Semaan</surname>
+			</personname>
+		</author>
+	</info>
+
+	<preface>
+		<title>Foreword</title>
+		<para>
+			This application was first developed as part of the bwIdm Project.
+		</para>
+		<section>
+			<title>Thanks</title>
+			<para>
+				Thanks go to the bwIdm Project Members, Ministerium, ...
+			</para>
+			<para>
+				OpenSAML library, Jonathan Tellier (PAOS classes), Apache Directory Team, ...
+			</para>
+			<para>
+				Early adopters: Saher Semaan, Nomi Meixner, Stefan Kombrink, Tobias Kienzle, ...
+			</para>
+		</section> 
+	</preface>
+	
+	<chapter>
+		<title>Requirements</title>
+		<section>
+			<title>Application Server</title>
+			<para>
+				The bwReg application is a JEE Application using the JEE6 standard. In order to 
+				run it needs a JEE6 capable application server. Some features (cluster singleton) are using special API
+				from the JBoss Application Server in Version 7.2.0 (i.e. JBoss EAP 6.1.0). There is 
+				a possibility that the application will also run with other application servers, but 
+				this has not been tested yet. The cluster singleton feature will not run in 
+				an alternate environment, until there is a standard compliant way of having a singleton
+				cluster-wide. 
+			</para>
+		</section>
+		<section>
+			<title>Database</title>
+			<para>
+				As a database for the application, any database which is compliant to the JPA provider used
+				by the application server. In case of JBoss Application Server Hibernate is used as a JPA
+				provider, which support a variety of databases. Until now, the application has been successfully tested
+				with PostgreSQL and Microsoft SQLServer. 
+			</para>
+		</section>
+	</chapter>
+	
+	<chapter>
+		<title>Installation</title>
+		<section>
+			<title>JBoss Application Server</title>
+			<para>
+				The installation of the application server should be done according to your system requirements 
+				and the instructions manual of the product. 
+				The webregistration has been tested and deployed in an standalone and domain mode environment and
+				works in a cluster. The "standalone-full-ha" profile is needed for the application. 
+			</para>
+		</section>
+	</chapter>
+	
+	<chapter>
+		<title>Update</title>
+		<para>
+			In order to update the application, you simply have to undeploy the old version, and deploy
+			the new version. Most of the database schema updates are handled automatically via 
+			Hibernate at the moment. This behavior may change in the future. Sometimes it is not 
+			possible to update the schema because of database constraints. In this case the version is 
+			listed below.
+		</para>
+		<section>
+			<title>Update to version 1.4.0</title>
+			<para>
+				User reconciliation is not done automatically anymore. It is now event driven.
+				To get the previous behavior back, follow the instructions in the section
+				<command linkend="user_reconciliation">User Reconciliation</command>.
+			</para>
+		</section>
+		<section>
+			<title>Update to version 2.3.0</title>
+			<para>
+				There are some changes in the datamodel from version 1 to version 2. To reflect these changes
+				the table "group_store" has to be extended with the column "DTYPE". For existing entries the DTYPE has
+				to be set to "HomeOrgGroupEntity". The column has to be "NOT NULL". With the application server stopped
+				the SQL commands for MS SQL are for example:
+			</para>
+			<programlisting language="sql">
+ALTER TABLE group_store ADD DTYPE varchar(31);
+UPDATE group_store SET "DTYPE" = 'HomeOrgGroupEntity';
+ALTER TABLE group_store ALTER COLUMN DTYPE varchar(31) NOT NULL;
+			</programlisting>
+			<para>
+				The application behaves differently regarding groups now. It should be possible to have same group names and
+				gidNumbers for different groups, depending on the service, the group is connected with. To make this 
+				possible, you have to remove all unique constraints (if set) on "gid_number" and "group_name" in the table
+				"group_store".
+			</para>
+			<para>
+				After starting the application server again, with the new version ear, some new tables will be created.
+				The tables "user_event" and "service_event" are no longer used. The data contained in there is now 
+				processed from the table "event_table". To migrate the existing data, you could use the following SQL
+				statements (MS SQL specific):
+			</para>
+			<programlisting language="sql">
+INSERT INTO event_table (DTYPE, id, created_at, updated_at, [version], eventType, jobClass_id) 
+	SELECT 'UserEventEntity', id, created_at, updated_at, [version], eventType, jobClass_id
+		FROM user_event;
+
+INSERT INTO event_table (DTYPE, id, created_at, updated_at, [version], eventType, jobClass_id, service_id) 
+	SELECT 'ServiceEventEntity', id, created_at, updated_at, [version], eventType, jobClass_id, [service_id]
+		FROM service_event;
+			</programlisting>
+			<para>
+				In the new version, all groups have to be connected to a service, in order to be used there.
+				All existing groups are not automatically connected, only newly created groups will be. To connect
+				the existing groups, visit the Admin menue -> All groups. Click on the button "Add all group flags"
+				and watch the logfile from the application server. After all groups are connected, click on the
+				button "Fire group change event" and again watch the logfile. The procedure will take some time, 
+				depending on the number of groups in the system. After the procedure, there sould be no entry
+				in the "service_group_flag" table with the "status" "DITRY". Also you can expect one entry per group
+				and group capable service in this table.  
+			</para>
+			<para>
+				Group reconciliation is not done automatically anymore. It is now event driven.
+				To get the previous behavior back, follow the instructions in the section
+				<command linkend="group_reconciliation">Group Reconciliation</command>.
+			</para>
+		</section>
+		<section>
+			<title>Update to version 2.4.0</title>
+			<para>
+				In this version the connection between Federations and IDPs is converted from 1:n to n:m. To reflect this
+				change you can drop the column federation_id in the database table idpmetadata, after the new version is deployed.
+				Don't forget to delete the foreign key constraint as well.
+				You also have to reconnect the idps with their federation. In order to do this, you can poll a federation,
+				or wait until this is done automatically. Please also delete unique constraint on the columns entity_id and
+				federation_metadata_url on the table federation. These constraints could block your desired configuration
+				and are not necessary.
+			</para>
+			<programlisting language="sql">
+ALTER TABLE [idpmetadata]
+	DROP COLUMN [federation_id]
+			</programlisting>
+		</section>		
+	</chapter>
+	
+	<chapter>
+		<title>Configuration</title>
+		
+		<section>
+			<title>SAML Subsystem</title>
+			<section>
+				<title>Service Provider</title>
+				<para>
+					The webregistration application needs at least one service provider configured,
+					to function. To add such a configuration visit the "SP configuration" Section in 
+					the admin menue. Click "Add a configuration". Specify the entity id, private key and
+					certificate for this service provider. Click on "save". After the configuration is
+					created, you need to edit it. In the textbox "Assertion Consumer Endpoint" you need
+					to enter the URL "https://&lt;hostname&gt;/Shibboleth.sso/SAML2/POST". In the textbox
+					"ECP Endpoint" the value has to be "https://&lt;hostname&gt;/Shibboleth.sso/SAML2/ECP".
+					These values can not be choosen freely for now. This is a planned feature to gain more
+					flexibility for the SAML Subsystem. To complete the configuration, add an entry for
+					the hostname of the system. You can specify more than one, if virtual hosts are 
+					involved. When done, click on save, to persist the changes.
+				</para>
+			</section>
+			
+			<section>
+				<title>Federation</title>
+				<para>
+					The configuration of a single IDP is not supported at the moment. You have
+					to configure a federation, even if it consists of only one IDP. 
+				</para>
+				<para>
+					To add a federation, goto the Admin Panel, and click on "Federations". Click on
+					"Add Federation" and specify a name of the federation and the URL, where the 
+					metadata can be downloaded. Click on save and review the entry, by clicking on 
+					the entry at the table of federations. On the view panel for the federation, you 
+					can click on "Poll now", to fetch the metadata from the specified URL. 
+				</para>
+				<para>
+					If you want to edit the federation name, or the URL, click on "Edit" on the view panel.
+					In the edit panel, you can also specify an "entity category". With this attribute, you can filter
+					specific IDPs from your federation metadata. 
+				</para>
+			</section>
+			
+		</section>
+		
+		<section>
+			<title>Service</title>
+			
+			<section>
+				<title>Generic Service Properties</title>
+			</section>
+			
+			<section>
+				<title>LDAP Based Services</title>
+			</section>			
+		</section>
+		
+		<section>
+			<title>Business Rules</title>
+			
+			<section>
+				<title>Application Access Rules</title>
+			</section>
+			
+			<section>
+				<title>Service Access Rules</title>
+			</section>
+			
+			<section>
+				<title>Group Filtering Rules</title>
+			</section>
+		</section>
+		
+		<section>
+			<title>User Management</title>
+			<section xml:id="user_reconciliation">
+				<title>User Reconciliation</title>
+				<para>
+					In order to update users when they login, user reconciliation has to be configured. 
+					One the "List of job classes" in the admin menue, click on "Create new job class".
+					Enter a name (i.e. UserReconciliation) and the job class "edu.kit.scc.webreg.event.UserReconsiliationExecutor".
+					Save the entry. Find the entry on the list of job classes, and click on it, to view the 
+					item. Use the "edit" link to edit. Use "job on single node" and set two properties: 
+					"full_recon" to "false" and "executor" to "web-sso". Save the item.
+				</para>
+				<para>
+					The second step is the connection between the job class and the event. Go to the 
+					"User events" item on the admin menue. Choose the job class you created in step one
+					and "USER_UPDATE" and click on "add". The change is instantly active, you don't 
+					have to save.
+				</para>
+			</section>
+		</section>
+		
+		<section>
+			<title>Group Management</title>
+			<section xml:id="group_reconciliation">
+				<title>Group Reconciliation</title>
+				<para>
+					In order to update home organization groups when a user logins, group reconciliation has to be configured. 
+					One the "List of job classes" in the admin menue, click on "Create new job class".
+					Enter a name (i.e. GroupReconciliation) and the job class "edu.kit.scc.webreg.event.GroupReconsiliationExecutor".
+					Save the entry. Find the entry on the list of job classes, and click on it, to view the 
+					item. Use the "edit" link to edit. Use "job on single node". There are no properties to set.
+				</para>
+				<para>
+					The second step is the connection between the job class and the event. Go to the 
+					"Group events" item on the admin menue. Choose the job class you created in step one
+					and "GROUP_UPDATE" and click on "add". The change is instantly active, you don't 
+					have to save.
+				</para>
+			</section>
+		</section>
+	</chapter>
+
+	<chapter>
+		<title>Development</title>
+		<para>
+			Development of the bwReg application uses Apache Maven as build tool. This tool can be used from the 
+			command line or as part of the IDE. At the moment using Eclipse as IDE is recommended 
+			for developing.
+		</para>
+	
+		<section>
+			<title>Obtaining the source-code</title>
+			
+		</section>
+		
+		<section>
+			<title>License</title>
+			<para>
+				The bwReg Application is released under the GPLv3.
+			</para>
+		</section>
+		
+		<section>
+			<title>Writing Hooks</title>
+			
+		</section>
+		
+		<section>
+			<title>Writing Tasks</title>
+			
+		</section>
+		
+	</chapter>	
+	
+</book>

@@ -1,0 +1,83 @@
+package edu.kit.scc.webreg.dools.sdil
+
+import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.drools.UnauthorizedUser;
+import edu.kit.scc.webreg.entity.UserGroupEntity;
+import edu.kit.scc.webreg.entity.GroupEntity;
+import java.lang.String;
+
+global org.slf4j.Logger logger;
+
+rule "Group Membership test"
+
+    when
+         $user : UserEntity( $groups : groups )
+          UserGroupEntity( $group : group ) from $groups
+          exists ( GroupEntity( name == "sdil-access" ) from $group )
+    then
+    	logger.info( "Insert Group String for user {}", $user.getEppn() );
+    	insert( new String ("sdil") );
+
+end
+
+rule "String test"
+
+    when
+        not ( String( this == "sdil" ) )
+    then
+    	logger.info( "String is not set" );
+    	insert( new UnauthorizedUser(null, "no-access") );
+
+end
+
+rule "Email is set"
+
+    when
+        $user : UserEntity( email == null )
+    then
+    	logger.info( "E-Mail for user {} is not set", $user.getEppn() );
+    	insert( new UnauthorizedUser($user, "e-mail-missing") );
+
+end
+
+rule "uidNumber above 1000"
+
+    when
+        $user : UserEntity( (uidNumber == null) || (uidNumber < 1000) )
+    then
+    	logger.info( "User {} has uidNumber null or lesser thean 1000", $user.getEppn() );
+    	insert( new UnauthorizedUser($user, "uid-number-wrong") );
+
+end
+
+rule "primary group is set"
+
+    when
+        $user : UserEntity( (primaryGroup == null) || (primaryGroup.getName() == "invalid") )
+    then
+    	logger.info( "User {} has no or invalid primary group", $user.getEppn() );
+    	insert( new UnauthorizedUser($user, "primary-gid-wrong") );
+
+end
+
+rule "Home ID is set"
+
+    when
+        $user : UserEntity( 
+        	attributeStore["http://bwidm.de/bwidmOrgId"] == null )
+    then
+    	logger.info( "Home ID for user {} is missing", $user.getEppn() );
+    	insert( new UnauthorizedUser($user, "home-id-missing") );
+
+end
+
+rule "Home UID is set"
+
+    when
+        $user : UserEntity( 
+        	attributeStore["urn:oid:0.9.2342.19200300.100.1.1"] == null )
+    then
+    	logger.info( "Home UID for user {} is missing", $user.getEppn() );
+    	insert( new UnauthorizedUser($user, "home-uid-missing") );
+
+end

@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+
+	<f:metadata>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{listUserBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	
+	<h:form id="form">
+	
+		<p:dataTable id="dataTable" var="user" value="#{listUserBean.userEntityList}" paginator="true"
+					lazy="true" rows="15">
+			<p:column sortBy="#{user.id}" style="width:30px;">
+				<f:facet name="header">
+					<h:outputText value="#{messages.id}" />
+				</f:facet>
+				<h:outputText value="#{user.id}" />
+			</p:column>
+			<p:column sortBy="#{user.surName}" filterBy="#{user.surName}">
+				<f:facet name="header">
+					<h:outputText value="#{messages.sur_name}" />
+				</f:facet>
+				<h:outputText value="#{user.surName}" />
+			</p:column>			
+			<p:column sortBy="#{user.givenName}" filterBy="#{user.givenName}">
+				<f:facet name="header">
+					<h:outputText value="#{messages.given_name}" />
+				</f:facet>
+				<h:outputText value="#{user.givenName}" />
+			</p:column>			
+			<p:column sortBy="#{user.eppn}" filterBy="#{user.eppn}">
+				<f:facet name="header">
+					<h:outputText value="#{messages.eppn}" />
+				</f:facet>
+				<h:link outcome="show-user.xhtml" value="#{user.eppn != null ? user.eppn : 'null'}">
+      				<f:param name="id" value="#{user.id}"/>
+    			</h:link>
+			</p:column>
+			<p:column sortBy="#{user.userStatus}" style="width:50px;">
+				<f:facet name="header">
+					<h:outputText value="#{messages.status}" />
+				</f:facet>
+				<h:outputText value="#{user.userStatus}" />
+			</p:column>			
+			<p:column sortBy="#{user.lastUpdate}">
+				<f:facet name="header">
+					<h:outputText value="#{messages.last_account_update}" />
+				</f:facet>
+				<h:outputText value="#{of:formatDate(user.lastUpdate, 'dd.MM.yyyy HH:mm')}" />
+			</p:column>			
+			<p:column sortBy="#{user.lastFailedUpdate}">
+				<f:facet name="header">
+					<h:outputText value="#{messages.last_failed_update}" />
+				</f:facet>
+				<h:outputText value="#{of:formatDate(user.lastFailedUpdate, 'dd.MM.yyyy HH:mm')}" />
+			</p:column>			
+			<p:column sortBy="#{user.lastStatusChange}">
+				<f:facet name="header">
+					<h:outputText value="#{messages.last_status_change}" />
+				</f:facet>
+				<h:outputText value="#{of:formatDate(user.lastStatusChange, 'dd.MM.yyyy HH:mm')}" />
+			</p:column>			
+		</p:dataTable>
+	
+	</h:form>
+
+	</ui:define>
+</ui:composition>		
+</f:view>
+</body>
+</html>

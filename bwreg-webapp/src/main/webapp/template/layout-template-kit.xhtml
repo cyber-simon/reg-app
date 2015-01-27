@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<f:view contentType="text/html" locale="#{sessionManager.locale != null ? sessionManager.locale : ''}">
+
+<h:head>
+  
+  <ui:insert name="metadata"/>
+  
+  <f:facet name="first">
+    <title>#{title}</title>
+  </f:facet>
+
+  <h:outputStylesheet name="css/${bwreg.css}"/>
+  <h:outputScript library="javax.faces" name="jsf.js" target="head"/>
+  
+</h:head>
+<h:body>
+	<div id="wrapper">
+		<div id="header">
+			<ui:insert name="header">Default header</ui:insert>
+		</div>
+		
+		<div class="spacer"></div>
+		
+		<div id="container">
+			<div id="sidebar">
+				<ui:insert name="left_sidebar">Default left side bar</ui:insert>
+			</div>
+			<div id="content" class="ui-widget">
+				<ui:insert name="content">Default content</ui:insert>
+			</div>
+			<div class="clear"></div>
+			<div id="footer-container">
+				<div class="spacer"></div>
+				<ui:insert name="footer">Default footer</ui:insert>
+			</div>
+		</div>
+	</div>
+</h:body>
+
+</f:view>
+</html>

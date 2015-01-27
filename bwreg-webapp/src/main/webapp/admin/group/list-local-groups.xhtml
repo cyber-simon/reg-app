@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+
+	<f:metadata>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{listLocalGroupBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	
+	<h:form id="form">
+	
+		<p:dataTable id="dataTable" var="group" value="#{listLocalGroupBean.groupEntityList}" paginator="true"
+					lazy="true" rows="15">
+			<p:column sortBy="#{group.id}">
+				<f:facet name="header">
+					<h:outputText value="#{messages.id}" />
+				</f:facet>
+				<h:outputText value="#{group.id}" />
+			</p:column>
+			<p:column sortBy="#{group.name}" filterBy="#{group.name}">
+				<f:facet name="header">
+					<h:outputText value="#{messages.name}" />
+				</f:facet>
+				<h:link outcome="show-local-group.xhtml" value="#{group.name}">
+      				<f:param name="id" value="#{group.id}"/>
+    			</h:link>
+			</p:column>			
+			<p:column sortBy="#{group.gidNumber}">
+				<f:facet name="header">
+					<h:outputText value="#{messages.gid_number}" />
+				</f:facet>
+				<h:outputText value="#{group.gidNumber}" />
+			</p:column>
+		</p:dataTable>
+	
+        <h:link outcome="add-local-group.xhtml" value="#{messages.add_local_group}"/><br />
+	
+	</h:form>
+
+	</ui:define>
+</ui:composition>		
+</f:view>
+</body>
+</html>

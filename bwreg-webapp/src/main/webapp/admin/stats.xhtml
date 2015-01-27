@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{statisticsBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	
+	<h:form id="form">
+		<div id="panelInline">
+			<p:tabView dynamic="true" cache="true">
+				<p:tab title="#{messages.idp}">
+					<p:chart type="pie" model="#{statisticsBean.userIdpPie}" style="height:400px;" />
+					<p:dataTable id="dataTable" var="o" value="#{statisticsBean.userIdpList}">
+						<p:column>
+							<f:facet name="header">
+								<h:outputText value="#{messages.users}" />
+							</f:facet>
+							<h:outputText value="#{o[0]}" />
+						</p:column>
+						<p:column>
+							<f:facet name="header">
+								<h:outputText value="#{messages.idp}" />
+							</f:facet>
+							<h:outputText value="#{o[1].orgName}" />
+						</p:column>					
+					</p:dataTable>				
+				</p:tab>				
+				<p:tab title="#{messages.services}">
+					<p:chart type="pie" model="#{statisticsBean.userServicePie}" style="height:400px;" />
+					<p:dataTable id="dataTable2" var="o" value="#{statisticsBean.userServiceList}">
+						<p:column>
+							<f:facet name="header">
+								<h:outputText value="#{messages.users}" />
+							</f:facet>
+							<h:outputText value="#{o[0]}" />
+						</p:column>
+						<p:column>
+							<f:facet name="header">
+								<h:outputText value="#{messages.service}" />
+							</f:facet>
+							<h:outputText value="#{o[1].name}" />
+						</p:column>					
+					</p:dataTable>									
+				</p:tab>
+				<p:tab title="#{messages.users}">
+					<p:chart type="line" model="#{statisticsBean.userPerMonthChart}" />
+					<p:dataTable id="dataTable3" var="o" value="#{statisticsBean.userPerMonthList}">
+						<p:column>
+							<f:facet name="header">
+								<h:outputText value="#{messages.users}" />
+							</f:facet>
+							<h:outputText value="#{o[1]}" />
+						</p:column>
+						<p:column>
+							<f:facet name="header">
+								<h:outputText value="#{messages.year}" />
+							</f:facet>
+							<h:outputText value="#{o[2]}" />
+						</p:column>					
+						<p:column>
+							<f:facet name="header">
+								<h:outputText value="#{messages.month}" />
+							</f:facet>
+							<h:outputText value="#{o[0]}" />
+						</p:column>					
+					</p:dataTable>									
+				</p:tab>
+				<p:tab title="#{messages.register}">
+					<p:chart type="line" model="#{statisticsBean.registriesPerMonthChart}" style="height:500px;" />
+				</p:tab>				
+			</p:tabView>
+		</div>
+	</h:form>
+
+	</ui:define>
+</ui:composition>	
+</f:view>	
+</body>
+</html>

@@ -1,0 +1,54 @@
+
+
+Datenbankänderungen:
+
+ALTER TABLE audit_entry ADD DTYPE varchar(31)
+UPDATE audit_entry SET "DTYPE" = 'AuditEntryEntity'
+ALTER TABLE audit_entry ALTER COLUMN DTYPE varchar(31) NOT NULL
+
+
+Mail einrichten:
+       <subsystem xmlns="urn:jboss:domain:mail:1.1">
+            <mail-session jndi-name="java:jboss/mail/Default">
+                <smtp-server outbound-socket-binding-ref="mail-smtp"/>
+            </mail-session>
+            <mail-session jndi-name="java:/mail/bwIdmMail">
+                <smtp-server outbound-socket-binding-ref="mail-smtp-bwidm"/>
+            </mail-session>
+        </subsystem>
+
+...
+
+    <socket-binding-group name="standard-sockets" default-interface="public" port-offset="${jboss.socket.binding.port-offset:0}">
+
+...
+
+        <outbound-socket-binding name="mail-smtp-bwidm">
+            <remote-destination host="smtp.kit.edu" port="25"/>
+        </outbound-socket-binding>
+    </socket-binding-group>
+
+
+
+JMS einrichten:
+        <subsystem xmlns="urn:jboss:domain:messaging:1.3">
+            <hornetq-server>
+
+	...
+
+                <jms-destinations>
+                    <jms-queue name="bwIdmMailQueue">
+                        <entry name="queue/bwIdmMailQueue"/>
+                        <entry name="java:jboss/exported/jms/queue/bwIdmMailQueue"/>
+                    </jms-queue>
+                    <jms-queue name="bwIdmAsyncJobQueue">
+                        <entry name="queue/bwIdmAsyncJobQueue"/>
+                        <entry name="java:jboss/exported/jms/queue/bwIdmAsyncJobQueue"/>
+                    </jms-queue>
+                </jms-destinations>
+            </hornetq-server>
+        </subsystem>
+
+
+Module sun.jdk erweitern:
+                <path name="com/sun/jndi/ldap/ext"/>

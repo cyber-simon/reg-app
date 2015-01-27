@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="id" value="#{showServiceBean.id}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{showServiceBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+		<h2><h:outputText value="#{messages.service}: #{showServiceBean.entity.name}"/></h2>
+
+		<p:messages id="messageBox" showDetail="true" />
+
+		<div id="panelInline">
+			<p:panel header="#{messages.service}">
+				<p:panelGrid id="baseData" columns="2">
+
+					<h:outputText value="#{messages.id}:" />
+					<h:outputText value="#{showServiceBean.entity.id}" />
+
+					<h:outputText value="#{messages.name}:" />
+					<h:outputText value="#{showServiceBean.entity.name}" />
+
+					<h:outputText value="#{messages.short_name}:" />
+					<h:outputText value="#{showServiceBean.entity.shortName}" />
+
+					<h:outputText value="#{messages.approver_role}:" />
+					<h:outputText value="#{showServiceBean.entity.approverRole.name}"
+						rendered="#{showServiceBean.entity.approverRole != null}"/>
+					<h:outputText value="#{messages.undefined} / #{messages.no_approval}"
+						rendered="#{showServiceBean.entity.approverRole == null}"/>
+
+					<h:outputText value="#{messages.admin_role}:" />
+					<h:outputText value="#{showServiceBean.entity.adminRole.name}"
+						rendered="#{showServiceBean.entity.adminRole != null}"/>
+					<h:outputText value="#{messages.undefined}"
+						rendered="#{showServiceBean.entity.adminRole == null}"/>
+
+					<h:outputText value="#{messages.hotline_role}:" />
+					<h:outputText value="#{showServiceBean.entity.hotlineRole.name}"
+						rendered="#{showServiceBean.entity.hotlineRole != null}"/>
+					<h:outputText value="#{messages.undefined}"
+						rendered="#{showServiceBean.entity.hotlineRole == null}"/>
+
+					<h:outputText value="#{messages.group_admin_role}:" />
+					<h:outputText value="#{showServiceBean.entity.groupAdminRole.name}"
+						rendered="#{showServiceBean.entity.groupAdminRole != null}"/>
+					<h:outputText value="#{messages.undefined}"
+						rendered="#{showServiceBean.entity.groupAdminRole == null}"/>
+
+					<h:outputText value="#{messages.register_bean}:" />
+					<h:outputText value="#{showServiceBean.entity.registerBean}" />
+
+					<h:outputText value="#{messages.access_rule}:" />
+					<h:outputText value="#{showServiceBean.entity.accessRule.name}" 
+						rendered="#{showServiceBean.entity.accessRule != null}"/>
+					<h:outputText value="#{messages.no_access_rule}" 
+						rendered="#{showServiceBean.entity.accessRule == null}"/>
+
+					<h:outputText value="#{messages.group_filter_rule}:" />
+					<h:outputText value="#{showServiceBean.entity.groupFilterRulePackage.knowledgeBaseName}" 
+						rendered="#{showServiceBean.entity.groupFilterRulePackage != null}"/>
+					<h:outputText value="#{messages.no_group_filter_rule}" 
+						rendered="#{showServiceBean.entity.groupFilterRulePackage == null}"/>
+
+					<h:outputText value="#{messages.published}:" />
+					<h:outputText value="#{showServiceBean.entity.published ? messages.yes : messages.no}" />
+
+					<h:outputText value="#{messages.image}:" />
+					<h:panelGroup rendered="#{showServiceBean.entity.image != null}">
+						<p:graphicImage style="vertical-align:middle" 
+							value="#{request.contextPath}/rest/image/icon/#{showServiceBean.entity.image.id}" />
+						<h:outputText value="(#{showServiceBean.entity.image.name})" />
+					</h:panelGroup>
+					<h:outputText value="#{messages.no_image}" 
+						rendered="#{showServiceBean.entity.image == null}"/>
+					
+				</p:panelGrid>
+				<h:link outcome="edit-service.xhtml" value="#{messages.edit}">
+					<f:param name="id" value="#{showServiceBean.entity.id}" />
+				</h:link>
+				<br/>
+				<h:link outcome="edit-service-event.xhtml" value="#{messages.edit_service_event}">
+					<f:param name="id" value="#{showServiceBean.entity.id}" />
+				</h:link>
+			</p:panel>
+		</div>
+
+		<div id="panelInline">
+			<p:panel header="#{messages.properties}">
+				<p:dataTable id="propTable" var="key" style="min-width: 400px;"
+					value="#{showServiceBean.entity.serviceProps.keySet().toArray()}">
+					<p:column>
+						<f:facet name="header"> 
+							<h:outputText value="#{messages.key}" />
+						</f:facet>
+						<h:outputText value="#{key}" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.value}" />
+						</f:facet>
+						<h:outputText value="#{showServiceBean.entity.serviceProps[key]}" />
+					</p:column>
+				</p:dataTable>
+			</p:panel>
+		</div>			
+
+ 		<div id="panelInline">
+			<p:panel header="#{messages.service_desc}">
+				<h:panelGrid id="descData" columns="2" columnClasses="labelColumn, elementColumn">
+				
+					<p:outputLabel for="descShortText" value="#{messages.service_desc_short}"/>
+					<h:outputText id="descShortText" value="#{showServiceBean.entity.shortDescription}" />
+		
+					<p:outputLabel for="descText" value="#{messages.service_desc}"/>
+					<h:outputText id="descText" value="#{showServiceBean.serviceDescBB}" />
+		
+				</h:panelGrid>
+			</p:panel>
+		</div>				
+
+ 		<div id="panelInline">
+			<p:panel header="#{messages.policies}">
+		    	<p:dataTable id="policyTable" var="policy" style="min-width: 400px;"
+		    		value="#{showServiceBean.entity.policies.toArray()}">
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.id}" />
+						</f:facet>
+						<h:outputText value="#{policy.id}" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.name}" />
+						</f:facet>
+						<h:link outcome="show-policy.xhtml" value="#{policy.name}">
+		      				<f:param name="id" value="#{policy.id}"/>
+		    			</h:link>
+					</p:column>			    	
+		    	</p:dataTable>	
+	
+				<h:link outcome="add-policy.xhtml" value="#{messages.add_policy}">
+					<f:param name="serviceId" value="#{showServiceBean.entity.id}"/>
+				</h:link>
+			</p:panel>
+		</div>
+		
+ 		<div id="panelInline">
+			<p:panel header="#{messages.tools}">
+		        <p:commandButton id="recon1" action="#{showServiceBean.startRecon(false, false)}" value="#{messages.reconsiliation}"
+		        	ajax="false"/>					
+		        <p:commandButton id="recon2" action="#{showServiceBean.startRecon(true, false)}" value="#{messages.full_reconsiliation}"
+		        	ajax="false"/>					
+		        <p:commandButton id="recon3" action="#{showServiceBean.startRecon(true, true)}" value="#{messages.full_reconsiliation_with_groups}"
+		        	ajax="false"/>					
+			</p:panel>
+		</div>		
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>

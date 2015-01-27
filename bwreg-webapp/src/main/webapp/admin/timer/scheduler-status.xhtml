@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	
+	<h:form id="form">
+	
+		<div class="panel"> 
+			<p:panel header="#{messages.scheduler_status}">
+				<p:panelGrid id="baseData" columns="2">
+			
+			        <h:outputText value="#{messages.cluster_scheduler_node}:"/>
+			        <h:outputText value="#{schedulerStatusBean.clusterSchedulerStatusService.activeNode}"/>
+
+			        <h:outputText value="#{messages.cluster_scheduler_ejb}:"/>
+			        <h:outputText value="#{schedulerStatusBean.clusterSchedulerStatusService.clusterScheduler}"/>
+
+			        <h:outputText value="#{messages.cluster_scheduler_node}:"/>
+			        <h:outputText value="#{schedulerStatusBean.nodeConfiguration.nodeName}"/>
+
+			        <h:outputText value="#{messages.timer_configured}:"/>
+			        <h:outputText value="#{schedulerStatusBean.nodeConfiguration.timerConfigured}"/>
+
+			        <h:outputText value="#{messages.timer_singleton_configured}:"/>
+			        <h:outputText value="#{schedulerStatusBean.clusterSchedulerStatusService.clusterScheduler.timerConfigured}"/>
+
+			        <h:outputText value="#{messages.rules_configured}:"/>
+			        <h:outputText value="#{schedulerStatusBean.nodeConfiguration.rulesConfigured}"/>
+
+				</p:panelGrid>
+			</p:panel>
+		</div>
+
+		<div class="panel"> 
+			<p:panel header="#{messages.singleton_scheduler_status}">
+				<p:dataTable id="clusterSchedTable" var="t" value="#{schedulerStatusBean.clusterSchedulerStatusService.clusterScheduler.timerService.timers.toArray()}">
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.next_timeout}" />
+						</f:facet>
+						<h:outputText value="#{t.nextTimeout}" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.timer_info}" />
+						</f:facet>
+						<h:outputText value="#{t.info.name} (#{t.info.jobClass.jobClassName})" rendered="#{t.info.class.simpleName == 'JobScheduleEntity'}" />
+						<h:outputText value="#{t.info}" rendered="#{t.info.class.simpleName != 'JobScheduleEntity'}" />
+					</p:column>			
+				</p:dataTable>					
+			</p:panel>
+		</div>
+
+		<div class="panel"> 
+			<p:panel header="#{messages.standard_scheduler_status}">
+				<p:dataTable id="schedTable" var="t" value="#{schedulerStatusBean.standardScheduler.timerService.timers.toArray()}">
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.next_timeout}" />
+						</f:facet>
+						<h:outputText value="#{t.nextTimeout}" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.timer_info}" />
+						</f:facet>
+						<h:outputText value="#{t.info.name} (#{t.info.jobClass.jobClassName})" rendered="#{t.info.class.simpleName == 'JobScheduleEntity'}" />
+						<h:outputText value="#{t.info}" rendered="#{t.info.class.simpleName != 'JobScheduleEntity'}" />
+					</p:column>			
+				</p:dataTable>					
+			</p:panel>
+		</div>
+	</h:form>
+
+	</ui:define>
+</ui:composition>		
+</body>
+</html>

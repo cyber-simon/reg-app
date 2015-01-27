@@ -1,0 +1,16 @@
+<ui:composition
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:p="http://primefaces.org/ui">
+
+	<c:set var="escape" value="#{not empty escape ? escape : true}" />
+	<c:set var="renderintern" value="#{not empty rendered ? rendered : true}" />
+	<c:set var="idintern" value="#{not empty id ? id : componentIdHelper.generateFor(label)}" />
+	<c:set var="style" value="#{not empty styleClass ? styleClass : 'value_bold'}" />
+
+    <p:outputLabel for="#{idintern}" value="#{label}:" rendered="#{renderintern}" />
+    <h:outputText styleClass="#{style}" id="#{idintern}" value="#{value}" escape="#{escape}" rendered="#{renderintern}" />
+	
+</ui:composition>    

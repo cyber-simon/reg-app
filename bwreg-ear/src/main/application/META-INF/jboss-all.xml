@@ -1,0 +1,4 @@
+<jboss xmlns="urn:jboss:1.0">
+    <!-- following line needed for jbpm 6.1.0 and wildfly 8.1.0 -->
+    <!-- weld xmlns="urn:jboss:weld:1.0" require-bean-descriptor="true"/ -->
+</jboss>

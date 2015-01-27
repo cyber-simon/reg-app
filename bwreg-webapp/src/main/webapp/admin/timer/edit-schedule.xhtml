@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="id" value="#{editJobScheduleBean.id}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{editJobScheduleBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+		<h2><h:outputText value="#{messages.schedule}: #{editJobScheduleBean.entity.name}"/></h2>
+
+		<div class="panel">
+			<p:panel header="#{messages.schedule}">
+				<p:panelGrid id="baseData" columns="2">
+
+					<h:outputText value="#{messages.id}:" />
+					<h:outputText value="#{editJobScheduleBean.entity.id}" />
+
+					<bw:inputText id="nameField" label="#{messages.name}"
+						value="#{editJobScheduleBean.entity.name}" required="true" />
+
+					<p:outputLabel value="#{messages.job_class}:" for="selectCls" />
+			        <p:selectOneMenu id="selectCls" value="#{editJobScheduleBean.entity.jobClass}"
+			        	converter="#{jobClassConverter}" >
+		            	<f:selectItems value="#{editJobScheduleBean.jobClassList}" 
+		            		var="cls" itemLabel="#{cls.name} (id #{cls.id})" itemValue="#{cls}"/>
+		            </p:selectOneMenu>
+
+					<bw:inputText id="yearField" label="#{messages.year}"
+						value="#{editJobScheduleBean.entity.year}" />
+
+					<bw:inputText id="monthField" label="#{messages.month}"
+						value="#{editJobScheduleBean.entity.month}" />
+
+					<bw:inputText id="domField" label="#{messages.day_of_month}"
+						value="#{editJobScheduleBean.entity.dayOfMonth}" />
+
+					<bw:inputText id="dowField" label="#{messages.day_of_week}"
+						value="#{editJobScheduleBean.entity.dayOfWeek}" />
+
+					<bw:inputText id="hourField" label="#{messages.hour}"
+						value="#{editJobScheduleBean.entity.hour}" />
+
+					<bw:inputText id="minuteField" label="#{messages.minute}"
+						value="#{editJobScheduleBean.entity.minute}" />
+
+					<bw:inputText id="secondField" label="#{messages.second}"
+						value="#{editJobScheduleBean.entity.second}" />
+
+					<h:outputText value="#{messages.disabled}:" />
+					<p:selectBooleanButton onLabel="#{messages.yes}" offLabel="#{messages.no}"
+						value="#{editJobScheduleBean.entity.disabled}" />
+
+				</p:panelGrid>
+
+				<p:commandButton id="save" action="#{editJobScheduleBean.save}" value="#{messages.save}"/>
+				<p:commandButton id="cancel" action="#{editJobScheduleBean.cancel}" value="#{messages.cancel}" immediate="true"/>
+
+			</p:panel>
+		</div>
+	
+
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{listAuditBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	
+	<h:form id="form">
+	
+		<p:dataTable id="dataTable" var="entity" value="#{listAuditBean.list}" paginator="true"
+					lazy="true" rows="10">
+			<p:column sortBy="#{entity.id}">
+				<f:facet name="header">
+					<h:outputText value="#{messages.id}" />
+				</f:facet>
+				<h:outputText value="#{entity.id}" />
+			</p:column>
+			<p:column sortBy="#{entity.endTime}">
+				<f:facet name="header">
+					<h:outputText value="#{messages.date}" />
+				</f:facet>
+				<h:link outcome="show-audit-entry.xhtml" value="#{entity.endTime}">
+      				<f:param name="id" value="#{entity.id}"/>
+    			</h:link>
+			</p:column>
+			<p:column sortBy="#{entity.detail}" filterBy="#{entity.detail}">
+				<f:facet name="header">
+					<h:outputText value="#{messages.audit_detail}" />
+				</f:facet>
+				<h:outputText value="#{entity.detail}" />
+			</p:column>			
+			<p:column sortBy="#{entity.name}" filterBy="#{entity.name}">
+				<f:facet name="header">
+					<h:outputText value="#{messages.name}" />
+				</f:facet>
+				<h:outputText value="#{entity.name}" />
+			</p:column>			
+			<p:column sortBy="#{entity.executor}" filterBy="#{entity.executor}">
+				<f:facet name="header">
+					<h:outputText value="#{messages.executor}" />
+				</f:facet>
+				<h:outputText value="#{entity.executor}" />
+			</p:column>			
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.time_taken}" />
+				</f:facet>
+				<h:outputText value="#{entity.endTime.time - entity.startTime.time} ms" />
+			</p:column>			
+		</p:dataTable>
+
+	</h:form>
+
+	</ui:define>
+</ui:composition>		
+</f:view>
+</body>
+</html>

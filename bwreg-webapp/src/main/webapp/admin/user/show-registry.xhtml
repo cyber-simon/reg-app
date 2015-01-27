@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+	
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="id" value="#{showRegistryBean.id}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{showRegistryBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+
+		<h2><h:outputText value="#{messages.registry_details}: #{showRegistryBean.registry.user.eppn} - #{showRegistryBean.registry.service.name}"/></h2>
+
+		<p:messages id="messageBox" showDetail="true" />
+		
+		<div id="panelInline">
+			<p:panel header="#{messages.user_properties}">
+				<p:panelGrid id="baseData" columns="2">
+			
+			        <h:outputText value="#{messages.id}:"/>
+			        <h:outputText value="#{showRegistryBean.registry.id}"/>
+			
+			        <h:outputText value="#{messages.eppn}:"/>
+			        <h:outputText value="#{showRegistryBean.registry.user.eppn}"/>
+						
+			        <h:outputText value="#{messages.service}:"/>
+			        <h:outputText value="#{showRegistryBean.registry.service.name}"/>
+						
+					<h:outputText value="#{messages.status}:" />
+					<h:outputText value="#{showRegistryBean.registry.registryStatus}" />
+
+			        <h:outputText value="#{messages.last_status_change}:"/>
+			        <h:outputText value="#{of:formatDate(showRegistryBean.registry.lastStatusChange, 'dd.MM.yyyy HH:mm')}"/>
+	
+			        <h:outputText value="#{messages.last_access_check}:"/>
+			        <h:outputText value="#{of:formatDate(showRegistryBean.registry.lastAccessCheck, 'dd.MM.yyyy HH:mm')}"/>
+	
+			        <h:outputText value="#{messages.last_reconcile}:"/>
+			        <h:outputText value="#{of:formatDate(showRegistryBean.registry.lastReconcile, 'dd.MM.yyyy HH:mm')}"/>
+	
+			        <h:outputText value="#{messages.last_full_reconcile}:"/>
+			        <h:outputText value="#{of:formatDate(showRegistryBean.registry.lastFullReconcile, 'dd.MM.yyyy HH:mm')}"/>
+	
+			        <h:outputText value="#{messages.registered_time}:"/>
+			        <h:outputText value="#{of:formatDate(showRegistryBean.registry.agreedTime, 'dd.MM.yyyy HH:mm')}"/>
+
+			        <h:outputText value="#{messages.agreement_texts}:"/>
+			        <p:dataGrid var="t" value="#{showRegistryBean.registry.agreedTexts.toArray()}">
+			        	<p:column>#{t.policy.name} - #{t.name}</p:column>
+			        </p:dataGrid>
+						
+			        <h:outputText value="#{messages.register_bean}:"/>
+			        <h:outputText value="#{showRegistryBean.registry.registerBean}"/>
+
+					<h:outputText value="#{messages.approval_bean}:" />
+					<h:outputText value="#{showRegistryBean.registry.approvalBean}"
+						rendered="#{showRegistryBean.registry.approvalBean != null}"/>
+					<h:outputText value="#{messages.undefined} / #{messages.no_approval}"
+						rendered="#{showRegistryBean.registry.approvalBean == null}"/>
+	
+				</p:panelGrid>
+				
+				<p:dataTable id="attrData" style="min-width: 500px;" 
+						value="#{showRegistryBean.registry.registryValues.keySet().toArray()}" var="key">
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.name}" />
+						</f:facet>
+						<h:outputText value="#{key}" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.value}" />
+						</f:facet>
+						<h:outputText value="#{showRegistryBean.registry.registryValues.get(key)}" />
+					</p:column>						
+				</p:dataTable>
+				
+			</p:panel>
+		</div>
+
+		<br/>
+		<div id="panelInline">
+			<p:panel header="#{messages.tools}">
+		        <p:commandButton id="recon1" action="#{showRegistryBean.deregister()}" value="#{messages.deregister}"
+		        	ajax="false" style="color: red;"/>					
+		        <p:commandButton id="recon2" action="#{showRegistryBean.purgeRegistry()}" value="#{messages.purge_registry}"
+		        	ajax="false" style="color: red;"/>					
+			</p:panel>
+		</div>
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>

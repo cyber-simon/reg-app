@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="id" value="#{editEmailTemplateBean.id}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{editEmailTemplateBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+		<h2><h:outputText value="#{messages.email_template}: #{editEmailTemplateBean.entity.name}"/></h2>
+	
+		<div id="panelInline">
+			<p:panel header="#{messages.email_template}">
+				<p:panelGrid id="baseData" columns="2">
+		
+			        <h:outputText value="#{messages.id}:"/>
+			        <h:outputText value="#{editEmailTemplateBean.entity.id}"/>
+			
+					<bw:inputText id="nameField" label="#{messages.name}"
+						value="#{editEmailTemplateBean.entity.name}" required="true" />					
+				
+					<bw:inputText id="fromField" label="#{messages.from}"
+						value="#{editEmailTemplateBean.entity.from}" />					
+				
+					<bw:inputText id="toField" label="#{messages.to}"
+						value="#{editEmailTemplateBean.entity.to}" />					
+				
+					<bw:inputText id="ccField" label="#{messages.cc}"
+						value="#{editEmailTemplateBean.entity.cc}" />					
+				
+					<bw:inputText id="bccField" label="#{messages.bcc}"
+						value="#{editEmailTemplateBean.entity.bcc}" />					
+				
+					<bw:inputText id="subjectField" label="#{messages.subject}"
+						value="#{editEmailTemplateBean.entity.subject}" />					
+				
+				
+			        <h:outputText value="#{messages.body}:"/>
+			        <p:inputTextarea value="#{editEmailTemplateBean.entity.body}" style="width: 600px; height: 300px;" 
+			        	autoResize="false" />
+				
+				</p:panelGrid>
+				<p:commandButton id="save" action="#{editEmailTemplateBean.save}" value="#{messages.save}"/>
+			</p:panel>
+		</div>
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+	<f:metadata>
+		<f:viewParam name="token" value="#{syncAndShareGuestBean.token}"/>
+		<f:viewParam name="ssn" value="#{syncAndShareGuestBean.serviceShortName}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{syncAndShareGuestBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+
+	<h:form id="form" prependId="false">
+		<div class="panel">
+		
+			<p:panel header="#{messages.sns_guest_reg}">
+				<div class="panel"><h:outputText value="#{messages.welcome_sns_guest}"/></div>
+				<div class="panel"><p:messages showDetail="true" escape="false" /></div>
+	
+				<h:panelGroup rendered="#{syncAndShareGuestBean.initialized}">
+					<p:panel id="touPanel">
+	
+						<div style="margin: 16px 0;">
+							<ui:repeat var="policy" value="#{syncAndShareGuestBean.policyList}">
+								<bw:contentBox header="#{policy.name} - #{policy.actualAgreement.name}">
+									<h:outputText value="#{bbCodeConverter.convert(policy.actualAgreement.agreement)}" escape="false"/>
+								</bw:contentBox>
+							</ui:repeat>
+						</div>
+
+						<div class="panel" style="margin-top: 12px;">
+							<p:messages id="messageBoxTou" for="tou_error" showDetail="true" />
+							<h:selectBooleanCheckbox value="#{syncAndShareGuestBean.touAccepted}" />
+							<h:outputText value="#{messages.accept_tou}" />
+						</div>
+			    	</p:panel>
+			    	
+			    	<p:panel header="#{messages.user_data}" style="margin-top: 8px;">
+						<h:panelGrid id="baseData" columns="2">
+							
+							<h:outputText value="#{messages.user}" />
+							<h:outputText value="#{syncAndShareGuestBean.pfAccount.username}" />		
+							
+							<bw:inputText id="gnameField" label="#{messages.given_name}"
+								value="#{syncAndShareGuestBean.pfAccount.firstname}" required="true" />
+								
+							<bw:inputText id="snameField" label="#{messages.sur_name}"
+								value="#{syncAndShareGuestBean.pfAccount.surname}" required="true" />
+								
+						</h:panelGrid>
+					</p:panel>
+					
+					<p:panel id="pwPanel" header="#{messages.set_sns_password}" style="margin-top: 8px;">
+						<p:messages id="messageBox" for="pw_error" showDetail="true" />
+						<h:panelGrid id="pwData" columns="2">
+						    <h:outputLabel for="password1" value="Passwort:" />
+						    <p:password id="password1" redisplay="true" size="50" value="#{syncAndShareGuestBean.password1}" />
+			
+						    <h:outputLabel for="password2" value="Passwort (nochmal):" />
+						    <p:password id="password2" redisplay="true" size="50" value="#{syncAndShareGuestBean.password2}" />
+						</h:panelGrid>
+					</p:panel>
+					
+					<div class="panel">
+						<p:commandButton id="save" action="#{syncAndShareGuestBean.save}" value="#{messages.save}"
+							update="baseData,pwPanel,touPanel" />
+					</div>
+					
+					<p:blockUI block="save" trigger="save" />  
+					
+				</h:panelGroup>	
+			</p:panel>
+		</div>
+	</h:form>
+	
+	</ui:define>
+</ui:composition>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="id" value="#{showAdminRoleBean.id}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{showAdminRoleBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+		<h2><h:outputText value="#{messages.role}: #{showAdminRoleBean.entity.name}"/></h2>
+
+		<div id="panelInline">
+			<p:panel header="#{messages.role}">
+
+				<p:panelGrid id="baseData" columns="2">
+
+					<h:outputText value="#{messages.id}:" />
+					<h:outputText value="#{showAdminRoleBean.entity.id}" />
+
+					<h:outputText value="#{messages.name}:" />
+					<h:outputText value="#{showAdminRoleBean.entity.name}" />
+
+				</p:panelGrid>
+				<h:link outcome="edit-admin-role.xhtml" value="#{messages.edit}">
+					<f:param name="id" value="#{showAdminRoleBean.entity.id}" />
+				</h:link>
+			</p:panel>
+		</div>
+
+		<h3><h:outputText value="#{messages.users}" /></h3>
+		
+		<p:dataTable id="userTable" var="ur" style="min-width: 500px;"
+			value="#{showAdminRoleBean.entity.users.toArray()}">
+			<p:column>
+				<f:facet name="header"> 
+					<h:outputText value="#{messages.id}" />
+				</f:facet>
+				<h:outputText value="#{ur.user.id}" />
+			</p:column>
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.eppn}" />
+				</f:facet>
+				<h:outputText value="#{ur.user.eppn}" />
+			</p:column>
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.sur_name}" />
+				</f:facet>
+				<h:outputText value="#{ur.user.surName}" />
+			</p:column>
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.given_name}" />
+				</f:facet>
+				<h:outputText value="#{ur.user.givenName}" />
+			</p:column>
+		</p:dataTable>
+		
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>

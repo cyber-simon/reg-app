@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{groupEventsBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+		<h2><h:outputText value="#{messages.user_events}"/></h2>
+	
+		<div class="panel">
+			<p:panel header="#{messages.user_events}">
+ 				<p:dataTable id="eventTable" var="ev" value="#{groupEventsBean.eventList}">
+ 					<p:column>
+						<f:facet name="header">
+					 		<h:outputText value="#{messages.job_class}" />
+						</f:facet>
+				        <p:outputLabel value="#{ev.jobClass.name}"/>
+ 					</p:column>
+ 					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.event_type}" />
+						</f:facet>
+				        <p:outputLabel value="#{ev.eventType}"/>
+ 					</p:column>
+ 					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.action}" />
+						</f:facet>
+						<h:commandLink value="#{messages.remove}" action="#{groupEventsBean.removeEvent(ev)}">
+							<f:ajax render=":form:newPropTable :form:eventTable" />
+						</h:commandLink>
+ 					</p:column>
+				</p:dataTable>
+
+				<h:panelGrid id="newPropTable" columns="3" columnClasses="labelColumn, elementColumn">
+
+			        <p:selectOneMenu value="#{groupEventsBean.selectedJobClass}"
+			        	converter="#{jobClassConverter}">
+			        	<f:selectItem itemLabel="Keine Job Klasse" itemValue="#{null}"/>
+		            	<f:selectItems value="#{groupEventsBean.jobClassList}" 
+		            		var="jc" itemLabel="#{jc.name} (id #{jc.id})" itemValue="#{jc}"/>
+		            </p:selectOneMenu>
+
+			        <p:selectOneMenu value="#{groupEventsBean.selectedEventType}">
+		            	<f:selectItems value="#{groupEventsBean.userEventTypes}" 
+		            		var="et" itemLabel="#{et}" itemValue="#{et}"/>
+		            </p:selectOneMenu>
+		            
+					<h:commandLink value="#{messages.add}" action="#{groupEventsBean.addEvent()}">
+						<f:ajax execute=":form:newPropTable" render=":form:newPropTable :form:eventTable" />
+					</h:commandLink>
+				</h:panelGrid>
+				
+			</p:panel>
+		</div>
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>

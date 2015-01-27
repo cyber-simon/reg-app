@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="id" value="#{editServiceBean.id}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{editServiceBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+
+	<h:form id="form">
+		<h2><h:outputText value="#{messages.service}: #{editServiceBean.entity.name}"/></h2>
+	
+		<div id="panelInline">
+			<p:panel header="#{messages.service}">
+				<p:panelGrid id="baseData" columns="2">
+		
+			        <h:outputText value="#{messages.id}:"/>
+			        <h:outputText value="#{editServiceBean.entity.id}"/>
+			
+			        <bw:inputText id="nameField" label="#{messages.name}" 
+			        	value="#{editServiceBean.entity.name}" required="true"/>
+				
+			        <bw:inputText id="shortNameField" label="#{messages.short_name}" 
+			        	value="#{editServiceBean.entity.shortName}" required="true"/>
+				
+			        <h:outputText value="#{messages.approver_role}:"/>
+			        <h:selectOneMenu value="#{editServiceBean.selectedApproverRole}"
+			        	converter="#{approverRoleConverter}">
+			        	<f:selectItem itemLabel="Kein Approval" itemValue="#{null}"/>
+		            	<f:selectItems value="#{editServiceBean.approverRoleList}" 
+		            		var="role" itemLabel="#{role.name} (id #{role.id})" itemValue="#{role}"/>
+		            </h:selectOneMenu>
+				
+			        <h:outputText value="#{messages.admin_role}:"/>
+			        <h:selectOneMenu value="#{editServiceBean.selectedAdminRole}"
+			        	converter="#{adminRoleConverter}">
+			        	<f:selectItem itemLabel="Keine Adminrolle" itemValue="#{null}"/>
+		            	<f:selectItems value="#{editServiceBean.adminRoleList}" 
+		            		var="role" itemLabel="#{role.name} (id #{role.id})" itemValue="#{role}"/>
+		            </h:selectOneMenu>
+		
+			        <h:outputText value="#{messages.hotline_role}:"/>
+			        <h:selectOneMenu value="#{editServiceBean.selectedHotlineRole}"
+			        	converter="#{hotlineRoleConverter}">
+			        	<f:selectItem itemLabel="Keine Hotlinerolle" itemValue="#{null}"/>
+		            	<f:selectItems value="#{editServiceBean.hotlineRoleList}" 
+		            		var="role" itemLabel="#{role.name} (id #{role.id})" itemValue="#{role}"/>
+		            </h:selectOneMenu>
+		
+			        <h:outputText value="#{messages.group_admin_role}:"/>
+			        <h:selectOneMenu value="#{editServiceBean.selectedGroupAdminRole}"
+			        	converter="#{groupAdminRoleConverter}">
+			        	<f:selectItem itemLabel="Keine Gruppenrolle" itemValue="#{null}"/>
+		            	<f:selectItems value="#{editServiceBean.groupAdminRoleList}" 
+		            		var="role" itemLabel="#{role.name} (id #{role.id})" itemValue="#{role}"/>
+		            </h:selectOneMenu>
+		
+			        <bw:inputText id="registerBeanField" label="#{messages.register_bean}"
+			        	value="#{editServiceBean.entity.registerBean}" required="true" >
+			        </bw:inputText>
+
+			        <h:outputText value="#{messages.access_rule}:"/>
+			        <h:selectOneMenu value="#{editServiceBean.selectedRule}"
+			        	converter="#{businessRuleConverter}">
+			        	<f:selectItem itemLabel="Kein Regel (offener Zugang)" itemValue="#{null}"/>
+		            	<f:selectItems value="#{editServiceBean.ruleList}" 
+		            		var="rule" itemLabel="#{rule.name} (id #{rule.id})" itemValue="#{rule}"/>
+		            </h:selectOneMenu>
+					
+			        <h:outputText value="#{messages.group_filter_rule}:"/>
+			        <h:selectOneMenu value="#{editServiceBean.selectedRulePackage}"
+			        	converter="#{businessRulePackageConverter}">
+			        	<f:selectItem itemLabel="Kein Filter (alle Gruppen)" itemValue="#{null}"/>
+		            	<f:selectItems value="#{editServiceBean.rulePackageList}" 
+		            		var="rp" itemLabel="#{rp.knowledgeBaseName} (#{rp.packageName})" itemValue="#{rp}"/>
+		            </h:selectOneMenu>
+					
+			        <h:outputText value="#{messages.mandatory_values_rule}:"/>
+			        <h:selectOneMenu value="#{editServiceBean.selectedMandatoryValuesRulePackage}"
+			        	converter="#{businessRulePackageConverter}">
+			        	<f:selectItem itemLabel="Kein Pflichtwerte" itemValue="#{null}"/>
+		            	<f:selectItems value="#{editServiceBean.rulePackageList}" 
+		            		var="rp" itemLabel="#{rp.knowledgeBaseName} (#{rp.packageName})" itemValue="#{rp}"/>
+		            </h:selectOneMenu>
+					
+			        <h:outputText value="#{messages.image}:"/>
+			        <h:selectOneMenu value="#{editServiceBean.selectedImage}"
+			        	converter="#{imageConverter}">
+			        	<f:selectItem itemLabel="Kein Bild" itemValue="#{null}"/>
+		            	<f:selectItems value="#{editServiceBean.imageList}" 
+		            		var="img" itemLabel="#{img.name} (id #{img.id})" itemValue="#{img}"/>
+		            </h:selectOneMenu>
+					
+					<h:outputText value="#{messages.published}" />
+					<p:selectBooleanButton id="pubField" 
+							onLabel="#{messages.yes}" offLabel="#{messages.no}" 
+							value="#{editServiceBean.entity.published}"/>
+			        
+			        <h:outputText value="#{messages.properties}:"/>
+					<p:dataTable id="propTable" var="key" style="min-width: 500px;"
+						value="#{editServiceBean.propertyMap.keySet().toArray()}">
+						<p:column>
+							<f:facet name="header"> 
+								<h:outputText value="#{messages.key}" />
+							</f:facet>
+							<h:outputText value="#{key}" />
+						</p:column>
+						<p:column>
+							<f:facet name="header">
+								<h:outputText value="#{messages.value}" />
+							</f:facet>
+							<h:outputText value="#{editServiceBean.propertyMap[key]}" />
+						</p:column>
+						<p:column>
+							<h:commandLink value="#{messages.delete}" action="#{editServiceBean.removeProp(key)}">
+								<f:ajax render="@form" />
+							</h:commandLink>
+						</p:column>
+					</p:dataTable>
+					
+			        <h:outputText value="#{messages.new_property}:"/>
+					<h:panelGrid id="newPropTable" columns="3" columnClasses="labelColumn, elementColumn">
+				        <h:inputText id="key_input" value="#{editServiceBean.newKey}"/>
+		       			<h:inputText id="value_input" value="#{editServiceBean.newValue}"/>
+						<h:commandLink value="#{messages.add}" action="#{editServiceBean.addProp()}">
+							<f:ajax execute="form" render="form" />
+						</h:commandLink>
+					</h:panelGrid>
+		
+			        <h:outputText value="#{messages.service_desc_short}:"/>
+					<h:inputTextarea id="short_desc" rows="12" cols="60" maxlength="2048"
+		            		value="#{editServiceBean.entity.shortDescription}"/>
+					
+			        <h:outputText value="#{messages.service_desc}:"/>
+					<h:inputTextarea id="desc" rows="12" cols="60" 
+		            		value="#{editServiceBean.entity.description}"/>
+					
+				</p:panelGrid>
+
+				<p:commandButton id="cancel" action="#{editServiceBean.cancel}" value="#{messages.cancel}" 
+					immediate="true" />
+				<p:commandButton id="save" action="#{editServiceBean.save}" value="#{messages.save}" ajax="false"/>
+			</p:panel>
+		</div>
+	</h:form>
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>

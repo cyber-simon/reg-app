@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="id" value="#{serviceAdminUserDetailBean.id}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{serviceAdminUserDetailBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+
+		<h2><h:outputText value="#{messages.registered}: #{serviceAdminUserDetailBean.entity.service.name}/ #{serviceAdminUserDetailBean.entity.user.eppn}"/></h2>
+		
+		<div class="panel">
+			<p:panel header="#{messages.user}">
+				<p:panelGrid id="baseDataUser" columns="2">
+			
+			        <h:outputText value="#{messages.user} #{messages.id}:"/>
+			        <h:outputText value="#{serviceAdminUserDetailBean.entity.user.id}"/>
+			
+			        <h:outputText value="#{messages.user}:"/>
+			        <h:panelGroup>
+				        <h:outputText value="#{serviceAdminUserDetailBean.entity.user.surName}, "/>
+				        <h:outputText value="#{serviceAdminUserDetailBean.entity.user.givenName} ("/>
+				        <h:outputText value="#{serviceAdminUserDetailBean.entity.user.eppn})"/>
+					</h:panelGroup>
+											
+			        <h:outputText value="#{messages.email}:"/>
+			        <h:outputText value="#{serviceAdminUserDetailBean.entity.user.email}"/>
+
+			        <h:outputText value="#{messages.last_account_update}:"/>
+			        <h:outputText value="#{of:formatDate(serviceAdminUserDetailBean.entity.user.lastUpdate, 'dd.MM.yyyy HH:mm')}"/>
+
+			        <h:outputText value="#{messages.user} #{messages.status}:"/>
+			        <h:outputText value="#{serviceAdminUserDetailBean.entity.user.userStatus}"/>
+
+				</p:panelGrid>
+			</p:panel>
+		</div>
+		<div class="panel">
+			<p:panel header="#{messages.properties}">
+				<p:panelGrid id="baseData" columns="2">
+			
+			        <h:outputText value="#{messages.id}:"/>
+			        <h:outputText value="#{serviceAdminUserDetailBean.entity.id}"/>
+			
+			        <h:outputText value="#{messages.registered_time}:"/>
+			        <h:outputText value="#{of:formatDate(serviceAdminUserDetailBean.entity.agreedTime, 'dd.MM.yyyy HH:mm')}"/>
+
+			        <h:outputText value="#{messages.agreement_texts}:"/>
+			        <p:dataGrid var="t" value="#{serviceAdminUserDetailBean.entity.agreedTexts.toArray()}">
+			        	<p:column>#{t.policy.name} - #{t.name}</p:column>
+			        </p:dataGrid>
+
+			        <h:outputText value="#{messages.status}:"/>
+			        <h:outputText value="#{serviceAdminUserDetailBean.entity.registryStatus}"/>
+						
+			        <h:outputText value="#{messages.register_bean}:"/>
+			        <h:outputText value="#{serviceAdminUserDetailBean.entity.registerBean}"/>
+
+					<h:outputText value="#{messages.approval_bean}:" />
+					<h:outputText value="#{serviceAdminUserDetailBean.entity.approvalBean}"
+						rendered="#{serviceAdminUserDetailBean.entity.approvalBean != null}"/>
+					<h:outputText value="#{messages.undefined} / #{messages.no_approval}"
+						rendered="#{serviceAdminUserDetailBean.entity.approvalBean == null}"/>
+						
+				</p:panelGrid>
+				<p:dataTable id="attrData" style="min-width: 500px;" 
+						value="#{serviceAdminUserDetailBean.entity.registryValues.keySet().toArray()}" var="key">
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.name}" />
+						</f:facet>
+						<h:outputText value="#{key}" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.value}" />
+						</f:facet>
+						<h:outputText value="#{serviceAdminUserDetailBean.entity.registryValues.get(key)}" />
+					</p:column>						
+				</p:dataTable>
+				
+				<h:panelGroup rendered="#{serviceAdminUserDetailBean.entity.registryStatus == 'ACTIVE'}">
+					<p:commandButton action="#{serviceAdminUserDetailBean.reconsiliation()}" 
+						value="#{messages.reconsiliation}" update="@form" />				
+					<p:commandButton action="#{serviceAdminUserDetailBean.fullReconsiliation()}" 
+						value="#{messages.full_reconsiliation}" update="@form" />			
+				</h:panelGroup>	
+			</p:panel>
+		</div>
+
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>

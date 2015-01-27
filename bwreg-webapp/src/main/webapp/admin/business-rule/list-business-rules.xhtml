@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	
+	<h:form id="form">
+	
+		<p:dataTable id="dataTable" var="entity" value="#{listBusinessRuleBean.list}">
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.id}" />
+				</f:facet>
+				<h:outputText value="#{entity.id}" />
+			</p:column>
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.knowledgebase_name}" />
+				</f:facet>
+				<h:link outcome="show-rule-package.xhtml" value="#{entity.packageName}:#{entity.knowledgeBaseName}:#{entity.knowledgeBaseVersion}">
+      				<f:param name="ruleId" value="#{entity.id}"/>
+    			</h:link>
+			</p:column>			
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.business_rules}" />
+				</f:facet>
+				<ul>
+					<ui:repeat var="brule" value="#{entity.rules.toArray()}">
+						<li>
+							<h:link outcome="show-business-rule.xhtml" value="#{brule.name} (#{brule.ruleType})">
+			      				<f:param name="ruleId" value="#{brule.id}"/>
+			    			</h:link>
+		    			</li>
+	    			</ui:repeat>
+    			</ul>
+			</p:column>
+		</p:dataTable>
+
+        <h:link outcome="add-rule-package.xhtml" value="#{messages.add_rule_package}"/><br/>
+        <h:link outcome="add-business-rule.xhtml" value="#{messages.add_business_rule}"/><br/>
+		
+	</h:form>
+
+	</ui:define>
+</ui:composition>		
+</body>
+</html>

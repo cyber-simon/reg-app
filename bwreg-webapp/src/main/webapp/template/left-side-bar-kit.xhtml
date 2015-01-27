@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:c="http://java.sun.com/jsp/jstl/core"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:p="http://primefaces.org/ui">
+<head>
+	<title>Left side bar</title>
+</head>
+<body>
+	<ui:composition>
+    <h:panelGroup rendered="#{! sessionManager.isLoggedIn()}">
+      <div style="color: #e5e5e5;"><h:outputText value="#{messages.login}" /></div>    	
+	</h:panelGroup>
+      
+    <h:panelGroup rendered="#{sessionManager.isLoggedIn()}">
+      <div class="submenu">
+	    <div class="submenu-title">#{messages.user}</div>
+		<div class="submenu-content">
+		  <ul>
+	        <li><span class="ui-icon ui-icon-home" style="display:inline-block; vertical-align: bottom;" /><a href="#{request.contextPath}/index.xhtml">#{messages.index}</a></li>
+            <li><span class="ui-icon ui-icon-star" style="display:inline-block; vertical-align: bottom;" />
+	    	  <h:link outcome="#{request.contextPath}/user/index.xhtml" value="#{messages.user_properties}" />
+			</li>
+          </ul>
+        </div>
+      </div>
+	
+      <ui:repeat var="registry" value="#{authorizationBean.userRegistryList}">
+       <div class="submenu">
+        <div class="submenu-title">#{registry.service.name}</div>
+        <div class="submenu-content">
+		  <div>
+		    <ul>
+	          <li><span class="ui-icon ui-icon-script" style="display:inline-block; vertical-align: bottom;" />
+	    	    <h:link outcome="/service/index.xhtml" value="#{messages.service_desc}">
+    	        	<f:param name="serviceId" value="#{registry.service.id}" />
+	    	    </h:link>
+			  </li>
+	          <li>
+	              <span class="ui-icon ui-icon-link" style="display:inline-block; vertical-align: bottom;" />
+    	          <h:link outcome="/service/registry-detail.xhtml" value="#{messages.registry_details}">
+    	        	<f:param name="regId" value="#{registry.id}" />
+    	          </h:link>
+	          </li>
+	          <h:panelGroup rendered="#{registry.registryStatus == 'ACTIVE' and authorizationBean.isPasswordCapable(registry.service)}">
+	            <li>
+	              <span class="ui-icon ui-icon-locked" style="display:inline-block; vertical-align: bottom;" />
+    	          <h:link outcome="/service/set-password.xhtml" value="#{messages.set_password}">
+    	        	<f:param name="registryId" value="#{registry.id}" />
+    	          </h:link>
+	            </li>
+   	          </h:panelGroup>
+            </ul>
+          </div>
+        </div>
+       </div>
+	  </ui:repeat>
+
+      <ui:repeat var="service" value="#{authorizationBean.unregisteredServiceList}">
+       <div class="submenu">
+        <div class="submenu-title">#{service.name}</div>
+        <div class="submenu-content">
+		  <div>
+		    <ul>
+	          <li><span class="ui-icon ui-icon-script" style="display:inline-block; vertical-align: bottom;" />
+	    	    <h:link outcome="/service/index.xhtml" value="#{messages.service_desc}">
+	   	        	<f:param name="serviceId" value="#{service.id}" />
+	    	    </h:link>
+			  </li>
+            </ul>
+          </div>
+        </div>
+       </div>
+	  </ui:repeat>
+
+      <ui:repeat var="service" value="#{authorizationBean.serviceAdminList}">
+       <div class="submenu">
+        <div class="submenu-title">#{service.name} Admin</div>
+        <div class="submenu-content">
+		  <div>
+		    <ul>
+	          <li><span class="ui-icon ui-icon-carat-1-e" style="display:inline-block; vertical-align: bottom;" />
+    	        <h:link outcome="/service-admin/index.xhtml" value="#{messages.service_props}">
+    	        	<f:param name="serviceId" value="#{service.id}" />
+    	        </h:link>
+			  </li>
+	          <li><span class="ui-icon ui-icon-carat-1-e" style="display:inline-block; vertical-align: bottom;" />
+    	        <h:link outcome="/service-admin/list-service-users.xhtml" value="#{messages.service_users}">
+    	        	<f:param name="serviceId" value="#{service.id}" />
+    	        </h:link>
+	          </li>
+	          <li><span class="ui-icon ui-icon-signal" style="display:inline-block; vertical-align: bottom;" />
+    	        <h:link outcome="/service-admin/service-stats.xhtml" value="#{messages.statistics}">
+    	        	<f:param name="serviceId" value="#{service.id}" />
+    	        </h:link>
+	          </li>
+            </ul>
+          </div>
+        </div>
+       </div>
+	  </ui:repeat>
+
+      <ui:repeat var="service" value="#{authorizationBean.serviceHotlineList}">
+       <div class="submenu">
+        <div class="submenu-title">#{service.name} Hotline</div>
+        <div class="submenu-content">
+		  <div>
+		    <ul>
+	          <li><span class="ui-icon ui-icon-carat-1-e" style="display:inline-block; vertical-align: bottom;" />
+    	        <h:link outcome="/service-admin/list-service-users.xhtml" value="#{messages.service_users}">
+    	        	<f:param name="serviceId" value="#{service.id}" />
+    	        </h:link>
+	          </li>
+            </ul>
+          </div>
+        </div>
+       </div>
+	  </ui:repeat>
+	  	
+      <ui:repeat var="service" value="#{authorizationBean.serviceApproverList}">
+       <div class="submenu">
+        <div class="submenu-title">#{service.name} Approver</div>
+        <div class="submenu-content">
+		  <div>
+		    <ul>
+	          <li><span class="ui-icon ui-icon-carat-1-e" style="display:inline-block; vertical-align: bottom;" />
+    	        <h:link outcome="/service-approver/index.xhtml" value="#{messages.new_approvals}">
+    	        	<f:param name="serviceId" value="#{service.id}" />
+    	        </h:link>
+			  </li>
+            </ul>
+          </div>
+        </div>
+       </div>
+	  </ui:repeat>
+
+      <ui:repeat var="service" value="#{authorizationBean.serviceGroupAdminList}">
+       <div class="submenu">
+        <div class="submenu-title">#{service.name} GroupAdmin</div>
+        <div class="submenu-content">
+		  <div>
+		    <ul>
+	          <li><span class="ui-icon ui-icon-carat-1-e" style="display:inline-block; vertical-align: bottom;" />
+    	        <h:link outcome="/service-group-admin/index.xhtml" value="#{messages.groups}">
+    	        	<f:param name="serviceId" value="#{service.id}" />
+    	        </h:link>
+			  </li>
+            </ul>
+          </div>
+        </div>
+       </div>
+	  </ui:repeat>
+	</h:panelGroup>
+	
+	<h:panelGroup>
+		<h:form id="languageForm">
+			<div class="panel" style="padding: 10px; text-align: center;">
+				<p:selectOneMenu value="#{sessionManager.locale}" styleClass="language-label" panelStyleClass="language-list">
+					<f:selectItem itemLabel="Browsersprache" itemValue="#{null}"/>
+				    <f:selectItems value="#{localeSwitcherBean.localeList}" 
+				            		var="loc" itemLabel="#{loc.displayLanguage}" itemValue="#{loc.language}"/>
+				    <p:ajax oncomplete="window.location.replace(window.location.href);"/>
+				</p:selectOneMenu>
+			</div>
+		</h:form>
+	</h:panelGroup>
+	  	
+	</ui:composition>
+</body>
+</html>

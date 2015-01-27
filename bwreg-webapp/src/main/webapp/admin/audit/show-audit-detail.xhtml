@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="id" value="#{showAuditDetailBean.id}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{showAuditDetailBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+		<h2><h:outputText value="#{messages.audit_detail}: Id #{showAuditDetailBean.entity.id}"/></h2>
+
+		<div class="panel">
+			<p:panel header="#{messages.audit_detail}">
+
+				<p:panelGrid id="baseData" columns="2">
+
+					<h:outputText value="#{messages.id}:" />
+					<h:outputText value="#{showAuditDetailBean.entity.id}" />
+
+					<h:outputText value="#{messages.subject}:" />
+					<h:outputText value="#{showAuditDetailBean.entity.subject}" />
+
+					<h:outputText value="#{messages.object}:" />
+					<h:outputText value="#{showAuditDetailBean.entity.object}" />
+
+					<h:outputText value="#{messages.action}:" />
+					<h:outputText value="#{showAuditDetailBean.entity.action}" />
+
+					<h:outputText value="#{messages.log}:" />
+					<h:outputText value="#{showAuditDetailBean.entity.log}" />
+
+					<h:outputText value="#{messages.status}:" />
+					<h:outputText value="#{showAuditDetailBean.entity.auditStatus}" />
+
+				</p:panelGrid>
+		
+			</p:panel>
+		</div>
+
+		<div class="panel">
+			<p:panel header="#{messages.audit_entry}">
+
+				<p:panelGrid id="baseData2" columns="2">
+
+					<h:outputText value="#{messages.id}:" />
+					<h:outputText value="#{showAuditDetailBean.entity.auditEntry.id}" />
+
+					<h:outputText value="#{messages.name}:" />
+					<h:outputText value="#{showAuditDetailBean.entity.auditEntry.name}" />
+
+					<h:outputText value="#{messages.executor}:" />
+					<h:outputText value="#{showAuditDetailBean.entity.auditEntry.executor}" />
+
+					<h:outputText value="#{messages.detail}:" />
+					<h:outputText value="#{showAuditDetailBean.entity.auditEntry.detail}" />
+
+				</p:panelGrid>
+		
+			</p:panel>
+			
+		</div>
+	
+		<div class="panel">
+			<p:panel header="#{messages.audit_detail}">
+		
+				<p:dataTable var="a" value="#{showAuditDetailBean.entity.auditEntry.auditDetails.toArray()}">
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.id}" />
+						</f:facet>
+						<h:outputText value="#{a.id}" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.date}" />
+						</f:facet>
+						<h:link outcome="show-audit-detail.xhtml" value="#{a.endTime}">
+		      				<f:param name="id" value="#{a.id}"/>
+		    			</h:link>
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.subject}" />
+						</f:facet>
+						<h:outputText value="#{a.subject}" />
+					</p:column>			
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.object}" />
+						</f:facet>
+						<h:outputText value="#{a.object}" />
+					</p:column>			
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.action}" />
+						</f:facet>
+						<h:outputText value="#{a.action}" />
+					</p:column>			
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.log}" />
+						</f:facet>
+						<h:outputText value="#{a.log}" />
+					</p:column>			
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.audit_status}" />
+						</f:facet>
+						<h:outputText value="#{a.auditStatus}" />
+					</p:column>
+					
+				</p:dataTable>
+		
+			</p:panel>			
+		</div>
+	
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>

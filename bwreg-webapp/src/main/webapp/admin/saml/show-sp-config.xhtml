@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="id" value="#{showSamlSpConfigurationBean.id}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{showSamlSpConfigurationBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+		<h2><h:outputText value="#{messages.sp_config}: #{showSamlSpConfigurationBean.entity.entityId}"/></h2>
+	
+		<div id="panelInline">
+			<p:panel header="#{messages.sp_config}">
+				<p:panelGrid id="baseData" columns="2">
+				
+			        <h:outputText value="#{messages.id}:"/>
+			        <h:outputText value="#{showSamlSpConfigurationBean.entity.id}"/>
+			
+			        <h:outputText value="#{messages.entity_id}:"/>
+			        <h:outputText value="#{showSamlSpConfigurationBean.entity.entityId}"/>
+		
+			        <h:outputText value="#{messages.acs_endpoint}:"/>
+			        <h:outputText value="#{showSamlSpConfigurationBean.entity.acs}"/>
+		
+			        <h:outputText value="#{messages.ecp_endpoint}:"/>
+			        <h:outputText value="#{showSamlSpConfigurationBean.entity.ecp}"/>
+		
+			        <h:outputText value="#{messages.host_names}:"/>
+					<ui:repeat var="host" value="#{showSamlSpConfigurationBean.entity.hostNameList}">
+						<h:outputText value="#{host}" /><br/>
+					</ui:repeat>
+		
+					<h:outputLabel for="certinfo1" value="#{messages.cert_dn}:"/>
+					<h:outputText id="certinfo1" value="#{showSamlSpConfigurationBean.certificate.subjectDN}"/>
+		
+					<h:outputLabel for="certinfo2" value="#{messages.cert_issuer}:"/>
+					<h:outputText id="certinfo2" value="#{showSamlSpConfigurationBean.certificate.issuerDN}"/>
+					
+					<h:outputLabel for="certinfo3" value="#{messages.valid_from}:"/>
+					<h:outputText id="certinfo3" value="#{showSamlSpConfigurationBean.certificate.notBefore}"/>
+					
+					<h:outputLabel for="certinfo4" value="#{messages.valid_to}:"/>
+					<h:outputText id="certinfo4" value="#{showSamlSpConfigurationBean.certificate.notAfter}"/>
+					
+					<h:outputLabel for="certificate" value="#{messages.certificate}:"/>
+					<h:outputText id="certificate" styleClass="pretext"
+		       	    		value="#{showSamlSpConfigurationBean.entity.certificate}"/>
+					
+					<h:outputLabel for="private_key" value="#{messages.private_key}:"/>
+					<h:outputText id="private_key" styleClass="pretext"
+		            		value="#{showSamlSpConfigurationBean.entity.privateKey}"/>
+				</p:panelGrid>
+		<h:link outcome="edit-sp-config.xhtml" value="#{messages.edit}">
+			<f:param name="id" value="#{showSamlSpConfigurationBean.entity.id}"/>
+		</h:link>
+		
+		</p:panel>
+	</div>
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>

@@ -1,0 +1,19 @@
+<ui:composition
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets">
+
+	<c:set var="rendered" value="#{not empty rendered ? rendered : true}" />
+
+	<h:outputStylesheet library="bwfacelets" name="components.css" />
+	<h:dataTable id="#{id}" var="#{var}" value="#{value}" rendered="#{rendered}"
+		styleClass="ssomm-table" headerClass="ssomm-table-header"
+		rowClasses="ssomm-table-rownobg, ssomm-table-rowbg"
+		columnClasses="ssomm-table-cell">
+
+		<c:set target="#{component}" property="var" value="#{var}" />
+		<ui:insert />
+	</h:dataTable>
+	
+</ui:composition>    

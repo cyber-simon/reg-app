@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{imageGalleryBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+		<h2><h:outputText value="#{messages.image_gallery}"/></h2>
+
+		<div id="panelInline">
+			<p:panel id="galleryPanel" header="#{messages.image_gallery}" >
+				<ui:repeat var="img" value="#{imageGalleryBean.imageList}">
+					<p:panel style="width: 140px; display: inline-block; margin: 1px 1px 1px 1px;">
+						<p:graphicImage value="#{request.contextPath}/rest/image/small/#{img.id}" />
+						<div style="font-size: 70%;">
+							<h:outputText value="#{messages.id}: " />
+							<h:outputText value="#{img.id}" />
+						</div>
+						<div style="font-size: 80%;white-space: nowrap; overflow: hidden;">
+							<h:outputText value="#{img.name}" />
+						</div>
+						<div style="font-size: 80%;">
+							<p:commandLink value="#{messages.delete}" action="#{imageGalleryBean.deleteImage(img)}"
+								update=":form:galleryPanel,:form:messageBox" />
+						</div>
+					</p:panel>
+				</ui:repeat>
+			</p:panel>
+		</div>
+		
+		<p:messages id="messageBox" showDetail="true" />
+
+	</h:form>
+	<h:form id="imgform" enctype="multipart/form-data">
+		<p:fileUpload
+			fileUploadListener="#{imageGalleryBean.handleFileUpload}" multiple="true"
+			mode="advanced" update=":form:galleryPanel,:form:messageBox" auto="false" sizeLimit="50000"
+			allowTypes="/(\.|\/)(gif|jpe?g|png)$/" />
+
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="ruleId" value="#{editRulePackageBean.id}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{editRulePackageBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+		<h2><h:outputText value="#{messages.business_rule}: #{editRulePackageBean.entity.knowledgeBaseName}"/></h2>
+	
+		<div id="panelInline">
+			<p:panel header="#{messages.business_rule}">
+				<p:panelGrid id="baseData" columns="2">
+		
+			        <h:outputText value="#{messages.id}:"/>
+			        <h:outputText value="#{editRulePackageBean.entity.id}"/>
+			
+					<bw:inputText id="packageField" label="#{messages.package_name}"
+						value="#{editRulePackageBean.entity.packageName}" required="true" />					
+
+					<bw:inputText id="nameField" label="#{messages.knowledgebase_name}"
+						value="#{editRulePackageBean.entity.knowledgeBaseName}" required="true" />					
+
+					<bw:inputText id="versionField" label="#{messages.version}"
+						value="#{editRulePackageBean.entity.knowledgeBaseVersion}" required="true" />					
+				
+				</p:panelGrid>
+				<p:commandButton id="save" action="#{editRulePackageBean.save}" value="#{messages.save}"/>
+				<p:commandButton id="cancel" action="#{editRulePackageBean.cancel}" value="#{messages.cancel}" immediate="true"/>
+			</p:panel>
+		</div>
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>

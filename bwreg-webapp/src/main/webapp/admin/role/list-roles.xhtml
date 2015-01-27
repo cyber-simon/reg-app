@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	
+	<h:form id="form">
+	
+		<p:dataTable id="dataTable" var="role" value="#{listRoleBean.roleEntityList}">
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.id}" />
+				</f:facet>
+				<h:outputText value="#{role.id}" />
+			</p:column>
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.name}" />
+				</f:facet>
+				<h:link outcome="show-approver-role.xhtml" value="#{role.name}" 
+						rendered="#{role.class.simpleName == 'ApproverRoleEntity'}">
+      				<f:param name="id" value="#{role.id}"/>
+    			</h:link>
+				<h:link outcome="show-admin-role.xhtml" value="#{role.name}" 
+						rendered="#{role.class.simpleName == 'AdminRoleEntity'}">
+      				<f:param name="id" value="#{role.id}"/>
+    			</h:link>
+				<h:link outcome="show-group-admin-role.xhtml" value="#{role.name}" 
+						rendered="#{role.class.simpleName == 'GroupAdminRoleEntity'}">
+      				<f:param name="id" value="#{role.id}"/>
+    			</h:link>
+				<h:link outcome="show-role.xhtml" value="#{role.name}" 
+						rendered="#{role.class.simpleName == 'RoleEntity'}">
+      				<f:param name="id" value="#{role.id}"/>
+    			</h:link>
+			</p:column>			
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.class}" />
+				</f:facet>
+				<h:outputText value="#{role.class.simpleName}" />
+			</p:column>			
+		</p:dataTable>
+ 
+        <h:link outcome="add-role.xhtml" value="#{messages.add_role}"/><br />
+        <h:link outcome="add-admin-role.xhtml" value="#{messages.add_admin_role}"/><br />
+        <h:link outcome="add-approver-role.xhtml" value="#{messages.add_approver_role}"/><br />
+        <h:link outcome="add-group-admin-role.xhtml" value="#{messages.add_group_admin_role}"/><br />
+	
+	</h:form>
+	</ui:define>
+</ui:composition>	
+</body>
+</html>

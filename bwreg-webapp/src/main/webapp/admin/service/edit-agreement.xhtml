@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="id" value="#{editAgreementBean.id}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{editAgreementBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+		<h2><h:outputText value="#{messages.agreement_texts}: #{editAgreementBean.entity.name}"/></h2>
+	
+		<div id="panelInline">
+			<p:panel header="#{messages.policy}">
+				<p:panelGrid id="baseData" columns="2">
+		
+			        <h:outputText value="#{messages.id}:"/>
+			        <h:outputText value="#{editAgreementBean.entity.id}"/>
+			
+					<bw:inputText id="nameField" label="#{messages.name}"
+						value="#{editAgreementBean.entity.name}" required="true" />					
+				
+			        <h:outputText value="#{messages.admin_role}:"/>
+			        <p:inputTextarea value="#{editAgreementBean.entity.agreement}" style="width: 600px; height: 300px;" 
+			        	autoResize="false" />
+				
+				</p:panelGrid>
+				<p:commandButton id="save" action="#{editAgreementBean.save}" value="#{messages.save}"/>
+			</p:panel>
+		</div>
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>

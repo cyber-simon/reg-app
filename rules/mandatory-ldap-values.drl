@@ -1,0 +1,65 @@
+package edu.kit.scc.webreg.dools.unicluster
+
+import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.drools.MissingMandatoryValues;
+
+global org.slf4j.Logger logger;
+
+rule "Eppn is set"
+
+    when
+        $user : UserEntity( eppn == null )
+        $registry : RegistryEntity()
+    then
+    	logger.info( "Eppnl for user {} is not set", $user.getId() );
+    	insert( new MissingMandatoryValues($registry) );
+
+end
+
+rule "uidNumber is set"
+
+    when
+        $user : UserEntity( uidNumber == null )
+        $registry : RegistryEntity()
+    then
+    	logger.info( "User {} has uidNumber null", $user.getEppn() );
+    	insert( new MissingMandatoryValues($registry) );
+
+end
+
+rule "primary group is set"
+
+    when
+        $user : UserEntity( primaryGroup == null )
+        $registry : RegistryEntity()
+    then
+    	logger.info( "User {} has no primary group", $user.getEppn() );
+    	insert( new MissingMandatoryValues($registry) );
+
+end
+
+rule "Home ID is set"
+
+    when
+        $user : UserEntity( 
+        	attributeStore["http://bwidm.de/bwidmOrgId"] == null )
+        $registry : RegistryEntity()
+    then
+    	logger.info( "Home ID for user {} is missing", $user.getEppn() );
+    	insert( new MissingMandatoryValues($registry) );
+
+end
+
+rule "Home UID is set"
+
+    when
+        $user : UserEntity( 
+        	attributeStore["urn:oid:0.9.2342.19200300.100.1.1"] == null )
+        $registry : RegistryEntity()
+    then
+    	logger.info( "Home UID for user {} is missing", $user.getEppn() );
+    	insert( new MissingMandatoryValues($registry) );
+
+end

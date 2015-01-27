@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	
+	<h:form id="form">
+	
+		<p:dataTable id="dataTable" var="entity" value="#{listFailedAuditBean.list}">
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.id}" />
+				</f:facet>
+				<h:outputText value="#{entity.id}" />
+			</p:column>
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.date}" />
+				</f:facet>
+				<h:link outcome="show-audit-detail.xhtml" value="#{entity.endTime}">
+      				<f:param name="id" value="#{entity.id}"/>
+    			</h:link>
+			</p:column>
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.subject}" />
+				</f:facet>
+				<h:outputText value="#{entity.subject}" />
+			</p:column>			
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.object}" />
+				</f:facet>
+				<h:outputText value="#{entity.object}" />
+			</p:column>			
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.action}" />
+				</f:facet>
+				<h:outputText value="#{entity.action}" />
+			</p:column>			
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.log}" />
+				</f:facet>
+				<h:outputText value="#{entity.log}" />
+			</p:column>			
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.audit_status}" />
+				</f:facet>
+				<h:outputText value="#{entity.auditStatus}" />
+			</p:column>
+		</p:dataTable>
+
+	</h:form>
+
+	</ui:define>
+</ui:composition>		
+</body>
+</html>

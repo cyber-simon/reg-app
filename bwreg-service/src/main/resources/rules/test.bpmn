@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<definitions id="Definition"
+             targetNamespace="http://www.jboss.org/drools"
+             typeLanguage="http://www.java.com/javaTypes"
+             expressionLanguage="http://www.mvel.org/2.0"
+             xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd"
+             xmlns:g="http://www.jboss.org/drools/flow/gpd"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             xmlns:tns="http://www.jboss.org/drools">
+
+  <itemDefinition id="_userObject" structureRef="edu.kit.scc.webreg.entity.UserEntity" />
+  <itemDefinition id="_userId" structureRef="java.lang.Long" />
+  <itemDefinition id="_map" structureRef="java.util.HashMap" />
+
+  <process processType="Private" isExecutable="true" id="de.bwidm.bpm.forcl.ForClusterApproval" name="ForClusterApproval" tns:packageName="de.bwidm.bpm.forcl" tns:version="0.0.1" >
+
+    <!-- process variables -->
+    <property id="userObject" itemSubjectRef="null"/>
+    <property id="userId" itemSubjectRef="null"/>
+    <property id="map" itemSubjectRef="null"/>
+
+    <!-- nodes -->
+    <startEvent id="_1"  isInterrupting="true"/>
+    <task id="_jbpm-unique-0" name="Log" tns:taskName="Log" >
+      <ioSpecification>
+        <dataInput id="_jbpm-unique-0_MessageInput" name="Message" />
+        <inputSet>
+          <dataInputRefs>_jbpm-unique-0_MessageInput</dataInputRefs>
+        </inputSet>
+        <outputSet>
+        </outputSet>
+      </ioSpecification>
+      <dataInputAssociation>
+        <targetRef>_jbpm-unique-0_MessageInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression">Checking process for human task</from>
+          <to xsi:type="tFormalExpression">_jbpm-unique-0_MessageInput</to>
+        </assignment>
+      </dataInputAssociation>
+    </task>
+    <task id="_jbpm-unique-1" name="Email" tns:taskName="Email" >
+      <ioSpecification>
+        <dataInput id="_jbpm-unique-1_userObjectInput" name="userObject" />
+        <dataInput id="_jbpm-unique-1_userIdInput" name="userId" />
+        <dataInput id="_jbpm-unique-1_BodyInput" name="Body" />
+        <dataInput id="_jbpm-unique-1_SubjectInput" name="Subject" />
+        <dataInput id="_jbpm-unique-1_ToInput" name="To" />
+        <dataInput id="_jbpm-unique-1_FromInput" name="From" />
+        <inputSet>
+          <dataInputRefs>_jbpm-unique-1_userObjectInput</dataInputRefs>
+          <dataInputRefs>_jbpm-unique-1_userIdInput</dataInputRefs>
+          <dataInputRefs>_jbpm-unique-1_BodyInput</dataInputRefs>
+          <dataInputRefs>_jbpm-unique-1_SubjectInput</dataInputRefs>
+          <dataInputRefs>_jbpm-unique-1_ToInput</dataInputRefs>
+          <dataInputRefs>_jbpm-unique-1_FromInput</dataInputRefs>
+        </inputSet>
+        <outputSet>
+        </outputSet>
+      </ioSpecification>
+      <dataInputAssociation>
+        <sourceRef>userObject</sourceRef>
+        <targetRef>_jbpm-unique-1_userObjectInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>userId</sourceRef>
+        <targetRef>_jbpm-unique-1_userIdInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <targetRef>_jbpm-unique-1_BodyInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression">User is ready for approval. #{userId} #{userObject.eppn}. Please Check.</from>
+          <to xsi:type="tFormalExpression">_jbpm-unique-1_BodyInput</to>
+        </assignment>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <targetRef>_jbpm-unique-1_SubjectInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression">User is ready for approval</from>
+          <to xsi:type="tFormalExpression">_jbpm-unique-1_SubjectInput</to>
+        </assignment>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <targetRef>_jbpm-unique-1_ToInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression">simon@kit.edu</from>
+          <to xsi:type="tFormalExpression">_jbpm-unique-1_ToInput</to>
+        </assignment>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <targetRef>_jbpm-unique-1_FromInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression">bwidm@scc.kit.edu</from>
+          <to xsi:type="tFormalExpression">_jbpm-unique-1_FromInput</to>
+        </assignment>
+      </dataInputAssociation>
+    </task>
+    <userTask id="_jbpm-unique-2" name="User Task" >
+      <ioSpecification>
+        <dataInput id="_jbpm-unique-2_ContentInput" name="Content" />
+        <dataInput id="_jbpm-unique-2_CommentInput" name="Comment" />
+        <dataInput id="_jbpm-unique-2_CreatedByInput" name="CreatedBy" />
+        <dataInput id="_jbpm-unique-2_SkippableInput" name="Skippable" />
+        <dataInput id="_jbpm-unique-2_LocaleInput" name="Locale" />
+        <dataInput id="_jbpm-unique-2_ContentInput" name="Content" />
+        <dataInput id="_jbpm-unique-2_TaskNameInput" name="TaskName" />
+        <dataInput id="_jbpm-unique-2_GroupIdInput" name="GroupId" />
+        <dataInput id="_jbpm-unique-2_NodeNameInput" name="NodeName" />
+        <dataInput id="_jbpm-unique-2_PriorityInput" name="Priority" />
+        <inputSet>
+          <dataInputRefs>_jbpm-unique-2_ContentInput</dataInputRefs>
+          <dataInputRefs>_jbpm-unique-2_CommentInput</dataInputRefs>
+          <dataInputRefs>_jbpm-unique-2_CreatedByInput</dataInputRefs>
+          <dataInputRefs>_jbpm-unique-2_SkippableInput</dataInputRefs>
+          <dataInputRefs>_jbpm-unique-2_LocaleInput</dataInputRefs>
+          <dataInputRefs>_jbpm-unique-2_ContentInput</dataInputRefs>
+          <dataInputRefs>_jbpm-unique-2_TaskNameInput</dataInputRefs>
+          <dataInputRefs>_jbpm-unique-2_GroupIdInput</dataInputRefs>
+          <dataInputRefs>_jbpm-unique-2_NodeNameInput</dataInputRefs>
+          <dataInputRefs>_jbpm-unique-2_PriorityInput</dataInputRefs>
+        </inputSet>
+        <outputSet>
+        </outputSet>
+      </ioSpecification>
+      <dataInputAssociation>
+        <sourceRef>map</sourceRef>
+        <targetRef>_jbpm-unique-2_ContentInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <targetRef>_jbpm-unique-2_CommentInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression"></from>
+          <to xsi:type="tFormalExpression">_jbpm-unique-2_CommentInput</to>
+        </assignment>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <targetRef>_jbpm-unique-2_CreatedByInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression"></from>
+          <to xsi:type="tFormalExpression">_jbpm-unique-2_CreatedByInput</to>
+        </assignment>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <targetRef>_jbpm-unique-2_SkippableInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression">false</from>
+          <to xsi:type="tFormalExpression">_jbpm-unique-2_SkippableInput</to>
+        </assignment>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <targetRef>_jbpm-unique-2_LocaleInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression">en-UK</from>
+          <to xsi:type="tFormalExpression">_jbpm-unique-2_LocaleInput</to>
+        </assignment>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <targetRef>_jbpm-unique-2_ContentInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression"></from>
+          <to xsi:type="tFormalExpression">_jbpm-unique-2_ContentInput</to>
+        </assignment>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <targetRef>_jbpm-unique-2_TaskNameInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression">ApprovalTask</from>
+          <to xsi:type="tFormalExpression">_jbpm-unique-2_TaskNameInput</to>
+        </assignment>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <targetRef>_jbpm-unique-2_GroupIdInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression">ApproverGroup</from>
+          <to xsi:type="tFormalExpression">_jbpm-unique-2_GroupIdInput</to>
+        </assignment>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <targetRef>_jbpm-unique-2_NodeNameInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression">User Task</from>
+          <to xsi:type="tFormalExpression">_jbpm-unique-2_NodeNameInput</to>
+        </assignment>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <targetRef>_jbpm-unique-2_PriorityInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression"></from>
+          <to xsi:type="tFormalExpression">_jbpm-unique-2_PriorityInput</to>
+        </assignment>
+      </dataInputAssociation>
+      <potentialOwner>
+        <resourceAssignmentExpression>
+          <formalExpression>ls1947@kit.edu</formalExpression>
+        </resourceAssignmentExpression>
+      </potentialOwner>
+    </userTask>
+    <endEvent id="_jbpm-unique-3" name="End" >
+        <terminateEventDefinition />
+    </endEvent>
+    <task id="_jbpm-unique-4" name="Email" tns:taskName="Email" >
+      <ioSpecification>
+        <dataInput id="_jbpm-unique-4_BodyInput" name="Body" />
+        <dataInput id="_jbpm-unique-4_SubjectInput" name="Subject" />
+        <dataInput id="_jbpm-unique-4_ToInput" name="To" />
+        <dataInput id="_jbpm-unique-4_FromInput" name="From" />
+        <inputSet>
+          <dataInputRefs>_jbpm-unique-4_BodyInput</dataInputRefs>
+          <dataInputRefs>_jbpm-unique-4_SubjectInput</dataInputRefs>
+          <dataInputRefs>_jbpm-unique-4_ToInput</dataInputRefs>
+          <dataInputRefs>_jbpm-unique-4_FromInput</dataInputRefs>
+        </inputSet>
+        <outputSet>
+        </outputSet>
+      </ioSpecification>
+      <dataInputAssociation>
+        <targetRef>_jbpm-unique-4_BodyInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression">User is approved</from>
+          <to xsi:type="tFormalExpression">_jbpm-unique-4_BodyInput</to>
+        </assignment>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <targetRef>_jbpm-unique-4_SubjectInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression">User is approved</from>
+          <to xsi:type="tFormalExpression">_jbpm-unique-4_SubjectInput</to>
+        </assignment>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <targetRef>_jbpm-unique-4_ToInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression">simon@kit.edu</from>
+          <to xsi:type="tFormalExpression">_jbpm-unique-4_ToInput</to>
+        </assignment>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <targetRef>_jbpm-unique-4_FromInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression">bwidm@scc.kit.edu</from>
+          <to xsi:type="tFormalExpression">_jbpm-unique-4_FromInput</to>
+        </assignment>
+      </dataInputAssociation>
+    </task>
+    <task id="_jbpm-unique-5" name="Log" tns:taskName="Log" >
+      <ioSpecification>
+        <dataInput id="_jbpm-unique-5_MessageInput" name="Message" />
+        <inputSet>
+          <dataInputRefs>_jbpm-unique-5_MessageInput</dataInputRefs>
+        </inputSet>
+        <outputSet>
+        </outputSet>
+      </ioSpecification>
+      <dataInputAssociation>
+        <targetRef>_jbpm-unique-5_MessageInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression">User is Approved</from>
+          <to xsi:type="tFormalExpression">_jbpm-unique-5_MessageInput</to>
+        </assignment>
+      </dataInputAssociation>
+    </task>
+
+    <!-- connections -->
+    <sequenceFlow id="_1-_jbpm-unique-0" sourceRef="_1" targetRef="_jbpm-unique-0" />
+    <sequenceFlow id="_jbpm-unique-0-_jbpm-unique-1" sourceRef="_jbpm-unique-0" targetRef="_jbpm-unique-1" />
+    <sequenceFlow id="_jbpm-unique-1-_jbpm-unique-2" sourceRef="_jbpm-unique-1" targetRef="_jbpm-unique-2" />
+    <sequenceFlow id="_jbpm-unique-5-_jbpm-unique-3" sourceRef="_jbpm-unique-5" targetRef="_jbpm-unique-3" />
+    <sequenceFlow id="_jbpm-unique-2-_jbpm-unique-4" sourceRef="_jbpm-unique-2" targetRef="_jbpm-unique-4" />
+    <sequenceFlow id="_jbpm-unique-4-_jbpm-unique-5" sourceRef="_jbpm-unique-4" targetRef="_jbpm-unique-5" />
+
+  </process>
+
+  <bpmndi:BPMNDiagram>
+    <bpmndi:BPMNPlane bpmnElement="de.bwidm.bpm.forcl.ForClusterApproval" >
+      <bpmndi:BPMNShape bpmnElement="_1" >
+        <dc:Bounds x="16" y="16" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_jbpm-unique-0" >
+        <dc:Bounds x="96" y="16" width="100" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_jbpm-unique-1" >
+        <dc:Bounds x="228" y="16" width="100" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_jbpm-unique-2" >
+        <dc:Bounds x="360" y="16" width="100" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_jbpm-unique-3" >
+        <dc:Bounds x="756" y="16" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_jbpm-unique-4" >
+        <dc:Bounds x="492" y="16" width="100" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_jbpm-unique-5" >
+        <dc:Bounds x="624" y="16" width="100" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="_1-_jbpm-unique-0" >
+        <di:waypoint x="40" y="40" />
+        <di:waypoint x="146" y="40" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_jbpm-unique-0-_jbpm-unique-1" >
+        <di:waypoint x="146" y="40" />
+        <di:waypoint x="278" y="40" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_jbpm-unique-1-_jbpm-unique-2" >
+        <di:waypoint x="278" y="40" />
+        <di:waypoint x="410" y="40" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_jbpm-unique-5-_jbpm-unique-3" >
+        <di:waypoint x="674" y="40" />
+        <di:waypoint x="780" y="40" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_jbpm-unique-2-_jbpm-unique-4" >
+        <di:waypoint x="410" y="40" />
+        <di:waypoint x="542" y="40" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_jbpm-unique-4-_jbpm-unique-5" >
+        <di:waypoint x="542" y="40" />
+        <di:waypoint x="674" y="40" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</definitions>

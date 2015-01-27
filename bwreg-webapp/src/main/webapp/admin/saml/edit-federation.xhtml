@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="id" value="#{editFederationBean.id}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{editFederationBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+		<h2><h:outputText value="#{messages.federation}: #{editFederationBean.entity.name}"/></h2>
+	
+		<div id="panelInline">
+			<p:panel header="#{messages.federation}">
+				<p:panelGrid id="baseData" columns="2">
+		
+			        <h:outputText value="#{messages.id}:"/>
+			        <h:outputText value="#{editFederationBean.entity.id}"/>
+			
+					<bw:inputText id="nameField" label="#{messages.name}"
+						value="#{editFederationBean.entity.name}" required="true" />
+		
+					<bw:inputText id="urlField" label="#{messages.url}"
+						value="#{editFederationBean.entity.federationMetadataUrl}" />
+					
+					<bw:inputText id="entityCatField" label="#{messages.entity_category}"
+						value="#{editFederationBean.entity.entityCategoryFilter}" />
+ 
+			        <h:outputText value="#{messages.entity_filter_rule}:"/>
+			        <h:selectOneMenu value="#{editFederationBean.selectedRulePackage}"
+			        	converter="#{businessRulePackageConverter}">
+			        	<f:selectItem itemLabel="Kein Filter (alle Entities)" itemValue="#{null}"/>
+		            	<f:selectItems value="#{editFederationBean.rulePackageList}" 
+		            		var="rp" itemLabel="#{rp.knowledgeBaseName} (#{rp.packageName})" itemValue="#{rp}"/>
+		            </h:selectOneMenu>
+ 
+				</p:panelGrid>
+				<p:commandButton id="save" action="#{editFederationBean.save}" value="#{messages.save}"/>
+			</p:panel>
+		</div>
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>

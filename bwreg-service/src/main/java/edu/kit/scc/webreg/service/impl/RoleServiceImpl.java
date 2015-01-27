@@ -1,0 +1,71 @@
+/*******************************************************************************
+ * Copyright (c) 2014 Michael Simon.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v3.0
+ * which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/gpl.html
+ * 
+ * Contributors:
+ *     Michael Simon - initial
+ ******************************************************************************/
+package edu.kit.scc.webreg.service.impl;
+
+import java.util.List;
+
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+
+import edu.kit.scc.webreg.dao.BaseDao;
+import edu.kit.scc.webreg.dao.RoleDao;
+import edu.kit.scc.webreg.entity.RoleEntity;
+import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserRoleEntity;
+import edu.kit.scc.webreg.service.RoleService;
+
+@Stateless
+public class RoleServiceImpl extends BaseServiceImpl<RoleEntity, Long> implements RoleService {
+
+	private static final long serialVersionUID = 1L;
+
+	@Inject
+	private RoleDao dao;
+
+	@Override
+	public void addUserToRole(UserEntity user, String roleName) {
+		RoleEntity role = dao.findByName(roleName);
+		UserRoleEntity userRole = dao.createNewUserRole();
+		userRole.setRole(role);
+		userRole.setUser(user);
+		dao.persistUserRole(userRole);
+	}
+	
+	@Override
+	public void removeUserFromRole(UserEntity user, String roleName) {
+		dao.deleteUserRole(user.getId(), roleName);
+	}
+	
+	@Override
+	public List<RoleEntity> findByUser(UserEntity user) {
+		return dao.findByUser(user);
+	}
+
+	@Override
+	public List<RoleEntity> findByUserId(Long userId) {
+		return dao.findByUserId(userId);
+	}
+	
+	@Override
+	public RoleEntity findWithUsers(Long id) {
+		return dao.findWithUsers(id);
+	}
+	
+	@Override
+	public RoleEntity findByName(String name) {
+		return dao.findByName(name);
+	}
+
+	@Override
+	protected BaseDao<RoleEntity, Long> getDao() {
+		return dao;
+	}
+}

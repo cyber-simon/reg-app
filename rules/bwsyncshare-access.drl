@@ -1,0 +1,28 @@
+package edu.kit.scc.webreg.dools.unicluster
+
+import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.drools.UnauthorizedUser;
+
+global org.slf4j.Logger logger;
+
+rule "Email is set"
+
+    when
+        $user : UserEntity( email == null )
+    then
+    	logger.info( "E-Mail for user {} is not set", $user.getEppn() );
+    	insert( new UnauthorizedUser($user, "e-mail-missing") );
+
+end
+
+rule "Entitlement is set"
+
+    when
+        $user : UserEntity( 
+        	attributeStore["urn:oid:1.3.6.1.4.1.5923.1.1.1.7"] 
+        		not matches ".*(^|;)http://bwidm.de/entitlement/bwLSDF-SyncShare(;|$).*" )
+    then
+    	logger.info( "Entitlement for user {} is missing", $user.getEppn() );
+    	insert( new UnauthorizedUser($user, "entitlement-missing") );
+
+end

@@ -1,0 +1,103 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+	
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="regId" value="#{registryDetailBean.id}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{registryDetailBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+
+		<div class="panel"> 
+			<p:panel header="#{messages.registry_details}: #{registryDetailBean.entity.service.name}">
+				<p:panelGrid id="baseData" columns="2">
+			
+			        <h:outputText value="#{messages.registered_time}:"/>
+			        <h:outputText value="#{of:formatDate(registryDetailBean.entity.agreedTime, 'dd.MM.yyyy HH:mm')}"/>
+
+			        <h:outputText value="#{messages.status}:"/>
+			        <h:outputText value="#{registryDetailBean.entity.registryStatus}"/>
+						
+				</p:panelGrid>
+				<p:dataTable id="attrData" style="min-width: 500px;" 
+						value="#{registryDetailBean.entity.registryValues.keySet().toArray()}" var="key">
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.name}" />
+						</f:facet>
+						<h:outputText value="#{key}" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.value}" />
+						</f:facet>
+						<h:outputText value="#{registryDetailBean.entity.registryValues.get(key)}" />
+					</p:column>						
+				</p:dataTable>
+				
+			</p:panel>
+		</div>
+	
+		<h:panelGroup rendered="#{not empty registryDetailBean.infotainment}">
+			<div class="panel"> 
+				<p:panel header="#{messages.more_properties}: #{registryDetailBean.entity.service.name}">
+					<div>
+						<h:outputText value="#{registryDetailBean.infotainment.message}" />
+					</div>
+					<p:treeTable rendered="#{not empty registryDetailBean.infotainmentRoot}"
+								value="#{registryDetailBean.infotainmentRoot}" var="node">
+								
+						<p:column>  
+            				<f:facet name="header">Name</f:facet>  
+            				<h:outputText value="#{node.nodeName}" />  
+        				</p:column>  
+  					
+						<p:column>  
+            				<f:facet name="header">Message</f:facet>  
+            				<h:outputText value="#{node.message}" />  
+        				</p:column>  
+  					
+					</p:treeTable>
+				</p:panel>
+			</div>			
+		</h:panelGroup>
+	
+		<h:panelGroup rendered="#{registryDetailBean.entity.registryStatus == 'ACTIVE'}">
+			<div class="panel"> 
+				<p:panel header="#{messages.deregister}: #{registryDetailBean.entity.service.name}">
+					<div>
+						<h:outputText value="#{messages.deregister_desc}" />
+					</div>
+					<div>
+						<h:link outcome="/user/deregister-service.xhtml" value="#{messages.deregister}">
+							<f:param name="regId" value="#{registryDetailBean.entity.id}" />
+						</h:link>
+					</div>
+				</p:panel>
+			</div>
+		</h:panelGroup>
+	
+	</h:form>
+	</ui:define>
+</ui:composition>
+</f:view>
+</body>
+</html>

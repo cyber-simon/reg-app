@@ -1,0 +1,19 @@
+<ui:composition
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:p="http://primefaces.org/ui">
+
+    <c:set var="id" value="#{not empty id ? id : label}" />
+    <c:set var="required" value="#{not empty required and required}" />
+
+    <p:outputLabel for="#{id}" value="#{label}" />
+    <h:panelGroup>
+	    <p:inputText id="#{id}" size="50" value="#{value}" label="#{label}" required="#{required}">
+	        <f:ajax event="blur" execute="@this" render="#{id}-message" />
+	    </p:inputText>
+	    <p:message id="#{id}-message" for="#{id}" />
+	</h:panelGroup>
+	
+</ui:composition>    

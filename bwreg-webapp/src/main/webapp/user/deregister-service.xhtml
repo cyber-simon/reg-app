@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="regId" value="#{deregisterServiceBean.id}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{deregisterServiceBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+
+		<h2><h:outputText value="#{messages.deregister}: #{deregisterServiceBean.service.name}"/></h2>
+	
+		<div class="panel">
+			<p:panel id="blockPanel">
+				<f:facet name="header">	
+					<div style="color: red; font-weight: bold;">
+						<h:outputText value="#{messages.deregister}: #{deregisterServiceBean.service.name}" />
+					</div>
+				</f:facet>
+		
+				<div>
+					<h:outputText value="#{messages.deregister_desc_long}"/>
+				</div>
+			
+				<div style="margin-top: 16px;">
+					<p:commandButton id="save" action="#{deregisterServiceBean.deregisterUser}" 
+						value="#{messages.deregister}" style="color: red;"/>
+				</div>
+			</p:panel>
+			<p:blockUI block="blockPanel" trigger="save">  
+       			<p:graphicImage value="#{resource['/img/ajax-loader.gif']}" alt="#{messages.loading}" />  
+			</p:blockUI>					
+			
+		</div>
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>

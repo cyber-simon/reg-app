@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+	<f:metadata>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{discoveryLoginBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="metadata">
+		<meta http-equiv="refresh" content="600;url=index.xhtml" />	
+	</ui:define>
+
+	<ui:define name="content">
+
+	<h:form id="form" prependId="false">
+		<p:panel header="#{messages.welcome}">
+			<div style="margin-top: 4px;"><h:outputText value="#{messages.welcome_disco}"/></div>
+			<div><p:messages showDetail="true" /></div>
+
+			<h:panelGrid id="baseData" columns="2" style="margin-top: 8px;">
+	
+				<p:outputLabel value="#{messages.federation}:" for="selectFed" />
+		        <p:selectOneMenu id="selectFed" value="#{discoveryLoginBean.selectedFederation}"
+		        	converter="#{federationConverter}" >
+		        	<f:selectItem itemLabel="#{messages.all}" itemValue="#{null}"/>
+	            	<f:selectItems value="#{discoveryLoginBean.federationList}" 
+	            		var="federation" itemLabel="#{federation.name} (id #{federation.id})" itemValue="#{federation}"/>
+	            	<f:ajax execute="@this" render="idpBox" event="change" />
+	            </p:selectOneMenu>
+	
+				<p:outputLabel value="#{messages.search_filter}:" for="filterText" />
+				<p:inputText value="#{discoveryLoginBean.filter}" id="filterText">
+					<f:ajax event="keyup" execute="@this" render="idpBox" />
+				</p:inputText>
+
+				<p:outputLabel value="#{messages.home_org}:" for="idpBox" />
+				<p:selectOneListbox id="idpBox" value="#{discoveryLoginBean.selectedIdp}" scrollHeight="360" style="width:300px;"
+						converter="#{samlIdpMetadataConverter}">
+	            	<f:selectItems value="#{discoveryLoginBean.idpList}" 
+	            		var="idp" itemLabel="#{idp.displayName == null ? idp.orgName : idp.displayName}" itemValue="#{idp}"/>
+					<p:ajax event="dblclick" listener="#{discoveryLoginBean.login}" update=":form" />	            		
+				</p:selectOneListbox>
+				
+			</h:panelGrid>
+	
+			<p:commandButton id="login" action="#{discoveryLoginBean.login}" value="#{messages.proceed}"
+				update=":form" />
+		</p:panel>
+
+	</h:form>
+	
+	</ui:define>
+</ui:composition>
+</body>
+</html>

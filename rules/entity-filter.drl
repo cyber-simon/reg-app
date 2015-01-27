@@ -1,0 +1,18 @@
+package edu.kit.scc.webreg.dools.saml
+
+import org.opensaml.saml2.metadata.EntityDescriptor;
+
+global org.slf4j.Logger logger;
+
+rule "remove all except"
+
+    when
+        $ed : EntityDescriptor( 
+        		(entityID == "https://idp.scc.kit.edu/idp/shibboleth") ||
+        		(entityID == "https://idp1.ufz.de/idp/shibboleth")         		 
+        		)
+    then
+    	logger.info( "remove ed {}", $ed.getEntityID() );
+    	retract( $ed );
+
+end

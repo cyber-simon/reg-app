@@ -1,0 +1,32 @@
+
+
+Datenbankänderungen:
+
+** Application Server stoppen
+
+Evtl. gesetzte Unique Constraints auf group_name und gid_number müssen zurückgenommen werden.
+
+ALTER TABLE group_store ADD DTYPE varchar(31)
+UPDATE group_store SET "DTYPE" = 'HomeOrgGroupEntity'
+ALTER TABLE group_store ALTER COLUMN DTYPE varchar(31) NOT NULL
+
+** Application Server mit neuer Version starten
+
+Alle Events stehen nun in einer neuen Datenbanktabelle: event_table
+D.h. die alten definierten Events sind erstmal weg. 
+
+Man kann die Daten aber migrieren, mit diesen beiden SQL Statements. Sie sind MSSQL spezifisch. Bei anderen
+Datenbanken muss man das [] durch '' oder "" ersetzen.
+
+INSERT INTO event_table (DTYPE, id, created_at, updated_at, [version], eventType, jobClass_id) 
+		SELECT 'UserEventEntity', id, created_at, updated_at, [version], eventType, jobClass_id
+			FROM user_event;
+
+INSERT INTO event_table (DTYPE, id, created_at, updated_at, [version], eventType, jobClass_id, service_id) 
+		SELECT 'ServiceEventEntity', id, created_at, updated_at, [version], eventType, jobClass_id, [service_id]
+			FROM service_event;
+
+Um alle Gruppen zu den Diensten zuzuordnen, auf der "Alle Gruppen" Liste auf "Alle Group Flags dazufügen" klicken.
+Das Ergebnis im Log beobachten. 
+
+Bei GroupEvents GROUP_UPDATE auf den GroupRecon Executor mappen. 

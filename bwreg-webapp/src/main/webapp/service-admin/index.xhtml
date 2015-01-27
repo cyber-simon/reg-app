@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="serviceId" value="#{serviceAdminDetailsBean.serviceId}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{serviceAdminDetailsBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+
+		<h2><h:outputText value="#{messages.service}: #{serviceAdminDetailsBean.serviceEntity.name}"/></h2>
+		
+		<p:tabView id="tabVw">
+			<p:tab id="tab1" title="#{messages.service_desc_short}">
+				<h:outputText id="descShortText" value="#{serviceAdminDetailsBean.shortDescriptionEdit}" />
+				<p:panel header="#{messages.edit}" toggleable="true" collapsed="true">
+					<div>
+						<p:messages id="shortDescriptionMsgField" for="shortDescriptionMsg" showDetail="true" closable="true" />
+						<p:inputTextarea value="#{serviceAdminDetailsBean.shortDescriptionEdit}"
+							rows="20" cols="100" autoResize="false" />
+					</div>
+					<div style="margin-top: 8px;">
+						<p:commandButton action="#{serviceAdminDetailsBean.updateShortDescription()}" value="#{messages.preview}"
+							update=":form:tabVw:descShortText" />
+						<p:commandButton action="#{serviceAdminDetailsBean.saveShortDescription()}" value="#{messages.save}"
+							update=":form:tabVw:descShortText :form:tabVw:shortDescriptionMsgField" />
+					</div>
+				</p:panel>
+			</p:tab>
+			<p:tab id="tab2" title="#{messages.service_desc}">
+				<h:outputText id="descText" value="#{serviceAdminDetailsBean.serviceDescBB}"
+						escape="false" />
+				<p:panel header="#{messages.edit}" toggleable="true" collapsed="true">
+					<div>
+						<p:messages id="descriptionMsgField" for="descriptionMsg" showDetail="true" closable="true" />
+						<p:inputTextarea value="#{serviceAdminDetailsBean.descriptionEdit}"
+							rows="20" cols="100" autoResize="false" />
+					</div>
+					<div style="margin-top: 8px;">
+						<p:commandButton action="#{serviceAdminDetailsBean.updateDescription()}" value="#{messages.preview}"
+							update=":form:tabVw:descText" />
+						<p:commandButton action="#{serviceAdminDetailsBean.saveDescription()}" value="#{messages.save}"
+							update=":form:tabVw:descText :form:tabVw:descriptionMsgField" />
+					</div>
+				</p:panel>
+			</p:tab>
+			<p:tab id="tab3" title="#{messages.policies}">
+			
+		    	<p:dataTable id="policyTable" var="policy" style="min-width: 400px;"
+		    		value="#{serviceAdminDetailsBean.serviceEntity.policies.toArray()}">
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.id}" />
+						</f:facet>
+						<h:outputText value="#{policy.id}" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.name}" />
+						</f:facet>
+						<h:outputText value="#{policy.name}" />
+					</p:column>			    	
+		    	</p:dataTable>	
+			
+			</p:tab>
+		</p:tabView>
+
+	</h:form>
+	</ui:define>
+</ui:composition>
+</f:view>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="serviceId" value="#{approvalListBean.serviceId}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{approvalListBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+		<p:dataTable id="registeredTable" var="registry" 
+				value="#{approvalListBean.list}">
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.id}" />
+				</f:facet>
+				<h:outputText value="#{registry.id}" />
+			</p:column>
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.eppn}" />
+				</f:facet>
+				<h:outputText value="#{registry.user.eppn}" />
+			</p:column>
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.registered_time}" />
+				</f:facet>
+				<h:outputText value="#{registry.agreedTime}" />
+			</p:column>
+		 	<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.status}" />
+				</f:facet>
+				<h:outputText value="#{registry.registryStatus}" />
+			</p:column>
+		 	<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.action}" />
+				</f:facet>
+				<h:link outcome="approve-user.xhtml" value="#{messages.edit}" >
+      				<f:param name="id" value="#{registry.id}"/>
+    			</h:link>
+			</p:column>
+		</p:dataTable>
+
+	</ui:define>
+</ui:composition>
+</f:view>
+</body>
+</html>

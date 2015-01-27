@@ -1,0 +1,202 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+	
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="id" value="#{showUserBean.id}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{showUserBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+
+		<h2><h:outputText value="#{messages.user}: #{showUserBean.entity.eppn}"/></h2>
+
+		<p:messages id="messageBox" showDetail="true" />
+		
+		<div id="panelInline">
+			<p:panel header="#{messages.user_properties}">
+				<p:panelGrid id="baseData" columns="2">
+			
+			        <h:outputText value="#{messages.id}:"/>
+			        <h:outputText value="#{showUserBean.entity.id}"/>
+			
+			        <h:outputText value="#{messages.given_name}:"/>
+			        <h:outputText value="#{showUserBean.entity.givenName}"/>
+						
+			        <h:outputText value="#{messages.sur_name}:"/>
+			        <h:outputText value="#{showUserBean.entity.surName}"/>
+						
+			        <h:outputText value="#{messages.eppn}:"/>
+			        <h:outputText value="#{showUserBean.entity.eppn}"/>
+						
+			        <h:outputText value="#{messages.email}:"/>
+			        <h:outputText value="#{showUserBean.entity.email}"/>
+						
+			        <h:outputText value="#{messages.email_more}:"/>
+			        <h:panelGroup>
+			        	<ul>
+			        		<ui:repeat var="emailAddress" value="#{showUserBean.entity.emailAddresses.toArray()}">
+				        		<li><h:outputText value="#{emailAddress}"/></li>
+				        	</ui:repeat>
+				        </ul>
+			        </h:panelGroup>
+
+			        <h:outputText value="#{messages.uid_number}:"/>
+			        <h:outputText value="#{showUserBean.entity.uidNumber}"/>
+						
+			        <h:outputText value="#{messages.primary_group}:"/>
+			        <h:outputText value="#{showUserBean.entity.primaryGroup.name} (Prefix: #{showUserBean.entity.primaryGroup.prefix}, GID: #{showUserBean.entity.primaryGroup.gidNumber})"/>
+						
+			        <h:outputText value="#{messages.persistent_id}:"/>
+			        <h:outputText value="#{showUserBean.entity.persistentId} (#{showUserBean.entity.persistentSpId}, #{showUserBean.entity.persistentIdpId})"/>
+	
+				</p:panelGrid>
+			</p:panel>
+		</div>
+		<div id="panelInline">
+			<p:panel id="rolePanel" header="#{messages.roles}">
+				<p:pickList var="role" value="#{showUserBean.roleList}" itemLabel="#{role.name}" 
+					itemValue="#{role}" converter="#{roleConverter}"
+					showSourceFilter="true" showTargetFilter="true" filterMatchMode="contains">
+					<p:ajax event="transfer" listener="#{showUserBean.onTransfer}" />
+				</p:pickList>
+			</p:panel>
+		</div>		
+		<div id="panelInline">
+			<p:panel id="attrPanel" header="#{messages.saml_values}">
+				<p:dataTable id="attrData" style="min-width: 500px;" 
+						value="#{showUserBean.entity.attributeStore.keySet().toArray()}" var="key">
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.name}" />
+						</f:facet>
+						<h:outputText value="#{key}" style="font-size: 80%;" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.value}" />
+						</f:facet>
+						<h:outputText value="#{showUserBean.entity.attributeStore.get(key)}" />
+					</p:column>						
+				</p:dataTable>
+				<div style="margin-top: 12px;">
+					<p:commandButton value="#{messages.attr_query}" action="#{showUserBean.updateFromIdp()}" update="@form" />
+					<p:ajaxStatus id="ajaxStatusPanel" style="display: inline-block; margin-left: 8px; vertical-align: baseline;">
+						<f:facet name="start">  
+							<h:graphicImage value="#{resource['/img/ajax-loader.gif']}" alt="#{messages.loading}"/>
+						</f:facet>  
+						<f:facet name="complete">  
+							<h:outputText value="" />
+						</f:facet>  				
+					</p:ajaxStatus>  
+				</div>
+			</p:panel>
+		</div>		
+
+		<div id="panelInline">
+			<p:panel header="#{messages.registered_services}">
+				<p:dataTable id="registeredTable" var="registry" value="#{showUserBean.registryList}"> 
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.id}" />
+						</f:facet>
+						<h:outputText value="#{registry.id}" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.service}" />
+						</f:facet>
+						<h:link outcome="show-registry.xhtml" value="#{registry.service.name}">
+							<f:param name="id" value="#{registry.id}"/>
+						</h:link>
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.registered_time}" />
+						</f:facet>
+						<h:outputText value="#{of:formatDate(registry.agreedTime, 'dd.MM.yyyy HH:mm')}" />
+					</p:column>
+				 	<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.status}" />
+						</f:facet>
+						<h:outputText value="#{registry.registryStatus}" />
+					</p:column>
+				</p:dataTable>
+				<div style="margin-top: 12px;">
+					<p:commandButton value="#{messages.check_registries}" action="#{showUserBean.checkAllRegistries()}" update="@form" />
+					<p:ajaxStatus id="ajaxCARStatusPanel" style="display: inline-block; margin-left: 8px; vertical-align: baseline;">
+						<f:facet name="start">  
+							<h:graphicImage value="#{resource['/img/ajax-loader.gif']}" alt="#{messages.loading}"/>
+						</f:facet>  
+						<f:facet name="complete">  
+							<h:outputText value="" />
+						</f:facet>  				
+					</p:ajaxStatus>  
+				</div>
+			</p:panel>
+		</div>
+
+		<div id="panelInline">
+			<p:panel header="#{messages.more_properties}">
+				<p:dataTable id="storeData" style="min-width: 500px;" 
+						value="#{showUserBean.entity.genericStore.keySet().toArray()}" var="key">
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.name}" />
+						</f:facet>
+						<h:outputText value="#{key}" style="font-size: 80%;" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.value}" />
+						</f:facet>
+						<h:outputText value="#{showUserBean.entity.genericStore.get(key)}" />
+					</p:column>
+				</p:dataTable>
+			</p:panel>
+		</div>
+
+		<div id="panelInline">
+			<p:panel header="#{messages.secondary_groups}">
+				<p:dataTable id="secGroupData" style="min-width: 500px;" 
+						value="#{showUserBean.entity.groups.toArray()}" var="key">
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.name}" />
+						</f:facet>
+						<h:outputText value="#{key.group.class.simpleName}: #{key.group.name} " />
+						<h:outputText value="(#{key.group.prefix})" rendered="#{key.group.class.simpleName == 'HomeOrgGroupEntity'}" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.id}" />
+						</f:facet>
+						<h:outputText value="#{key.group.gidNumber}" />
+					</p:column>
+				</p:dataTable>
+			</p:panel>
+		</div>
+
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>

@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="serviceId" value="#{showServiceDetailBean.id}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{showServiceDetailBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+
+		<div class="panel">
+			<p:panel header="#{messages.service_desc}: #{showServiceDetailBean.serviceEntity.name}">
+				<h:outputText value="#{showServiceDetailBean.serviceDescBB}" escape="false" />
+			</p:panel>
+		</div>
+
+		<div class="panel">
+			<p:panel rendered="#{! authorizationBean.isUserInService(showServiceDetailBean.serviceEntity)}" >
+		          <span class="ui-icon ui-icon-carat-1-e" style="display:inline-block; vertical-align: bottom;" />
+	  	          <h:link outcome="/user/register-service.xhtml" value="#{messages.register}">
+	  	        	<f:param name="serviceId" value="#{showServiceDetailBean.serviceEntity.id}" />
+	  	          </h:link>
+			</p:panel>
+		</div>
+
+	</ui:define>
+</ui:composition>
+</f:view>
+</body>
+</html>

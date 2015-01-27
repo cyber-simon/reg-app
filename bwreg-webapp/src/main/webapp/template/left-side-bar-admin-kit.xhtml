@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:bwf="http://java.sun.com/jsf/composite/bwfacelets">
+<head>
+	<title>Left side bar</title>
+</head>
+<body>
+	<ui:composition>
+
+        <div class="submenu">
+	      <div class="submenu-title">#{messages.global_config}</div>
+	      <div class="submenu-content">
+			  <ul>
+		        <li><span class="ui-icon ui-icon-suitcase" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="/admin/config/index.xhtml" value="#{messages.index}" />
+		    	</li>
+		        <li><span class="ui-icon ui-icon-suitcase" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="/admin/config/rules.xhtml" value="#{messages.access_rule}" />
+		    	</li>
+		        <li><span class="ui-icon ui-icon-suitcase" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="/admin/config/hooks.xhtml" value="#{messages.hooks}" />
+		    	</li>
+	          </ul>
+	      </div>
+		</div>
+
+		<div class="submenu">
+	      <div class="submenu-title">#{messages.admin}</div>
+	      <div class="submenu-content">
+			  <ul>
+		        <li><span class="ui-icon ui-icon-person" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="/admin/user/list-users.xhtml" value="#{messages.users}" />
+		    	</li>
+	            <li><span class="ui-icon ui-icon-locked" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="/admin/role/list-roles.xhtml" value="#{messages.roles}" />
+				</li>
+	            <li><span class="ui-icon ui-icon-suitcase" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="/admin/service/list-services.xhtml" value="#{messages.services}" />
+				</li>
+	            <li><span class="ui-icon ui-icon-mail-closed" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="/admin/service/list-email-templates.xhtml" value="#{messages.email_template}" />
+				</li>
+	            <li><span class="ui-icon ui-icon-play" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="/admin/user/user-events.xhtml" value="#{messages.user_events}" />
+				</li>
+	           <li><span class="ui-icon ui-icon-image" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="/admin/image-gallery.xhtml" value="#{messages.image_gallery}" />
+				</li>
+	           <li><span class="ui-icon ui-icon-signal" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="/admin/stats.xhtml" value="#{messages.statistics}" />
+				</li>
+	          </ul>
+	      </div>
+	    </div>
+
+ 	  <h:panelGroup rendered="#{sessionManager.isUserInRole('ROLE_GroupAdmin') or sessionManager.isUserInRole('ROLE_MasterAdmin')}">
+       <div class="submenu">
+	      <div class="submenu-title">#{messages.groups}</div>
+	      <div class="submenu-content">
+			  <ul>
+		        <li><span class="ui-icon ui-icon-copy" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="/admin/group/list-groups.xhtml" value="#{messages.all_groups}" />
+		    	</li>
+		        <li><span class="ui-icon ui-icon-copy" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="/admin/group/list-local-groups.xhtml" value="#{messages.local_groups}" />
+		    	</li>
+		        <li><span class="ui-icon ui-icon-copy" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="/admin/group/list-homeorg-groups.xhtml" value="#{messages.homeorg_groups}" />
+		    	</li>
+		        <li><span class="ui-icon ui-icon-copy" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="/admin/group/group-events.xhtml" value="#{messages.group_events}" />
+		    	</li>
+	          </ul>
+	      </div>
+	    </div>
+	  </h:panelGroup>
+	
+	  <h:panelGroup rendered="#{sessionManager.isUserInRole('ROLE_SamlAdmin') or sessionManager.isUserInRole('ROLE_MasterAdmin')}">
+        <div class="submenu">
+	      <div class="submenu-title">#{messages.saml_props}</div>
+	      <div class="submenu-content">
+			<div>
+			  <ul>
+		        <li><span class="ui-icon ui-icon-script" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="#{request.contextPath}/admin/saml/list-federations.xhtml" value="#{messages.list_federations}" />
+		    	</li>
+	            <li><span class="ui-icon ui-icon-gear" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="#{request.contextPath}/admin/saml/list-sp-configs.xhtml" value="#{messages.list_sp_configs}" />
+				</li>
+	           </ul>
+	        </div>
+	      </div>
+	    </div>
+	  </h:panelGroup>
+
+	  <h:panelGroup rendered="#{sessionManager.isUserInRole('ROLE_BusinessRuleAdmin') or sessionManager.isUserInRole('ROLE_MasterAdmin')}">
+	    <div class="submenu">
+	      <div class="submenu-title">#{messages.business_rules}</div>
+	      <div class="submenu-content">
+			<div>
+			  <ul>
+		        <li><span class="ui-icon ui-icon-clipboard" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="#{request.contextPath}/admin/business-rule/list-business-rules.xhtml" value="#{messages.list_business_rule}" />
+		    	</li>
+	           </ul>
+	        </div>
+	      </div>
+	    </div>
+	  </h:panelGroup>
+			
+	  <h:panelGroup rendered="#{sessionManager.isUserInRole('ROLE_BulkAdmin') or sessionManager.isUserInRole('ROLE_MasterAdmin')}">
+	    <div class="submenu">
+	      <div class="submenu-title">#{messages.bulk_ops}</div>
+	      <div class="submenu-content">
+			<div>
+			  <ul>
+		        <li><span class="ui-icon ui-icon-script" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="#{request.contextPath}/admin/bulk/bulk-import.xhtml" value="#{messages.bulk_import}" />
+		    	</li>
+		        <li><span class="ui-icon ui-icon-script" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="#{request.contextPath}/admin/bulk/bulk-register.xhtml" value="#{messages.bulk_register}" />
+		    	</li>
+	           </ul>
+	        </div>
+	      </div>
+	    </div>
+	  </h:panelGroup>
+			
+	  <h:panelGroup rendered="#{sessionManager.isUserInRole('ROLE_TimerAdmin') or sessionManager.isUserInRole('ROLE_MasterAdmin')}">
+	    <div class="submenu">
+	      <div class="submenu-title">#{messages.scheduler_admin}</div> 
+	      <div class="submenu-content">
+			<div>
+			  <ul>
+		        <li><span class="ui-icon ui-icon-clock" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="#{request.contextPath}/admin/timer/list-schedules.xhtml" value="#{messages.list_schedules}" />
+		    	</li>
+		        <li><span class="ui-icon ui-icon-document-b" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="#{request.contextPath}/admin/timer/list-job-classes.xhtml" value="#{messages.list_job_classes}" />
+		    	</li>
+		        <li><span class="ui-icon ui-icon-help" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="#{request.contextPath}/admin/timer/scheduler-status.xhtml" value="#{messages.scheduler_status}" />
+		    	</li>
+	           </ul>
+	        </div>
+	      </div>
+	    </div>
+	  </h:panelGroup>
+
+	  <h:panelGroup rendered="#{sessionManager.isUserInRole('ROLE_AuditAdmin') or sessionManager.isUserInRole('ROLE_MasterAdmin')}">
+	    <div class="submenu">
+	      <div class="submenu-title">#{messages.audit_admin}</div>
+	      <div class="submenu-content">
+			<div>
+			  <ul>
+		        <li><span class="ui-icon ui-icon-script" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="#{request.contextPath}/admin/audit/list-failed-audits.xhtml" value="#{messages.failed_audits}" />
+		    	</li>
+		        <li><span class="ui-icon ui-icon-script" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="#{request.contextPath}/admin/audit/list-audits.xhtml" value="#{messages.list_audits}" />
+		    	</li>
+	           </ul>
+	        </div>
+	      </div>
+	    </div>
+	  </h:panelGroup>
+			
+ 	</ui:composition>
+</body>
+</html>
