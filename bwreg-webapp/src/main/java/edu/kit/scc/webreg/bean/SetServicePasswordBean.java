@@ -12,10 +12,8 @@ package edu.kit.scc.webreg.bean;
 
 import java.io.Serializable;
 
-import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
-import javax.faces.context.FacesContext;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
@@ -89,7 +87,7 @@ public class SetServicePasswordBean implements Serializable {
 	public String save() {
 		if (! (RegistryStatus.ACTIVE.equals(registryEntity.getRegistryStatus()) || 
 				RegistryStatus.LOST_ACCESS.equals(registryEntity.getRegistryStatus()))) {
-			FacesContext.getCurrentInstance().addMessage("pw_error", new FacesMessage(FacesMessage.SEVERITY_FATAL, "Fehler:", "Servicepasswort kann für diesen Dienst nicht gesetzt werden"));			
+			messageGenerator.addResolvedErrorMessage("pw_error", "error", "service_password_cannot_be_set", true);
 			return null;
 		}
 		
@@ -110,13 +108,13 @@ public class SetServicePasswordBean implements Serializable {
 				registerUserService.setPassword(userEntity, serviceEntity, registryEntity, password1, "user-self");
 				password1 = null;
 				password2 = null;
-				FacesContext.getCurrentInstance().addMessage("pw_error", new FacesMessage(FacesMessage.SEVERITY_INFO, "Passwort geändert:", "Das Passwort wurde bei dem Dienst geändert"));
+				messageGenerator.addResolvedInfoMessage("pw_error", "service_password_changed", "service_password_changed_detail", true);
 			} catch (RegisterException e) {
-				FacesContext.getCurrentInstance().addMessage("pw_error", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Konnte das Passwort nicht setzen:", e.getMessage()));
+				messageGenerator.addResolvedErrorMessage("pw_error", "service_password_cannot_be_set", e.getMessage(), false);
 			}
 		}
 		else
-			FacesContext.getCurrentInstance().addMessage("pw_error", new FacesMessage(FacesMessage.SEVERITY_FATAL, "Fehler:", "Servicepasswort kann für diesen Dienst nicht gesetzt werden"));
+			messageGenerator.addResolvedErrorMessage("pw_error", "error", "service_password_cannot_be_set", true);
 
 		return null;
 	}
@@ -124,7 +122,7 @@ public class SetServicePasswordBean implements Serializable {
 	public String deleteServicePassword() {
 		if (! (RegistryStatus.ACTIVE.equals(registryEntity.getRegistryStatus()) || 
 				RegistryStatus.LOST_ACCESS.equals(registryEntity.getRegistryStatus()))) {
-			FacesContext.getCurrentInstance().addMessage("pw_error", new FacesMessage(FacesMessage.SEVERITY_FATAL, "Fehler:", "Servicepasswort kann für diesen Dienst nicht gelöscht werden"));			
+			messageGenerator.addResolvedErrorMessage("pw_error", "error", "service_password_cannot_be_deleted", true);
 			return null;
 		}
 
@@ -132,12 +130,13 @@ public class SetServicePasswordBean implements Serializable {
 		if (registerUserWorkflow instanceof SetPasswordCapable) {
 			try {
 				registerUserService.deletePassword(userEntity, serviceEntity, registryEntity, "user-self");
+				messageGenerator.addResolvedInfoMessage("pw_error", "service_password_deleted", "service_password_deleted_detail", true);
 			} catch (RegisterException e) {
-				FacesContext.getCurrentInstance().addMessage("pw_error", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Konnte das Passwort nicht löschen:", e.getMessage()));
+				messageGenerator.addResolvedErrorMessage("pw_error", "service_password_cannot_be_deleted", e.getMessage(), false);
 			}
 		}
 		else
-			FacesContext.getCurrentInstance().addMessage("pw_error", new FacesMessage(FacesMessage.SEVERITY_FATAL, "Fehler:", "Servicepasswort kann für diesen Dienst nicht geslöscht werden"));
+			messageGenerator.addResolvedErrorMessage("pw_error", "error", "service_password_cannot_be_set", true);
 		
 		return null;
 	}
