@@ -17,6 +17,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.PostLoad;
 import javax.persistence.Table;
 
 @Entity(name = "FederationEntity")
@@ -43,9 +44,35 @@ public class FederationEntity extends AbstractBaseEntity {
 	@Column(name = "polled_at")
 	private Date polledAt;
 	
+	@Column(name = "fetch_idps")
+	private Boolean fetchIdps;
+
+	@Column(name = "fetch_sps")
+	private Boolean fetchSps;
+
+	@Column(name = "fetch_aas")
+	private Boolean fetchAAs;
+	
 	@ManyToMany(targetEntity = SamlIdpMetadataEntity.class, mappedBy="federations")
 	private Set<SamlIdpMetadataEntity> idps;
 
+	@ManyToMany(targetEntity = SamlSpMetadataEntity.class, mappedBy="federations")
+	private Set<SamlSpMetadataEntity> sps;
+
+	@ManyToMany(targetEntity = SamlAAMetadataEntity.class, mappedBy="federations")
+	private Set<SamlAAMetadataEntity> aas;
+
+	@PostLoad
+	public void postLoad() {
+		// Populate standard values if null, which is the case for updated webreg
+		if (fetchIdps == null)
+			fetchIdps = Boolean.TRUE;
+		if (fetchSps == null)
+			fetchSps = Boolean.FALSE;
+		if (fetchAAs == null)
+			fetchAAs = Boolean.FALSE;
+	}
+	
 	public String getEntityId() {
 		return entityId;
 	}
