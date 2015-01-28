@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
+import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
@@ -62,16 +63,16 @@ public class RegisterUserBean implements Serializable {
 	
 	private UserEntity entity;
 	private SamlIdpMetadataEntity idpEntity;
-	private SamlSpMetadataEntity spEntity;
+	private SamlSpConfigurationEntity spConfigEntity;
 	
 	private Boolean errorState = false;
 	
     public void preRenderView(ComponentSystemEvent ev) {
     	idpEntity = idpService.findById(sessionManager.getIdpId());
-    	spEntity = spService.findById(sessionManager.getSpId());
+    	spConfigEntity = spService.findById(sessionManager.getSpId());
     	
     	try {
-        	entity = userCreateService.preCreateUser(idpEntity, spEntity, sessionManager.getPersistentId(),
+        	entity = userCreateService.preCreateUser(idpEntity, spConfigEntity, sessionManager.getPersistentId(),
         			sessionManager.getLocale(), sessionManager.getAttributeMap());
         	
 		} catch (RegisterException e) {

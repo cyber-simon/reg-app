@@ -10,28 +10,36 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.entity;
 
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
-@Entity(name = "SamlSpMetadataEntity")
-@Table(name = "spmetadata")
-public class SamlSpMetadataEntity extends SamlMetadataEntity {
+@Entity(name = "SamlAAMetadataEntity")
+@Table(name = "aametadata")
+public class SamlAAMetadataEntity extends SamlMetadataEntity {
 
 	private static final long serialVersionUID = 1L;
 
 	@ManyToMany(targetEntity = FederationEntity.class,  
 			cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-	@JoinTable(name = "spmetadata_federation",
-			joinColumns = @JoinColumn(name = "spmetadata_id"),
+	@JoinTable(name = "aametadata_federation",
+			joinColumns = @JoinColumn(name = "aametadata_id"),
 			inverseJoinColumns = @JoinColumn(name = "federation_id"))			
 	private Set<FederationEntity> federations;
-
+	
+	@ElementCollection
+	@JoinTable(name = "aametadata_entity_categories")
+	@Column(name = "value_data", length = 2048)
+	private List<String> entityCategoryList;
+	
 	public Set<FederationEntity> getFederations() {
 		return federations;
 	}
@@ -39,5 +47,12 @@ public class SamlSpMetadataEntity extends SamlMetadataEntity {
 	public void setFederations(Set<FederationEntity> federations) {
 		this.federations = federations;
 	}
-	
+
+	public List<String> getEntityCategoryList() {
+		return entityCategoryList;
+	}
+
+	public void setEntityCategoryList(List<String> entityCategoryList) {
+		this.entityCategoryList = entityCategoryList;
+	}
 }

@@ -29,7 +29,7 @@ import edu.kit.scc.webreg.dao.AuditEntryDao;
 import edu.kit.scc.webreg.entity.AuditStatus;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
-import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
+import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserRoleEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
@@ -77,7 +77,7 @@ public class UserCreateServiceImpl implements UserCreateService {
 	private ApplicationConfig appConfig;
 	
 	@Override
-	public UserEntity preCreateUser(SamlIdpMetadataEntity idpEntity, SamlSpMetadataEntity spEntity, String persistentId,
+	public UserEntity preCreateUser(SamlIdpMetadataEntity idpEntity, SamlSpConfigurationEntity spConfigEntity, String persistentId,
 			String locale, Map<String, List<Object>> attributeMap)
 			throws RegisterException {
 		
@@ -86,7 +86,7 @@ public class UserCreateServiceImpl implements UserCreateService {
 		UserEntity entity = userService.createNew();
 		entity.setIdp(idpEntity);
     	entity.setPersistentIdpId(idpEntity.getEntityId());
-    	entity.setPersistentSpId(spEntity.getEntityId());
+    	entity.setPersistentSpId(spConfigEntity.getEntityId());
     	entity.setPersistentId(persistentId);
     	entity.setRoles(new HashSet<UserRoleEntity>());
     	entity.setAttributeStore(new HashMap<String, String>());

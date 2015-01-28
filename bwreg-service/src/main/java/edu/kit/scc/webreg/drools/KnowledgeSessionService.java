@@ -19,7 +19,7 @@ import org.opensaml.saml2.metadata.EntityDescriptor;
 
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
-import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
+import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.MisconfiguredServiceException;
@@ -50,7 +50,7 @@ public interface KnowledgeSessionService {
 
 	List<Object> checkRule(String unitId, UserEntity user,
 			Map<String, List<Object>> attributeMap, Assertion assertion,
-			SamlIdpMetadataEntity idp, EntityDescriptor idpEntityDescriptor, SamlSpMetadataEntity sp)
+			SamlIdpMetadataEntity idp, EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity sp)
 			throws MisconfiguredServiceException;
 
 }

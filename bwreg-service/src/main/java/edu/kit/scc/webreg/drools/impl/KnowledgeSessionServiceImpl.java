@@ -35,7 +35,6 @@ import edu.kit.scc.webreg.dao.AuditEntryDao;
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
 import edu.kit.scc.webreg.dao.UserDao;
-import edu.kit.scc.webreg.drools.BpmProcessService;
 import edu.kit.scc.webreg.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.drools.OverrideAccess;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;
@@ -45,7 +44,7 @@ import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
-import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
+import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
@@ -108,7 +107,7 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 
 	@Override
 	public List<Object> checkRule(String unitId, UserEntity user, Map<String, List<Object>> attributeMap,
-				Assertion assertion, SamlIdpMetadataEntity idp, EntityDescriptor idpEntityDescriptor, SamlSpMetadataEntity sp) 
+				Assertion assertion, SamlIdpMetadataEntity idp, EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity sp) 
 			throws MisconfiguredServiceException {
 		
 		KieSession ksession = getStatefulSession(unitId);

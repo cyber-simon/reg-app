@@ -10,13 +10,24 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.entity;
 
+import java.util.List;
+import java.util.Map;
+
+import javax.persistence.Basic;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.JoinTable;
+import javax.persistence.Lob;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.Type;
 
 @Entity(name = "SamlMetadataEntity")
 @Table(name = "samlmetadata")
@@ -30,6 +41,30 @@ public class SamlMetadataEntity extends AbstractBaseEntity {
 	
 	@Enumerated(EnumType.STRING)
 	private SamlMetadataEntityStatus status;
+
+	@Column(name = "org_name", length = 512)
+	private String orgName;
+	
+	@Column(name = "display_name", length = 512)
+	private String displayName;
+	
+	@Column(name = "description", length = 1024)
+	private String description;
+	
+	@Column(name = "information_url", length = 1024)
+	private String informationUrl;
+	
+	@Column(name = "entity_desc")
+	@Basic(fetch = FetchType.LAZY)
+	@Lob
+	@Type(type = "org.hibernate.type.TextType")	
+	private String entityDescriptor;
+	
+	@ElementCollection
+	@JoinTable(name = "samlmetadata_generic_store")
+    @MapKeyColumn(name = "key_data", length = 128)
+    @Column(name = "value_data", length = 2048)
+    private Map<String, String> genericStore; 
 	
 	public String getEntityId() {
 		return entityId;
@@ -39,12 +74,60 @@ public class SamlMetadataEntity extends AbstractBaseEntity {
 		this.entityId = entityId;
 	}
 
+	public String getOrgName() {
+		return orgName;
+	}
+
+	public void setOrgName(String orgName) {
+		this.orgName = orgName;
+	}
+
+	public String getEntityDescriptor() {
+		return entityDescriptor;
+	}
+
+	public void setEntityDescriptor(String entityDescriptor) {
+		this.entityDescriptor = entityDescriptor;
+	}
+
 	public SamlMetadataEntityStatus getStatus() {
 		return status;
 	}
 
 	public void setStatus(SamlMetadataEntityStatus status) {
 		this.status = status;
+	}
+
+	public Map<String, String> getGenericStore() {
+		return genericStore;
+	}
+
+	public void setGenericStore(Map<String, String> genericStore) {
+		this.genericStore = genericStore;
+	}
+	
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getInformationUrl() {
+		return informationUrl;
+	}
+
+	public void setInformationUrl(String informationUrl) {
+		this.informationUrl = informationUrl;
 	}
 
 	@Override

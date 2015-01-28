@@ -16,6 +16,8 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Lob;
 import javax.persistence.Table;
@@ -24,10 +26,16 @@ import org.hibernate.annotations.Type;
 
 @Entity
 @Table(name = "spconfig")
-public class SamlSpConfigurationEntity extends SamlSpMetadataEntity {
+public class SamlSpConfigurationEntity extends AbstractBaseEntity {
 
 	private static final long serialVersionUID = 1L;
 
+	@Column(name = "entity_id", length = 2048)
+	private String entityId;
+	
+	@Enumerated(EnumType.STRING)
+	private SamlMetadataEntityStatus status;
+	
 	@Column(name = "private_key")
 	@Lob
 	@Type(type = "org.hibernate.type.TextType")		
@@ -85,5 +93,13 @@ public class SamlSpConfigurationEntity extends SamlSpMetadataEntity {
 
 	public void setEcp(String ecp) {
 		this.ecp = ecp;
+	}
+
+	public String getEntityId() {
+		return entityId;
+	}
+
+	public void setEntityId(String entityId) {
+		this.entityId = entityId;
 	}
 }
