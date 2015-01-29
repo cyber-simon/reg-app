@@ -24,6 +24,7 @@ import org.opensaml.saml2.metadata.EntitiesDescriptor;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.slf4j.Logger;
 
+import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.FederationDao;
 import edu.kit.scc.webreg.drools.KnowledgeSessionService;
@@ -69,13 +70,32 @@ public class FederationServiceImpl extends BaseServiceImpl<FederationEntity, Lon
 		logger.info("Starting updateFederation for federation {}", entity.getName());
 		
 		EntitiesDescriptor entities = metadataHelper.fetchMetadata(entity.getFederationMetadataUrl());
-		List<EntityDescriptor> entityList = metadataHelper.convertEntitiesDescriptor(entities);
+		List<EntityDescriptor> tempEntityList = metadataHelper.convertEntitiesDescriptor(entities);
+		logger.debug("Got entity List size {}", tempEntityList.size());
+
+		List<EntityDescriptor> entityList = new ArrayList<EntityDescriptor>();
 		
-		logger.debug("Got entity List size {}", entityList.size());
-		entityList = metadataHelper.filterSP(entityList);
-		if ((entity.getEntityCategoryFilter() != null) && (! entity.getEntityCategoryFilter().equals("")))
+		if (entity.getFetchIdps()) {
+			logger.debug("Getting IDPs");
+			entityList.addAll(metadataHelper.filterIdps(tempEntityList));
+		}
+		
+		if (entity.getFetchSps()) {
+			logger.debug("Getting SPs");
+			entityList.addAll(metadataHelper.filterSps(tempEntityList));
+		}
+		
+		if (entity.getFetchAAs()) {
+			logger.debug("Getting AAs");
+			entityList.addAll(metadataHelper.filterAAs(tempEntityList));
+		}
+		
+		if ((entity.getEntityCategoryFilter() != null) && (! entity.getEntityCategoryFilter().equals(""))) {
+			logger.debug("Filtering entity category: {}", entity.getEntityCategoryFilter());
 			entityList = metadataHelper.filterEntityCategory(entityList, entity.getEntityCategoryFilter());
-		logger.debug("Got IDP entity List size {}", entityList.size());
+		}
+		
+		logger.debug("Got Entity List size {}", entityList.size());
 		
 		if (entity.getEntityFilterRulePackage() != null) {
 			long a = System.currentTimeMillis();
@@ -106,11 +126,11 @@ public class FederationServiceImpl extends BaseServiceImpl<FederationEntity, Lon
 		}
 		
 		entity.setEntityId(entities.getName());
-		updateEntities(entity, entityList);
+		updateIdpEntities(entity, entityList);
 		logger.debug("Updated SAML Entities for Federation {}", entity.getName());
 	}
 
-	private void updateEntities(FederationEntity entity, List<EntityDescriptor> entityList) {
+	private void updateIdpEntities(FederationEntity entity, List<EntityDescriptor> entityList) {
 		
 		entity = dao.findById(entity.getId());
 		

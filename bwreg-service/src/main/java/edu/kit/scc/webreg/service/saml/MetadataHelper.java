@@ -40,6 +40,7 @@ import org.opensaml.saml2.metadata.EntitiesDescriptor;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml2.metadata.IDPSSODescriptor;
 import org.opensaml.saml2.metadata.OrganizationDisplayName;
+import org.opensaml.saml2.metadata.SPSSODescriptor;
 import org.opensaml.saml2.metadata.SingleSignOnService;
 import org.opensaml.samlext.saml2mdattr.EntityAttributes;
 import org.opensaml.samlext.saml2mdui.UIInfo;
@@ -124,12 +125,37 @@ public class MetadataHelper implements Serializable {
 		return entityList;
 	}
 	
-	public List<EntityDescriptor> filterSP(List<EntityDescriptor> entities) {
+	public List<EntityDescriptor> filterIdps(List<EntityDescriptor> entities) {
 		List<EntityDescriptor> returnList = new ArrayList<EntityDescriptor>();
 		
 		for (EntityDescriptor entity : entities) {
 			IDPSSODescriptor idpsso = entity.getIDPSSODescriptor(SAMLConstants.SAML20P_NS);
 			if (idpsso != null)
+				returnList.add(entity);
+		}
+		
+		return returnList;
+	}
+	
+	public List<EntityDescriptor> filterSps(List<EntityDescriptor> entities) {
+		List<EntityDescriptor> returnList = new ArrayList<EntityDescriptor>();
+		
+		for (EntityDescriptor entity : entities) {
+			SPSSODescriptor spsso = entity.getSPSSODescriptor(SAMLConstants.SAML20P_NS);
+			if (spsso != null)
+				returnList.add(entity);
+		}
+		
+		return returnList;
+	}
+	
+	public List<EntityDescriptor> filterAAs(List<EntityDescriptor> entities) {
+		List<EntityDescriptor> returnList = new ArrayList<EntityDescriptor>();
+		
+		for (EntityDescriptor entity : entities) {
+			IDPSSODescriptor idpsso = entity.getIDPSSODescriptor(SAMLConstants.SAML20P_NS);
+			AttributeAuthorityDescriptor aadesc = entity.getAttributeAuthorityDescriptor(SAMLConstants.SAML20P_NS);
+			if (idpsso == null && aadesc != null)
 				returnList.add(entity);
 		}
 		

@@ -129,4 +129,44 @@ public class FederationEntity extends AbstractBaseEntity {
 			BusinessRulePackageEntity entityFilterRulePackage) {
 		this.entityFilterRulePackage = entityFilterRulePackage;
 	}
+
+	public Boolean getFetchIdps() {
+		return fetchIdps;
+	}
+
+	public void setFetchIdps(Boolean fetchIdps) {
+		this.fetchIdps = fetchIdps;
+	}
+
+	public Boolean getFetchSps() {
+		return fetchSps;
+	}
+
+	public void setFetchSps(Boolean fetchSps) {
+		this.fetchSps = fetchSps;
+	}
+
+	public Boolean getFetchAAs() {
+		return fetchAAs;
+	}
+
+	public void setFetchAAs(Boolean fetchAAs) {
+		this.fetchAAs = fetchAAs;
+	}
+
+	public Set<SamlSpMetadataEntity> getSps() {
+		return sps;
+	}
+
+	public void setSps(Set<SamlSpMetadataEntity> sps) {
+		this.sps = sps;
+	}
+
+	public Set<SamlAAMetadataEntity> getAas() {
+		return aas;
+	}
+
+	public void setAas(Set<SamlAAMetadataEntity> aas) {
+		this.aas = aas;
+	}
 }
