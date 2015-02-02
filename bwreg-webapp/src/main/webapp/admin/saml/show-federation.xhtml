@@ -60,7 +60,7 @@
 		</div>
 		
 		
-   		<div id="panelInline">
+   		<div id="panelInline" style="margin-top: 8px;">
 			<p:panel header="#{messages.idp_entities}">
 		    	<p:dataTable id="idpTable" var="idp" value="#{showFederationBean.idpList}">
 					<p:column>
@@ -87,6 +87,60 @@
 			</p:panel>
 		</div>
 		
+   		<div id="panelInline" style="margin-top: 8px;">
+			<p:panel header="#{messages.sp_entities}">
+		    	<p:dataTable id="spTable" var="idp" value="#{showFederationBean.spList}">
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.id}" />
+						</f:facet>
+						<h:outputText value="#{idp.id}" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.entity_id}" />
+						</f:facet>
+						<h:link outcome="show-idp.xhtml" value="#{idp.entityId}">
+							<f:param name="id" value="#{idp.id}"/>
+						</h:link>
+					</p:column>			    	
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.org_name}" />
+						</f:facet>
+						<h:outputText value="#{idp.orgName}" />
+					</p:column>			    	
+		    	</p:dataTable>	
+			</p:panel>
+		</div>
+		
+   		<div id="panelInline" style="margin-top: 8px;">
+			<p:panel header="#{messages.aa_entities}">
+		    	<p:dataTable id="aaTable" var="idp" value="#{showFederationBean.aaList}">
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.id}" />
+						</f:facet>
+						<h:outputText value="#{idp.id}" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.entity_id}" />
+						</f:facet>
+						<h:link outcome="show-idp.xhtml" value="#{idp.entityId}">
+							<f:param name="id" value="#{idp.id}"/>
+						</h:link>
+					</p:column>			    	
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.org_name}" />
+						</f:facet>
+						<h:outputText value="#{idp.orgName}" />
+					</p:column>			    	
+		    	</p:dataTable>	
+			</p:panel>
+		</div>
+				
 	</h:form>
 
 	</ui:define>
