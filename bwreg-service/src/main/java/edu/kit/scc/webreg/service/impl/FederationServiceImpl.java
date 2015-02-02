@@ -24,18 +24,21 @@ import org.opensaml.saml2.metadata.EntitiesDescriptor;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.slf4j.Logger;
 
-import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.FederationDao;
+import edu.kit.scc.webreg.dao.SamlAAMetadataDao;
+import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
+import edu.kit.scc.webreg.dao.SamlIdpScopeDao;
+import edu.kit.scc.webreg.dao.SamlSpMetadataDao;
 import edu.kit.scc.webreg.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.FederationEntity;
+import edu.kit.scc.webreg.entity.SamlAAMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlIdpScopeEntity;
 import edu.kit.scc.webreg.entity.SamlMetadataEntityStatus;
+import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 import edu.kit.scc.webreg.service.FederationService;
-import edu.kit.scc.webreg.service.SamlIdpMetadataService;
-import edu.kit.scc.webreg.service.SamlIdpScopeService;
 import edu.kit.scc.webreg.service.saml.MetadataHelper;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
 
@@ -51,10 +54,16 @@ public class FederationServiceImpl extends BaseServiceImpl<FederationEntity, Lon
 	private FederationDao dao;
 	
 	@Inject
-	private SamlIdpMetadataService idpService;
+	private SamlIdpMetadataDao idpDao;
 	
 	@Inject
-	private SamlIdpScopeService idpScopeService;
+	private SamlIdpScopeDao idpScopeDao;
+
+	@Inject
+	private SamlSpMetadataDao spDao;
+	
+	@Inject
+	private SamlAAMetadataDao aaDao;
 	
 	@Inject
 	private KnowledgeSessionService knowledgeSessionService;
@@ -70,33 +79,16 @@ public class FederationServiceImpl extends BaseServiceImpl<FederationEntity, Lon
 		logger.info("Starting updateFederation for federation {}", entity.getName());
 		
 		EntitiesDescriptor entities = metadataHelper.fetchMetadata(entity.getFederationMetadataUrl());
-		List<EntityDescriptor> tempEntityList = metadataHelper.convertEntitiesDescriptor(entities);
-		logger.debug("Got entity List size {}", tempEntityList.size());
+		List<EntityDescriptor> entityList = metadataHelper.convertEntitiesDescriptor(entities);
+		logger.debug("Got entity List size {}", entityList.size());
 
-		List<EntityDescriptor> entityList = new ArrayList<EntityDescriptor>();
-		
-		if (entity.getFetchIdps()) {
-			logger.debug("Getting IDPs");
-			entityList.addAll(metadataHelper.filterIdps(tempEntityList));
-		}
-		
-		if (entity.getFetchSps()) {
-			logger.debug("Getting SPs");
-			entityList.addAll(metadataHelper.filterSps(tempEntityList));
-		}
-		
-		if (entity.getFetchAAs()) {
-			logger.debug("Getting AAs");
-			entityList.addAll(metadataHelper.filterAAs(tempEntityList));
-		}
-		
 		if ((entity.getEntityCategoryFilter() != null) && (! entity.getEntityCategoryFilter().equals(""))) {
 			logger.debug("Filtering entity category: {}", entity.getEntityCategoryFilter());
 			entityList = metadataHelper.filterEntityCategory(entityList, entity.getEntityCategoryFilter());
 		}
-		
+
 		logger.debug("Got Entity List size {}", entityList.size());
-		
+
 		if (entity.getEntityFilterRulePackage() != null) {
 			long a = System.currentTimeMillis();
 			
@@ -125,24 +117,187 @@ public class FederationServiceImpl extends BaseServiceImpl<FederationEntity, Lon
 			logger.debug("Got IDP entity List size {}", entityList.size());
 		}
 		
+		List<EntityDescriptor> idpList = new ArrayList<EntityDescriptor>();
+		List<EntityDescriptor> spList = new ArrayList<EntityDescriptor>();
+		List<EntityDescriptor> aaList = new ArrayList<EntityDescriptor>();
+
+		if (entity.getFetchIdps()) {
+			logger.debug("Getting IDPs");
+			idpList.addAll(metadataHelper.filterIdps(entityList));
+		}
+		
+		if (entity.getFetchSps()) {
+			logger.debug("Getting SPs");
+			spList.addAll(metadataHelper.filterSps(entityList));
+		}
+		
+		if (entity.getFetchAAs()) {
+			logger.debug("Getting AAs");
+			aaList.addAll(metadataHelper.filterAAs(entityList));
+		}
+		
 		entity.setEntityId(entities.getName());
-		updateIdpEntities(entity, entityList);
+		entity = dao.findById(entity.getId());
+
+		updateIdpEntities(entity, idpList);
+		updateSpEntities(entity, spList);
+		updateAAEntities(entity, aaList);
+		
+		entity.setPolledAt(new Date());
+		dao.persist(entity);
 		logger.debug("Updated SAML Entities for Federation {}", entity.getName());
 	}
 
+	private void updateAAEntities(FederationEntity entity, List<EntityDescriptor> entityList) {
+		
+		List<SamlAAMetadataEntity> oldList = aaDao.findAllByFederation(entity);
+		List<SamlAAMetadataEntity> updatedList = new ArrayList<SamlAAMetadataEntity>();
+
+		for (EntityDescriptor ed : entityList) {
+			SamlAAMetadataEntity aa = aaDao.findByEntityId(ed.getEntityID());
+
+			Boolean newSp = (aa == null ? true : false);
+			if (newSp) {
+				aa = aaDao.createNew();
+				aa.setFederations(new HashSet<FederationEntity>());
+				logger.info("Creating new aa {}", ed.getEntityID());
+			}
+
+			aa.setEntityId(ed.getEntityID());
+			aa.setEntityDescriptor(samlHelper.marshal(ed));
+			aa.setOrgName(metadataHelper.getOrganisation(ed));
+			aa.getFederations().add(entity);
+			aa.setStatus(SamlMetadataEntityStatus.ACTIVE);
+			
+//			metadataHelper.fillDisplayData(ed, sp);
+//			sp.setEntityCategoryList(metadataHelper.getEntityCategoryList(ed));
+			
+			aa = aaDao.persist(aa);
+
+//			Set<SamlIdpScopeEntity> scopes = metadataHelper.getScopes(ed, idp);
+//
+//			List<SamlIdpScopeEntity> oldScopes;
+//			if (newIdp) 
+//				oldScopes = new ArrayList<SamlIdpScopeEntity>();
+//			else
+//				oldScopes = idpScopeService.findByIdp(idp);
+//			
+//			Set<SamlIdpScopeEntity> deleteScopes = new HashSet<SamlIdpScopeEntity>(oldScopes);
+//			deleteScopes.removeAll(scopes);
+//			for (SamlIdpScopeEntity scope : deleteScopes) {
+//				logger.info("Deleting idp scope {}", scope.getScope());
+//				idpScopeService.delete(scope);
+//			}
+//			
+//			scopes.removeAll(oldScopes);
+//			for (SamlIdpScopeEntity scope : scopes) {
+//				logger.info("Creating new idp scope {}", scope.getScope());
+//				idpScopeService.save(scope);
+//			}
+			
+			updatedList.add(aa);
+		}
+		
+		oldList.removeAll(updatedList);
+
+		for (SamlAAMetadataEntity aa : oldList) {
+			aa.getFederations().remove(entity);
+			entity.getIdps().remove(aa);
+			
+			if (aa.getFederations().size() == 0) {
+				//SP is orphaned, set Status to DELETED
+				aa.setStatus(SamlMetadataEntityStatus.DELETED);
+			}
+			else {
+				aa.setStatus(SamlMetadataEntityStatus.ACTIVE);
+			}
+			
+			aa = aaDao.persist(aa);
+			logger.info("remove sp {} from federation {}", aa.getEntityId(), entity.getEntityId());
+		}				
+	}
+	
+	
+	private void updateSpEntities(FederationEntity entity, List<EntityDescriptor> entityList) {
+		
+		List<SamlSpMetadataEntity> oldList = spDao.findAllByFederation(entity);
+		List<SamlSpMetadataEntity> updatedList = new ArrayList<SamlSpMetadataEntity>();
+
+		for (EntityDescriptor ed : entityList) {
+			SamlSpMetadataEntity sp = spDao.findByEntityId(ed.getEntityID());
+
+			Boolean newSp = (sp == null ? true : false);
+			if (newSp) {
+				sp = spDao.createNew();
+				sp.setFederations(new HashSet<FederationEntity>());
+				logger.info("Creating new sp {}", ed.getEntityID());
+			}
+
+			sp.setEntityId(ed.getEntityID());
+			sp.setEntityDescriptor(samlHelper.marshal(ed));
+			sp.setOrgName(metadataHelper.getOrganisation(ed));
+			sp.getFederations().add(entity);
+			sp.setStatus(SamlMetadataEntityStatus.ACTIVE);
+			
+//			metadataHelper.fillDisplayData(ed, sp);
+//			sp.setEntityCategoryList(metadataHelper.getEntityCategoryList(ed));
+			
+			sp = spDao.persist(sp);
+
+//			Set<SamlIdpScopeEntity> scopes = metadataHelper.getScopes(ed, idp);
+//
+//			List<SamlIdpScopeEntity> oldScopes;
+//			if (newIdp) 
+//				oldScopes = new ArrayList<SamlIdpScopeEntity>();
+//			else
+//				oldScopes = idpScopeService.findByIdp(idp);
+//			
+//			Set<SamlIdpScopeEntity> deleteScopes = new HashSet<SamlIdpScopeEntity>(oldScopes);
+//			deleteScopes.removeAll(scopes);
+//			for (SamlIdpScopeEntity scope : deleteScopes) {
+//				logger.info("Deleting idp scope {}", scope.getScope());
+//				idpScopeService.delete(scope);
+//			}
+//			
+//			scopes.removeAll(oldScopes);
+//			for (SamlIdpScopeEntity scope : scopes) {
+//				logger.info("Creating new idp scope {}", scope.getScope());
+//				idpScopeService.save(scope);
+//			}
+			
+			updatedList.add(sp);
+		}
+		
+		oldList.removeAll(updatedList);
+
+		for (SamlSpMetadataEntity sp : oldList) {
+			sp.getFederations().remove(entity);
+			entity.getIdps().remove(sp);
+			
+			if (sp.getFederations().size() == 0) {
+				//SP is orphaned, set Status to DELETED
+				sp.setStatus(SamlMetadataEntityStatus.DELETED);
+			}
+			else {
+				sp.setStatus(SamlMetadataEntityStatus.ACTIVE);
+			}
+			
+			sp = spDao.persist(sp);
+			logger.info("remove sp {} from federation {}", sp.getEntityId(), entity.getEntityId());
+		}				
+	}
+	
 	private void updateIdpEntities(FederationEntity entity, List<EntityDescriptor> entityList) {
 		
-		entity = dao.findById(entity.getId());
-		
-		List<SamlIdpMetadataEntity> oldList = idpService.findAllByFederation(entity);
+		List<SamlIdpMetadataEntity> oldList = idpDao.findAllByFederation(entity);
 		List<SamlIdpMetadataEntity> updatedList = new ArrayList<SamlIdpMetadataEntity>();
 		
 		for (EntityDescriptor ed : entityList) {
-			SamlIdpMetadataEntity idp = idpService.findByEntityId(ed.getEntityID());
+			SamlIdpMetadataEntity idp = idpDao.findByEntityId(ed.getEntityID());
 
 			Boolean newIdp = (idp == null ? true : false);
 			if (newIdp) {
-				idp = idpService.createNew();
+				idp = idpDao.createNew();
 				idp.setFederations(new HashSet<FederationEntity>());
 				logger.info("Creating new idp {}", ed.getEntityID());
 			}
@@ -156,7 +311,7 @@ public class FederationServiceImpl extends BaseServiceImpl<FederationEntity, Lon
 			metadataHelper.fillDisplayData(ed, idp);
 			idp.setEntityCategoryList(metadataHelper.getEntityCategoryList(ed));
 			
-			idp = idpService.save(idp);
+			idp = idpDao.persist(idp);
 
 			Set<SamlIdpScopeEntity> scopes = metadataHelper.getScopes(ed, idp);
 
@@ -164,19 +319,19 @@ public class FederationServiceImpl extends BaseServiceImpl<FederationEntity, Lon
 			if (newIdp) 
 				oldScopes = new ArrayList<SamlIdpScopeEntity>();
 			else
-				oldScopes = idpScopeService.findByIdp(idp);
+				oldScopes = idpScopeDao.findByIdp(idp);
 			
 			Set<SamlIdpScopeEntity> deleteScopes = new HashSet<SamlIdpScopeEntity>(oldScopes);
 			deleteScopes.removeAll(scopes);
 			for (SamlIdpScopeEntity scope : deleteScopes) {
 				logger.info("Deleting idp scope {}", scope.getScope());
-				idpScopeService.delete(scope);
+				idpScopeDao.delete(scope);
 			}
 			
 			scopes.removeAll(oldScopes);
 			for (SamlIdpScopeEntity scope : scopes) {
 				logger.info("Creating new idp scope {}", scope.getScope());
-				idpScopeService.save(scope);
+				idpScopeDao.persist(scope);
 			}
 			
 			updatedList.add(idp);
@@ -196,13 +351,9 @@ public class FederationServiceImpl extends BaseServiceImpl<FederationEntity, Lon
 				idp.setStatus(SamlMetadataEntityStatus.ACTIVE);
 			}
 			
-			idpService.save(idp);
+			idpDao.persist(idp);
 			logger.info("remove idp {} from federation {}", idp.getEntityId(), entity.getEntityId());
 		}		
-
-		entity.setPolledAt(new Date());
-		
-		dao.persist(entity);
 	}
 
 	@Override

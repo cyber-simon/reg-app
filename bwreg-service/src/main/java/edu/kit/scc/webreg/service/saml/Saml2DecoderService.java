@@ -23,4 +23,8 @@ public interface Saml2DecoderService {
 	public Response decodePostMessage(HttpServletRequest request)
 			throws MessageDecodingException, SecurityException, SamlAuthenticationException;
 
+	Response decodeAttributeQuery(HttpServletRequest request)
+			throws MessageDecodingException, SecurityException,
+			SamlAuthenticationException;
+
 }

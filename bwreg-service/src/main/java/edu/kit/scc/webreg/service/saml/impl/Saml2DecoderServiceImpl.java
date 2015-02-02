@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.opensaml.common.SAMLObject;
 import org.opensaml.common.binding.BasicSAMLMessageContext;
 import org.opensaml.saml2.binding.decoding.HTTPPostDecoder;
+import org.opensaml.saml2.binding.decoding.HTTPSOAP11Decoder;
 import org.opensaml.saml2.core.Response;
 import org.opensaml.ws.message.decoder.MessageDecodingException;
 import org.opensaml.ws.transport.http.HttpServletRequestAdapter;
@@ -29,9 +30,6 @@ import edu.kit.scc.webreg.service.saml.SamlHelper;
 @Stateless
 public class Saml2DecoderServiceImpl implements Saml2DecoderService {
 
-	@Inject
-	private SamlHelper samlHelper;
-	
 	@Override
 	public Response decodePostMessage(HttpServletRequest request)
 			throws MessageDecodingException, SecurityException, SamlAuthenticationException {
@@ -47,6 +45,23 @@ public class Saml2DecoderServiceImpl implements Saml2DecoderService {
 			return (Response) obj;
 		else
 			throw new SamlAuthenticationException("Not a valid SAML2 Post Response");			
+	}
+
+	@Override
+	public Response decodeAttributeQuery(HttpServletRequest request)
+			throws MessageDecodingException, SecurityException, SamlAuthenticationException {
+
+		HTTPSOAP11Decoder decoder = new HTTPSOAP11Decoder();
+		BasicSAMLMessageContext<SAMLObject, SAMLObject, SAMLObject> messageContext = 
+				new BasicSAMLMessageContext<SAMLObject, SAMLObject, SAMLObject>();
+		HttpServletRequestAdapter adapter = new HttpServletRequestAdapter(request);
+		messageContext.setInboundMessageTransport(adapter);
+		decoder.decode(messageContext);
+		SAMLObject obj = messageContext.getInboundSAMLMessage();
+		if (obj instanceof Response) 
+			return (Response) obj;
+		else
+			throw new SamlAuthenticationException("Not a valid SAML2 Attribute Query");			
 	}
 
 }
