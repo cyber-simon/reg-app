@@ -27,11 +27,17 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.opensaml.Configuration;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.AttributeQuery;
 import org.opensaml.saml2.core.Response;
+import org.opensaml.saml2.core.Status;
+import org.opensaml.saml2.core.StatusCode;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.ws.message.decoder.MessageDecodingException;
+import org.opensaml.ws.soap.soap11.Body;
+import org.opensaml.ws.soap.soap11.Envelope;
+import org.opensaml.xml.XMLObjectBuilderFactory;
 import org.opensaml.xml.encryption.DecryptionException;
 import org.opensaml.xml.security.SecurityException;
 import org.slf4j.Logger;
@@ -94,8 +100,27 @@ public class Saml2AttributeQueryServlet implements Servlet {
 		try {
 			AttributeQuery query = saml2DecoderService.decodeAttributeQuery(request);
 
-			
+			StatusCode statusCode = samlHelper.create(StatusCode.class, StatusCode.DEFAULT_ELEMENT_NAME);
+			statusCode.setValue(StatusCode.REQUEST_DENIED_URI);
 
+			Status samlStatus = samlHelper.create(Status.class, Status.DEFAULT_ELEMENT_NAME);
+			samlStatus.setStatusCode(statusCode);
+			
+			Response samlResponse = samlHelper.create(Response.class, Response.DEFAULT_ELEMENT_NAME);
+			samlResponse.setStatus(samlStatus);
+			
+			XMLObjectBuilderFactory bf = Configuration.getBuilderFactory();
+			Envelope envelope = (Envelope) bf.getBuilder(
+					Envelope.DEFAULT_ELEMENT_NAME).buildObject(
+					Envelope.DEFAULT_ELEMENT_NAME);
+			Body body = (Body) bf.getBuilder(Body.DEFAULT_ELEMENT_NAME)
+					.buildObject(Body.DEFAULT_ELEMENT_NAME);
+
+			body.getUnknownXMLObjects().add(samlResponse);
+			envelope.setBody(body);
+
+			response.getWriter().print(samlHelper.marshal(envelope));
+			
 		} catch (MessageDecodingException e) {
 			throw new ServletException("Authentication problem", e);
 		} catch (SecurityException e) {
