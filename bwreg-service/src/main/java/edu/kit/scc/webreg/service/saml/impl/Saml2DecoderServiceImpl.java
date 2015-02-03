@@ -18,6 +18,7 @@ import org.opensaml.common.SAMLObject;
 import org.opensaml.common.binding.BasicSAMLMessageContext;
 import org.opensaml.saml2.binding.decoding.HTTPPostDecoder;
 import org.opensaml.saml2.binding.decoding.HTTPSOAP11Decoder;
+import org.opensaml.saml2.core.AttributeQuery;
 import org.opensaml.saml2.core.Response;
 import org.opensaml.ws.message.decoder.MessageDecodingException;
 import org.opensaml.ws.transport.http.HttpServletRequestAdapter;
@@ -48,7 +49,7 @@ public class Saml2DecoderServiceImpl implements Saml2DecoderService {
 	}
 
 	@Override
-	public Response decodeAttributeQuery(HttpServletRequest request)
+	public AttributeQuery decodeAttributeQuery(HttpServletRequest request)
 			throws MessageDecodingException, SecurityException, SamlAuthenticationException {
 
 		HTTPSOAP11Decoder decoder = new HTTPSOAP11Decoder();
@@ -58,8 +59,8 @@ public class Saml2DecoderServiceImpl implements Saml2DecoderService {
 		messageContext.setInboundMessageTransport(adapter);
 		decoder.decode(messageContext);
 		SAMLObject obj = messageContext.getInboundSAMLMessage();
-		if (obj instanceof Response) 
-			return (Response) obj;
+		if (obj instanceof AttributeQuery) 
+			return (AttributeQuery) obj;
 		else
 			throw new SamlAuthenticationException("Not a valid SAML2 Attribute Query");			
 	}

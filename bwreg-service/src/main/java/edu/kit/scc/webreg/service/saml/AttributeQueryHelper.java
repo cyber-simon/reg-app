@@ -44,7 +44,7 @@ import org.opensaml.xml.signature.KeyInfo;
 import org.opensaml.xml.signature.Signature;
 import org.opensaml.xml.signature.SignatureConstants;
 
-import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
+import edu.kit.scc.webreg.entity.SamlMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.MetadataException;
@@ -64,7 +64,7 @@ public class AttributeQueryHelper implements Serializable {
 	@Inject 
 	private CryptoHelper cryptoHelper;
 
-	public Response query(String persistentId, SamlIdpMetadataEntity idpEntity, 
+	public Response query(String persistentId, SamlMetadataEntity idpEntity, 
 			EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity spEntity) throws MetadataException, SOAPException, SecurityException {
 		AttributeService attributeService = metadataHelper.getAttributeService(idpEntityDescriptor);
 		if (attributeService == null || attributeService.getLocation() == null)
@@ -122,7 +122,7 @@ public class AttributeQueryHelper implements Serializable {
 		return getResponseFromEnvelope(returnEnvelope);
 	}
 		
-	public Response query(UserEntity entity, SamlIdpMetadataEntity idpEntity, 
+	public Response query(UserEntity entity, SamlMetadataEntity idpEntity, 
 			EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity spEntity) throws MetadataException, SOAPException, SecurityException {
 		return query(entity.getPersistentId(), idpEntity, idpEntityDescriptor, spEntity);	
 	}

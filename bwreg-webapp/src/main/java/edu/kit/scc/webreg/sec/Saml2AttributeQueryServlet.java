@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.opensaml.saml2.core.Assertion;
+import org.opensaml.saml2.core.AttributeQuery;
 import org.opensaml.saml2.core.Response;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.ws.message.decoder.MessageDecodingException;
@@ -91,7 +92,7 @@ public class Saml2AttributeQueryServlet implements Servlet {
 		logger.debug("Consuming SAML AttributeQuery");
 		
 		try {
-			Response samlResponse = saml2DecoderService.decodeAttributeQuery(request);
+			AttributeQuery query = saml2DecoderService.decodeAttributeQuery(request);
 
 			
 

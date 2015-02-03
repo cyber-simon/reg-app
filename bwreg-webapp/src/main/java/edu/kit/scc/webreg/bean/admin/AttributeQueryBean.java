@@ -23,8 +23,9 @@ import org.opensaml.saml2.core.Response;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.slf4j.Logger;
 
-import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
+import edu.kit.scc.webreg.entity.SamlMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
+import edu.kit.scc.webreg.service.SamlAAMetadataService;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.SamlSpConfigurationService;
 import edu.kit.scc.webreg.service.saml.AttributeQueryHelper;
@@ -53,6 +54,9 @@ public class AttributeQueryBean implements Serializable {
 	private SamlIdpMetadataService idpService;
 	
 	@Inject 
+	private SamlAAMetadataService aaService;
+	
+	@Inject 
 	private SamlSpConfigurationService spService;
 
 	private String spEntityId;
@@ -68,7 +72,10 @@ public class AttributeQueryBean implements Serializable {
 		logger.debug("Making an attribute query for user {} {}", persistentId, idpEntityId);
 		try {
 			SamlSpConfigurationEntity spEntity = spService.findByEntityId(spEntityId);
-			SamlIdpMetadataEntity idpEntity = idpService.findByEntityId(idpEntityId);
+			SamlMetadataEntity idpEntity = idpService.findByEntityId(idpEntityId);
+			if (idpEntity == null)
+				idpEntity = aaService.findByEntityId(idpEntityId);
+			
 			EntityDescriptor idpEntityDescriptor = samlHelper.unmarshal(
 					idpEntity.getEntityDescriptor(), EntityDescriptor.class);
 			

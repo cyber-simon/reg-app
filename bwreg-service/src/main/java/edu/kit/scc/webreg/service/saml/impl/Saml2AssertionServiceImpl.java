@@ -36,7 +36,7 @@ import org.opensaml.xml.security.keyinfo.StaticKeyInfoCredentialResolver;
 import org.opensaml.xml.security.x509.BasicX509Credential;
 import org.slf4j.Logger;
 
-import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
+import edu.kit.scc.webreg.entity.SamlMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.exc.NoAssertionException;
 import edu.kit.scc.webreg.exc.SamlAuthenticationException;
@@ -61,14 +61,14 @@ public class Saml2AssertionServiceImpl implements Saml2AssertionService {
 	private Saml2ResponseValidationService saml2ValidationService;
 	
 	@Override
-	public Assertion processSamlResponse(Response samlResponse, SamlIdpMetadataEntity idpEntity, 
+	public Assertion processSamlResponse(Response samlResponse, SamlMetadataEntity idpEntity, 
 			EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity spEntity) 
 					throws IOException, DecryptionException, SamlAuthenticationException {
 		return processSamlResponse(samlResponse, idpEntity, idpEntityDescriptor, spEntity, true);
 	}
 	
 	@Override
-	public Assertion processSamlResponse(Response samlResponse, SamlIdpMetadataEntity idpEntity, 
+	public Assertion processSamlResponse(Response samlResponse, SamlMetadataEntity idpEntity, 
 			EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity spEntity, boolean checkSignature) 
 					throws IOException, DecryptionException, SamlAuthenticationException {
 		saml2ValidationService.verifyStatus(samlResponse);

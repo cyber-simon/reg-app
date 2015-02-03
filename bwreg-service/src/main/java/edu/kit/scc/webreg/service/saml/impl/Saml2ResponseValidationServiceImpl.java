@@ -38,7 +38,7 @@ import org.opensaml.xml.signature.impl.ExplicitKeySignatureTrustEngine;
 import org.opensaml.xml.validation.ValidationException;
 import org.slf4j.Logger;
 
-import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
+import edu.kit.scc.webreg.entity.SamlMetadataEntity;
 import edu.kit.scc.webreg.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.service.saml.Saml2ResponseValidationService;
 
@@ -49,7 +49,7 @@ public class Saml2ResponseValidationServiceImpl implements
 	private Logger logger;
 	
 	@Override
-	public void verifyIssuer(SamlIdpMetadataEntity idpEntity,
+	public void verifyIssuer(SamlMetadataEntity idpEntity,
 			Response samlResponse) throws SamlAuthenticationException {
 
 		Issuer issuer = samlResponse.getIssuer();

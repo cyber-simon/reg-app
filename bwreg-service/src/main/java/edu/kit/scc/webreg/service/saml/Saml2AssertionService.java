@@ -22,7 +22,7 @@ import org.opensaml.saml2.core.Response;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.xml.encryption.DecryptionException;
 
-import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
+import edu.kit.scc.webreg.entity.SamlMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.exc.SamlAuthenticationException;
 
@@ -37,7 +37,7 @@ public interface Saml2AssertionService {
 			throws IOException, DecryptionException, SamlAuthenticationException;
 
 	Assertion processSamlResponse(Response samlResponse,
-			SamlIdpMetadataEntity idpEntity,
+			SamlMetadataEntity idpEntity,
 			EntityDescriptor idpEntityDescriptor,
 			SamlSpConfigurationEntity spEntity) throws IOException, DecryptionException, SamlAuthenticationException;
 
@@ -45,7 +45,7 @@ public interface Saml2AssertionService {
 			SamlSpConfigurationEntity spEntity) throws IOException, DecryptionException, SamlAuthenticationException;
 
 	Assertion processSamlResponse(Response samlResponse,
-			SamlIdpMetadataEntity idpEntity,
+			SamlMetadataEntity idpEntity,
 			EntityDescriptor idpEntityDescriptor,
 			SamlSpConfigurationEntity spEntity, boolean checkSignature)
 			throws IOException, DecryptionException, SamlAuthenticationException;
