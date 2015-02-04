@@ -11,10 +11,6 @@
 package edu.kit.scc.webreg.sec;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -28,8 +24,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.opensaml.Configuration;
-import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.AttributeQuery;
+import org.opensaml.saml2.core.Issuer;
 import org.opensaml.saml2.core.Response;
 import org.opensaml.saml2.core.Status;
 import org.opensaml.saml2.core.StatusCode;
@@ -38,25 +34,18 @@ import org.opensaml.ws.message.decoder.MessageDecodingException;
 import org.opensaml.ws.soap.soap11.Body;
 import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.xml.XMLObjectBuilderFactory;
-import org.opensaml.xml.encryption.DecryptionException;
 import org.opensaml.xml.security.SecurityException;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
-import edu.kit.scc.webreg.drools.KnowledgeSessionService;
-import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
-import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
-import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 import edu.kit.scc.webreg.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.SamlSpConfigurationService;
-import edu.kit.scc.webreg.service.UserService;
-import edu.kit.scc.webreg.service.UserUpdateService;
-import edu.kit.scc.webreg.service.saml.Saml2AssertionService;
+import edu.kit.scc.webreg.service.SamlSpMetadataService;
 import edu.kit.scc.webreg.service.saml.Saml2DecoderService;
+import edu.kit.scc.webreg.service.saml.Saml2ResponseValidationService;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
-import edu.kit.scc.webreg.util.SessionManager;
 
 @Named
 @WebServlet(urlPatterns = {"/Shibboleth.sso/SAML2/AttributeQuery"})
@@ -69,7 +58,7 @@ public class Saml2AttributeQueryServlet implements Servlet {
 	private Saml2DecoderService saml2DecoderService;
 	
 	@Inject
-	private Saml2AssertionService saml2AssertionService;
+	private Saml2ResponseValidationService saml2ValidationService;
 	
 	@Inject
 	private SamlHelper samlHelper;
@@ -78,7 +67,7 @@ public class Saml2AttributeQueryServlet implements Servlet {
 	private SamlIdpMetadataService idpService;
 	
 	@Inject 
-	private SamlSpConfigurationService spService;
+	private SamlSpMetadataService spMetadataService;
 
 	@Inject
 	private ApplicationConfig appConfig;
@@ -99,7 +88,23 @@ public class Saml2AttributeQueryServlet implements Servlet {
 		
 		try {
 			AttributeQuery query = saml2DecoderService.decodeAttributeQuery(request);
+			logger.debug("SAML AttributeQuery decoded");
 
+			Issuer issuer = query.getIssuer();
+			if (issuer == null || issuer.getValue() == null)
+				throw new SamlAuthenticationException("Issuer not set");
+
+			String issuerString = issuer.getValue();
+			SamlSpMetadataEntity spEntity = spMetadataService.findByEntityId(issuerString);
+			if (spEntity == null)
+				throw new SamlAuthenticationException("Issuer metadata not in database");
+			
+			EntityDescriptor spEntityDescriptor = samlHelper.unmarshal(
+					spEntity.getEntityDescriptor(), EntityDescriptor.class);
+			
+			saml2ValidationService.verifyIssuer(spEntity, query);
+			saml2ValidationService.validateSpSignature(query, issuer, spEntityDescriptor);
+			
 			StatusCode statusCode = samlHelper.create(StatusCode.class, StatusCode.DEFAULT_ELEMENT_NAME);
 			statusCode.setValue(StatusCode.REQUEST_DENIED_URI);
 

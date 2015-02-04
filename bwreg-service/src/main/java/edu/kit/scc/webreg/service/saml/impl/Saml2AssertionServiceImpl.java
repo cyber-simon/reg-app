@@ -80,7 +80,7 @@ public class Saml2AssertionServiceImpl implements Saml2AssertionService {
 		if (checkSignature) {
 			try {
 				logger.debug("Validating SamlResponse Signature for " + samlResponse.getID());					
-				saml2ValidationService.validateSignature(samlResponse, samlResponse.getIssuer(), idpEntityDescriptor);
+				saml2ValidationService.validateIdpSignature(samlResponse, samlResponse.getIssuer(), idpEntityDescriptor);
 				logger.debug("Validating SamlResponse Signature success for " + samlResponse.getID());					
 				responseSignatureValid = true;
 			} catch (SamlAuthenticationException e) {
@@ -114,7 +114,7 @@ public class Saml2AssertionServiceImpl implements Saml2AssertionService {
 		if (checkSignature) {
 			if (! responseSignatureValid) {
 				logger.debug("Validating Assertion Signature for " + assertion.getID());					
-				saml2ValidationService.validateSignature(assertion, assertion.getIssuer(), idpEntityDescriptor);
+				saml2ValidationService.validateIdpSignature(assertion, assertion.getIssuer(), idpEntityDescriptor);
 				logger.debug("Validating Assertion Signature success for " + assertion.getID());
 			}
 			else {

@@ -11,18 +11,21 @@
 package edu.kit.scc.webreg.service.saml.impl;
 
 import javax.inject.Inject;
+import javax.xml.namespace.QName;
 
 import org.joda.time.Duration;
 import org.joda.time.Instant;
 import org.opensaml.Configuration;
 import org.opensaml.common.SignableSAMLObject;
 import org.opensaml.common.xml.SAMLConstants;
+import org.opensaml.saml2.core.AttributeQuery;
 import org.opensaml.saml2.core.Issuer;
 import org.opensaml.saml2.core.Response;
 import org.opensaml.saml2.core.Status;
 import org.opensaml.saml2.core.StatusCode;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml2.metadata.IDPSSODescriptor;
+import org.opensaml.saml2.metadata.SPSSODescriptor;
 import org.opensaml.saml2.metadata.provider.DOMMetadataProvider;
 import org.opensaml.saml2.metadata.provider.MetadataProviderException;
 import org.opensaml.security.MetadataCredentialResolver;
@@ -49,18 +52,28 @@ public class Saml2ResponseValidationServiceImpl implements
 	private Logger logger;
 	
 	@Override
-	public void verifyIssuer(SamlMetadataEntity idpEntity,
+	public void verifyIssuer(SamlMetadataEntity metadataEntity,
 			Response samlResponse) throws SamlAuthenticationException {
+		verifyIssuer(metadataEntity, samlResponse.getIssuer());
+	}
 
-		Issuer issuer = samlResponse.getIssuer();
-		
+	@Override
+	public void verifyIssuer(SamlMetadataEntity metadataEntity,
+			AttributeQuery attributeQuery) throws SamlAuthenticationException {
+		verifyIssuer(metadataEntity, attributeQuery.getIssuer());
+	}
+
+	@Override
+	public void verifyIssuer(SamlMetadataEntity metadataEntity,
+			Issuer issuer) throws SamlAuthenticationException {
+
 		if (issuer == null)
 			throw new SamlAuthenticationException("Response issuer is not set");
 
 		String issuerString = issuer.getValue();
-		if (! issuerString.equals(idpEntity.getEntityId())) 
+		if (! issuerString.equals(metadataEntity.getEntityId())) 
 			throw new SamlAuthenticationException("Response issuer " + issuerString + 
-					" differs from excpected " + idpEntity.getEntityId());
+					" differs from excpected " + metadataEntity.getEntityId());
 
 	}
 
@@ -83,17 +96,33 @@ public class Saml2ResponseValidationServiceImpl implements
 	}
 
 	@Override
-	public void validateSignature(SignableSAMLObject sigObj, Issuer issuer, EntityDescriptor idpEntityDescriptor) 
+	public void validateIdpSignature(SignableSAMLObject signableSamlObject, Issuer issuer, EntityDescriptor entityDescriptor) 
+			throws SamlAuthenticationException {
+
+		validateSignature(signableSamlObject, issuer, entityDescriptor, 
+				IDPSSODescriptor.DEFAULT_ELEMENT_NAME, SAMLConstants.SAML20P_NS);
+	}
+
+	@Override
+	public void validateSpSignature(SignableSAMLObject signableSamlObject, Issuer issuer, EntityDescriptor entityDescriptor) 
 			throws SamlAuthenticationException {
 	
-		if (sigObj.getSignature() == null)
+		validateSignature(signableSamlObject, issuer, entityDescriptor, 
+				SPSSODescriptor.DEFAULT_ELEMENT_NAME, SAMLConstants.SAML20P_NS);
+	}	
+	
+	protected void validateSignature(SignableSAMLObject signableSamlObject, Issuer issuer, EntityDescriptor entityDescriptor,
+			QName role, String protocol) 
+			throws SamlAuthenticationException {
+	
+		if (signableSamlObject.getSignature() == null)
 			throw new SamlAuthenticationException("No Signature on SignableSamlObject");
 		
-		DOMMetadataProvider mp = new DOMMetadataProvider(idpEntityDescriptor.getDOM());
+		DOMMetadataProvider mp = new DOMMetadataProvider(entityDescriptor.getDOM());
 		try {
 			mp.initialize();
 		} catch (MetadataProviderException e) {
-			throw new SamlAuthenticationException("Metadata for IDP " + idpEntityDescriptor.getEntityID() + " could not be established");			
+			throw new SamlAuthenticationException("Metadata for IDP " + entityDescriptor.getEntityID() + " could not be established");			
 		}
 		
 		MetadataCredentialResolver mdCredResolver = new MetadataCredentialResolver(mp);
@@ -103,19 +132,19 @@ public class Saml2ResponseValidationServiceImpl implements
 		
 		SAMLSignatureProfileValidator sigValidator = new SAMLSignatureProfileValidator();
 		try {
-			sigValidator.validate(sigObj.getSignature());
+			sigValidator.validate(signableSamlObject.getSignature());
 		} catch (ValidationException e) {
 			throw new SamlAuthenticationException("SAMLSignableObject signature is not valid");
 		}
 		
 		CriteriaSet criteriaSet = new CriteriaSet();
 		criteriaSet.add(new EntityIDCriteria(issuer.getValue()));
-		criteriaSet.add(new MetadataCriteria(IDPSSODescriptor.DEFAULT_ELEMENT_NAME, SAMLConstants.SAML20P_NS));
+		criteriaSet.add(new MetadataCriteria(role, protocol));
 		criteriaSet.add(new UsageCriteria(UsageType.SIGNING));
 			
 		try {
-			if (trustEngine.validate(sigObj.getSignature(), criteriaSet))
-				logger.info("Signutare validation success for " + idpEntityDescriptor.getEntityID());
+			if (trustEngine.validate(signableSamlObject.getSignature(), criteriaSet))
+				logger.info("Signutare validation success for " + entityDescriptor.getEntityID());
 			else {
 				throw new SamlAuthenticationException("SAMLSignableObject could not be validated.");
 			}

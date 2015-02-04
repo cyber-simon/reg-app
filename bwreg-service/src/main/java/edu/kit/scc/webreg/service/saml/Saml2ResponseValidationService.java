@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.service.saml;
 
 import org.opensaml.common.SignableSAMLObject;
+import org.opensaml.saml2.core.AttributeQuery;
 import org.opensaml.saml2.core.Issuer;
 import org.opensaml.saml2.core.Response;
 import org.opensaml.saml2.metadata.EntityDescriptor;
@@ -20,7 +21,7 @@ import edu.kit.scc.webreg.exc.SamlAuthenticationException;
 
 public interface Saml2ResponseValidationService {
 
-	public void verifyIssuer(SamlMetadataEntity idpEntity, Response samlResponse)
+	public void verifyIssuer(SamlMetadataEntity metadataEntity, Response samlResponse)
 			throws SamlAuthenticationException;
 
 	void verifyExpiration(Response samlResponse, Long expiryMillis)
@@ -28,7 +29,18 @@ public interface Saml2ResponseValidationService {
 
 	void verifyStatus(Response samlResponse) throws SamlAuthenticationException;
 
-	void validateSignature(SignableSAMLObject assertion,
-			Issuer issuer, EntityDescriptor idpEntityDescriptor) throws SamlAuthenticationException;
+	void verifyIssuer(SamlMetadataEntity metadataEntity,
+			AttributeQuery attributeQuery) throws SamlAuthenticationException;
+
+	void verifyIssuer(SamlMetadataEntity metadataEntity, Issuer issuer)
+			throws SamlAuthenticationException;
+
+	void validateIdpSignature(SignableSAMLObject signableSamlObject,
+			Issuer issuer, EntityDescriptor entityDescriptor)
+			throws SamlAuthenticationException;
+
+	void validateSpSignature(SignableSAMLObject signableSamlObject,
+			Issuer issuer, EntityDescriptor entityDescriptor)
+			throws SamlAuthenticationException;
 	
 }

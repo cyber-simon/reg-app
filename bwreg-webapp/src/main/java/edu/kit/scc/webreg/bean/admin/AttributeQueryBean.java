@@ -59,9 +59,9 @@ public class AttributeQueryBean implements Serializable {
 	@Inject 
 	private SamlSpConfigurationService spService;
 
-	private String spEntityId;
-	private String idpEntityId;
-	private String persistentId;
+	private String spEntityId = "https://bwidm-test.scc.kit.edu/sp";
+	private String idpEntityId = "https://bwidm.scc.kit.edu/attribute-authority";
+	private String persistentId = "ls1947@kit.edu";
 	
 	private Map<String, List<Object>> attributeMap;
 	

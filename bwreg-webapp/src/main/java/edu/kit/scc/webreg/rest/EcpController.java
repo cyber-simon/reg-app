@@ -274,7 +274,7 @@ public class EcpController {
 
 		try {
 			logger.debug("Validating Signature for " + assertion.getID());					
-			saml2ResponseValidationService.validateSignature(assertion, assertion.getIssuer(), idpEntityDesc);
+			saml2ResponseValidationService.validateIdpSignature(assertion, assertion.getIssuer(), idpEntityDesc);
 			logger.debug("Validating Signature success for " + assertion.getID());
 		} catch (SamlAuthenticationException e) {
 			logger.info("Could not validate signature for user {}", user.getEppn());
