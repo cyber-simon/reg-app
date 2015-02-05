@@ -22,25 +22,25 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
-import edu.kit.scc.webreg.service.SamlSpConfigurationService;
+import edu.kit.scc.webreg.entity.SamlAAConfigurationEntity;
+import edu.kit.scc.webreg.service.SamlAAConfigurationService;
 import edu.kit.scc.webreg.service.saml.CryptoHelper;
 
 @ManagedBean
 @ViewScoped
-public class ShowSamlSpConfigurationBean implements Serializable {
+public class ShowSamlAAConfigurationBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = LoggerFactory.getLogger(ShowSamlSpConfigurationBean.class);
+	private static Logger logger = LoggerFactory.getLogger(ShowSamlAAConfigurationBean.class);
 	
 	@Inject
-	private SamlSpConfigurationService service;
+	private SamlAAConfigurationService service;
 
 	@Inject 
 	private CryptoHelper cryptoHelper;
 	
-	private SamlSpConfigurationEntity entity;
+	private SamlAAConfigurationEntity entity;
 	
 	private Long id;
 
@@ -60,11 +60,11 @@ public class ShowSamlSpConfigurationBean implements Serializable {
 		}
 	}
 	
-	public SamlSpConfigurationEntity getEntity() {
+	public SamlAAConfigurationEntity getEntity() {
 		return entity;
 	}
 
-	public void setEntity(SamlSpConfigurationEntity entity) {
+	public void setEntity(SamlAAConfigurationEntity entity) {
 		this.entity = entity;
 	}
 

@@ -25,7 +25,7 @@ import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 @ApplicationScoped
 public class JpaSamlSpConfigurationDao extends JpaBaseDao<SamlSpConfigurationEntity, Long> implements SamlSpConfigurationDao {
 
-    @Override
+	@Override
 	public SamlSpConfigurationEntity findByEntityId(String entityId) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<SamlSpConfigurationEntity> criteria = builder.createQuery(SamlSpConfigurationEntity.class);

@@ -29,6 +29,8 @@ public interface BaseService<T extends BaseEntity<PK>, PK extends Serializable> 
 
     T findById(PK id);
 
+    T findByIdWithAttrs(PK id, String... attrs);
+
 	List<T> findAllPaging(int first, int pageSize, String sortField,
 			GenericSortOrder sortOrder, Map<String, Object> filterMap);
 

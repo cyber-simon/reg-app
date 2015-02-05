@@ -19,19 +19,19 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
-import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
-import edu.kit.scc.webreg.service.SamlSpConfigurationService;
+import edu.kit.scc.webreg.entity.SamlAAConfigurationEntity;
+import edu.kit.scc.webreg.service.SamlAAConfigurationService;
 
 @ManagedBean
 @ViewScoped
-public class EditSamlSpConfigurationBean implements Serializable {
+public class EditSamlAAConfigurationBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	@Inject
-	private SamlSpConfigurationService service;
+	private SamlAAConfigurationService service;
 	
-	private SamlSpConfigurationEntity entity;
+	private SamlAAConfigurationEntity entity;
 	
 	private Long id;
 
@@ -49,7 +49,7 @@ public class EditSamlSpConfigurationBean implements Serializable {
 	public String save() {
 		entity.setHostNameList(hostNameList);
 		service.save(entity);
-		return "show-sp-config.xhtml?faces-redirect=true&id=" + entity.getId();
+		return "show-aa-config.xhtml?faces-redirect=true&id=" + entity.getId();
 	}
 
 	public void addHost() {
@@ -64,11 +64,11 @@ public class EditSamlSpConfigurationBean implements Serializable {
 		hostNameList.remove(key);
 	}
 	
-	public SamlSpConfigurationEntity getEntity() {
+	public SamlAAConfigurationEntity getEntity() {
 		return entity;
 	}
 
-	public void setEntity(SamlSpConfigurationEntity entity) {
+	public void setEntity(SamlAAConfigurationEntity entity) {
 		this.entity = entity;
 	}
 

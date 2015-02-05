@@ -72,19 +72,25 @@ public class Saml2DispatcherServlet implements Servlet {
 		logger.debug("Dispatching request context '{}' path '{}'", context, path);
 		
 		SamlSpConfigurationEntity spConfig = spConfigService.findByHostname(request.getServerName());
-		SamlAAConfigurationEntity aaConfig = aaConfigService.findByHostname(request.getServerName());
 		
-		if (spConfig.getAcs().endsWith(context + path)) {
+		if (spConfig != null && spConfig.getAcs() != null &&
+				spConfig.getAcs().endsWith(context + path)) {
 			logger.debug("Executing POST Handler for entity {}", spConfig.getEntityId());
 			postHandlerServlet.service(servletRequest, servletResponse, spConfig);
+			return;
 		}
-		else if (aaConfig.getAq().endsWith(context + path)) {
+
+		SamlAAConfigurationEntity aaConfig = aaConfigService.findByHostname(request.getServerName());
+		
+		if (aaConfig != null && aaConfig.getAq() != null &&
+				aaConfig.getAq().endsWith(context + path)) {
 			logger.debug("Executing AttributeQuery Handler for entity {}", aaConfig.getEntityId());
 			attributeQueryServlet.service(servletRequest, servletResponse, aaConfig);
+			return;
 		}
-		else {
-			logger.info("No matching servlet for context '{}' path '{}'", context, path);
-		}	
+
+		logger.info("No matching servlet for context '{}' path '{}'", context, path);
+		
 	}
 	
 	@Override

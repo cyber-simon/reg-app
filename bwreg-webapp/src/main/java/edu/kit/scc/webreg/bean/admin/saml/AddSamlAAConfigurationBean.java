@@ -11,34 +11,41 @@
 package edu.kit.scc.webreg.bean.admin.saml;
 
 import java.io.Serializable;
-import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
-import edu.kit.scc.webreg.service.SamlSpConfigurationService;
+import edu.kit.scc.webreg.entity.SamlAAConfigurationEntity;
+import edu.kit.scc.webreg.service.SamlAAConfigurationService;
 
-@Named("listSamlSpConfigurationBean")
+@Named("addSamlAAConfigurationBean")
 @RequestScoped
-public class ListSamlSpConfigurationBean implements Serializable {
+public class AddSamlAAConfigurationBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<SamlSpConfigurationEntity> list;
-    
-    @Inject
-    private SamlSpConfigurationService service;
+	@Inject
+	private SamlAAConfigurationService service;
 
-    @PostConstruct
-    public void init() {
-		list = service.findAll();
+	private SamlAAConfigurationEntity entity;
+	
+	@PostConstruct
+	public void init() {
+		entity = service.createNew();
+	}
+
+	public String save() {
+		entity = service.save(entity);
+		return "show-aa-config.xhtml?faces-redirect=true&id=" + entity.getId();
 	}
 	
-    public List<SamlSpConfigurationEntity> getEntityList() {
-   		return list;
-    }
+	public SamlAAConfigurationEntity getEntity() {
+		return entity;
+	}
 
+	public void setEntity(SamlAAConfigurationEntity entity) {
+		this.entity = entity;
+	}
 }

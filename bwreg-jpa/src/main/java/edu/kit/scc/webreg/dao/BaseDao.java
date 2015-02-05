@@ -37,5 +37,6 @@ public interface BaseDao<T extends BaseEntity<PK>, PK extends Serializable> {
 
 	boolean isPersisted(T entity);
 
+	T findByIdWithAttrs(PK id, String... attrs);
 
 }

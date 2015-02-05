@@ -18,7 +18,7 @@
 	
 	<h:form id="form">
 	
-		<p:dataTable id="dataTable" var="entity" value="#{listSamlSpConfigurationBean.entityList}">
+		<p:dataTable id="spDataTable" var="entity" value="#{listSamlConfigurationBean.spList}">
 			<p:column>
 				<f:facet name="header">
 					<h:outputText value="#{messages.id}" />
@@ -35,7 +35,25 @@
 			</p:column>		
 		</p:dataTable>
 
-        <h:link outcome="add-sp-config.xhtml" value="#{messages.add_sp_config}"/>
+		<p:dataTable id="aaDataTable" var="entity" value="#{listSamlConfigurationBean.aaList}">
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.id}" />
+				</f:facet>
+				<h:outputText value="#{entity.id}" />
+			</p:column>
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.entity_id}" />
+				</f:facet>
+				<h:link outcome="show-aa-config.xhtml" value="#{entity.entityId}">
+      				<f:param name="id" value="#{entity.id}"/>
+    			</h:link>
+			</p:column>		
+		</p:dataTable>
+
+        <h:link outcome="add-sp-config.xhtml" value="#{messages.add_sp_config}"/><br/>
+        <h:link outcome="add-aa-config.xhtml" value="#{messages.add_aa_config}"/>
 	
 	</h:form>
 

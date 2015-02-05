@@ -60,4 +60,9 @@ public abstract class BaseServiceImpl<T extends BaseEntity<PK>, PK extends Seria
 	public T findById(PK id) {
 		return getDao().findById(id);
 	}
+
+	@Override
+	public T findByIdWithAttrs(PK id, String...attrs) {
+		return getDao().findByIdWithAttrs(id, attrs);
+	}
 }

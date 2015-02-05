@@ -51,6 +51,12 @@ public class CryptoHelper implements Serializable {
 		PEMParser pemReader = new PEMParser(new StringReader(certString));
 		X509CertificateHolder certHolder = (X509CertificateHolder) pemReader.readObject();
 		pemReader.close();
+		
+		if (certHolder == null) {
+			logger.warn("Invalid Certificate. CertHoler is null.");
+			return null;
+		}
+
 		X509Certificate cert;
 		try {
 			cert = new JcaX509CertificateConverter().setProvider("BC")

@@ -18,10 +18,12 @@ import java.util.Map.Entry;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
@@ -129,6 +131,28 @@ public abstract class JpaBaseDao<T extends BaseEntity<PK>, PK extends Serializab
 	public boolean isPersisted(T entity) {
 		return em.contains(entity);
 	}
+	
+	@Override
+	public T findByIdWithAttrs(PK id, String... attrs) {
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<T> criteria = builder.createQuery(getEntityClass());
+		Root<T> entity = criteria.from(getEntityClass());
+		criteria.where(builder.and(
+				builder.equal(entity.get("id"), id)
+				));
+		criteria.select(entity);
+		criteria.distinct(true);
+		
+		for (String attr : attrs)
+			entity.fetch(attr, JoinType.LEFT);
+
+		try {
+			return em.createQuery(criteria).getSingleResult();
+		}
+		catch (NoResultException e) {
+			return null;
+		}
+	}	
 	
 	protected List<Predicate> predicatesFromFilterMap(CriteriaBuilder builder, Root<T> root, Map<String, Object> filterMap) {
 		
