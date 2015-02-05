@@ -12,6 +12,10 @@ package edu.kit.scc.webreg.service.saml;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -43,6 +47,7 @@ import org.opensaml.xml.security.x509.X509KeyInfoGeneratorFactory;
 import org.opensaml.xml.signature.KeyInfo;
 import org.opensaml.xml.signature.Signature;
 import org.opensaml.xml.signature.SignatureConstants;
+import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.SamlMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
@@ -55,6 +60,9 @@ public class AttributeQueryHelper implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	@Inject
+	private Logger logger;
+	
 	@Inject
 	private SamlHelper samlHelper;
 
@@ -76,17 +84,28 @@ public class AttributeQueryHelper implements Serializable {
 		BasicSOAPMessageContext soapContext = new BasicSOAPMessageContext();
 		soapContext.setOutboundMessage(envelope);
 		
-		HttpClientBuilder clientBuilder = new HttpClientBuilder();
-		
 		BasicX509Credential signingCredential;
+		X509Certificate x509Cert;
+		PrivateKey privateKey;
+		
 		try {
-			signingCredential = SecurityHelper.getSimpleCredential(
-					cryptoHelper.getCertificate(spEntity.getCertificate()), 
-					cryptoHelper.getPrivateKey(spEntity.getPrivateKey()));
+			x509Cert = cryptoHelper.getCertificate(spEntity.getCertificate());
+			privateKey = cryptoHelper.getPrivateKey(spEntity.getPrivateKey());
+			signingCredential = SecurityHelper.getSimpleCredential(x509Cert, privateKey);
 		} catch (IOException e1) {
 			throw new MetadataException("No signing credential for SP " + spEntity.getEntityId(), e1);
 		}
-		
+
+		HttpClientBuilder clientBuilder = new HttpClientBuilder();
+/*		
+		try {
+			clientBuilder.setHttpsProtocolSocketFactory(new CustomSecureProtocolSocketFactory(x509Cert, privateKey));
+		} catch (KeyManagementException e) {
+			logger.info("Cannot spawn CustomSecureProtocolSocketFactory: {}", e.getMessage());
+		} catch (NoSuchAlgorithmException e) {
+			logger.info("Cannot spawn CustomSecureProtocolSocketFactory: {}", e.getMessage());
+		}
+*/		
 		Signature signature = (Signature) Configuration.getBuilderFactory()
             	.getBuilder(Signature.DEFAULT_ELEMENT_NAME)
             	.buildObject(Signature.DEFAULT_ELEMENT_NAME);
