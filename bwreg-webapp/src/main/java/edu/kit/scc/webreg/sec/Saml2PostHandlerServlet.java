@@ -16,14 +16,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.faces.bean.ApplicationScoped;
 import javax.inject.Inject;
-import javax.inject.Named;
-import javax.servlet.Servlet;
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -43,7 +40,6 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
-import edu.kit.scc.webreg.service.SamlSpConfigurationService;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.UserUpdateService;
 import edu.kit.scc.webreg.service.saml.Saml2AssertionService;
@@ -51,9 +47,8 @@ import edu.kit.scc.webreg.service.saml.Saml2DecoderService;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
 import edu.kit.scc.webreg.util.SessionManager;
 
-@Named
-@WebServlet(urlPatterns = {"/Shibboleth.sso/SAML2/POST"})
-public class Saml2PostHandlerServlet implements Servlet {
+@ApplicationScoped
+public class Saml2PostHandlerServlet {
 
 	@Inject
 	private Logger logger;
@@ -79,22 +74,13 @@ public class Saml2PostHandlerServlet implements Servlet {
 	@Inject 
 	private SamlIdpMetadataService idpService;
 	
-	@Inject 
-	private SamlSpConfigurationService spService;
-
 	@Inject
 	private KnowledgeSessionService knowledgeSessionService;
 	
 	@Inject
 	private ApplicationConfig appConfig;
 	
-	@Override
-	public void init(ServletConfig config) throws ServletException {
-		
-	}
-
-	@Override
-	public void service(ServletRequest servletRequest, ServletResponse servletResponse)
+	public void service(ServletRequest servletRequest, ServletResponse servletResponse, SamlSpConfigurationEntity spConfig)
 			throws ServletException, IOException {
 
 		HttpServletRequest request = (HttpServletRequest) servletRequest;
@@ -110,16 +96,15 @@ public class Saml2PostHandlerServlet implements Servlet {
 		logger.debug("attempAuthentication, Consuming SAML Assertion");
 		
 		try {
-			SamlSpConfigurationEntity spEntity = spService.findById(session.getSpId());
 			SamlIdpMetadataEntity idpEntity = idpService.findById(session.getIdpId());
 			EntityDescriptor idpEntityDescriptor = samlHelper.unmarshal(
 					idpEntity.getEntityDescriptor(), EntityDescriptor.class);
 		
 			Response samlResponse = saml2DecoderService.decodePostMessage(request);
 
-			Assertion assertion = saml2AssertionService.processSamlResponse(samlResponse, idpEntity, idpEntityDescriptor, spEntity);
+			Assertion assertion = saml2AssertionService.processSamlResponse(samlResponse, idpEntity, idpEntityDescriptor, spConfig);
 			
-			String persistentId = saml2AssertionService.extractPersistentId(assertion, spEntity);
+			String persistentId = saml2AssertionService.extractPersistentId(assertion, spConfig);
 			
 			logger.debug("Storing relevant SAML data in session");
 			session.setAssertion(samlHelper.marshal(assertion));
@@ -127,7 +112,7 @@ public class Saml2PostHandlerServlet implements Servlet {
 			Map<String, List<Object>> attributeMap = saml2AssertionService.extractAttributes(assertion);
 			session.setAttributeMap(attributeMap);
 			
-			UserEntity user = userService.findByPersistentWithRoles(spEntity.getEntityId(), 
+			UserEntity user = userService.findByPersistentWithRoles(spConfig.getEntityId(), 
 						idpEntity.getEntityId(), persistentId);
 			
 			if (user == null) {
@@ -149,7 +134,7 @@ public class Saml2PostHandlerServlet implements Servlet {
 	    	long start = System.currentTimeMillis();
 
 			knowledgeSessionService.checkRule(userLoginRule, user, attributeMap, assertion, 
-					idpEntity, idpEntityDescriptor, spEntity);
+					idpEntity, idpEntityDescriptor, spConfig);
 			
 	    	long end = System.currentTimeMillis();
 	    	logger.debug("Rule processing took {} ms", end - start);
@@ -184,18 +169,4 @@ public class Saml2PostHandlerServlet implements Servlet {
 			throw new ServletException("Authentication problem", e);
 		}
 	}
-	
-	@Override
-	public ServletConfig getServletConfig() {
-		return null;
-	}
-
-	@Override
-	public String getServletInfo() {
-		return null;
-	}
-
-	@Override
-	public void destroy() {
-	}	
 }

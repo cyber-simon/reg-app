@@ -19,16 +19,13 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "spconfig")
-public class SamlSpConfigurationEntity extends SamlConfigurationEntity {
+@Table(name = "aaconfig")
+public class SamlAAConfigurationEntity extends SamlConfigurationEntity {
 
 	private static final long serialVersionUID = 1L;
 	
-	@Column(name = "acs", length = 2048)
-	private String acs;
-	
-	@Column(name = "ecp", length = 2048)
-	private String ecp;
+	@Column(name = "aq", length = 2048)
+	private String aq;
 	
 	@ElementCollection
 	private List<String> hostNameList = new ArrayList<String>();
@@ -41,19 +38,11 @@ public class SamlSpConfigurationEntity extends SamlConfigurationEntity {
 		this.hostNameList = hostNameList;
 	}
 
-	public String getAcs() {
-		return acs;
+	public String getAq() {
+		return aq;
 	}
 
-	public void setAcs(String acs) {
-		this.acs = acs;
-	}
-
-	public String getEcp() {
-		return ecp;
-	}
-
-	public void setEcp(String ecp) {
-		this.ecp = ecp;
+	public void setAq(String aq) {
+		this.aq = aq;
 	}
 }

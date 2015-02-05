@@ -23,19 +23,17 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.opensaml.ws.message.encoder.MessageEncodingException;
 import org.slf4j.Logger;
 
-import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
+import edu.kit.scc.webreg.entity.SamlAAConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
-import edu.kit.scc.webreg.service.SamlIdpMetadataService;
+import edu.kit.scc.webreg.service.SamlAAConfigurationService;
 import edu.kit.scc.webreg.service.SamlSpConfigurationService;
-import edu.kit.scc.webreg.service.saml.Saml2RedirectService;
 import edu.kit.scc.webreg.util.SessionManager;
 
 @Named
-@WebServlet(urlPatterns = {"/Shibboleth.sso/Login", "/saml/login"})
-public class Saml2RedirectLoginHandlerServlet implements Servlet {
+@WebServlet(urlPatterns = {"/Shibboleth.sso/*", "/saml/*"})
+public class Saml2DispatcherServlet implements Servlet {
 
 	@Inject
 	private Logger logger;
@@ -44,13 +42,16 @@ public class Saml2RedirectLoginHandlerServlet implements Servlet {
 	private SessionManager session;
 
 	@Inject 
-	private SamlIdpMetadataService idpService;
-	 
+	private SamlSpConfigurationService spConfigService;
+
 	@Inject 
-	private SamlSpConfigurationService spService;
+	private SamlAAConfigurationService aaConfigService;
 
 	@Inject
-	private Saml2RedirectService saml2RedirectService;
+	private Saml2AttributeQueryServlet attributeQueryServlet;
+	
+	@Inject
+	private Saml2PostHandlerServlet postHandlerServlet;
 	
 	@Override
 	public void init(ServletConfig config) throws ServletException {
@@ -64,23 +65,26 @@ public class Saml2RedirectLoginHandlerServlet implements Servlet {
 		HttpServletRequest request = (HttpServletRequest) servletRequest;
 		HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-		if (session == null || session.getIdpId() == null || session.getSpId() == null) {
-			logger.debug("Client session from {} not established. Sending client back to welcome page",
-					request.getRemoteAddr());
-			response.sendRedirect("/welcome/index.xhtml");
-			return;
+		String context = request.getServletContext().getContextPath();
+		String path = request.getRequestURI().substring(
+				context.length());
+		
+		logger.debug("Dispatching request context '{}' path '{}'", context, path);
+		
+		SamlSpConfigurationEntity spConfig = spConfigService.findByHostname(request.getServerName());
+		SamlAAConfigurationEntity aaConfig = aaConfigService.findByHostname(request.getServerName());
+		
+		if (spConfig.getAcs().endsWith(context + path)) {
+			logger.debug("Executing POST Handler for entity {}", spConfig.getEntityId());
+			postHandlerServlet.service(servletRequest, servletResponse, spConfig);
 		}
-		
-		try {
-			SamlIdpMetadataEntity idpEntity = idpService.findById(session.getIdpId());
-			SamlSpConfigurationEntity spEntity = spService.findById(session.getSpId());
-			
-			saml2RedirectService.redirectClient(idpEntity, spEntity, response);
-
-		} catch (MessageEncodingException e) {
-            throw new ServletException("Error encoding outgoing message", e);
-        }
-		
+		else if (aaConfig.getAq().endsWith(context + path)) {
+			logger.debug("Executing AttributeQuery Handler for entity {}", aaConfig.getEntityId());
+			attributeQueryServlet.service(servletRequest, servletResponse, aaConfig);
+		}
+		else {
+			logger.info("No matching servlet for context '{}' path '{}'", context, path);
+		}	
 	}
 	
 	@Override
