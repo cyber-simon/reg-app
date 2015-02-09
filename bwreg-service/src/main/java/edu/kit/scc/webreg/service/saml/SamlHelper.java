@@ -83,7 +83,14 @@ public class SamlHelper implements Serializable {
 	public <T> T create (Class<T> cls, QName qname)
 	{
 	  return (T) ((XMLObjectBuilder<?>) Configuration.getBuilderFactory()
-			  .getBuilder (qname)).buildObject (qname);
+			  .getBuilder(qname)).buildObject(qname);
+	}
+	
+	@SuppressWarnings ("unchecked")
+	public <T> T create (Class<T> cls, QName typeName, QName qname)
+	{
+	  return (T) ((XMLObjectBuilder<?>) Configuration.getBuilderFactory()
+			  .getBuilder(typeName)).buildObject(qname, typeName);
 	}
 	
 	public <T extends XMLObject> String marshal(T t) {

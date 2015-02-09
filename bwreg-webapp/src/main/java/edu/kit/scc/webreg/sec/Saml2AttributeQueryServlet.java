@@ -20,28 +20,38 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.joda.time.DateTime;
 import org.opensaml.Configuration;
+import org.opensaml.saml2.core.Assertion;
+import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.core.AttributeQuery;
+import org.opensaml.saml2.core.AttributeStatement;
+import org.opensaml.saml2.core.AttributeValue;
 import org.opensaml.saml2.core.Issuer;
+import org.opensaml.saml2.core.NameID;
 import org.opensaml.saml2.core.Response;
 import org.opensaml.saml2.core.Status;
 import org.opensaml.saml2.core.StatusCode;
 import org.opensaml.saml2.core.StatusMessage;
+import org.opensaml.saml2.core.Subject;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.ws.message.decoder.MessageDecodingException;
 import org.opensaml.ws.soap.soap11.Body;
 import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.XMLObjectBuilderFactory;
+import org.opensaml.xml.schema.XSAny;
+import org.opensaml.xml.schema.XSString;
 import org.opensaml.xml.security.SecurityException;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.SamlAAConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
+import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.SamlAuthenticationException;
-import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.SamlSpMetadataService;
+import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.saml.Saml2DecoderService;
 import edu.kit.scc.webreg.service.saml.Saml2ResponseValidationService;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
@@ -62,11 +72,11 @@ public class Saml2AttributeQueryServlet {
 	private SamlHelper samlHelper;
 		
 	@Inject 
-	private SamlIdpMetadataService idpService;
-	
-	@Inject 
 	private SamlSpMetadataService spMetadataService;
 
+	@Inject
+	private UserService userService;
+	
 	@Inject
 	private ApplicationConfig appConfig;
 	
@@ -99,6 +109,23 @@ public class Saml2AttributeQueryServlet {
 			saml2ValidationService.validateSpSignature(query, issuer, spEntityDescriptor);
 			
 			Response samlResponse = buildSamlRespone(StatusCode.SUCCESS_URI, null);
+			samlResponse.setIssuer(buildIssuser(aaConfig.getEntityId()));
+			samlResponse.setIssueInstant(new DateTime());
+
+			if (query.getSubject() != null && query.getSubject().getNameID() != null) {
+				String nameIdValue = query.getSubject().getNameID().getValue();
+				String nameIdFormat = query.getSubject().getNameID().getFormat();
+				
+				UserEntity user = userService.findByEppn(nameIdValue);
+				if (user != null) {
+					Assertion assertion = samlHelper.create(Assertion.class, Assertion.DEFAULT_ELEMENT_NAME);
+					assertion.setIssueInstant(new DateTime());
+					assertion.setIssuer(buildIssuser(aaConfig.getEntityId()));
+					assertion.setSubject(buildSubject(nameIdValue, NameID.UNSPECIFIED));
+					assertion.getAttributeStatements().add(buildAttributeStatement(user));
+					samlResponse.getAssertions().add(assertion);
+				}
+			}
 			
 			Envelope envelope = buildSoapEnvelope(samlResponse);
 			response.getWriter().print(samlHelper.marshal(envelope));
@@ -155,5 +182,43 @@ public class Saml2AttributeQueryServlet {
 			samlStatus.setStatusMessage(statusMessage);
 		}
 		return samlStatus;
+	}
+	
+	private Issuer buildIssuser(String entityId) {
+		Issuer issuer = samlHelper.create(Issuer.class, Issuer.DEFAULT_ELEMENT_NAME);
+		issuer.setValue(entityId);
+		return issuer;
+	}
+	
+	private Subject buildSubject(String nameIdValue, String nameIdType) {
+		NameID nameId = samlHelper.create(NameID.class, NameID.DEFAULT_ELEMENT_NAME);
+		nameId.setFormat(nameIdType);
+		nameId.setValue(nameIdValue);
+		
+		Subject subject = samlHelper.create(Subject.class, Subject.DEFAULT_ELEMENT_NAME);
+		subject.setNameID(nameId);
+		return subject;
+	}
+	
+	private AttributeStatement buildAttributeStatement(UserEntity user) {
+		AttributeStatement attributeStatement = samlHelper.create(AttributeStatement.class, AttributeStatement.DEFAULT_ELEMENT_NAME);
+		attributeStatement.getAttributes().add(buildAttribute(
+				"urn:oid:1.3.6.1.4.1.5923.1.1.1.6", "eduPersonPrincipalName", Attribute.URI_REFERENCE, user.getEppn()));
+		return attributeStatement;
+	}
+	
+	private Attribute buildAttribute(String name, String friendlyName, String nameFormat, String... values) {
+		Attribute attribute = samlHelper.create(Attribute.class, Attribute.DEFAULT_ELEMENT_NAME);
+		attribute.setName(name);
+		attribute.setFriendlyName(friendlyName);
+		attribute.setNameFormat(nameFormat);
+		
+		for (String value : values) {
+			XSString xsany = samlHelper.create(XSString.class, XSString.TYPE_NAME, AttributeValue.DEFAULT_ELEMENT_NAME);
+			xsany.setValue(value);
+			attribute.getAttributeValues().add(xsany);
+		}
+		
+		return attribute;
 	}
 }
