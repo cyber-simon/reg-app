@@ -55,9 +55,6 @@ public class HomeOrgGroupServiceImpl extends BaseServiceImpl<HomeOrgGroupEntity,
 	private Logger logger;
 
 	@Inject
-	private UserDao userDao;
-	
-	@Inject
 	private HookManager hookManager;
 	
 	@Inject
@@ -83,12 +80,20 @@ public class HomeOrgGroupServiceImpl extends BaseServiceImpl<HomeOrgGroupEntity,
 			throws RegisterException {
 		HashSet<GroupEntity> changedGroups = new HashSet<GroupEntity>();
 		
-		//user = userDao.findById(user.getId());
-		
 		changedGroups.addAll(updatePrimary(user, attributeMap, auditor));
 		changedGroups.addAll(updateSecondary(user, attributeMap, auditor));
-		
+
+		// Also add parent groups, to reflect changes
+		HashSet<GroupEntity> allChangedGroups = new HashSet<GroupEntity>(changedGroups.size());
 		for (GroupEntity group : changedGroups) {
+			allChangedGroups.add(group);
+			for (GroupEntity parent : group.getParents()) {
+				logger.debug("Adding parent group to changed groups: {}", parent.getName());
+				allChangedGroups.add(parent);
+			}
+		}
+		
+		for (GroupEntity group : allChangedGroups) {
 			if (group instanceof ServiceBasedGroupEntity) {
 				List<ServiceGroupFlagEntity> groupFlagList = groupFlagDao.findByGroup((ServiceBasedGroupEntity) group);
 				for (ServiceGroupFlagEntity groupFlag : groupFlagList) {
@@ -98,14 +103,14 @@ public class HomeOrgGroupServiceImpl extends BaseServiceImpl<HomeOrgGroupEntity,
 			}
 		}
 		
-		MultipleGroupEvent mge = new MultipleGroupEvent(changedGroups);
+		MultipleGroupEvent mge = new MultipleGroupEvent(allChangedGroups);
 		try {
 			eventSubmitter.submit(mge, EventType.GROUP_UPDATE, auditor.getActualExecutor());
 		} catch (EventSubmitException e) {
 			logger.warn("Exeption", e);
 		}
 		
-		return changedGroups;
+		return allChangedGroups;
 	}
 	
 	protected Set<GroupEntity> updatePrimary(UserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor)
