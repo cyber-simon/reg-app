@@ -29,6 +29,7 @@ import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserGroupEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.MultipleGroupEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
@@ -74,7 +75,7 @@ public class GroupAdminShowLocalGroupBean implements Serializable {
 	
 	@Inject
 	private EventSubmitter eventSubmitter;
-	
+
 	private LocalGroupEntity entity;
 
 	private ServiceEntity serviceEntity;
@@ -82,6 +83,7 @@ public class GroupAdminShowLocalGroupBean implements Serializable {
 	private List<ServiceGroupFlagEntity> groupFlagList;
 
 	private List<UserEntity> effectiveMemberList;
+	private List<UserEntity> memberList;
 
 	private Long serviceId;
 	private Long groupId;
@@ -108,6 +110,10 @@ public class GroupAdminShowLocalGroupBean implements Serializable {
 		if (groupFlagList.size() == 0)
 			throw new NotAuthorizedException("Gruppe ist diesem Service nicht zugeordnet");
 		effectiveMemberList = new ArrayList<UserEntity>(allGroupService.getEffectiveMembers(entity));
+		memberList = new ArrayList<UserEntity>();
+		for (UserGroupEntity ug : entity.getUsers()) {
+			memberList.add(ug.getUser());
+		}
 	}
 	
 	public void handleSave() {
@@ -174,5 +180,9 @@ public class GroupAdminShowLocalGroupBean implements Serializable {
 
 	public Boolean getEditable() {
 		return editable;
+	}
+
+	public List<UserEntity> getMemberList() {
+		return memberList;
 	}
 }
