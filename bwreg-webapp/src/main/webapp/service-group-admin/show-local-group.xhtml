@@ -55,7 +55,7 @@
 		
 		<div class="panel">
 			<p:panel id="memberPanel" header="#{messages.members}">
-				<p:dataTable id="memberData" style="min-width: 500px;" 
+				<p:dataTable id="memberData" style="min-width: 500px;" rows="15" paginator="true"
 						value="#{groupAdminShowLocalGroupBean.memberList}" var="user">
 					<p:column sortBy="#{user.eppn}" filterBy="#{user.eppn}">
 						<f:facet name="header">
