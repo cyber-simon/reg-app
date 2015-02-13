@@ -11,9 +11,9 @@
 package edu.kit.scc.webreg.bean.admin.group;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
@@ -90,7 +90,7 @@ public class GroupAdminEditLocalGroupBean implements Serializable {
 	private LazyDataModel<UserEntity> userList;
 	private LazyDataModel<GroupEntity> groupList;
 	
-	private Set<UserEntity> usersInGroup;
+	private List<UserEntity> usersInGroup;
 	
 	private Long serviceId;
 	private Long groupId;
@@ -109,7 +109,7 @@ public class GroupAdminEditLocalGroupBean implements Serializable {
 			groupFlagList = groupFlagService.findByGroup(entity);
 			if (groupFlagList.size() == 0)
 				throw new NotAuthorizedException("Gruppe ist diesem Service nicht zugeordnet");
-			usersInGroup = new HashSet<UserEntity>(userService.findByGroup(entity));
+			usersInGroup = new ArrayList<UserEntity>(userService.findByGroup(entity));
 		}
 
 		if (! authBean.isUserInRoles(entity.getAdminRoles())) {
@@ -118,7 +118,7 @@ public class GroupAdminEditLocalGroupBean implements Serializable {
 	}
 	
 	public String save() {
-		allGroupService.updateGroupMembers(entity, usersInGroup);
+		allGroupService.updateGroupMembers(entity, new HashSet<UserEntity>(usersInGroup));
 		
 		for (ServiceGroupFlagEntity flag : groupFlagList) {
 			flag.setStatus(ServiceGroupStatus.DIRTY);
@@ -192,7 +192,7 @@ public class GroupAdminEditLocalGroupBean implements Serializable {
 		return groupList;
 	}
 
-	public Set<UserEntity> getUsersInGroup() {
+	public List<UserEntity> getUsersInGroup() {
 		return usersInGroup;
 	}
 

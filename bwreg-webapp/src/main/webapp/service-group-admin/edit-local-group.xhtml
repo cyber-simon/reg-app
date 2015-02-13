@@ -89,21 +89,21 @@
 		
 		<div class="panel">
 			<p:panel id="memberPanel" header="#{messages.members}">
-				<p:dataTable id="memberData" style="min-width: 500px;" 
-						value="#{groupAdminEditLocalGroupBean.usersInGroup.toArray()}" var="user">
-					<p:column>
+				<p:dataTable id="memberData" style="min-width: 500px;" paginator="true" rows="15" 
+						value="#{groupAdminEditLocalGroupBean.usersInGroup}" var="user">
+					<p:column sortBy="#{user.eppn}" filterBy="#{user.eppn}">
 						<f:facet name="header">
 							<h:outputText value="#{messages.eppn}" />
 						</f:facet>
 						<h:outputText value="#{user.eppn}" />
 					</p:column>
-					<p:column>
+					<p:column sortBy="#{user.surName}" filterBy="#{user.surName}">
 						<f:facet name="header">
 							<h:outputText value="#{messages.sur_name}" />
 						</f:facet>
 						<h:outputText value="#{user.surName}" />
 					</p:column>
-					<p:column>
+					<p:column sortBy="#{user.givenName}" filterBy="#{user.givenName}">
 						<f:facet name="header">
 							<h:outputText value="#{messages.given_name}" />
 						</f:facet>
