@@ -135,8 +135,6 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 			registry.setRegistryStatus(RegistryStatus.CREATED);
 			registry.setLastStatusChange(new Date());
 			
-			registry = registryDao.persist(registry);
-			
 			if (registry.getApprovalBean() != null) {
 				logger.debug("Registering {} for approval {}", user.getEppn(), registry.getApprovalBean());
 				approvalService.registerApproval(registry);
