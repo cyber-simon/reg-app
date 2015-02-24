@@ -93,6 +93,11 @@
     	        	<f:param name="serviceId" value="#{service.id}" />
     	        </h:link>
 	          </li>
+	          <li><span class="ui-icon ui-icon-carat-1-e" style="display:inline-block; vertical-align: bottom;" />
+    	        <h:link outcome="/service-admin/list-service-users-for-depro.xhtml" value="#{messages.service_users_depro}">
+    	        	<f:param name="serviceId" value="#{service.id}" />
+    	        </h:link>
+	          </li>
 	          <li><span class="ui-icon ui-icon-signal" style="display:inline-block; vertical-align: bottom;" />
     	        <h:link outcome="/service-admin/service-stats.xhtml" value="#{messages.statistics}">
     	        	<f:param name="serviceId" value="#{service.id}" />

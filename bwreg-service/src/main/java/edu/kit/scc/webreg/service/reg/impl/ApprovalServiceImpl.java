@@ -121,6 +121,7 @@ public class ApprovalServiceImpl implements ApprovalService {
 		RegisterUserWorkflow workflow = getRegisterWorkflowInstance(registry.getRegisterBean());
 
 		try {
+			registry = registryDao.persist(registry);
 			ServiceEntity serviceEntity = serviceDao.findByIdWithServiceProps(registry.getService().getId());
 			UserEntity userEntity = userDao.findByIdWithAll(registry.getUser().getId());
 
@@ -136,7 +137,6 @@ public class ApprovalServiceImpl implements ApprovalService {
 			registry.setRegistryStatus(RegistryStatus.ACTIVE);
 			registry.setLastStatusChange(new Date());
 			registry.setLastReconcile(new Date());
-			registryDao.persist(registry);
 			
 			HashSet<GroupEntity> userGroups = new HashSet<GroupEntity>(userEntity.getGroups().size());
 			

@@ -50,6 +50,11 @@ public class RegistryServiceImpl extends BaseServiceImpl<RegistryEntity, Long> i
 	}
 
 	@Override
+	public List<RegistryEntity> findRegistriesForDepro(String serviceShortName) { 
+		return dao.findRegistriesForDepro(serviceShortName);
+	}
+	
+	@Override
 	public List<RegistryEntity> findByServiceAndStatus(ServiceEntity service, RegistryStatus status) {
 		return dao.findByServiceAndStatus(service, status);
 	}
