@@ -20,9 +20,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.RegistryEntity;
-import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.exc.RegisterException;
-import edu.kit.scc.webreg.service.AuditEntryService;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;
 import edu.kit.scc.webreg.util.SessionManager;
@@ -45,9 +43,6 @@ public class ShowRegistryBean implements Serializable {
 	
 	@Inject
 	private SessionManager sessionManager;
-	
-	@Inject
-	private AuditEntryService auditEntryService;
 	
 	private RegistryEntity registry;
 
@@ -73,19 +68,11 @@ public class ShowRegistryBean implements Serializable {
 
 		logger.info("Purging registry {} via AdminRegistry page", registry.getId());
 		
-		if (RegistryStatus.ACTIVE.equals(registry.getRegistryStatus()) || 
-				RegistryStatus.INVALID.equals(registry.getRegistryStatus()) ||
-				RegistryStatus.LOST_ACCESS.equals(registry.getRegistryStatus()) ||
-				RegistryStatus.BLOCKED.equals(registry.getRegistryStatus())) {
-			
-			/*
-			 * Deregister user first, if the registration is somewhat active
-			 */
-			deregister();
+		try {
+			registerUserService.purge(registry, "user-" + sessionManager.getUserId());
+		} catch (RegisterException e) {
+			logger.warn("Could not purge Registry", e);
 		}
-		
-		auditEntryService.deleteAuditForRegistry(registry);
-		registryService.delete(registry);
 		
 		return ViewIds.SHOW_USER + "?id=" + userId + "&faces-redirect=true";
 	}

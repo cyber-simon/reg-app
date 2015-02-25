@@ -33,6 +33,10 @@ public interface RegisterUserService {
 	void deregisterUser(RegistryEntity registry, String executor)
 			throws RegisterException;
 
+	void deprovision(RegistryEntity registry, String executor) throws RegisterException;
+	
+	void purge(RegistryEntity registry, String executor) throws RegisterException;
+	
 	void setPassword(UserEntity user, ServiceEntity service,
 			RegistryEntity registry, String password, String executor)
 			throws RegisterException;

@@ -40,6 +40,8 @@ import edu.kit.scc.webreg.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.drools.MissingMandatoryValues;
 import edu.kit.scc.webreg.entity.AgreementTextEntity;
 import edu.kit.scc.webreg.entity.ApproverRoleEntity;
+import edu.kit.scc.webreg.entity.AuditDetailEntity;
+import edu.kit.scc.webreg.entity.AuditServiceRegisterEntity;
 import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.EventEntity;
 import edu.kit.scc.webreg.entity.EventType;
@@ -568,5 +570,50 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 		}
 		
 		logger.info("Reconciliation is done.");
+	}
+
+	@Override
+	public void deprovision(RegistryEntity registry, String executor) throws RegisterException {
+		ServiceRegisterAuditor auditor = new ServiceRegisterAuditor(auditDao, auditDetailDao, appConfig);
+		auditor.startAuditTrail(executor);
+		auditor.setName(registry.getService().getShortName() + "-Deregister-Audit");
+		auditor.setDetail("Deprovision user " + registry.getUser().getEppn() + " for service " + registry.getService().getShortName());
+		auditor.setRegistry(registry);
+		
+		registry.setRegistryStatus(RegistryStatus.DEPROVISIONED);
+		registry.setLastStatusChange(new Date());
+		registry = registryDao.persist(registry);
+
+		auditor.finishAuditTrail();
+	}
+
+	@Override
+	public void purge(RegistryEntity registry, String executor) throws RegisterException {
+		if (RegistryStatus.ACTIVE.equals(registry.getRegistryStatus()) || 
+				RegistryStatus.INVALID.equals(registry.getRegistryStatus()) ||
+				RegistryStatus.LOST_ACCESS.equals(registry.getRegistryStatus()) ||
+				RegistryStatus.BLOCKED.equals(registry.getRegistryStatus())) {
+			
+			/*
+			 * Deregister user first, if the registration is somewhat active
+			 */
+			deregisterUser(registry, executor);
+		}
+		
+		List<AuditServiceRegisterEntity> auditList = auditDao.findAllServiceRegister(registry);
+		
+		logger.info("There are {} AuditServiceRegisterEntity for Registry {} to be deleted", auditList.size(), registry.getId());
+		
+		for (AuditServiceRegisterEntity audit : auditList) {
+			logger.debug("Deleting audit {} with {} auditentries", audit.getId(), audit.getAuditDetails().size());
+			for (AuditDetailEntity detail : audit.getAuditDetails()) {
+				auditDetailDao.delete(detail);
+			}
+			auditDao.delete(audit);
+		}
+
+		registryDao.delete(registry);
+
+		
 	}
 }

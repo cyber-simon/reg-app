@@ -11,7 +11,6 @@
 package edu.kit.scc.webreg.bean.admin.service;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
@@ -19,13 +18,17 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+
 import edu.kit.scc.webreg.entity.RegistryEntity;
-import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
+import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.sec.AuthorizationBean;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.ServiceService;
+import edu.kit.scc.webreg.service.reg.RegisterUserService;
+import edu.kit.scc.webreg.util.SessionManager;
 
 @ManagedBean
 @ViewScoped
@@ -33,14 +36,23 @@ public class ServiceAdminUserListDeproBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	@Inject
+	private Logger logger;
+	
     @Inject
     private RegistryService service;
 
+    @Inject
+    private RegisterUserService registerUserService;
+    
     @Inject
     private ServiceService serviceService;
 
     @Inject
     private AuthorizationBean authBean;
+    
+    @Inject
+    private SessionManager sessionManager;
     
     private ServiceEntity serviceEntity;
     
@@ -60,11 +72,13 @@ public class ServiceAdminUserListDeproBean implements Serializable {
 	}
 
 	public void depro(RegistryEntity registry) {
+		logger.debug("Deprovsion registry {} (user {})", registry.getId(), registry.getUser().getEppn());
 		deproList.remove(registry);
-		registry = service.findById(registry.getId());
-		registry.setRegistryStatus(RegistryStatus.DEPROVISIONED);
-		registry.setLastStatusChange(new Date());
-		registry = service.save(registry);
+		try {
+			registerUserService.deprovision(registry, "user-" + sessionManager.getUserId());
+		} catch (RegisterException e) {
+			logger.warn("Deprovision failed!", e);
+		}
 	}
 	
 	public ServiceEntity getServiceEntity() {

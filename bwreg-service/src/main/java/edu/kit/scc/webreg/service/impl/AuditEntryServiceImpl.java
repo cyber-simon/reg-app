@@ -23,8 +23,6 @@ import edu.kit.scc.webreg.dao.AuditEntryDao;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.entity.AuditDetailEntity;
 import edu.kit.scc.webreg.entity.AuditEntryEntity;
-import edu.kit.scc.webreg.entity.AuditServiceRegisterEntity;
-import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.service.AuditEntryService;
 
 @Stateless
@@ -61,21 +59,6 @@ public class AuditEntryServiceImpl extends BaseServiceImpl<AuditEntryEntity, Lon
 		}
 	}
 
-	@Override
-	public void deleteAuditForRegistry(RegistryEntity registry) {
-		List<AuditServiceRegisterEntity> auditList = dao.findAllServiceRegister(registry);
-		
-		logger.info("There are {} AuditServiceRegisterEntity for Registry {} to be deleted", auditList.size(), registry.getId());
-		
-		for (AuditServiceRegisterEntity audit : auditList) {
-			logger.debug("Deleting audit {} with {} auditentries", audit.getId(), audit.getAuditDetails().size());
-			for (AuditDetailEntity detail : audit.getAuditDetails()) {
-				detailDao.delete(detail);
-			}
-			dao.delete(audit);
-		}
-	}
-	
 	@Override
 	protected BaseDao<AuditEntryEntity, Long> getDao() {
 		return dao;

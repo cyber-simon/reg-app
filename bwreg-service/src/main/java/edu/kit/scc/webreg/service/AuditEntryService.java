@@ -22,6 +22,4 @@ public interface AuditEntryService extends BaseService<AuditEntryEntity, Long> {
 
 	void deleteAllOlderThan(Date date, int limit);
 
-	void deleteAuditForRegistry(RegistryEntity registry);
-
 }
