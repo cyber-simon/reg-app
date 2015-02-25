@@ -17,6 +17,7 @@ public enum RegistryStatus {
 	PENDING,
 	CREATED,
 	DELETED,
+	DEPROVISIONED,
 	INVALID,
 	ON_HOLD,
 	LOST_ACCESS
