@@ -27,7 +27,7 @@
 		<div id="panelInline">
 
 			<p:dataTable id="registeredTable1" var="registry" value="#{serviceAdminUserListDeproBean.deproList}" paginator="true"
-				rows="15" tableStyle="width:auto">
+				rows="15" tableStyle="width:auto;">
 
 				<p:column sortBy="#{registry.id}" width="32">
 					<f:facet name="header">
@@ -76,7 +76,7 @@
 					<h:outputText value="#{of:formatDate(registry.lastStatusChange, 'dd.MM.yyyy HH:mm')}" />
 				</p:column>
 				<p:column>
-					<p:commandButton icon="ui-icon-disk" actionListener="#{serviceAdminUserListDeproBean.depro(registry)}" 
+					<p:commandButton icon="ui-icon-trash" actionListener="#{serviceAdminUserListDeproBean.depro(registry)}" 
 						update=":form:registeredTable1"/>
 				</p:column>
 			</p:dataTable>
