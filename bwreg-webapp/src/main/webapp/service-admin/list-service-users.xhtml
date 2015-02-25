@@ -76,10 +76,6 @@
 							<h:outputText value="#{registry.registryStatus}" />
 						</p:column>
 					</p:dataTable>
-					
-					<p:commandButton value="CSV Export" ajax="false">
-						<p:dataExporter target="registeredTable1" type="csv" fileName="users_active" />						
-					</p:commandButton>
 				</p:tab>
 
 				<p:tab id="tab2" title="#{messages.lost_access}">

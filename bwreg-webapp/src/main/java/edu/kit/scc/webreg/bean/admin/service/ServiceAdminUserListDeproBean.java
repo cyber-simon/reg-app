@@ -11,9 +11,8 @@
 package edu.kit.scc.webreg.bean.admin.service;
 
 import java.io.Serializable;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
@@ -24,8 +23,6 @@ import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
-import edu.kit.scc.webreg.model.GenericLazyDataModel;
-import edu.kit.scc.webreg.model.GenericLazyDataModelImpl;
 import edu.kit.scc.webreg.sec.AuthorizationBean;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.ServiceService;
@@ -62,6 +59,14 @@ public class ServiceAdminUserListDeproBean implements Serializable {
 		}
 	}
 
+	public void depro(RegistryEntity registry) {
+		deproList.remove(registry);
+		registry = service.findById(registry.getId());
+		registry.setRegistryStatus(RegistryStatus.DEPROVISIONED);
+		registry.setLastStatusChange(new Date());
+		registry = service.save(registry);
+	}
+	
 	public ServiceEntity getServiceEntity() {
 		return serviceEntity;
 	}

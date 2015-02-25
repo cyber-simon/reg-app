@@ -75,11 +75,11 @@
 					</f:facet>
 					<h:outputText value="#{of:formatDate(registry.lastStatusChange, 'dd.MM.yyyy HH:mm')}" />
 				</p:column>
+				<p:column>
+					<p:commandButton icon="ui-icon-disk" actionListener="#{serviceAdminUserListDeproBean.depro(registry)}" 
+						update=":form:registeredTable1"/>
+				</p:column>
 			</p:dataTable>
-			
-			<p:commandButton value="CSV Export" ajax="false">
-				<p:dataExporter target="registeredTable1" type="csv" fileName="users_active" />						
-			</p:commandButton>
 		</div>
 
 	</h:form>
