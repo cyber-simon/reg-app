@@ -91,11 +91,14 @@ public class JpaRegistryDao extends JpaBaseDao<RegistryEntity, Long> implements 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<RegistryEntity> findRegistriesForDepro(String serviceShortName) {
-		return em.createQuery("select r from RegistryEntity r where r.service.shortName = :ssn and r.registryStatus = :status and r.registryStatus != :statusNot and "
-				+ "r.agreedTime = (select max(r1.agreedTime) from RegistryEntity r1 where r1.user = r.user) and not exists "
-				+ "(select r2 from RegistryEntity r2 where r2.user = r.user and r2.agreedTime > r.agreedTime)")
-				.setParameter("ssn", serviceShortName).setParameter("status", RegistryStatus.DELETED).setParameter("statusNot", RegistryStatus.DEPROVISIONED)
+		List<RegistryEntity> resultList = 
+			em.createQuery("select r from RegistryEntity r where r.service.shortName = :ssn and r.registryStatus = :status and "
+				+ "r.agreedTime = (select max(r1.agreedTime) from RegistryEntity r1 where r1.user = r.user and r1.service = r.service) and not exists "
+				+ "(select r2 from RegistryEntity r2 where r2.user = r.user and r2.agreedTime > r.agreedTime and r2.service = r.service)")
+				.setParameter("ssn", serviceShortName).setParameter("status", RegistryStatus.DELETED)
 				.getResultList();
+		
+		return resultList;
 	}	
 	
 
