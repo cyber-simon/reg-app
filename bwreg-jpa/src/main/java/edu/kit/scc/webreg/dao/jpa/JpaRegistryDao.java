@@ -10,6 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -195,14 +196,18 @@ public class JpaRegistryDao extends JpaBaseDao<RegistryEntity, Long> implements 
 	}	
 	
 	@Override
-	public List<RegistryEntity> findByServiceAndUserAndNotStatus(ServiceEntity service, UserEntity user, RegistryStatus status) {
+	public List<RegistryEntity> findByServiceAndUserAndNotStatus(ServiceEntity service, UserEntity user, RegistryStatus... status) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<RegistryEntity> criteria = builder.createQuery(RegistryEntity.class);
 		Root<RegistryEntity> root = criteria.from(RegistryEntity.class);
-		criteria.where(builder.and(
-				builder.equal(root.get("service"), service),
-				builder.equal(root.get("user"), user),
-				builder.notEqual(root.get("registryStatus"), status)));
+		
+		List<Predicate> predList = new ArrayList<Predicate>();
+		predList.add(builder.equal(root.get("service"), service));
+		predList.add(builder.equal(root.get("user"), user));
+		for (RegistryStatus s : status)
+			predList.add(builder.notEqual(root.get("registryStatus"), s));
+		
+		criteria.where(builder.and(predList.toArray(new Predicate[]{})));
 		criteria.select(root);
 
 		return em.createQuery(criteria).getResultList();

@@ -103,7 +103,8 @@ public class RegisterServiceBean implements Serializable {
     		
 			service = serviceService.findWithPolicies(id);
 			
-			List<RegistryEntity> r = registryService.findByServiceAndUserAndNotStatus(service, user, RegistryStatus.DELETED);
+			List<RegistryEntity> r = registryService.findByServiceAndUserAndNotStatus(service, user, 
+					RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
 			if (r.size() != 0) {
 				errorState = true;
 	    		messageGenerator.addResolvedErrorMessage("errorState", "error", "already_registered", true);
