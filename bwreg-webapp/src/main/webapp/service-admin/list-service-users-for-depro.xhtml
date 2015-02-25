@@ -27,9 +27,9 @@
 		<div id="panelInline">
 
 			<p:dataTable id="registeredTable1" var="registry" value="#{serviceAdminUserListDeproBean.deproList}" paginator="true"
-				rows="15">
+				rows="15" tableStyle="width:auto">
 
-				<p:column sortBy="#{registry.id}">
+				<p:column sortBy="#{registry.id}" width="32">
 					<f:facet name="header">
 						<h:outputText value="#{messages.id}" />
 					</f:facet>
@@ -43,13 +43,21 @@
 	      				<f:param name="id" value="#{registry.id}"/>
 	    			</h:link>
 				</p:column>
-				<p:column sortBy="#{registry.user.surName}" filterBy="#{registry.user.surName}">
+				<p:column sortBy="#{registry.user.uidNumber}" filterBy="#{registry.user.uidNumber}" filterStyle="width: 48px;">
+					<f:facet name="header">
+						<h:outputText value="#{messages.uid_number}" />
+					</f:facet>
+					<h:link outcome="show-service-registry.xhtml" value="#{registry.user.uidNumber}">
+	      				<f:param name="id" value="#{registry.id}"/>
+	    			</h:link>
+				</p:column>
+				<p:column sortBy="#{registry.user.surName}" filterBy="#{registry.user.surName}" filterStyle="width: 48px;">
 					<f:facet name="header">
 						<h:outputText value="#{messages.sur_name}" />
 					</f:facet>
 					<h:outputText value="#{registry.user.surName}" />
 				</p:column>
-				<p:column sortBy="#{registry.user.givenName}" filterBy="#{registry.user.givenName}">
+				<p:column sortBy="#{registry.user.givenName}" filterBy="#{registry.user.givenName}" filterStyle="width: 48px;">
 					<f:facet name="header">
 						<h:outputText value="#{messages.given_name}" />
 					</f:facet>
@@ -66,12 +74,6 @@
 						<h:outputText value="#{messages.last_status_change}" />
 					</f:facet>
 					<h:outputText value="#{of:formatDate(registry.lastStatusChange, 'dd.MM.yyyy HH:mm')}" />
-				</p:column>
-			 	<p:column sortBy="#{registry.registryStatus}">
-					<f:facet name="header">
-						<h:outputText value="#{messages.status}" />
-					</f:facet>
-					<h:outputText value="#{registry.registryStatus}" />
 				</p:column>
 			</p:dataTable>
 			
