@@ -13,8 +13,6 @@ public class RegistryEntityDto extends AbstractBaseEntityDto {
 
 	private RegistryStatus registryStatus;
 	
-//	private UserEntity user;
-	
 	private Set<AgreementTextEntity> agreedTexts;
 	
 	private Date agreedTime;
@@ -29,6 +27,16 @@ public class RegistryEntityDto extends AbstractBaseEntityDto {
 	
 	private Date lastAccessCheck;
 
+	private Long userId;
+	
+	private Integer userUidNumber;
+	
+	private String userEppn;
+
+	private String userEmailAddress;
+	
+	private Set<String> userEmailAddresses;
+	
 	public RegistryStatus getRegistryStatus() {
 		return registryStatus;
 	}
@@ -91,5 +99,45 @@ public class RegistryEntityDto extends AbstractBaseEntityDto {
 
 	public void setLastAccessCheck(Date lastAccessCheck) {
 		this.lastAccessCheck = lastAccessCheck;
+	}
+
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public Integer getUserUidNumber() {
+		return userUidNumber;
+	}
+
+	public void setUserUidNumber(Integer userUidNumber) {
+		this.userUidNumber = userUidNumber;
+	}
+
+	public String getUserEppn() {
+		return userEppn;
+	}
+
+	public void setUserEppn(String userEppn) {
+		this.userEppn = userEppn;
+	}
+
+	public Set<String> getUserEmailAddresses() {
+		return userEmailAddresses;
+	}
+
+	public void setUserEmailAddresses(Set<String> userEmailAddresses) {
+		this.userEmailAddresses = userEmailAddresses;
+	}
+
+	public String getUserEmailAddress() {
+		return userEmailAddress;
+	}
+
+	public void setUserEmailAddress(String userEmailAddress) {
+		this.userEmailAddress = userEmailAddress;
 	}
 }
