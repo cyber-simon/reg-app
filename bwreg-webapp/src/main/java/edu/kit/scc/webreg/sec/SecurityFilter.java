@@ -41,6 +41,8 @@ import edu.kit.scc.webreg.util.SessionManager;
 @WebFilter(urlPatterns = {"/*"})
 public class SecurityFilter implements Filter {
 
+	public static final String ADMIN_USER = "_admin_user";
+	
 	@Inject 
 	private Logger logger;
 	
@@ -144,8 +146,10 @@ public class SecurityFilter implements Filter {
 	        			
 		        		session.setRoles(roles);
 
-		        		if (accessChecker.check(path, roles))
+		        		if (accessChecker.check(path, roles)) {
+		        			request.setAttribute(ADMIN_USER, adminUser.getId());
 			        		chain.doFilter(request, response);
+		        		}
 	        			else
 	        				response.sendError(HttpServletResponse.SC_FORBIDDEN, "Not allowed");
 	        			
