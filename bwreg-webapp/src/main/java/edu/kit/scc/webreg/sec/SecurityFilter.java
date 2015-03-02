@@ -41,7 +41,8 @@ import edu.kit.scc.webreg.util.SessionManager;
 @WebFilter(urlPatterns = {"/*"})
 public class SecurityFilter implements Filter {
 
-	public static final String ADMIN_USER = "_admin_user";
+	public static final String ADMIN_USER_ID = "_admin_user_id";
+	public static final String USER_ID = "_user_id";
 	
 	@Inject 
 	private Logger logger;
@@ -147,7 +148,8 @@ public class SecurityFilter implements Filter {
 		        		session.setRoles(roles);
 
 		        		if (accessChecker.check(path, roles)) {
-		        			request.setAttribute(ADMIN_USER, adminUser.getId());
+		        			request.setAttribute(ADMIN_USER_ID, adminUser.getId());
+		        			request.setAttribute(USER_ID, session.getUserId());
 			        		chain.doFilter(request, response);
 		        		}
 	        			else

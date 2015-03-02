@@ -29,7 +29,6 @@ import edu.kit.scc.webreg.sec.SecurityFilter;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserService;
-import edu.kit.scc.webreg.util.SessionManager;
 
 @Path("/service-admin")
 public class ServiceAdminController {
@@ -46,9 +45,6 @@ public class ServiceAdminController {
 	@Inject
 	private ServiceService serviceService;
 	
-	@Inject
-	private SessionManager sessionManager;
-	
 	@Path(value = "/depro/list/{ssn}")
 	@Produces({"application/json"})
 	@GET
@@ -56,8 +52,8 @@ public class ServiceAdminController {
 					throws IOException, NoItemFoundException {
 		
 		ServiceEntity serviceEntity = serviceService.findByShortName(ssn);
-		System.out.println("" + sessionManager.getUserId());
-		System.out.println("" + request.getAttribute(SecurityFilter.ADMIN_USER));
+		System.out.println("" + request.getAttribute(SecurityFilter.ADMIN_USER_ID));
+		System.out.println("" + request.getAttribute(SecurityFilter.USER_ID));
 		List<RegistryEntityDto> deproList = registryDtoService.findRegistriesForDepro(serviceEntity.getShortName());
 
 		return deproList;
