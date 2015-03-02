@@ -53,6 +53,16 @@ public class RoleServiceImpl extends BaseServiceImpl<RoleEntity, Long> implement
 	public List<RoleEntity> findByUserId(Long userId) {
 		return dao.findByUserId(userId);
 	}
+
+	@Override
+	public Boolean checkUserInRole(Long userId, String roleName) {
+		return dao.checkUserInRole(userId, roleName);
+	}
+	
+	@Override
+	public Boolean checkAdminUserInRole(Long userId, String roleName) {
+		return dao.checkAdminUserInRole(userId, roleName);
+	}
 	
 	@Override
 	public RoleEntity findWithUsers(Long id) {

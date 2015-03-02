@@ -61,6 +61,24 @@ public class JpaRoleDao extends JpaBaseDao<RoleEntity, Long> implements RoleDao 
 				.setParameter("userId", userId).getResultList();
 	}
 
+    @SuppressWarnings("unchecked")
+	@Override
+	public Boolean checkUserInRole(Long userId, String roleName) {
+		List<RoleEntity> roleList =  em.createQuery("select r.role from UserRoleEntity r where r.user.id = :userId and r.role.name = :roleName")
+				.setParameter("userId", userId).setParameter("roleName", roleName).getResultList();
+		return (roleList.size() > 0 ? Boolean.TRUE : Boolean.FALSE);
+	}
+
+    @SuppressWarnings("unchecked")
+	@Override
+	public Boolean checkAdminUserInRole(Long userId, String roleName) {
+		List<RoleEntity> roleList =  em.createQuery("select u.roles from AdminUserEntity u where u.id = :userId")
+				.setParameter("userId", userId).getResultList();
+		List<RoleEntity> roleList2 =  em.createQuery("select r from RoleEntity r where r.name = :roleName and r in :roleList")
+				.setParameter("roleList", roleList).setParameter("roleName", roleName).getResultList();
+		return (roleList2.size() > 0 ? Boolean.TRUE : Boolean.FALSE);
+	}
+
 	@Override
 	public RoleEntity findWithUsers(Long id) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();

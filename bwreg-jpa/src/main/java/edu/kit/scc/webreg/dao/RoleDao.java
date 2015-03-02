@@ -31,5 +31,9 @@ public interface RoleDao extends BaseDao<RoleEntity, Long> {
 	List<RoleEntity> findByUserId(Long userId);
 
 	void deleteUserRole(Long userId, String roleName);
+
+	Boolean checkUserInRole(Long userId, String roleName);
+
+	Boolean checkAdminUserInRole(Long userId, String roleName);
 	
 }

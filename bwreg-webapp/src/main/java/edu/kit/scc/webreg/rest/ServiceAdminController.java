@@ -23,10 +23,15 @@ import javax.ws.rs.core.Context;
 
 import edu.kit.scc.webreg.dto.entity.RegistryEntityDto;
 import edu.kit.scc.webreg.dto.service.RegistryDtoService;
+import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.rest.exc.NoItemFoundException;
+import edu.kit.scc.webreg.rest.exc.UnauthorizedException;
 import edu.kit.scc.webreg.sec.SecurityFilter;
+import edu.kit.scc.webreg.service.AdminUserService;
 import edu.kit.scc.webreg.service.RegistryService;
+import edu.kit.scc.webreg.service.RoleService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserService;
 
@@ -41,7 +46,13 @@ public class ServiceAdminController {
 	
 	@Inject
 	private UserService userService;
-	
+
+	@Inject
+	private AdminUserService adminUserService;
+
+	@Inject
+	private RoleService roleService;
+
 	@Inject
 	private ServiceService serviceService;
 	
@@ -49,15 +60,27 @@ public class ServiceAdminController {
 	@Produces({"application/json"})
 	@GET
 	public List<RegistryEntityDto> list(@PathParam("ssn") String ssn, @Context HttpServletRequest request)
-					throws IOException, NoItemFoundException {
+					throws IOException, UnauthorizedException {
 		
 		ServiceEntity serviceEntity = serviceService.findByShortName(ssn);
-		System.out.println("" + request.getAttribute(SecurityFilter.ADMIN_USER_ID));
-		System.out.println("" + request.getAttribute(SecurityFilter.USER_ID));
+
+		if (request.getAttribute(SecurityFilter.USER_ID) != null &&
+				request.getAttribute(SecurityFilter.USER_ID) instanceof Long) {
+			Long userId = (Long) request.getAttribute(SecurityFilter.USER_ID);
+			Boolean check = roleService.checkUserInRole(userId, serviceEntity.getAdminRole().getName());
+			if (! check)
+				throw new UnauthorizedException("No access");
+		}
+		else if (request.getAttribute(SecurityFilter.ADMIN_USER_ID) != null &&
+				request.getAttribute(SecurityFilter.ADMIN_USER_ID) instanceof Long) {
+			Long adminUserId = (Long) request.getAttribute(SecurityFilter.ADMIN_USER_ID);
+			Boolean check = roleService.checkAdminUserInRole(adminUserId, serviceEntity.getAdminRole().getName());
+			if (! check)
+				throw new UnauthorizedException("No access");
+		}
+		
 		List<RegistryEntityDto> deproList = registryDtoService.findRegistriesForDepro(serviceEntity.getShortName());
 
 		return deproList;
 	}
-
-
 }
