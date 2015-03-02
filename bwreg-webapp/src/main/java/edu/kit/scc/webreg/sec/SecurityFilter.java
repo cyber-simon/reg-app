@@ -99,8 +99,10 @@ public class SecurityFilter implements Filter {
 			Set<String> roles = convertRoles(roleService.findByUserId(session.getUserId()));
 			session.setRoles(roles);
 			
-			if (accessChecker.check(path, roles))
+			if (accessChecker.check(path, roles)) {
+    			request.setAttribute(USER_ID, session.getUserId());
 				chain.doFilter(servletRequest, servletResponse);
+			}
 			else
 				response.sendError(HttpServletResponse.SC_FORBIDDEN, "Not allowed");
 		}
@@ -149,7 +151,6 @@ public class SecurityFilter implements Filter {
 
 		        		if (accessChecker.check(path, roles)) {
 		        			request.setAttribute(ADMIN_USER_ID, adminUser.getId());
-		        			request.setAttribute(USER_ID, session.getUserId());
 			        		chain.doFilter(request, response);
 		        		}
 	        			else
