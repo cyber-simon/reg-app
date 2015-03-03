@@ -102,13 +102,14 @@ public class ApplicationBootstrap {
     	checkRole("UserAdmin");
     	checkRole("GroupAdmin");
     	checkRole("ServiceAdmin");
+    	checkRole("RestServiceAdmin");
     	checkRole("SamlAdmin");
     	checkRole("BusinessRuleAdmin");
     	checkRole("BulkAdmin");
     	checkRole("TimerAdmin");
     	checkRole("AuditAdmin");
     	checkRole("User");
-    	
+
     	logger.info("Initializing admin Account");
     	if (adminUserService.findByUsername("admin") == null) {
     		AdminUserEntity a = adminUserService.createNew();

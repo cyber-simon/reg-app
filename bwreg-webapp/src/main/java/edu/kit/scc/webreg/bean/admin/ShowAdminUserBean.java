@@ -11,6 +11,12 @@
 package edu.kit.scc.webreg.bean.admin;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.Provider;
+import java.security.Provider.Service;
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,8 +25,10 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
+import org.apache.commons.codec.binary.Base64;
 import org.primefaces.event.TransferEvent;
 import org.primefaces.model.DualListModel;
+import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.AdminUserEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
@@ -34,6 +42,9 @@ public class ShowAdminUserBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Inject
+	private Logger logger;
+	
+	@Inject
 	private AdminUserService adminUserService;
 
 	@Inject
@@ -44,14 +55,11 @@ public class ShowAdminUserBean implements Serializable {
 	private DualListModel<RoleEntity> roleList;
 	
 	private Long id;
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
+	
+	private String newPassword;
+	private Boolean hashPassword;
+	private String[] hashMethod;
+	private String selectedHashMethod;
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
@@ -65,11 +73,27 @@ public class ShowAdminUserBean implements Serializable {
 
 			roleList.setSource(sourceList);
 			roleList.setTarget(targetList);
+		
+			fillHashMethod();
+			selectedHashMethod = hashMethod[0];
 		}
 	}
 
+	protected void fillHashMethod() {
+		Provider provider = Security.getProvider("BC");
+		List<String> algoList = new ArrayList<String>();
+		
+		for (Service service : provider.getServices()) {
+			if (service.getType().equals("MessageDigest")) {
+				algoList.add(service.getAlgorithm());
+			}
+		}
+		
+		hashMethod = algoList.toArray(new String[]{});
+	}
+	
 	public void onTransfer(TransferEvent event) {
-		entity = adminUserService.findByIdWithAttrs(id, "roles");
+
 		if (event.isAdd()) {
 			for (Object o : event.getItems()) {
 				RoleEntity role = (RoleEntity) o;
@@ -87,6 +111,34 @@ public class ShowAdminUserBean implements Serializable {
 		entity = adminUserService.findByIdWithAttrs(id, "roles");
 	}
 
+	public void savePassword() {
+		if (newPassword != null) {
+			newPassword = newPassword.trim();
+			
+			if (hashPassword) {
+				try {
+					MessageDigest md = MessageDigest.getInstance(selectedHashMethod);
+					byte[] bytes = newPassword.getBytes(("UTF-8"));
+					md.update(bytes);
+					byte[] digest = md.digest();
+					String hash = "{" + selectedHashMethod + "|" + new String(Base64.encodeBase64(digest)) + "}";
+					entity.setPassword(hash);
+				} catch (NoSuchAlgorithmException e) {
+					logger.warn("Oh no", e);
+				} catch (UnsupportedEncodingException e) {
+					logger.warn("Oh no", e);
+				}
+			}
+			else {
+				entity.setPassword(newPassword);
+			}
+			entity = adminUserService.save(entity);
+			entity = adminUserService.findByIdWithAttrs(id, "roles");
+			
+			newPassword = "";
+		}
+	}
+	
 	public AdminUserEntity getEntity() {
 		return entity;
 	}
@@ -102,5 +154,44 @@ public class ShowAdminUserBean implements Serializable {
 	public void setRoleList(DualListModel<RoleEntity> roleList) {
 		this.roleList = roleList;
 	}
-	
+
+	public String getNewPassword() {
+		return newPassword;
+	}
+
+	public void setNewPassword(String newPassword) {
+		this.newPassword = newPassword;
+	}
+
+	public Boolean getHashPassword() {
+		return hashPassword;
+	}
+
+	public void setHashPassword(Boolean hashPassword) {
+		this.hashPassword = hashPassword;
+	}
+
+	public String[] getHashMethod() {
+		return hashMethod;
+	}
+
+	public void setHashMethod(String[] hashMethod) {
+		this.hashMethod = hashMethod;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getSelectedHashMethod() {
+		return selectedHashMethod;
+	}
+
+	public void setSelectedHashMethod(String selectedHashMethod) {
+		this.selectedHashMethod = selectedHashMethod;
+	}	
 }

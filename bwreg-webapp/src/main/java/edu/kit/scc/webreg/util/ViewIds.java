@@ -18,6 +18,9 @@ public class ViewIds {
 	public static final String SHOW_USER = "/admin/user/show-user.xhtml";	
 	public static final String LIST_USERS = "/admin/user/list-users.xhtml";	
 
+	public static final String SHOW_ADMIN_USER = "/admin/user/show-admin-user.xhtml";	
+	public static final String LIST_ADMIN_USERS = "/admin/user/list-admin-users.xhtml";	
+
 	/*
 	 * Config
 	 */

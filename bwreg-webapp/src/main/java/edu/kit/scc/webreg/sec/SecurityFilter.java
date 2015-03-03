@@ -11,6 +11,9 @@
 package edu.kit.scc.webreg.sec;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -140,10 +143,11 @@ public class SecurityFilter implements Filter {
 	        			new String(Base64.decodeBase64(auth.substring(index).getBytes())), ":", 2);
  
 	        	if (credentials.length == 2) {
-	        		AdminUserEntity adminUser = adminUserService.findByUsernameAndPassword(
-	        				credentials[0], credentials[1]);
+	        		AdminUserEntity adminUser = adminUserService.findByUsername(
+	        				credentials[0]);
 	        		
-	        		if (adminUser != null) {
+	        		if (adminUser != null && passwordsMatch(adminUser.getPassword(), credentials[1])) {
+	        			
     					List<RoleEntity> roleList = adminUserService.findRolesForUserById(adminUser.getId());
 	        			Set<String> roles = convertRoles(roleList);
 	        			
@@ -164,6 +168,31 @@ public class SecurityFilter implements Filter {
 		
 		response.setHeader( "WWW-Authenticate", "Basic realm=\"Admin Realm\"" );
 		response.sendError( HttpServletResponse.SC_UNAUTHORIZED );		
+	}
+	
+	private boolean passwordsMatch(String password, String comparePassword) {
+		if (password == null || comparePassword == null)
+			return false;
+		
+		if (password.startsWith("{") && password.endsWith("}") && password.contains("|")) {
+			String method = password.substring(1, password.indexOf("|") - 1);
+			try {
+				MessageDigest md = MessageDigest.getInstance(method);
+				byte[] bytes = comparePassword.getBytes(("UTF-8"));
+				md.update(bytes);
+				byte[] digest = md.digest();
+				comparePassword = "{" + method + "|" + new String(Base64.encodeBase64(digest)) + "}";
+			} catch (NoSuchAlgorithmException e) {
+				logger.warn("Oh no", e);
+			} catch (UnsupportedEncodingException e) {
+				logger.warn("Oh no", e);
+			}
+		}
+
+		if (password.equals(comparePassword))
+			return true;
+		else
+			return false;
 	}
 	
 	private String getFullURL(HttpServletRequest request) {

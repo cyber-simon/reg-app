@@ -57,7 +57,8 @@ public class AccessChecker {
 		addAccessNode(adminNode, "group", true, "ROLE_GroupAdmin");
 
 		AccessNode restNode = addAccessNode(root, "rest", false, "ROLE_MasterAdmin", "ROLE_RestAdmin");
-
+		addAccessNode(restNode, "service-admin", true, "ROLE_RestServiceAdmin");
+		
 		AccessNode droolsNode = addAccessNode(restNode, "drools", true);
 		addAccessNode(droolsNode, "test", true);
 

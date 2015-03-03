@@ -35,7 +35,7 @@
 			        <h:outputText value="#{messages.id}:"/>
 			        <h:outputText value="#{showAdminUserBean.entity.id}"/>
 			
-			        <h:outputText value="#{messages.given_name}:"/>
+			        <h:outputText value="#{messages.name}:"/>
 			        <h:outputText value="#{showAdminUserBean.entity.username}"/>
 	
 			        <h:outputText value="#{messages.created_at}:"/>
@@ -50,13 +50,38 @@
 				</p:panelGrid>
 			</p:panel>
 		</div>
-		<div id="panelInline">
+		
+		<div id="panelInline" style="margin-top: 8px;">
 			<p:panel id="rolePanel" header="#{messages.roles}">
 				<p:pickList var="role" value="#{showAdminUserBean.roleList}" itemLabel="#{role.name}" 
 					itemValue="#{role}" converter="#{roleConverter}"
 					showSourceFilter="true" showTargetFilter="true" filterMatchMode="contains">
 					<p:ajax event="transfer" listener="#{showAdminUserBean.onTransfer}" />
 				</p:pickList>
+			</p:panel>
+		</div>		
+
+		<div id="panelInline" style="margin-top: 8px;">
+			<p:panel id="pwPanel" header="#{messages.password}" collapsed="true" toggleable="true">
+				<p:panelGrid id="pwBaseData" columns="2">
+
+			        <h:outputText value="#{messages.password}:"/>
+			        <h:outputText value="#{showAdminUserBean.entity.password}"/>
+	
+			        <h:outputText value="#{messages.new_password}:"/>
+			        <p:inputText value="#{showAdminUserBean.newPassword}"/>
+	
+			        <h:outputText value="#{messages.hash_password}:"/>
+			        <h:panelGroup>
+			        	<p:selectBooleanCheckbox value="#{showAdminUserBean.hashPassword}"/>
+			        	<p:selectOneMenu value="#{showAdminUserBean.selectedHashMethod}" style="margin-left: 8px;">
+			        		<f:selectItems value="#{showAdminUserBean.hashMethod}"/>
+			        	</p:selectOneMenu>
+			        </h:panelGroup>
+	
+				</p:panelGrid>
+				<p:commandButton action="#{showAdminUserBean.savePassword()}" update=":form:pwPanel" 
+					value="#{messages.set_new_password}"/>
 			</p:panel>
 		</div>		
 
