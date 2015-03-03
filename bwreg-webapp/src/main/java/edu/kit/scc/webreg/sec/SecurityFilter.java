@@ -175,7 +175,7 @@ public class SecurityFilter implements Filter {
 			return false;
 		
 		if (password.startsWith("{") && password.endsWith("}") && password.contains("|")) {
-			String method = password.substring(1, password.indexOf("|") - 1);
+			String method = password.substring(1, password.indexOf("|"));
 			try {
 				MessageDigest md = MessageDigest.getInstance(method);
 				byte[] bytes = comparePassword.getBytes(("UTF-8"));
