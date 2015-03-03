@@ -574,6 +574,11 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 
 	@Override
 	public void deprovision(RegistryEntity registry, String executor) throws RegisterException {
+		
+		if (! RegistryStatus.DELETED.equals(registry.getRegistryStatus())) {
+			throw new RegisterException("only registry with status deleted can be deprovisioned");
+		}
+			
 		ServiceRegisterAuditor auditor = new ServiceRegisterAuditor(auditDao, auditDetailDao, appConfig);
 		auditor.startAuditTrail(executor);
 		auditor.setName(registry.getService().getShortName() + "-Deregister-Audit");
