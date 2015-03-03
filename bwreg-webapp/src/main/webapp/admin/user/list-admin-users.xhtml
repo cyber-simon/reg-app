@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+
+	<f:metadata>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{listAdminUserBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	
+	<h:form id="form">
+	
+		<p:dataTable id="dataTable" var="user" value="#{listAdminUserBean.userEntityList}" paginator="true"
+					lazy="true" rows="15">
+			<p:column sortBy="#{user.id}" style="width:30px;">
+				<f:facet name="header">
+					<h:outputText value="#{messages.id}" />
+				</f:facet>
+				<h:outputText value="#{user.id}" />
+			</p:column>
+			<p:column sortBy="#{user.username}" filterBy="#{user.username}">
+				<f:facet name="header">
+					<h:outputText value="#{messages.name}" />
+				</f:facet>
+				<h:link outcome="show-admin-user.xhtml" value="#{user.username != null ? user.username : 'null'}">
+      				<f:param name="id" value="#{user.id}"/>
+    			</h:link>
+			</p:column>			
+			<p:column sortBy="#{user.createdAt}">
+				<f:facet name="header">
+					<h:outputText value="#{messages.created_at}" />
+				</f:facet>
+				<h:outputText value="#{of:formatDate(user.createdAt, 'dd.MM.yyyy HH:mm')}" />
+			</p:column>			
+			<p:column sortBy="#{user.updatedAt}">
+				<f:facet name="header">
+					<h:outputText value="#{messages.updated_at}" />
+				</f:facet>
+				<h:outputText value="#{of:formatDate(user.updatedAt, 'dd.MM.yyyy HH:mm')}" />
+			</p:column>			
+			<p:column sortBy="#{user.version}" style="width:50px;">
+				<f:facet name="header">
+					<h:outputText value="#{messages.version}" />
+				</f:facet>
+				<h:outputText value="#{user.version}" />
+			</p:column>
+		</p:dataTable>
+	
+	</h:form>
+
+	</ui:define>
+</ui:composition>		
+</f:view>
+</body>
+</html>
