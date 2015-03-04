@@ -28,7 +28,6 @@ import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.HomeOrgGroupDao;
 import edu.kit.scc.webreg.dao.ServiceGroupFlagDao;
-import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.entity.AuditStatus;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.GroupEntity;
@@ -87,9 +86,11 @@ public class HomeOrgGroupServiceImpl extends BaseServiceImpl<HomeOrgGroupEntity,
 		HashSet<GroupEntity> allChangedGroups = new HashSet<GroupEntity>(changedGroups.size());
 		for (GroupEntity group : changedGroups) {
 			allChangedGroups.add(group);
-			for (GroupEntity parent : group.getParents()) {
-				logger.debug("Adding parent group to changed groups: {}", parent.getName());
-				allChangedGroups.add(parent);
+			if (group.getParents() != null) {
+				for (GroupEntity parent : group.getParents()) {
+					logger.debug("Adding parent group to changed groups: {}", parent.getName());
+					allChangedGroups.add(parent);
+				}
 			}
 		}
 		
@@ -286,6 +287,7 @@ public class HomeOrgGroupServiceImpl extends BaseServiceImpl<HomeOrgGroupEntity,
 							groupEntity = dao.createNew();
 
 							groupEntity.setUsers(new HashSet<UserGroupEntity>());
+							groupEntity.setParents(new HashSet<GroupEntity>());
 							groupEntity.setName(group);
 							auditor.logAction(groupEntity.getName(), "SET FIELD", "name", groupEntity.getName(), AuditStatus.SUCCESS);
 							groupEntity.setPrefix(homeId);

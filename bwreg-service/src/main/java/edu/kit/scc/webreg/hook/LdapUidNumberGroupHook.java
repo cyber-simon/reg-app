@@ -108,6 +108,7 @@ public class LdapUidNumberGroupHook implements GroupServiceHook {
 				logger.warn("Group with GID {} not available in LDAP. Creating one with GID as name", gid);
 				group = dao.createNew();
 				group.setUsers(new HashSet<UserGroupEntity>());
+				group.setParents(new HashSet<GroupEntity>());
 				group.setGidNumber(gid);
 				group.setName("noname_" + gid);
 				group.setPrefix("ka");
@@ -125,6 +126,7 @@ public class LdapUidNumberGroupHook implements GroupServiceHook {
 				logger.info("Group with GID {} not found, creating (Name: {})", gid, groupNameFromLdap);
 				group = dao.createNew();
 				group.setUsers(new HashSet<UserGroupEntity>());
+				group.setParents(new HashSet<GroupEntity>());
 				group.setGidNumber(gid);
 				group.setName(groupNameFromLdap);
 				group.setPrefix("ka");
