@@ -36,7 +36,10 @@
 			        <h:outputText value="#{showAdminUserBean.entity.id}"/>
 			
 			        <h:outputText value="#{messages.name}:"/>
-			        <h:outputText value="#{showAdminUserBean.entity.username}"/>
+			        <p:inplace id="ajax" editor="true">
+			        	<p:ajax event="save" listener="#{showAdminUserBean.handleSave}" update=":form:baseData" />
+			        	<p:inputText value="#{showAdminUserBean.entity.username}" required="true" label="#{messages.name}" />
+			        </p:inplace>
 	
 			        <h:outputText value="#{messages.created_at}:"/>
 			        <h:outputText value="#{of:formatDate(showAdminUserBean.entity.createdAt, 'dd.MM.yyyy HH:mm')}"/>

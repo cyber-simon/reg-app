@@ -139,6 +139,11 @@ public class ShowAdminUserBean implements Serializable {
 		}
 	}
 	
+	public void handleSave() {
+		entity = adminUserService.save(entity);
+		entity = adminUserService.findByIdWithAttrs(id, "roles");
+	}
+	
 	public AdminUserEntity getEntity() {
 		return entity;
 	}
