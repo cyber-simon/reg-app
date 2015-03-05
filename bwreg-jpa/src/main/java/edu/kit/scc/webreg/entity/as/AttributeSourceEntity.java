@@ -10,11 +10,20 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.entity.as;
 
+import java.util.Map;
+
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.JoinTable;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import edu.kit.scc.webreg.entity.AbstractBaseEntity;
 
@@ -28,11 +37,37 @@ public class AttributeSourceEntity extends AbstractBaseEntity {
 	@Column(name = "name", nullable = false, length = 128)
 	private String name;
 
+	@ElementCollection(fetch = FetchType.LAZY)
+    @Fetch(value = FetchMode.SELECT)
+	@JoinTable(name = "attribute_src_properties")
+    @MapKeyColumn(name = "key_data", length = 128)
+    @Column(name = "value_data", length = 2048)
+    private Map<String, String> asProps; 
+
+	@Column(name="as_class", length=256, nullable=false)
+	private String asClass;
+	
 	public String getName() {
 		return name;
 	}
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public Map<String, String> getAsProps() {
+		return asProps;
+	}
+
+	public void setAsProps(Map<String, String> asProps) {
+		this.asProps = asProps;
+	}
+
+	public String getAsClass() {
+		return asClass;
+	}
+
+	public void setAsClass(String asClass) {
+		this.asClass = asClass;
 	}
 }
