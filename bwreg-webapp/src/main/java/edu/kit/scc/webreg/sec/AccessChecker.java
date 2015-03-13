@@ -55,6 +55,7 @@ public class AccessChecker {
 		addAccessNode(adminNode, "timer", true, "ROLE_TimerAdmin");
 		addAccessNode(adminNode, "audit", true, "ROLE_AuditAdmin");
 		addAccessNode(adminNode, "group", true, "ROLE_GroupAdmin");
+		addAccessNode(adminNode, "as", true, "ROLE_AttributeSourceAdmin");
 
 		AccessNode restNode = addAccessNode(root, "rest", false, "ROLE_MasterAdmin", "ROLE_RestAdmin");
 		addAccessNode(restNode, "service-admin", true, "ROLE_RestServiceAdmin");
