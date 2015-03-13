@@ -21,6 +21,7 @@ import org.apache.velocity.exception.MethodInvocationException;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 
+import edu.kit.scc.webreg.audit.AttributeSourceAuditor;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
@@ -32,7 +33,7 @@ public class HttpUrlSingleAttributeSource extends
 
 	@Override
 	public void pollUserAttributes(AttributeSourceEntity attributeSource,
-			UserEntity user) throws RegisterException {
+			UserEntity user, AttributeSourceAuditor auditor) throws RegisterException {
 		
 		init(attributeSource);
 		

@@ -13,8 +13,8 @@ package edu.kit.scc.webreg.entity.as;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 
-@Entity(name = "ASUserAttrStringEntity")
-public class ASUserAttrStringEntity extends ASUserAttrEntity {
+@Entity(name = "ASUserAttrValueStringEntity")
+public class ASUserAttrValueStringEntity extends ASUserAttrValueEntity {
 
 	private static final long serialVersionUID = 1L;
 

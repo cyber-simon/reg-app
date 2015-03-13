@@ -10,22 +10,24 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.entity.as;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 
-@Entity(name = "ASUserAttrLongEntity")
-public class ASUserAttrLongEntity extends ASUserAttrEntity {
+@Entity(name = "ASUserAttrValueDateEntity")
+public class ASUserAttrValueDateEntity extends ASUserAttrValueEntity {
 
 	private static final long serialVersionUID = 1L;
 
-	@Column(name = "value_long")
-	private Long valueLong;
+	@Column(name = "value_date")
+	private Date valueDate;
 
-	public Long getValueLong() {
-		return valueLong;
+	public Date getValueDate() {
+		return valueDate;
 	}
 
-	public void setValueLong(Long valueLong) {
-		this.valueLong = valueLong;
+	public void setValueDate(Date valueDate) {
+		this.valueDate = valueDate;
 	}
 }

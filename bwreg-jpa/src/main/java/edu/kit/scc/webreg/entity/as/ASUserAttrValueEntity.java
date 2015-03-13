@@ -23,45 +23,33 @@ import javax.persistence.Table;
 import edu.kit.scc.webreg.entity.AbstractBaseEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 
-@Entity(name = "ASUserAttrEntity")
-@Table(name = "attribute_src_ua")
-public class ASUserAttrEntity extends AbstractBaseEntity {
+@Entity(name = "ASUserAttrValueEntity")
+@Table(name = "attribute_src_ua_value")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+public class ASUserAttrValueEntity extends AbstractBaseEntity {
 
 	private static final long serialVersionUID = 1L;
 
-	@ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-	private UserEntity user;
-	
     @ManyToOne
     @JoinColumn(name = "attribute_src_id", nullable = false)
-	private AttributeSourceEntity attributeSource;
+	private ASUserAttrEntity asUserAttr;
 
-    @Column(name = "last_successful_query")
-    private Date lastSuccessfulQuery;
-    
-	public UserEntity getUser() {
-		return user;
+	@Column(name = "key", nullable = false, length = 512)
+	private String key;
+
+	public String getKey() {
+		return key;
 	}
 
-	public void setUser(UserEntity user) {
-		this.user = user;
+	public void setKey(String key) {
+		this.key = key;
 	}
 
-	public AttributeSourceEntity getAttributeSource() {
-		return attributeSource;
+	public ASUserAttrEntity getAsUserAttr() {
+		return asUserAttr;
 	}
 
-	public void setAttributeSource(AttributeSourceEntity attributeSource) {
-		this.attributeSource = attributeSource;
+	public void setAsUserAttr(ASUserAttrEntity asUserAttr) {
+		this.asUserAttr = asUserAttr;
 	}
-
-	public Date getLastSuccessfulQuery() {
-		return lastSuccessfulQuery;
-	}
-
-	public void setLastSuccessfulQuery(Date lastSuccessfulQuery) {
-		this.lastSuccessfulQuery = lastSuccessfulQuery;
-	}
-
 }
