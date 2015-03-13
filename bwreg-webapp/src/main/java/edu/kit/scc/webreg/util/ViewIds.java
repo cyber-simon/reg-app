@@ -120,7 +120,13 @@ public class ViewIds {
 	public static final String SHOW_JOBCLASS = "/admin/timer/show-job-class.xhtml";	
 	public static final String LIST_JOBCLASS = "/admin/timer/list-job-classes.xhtml";	
 	
-	
+	/*
+	 * Attribute Sources
+	 */
+	public static final String LIST_ATTRIBUTE_SOURCES = "/admin/as/list-attribute-sources.xhtml";	
+	public static final String ADD_ATTRIBUTE_SOURCE = "/admin/as/add-attribute-source.xhtml";	
+	public static final String EDIT_ATTRIBUTE_SOURCE = "/admin/as/edit-attribute-source.xhtml";	
+	public static final String SHOW_ATTRIBUTE_SOURCE = "/admin/as/show-attribute-source.xhtml";	
 	
 	/*
 	 * Public 
