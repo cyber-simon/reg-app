@@ -15,9 +15,7 @@ import edu.kit.scc.webreg.dao.AuditDetailDao;
 import edu.kit.scc.webreg.dao.AuditEntryDao;
 import edu.kit.scc.webreg.entity.AuditAttributeSourceEntity;
 import edu.kit.scc.webreg.entity.AuditEntryEntity;
-import edu.kit.scc.webreg.entity.ServiceEntity;
-import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
+import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 
 public class AttributeSourceAuditor extends AbstractAuditor {
 
@@ -37,15 +35,7 @@ public class AttributeSourceAuditor extends AbstractAuditor {
 		return audit;
 	}
 
-	public void setAttributeSource(AttributeSourceEntity entity) {
-		audit.setAttributeSource(entity);
-	}
-	
-	public void setUser(UserEntity entity) {
-		audit.setUser(entity);
-	}
-
-	public void setService(ServiceEntity entity) {
-		audit.setService(entity);
+	public void setAsUserAttr(ASUserAttrEntity entity) {
+		audit.setAsUserAttr(entity);
 	}
 }

@@ -23,6 +23,7 @@ import org.apache.velocity.exception.ResourceNotFoundException;
 
 import edu.kit.scc.webreg.audit.AttributeSourceAuditor;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
 
@@ -32,10 +33,12 @@ public class HttpUrlSingleAttributeSource extends
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void pollUserAttributes(AttributeSourceEntity attributeSource,
-			UserEntity user, AttributeSourceAuditor auditor) throws RegisterException {
+	public void pollUserAttributes(ASUserAttrEntity asUserAttr, AttributeSourceAuditor auditor) throws RegisterException {
 		
-		init(attributeSource);
+		init(asUserAttr);
+		
+		UserEntity user = asUserAttr.getUser();
+		AttributeSourceEntity attributeSource = asUserAttr.getAttributeSource();
 		
 		String urlTemplate = prop.readProp("url_template");
 

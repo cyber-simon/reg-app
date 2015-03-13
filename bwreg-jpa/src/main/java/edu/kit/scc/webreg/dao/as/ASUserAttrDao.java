@@ -8,26 +8,16 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.entity;
+package edu.kit.scc.webreg.dao.as;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-
+import edu.kit.scc.webreg.dao.BaseDao;
+import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
+import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 
-@Entity(name = "AuditAttributeSourceEntity")
-public class AuditAttributeSourceEntity extends AuditEntryEntity {
+public interface ASUserAttrDao extends BaseDao<ASUserAttrEntity, Long> {
 
-	private static final long serialVersionUID = 1L;
-
-	@ManyToOne(targetEntity = ASUserAttrEntity.class)
-	private ASUserAttrEntity asUserAttr;
-
-	public ASUserAttrEntity getAsUserAttr() {
-		return asUserAttr;
-	}
-
-	public void setAsUserAttr(ASUserAttrEntity asUserAttr) {
-		this.asUserAttr = asUserAttr;
-	}
+	ASUserAttrEntity findASUserAttr(UserEntity user,
+			AttributeSourceEntity attributeSource);
+	
 }

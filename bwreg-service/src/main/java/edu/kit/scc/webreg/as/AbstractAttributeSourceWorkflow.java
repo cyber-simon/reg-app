@@ -3,7 +3,7 @@ package edu.kit.scc.webreg.as;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
+import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.service.reg.ldap.PropertyReader;
 
@@ -15,9 +15,9 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 
 	protected PropertyReader prop;
 
-	public void init(AttributeSourceEntity attributeSource)
+	public void init(ASUserAttrEntity asUserAttr)
 			throws RegisterException {
-		prop = new PropertyReader(attributeSource.getAsProps());
+		prop = new PropertyReader(asUserAttr.getAttributeSource().getAsProps());
 	}
 	
 }
