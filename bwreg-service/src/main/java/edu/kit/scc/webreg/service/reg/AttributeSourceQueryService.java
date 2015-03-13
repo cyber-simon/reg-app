@@ -6,7 +6,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
 
-public interface AttributeSourceService extends Serializable {
+public interface AttributeSourceQueryService extends Serializable {
 
 	void updateUserAttributes(UserEntity user,
 			AttributeSourceEntity attributeSource, String executor)
