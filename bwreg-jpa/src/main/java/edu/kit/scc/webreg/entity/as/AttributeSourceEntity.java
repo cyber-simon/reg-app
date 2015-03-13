@@ -44,8 +44,14 @@ public class AttributeSourceEntity extends AbstractBaseEntity {
     @Column(name = "value_data", length = 2048)
     private Map<String, String> asProps; 
 
-	@Column(name="as_class", length=256, nullable=false)
+	@Column(name = "as_class", length=256, nullable=false)
 	private String asClass;
+	
+	@Column(name = "user_source")
+	private Boolean userSource;
+	
+	@Column(name = "service_source")
+	private Boolean serviceSource;
 	
 	public String getName() {
 		return name;
