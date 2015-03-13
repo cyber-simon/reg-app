@@ -76,4 +76,20 @@ public class AttributeSourceEntity extends AbstractBaseEntity {
 	public void setAsClass(String asClass) {
 		this.asClass = asClass;
 	}
+
+	public Boolean getUserSource() {
+		return userSource;
+	}
+
+	public void setUserSource(Boolean userSource) {
+		this.userSource = userSource;
+	}
+
+	public Boolean getServiceSource() {
+		return serviceSource;
+	}
+
+	public void setServiceSource(Boolean serviceSource) {
+		this.serviceSource = serviceSource;
+	}
 }

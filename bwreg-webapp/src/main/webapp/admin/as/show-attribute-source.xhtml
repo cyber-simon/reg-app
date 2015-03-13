@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="id" value="#{showAttributeSourceBean.id}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{showAttributeSourceBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+		<h2><h:outputText value="#{messages.job_class}: #{showAttributeSourceBean.entity.name}"/></h2>
+
+		<div class="panel">
+			<p:panel header="#{messages.job_class}">
+
+				<p:panelGrid id="baseData" columns="2">
+
+					<h:outputText value="#{messages.id}:" />
+					<h:outputText value="#{showAttributeSourceBean.entity.id}" />
+
+					<h:outputText value="#{messages.name}:" />
+					<h:outputText value="#{showAttributeSourceBean.entity.name}" />
+
+					<h:outputText value="#{messages.job_class}:" />
+					<h:outputText value="#{showAttributeSourceBean.entity.asClass}" />
+
+					<h:outputText value="#{messages.service_source}:" />
+					<h:outputText value="#{showAttributeSourceBean.entity.serviceSource}" />
+
+					<h:outputText value="#{messages.user_source}:" />
+					<h:outputText value="#{showAttributeSourceBean.entity.userSource}" />
+
+					<h:outputText value="#{messages.properties}:" />
+					<p:dataTable id="propTable" var="key" style="min-width: 400px;"
+						value="#{showAttributeSourceBean.entity.asProps.keySet().toArray()}">
+						<p:column>
+							<f:facet name="header"> 
+								<h:outputText value="#{messages.key}" />
+							</f:facet>
+							<h:outputText value="#{key}" />
+						</p:column>
+						<p:column>
+							<f:facet name="header">
+								<h:outputText value="#{messages.value}" />
+							</f:facet>
+							<h:outputText value="#{showAttributeSourceBean.entity.asProps[key]}" />
+						</p:column>
+					</p:dataTable>
+
+				</p:panelGrid>
+
+				<h:link outcome="edit-attribute-source.xhtml" value="#{messages.edit}">
+					<f:param name="id" value="#{showAttributeSourceBean.entity.id}" />
+				</h:link>
+		
+			</p:panel>
+		</div>
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>
