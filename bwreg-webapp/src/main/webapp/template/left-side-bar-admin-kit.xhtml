@@ -101,6 +101,21 @@
 	    </div>
 	  </h:panelGroup>
 
+	  <h:panelGroup rendered="#{sessionManager.isUserInRole('ROLE_AttributeSourceAdmin') or sessionManager.isUserInRole('ROLE_MasterAdmin')}">
+        <div class="submenu">
+	      <div class="submenu-title">#{messages.attribute_sources}</div>
+	      <div class="submenu-content">
+			<div>
+			  <ul>
+		        <li><span class="ui-icon ui-icon-script" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="#{request.contextPath}/admin/as/list-attribute-sources.xhtml" value="#{messages.list_attribute_sources}" />
+		    	</li>
+	           </ul>
+	        </div>
+	      </div>
+	    </div>
+	  </h:panelGroup>
+
 	  <h:panelGroup rendered="#{sessionManager.isUserInRole('ROLE_BusinessRuleAdmin') or sessionManager.isUserInRole('ROLE_MasterAdmin')}">
 	    <div class="submenu">
 	      <div class="submenu-title">#{messages.business_rules}</div>
