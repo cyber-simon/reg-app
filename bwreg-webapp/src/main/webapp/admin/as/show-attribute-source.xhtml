@@ -25,7 +25,7 @@
 		<h2><h:outputText value="#{messages.job_class}: #{showAttributeSourceBean.entity.name}"/></h2>
 
 		<div class="panel">
-			<p:panel header="#{messages.job_class}">
+			<p:panel header="#{messages.attribute_source}">
 
 				<p:panelGrid id="baseData" columns="2">
 
@@ -69,6 +69,17 @@
 		
 			</p:panel>
 		</div>
+		
+		<div class="panel">
+			<p:panel header="#{messages.tools}">
+
+				<p:panelGrid id="testData" columns="2">
+					<h:outputText value="#{messages.eppn}:" />
+					<p:inputText value="#{showAttributeSourceBean.testUsername}" />
+				</p:panelGrid>
+				<p:commandButton action="#{showAttributeSourceBean.testSource()}" value="#{messages.test_source}"/>
+			</p:panel>
+		</div>		
 	</h:form>
 
 	</ui:define>

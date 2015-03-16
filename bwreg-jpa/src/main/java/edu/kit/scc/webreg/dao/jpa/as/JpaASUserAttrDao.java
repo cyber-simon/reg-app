@@ -27,9 +27,9 @@ public class JpaASUserAttrDao extends JpaBaseDao<ASUserAttrEntity, Long> impleme
 	@Override 
 	public ASUserAttrEntity findASUserAttr(UserEntity user, AttributeSourceEntity attributeSource) {
 		try {
-			return (ASUserAttrEntity) em.createQuery("select a from ASUserAttrEntity e where "
+			return (ASUserAttrEntity) em.createQuery("select a from ASUserAttrEntity a where "
 					+ "a.user = :user and a.attributeSource = :attributeSource")
-					.setParameter("user", user).setParameter("attributeSource", "attributeSource").getSingleResult();
+					.setParameter("user", user).setParameter("attributeSource", attributeSource).getSingleResult();
 		}
 		catch (NoResultException e) {
 			return null;

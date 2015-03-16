@@ -83,13 +83,16 @@ public class HttpUrlSingleAttributeSource extends
 			if (entity != null) {
 				try {
 					String r = EntityUtils.toString(entity);
-					
+					logger.debug("Got String {}", r);
 				} catch (ParseException e) {
 					throw new RegisterException(e);
 				} catch (IOException e) {
 					throw new RegisterException(e);
 				}
 			}
+		}
+		else {
+			logger.debug("Status HttpUrlSingleAS is not OK. It is {} - {}", response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
 		}
 	}
 

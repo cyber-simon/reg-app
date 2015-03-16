@@ -12,16 +12,22 @@ package edu.kit.scc.webreg.bean.admin.as;
 
 import java.io.Serializable;
 
-import javax.enterprise.context.RequestScoped;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
-import javax.inject.Named;
 
+import org.slf4j.Logger;
+
+import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
+import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.service.AttributeSourceService;
+import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.service.reg.AttributeSourceQueryService;
 
-@Named("showAttributeSourceBean")
-@RequestScoped
+@ManagedBean
+@ViewScoped
 public class ShowAttributeSourceBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -29,14 +35,42 @@ public class ShowAttributeSourceBean implements Serializable {
 	@Inject
 	private AttributeSourceService service;
 
+	@Inject
+	private UserService userService;
+	
+	@Inject
+	private AttributeSourceQueryService asQueryService;
+
+	@Inject
+	private Logger logger;
+	
 	private AttributeSourceEntity entity;
 	
 	private Long id;
 
+	private String testUsername;
+	
 	public void preRenderView(ComponentSystemEvent ev) {
-		entity = service.findByIdWithAttrs(id, "asProps");
+		if (entity == null) {
+			entity = service.findByIdWithAttrs(id, "asProps");
+		}
 	}
 		
+	public void testSource() {
+		UserEntity user = userService.findByEppn(testUsername);
+		
+		if (user == null) {
+			logger.info("User {} not found", testUsername);
+			return;
+		}
+		
+		try {
+			asQueryService.updateUserAttributes(user, entity, "test");
+		} catch (RegisterException e) {
+			logger.info("Exception!", e);
+		}
+	}
+	
 	public Long getId() {
 		return id;
 	}
@@ -51,5 +85,13 @@ public class ShowAttributeSourceBean implements Serializable {
 
 	public void setEntity(AttributeSourceEntity entity) {
 		this.entity = entity;
+	}
+
+	public String getTestUsername() {
+		return testUsername;
+	}
+
+	public void setTestUsername(String testUsername) {
+		this.testUsername = testUsername;
 	}
 }
