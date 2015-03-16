@@ -14,5 +14,5 @@ import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 
 public interface AttributeSourceDao extends BaseDao<AttributeSourceEntity, Long> {
-	
+
 }

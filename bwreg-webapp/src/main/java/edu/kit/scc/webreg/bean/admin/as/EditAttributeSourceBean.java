@@ -19,10 +19,8 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
-import edu.kit.scc.webreg.entity.JobClassEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 import edu.kit.scc.webreg.service.AttributeSourceService;
-import edu.kit.scc.webreg.service.JobClassService;
 import edu.kit.scc.webreg.util.ViewIds;
 
 @ManagedBean
@@ -44,7 +42,7 @@ public class EditAttributeSourceBean implements Serializable {
 	
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
-			entity = service.findById(id);
+			entity = service.findByIdWithAttrs(id, "asProps");
 			propertyMap = new HashMap<String, String>(entity.getAsProps());
 		}
 	}
