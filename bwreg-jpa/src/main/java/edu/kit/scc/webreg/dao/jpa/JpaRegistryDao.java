@@ -232,16 +232,19 @@ public class JpaRegistryDao extends JpaBaseDao<RegistryEntity, Long> implements 
 	}	
 		
 	@Override
-	public List<RegistryEntity> findByUserAndNotStatus(UserEntity user, RegistryStatus status) {
+	public List<RegistryEntity> findByUserAndNotStatus(UserEntity user, RegistryStatus... status) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<RegistryEntity> criteria = builder.createQuery(RegistryEntity.class);
 		Root<RegistryEntity> root = criteria.from(RegistryEntity.class);
-		criteria.where(builder.and(
-				builder.equal(root.get("user"), user)),
-				builder.notEqual(root.get("registryStatus"), status));
+
+		List<Predicate> predList = new ArrayList<Predicate>();
+		predList.add(builder.equal(root.get("user"), user));
+		for (RegistryStatus s : status)
+			predList.add(builder.notEqual(root.get("registryStatus"), s));
+		
+		criteria.where(builder.and(predList.toArray(new Predicate[]{})));
 		criteria.select(root);
 		criteria.distinct(true);
-		criteria.orderBy(builder.asc(root.get("id")));
 
 		return em.createQuery(criteria).getResultList();
 	}	

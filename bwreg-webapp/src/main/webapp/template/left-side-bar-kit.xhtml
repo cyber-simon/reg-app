@@ -25,6 +25,11 @@
             <li><span class="ui-icon ui-icon-star" style="display:inline-block; vertical-align: bottom;" />
 	    	  <h:link outcome="#{request.contextPath}/user/index.xhtml" value="#{messages.user_properties}" />
 			</li>
+			<h:panelGroup rendered="#{authorizationBean.appConfig.getConfigValue('show_user_attribute_source').equalsIgnoreCase('true')}">
+	            <li><span class="ui-icon ui-icon-suitcase" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="#{request.contextPath}/user/attribute-sources.xhtml" value="#{messages.my_attribute_sources}" />
+				</li>
+			</h:panelGroup>				
           </ul>
         </div>
       </div>

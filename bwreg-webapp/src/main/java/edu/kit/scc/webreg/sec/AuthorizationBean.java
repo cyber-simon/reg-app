@@ -21,6 +21,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.AdminRoleEntity;
 import edu.kit.scc.webreg.entity.ApproverRoleEntity;
 import edu.kit.scc.webreg.entity.GroupAdminRoleEntity;
@@ -71,6 +72,9 @@ public class AuthorizationBean implements Serializable {
     @Inject
     private GroupService groupService;
     
+    @Inject
+    private ApplicationConfig appConfig;
+    
     @PostConstruct
     private void init() {
     	if (sessionManager.getUserId() == null)
@@ -80,7 +84,7 @@ public class AuthorizationBean implements Serializable {
     	List<GroupEntity> groupList = groupService.findByUser(user);
     	String groupString = groupsToString(groupList);
     	
-    	userRegistryList = registryService.findByUserAndNotStatus(user, RegistryStatus.DELETED);
+    	userRegistryList = registryService.findByUserAndNotStatus(user, RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
 
     	serviceApproverList = new ArrayList<ServiceEntity>();
     	serviceAdminList = new ArrayList<ServiceEntity>();
@@ -251,5 +255,9 @@ public class AuthorizationBean implements Serializable {
 
 	public List<ServiceEntity> getServiceGroupAdminList() {
 		return serviceGroupAdminList;
+	}
+
+	public ApplicationConfig getAppConfig() {
+		return appConfig;
 	}
 }

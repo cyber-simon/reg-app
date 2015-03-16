@@ -55,7 +55,7 @@ public interface RegistryService extends BaseService<RegistryEntity, Long> {
 			UserEntity user, RegistryStatus... status);
 
 	List<RegistryEntity> findByUserAndNotStatus(UserEntity user,
-			RegistryStatus status);
+			RegistryStatus... status);
 
 	List<RegistryEntity> findRegistriesForDepro(String serviceShortName);
 }

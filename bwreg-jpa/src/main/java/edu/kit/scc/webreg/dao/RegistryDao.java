@@ -56,8 +56,8 @@ public interface RegistryDao extends BaseDao<RegistryEntity, Long> {
 	List<RegistryEntity> findByServiceAndUserAndNotStatus(ServiceEntity service,
 			UserEntity user, RegistryStatus... status);
 
-	List<RegistryEntity> findByUserAndNotStatus(UserEntity user,
-			RegistryStatus status);
-
 	List<RegistryEntity> findRegistriesForDepro(String serviceShortName);
+
+	List<RegistryEntity> findByUserAndNotStatus(UserEntity user,
+			RegistryStatus... status);
 }
