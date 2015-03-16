@@ -40,7 +40,6 @@
 				<h:link outcome="show-attribute-source.xhtml" value="#{entity.name != null ? entity.name : 'null'}">
       				<f:param name="id" value="#{entity.id}"/>
     			</h:link>
-				<h:outputText value="#{entity.name}" />
 			</p:column>			
 			<p:column sortBy="#{entity.asClass}" filterBy="#{entity.asClass}">
 				<f:facet name="header">
@@ -49,6 +48,8 @@
 				<h:outputText value="#{entity.asClass}" />
 			</p:column>			
 		</p:dataTable>
+
+        <h:link outcome="add-attribute-source.xhtml" value="#{messages.add_attribute_source}"/><br/>
 	
 	</h:form>
 
