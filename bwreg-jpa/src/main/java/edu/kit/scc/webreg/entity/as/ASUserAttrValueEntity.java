@@ -34,7 +34,7 @@ public class ASUserAttrValueEntity extends AbstractBaseEntity {
     @JoinColumn(name = "attribute_src_id", nullable = false)
 	private ASUserAttrEntity asUserAttr;
 
-	@Column(name = "key", nullable = false, length = 512)
+	@Column(name = "as_key", nullable = false, length = 512)
 	private String key;
 
 	public String getKey() {
