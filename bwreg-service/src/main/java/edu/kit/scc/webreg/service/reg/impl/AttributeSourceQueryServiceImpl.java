@@ -12,6 +12,7 @@ import edu.kit.scc.webreg.dao.AuditDetailDao;
 import edu.kit.scc.webreg.dao.AuditEntryDao;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.as.ASUserAttrDao;
+import edu.kit.scc.webreg.dao.as.ASUserAttrValueDao;
 import edu.kit.scc.webreg.dao.as.AttributeSourceDao;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
@@ -35,6 +36,9 @@ public class AttributeSourceQueryServiceImpl implements AttributeSourceQueryServ
 	
 	@Inject
 	private ASUserAttrDao asUserAttrDao;
+	
+	@Inject
+	private ASUserAttrValueDao asValueDao;
 	
 	@Inject
 	private AuditEntryDao auditDao;
@@ -69,7 +73,7 @@ public class AttributeSourceQueryServiceImpl implements AttributeSourceQueryServ
 		auditor.setDetail("Updateing attributes for user " + user.getEppn());
 		auditor.setAsUserAttr(asUserAttr);
 		
-		workflow.pollUserAttributes(asUserAttr, auditor);
+		workflow.pollUserAttributes(asUserAttr, asValueDao, auditor);
 		
 		auditor.finishAuditTrail();		
 	}

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
@@ -21,7 +22,11 @@ import org.apache.velocity.exception.MethodInvocationException;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import edu.kit.scc.webreg.audit.AttributeSourceAuditor;
+import edu.kit.scc.webreg.dao.as.ASUserAttrValueDao;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
@@ -33,7 +38,7 @@ public class HttpUrlSingleAttributeSource extends
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void pollUserAttributes(ASUserAttrEntity asUserAttr, AttributeSourceAuditor auditor) throws RegisterException {
+	public void pollUserAttributes(ASUserAttrEntity asUserAttr, ASUserAttrValueDao asValueDao, AttributeSourceAuditor auditor) throws RegisterException {
 		
 		init(asUserAttr);
 		
@@ -83,7 +88,23 @@ public class HttpUrlSingleAttributeSource extends
 			if (entity != null) {
 				try {
 					String r = EntityUtils.toString(entity);
-					logger.debug("Got String {}", r);
+					ObjectMapper om = new ObjectMapper();
+					
+					try {
+						Map<String, Object> map = om.readValue(r, Map.class);
+
+						logger.debug("Got {} values", map.size());
+						
+						for (Entry<String, Object> entry : map.entrySet()) {
+							logger.debug("Processing entry {}, value {}", entry.getKey(), entry.getValue());
+							createOrUpdateValue(entry.getKey(), entry.getValue(), asUserAttr, asValueDao, auditor);
+						}
+					} catch (JsonMappingException e) {
+						/*
+						 * Datasource generates invalid JSON
+						 */
+						logger.warn("Json Parse failed: {}", e.getMessage());
+					}
 				} catch (ParseException e) {
 					throw new RegisterException(e);
 				} catch (IOException e) {
@@ -92,6 +113,9 @@ public class HttpUrlSingleAttributeSource extends
 			}
 		}
 		else {
+			/*
+			 * probably no info for this user from datasource
+			 */
 			logger.debug("Status HttpUrlSingleAS is not OK. It is {} - {}", response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
 		}
 	}

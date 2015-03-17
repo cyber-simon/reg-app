@@ -11,17 +11,18 @@
 package edu.kit.scc.webreg.entity.as;
 
 import java.util.Date;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import edu.kit.scc.webreg.entity.AbstractBaseEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserGroupEntity;
 
 @Entity(name = "ASUserAttrEntity")
 @Table(name = "attribute_src_ua")
@@ -39,6 +40,9 @@ public class ASUserAttrEntity extends AbstractBaseEntity {
 
     @Column(name = "last_successful_query")
     private Date lastSuccessfulQuery;
+    
+    @OneToMany(targetEntity = ASUserAttrValueEntity.class, mappedBy="asUserAttr")
+    private Set<ASUserAttrValueEntity> values;
     
 	public UserEntity getUser() {
 		return user;
@@ -62,6 +66,14 @@ public class ASUserAttrEntity extends AbstractBaseEntity {
 
 	public void setLastSuccessfulQuery(Date lastSuccessfulQuery) {
 		this.lastSuccessfulQuery = lastSuccessfulQuery;
+	}
+
+	public Set<ASUserAttrValueEntity> getValues() {
+		return values;
+	}
+
+	public void setValues(Set<ASUserAttrValueEntity> values) {
+		this.values = values;
 	}
 
 }
