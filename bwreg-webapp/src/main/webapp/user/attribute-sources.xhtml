@@ -1,0 +1,89 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+
+<f:view>
+<f:metadata>
+	<f:event type="javax.faces.event.PreRenderViewEvent"
+           listener="#{userAttributeSourcesBean.preRenderView}" />
+</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+	<h2>
+		<h:outputText value="#{messages.attribute_sources}: #{userAttributeSourcesBean.user.eppn}" />
+	</h2>
+
+	<div class="panel">
+		<p:panel header="#{messages.my_data}">
+			<p:panelGrid id="baseData" columns="2">
+				<bw:outputText label="#{messages.name}" value="#{userAttributeSourcesBean.user.surName}, #{userAttributeSourcesBean.user.givenName}"/>
+			</p:panelGrid>
+			<p:dataTable id="dataTable" var="ua" value="#{userAttributeSourcesBean.userAttrList}">
+				<p:column sortBy="#{ua.attributeSource.name}">
+					<f:facet name="header">
+						<h:outputText value="#{messages.name}" />
+					</f:facet>
+					<h:outputText value="#{ua.attributeSource.name}" />
+				</p:column>
+				<p:column sortBy="#{ua.lastSuccessfulQuery}">
+					<f:facet name="header">
+						<h:outputText value="#{messages.last_update}" />
+					</f:facet>
+					<h:outputText value="#{ua.lastSuccessfulQuery}" />
+				</p:column>
+				<p:column style="width:24px">
+					<p:commandLink update=":form:documentPanel"
+						oncomplete="PF('documentDialog').show()" title="View Detail"
+						styleClass="ui-icon ui-icon-search">
+						<f:setPropertyActionListener value="#{ua}"
+							target="#{userAttributeSourcesBean.selectedUserAttr}" />
+					</p:commandLink>
+				</p:column>
+			</p:dataTable>
+		</p:panel>
+	</div>
+	
+    <p:dialog id="dialog" header="Detail" showEffect="fade" widgetVar="documentDialog" modal="true" resizable="false">
+        <p:outputPanel id="documentPanel">
+            <p:panelGrid  columns="2" columnClasses="label,value" rendered="#{not empty userAttributeSourcesBean.selectedUserAttr}">
+                <h:outputLabel for="name2" value="#{messages.name}" />
+                <h:outputText id="name2" value="#{userAttributeSourcesBean.selectedUserAttr.attributeSource.name}" />
+            </p:panelGrid>
+			<p:dataTable var="v" value="#{userAttributeSourcesBean.selectedUserAttr.values.toArray()}">
+				<p:column style="width:128px">
+					<f:facet name="header">
+						<h:outputText value="#{messages.key}" />
+					</f:facet>
+					<h:outputText value="#{v.key}" />
+				</p:column>
+				<p:column style="width:256px">
+					<f:facet name="header">
+						<h:outputText value="#{messages.value}" />
+					</f:facet>
+					<h:outputText value="#{v.valueString}" />
+				</p:column>
+			</p:dataTable>
+        </p:outputPanel>
+    </p:dialog>
+    	
+	</h:form>
+	</ui:define>
+</ui:composition>
+</f:view>
+</body>
+</html>

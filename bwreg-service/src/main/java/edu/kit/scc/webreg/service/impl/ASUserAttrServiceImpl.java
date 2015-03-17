@@ -8,20 +8,34 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.dao.as;
+package edu.kit.scc.webreg.service.impl;
 
 import java.util.List;
 
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+
 import edu.kit.scc.webreg.dao.BaseDao;
+import edu.kit.scc.webreg.dao.as.ASUserAttrDao;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
-import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
+import edu.kit.scc.webreg.service.ASUserAttrService;
 
-public interface ASUserAttrDao extends BaseDao<ASUserAttrEntity, Long> {
+@Stateless
+public class ASUserAttrServiceImpl extends BaseServiceImpl<ASUserAttrEntity, Long> implements ASUserAttrService {
 
-	ASUserAttrEntity findASUserAttr(UserEntity user,
-			AttributeSourceEntity attributeSource);
+	private static final long serialVersionUID = 1L;
 
-	List<ASUserAttrEntity> findForUser(UserEntity user);
+	@Inject
+	private ASUserAttrDao dao;
+
+	@Override
+	public List<ASUserAttrEntity> findForUser(UserEntity user) {
+		return dao.findForUser(user);
+	}
 	
+	@Override
+	protected BaseDao<ASUserAttrEntity, Long> getDao() {
+		return dao;
+	}
 }

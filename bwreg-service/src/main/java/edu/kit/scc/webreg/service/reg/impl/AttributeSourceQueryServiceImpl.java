@@ -1,5 +1,7 @@
 package edu.kit.scc.webreg.service.reg.impl;
 
+import java.util.Date;
+
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
@@ -74,6 +76,8 @@ public class AttributeSourceQueryServiceImpl implements AttributeSourceQueryServ
 		auditor.setAsUserAttr(asUserAttr);
 		
 		workflow.pollUserAttributes(asUserAttr, asValueDao, auditor);
+		asUserAttr.setLastSuccessfulQuery(new Date());
+		asUserAttr = asUserAttrDao.persist(asUserAttr);
 		
 		auditor.finishAuditTrail();		
 	}

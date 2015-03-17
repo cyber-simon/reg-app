@@ -8,20 +8,15 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.dao.as;
+package edu.kit.scc.webreg.service;
 
 import java.util.List;
 
-import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
-import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 
-public interface ASUserAttrDao extends BaseDao<ASUserAttrEntity, Long> {
-
-	ASUserAttrEntity findASUserAttr(UserEntity user,
-			AttributeSourceEntity attributeSource);
+public interface ASUserAttrService extends BaseService<ASUserAttrEntity, Long> {
 
 	List<ASUserAttrEntity> findForUser(UserEntity user);
-	
+
 }

@@ -10,6 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa.as;
 
+import java.util.List;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 import javax.persistence.NoResultException;
@@ -34,6 +36,14 @@ public class JpaASUserAttrDao extends JpaBaseDao<ASUserAttrEntity, Long> impleme
 		catch (NoResultException e) {
 			return null;
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override 
+	public List<ASUserAttrEntity> findForUser(UserEntity user) {
+		return (List<ASUserAttrEntity>) em.createQuery("select a from ASUserAttrEntity a where "
+					+ "a.user = :user")
+					.setParameter("user", user).getResultList();
 	}
 	
 	@Override
