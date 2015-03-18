@@ -44,9 +44,12 @@
 					<f:facet name="header">
 						<h:outputText value="#{messages.last_update}" />
 					</f:facet>
-					<h:outputText value="#{ua.lastSuccessfulQuery}" />
+					<h:outputText value="#{of:formatDate(ua.lastSuccessfulQuery, 'dd.MM.yyyy HH:mm')}" />
 				</p:column>
-				<p:column style="width:24px">
+				<p:column style="width:32px">
+					<f:facet name="header">
+						<h:outputText value="#{messages.tools}" />
+					</f:facet>
 					<p:commandLink update=":form:documentPanel"
 						oncomplete="PF('documentDialog').show()" title="View Detail"
 						styleClass="ui-icon ui-icon-search">
