@@ -22,7 +22,6 @@ import javax.persistence.Table;
 
 import edu.kit.scc.webreg.entity.AbstractBaseEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.entity.UserGroupEntity;
 
 @Entity(name = "ASUserAttrEntity")
 @Table(name = "attribute_src_ua")

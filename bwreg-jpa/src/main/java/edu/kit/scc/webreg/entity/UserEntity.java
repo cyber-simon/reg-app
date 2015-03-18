@@ -26,6 +26,8 @@ import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
+
 @Entity(name = "UserEntity")
 @Table(name = "usertable")
 public class UserEntity extends AbstractBaseEntity {
@@ -80,6 +82,9 @@ public class UserEntity extends AbstractBaseEntity {
 
 	@OneToMany(targetEntity = UserGroupEntity.class, mappedBy="user")
 	private Set<UserGroupEntity> groups;
+		
+	@OneToMany(targetEntity = ASUserAttrEntity.class, mappedBy="user")
+	private Set<ASUserAttrEntity> userAttrs;
 		
 	@Enumerated(EnumType.STRING)
 	private UserStatus userStatus;
@@ -270,5 +275,13 @@ public class UserEntity extends AbstractBaseEntity {
 
 	public void setLastFailedUpdate(Date lastFailedUpdate) {
 		this.lastFailedUpdate = lastFailedUpdate;
+	}
+
+	public Set<ASUserAttrEntity> getUserAttrs() {
+		return userAttrs;
+	}
+
+	public void setUserAttrs(Set<ASUserAttrEntity> userAttrs) {
+		this.userAttrs = userAttrs;
 	}
 }

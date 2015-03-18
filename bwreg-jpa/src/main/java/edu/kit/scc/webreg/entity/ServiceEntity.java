@@ -29,6 +29,8 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Type;
 
+import edu.kit.scc.webreg.entity.as.AttributeSourceServiceEntity;
+
 @Entity(name = "ServiceEntity")
 @Table(name = "service")
 public class ServiceEntity extends AbstractBaseEntity {
@@ -60,6 +62,9 @@ public class ServiceEntity extends AbstractBaseEntity {
 	
 	@OneToMany(targetEntity = PolicyEntity.class, mappedBy = "service")
 	private Set<PolicyEntity> policies;
+
+	@OneToMany(targetEntity = AttributeSourceServiceEntity.class, mappedBy = "service")
+	private Set<AttributeSourceServiceEntity> attributeSourceService;
 
 	@NotNull
 	@Column(name="register_bean", length=256, nullable=false)
@@ -242,6 +247,15 @@ public class ServiceEntity extends AbstractBaseEntity {
 	public void setMandatoryValueRulePackage(
 			BusinessRulePackageEntity mandatoryValueRulePackage) {
 		this.mandatoryValueRulePackage = mandatoryValueRulePackage;
+	}
+
+	public Set<AttributeSourceServiceEntity> getAttributeSourceService() {
+		return attributeSourceService;
+	}
+
+	public void setAttributeSourceService(
+			Set<AttributeSourceServiceEntity> attributeSourceService) {
+		this.attributeSourceService = attributeSourceService;
 	}
 
 }

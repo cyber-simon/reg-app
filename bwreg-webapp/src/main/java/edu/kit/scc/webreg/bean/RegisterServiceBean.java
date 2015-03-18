@@ -35,11 +35,13 @@ import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.as.AttributeSourceServiceEntity;
 import edu.kit.scc.webreg.exc.MisconfiguredServiceException;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.service.reg.AttributeSourceQueryService;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 import edu.kit.scc.webreg.util.SessionManager;
@@ -86,7 +88,10 @@ public class RegisterServiceBean implements Serializable {
 
 	@Inject
 	private KnowledgeSessionService knowledgeSessionService;
-	    
+	
+	@Inject
+	private AttributeSourceQueryService asQueryService;
+	
 	@Inject
 	private FacesMessageGenerator messageGenerator;
 	
@@ -101,7 +106,7 @@ public class RegisterServiceBean implements Serializable {
     			id = service.getId();
     		}
     		
-			service = serviceService.findWithPolicies(id);
+			service = serviceService.findByIdWithAttrs(id, "policies", "attributeSourceService");
 			
 			List<RegistryEntity> r = registryService.findByServiceAndUserAndNotStatus(service, user, 
 					RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
@@ -109,6 +114,15 @@ public class RegisterServiceBean implements Serializable {
 				errorState = true;
 	    		messageGenerator.addResolvedErrorMessage("errorState", "error", "already_registered", true);
 				return;
+			}
+			
+			for (AttributeSourceServiceEntity asse : service.getAttributeSourceService()) {
+				logger.info("Updating attribute source {}", asse.getAttributeSource().getName());
+				try {
+					asQueryService.updateUserAttributes(user, asse.getAttributeSource(), "user-" + user.getId());
+				} catch (RegisterException e) {
+					logger.info("Updating attribute source exception", e);
+				}
 			}
 			
 			policyHolderList = new ArrayList<RegisterServiceBean.PolicyHolder>();
