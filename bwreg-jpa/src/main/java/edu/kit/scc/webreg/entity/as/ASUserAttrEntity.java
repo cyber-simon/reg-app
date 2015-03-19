@@ -74,5 +74,4 @@ public class ASUserAttrEntity extends AbstractBaseEntity {
 	public void setValues(Set<ASUserAttrValueEntity> values) {
 		this.values = values;
 	}
-
 }

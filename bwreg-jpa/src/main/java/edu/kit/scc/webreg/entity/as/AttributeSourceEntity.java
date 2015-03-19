@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.entity.as;
 
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -20,6 +21,7 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinTable;
 import javax.persistence.MapKeyColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Fetch;
@@ -52,6 +54,9 @@ public class AttributeSourceEntity extends AbstractBaseEntity {
 	
 	@Column(name = "service_source")
 	private Boolean serviceSource;
+	
+	@OneToMany(targetEntity = AttributeSourceServiceEntity.class, mappedBy="attributeSource")
+	private Set<AttributeSourceServiceEntity> attributeSourceServices;
 	
 	public String getName() {
 		return name;
@@ -91,5 +96,14 @@ public class AttributeSourceEntity extends AbstractBaseEntity {
 
 	public void setServiceSource(Boolean serviceSource) {
 		this.serviceSource = serviceSource;
+	}
+
+	public Set<AttributeSourceServiceEntity> getAttributeSourceServices() {
+		return attributeSourceServices;
+	}
+
+	public void setAttributeSourceServices(
+			Set<AttributeSourceServiceEntity> attributeSourceServices) {
+		this.attributeSourceServices = attributeSourceServices;
 	}
 }

@@ -11,5 +11,4 @@ public interface AttributeSourceQueryService extends Serializable {
 	void updateUserAttributes(UserEntity user,
 			AttributeSourceEntity attributeSource, String executor)
 			throws RegisterException;
-
 }

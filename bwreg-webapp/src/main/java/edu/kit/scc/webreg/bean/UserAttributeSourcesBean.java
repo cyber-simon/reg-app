@@ -20,7 +20,9 @@ import javax.inject.Inject;
 
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
+import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 import edu.kit.scc.webreg.service.ASUserAttrService;
+import edu.kit.scc.webreg.service.AttributeSourceService;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.util.SessionManager;
 
@@ -34,6 +36,7 @@ public class UserAttributeSourcesBean implements Serializable {
 	
 	private List<ASUserAttrEntity> userAttrList;
 	private ASUserAttrEntity selectedUserAttr;
+	private AttributeSourceEntity selectedAttributeSource;
 	
 	@Inject
 	private UserService userService;
@@ -41,6 +44,9 @@ public class UserAttributeSourcesBean implements Serializable {
     @Inject
     private ASUserAttrService asUserAttrService;
 
+    @Inject
+    private AttributeSourceService attributeSourceService;
+    
     @Inject 
     private SessionManager sessionManager;
 
@@ -73,6 +79,12 @@ public class UserAttributeSourcesBean implements Serializable {
 
 	public void setSelectedUserAttr(ASUserAttrEntity selectedUserAttr) {
 		selectedUserAttr = asUserAttrService.findByIdWithAttrs(selectedUserAttr.getId(), "values");
+		selectedAttributeSource = attributeSourceService.findByIdWithAttrs(
+				selectedUserAttr.getAttributeSource().getId(), "attributeSourceServices");
 		this.selectedUserAttr = selectedUserAttr;
+	}
+
+	public AttributeSourceEntity getSelectedAttributeSource() {
+		return selectedAttributeSource;
 	}
 }

@@ -19,6 +19,7 @@ import edu.kit.scc.webreg.dao.as.AttributeSourceDao;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
+import edu.kit.scc.webreg.entity.as.AttributeSourceServiceEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.service.reg.AttributeSourceQueryService;
 
@@ -50,7 +51,7 @@ public class AttributeSourceQueryServiceImpl implements AttributeSourceQueryServ
 	
 	@Inject
 	private ApplicationConfig appConfig;
-	
+
 	@Override
 	public void updateUserAttributes(UserEntity user, AttributeSourceEntity attributeSource, String executor) 
 		throws RegisterException {
@@ -65,6 +66,10 @@ public class AttributeSourceQueryServiceImpl implements AttributeSourceQueryServ
 			asUserAttr.setAttributeSource(attributeSource);
 			asUserAttr.setUser(user);
 			asUserAttr = asUserAttrDao.persist(asUserAttr);
+		}
+		
+		for (AttributeSourceServiceEntity asse : attributeSource.getAttributeSourceServices()) {
+			logger.debug("Attributes requested for service {}", asse.getService().getName());			
 		}
 		
 		AttributeSourceWorkflow workflow = getWorkflowInstance(attributeSource.getAsClass());

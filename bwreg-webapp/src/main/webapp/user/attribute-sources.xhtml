@@ -64,8 +64,15 @@
     <p:dialog id="dialog" header="Detail" showEffect="fade" widgetVar="documentDialog" modal="true" resizable="false">
         <p:outputPanel id="documentPanel">
             <p:panelGrid  columns="2" columnClasses="label,value" rendered="#{not empty userAttributeSourcesBean.selectedUserAttr}">
+
                 <h:outputLabel for="name2" value="#{messages.name}" />
                 <h:outputText id="name2" value="#{userAttributeSourcesBean.selectedUserAttr.attributeSource.name}" />
+                
+                <h:outputLabel value="#{messages.attribute_sources}" />
+                <p:dataList var="ass" value="#{userAttributeSourcesBean.selectedAttributeSource.attributeSourceServices.toArray()}">
+                		<h:outputText value="#{ass.service.name}" />
+                </p:dataList>
+
             </p:panelGrid>
 			<p:dataTable var="v" value="#{userAttributeSourcesBean.selectedUserAttr.values.toArray()}">
 				<p:column style="width:128px">
