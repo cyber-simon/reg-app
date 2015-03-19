@@ -15,6 +15,8 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -22,6 +24,7 @@ import javax.persistence.Table;
 
 import edu.kit.scc.webreg.entity.AbstractBaseEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserStatus;
 
 @Entity(name = "ASUserAttrEntity")
 @Table(name = "attribute_src_ua")
@@ -37,12 +40,22 @@ public class ASUserAttrEntity extends AbstractBaseEntity {
     @JoinColumn(name = "attribute_src_id", nullable = false)
 	private AttributeSourceEntity attributeSource;
 
+    @Column(name = "last_query")
+    private Date lastQuery;
+    
     @Column(name = "last_successful_query")
     private Date lastSuccessfulQuery;
     
     @OneToMany(targetEntity = ASUserAttrValueEntity.class, mappedBy="asUserAttr")
     private Set<ASUserAttrValueEntity> values;
     
+	@Enumerated(EnumType.STRING)
+    @Column(name = "query_status")
+	private AttributeSourceQueryStatus queryStatus;
+
+    @Column(name = "queryMessage", length = 512)
+    private String queryMessage;
+
 	public UserEntity getUser() {
 		return user;
 	}
@@ -73,5 +86,29 @@ public class ASUserAttrEntity extends AbstractBaseEntity {
 
 	public void setValues(Set<ASUserAttrValueEntity> values) {
 		this.values = values;
+	}
+
+	public Date getLastQuery() {
+		return lastQuery;
+	}
+
+	public void setLastQuery(Date lastQuery) {
+		this.lastQuery = lastQuery;
+	}
+
+	public AttributeSourceQueryStatus getQueryStatus() {
+		return queryStatus;
+	}
+
+	public void setQueryStatus(AttributeSourceQueryStatus queryStatus) {
+		this.queryStatus = queryStatus;
+	}
+
+	public String getQueryMessage() {
+		return queryMessage;
+	}
+
+	public void setQueryMessage(String queryMessage) {
+		this.queryMessage = queryMessage;
 	}
 }

@@ -9,7 +9,7 @@ import edu.kit.scc.webreg.exc.RegisterException;
 
 public interface AttributeSourceWorkflow extends Serializable {
 
-	AttributeSourceQueryLog pollUserAttributes(ASUserAttrEntity asUserAttr,
+	void pollUserAttributes(ASUserAttrEntity asUserAttr,
 			ASUserAttrValueDao asValueDao, AttributeSourceAuditor auditor)
 			throws RegisterException;
 }

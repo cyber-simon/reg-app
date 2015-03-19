@@ -1,4 +1,4 @@
-package edu.kit.scc.webreg.as;
+package edu.kit.scc.webreg.entity.as;
 
 public enum AttributeSourceQueryStatus {
 

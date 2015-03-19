@@ -30,6 +30,7 @@ import edu.kit.scc.webreg.dao.as.ASUserAttrValueDao;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
+import edu.kit.scc.webreg.entity.as.AttributeSourceQueryStatus;
 import edu.kit.scc.webreg.exc.RegisterException;
 
 public class HttpUrlSingleAttributeSource extends
@@ -38,10 +39,8 @@ public class HttpUrlSingleAttributeSource extends
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public AttributeSourceQueryLog pollUserAttributes(ASUserAttrEntity asUserAttr, ASUserAttrValueDao asValueDao, AttributeSourceAuditor auditor) throws RegisterException {
+	public void pollUserAttributes(ASUserAttrEntity asUserAttr, ASUserAttrValueDao asValueDao, AttributeSourceAuditor auditor) throws RegisterException {
 		
-		AttributeSourceQueryLog queryLog = new AttributeSourceQueryLog(); 
-				
 		init(asUserAttr);
 		
 		UserEntity user = asUserAttr.getUser();
@@ -59,16 +58,19 @@ public class HttpUrlSingleAttributeSource extends
 			engine.evaluate(velocityContext, out, "log", urlTemplate);
 		} catch (ParseErrorException e) {
 			logger.warn("Velocity problem", e);
-			queryLog.setStatus(AttributeSourceQueryStatus.FAIL);
-			return queryLog;
+			asUserAttr.setQueryStatus(AttributeSourceQueryStatus.FAIL);
+			asUserAttr.setQueryMessage(e.getMessage());
+			return;
 		} catch (MethodInvocationException e) {
 			logger.warn("Velocity problem", e);
-			queryLog.setStatus(AttributeSourceQueryStatus.FAIL);
-			return queryLog;
+			asUserAttr.setQueryStatus(AttributeSourceQueryStatus.FAIL);
+			asUserAttr.setQueryMessage(e.getMessage());
+			return;
 		} catch (ResourceNotFoundException e) {
 			logger.warn("Velocity problem", e);
-			queryLog.setStatus(AttributeSourceQueryStatus.FAIL);
-			return queryLog;
+			asUserAttr.setQueryStatus(AttributeSourceQueryStatus.FAIL);
+			asUserAttr.setQueryMessage(e.getMessage());
+			return;
 		}
 
 		String url = out.toString();
@@ -84,12 +86,14 @@ public class HttpUrlSingleAttributeSource extends
 			response = httpclient.execute(httpget);
 		} catch (ClientProtocolException e) {
 			logger.info("Problem", e);
-			queryLog.setStatus(AttributeSourceQueryStatus.FAIL);
-			return queryLog;
+			asUserAttr.setQueryStatus(AttributeSourceQueryStatus.FAIL);
+			asUserAttr.setQueryMessage(e.getMessage());
+			return;
 		} catch (IOException e) {
 			logger.info("Problem", e);
-			queryLog.setStatus(AttributeSourceQueryStatus.FAIL);
-			return queryLog;
+			asUserAttr.setQueryStatus(AttributeSourceQueryStatus.FAIL);
+			asUserAttr.setQueryMessage(e.getMessage());
+			return;
 		}
 		HttpEntity entity = response.getEntity();
 
@@ -109,14 +113,15 @@ public class HttpUrlSingleAttributeSource extends
 							createOrUpdateValue(entry.getKey(), entry.getValue(), asUserAttr, asValueDao, auditor);
 						}
 
-						queryLog.setStatus(AttributeSourceQueryStatus.SUCCESS);
+						asUserAttr.setQueryStatus(AttributeSourceQueryStatus.SUCCESS);
 						
 					} catch (JsonMappingException e) {
 						/*
 						 * Datasource generates invalid JSON
 						 */
 						logger.warn("Json Parse failed: {}", e.getMessage());
-						queryLog.setStatus(AttributeSourceQueryStatus.FAIL);
+						asUserAttr.setQueryStatus(AttributeSourceQueryStatus.FAIL);
+						asUserAttr.setQueryMessage(e.getMessage());
 					}
 				} catch (ParseException e) {
 					throw new RegisterException(e);
@@ -130,10 +135,9 @@ public class HttpUrlSingleAttributeSource extends
 			 * probably no info for this user from datasource
 			 */
 			logger.debug("Status HttpUrlSingleAS is not OK. It is {} - {}", response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
-			queryLog.setStatus(AttributeSourceQueryStatus.USER_NOT_FOUND);
+			asUserAttr.setQueryStatus(AttributeSourceQueryStatus.USER_NOT_FOUND);
+			asUserAttr.setQueryMessage("Status HttpUrlSingleAS is " + response.getStatusLine().getStatusCode());
 		}
-		
-		return queryLog;
 	}
 
 }
