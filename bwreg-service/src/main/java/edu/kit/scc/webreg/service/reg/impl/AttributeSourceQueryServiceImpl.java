@@ -7,6 +7,8 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 
+import edu.kit.scc.webreg.as.AttributeSourceQueryLog;
+import edu.kit.scc.webreg.as.AttributeSourceQueryStatus;
 import edu.kit.scc.webreg.as.AttributeSourceWorkflow;
 import edu.kit.scc.webreg.audit.AttributeSourceAuditor;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
@@ -53,7 +55,7 @@ public class AttributeSourceQueryServiceImpl implements AttributeSourceQueryServ
 	private ApplicationConfig appConfig;
 
 	@Override
-	public void updateUserAttributes(UserEntity user, AttributeSourceEntity attributeSource, String executor) 
+	public AttributeSourceQueryLog updateUserAttributes(UserEntity user, AttributeSourceEntity attributeSource, String executor) 
 		throws RegisterException {
 		
 		attributeSource = attributeSourceDao.findById(attributeSource.getId());
@@ -77,14 +79,19 @@ public class AttributeSourceQueryServiceImpl implements AttributeSourceQueryServ
 		AttributeSourceAuditor auditor = new AttributeSourceAuditor(auditDao, auditDetailDao, appConfig);
 		auditor.startAuditTrail(executor);
 		auditor.setName(attributeSource.getName() + "-AttributeSource-Audit");
-		auditor.setDetail("Updateing attributes for user " + user.getEppn());
+		auditor.setDetail("Updating attributes for user " + user.getEppn());
 		auditor.setAsUserAttr(asUserAttr);
 		
-		workflow.pollUserAttributes(asUserAttr, asValueDao, auditor);
-		asUserAttr.setLastSuccessfulQuery(new Date());
-		asUserAttr = asUserAttrDao.persist(asUserAttr);
+		AttributeSourceQueryLog queryLog = workflow.pollUserAttributes(asUserAttr, asValueDao, auditor);
 		
-		auditor.finishAuditTrail();		
+		if (AttributeSourceQueryStatus.SUCCESS.equals(queryLog.getStatus())) {
+			asUserAttr.setLastSuccessfulQuery(new Date());
+		}
+
+		asUserAttr = asUserAttrDao.persist(asUserAttr);
+		auditor.finishAuditTrail();	
+		
+		return queryLog;
 	}
 	
 	public AttributeSourceWorkflow getWorkflowInstance(String className) {
