@@ -8,7 +8,7 @@ import edu.kit.scc.webreg.exc.RegisterException;
 
 public interface AttributeSourceQueryService extends Serializable {
 
-	void updateUserAttributes(UserEntity user,
+	Boolean updateUserAttributes(UserEntity user,
 			AttributeSourceEntity attributeSource, String executor)
 			throws RegisterException;
 }

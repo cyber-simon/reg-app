@@ -39,6 +39,7 @@ import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
+import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.UserEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
@@ -46,11 +47,14 @@ import edu.kit.scc.webreg.exc.MetadataException;
 import edu.kit.scc.webreg.exc.NoAssertionException;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.exc.SamlAuthenticationException;
+import edu.kit.scc.webreg.service.ASUserAttrService;
+import edu.kit.scc.webreg.service.AttributeSourceService;
 import edu.kit.scc.webreg.service.HomeOrgGroupService;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.SamlSpConfigurationService;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.UserUpdateService;
+import edu.kit.scc.webreg.service.reg.AttributeSourceQueryService;
 import edu.kit.scc.webreg.service.saml.AttributeQueryHelper;
 import edu.kit.scc.webreg.service.saml.Saml2AssertionService;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
@@ -87,6 +91,12 @@ public class UserUpdateServiceImpl implements UserUpdateService {
 	
 	@Inject 
 	private SamlSpConfigurationService spService;
+	
+	@Inject
+	private ASUserAttrService asUserAttrService;
+	
+	@Inject
+	private AttributeSourceQueryService attributeSourceQueryService;
 	
 	@Inject
 	private AttributeMapHelper attrHelper;
@@ -154,6 +164,11 @@ public class UserUpdateServiceImpl implements UserUpdateService {
 			for (Entry<String, List<Object>> entry : attributeMap.entrySet()) {
 				attributeStore.put(entry.getKey(), attrHelper.attributeListToString(entry.getValue()));
 			}
+		}
+		
+		List<ASUserAttrEntity> asUserAttrList = asUserAttrService.findForUser(user);
+		for (ASUserAttrEntity asUserAttr : asUserAttrList) {
+			changed |= attributeSourceQueryService.updateUserAttributes(user, asUserAttr.getAttributeSource(), executor);
 		}
 		
 		user.setLastUpdate(new Date());

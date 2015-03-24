@@ -54,8 +54,10 @@ public class AttributeSourceQueryServiceImpl implements AttributeSourceQueryServ
 	private ApplicationConfig appConfig;
 
 	@Override
-	public void updateUserAttributes(UserEntity user, AttributeSourceEntity attributeSource, String executor) 
+	public Boolean updateUserAttributes(UserEntity user, AttributeSourceEntity attributeSource, String executor) 
 		throws RegisterException {
+		
+		Boolean changed = false;
 		
 		attributeSource = attributeSourceDao.findByIdWithAttrs(attributeSource.getId(), "asProps");
 		user = userDao.findById(user.getId());
@@ -72,7 +74,7 @@ public class AttributeSourceQueryServiceImpl implements AttributeSourceQueryServ
 		if (asUserAttr != null && asUserAttr.getLastQuery() != null &&
 				(System.currentTimeMillis() - asUserAttr.getLastQuery().getTime()) < expireTime) {
 			logger.info("Skipping attribute source query {} for user {}. Data not expired.", attributeSource.getName(), user.getEppn());
-			return;
+			return changed;
 		}
 			
 		if (asUserAttr == null) {
@@ -93,8 +95,8 @@ public class AttributeSourceQueryServiceImpl implements AttributeSourceQueryServ
 		auditor.setName(attributeSource.getName() + "-AttributeSource-Audit");
 		auditor.setDetail("Updating attributes for user " + user.getEppn());
 		auditor.setAsUserAttr(asUserAttr);
-		
-		workflow.pollUserAttributes(asUserAttr, asValueDao, auditor);
+
+		changed = workflow.pollUserAttributes(asUserAttr, asValueDao, auditor);
 		
 		if (AttributeSourceQueryStatus.SUCCESS.equals(asUserAttr.getQueryStatus())) {
 			asUserAttr.setLastSuccessfulQuery(new Date());
@@ -102,7 +104,9 @@ public class AttributeSourceQueryServiceImpl implements AttributeSourceQueryServ
 
 		asUserAttr.setLastQuery(new Date());
 		asUserAttr = asUserAttrDao.persist(asUserAttr);
-		auditor.finishAuditTrail();	
+		auditor.finishAuditTrail();
+		
+		return changed;
 	}
 	
 	public AttributeSourceWorkflow getWorkflowInstance(String className) {

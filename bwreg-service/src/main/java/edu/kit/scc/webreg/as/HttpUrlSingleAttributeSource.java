@@ -39,7 +39,9 @@ public class HttpUrlSingleAttributeSource extends
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void pollUserAttributes(ASUserAttrEntity asUserAttr, ASUserAttrValueDao asValueDao, AttributeSourceAuditor auditor) throws RegisterException {
+	public Boolean pollUserAttributes(ASUserAttrEntity asUserAttr, ASUserAttrValueDao asValueDao, AttributeSourceAuditor auditor) throws RegisterException {
+		
+		Boolean changed = false;
 		
 		init(asUserAttr);
 		
@@ -60,17 +62,17 @@ public class HttpUrlSingleAttributeSource extends
 			logger.warn("Velocity problem", e);
 			asUserAttr.setQueryStatus(AttributeSourceQueryStatus.FAIL);
 			asUserAttr.setQueryMessage(e.getMessage());
-			return;
+			return changed;
 		} catch (MethodInvocationException e) {
 			logger.warn("Velocity problem", e);
 			asUserAttr.setQueryStatus(AttributeSourceQueryStatus.FAIL);
 			asUserAttr.setQueryMessage(e.getMessage());
-			return;
+			return changed;
 		} catch (ResourceNotFoundException e) {
 			logger.warn("Velocity problem", e);
 			asUserAttr.setQueryStatus(AttributeSourceQueryStatus.FAIL);
 			asUserAttr.setQueryMessage(e.getMessage());
-			return;
+			return changed;
 		}
 
 		String url = out.toString();
@@ -88,12 +90,12 @@ public class HttpUrlSingleAttributeSource extends
 			logger.info("Problem", e);
 			asUserAttr.setQueryStatus(AttributeSourceQueryStatus.FAIL);
 			asUserAttr.setQueryMessage(e.getMessage());
-			return;
+			return changed;
 		} catch (IOException e) {
 			logger.info("Problem", e);
 			asUserAttr.setQueryStatus(AttributeSourceQueryStatus.FAIL);
 			asUserAttr.setQueryMessage(e.getMessage());
-			return;
+			return changed;
 		}
 		HttpEntity entity = response.getEntity();
 
@@ -104,13 +106,14 @@ public class HttpUrlSingleAttributeSource extends
 					ObjectMapper om = new ObjectMapper();
 					
 					try {
+						@SuppressWarnings("unchecked")
 						Map<String, Object> map = om.readValue(r, Map.class);
 
 						logger.debug("Got {} values", map.size());
 						
 						for (Entry<String, Object> entry : map.entrySet()) {
 							logger.debug("Processing entry {}, value {}", entry.getKey(), entry.getValue());
-							createOrUpdateValue(entry.getKey(), entry.getValue(), asUserAttr, asValueDao, auditor);
+							changed |= createOrUpdateValue(entry.getKey(), entry.getValue(), asUserAttr, asValueDao, auditor);
 						}
 
 						asUserAttr.setQueryStatus(AttributeSourceQueryStatus.SUCCESS);
@@ -138,6 +141,8 @@ public class HttpUrlSingleAttributeSource extends
 			asUserAttr.setQueryStatus(AttributeSourceQueryStatus.USER_NOT_FOUND);
 			asUserAttr.setQueryMessage("Status HttpUrlSingleAS is " + response.getStatusLine().getStatusCode());
 		}
+		
+		return changed;
 	}
 
 }

@@ -25,10 +25,13 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 		prop = new PropertyReader(asUserAttr.getAttributeSource().getAsProps());
 	}
 	
-	protected void createOrUpdateValue(String key, Object o, ASUserAttrEntity asUserAttr, ASUserAttrValueDao asValueDao, AttributeSourceAuditor auditor) {
+	protected Boolean createOrUpdateValue(String key, Object o, ASUserAttrEntity asUserAttr, ASUserAttrValueDao asValueDao, AttributeSourceAuditor auditor) {
+		
+		Boolean changed = false;
+		
 		if (o == null || key == null) {
 			logger.warn("Null keys or values cannot be updated");
-			return;
+			return changed;
 		}
 		
 		if (o instanceof String) {
@@ -40,6 +43,7 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 				asValue.setKey(key);
 				asValue.setAsUserAttr(asUserAttr);
 				auditor.logAction("as-workflow", "CREATE VALUE (String)", key, "", AuditStatus.SUCCESS);
+				changed = true;
 			}
 			else if (! (asValue instanceof ASUserAttrValueStringEntity)) {
 				asValueDao.delete(asValue);
@@ -48,11 +52,13 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 				asValue.setKey(key);
 				asValue.setAsUserAttr(asUserAttr);
 				auditor.logAction("as-workflow", "CREATE VALUE (String)", key, "", AuditStatus.SUCCESS);
+				changed = true;
 			}
 			ASUserAttrValueStringEntity asStringValue = (ASUserAttrValueStringEntity) asValue;
 			if (! value.equals(asStringValue.getValueString())) {
 				auditor.logAction("as-workflow", "UPDATE VALUE (String)", key, asStringValue.getValueString() + " -> " + value, AuditStatus.SUCCESS);
 				asStringValue.setValueString(value);
+				changed = true;
 			}
 			
 			asValueDao.persist(asValue);
@@ -60,5 +66,7 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 		else {
 			logger.warn("Cannot process value of type {}", o.getClass());
 		}
+		
+		return changed;
 	}
 }
