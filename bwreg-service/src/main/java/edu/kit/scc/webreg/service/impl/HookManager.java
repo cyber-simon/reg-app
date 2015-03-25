@@ -41,6 +41,13 @@ public class HookManager {
 		userHooks = new HashSet<UserServiceHook>();
 	}
 	
+	public void reloadHooks() {
+		logger.info("Reloading User Hooks");
+		reloadUserHooks();
+		logger.info("Reloading Group Hooks");
+		reloadGroupHooks();
+	}
+	
 	public void reloadUserHooks() {
 		Set<UserServiceHook> newUserHooks = new HashSet<UserServiceHook>();
 

@@ -127,8 +127,7 @@ public class ApplicationBootstrap {
     	}
     	
 		logger.info("Initializing Hooks");
-    	hookManager.reloadUserHooks();
-    	hookManager.reloadGroupHooks();
+    	hookManager.reloadHooks();
 		
     	userService.convertLegacyUsers();
 
@@ -151,16 +150,6 @@ public class ApplicationBootstrap {
         velocityRenderer.init();
         
         standardScheduler.initialize();
-	}
-	
-	public void reloadConfig() {
-		boolean reloaded = appConfig.reload();
-		
-		if (reloaded) {
-			logger.info("Reloading Hooks");
-			hookManager.reloadUserHooks();
-			hookManager.reloadGroupHooks();
-		}
 	}
 	
     private void checkGroup(String name, Integer createActual) {

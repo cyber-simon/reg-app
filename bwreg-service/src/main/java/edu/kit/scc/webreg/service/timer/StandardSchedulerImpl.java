@@ -26,7 +26,7 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 
-import edu.kit.scc.webreg.bootstrap.ApplicationBootstrap;
+import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.bootstrap.NodeConfiguration;
 import edu.kit.scc.webreg.drools.BpmProcessService;
 import edu.kit.scc.webreg.entity.JobClassEntity;
@@ -34,6 +34,7 @@ import edu.kit.scc.webreg.entity.JobScheduleEntity;
 import edu.kit.scc.webreg.job.ExecutableJob;
 import edu.kit.scc.webreg.service.JobClassService;
 import edu.kit.scc.webreg.service.JobScheduleService;
+import edu.kit.scc.webreg.service.impl.HookManager;
 
 @Singleton
 public class StandardSchedulerImpl implements StandardScheduler, Serializable {
@@ -62,7 +63,10 @@ public class StandardSchedulerImpl implements StandardScheduler, Serializable {
 	private BpmProcessService bpmProcessService;
 
 	@Inject
-	private ApplicationBootstrap appBootstrap;
+	private ApplicationConfig appConfig;
+	
+	@Inject
+	private HookManager hookManager;
 	
 	@Override
 	public void initialize() {
@@ -159,7 +163,13 @@ public class StandardSchedulerImpl implements StandardScheduler, Serializable {
 		bpmProcessService.reload();
 		
 		// Reload App Config here
-		appBootstrap.reloadConfig();
+		boolean reloaded = appConfig.reload();
+		
+		// Reload Hooks if app config was reloaded
+		if (reloaded) {
+			hookManager.reloadHooks();
+		}
+
 	}
 	
 	private void cancelTimer(Timer t) {
