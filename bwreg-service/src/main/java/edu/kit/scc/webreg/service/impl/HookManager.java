@@ -15,12 +15,22 @@ import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
+import javax.inject.Inject;
 
+import org.slf4j.Logger;
+
+import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.service.GroupServiceHook;
 import edu.kit.scc.webreg.service.UserServiceHook;
 
 @Singleton
 public class HookManager {
+
+	@Inject
+	private Logger logger;
+	
+	@Inject
+	private ApplicationConfig appConfig;
 
 	private Set<UserServiceHook> userHooks;
 	private Set<GroupServiceHook> groupHooks;
@@ -31,14 +41,58 @@ public class HookManager {
 		userHooks = new HashSet<UserServiceHook>();
 	}
 	
-	public void addGroupHook(GroupServiceHook hook) {
-		groupHooks.add(hook);
-	}
+	public void reloadUserHooks() {
+		Set<UserServiceHook> newUserHooks = new HashSet<UserServiceHook>();
 
-	public void addUserHook(UserServiceHook hook) {
-		userHooks.add(hook);
+		String hooksString = appConfig.getConfigValue("user_hooks");
+		if (hooksString != null && hooksString.length() > 0) {
+			hooksString = hooksString.trim();
+			String[] hooks = hooksString.split(";");
+			for (String hook : hooks) {
+				hook = hook.trim();
+				try {
+					UserServiceHook h = (UserServiceHook) Class.forName(hook).newInstance();
+					h.setAppConfig(appConfig);
+					newUserHooks.add(h);
+				} catch (InstantiationException e) {
+					logger.warn("Could not spawn hook " + hook, e);
+				} catch (IllegalAccessException e) {
+					logger.warn("Could not spawn hook " + hook, e);
+				} catch (ClassNotFoundException e) {
+					logger.warn("Could not spawn hook " + hook, e);
+				}
+			}
+		}
+		
+		userHooks = newUserHooks;
 	}
-
+	
+	public void reloadGroupHooks() {
+		Set<GroupServiceHook> newGroupHooks = new HashSet<GroupServiceHook>();
+		
+		String hooksString = appConfig.getConfigValue("group_hooks");
+		if (hooksString != null && hooksString.length() > 0) {
+			hooksString = hooksString.trim();
+			String[] hooks = hooksString.split(";");
+			for (String hook : hooks) {
+				hook = hook.trim();
+				try {
+					GroupServiceHook h = (GroupServiceHook) Class.forName(hook).newInstance();
+					h.setAppConfig(appConfig);
+					newGroupHooks.add(h);
+				} catch (InstantiationException e) {
+					logger.warn("Could not spawn hook " + hook, e);
+				} catch (IllegalAccessException e) {
+					logger.warn("Could not spawn hook " + hook, e);
+				} catch (ClassNotFoundException e) {
+					logger.warn("Could not spawn hook " + hook, e);
+				}
+			}
+		}
+		
+		groupHooks = newGroupHooks;
+	}
+	
 	public Set<GroupServiceHook> getGroupHooks() {
 		return groupHooks;
 	}

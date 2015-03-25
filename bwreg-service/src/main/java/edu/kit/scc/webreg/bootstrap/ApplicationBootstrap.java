@@ -129,8 +129,8 @@ public class ApplicationBootstrap {
     	}
     	
 		logger.info("Initializing Hooks");
-    	addUserHooks();
-    	addGroupHooks();
+    	hookManager.reloadUserHooks();
+    	hookManager.reloadGroupHooks();
 		
     	userService.convertLegacyUsers();
 
@@ -154,51 +154,7 @@ public class ApplicationBootstrap {
         
         standardScheduler.initialize();
 	}
-	
-	private void addUserHooks() {
-		String hooksString = appConfig.getConfigValue("user_hooks");
-		if (hooksString != null && hooksString.length() > 0) {
-			hooksString = hooksString.trim();
-			String[] hooks = hooksString.split(";");
-			for (String hook : hooks) {
-				hook = hook.trim();
-				try {
-					UserServiceHook h = (UserServiceHook) Class.forName(hook).newInstance();
-					h.setAppConfig(appConfig);
-					hookManager.addUserHook(h);
-				} catch (InstantiationException e) {
-					logger.warn("Could not spawn hook " + hook, e);
-				} catch (IllegalAccessException e) {
-					logger.warn("Could not spawn hook " + hook, e);
-				} catch (ClassNotFoundException e) {
-					logger.warn("Could not spawn hook " + hook, e);
-				}
-			}
-		}		
-	}
-	
-	private void addGroupHooks() {
-		String hooksString = appConfig.getConfigValue("group_hooks");
-		if (hooksString != null && hooksString.length() > 0) {
-			hooksString = hooksString.trim();
-			String[] hooks = hooksString.split(";");
-			for (String hook : hooks) {
-				hook = hook.trim();
-				try {
-					GroupServiceHook h = (GroupServiceHook) Class.forName(hook).newInstance();
-					h.setAppConfig(appConfig);
-					hookManager.addGroupHook(h);
-				} catch (InstantiationException e) {
-					logger.warn("Could not spawn hook " + hook, e);
-				} catch (IllegalAccessException e) {
-					logger.warn("Could not spawn hook " + hook, e);
-				} catch (ClassNotFoundException e) {
-					logger.warn("Could not spawn hook " + hook, e);
-				}
-			}
-		}		
-	}
-	
+		
     private void checkGroup(String name, Integer createActual) {
     	GroupEntity entity = groupService.findByName(name);
     	if (entity == null) {
