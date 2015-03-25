@@ -44,6 +44,10 @@
 				</h:panelGrid>
 				
 			</p:panel>
+
+			<p:panel id="toolsPanel" header="#{messages.tools}" style="margin-top: 16px;">
+				<p:commandButton value="#{messages.reload_app_config}" action="#{indexConfigBean.scheduleReload()}" />				
+			</p:panel>
 		</div>
 	</h:form>
 

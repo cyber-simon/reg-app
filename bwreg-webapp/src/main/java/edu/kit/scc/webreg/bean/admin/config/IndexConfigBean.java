@@ -52,6 +52,10 @@ public class IndexConfigBean implements Serializable {
 		Collections.sort(keyList);
 	}
 	
+	public void scheduleReload() {
+		appConfig.scheduleReload();
+	}
+	
 	public void saveKey(String key) {
 		if (configMap.get(key) == null || configMap.get(key).equals("")) {
 			appConfig.deleteConfigValue(key);

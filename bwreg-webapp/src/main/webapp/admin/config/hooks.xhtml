@@ -38,19 +38,26 @@
 				<p:commandButton id="save" action="#{editHooksConfigBean.save}" value="#{messages.save}" />
 			</p:panel>
 			
-			<br/><br/>
-			
-			<p:panel header="#{messages.hooks}">
-				<ul>
-					<ui:repeat var="hk" value="#{editHooksConfigBean.inplaceUserHooks.toArray()}">
-						<li><h:outputText value="#{hk.class.name}" /></li>
-					</ui:repeat>
-				</ul>
-				<ul>
-					<ui:repeat var="hk" value="#{editHooksConfigBean.inplaceGroupHooks.toArray()}">
-						<li><h:outputText value="#{hk.class.name}" /></li>
-					</ui:repeat>
-				</ul>
+			<p:panel header="#{messages.actual_installed_hooks}" style="margin-top: 16px;">
+				<h:panelGrid columns="2">
+					<h:outputLabel value="#{messages.user_hooks}" />
+					<h:panelGroup>
+						<ul>
+							<ui:repeat var="hk" value="#{editHooksConfigBean.inplaceUserHooks.toArray()}">
+								<li><h:outputText value="#{hk.class.name}" /></li>
+							</ui:repeat>
+						</ul>
+					</h:panelGroup>
+
+					<h:outputLabel value="#{messages.group_hooks}" />
+					<h:panelGroup>
+						<ul>
+							<ui:repeat var="hk" value="#{editHooksConfigBean.inplaceGroupHooks.toArray()}">
+								<li><h:outputText value="#{hk.class.name}" /></li>
+							</ui:repeat>
+						</ul>
+					</h:panelGroup>
+				</h:panelGrid>
 			</p:panel>
 		</div>
 	</h:form>
