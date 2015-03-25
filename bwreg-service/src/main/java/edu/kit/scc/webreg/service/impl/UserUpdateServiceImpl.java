@@ -153,6 +153,11 @@ public class UserUpdateServiceImpl implements UserUpdateService {
 				user.setLastStatusChange(new Date());
 			}
 		
+			List<ASUserAttrEntity> asUserAttrList = asUserAttrService.findForUser(user);
+			for (ASUserAttrEntity asUserAttr : asUserAttrList) {
+				changed |= attributeSourceQueryService.updateUserAttributes(user, asUserAttr.getAttributeSource(), executor);
+			}
+			
 			Set<GroupEntity> changedGroups = homeOrgGroupService.updateGroupsForUser(user, attributeMap, auditor);
 
 			if (changedGroups.size() > 0) {
@@ -164,11 +169,6 @@ public class UserUpdateServiceImpl implements UserUpdateService {
 			for (Entry<String, List<Object>> entry : attributeMap.entrySet()) {
 				attributeStore.put(entry.getKey(), attrHelper.attributeListToString(entry.getValue()));
 			}
-		}
-		
-		List<ASUserAttrEntity> asUserAttrList = asUserAttrService.findForUser(user);
-		for (ASUserAttrEntity asUserAttr : asUserAttrList) {
-			changed |= attributeSourceQueryService.updateUserAttributes(user, asUserAttr.getAttributeSource(), executor);
 		}
 		
 		user.setLastUpdate(new Date());
