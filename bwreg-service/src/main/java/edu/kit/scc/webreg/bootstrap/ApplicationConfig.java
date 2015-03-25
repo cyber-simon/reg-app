@@ -55,13 +55,18 @@ public class ApplicationConfig implements Serializable {
 		lastLoad = new Date();
 	}
 	
-	public void reload() {
+	public boolean reload() {
 		ApplicationConfigEntity newAppConfig = dao.findReloadActive(lastLoad);
 		
 		if (newAppConfig != null) {
 			logger.info("Reloading Application Configuration");
 			appConfig = newAppConfig;
+			
 			lastLoad = new Date();
+			return true;
+		}
+		else {
+			return false;
 		}
 	}
 	

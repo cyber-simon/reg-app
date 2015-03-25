@@ -26,7 +26,7 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 
-import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
+import edu.kit.scc.webreg.bootstrap.ApplicationBootstrap;
 import edu.kit.scc.webreg.bootstrap.NodeConfiguration;
 import edu.kit.scc.webreg.drools.BpmProcessService;
 import edu.kit.scc.webreg.entity.JobClassEntity;
@@ -62,7 +62,7 @@ public class StandardSchedulerImpl implements StandardScheduler, Serializable {
 	private BpmProcessService bpmProcessService;
 
 	@Inject
-	private ApplicationConfig appConfig;
+	private ApplicationBootstrap appBootstrap;
 	
 	@Override
 	public void initialize() {
@@ -159,7 +159,7 @@ public class StandardSchedulerImpl implements StandardScheduler, Serializable {
 		bpmProcessService.reload();
 		
 		// Reload App Config here
-		appConfig.reload();
+		appBootstrap.reloadConfig();
 	}
 	
 	private void cancelTimer(Timer t) {

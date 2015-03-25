@@ -33,12 +33,10 @@ import edu.kit.scc.webreg.entity.SerialEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.service.AdminUserService;
 import edu.kit.scc.webreg.service.GroupService;
-import edu.kit.scc.webreg.service.GroupServiceHook;
 import edu.kit.scc.webreg.service.RoleService;
 import edu.kit.scc.webreg.service.SerialService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserService;
-import edu.kit.scc.webreg.service.UserServiceHook;
 import edu.kit.scc.webreg.service.impl.HookManager;
 import edu.kit.scc.webreg.service.mail.TemplateRenderer;
 import edu.kit.scc.webreg.service.timer.StandardScheduler;
@@ -154,7 +152,17 @@ public class ApplicationBootstrap {
         
         standardScheduler.initialize();
 	}
+	
+	public void reloadConfig() {
+		boolean reloaded = appConfig.reload();
 		
+		if (reloaded) {
+			logger.info("Reloading Hooks");
+			hookManager.reloadUserHooks();
+			hookManager.reloadGroupHooks();
+		}
+	}
+	
     private void checkGroup(String name, Integer createActual) {
     	GroupEntity entity = groupService.findByName(name);
     	if (entity == null) {

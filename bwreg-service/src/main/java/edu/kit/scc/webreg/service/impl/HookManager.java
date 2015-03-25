@@ -51,6 +51,7 @@ public class HookManager {
 			for (String hook : hooks) {
 				hook = hook.trim();
 				try {
+					logger.debug("installing hook {}", hook);
 					UserServiceHook h = (UserServiceHook) Class.forName(hook).newInstance();
 					h.setAppConfig(appConfig);
 					newUserHooks.add(h);
@@ -77,6 +78,7 @@ public class HookManager {
 			for (String hook : hooks) {
 				hook = hook.trim();
 				try {
+					logger.debug("installing hook {}", hook);
 					GroupServiceHook h = (GroupServiceHook) Class.forName(hook).newInstance();
 					h.setAppConfig(appConfig);
 					newGroupHooks.add(h);
