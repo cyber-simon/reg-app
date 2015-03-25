@@ -5,7 +5,8 @@
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
-	xmlns:p="http://primefaces.org/ui">
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
 <head>
 <title></title>
 </head>
@@ -25,6 +26,7 @@
 	<h:form id="form">
 		<div id="panelInline">
 			<p:panel id="basePanel" header="#{messages.server_config}">
+			
 				<p:dataTable value="#{indexConfigBean.keyList}" var="key">
 					<p:column headerText="#{messages.key}">#{key}</p:column>
 					<p:column headerText="#{messages.value}">
@@ -46,7 +48,16 @@
 			</p:panel>
 
 			<p:panel id="toolsPanel" header="#{messages.tools}" style="margin-top: 16px;">
-				<p:commandButton value="#{messages.reload_app_config}" action="#{indexConfigBean.scheduleReload()}" />				
+				<h:panelGrid columns="2">
+					<h:outputLabel value="#{messages.last_scheduled_reload}" />
+					<h:panelGroup>
+						<h:outputText value="#{of:formatDate(indexConfigBean.lastLoad, 'dd.MM.yyyy HH:mm:ss')}" />
+						<h:outputText value=" (Reload is scheduled)" rendered="#{indexConfigBean.scheduledReload}"/>
+					</h:panelGroup>
+				</h:panelGrid>
+
+				<p:commandButton value="#{messages.reload_app_config}" action="#{indexConfigBean.scheduleReload()}"
+					update=":form:basePanel :form:toolsPanel" />				
 			</p:panel>
 		</div>
 	</h:form>

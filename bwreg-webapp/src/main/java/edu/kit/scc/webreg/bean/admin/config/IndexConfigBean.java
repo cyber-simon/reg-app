@@ -13,6 +13,7 @@ package edu.kit.scc.webreg.bean.admin.config;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -101,4 +102,11 @@ public class IndexConfigBean implements Serializable {
 		this.newValue = newValue;
 	}
 
+	public Date getLastLoad() {
+		return appConfig.getLastLoad();
+	}
+	
+	public boolean getScheduledReload() {
+		return (appConfig.getLastLoad().compareTo(appConfig.getNextScheduledReload()) < 0);
+	}
 }
