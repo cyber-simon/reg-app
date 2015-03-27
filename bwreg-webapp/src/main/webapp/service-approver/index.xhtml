@@ -22,52 +22,57 @@
 	<ui:param name="title" value="#{messages.title}"/>
 
 	<ui:define name="content">
+	<h:form id="form">
+
 		<div id="panelInline">
 			<p:panel header="#{messages.new_approvals}">
-			<p:dataTable id="registeredTable" var="registry" 
-					value="#{approvalListBean.list}" style="width:auto;">
-				<p:column style="width: 48px;">
-					<f:facet name="header">
-						<h:outputText value="#{messages.id}" />
-					</f:facet>
-					<h:outputText value="#{registry.id}" />
-				</p:column>
-				<p:column>
-					<f:facet name="header">
-						<h:outputText value="#{messages.eppn}" />
-					</f:facet>
-					<h:outputText value="#{registry.user.eppn}" />
-				</p:column>
-				<p:column>
-					<f:facet name="header">
-						<h:outputText value="#{messages.sur_name}" />
-					</f:facet>
-					<h:outputText value="#{registry.user.surName}" />
-				</p:column>
-				<p:column>
-					<f:facet name="header">
-						<h:outputText value="#{messages.given_name}" />
-					</f:facet>
-					<h:outputText value="#{registry.user.givenName}" />
-				</p:column>
-				<p:column>
-					<f:facet name="header">
-						<h:outputText value="#{messages.registered_time}" />
-					</f:facet>
-					<h:outputText value="#{of:formatDate(registry.agreedTime, 'dd.MM.yyyy HH:mm')}" />
-				</p:column>
-			 	<p:column style="width: 48px;">
-					<f:facet name="header">
-						<h:outputText value="#{messages.action}" />
-					</f:facet>
-					<h:link outcome="approve-user.xhtml" value="#{messages.edit}" >
-	      				<f:param name="id" value="#{registry.id}"/>
-	    			</h:link>
-				</p:column>
-			</p:dataTable>
+				<p:dataTable id="registeredTable" var="registry" 
+						value="#{approvalListBean.list}" style="width:auto;" 
+						paginator="true" lazy="true" rows="15">
+					<p:column sortBy="#{registry.id}" style="width: 48px;">
+						<f:facet name="header">
+							<h:outputText value="#{messages.id}" />
+						</f:facet>
+						<h:outputText value="#{registry.id}" />
+					</p:column>
+					<p:column sortBy="#{registry.user.eppn}" filterBy="#{registry.user.eppn}">
+						<f:facet name="header">
+							<h:outputText value="#{messages.eppn}" />
+						</f:facet>
+						<h:outputText value="#{registry.user.eppn}" />
+					</p:column>
+					<p:column sortBy="#{registry.user.surName}" filterBy="#{registry.user.surName}">
+						<f:facet name="header">
+							<h:outputText value="#{messages.sur_name}" />
+						</f:facet>
+						<h:outputText value="#{registry.user.surName}" />
+					</p:column>
+					<p:column sortBy="#{registry.user.givenName}" filterBy="#{registry.user.givenName}">
+						<f:facet name="header">
+							<h:outputText value="#{messages.given_name}" />
+						</f:facet>
+						<h:outputText value="#{registry.user.givenName}" />
+					</p:column>
+					<p:column sortBy="#{registry.agreedTime}">
+						<f:facet name="header">
+							<h:outputText value="#{messages.registered_time}" />
+						</f:facet>
+						<h:outputText value="#{of:formatDate(registry.agreedTime, 'dd.MM.yyyy HH:mm')}" />
+					</p:column>
+				 	<p:column style="width: 48px;">
+						<f:facet name="header">
+							<h:outputText value="#{messages.action}" />
+						</f:facet>
+						<h:link outcome="approve-user.xhtml" value="#{messages.edit}" >
+		      				<f:param name="id" value="#{registry.id}"/>
+		    			</h:link>
+					</p:column>
+				</p:dataTable>
 
-		</p:panel>
-	</div>
+			</p:panel>
+		</div>
+
+	</h:form>
 	</ui:define>
 </ui:composition>
 </f:view>

@@ -183,6 +183,17 @@ public class AuthorizationBean implements Serializable {
     	return false;
     }
 
+    public boolean isUserServiceApprover(Long id) {
+    	if (id == null)
+    		return false;
+    	
+    	for (ServiceEntity service : getServiceApproverList()) {
+    		if (id.equals(service.getId()))
+    			return true;
+    	}
+    	return false;
+    }
+
     public boolean isUserServiceHotline(Long id) {
     	if (id == null)
     		return false;

@@ -10,24 +10,32 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.bean;
 
-import java.util.List;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
-import javax.enterprise.context.RequestScoped;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.exc.NotAuthorizedException;
+import edu.kit.scc.webreg.model.GenericLazyDataModel;
+import edu.kit.scc.webreg.model.GenericLazyDataModelImpl;
+import edu.kit.scc.webreg.sec.AuthorizationBean;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.ServiceService;
 
-@Named("approvalListBean")
-@RequestScoped
-public class ApprovalListBean {
+@ManagedBean
+@ViewScoped
+public class ApprovalListBean implements Serializable {
 
-	private List<RegistryEntity> list;
+	private static final long serialVersionUID = 1L;
+
+	private GenericLazyDataModel<RegistryEntity, RegistryService, Long> list;
     
     @Inject
     private RegistryService service;
@@ -35,25 +43,31 @@ public class ApprovalListBean {
     @Inject
     private ServiceService serviceService;
     
+    @Inject
+    private AuthorizationBean authBean;
+    
     private ServiceEntity serviceEntity;
     
     private Long serviceId;
 
 	public void preRenderView(ComponentSystemEvent ev) {
-		serviceEntity = serviceService.findById(serviceId);
-		list = service.findByServiceAndStatus(serviceEntity, RegistryStatus.PENDING);
+		if (serviceEntity == null) {
+			if (authBean.isUserServiceApprover(serviceId)) {
+				serviceEntity = serviceService.findById(serviceId); 
+			}
+			else
+				throw new NotAuthorizedException("Nicht autorisiert");
+		}
 	}
-
-    public List<RegistryEntity> getRoleEntityList() {
-        return list;
-    }
-
-	public List<RegistryEntity> getList() {
+    
+	public GenericLazyDataModel<RegistryEntity, RegistryService, Long> getList() {
+		if (list == null) {
+			Map<String, Object> filterMap = new HashMap<String, Object>();
+			filterMap.put("service", serviceEntity);
+			filterMap.put("registryStatus", RegistryStatus.PENDING);
+			list = new GenericLazyDataModelImpl<RegistryEntity, RegistryService, Long>(service, filterMap);
+		}
 		return list;
-	}
-
-	public void setList(List<RegistryEntity> list) {
-		this.list = list;
 	}
 
 	public ServiceEntity getServiceEntity() {
