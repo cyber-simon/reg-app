@@ -47,13 +47,13 @@
 						value="#{of:formatDate(userPropertiesBean.user.lastUpdate, 'dd.MM.yyyy HH:mm')}"/>
 				<bw:outputPanelGroup label="#{messages.roles}">
 					<ui:repeat var="role" value="#{userPropertiesBean.roleList}">
-						<h:outputText value="#{role.name}" styleClass="value_bold" /><br/>
+						<h:outputText value="#{role.name}" styleClass="value_normal" /><br/>
 					</ui:repeat>
 				</bw:outputPanelGroup>
 
 				<bw:outputPanelGroup label="#{messages.entitlement}" rendered="#{not empty userPropertiesBean.user.attributeStore.get('urn:oid:1.3.6.1.4.1.5923.1.1.1.7')}">
 					<ui:repeat var="ent" value="#{userPropertiesBean.user.attributeStore.get('urn:oid:1.3.6.1.4.1.5923.1.1.1.7').split(';')}">
-						<h:outputText value="#{ent}" styleClass="value_bold" /><br/>
+						<h:outputText value="#{ent}" styleClass="value_normal" /><br/>
 					</ui:repeat>
 				</bw:outputPanelGroup>
 

@@ -5,7 +5,8 @@
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
-	xmlns:p="http://primefaces.org/ui">
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
 <head>
 <title></title>
 </head>
@@ -22,8 +23,7 @@
 
 	<ui:define name="content">
 	<h:form id="form">
-		<h2><h:outputText value="#{messages.approve}: #{approveUserBean.entity.id}"/></h2>
-	
+
 		<div id="panelInline">
 			<p:panel header="#{messages.approve}">
 				<p:panelGrid id="baseData" columns="2">
@@ -34,10 +34,32 @@
 			        <h:outputText value="#{messages.eppn}:"/>
 			        <h:outputText value="#{approveUserBean.entity.user.eppn}"/>
 								
+			        <h:outputText value="#{messages.sur_name}:"/>
+			        <h:outputText value="#{approveUserBean.entity.user.surName}"/>
+								
+			        <h:outputText value="#{messages.given_name}:"/>
+			        <h:outputText value="#{approveUserBean.entity.user.givenName}"/>
+								
+			        <h:outputText value="#{messages.primary_group}:"/>
+			        <h:outputText value="#{approveUserBean.entity.user.primaryGroup.name}"/>
+								
+			        <h:outputText value="#{messages.gid_number}:"/>
+			        <h:outputText value="#{approveUserBean.entity.user.primaryGroup.gidNumber}"/>
+								
+			        <h:outputText value="#{messages.registered_time}:"/>
+			        <h:outputText value="#{of:formatDate(approveUserBean.entity.agreedTime, 'dd.MM.yyyy HH:mm')}"/>
+		
+					<bw:outputText label="#{messages.home_org}" value="#{approveUserBean.entity.user.idp.orgName}"
+						rendered="#{not empty approveUserBean.entity.user.idp.orgName}"/>
+					<bw:outputText label="#{messages.idp}" value="#{approveUserBean.entity.user.idp.displayName}"
+						rendered="#{not empty approveUserBean.entity.user.idp.displayName}"/>
+								
 				</p:panelGrid>
-				<p:commandButton id="cancel" action="#{approveUserBean.cancel()}" value="#{messages.cancel}" />
-				<p:commandButton id="approve" action="#{approveUserBean.approve()}" value="#{messages.approve}" style="color:green;"/>
-				<p:commandButton id="deny" action="#{approveUserBean.deny()}" value="#{messages.deny}" style="color:red;" />
+				<div style="margin-top:16px;">
+					<p:commandButton id="cancel" action="#{approveUserBean.cancel()}" value="#{messages.cancel}" />
+					<p:commandButton id="approve" action="#{approveUserBean.approve()}" value="#{messages.approve}" style="color:green;"/>
+					<p:commandButton id="deny" action="#{approveUserBean.deny()}" value="#{messages.deny}" style="color:red;" />
+				</div>
 			</p:panel>
 		</div>				
 				
