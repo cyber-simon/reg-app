@@ -24,12 +24,9 @@
 
 	<ui:define name="content">
 	<h:form id="form">
-	<h2>
-		<h:outputText value="#{messages.attribute_sources}: #{userAttributeSourcesBean.user.eppn}" />
-	</h2>
 
 	<div class="panel">
-		<p:panel header="#{messages.my_data}">
+		<p:panel header="#{messages.attribute_sources}">
 			<p:panelGrid id="baseData" columns="2">
 				<bw:outputText label="#{messages.name}" value="#{userAttributeSourcesBean.user.surName}, #{userAttributeSourcesBean.user.givenName}"/>
 			</p:panelGrid>
@@ -68,7 +65,7 @@
                 <h:outputLabel for="name2" value="#{messages.name}" />
                 <h:outputText id="name2" value="#{userAttributeSourcesBean.selectedUserAttr.attributeSource.name}" />
                 
-                <h:outputLabel value="#{messages.attribute_sources}" />
+                <h:outputLabel value="#{messages.attribute_sources_for}" />
                 <p:dataList var="ass" value="#{userAttributeSourcesBean.selectedAttributeSource.attributeSourceServices.toArray()}">
                 		<h:outputText value="#{ass.service.name}" />
                 </p:dataList>
