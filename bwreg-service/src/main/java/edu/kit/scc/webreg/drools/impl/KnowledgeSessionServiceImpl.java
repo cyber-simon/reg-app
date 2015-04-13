@@ -179,7 +179,10 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 			throw new MisconfiguredServiceException("Der Registrierungsprozess für den Dienst ist nicht korrekt konfiguriert (Keine Zugangsregel geladen)");
 
 		ksession.setGlobal("logger", logger);
+		
 		ksession.insert(user);
+		ksession.insert(service);
+		ksession.insert(registry);
 		
 		logger.debug("Test all Rules for service {}", service.getName());
 		ksession.fireAllRules();
