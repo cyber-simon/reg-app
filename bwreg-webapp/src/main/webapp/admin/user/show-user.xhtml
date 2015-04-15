@@ -66,7 +66,19 @@
 							
 				        <h:outputText value="#{messages.persistent_id}:"/>
 				        <h:outputText value="#{showUserBean.entity.persistentId} (#{showUserBean.entity.persistentSpId}, #{showUserBean.entity.persistentIdpId})"/>
-		
+
+				        <h:outputText value="#{messages.status}:"/>
+				        <h:outputText value="#{showUserBean.entity.userStatus}"/>
+
+				        <h:outputText value="#{messages.last_status_change}:"/>
+						<h:outputText value="#{of:formatDate(showUserBean.entity.lastStatusChange, 'dd.MM.yyyy HH:mm')}" />
+									
+				        <h:outputText value="#{messages.last_update}:"/>
+						<h:outputText value="#{of:formatDate(showUserBean.entity.lastUpdate, 'dd.MM.yyyy HH:mm')}" />
+									
+				        <h:outputText value="#{messages.last_failed_update}:"/>
+						<h:outputText value="#{of:formatDate(showUserBean.entity.lastFailedUpdate, 'dd.MM.yyyy HH:mm')}" />
+									
 					</p:panelGrid>
 				</p:tab>
 				
@@ -199,7 +211,25 @@
 							<f:facet name="header">
 								<h:outputText value="#{messages.last_update}" />
 							</f:facet>
+							<h:outputText value="#{of:formatDate(ua.lastQuery, 'dd.MM.yyyy HH:mm')}" />
+						</p:column>
+						<p:column sortBy="#{ua.lastSuccessfulQuery}">
+							<f:facet name="header">
+								<h:outputText value="#{messages.last_successful_update}" />
+							</f:facet>
 							<h:outputText value="#{of:formatDate(ua.lastSuccessfulQuery, 'dd.MM.yyyy HH:mm')}" />
+						</p:column>
+						<p:column>
+							<f:facet name="header">
+								<h:outputText value="#{messages.message}" />
+							</f:facet>
+							<h:outputText value="#{ua.queryMessage}" />
+						</p:column>
+						<p:column>
+							<f:facet name="header">
+								<h:outputText value="#{messages.status}" />
+							</f:facet>
+							<h:outputText value="#{ua.queryStatus}" />
 						</p:column>
 						<p:column style="width:32px">
 							<p:commandLink update=":form:documentPanel"
