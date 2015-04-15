@@ -53,6 +53,7 @@ import edu.kit.scc.webreg.service.ASUserAttrService;
 import edu.kit.scc.webreg.service.HomeOrgGroupService;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.SamlSpConfigurationService;
+import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.UserUpdateService;
 import edu.kit.scc.webreg.service.reg.AttributeSourceQueryService;
@@ -80,6 +81,9 @@ public class UserUpdateServiceImpl implements UserUpdateService {
 	
 	@Inject
 	private UserService userService;
+
+	@Inject
+	private ServiceService serviceService;
 	
 	@Inject
 	private HomeOrgGroupService homeOrgGroupService;
@@ -166,6 +170,8 @@ public class UserUpdateServiceImpl implements UserUpdateService {
 			 * service. Else update all (login via web or generic attribute query)
 			 */
 			if (service != null) {
+				service = serviceService.findByIdWithAttrs(service.getId(), "attributeSourceService");
+				
 				for (AttributeSourceServiceEntity asse : service.getAttributeSourceService()) {
 					changed |= attributeSourceQueryService.updateUserAttributes(user, asse.getAttributeSource(), executor);
 				}
