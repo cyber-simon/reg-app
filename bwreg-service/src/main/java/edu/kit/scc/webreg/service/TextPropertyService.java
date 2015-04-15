@@ -8,16 +8,12 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.dao;
+package edu.kit.scc.webreg.service;
 
-import java.util.Date;
+import edu.kit.scc.webreg.entity.TextPropertyEntity;
 
-import edu.kit.scc.webreg.entity.ApplicationConfigEntity;
+public interface TextPropertyService extends BaseService<TextPropertyEntity, Long> {
 
-public interface ApplicationConfigDao extends BaseDao<ApplicationConfigEntity, Long> {
-
-	ApplicationConfigEntity findActive();
-
-	ApplicationConfigEntity findReloadActive(Date date);
+	TextPropertyEntity findAllBySingleton(String key, String language);
 
 }

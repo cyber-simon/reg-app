@@ -25,6 +25,7 @@ import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.exc.MisconfiguredServiceException;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
 import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.sec.AuthorizationBean;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.util.SessionManager;
 import edu.kit.scc.webreg.util.ViewIds;
@@ -42,16 +43,24 @@ public class ApproveUserBean implements Serializable {
 	
 	@Inject
 	private SessionManager sessionManager;
+
+    @Inject
+    private AuthorizationBean authBean;
 	
 	private RegistryEntity entity;
 	
 	private Long id;
 	
 	public void preRenderView(ComponentSystemEvent ev) {
-		entity = service.findById(id);
-		
 		if (entity == null) {
-			throw new NotAuthorizedException("Nicht autorisiert");
+			entity = service.findById(id);
+			
+			if (entity == null) {
+				throw new NotAuthorizedException("Nicht autorisiert");
+			}
+
+			if (! authBean.isUserServiceApprover(entity.getService().getId()))
+				throw new NotAuthorizedException("Nicht autorisiert");
 		}
 	}
 	

@@ -94,6 +94,11 @@
 		</dependency>
 
 		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+		</dependency>
+
+		<dependency>
 			<artifactId>dom4j</artifactId>
 			<groupId>dom4j</groupId>
 			<scope>provided</scope>

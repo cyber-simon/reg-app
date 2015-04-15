@@ -1,5 +1,6 @@
 package edu.kit.scc.webreg.entity;
 
+import java.util.Date;
 import java.util.Map;
 
 import javax.persistence.Column;
@@ -24,7 +25,10 @@ public class ApplicationConfigEntity extends AbstractBaseEntity {
 	
 	@Column(name = "activeConfig")
 	private Boolean activeConfig;
-	
+
+	@Column(name = "dirty_stamp")
+	private Date dirtyStamp;
+
 	@ElementCollection(fetch = FetchType.EAGER)
 	@JoinTable(name = "application_config_options")
     @MapKeyColumn(name = "key_data", length = 128)
@@ -61,6 +65,14 @@ public class ApplicationConfigEntity extends AbstractBaseEntity {
 
 	public void setConfigFormatVersion(String configFormatVersion) {
 		this.configFormatVersion = configFormatVersion;
+	}
+
+	public Date getDirtyStamp() {
+		return dirtyStamp;
+	}
+
+	public void setDirtyStamp(Date dirtyStamp) {
+		this.dirtyStamp = dirtyStamp;
 	} 
 
 }

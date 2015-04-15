@@ -10,14 +10,10 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao;
 
-import java.util.Date;
+import edu.kit.scc.webreg.entity.TextPropertyEntity;
 
-import edu.kit.scc.webreg.entity.ApplicationConfigEntity;
+public interface TextPropertyDao extends BaseDao<TextPropertyEntity, Long> {
 
-public interface ApplicationConfigDao extends BaseDao<ApplicationConfigEntity, Long> {
-
-	ApplicationConfigEntity findActive();
-
-	ApplicationConfigEntity findReloadActive(Date date);
+	TextPropertyEntity findByKeyAndLang(String key, String language);
 
 }

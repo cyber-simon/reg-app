@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.bootstrap;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,6 +36,8 @@ public class ApplicationConfig implements Serializable {
 	
 	private ApplicationConfigEntity appConfig; 
 	
+	private Date lastLoad;
+	
 	public void init() {
 		logger.debug("Checking for Active Configuration");
 		appConfig = dao.findActive();
@@ -48,6 +51,28 @@ public class ApplicationConfig implements Serializable {
 			appConfig.setConfigOptions(new HashMap<String, String>());
 			appConfig = dao.persist(appConfig);
 		}
+		
+		lastLoad = new Date();
+	}
+	
+	public boolean reload() {
+		ApplicationConfigEntity newAppConfig = dao.findReloadActive(lastLoad);
+		
+		if (newAppConfig != null) {
+			logger.info("Reloading Application Configuration");
+			appConfig = newAppConfig;
+			
+			lastLoad = new Date();
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	public void scheduleReload() {
+		appConfig.setDirtyStamp(new Date());
+		appConfig = dao.persist(appConfig);
 	}
 	
 	public String getConfigValue(String key) {
@@ -67,5 +92,13 @@ public class ApplicationConfig implements Serializable {
 	
 	public Map<String, String> getConfigOptions() {
 		return appConfig.getConfigOptions();
+	}
+
+	public Date getLastLoad() {
+		return lastLoad;
+	}
+	
+	public Date getNextScheduledReload() {
+		return appConfig.getDirtyStamp();
 	}
 }

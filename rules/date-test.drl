@@ -1,0 +1,19 @@
+package edu.kit.scc.webreg.dools.unicluster
+
+import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.drools.UnauthorizedUser;
+
+import java.util.Date;
+
+global org.slf4j.Logger logger;
+
+rule "Registry old"
+
+	when
+		Date( $t: time ) from new Date()
+		$registry : RegistryEntity( $t after[30d] agreedTime )
+	then 
+		logger.info( "Date is more than 30d before now" );
+		
+end

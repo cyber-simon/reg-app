@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+
+<f:view>
+	<f:metadata>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{textPropertyBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	
+	<h:form id="form">
+		<div id="panelInline">
+			<p:dataTable id="dataTable" var="tp" value="#{textPropertyBean.list}" paginator="true"
+					lazy="true" rows="15">
+
+				<p:column sortBy="#{tp.id}" style="width:36px;">
+					<f:facet name="header">
+						<h:outputText value="#{messages.id}" />
+					</f:facet>
+					<h:outputText value="#{tp.id}" />
+				</p:column>
+				<p:column sortBy="#{tp.key}" filterBy="#{tp.key}" style="width:192px;">
+					<f:facet name="header">
+						<h:outputText value="#{messages.key}" />
+					</f:facet>
+					<h:outputText value="#{tp.key}" />
+				</p:column>			
+				<p:column sortBy="#{tp.language}" filterBy="#{tp.language}" style="width:128px;">
+					<f:facet name="header">
+						<h:outputText value="#{messages.language}" />
+					</f:facet>
+					<h:outputText value="#{tp.language}" />
+				</p:column>			
+				<p:column sortBy="#{tp.value}" filterBy="#{tp.value}">
+					<f:facet name="header">
+						<h:outputText value="#{messages.value}" />
+					</f:facet>
+			        <p:inplace id="ajax" editor="true">
+			        	<p:ajax event="save" listener="#{textPropertyBean.save(tp)}" update=":form:dataTable" />
+			        	<p:inputText value="#{tp.value}" />
+			        </p:inplace>
+				</p:column>			
+				<p:column style="width:36px;">
+					<p:commandButton icon="ui-icon-trash" actionListener="#{textPropertyBean.delete(tp)}" 
+						update=":form:dataTable :form:newPropTable"/>
+				</p:column>
+			</p:dataTable>
+			
+			<h:panelGrid id="newPropTable" columns="3" columnClasses="labelColumn, elementColumn">
+		        <h:inputText id="key_input" value="#{textPropertyBean.newKey}"/>
+       			<h:inputText id="lang_input" value="#{textPropertyBean.newLang}"/>
+       			<h:inputText id="value_input" value="#{textPropertyBean.newValue}"/>
+				<h:commandLink value="#{messages.add}" action="#{textPropertyBean.create()}">
+					<f:ajax execute="form" render=":form:dataTable :form:newPropTable" />
+				</h:commandLink>
+			</h:panelGrid>
+			
+		</div>
+	</h:form>
+
+	</ui:define>
+</ui:composition>		
+</f:view>
+</body>
+</html>

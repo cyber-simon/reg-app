@@ -33,12 +33,10 @@ import edu.kit.scc.webreg.entity.SerialEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.service.AdminUserService;
 import edu.kit.scc.webreg.service.GroupService;
-import edu.kit.scc.webreg.service.GroupServiceHook;
 import edu.kit.scc.webreg.service.RoleService;
 import edu.kit.scc.webreg.service.SerialService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserService;
-import edu.kit.scc.webreg.service.UserServiceHook;
 import edu.kit.scc.webreg.service.impl.HookManager;
 import edu.kit.scc.webreg.service.mail.TemplateRenderer;
 import edu.kit.scc.webreg.service.timer.StandardScheduler;
@@ -129,8 +127,7 @@ public class ApplicationBootstrap {
     	}
     	
 		logger.info("Initializing Hooks");
-    	addUserHooks();
-    	addGroupHooks();
+    	hookManager.reloadHooks();
 		
     	userService.convertLegacyUsers();
 
@@ -153,50 +150,6 @@ public class ApplicationBootstrap {
         velocityRenderer.init();
         
         standardScheduler.initialize();
-	}
-	
-	private void addUserHooks() {
-		String hooksString = appConfig.getConfigValue("user_hooks");
-		if (hooksString != null && hooksString.length() > 0) {
-			hooksString = hooksString.trim();
-			String[] hooks = hooksString.split(";");
-			for (String hook : hooks) {
-				hook = hook.trim();
-				try {
-					UserServiceHook h = (UserServiceHook) Class.forName(hook).newInstance();
-					h.setAppConfig(appConfig);
-					hookManager.addUserHook(h);
-				} catch (InstantiationException e) {
-					logger.warn("Could not spawn hook " + hook, e);
-				} catch (IllegalAccessException e) {
-					logger.warn("Could not spawn hook " + hook, e);
-				} catch (ClassNotFoundException e) {
-					logger.warn("Could not spawn hook " + hook, e);
-				}
-			}
-		}		
-	}
-	
-	private void addGroupHooks() {
-		String hooksString = appConfig.getConfigValue("group_hooks");
-		if (hooksString != null && hooksString.length() > 0) {
-			hooksString = hooksString.trim();
-			String[] hooks = hooksString.split(";");
-			for (String hook : hooks) {
-				hook = hook.trim();
-				try {
-					GroupServiceHook h = (GroupServiceHook) Class.forName(hook).newInstance();
-					h.setAppConfig(appConfig);
-					hookManager.addGroupHook(h);
-				} catch (InstantiationException e) {
-					logger.warn("Could not spawn hook " + hook, e);
-				} catch (IllegalAccessException e) {
-					logger.warn("Could not spawn hook " + hook, e);
-				} catch (ClassNotFoundException e) {
-					logger.warn("Could not spawn hook " + hook, e);
-				}
-			}
-		}		
 	}
 	
     private void checkGroup(String name, Integer createActual) {

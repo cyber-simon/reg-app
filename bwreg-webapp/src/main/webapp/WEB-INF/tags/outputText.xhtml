@@ -8,7 +8,7 @@
 	<c:set var="escape" value="#{not empty escape ? escape : true}" />
 	<c:set var="renderintern" value="#{not empty rendered ? rendered : true}" />
 	<c:set var="idintern" value="#{not empty id ? id : componentIdHelper.generateFor(label)}" />
-	<c:set var="style" value="#{not empty styleClass ? styleClass : 'value_bold'}" />
+	<c:set var="style" value="#{not empty styleClass ? styleClass : 'value_normal'}" />
 
     <p:outputLabel for="#{idintern}" value="#{label}:" rendered="#{renderintern}" />
     <h:outputText styleClass="#{style}" id="#{idintern}" value="#{value}" escape="#{escape}" rendered="#{renderintern}" />
