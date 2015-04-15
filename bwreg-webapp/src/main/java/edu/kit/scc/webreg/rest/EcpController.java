@@ -433,7 +433,7 @@ public class EcpController {
 		}
 		
 		try {
-			user = userUpdateService.updateUser(user, assertion, caller);
+			user = userUpdateService.updateUser(user, assertion, caller, service);
 		} catch (RegisterException e) {
 			logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
 			throw new NoItemFoundException("user update failed: " + e.getMessage());

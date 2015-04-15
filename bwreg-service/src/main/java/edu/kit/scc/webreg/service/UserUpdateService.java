@@ -21,16 +21,20 @@ import edu.kit.scc.webreg.exc.RegisterException;
 
 public interface UserUpdateService {
 
-	UserEntity updateUser(UserEntity user, Assertion assertion, String executor)
-			throws RegisterException;
-
 	UserEntity updateUserFromIdp(UserEntity user) throws RegisterException;
-
-	UserEntity updateUser(UserEntity user, Map<String, List<Object>> attributeMap,
-			String executor) throws RegisterException;
 
 	UserEntity updateUser(UserEntity user,
 			Map<String, List<Object>> attributeMap, String executor,
 			ServiceEntity service) throws RegisterException;
+
+	UserEntity updateUser(UserEntity user, Assertion assertion,
+			String executor, ServiceEntity service) throws RegisterException;
+
+	UserEntity updateUserFromIdp(UserEntity user, ServiceEntity service)
+			throws RegisterException;
+
+	UserEntity updateUser(UserEntity user,
+			Map<String, List<Object>> attributeMap, String executor)
+			throws RegisterException;
 
 }

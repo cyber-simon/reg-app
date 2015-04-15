@@ -123,7 +123,7 @@ public class AttributeQueryController {
 				logger.info("Performing attributequery for {} with {}@{}", new Object[] {user.getEppn(), 
 						user.getPersistentId(), user.getIdp().getEntityId()});
 	
-				user = userUpdateService.updateUserFromIdp(user);
+				user = userUpdateService.updateUserFromIdp(user, service);
 			}
 		} catch (RegisterException e) {
 			logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());

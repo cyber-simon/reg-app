@@ -50,7 +50,6 @@ import edu.kit.scc.webreg.exc.NoAssertionException;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.service.ASUserAttrService;
-import edu.kit.scc.webreg.service.AttributeSourceService;
 import edu.kit.scc.webreg.service.HomeOrgGroupService;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.SamlSpConfigurationService;
@@ -108,7 +107,7 @@ public class UserUpdateServiceImpl implements UserUpdateService {
 
 	@Inject
 	private ApplicationConfig appConfig;
-	
+
 	@Override
 	public UserEntity updateUser(UserEntity user, Map<String, List<Object>> attributeMap, String executor)
 			throws RegisterException {
@@ -208,15 +207,21 @@ public class UserUpdateServiceImpl implements UserUpdateService {
 	}
 	
 	@Override
-	public UserEntity updateUser(UserEntity user, Assertion assertion, String executor)
+	public UserEntity updateUser(UserEntity user, Assertion assertion, String executor, ServiceEntity service)
 			throws RegisterException {
 		Map<String, List<Object>> attributeMap = saml2AssertionService.extractAttributes(assertion);
 
-		return updateUser(user, attributeMap, executor);
+		return updateUser(user, attributeMap, executor, service);
+	}
+
+	@Override
+	public UserEntity updateUserFromIdp(UserEntity user) 
+			throws RegisterException {
+		return updateUserFromIdp(user, null);
 	}
 	
 	@Override
-	public UserEntity updateUserFromIdp(UserEntity user) 
+	public UserEntity updateUserFromIdp(UserEntity user, ServiceEntity service) 
 			throws RegisterException {
 
 		SamlSpConfigurationEntity spEntity = spService.findByEntityId(user.getPersistentSpId());
@@ -266,7 +271,7 @@ public class UserUpdateServiceImpl implements UserUpdateService {
 				assertion = null;
 			}
 
-			return updateUser(user, assertion, "attribute-query");
+			return updateUser(user, assertion, "attribute-query", service);
 		} catch (DecryptionException e) {
 			updateFail(user, e);
 			throw new RegisterException(e);
