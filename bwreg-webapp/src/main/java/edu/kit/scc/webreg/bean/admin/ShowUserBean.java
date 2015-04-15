@@ -26,12 +26,17 @@ import org.primefaces.model.DualListModel;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.drools.KnowledgeSessionService;
+import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.entity.UserRoleEntity;
+import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
+import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.service.ASUserAttrService;
+import edu.kit.scc.webreg.service.AttributeSourceService;
+import edu.kit.scc.webreg.service.GroupService;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.RoleService;
 import edu.kit.scc.webreg.service.UserService;
@@ -60,7 +65,16 @@ public class ShowUserBean implements Serializable {
 	private RegistryService registryService;
 	
 	@Inject
+	private GroupService groupService;
+	
+	@Inject
 	private KnowledgeSessionService knowledgeSessionService;
+	
+	@Inject
+	private ASUserAttrService asUserAttrService;
+	
+	@Inject
+	private AttributeSourceService attributeSourceService;
 	
 	@Inject
 	private SessionManager sessionManager;
@@ -73,20 +87,17 @@ public class ShowUserBean implements Serializable {
 	
 	private List<RegistryEntity> registryList;
 	
+	private List<GroupEntity> groupList;
+	
+	private List<ASUserAttrEntity> asUserAttrList;
+	private AttributeSourceEntity selectedAttributeSource;
+	private ASUserAttrEntity selectedUserAttr;
+
 	private Long id;
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (user == null) {
-			user = userService.findByIdWithAll(id);
-			roleList = new DualListModel<RoleEntity>();
-			List<RoleEntity> targetList = new ArrayList<RoleEntity>(user.getRoles().size());
-			for (UserRoleEntity userRole : user.getRoles())
-				targetList.add(userRole.getRole());
-			roleList.setTarget(targetList);
-			List<RoleEntity> sourceList = roleService.findAll();
-			sourceList.removeAll(targetList);
-			roleList.setSource(sourceList);
-			registryList = registryService.findByUser(user);
+			user = userService.findByIdWithAttrs(id, "genericStore", "attributeStore");
 		}
 	}
 
@@ -170,6 +181,14 @@ public class ShowUserBean implements Serializable {
 	}
 
 	public DualListModel<RoleEntity> getRoleList() {
+		if (roleList == null) {
+			roleList = new DualListModel<RoleEntity>();
+			List<RoleEntity> targetList = roleService.findByUser(user);
+			roleList.setTarget(targetList);
+			List<RoleEntity> sourceList = roleService.findAll();
+			sourceList.removeAll(targetList);
+			roleList.setSource(sourceList);
+		}
 		return roleList;
 	}
 
@@ -178,11 +197,35 @@ public class ShowUserBean implements Serializable {
 	}
 
 	public List<RegistryEntity> getRegistryList() {
+		if (registryList == null)
+			registryList = registryService.findByUser(user);
 		return registryList;
 	}
 
-	public void setRegistryList(List<RegistryEntity> registryList) {
-		this.registryList = registryList;
+	public List<GroupEntity> getGroupList() {
+		if (groupList == null)
+			groupList = groupService.findByUser(user);
+		return groupList;
 	}
-	
+
+	public List<ASUserAttrEntity> getAsUserAttrList() {
+		if (asUserAttrList == null)
+			asUserAttrList = asUserAttrService.findForUser(user);
+		return asUserAttrList;
+	}
+
+	public ASUserAttrEntity getSelectedUserAttr() {
+		return selectedUserAttr;
+	}
+
+	public void setSelectedUserAttr(ASUserAttrEntity selectedUserAttr) {
+		selectedUserAttr = asUserAttrService.findByIdWithAttrs(selectedUserAttr.getId(), "values");
+		selectedAttributeSource = attributeSourceService.findByIdWithAttrs(
+				selectedUserAttr.getAttributeSource().getId(), "attributeSourceServices");
+		this.selectedUserAttr = selectedUserAttr;
+	}
+
+	public AttributeSourceEntity getSelectedAttributeSource() {
+		return selectedAttributeSource;
+	}
 }
