@@ -37,9 +37,11 @@ import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
+import edu.kit.scc.webreg.entity.as.AttributeSourceServiceEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.UserEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
@@ -110,6 +112,13 @@ public class UserUpdateServiceImpl implements UserUpdateService {
 	@Override
 	public UserEntity updateUser(UserEntity user, Map<String, List<Object>> attributeMap, String executor)
 			throws RegisterException {
+		return updateUser(user, attributeMap, executor, null);
+	}
+	
+	@Override
+	public UserEntity updateUser(UserEntity user, Map<String, List<Object>> attributeMap, String executor, 
+			ServiceEntity service)
+			throws RegisterException {
 		logger.debug("Updating user {}", user.getEppn());
 
 		boolean changed = false;
@@ -152,10 +161,21 @@ public class UserUpdateServiceImpl implements UserUpdateService {
 				user.setUserStatus(UserStatus.ACTIVE);
 				user.setLastStatusChange(new Date());
 			}
-		
-			List<ASUserAttrEntity> asUserAttrList = asUserAttrService.findForUser(user);
-			for (ASUserAttrEntity asUserAttr : asUserAttrList) {
-				changed |= attributeSourceQueryService.updateUserAttributes(user, asUserAttr.getAttributeSource(), executor);
+
+			/*
+			 * if service is set, update only attribute sources spcific for this 
+			 * service. Else update all (login via web or generic attribute query)
+			 */
+			if (service != null) {
+				for (AttributeSourceServiceEntity asse : service.getAttributeSourceService()) {
+					changed |= attributeSourceQueryService.updateUserAttributes(user, asse.getAttributeSource(), executor);
+				}
+			}
+			else {
+				List<ASUserAttrEntity> asUserAttrList = asUserAttrService.findForUser(user);
+				for (ASUserAttrEntity asUserAttr : asUserAttrList) {
+					changed |= attributeSourceQueryService.updateUserAttributes(user, asUserAttr.getAttributeSource(), executor);
+				}
 			}
 			
 			Set<GroupEntity> changedGroups = homeOrgGroupService.updateGroupsForUser(user, attributeMap, auditor);

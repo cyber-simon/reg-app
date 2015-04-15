@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.opensaml.saml2.core.Assertion;
 
+import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
 
@@ -27,5 +28,9 @@ public interface UserUpdateService {
 
 	UserEntity updateUser(UserEntity user, Map<String, List<Object>> attributeMap,
 			String executor) throws RegisterException;
+
+	UserEntity updateUser(UserEntity user,
+			Map<String, List<Object>> attributeMap, String executor,
+			ServiceEntity service) throws RegisterException;
 
 }
