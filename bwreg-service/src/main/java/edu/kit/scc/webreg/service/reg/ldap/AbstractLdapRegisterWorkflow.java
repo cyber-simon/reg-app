@@ -10,6 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.reg.ldap;
 
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,6 +21,11 @@ import java.util.Set;
 import jcifs.util.Hexdump;
 import jcifs.util.MD4;
 
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.exception.MethodInvocationException;
+import org.apache.velocity.exception.ParseErrorException;
+import org.apache.velocity.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,6 +129,8 @@ public abstract class AbstractLdapRegisterWorkflow
 	public Boolean updateRegistry(UserEntity user, ServiceEntity service,
 			RegistryEntity registry, Auditor auditor) throws RegisterException {
 
+		PropertyReader prop = new PropertyReader(service.getServiceProps());
+		
 		/*
 		 * Compare values from user and registry store. Found differences trigger 
 		 * a full reconsiliation
@@ -130,30 +138,69 @@ public abstract class AbstractLdapRegisterWorkflow
 		Map<String, String> reconMap = new HashMap<String, String>();
 		
 		String homeId = user.getAttributeStore().get("http://bwidm.de/bwidmOrgId");
+		if (prop.hasProp("tpl_home_id")) {
+			homeId = evalTemplate(prop.readProp("tpl_home_id"), user, reconMap, homeId, null);
+		}
+
 		String homeUid = user.getAttributeStore().get("urn:oid:0.9.2342.19200300.100.1.1");
-
 		homeId = homeId.toLowerCase();
+		if (prop.hasProp("tpl_home_uid")) {
+			homeId = evalTemplate(prop.readProp("tpl_home_uid"), user, reconMap, homeId, homeUid);
+		}
 		
-		reconMap.put("cn", user.getEppn());
-
-		if (user.getSurName() != null)
-			reconMap.put("sn", user.getSurName());
-		else
-			reconMap.put("sn", "Unknown");
-			
-		if (user.getGivenName() != null)
-			reconMap.put("givenName", user.getGivenName());
-		else 
-			reconMap.put("givenName", "Unknown");
-
-		reconMap.put("mail", user.getEmail());
+		if (prop.hasProp("tpl_cn")) {
+			reconMap.put("cn", evalTemplate(prop.readProp("tpl_cn"), user, reconMap, homeId, homeUid));
+		}
+		else {
+			reconMap.put("cn", user.getEppn());
+		}
+		
+		if (prop.hasProp("tpl_sn")) {
+			reconMap.put("sn", evalTemplate(prop.readProp("tpl_sn"), user, reconMap, homeId, homeUid));
+		}
+		else {
+			if (user.getSurName() != null)
+				reconMap.put("sn", user.getSurName());
+			else
+				reconMap.put("sn", "Unknown");
+		}
+		
+		if (prop.hasProp("tpl_given_name")) {
+			reconMap.put("givenName", evalTemplate(prop.readProp("tpl_given_name"), user, reconMap, homeId, homeUid));
+		}
+		else {
+			if (user.getGivenName() != null)
+				reconMap.put("givenName", user.getGivenName());
+			else 
+				reconMap.put("givenName", "Unknown");
+		}
+		
+		if (prop.hasProp("tpl_mail")) {
+			reconMap.put("mail", evalTemplate(prop.readProp("tpl_mail"), user, reconMap, homeId, homeUid));
+		}
+		else {
+			reconMap.put("mail", user.getEmail());
+		}
+		
 		reconMap.put("uidNumber", "" + user.getUidNumber());
 		reconMap.put("gidNumber", "" + user.getPrimaryGroup().getGidNumber());
 		reconMap.put("description", registry.getId().toString());
 		
 		reconMap.put("groupName", constructGroupName(user.getPrimaryGroup()));
-		reconMap.put("localUid", constructLocalUid(homeId, homeUid, user, reconMap));
-		reconMap.put("homeDir", constructHomeDir(homeId, homeUid, user, reconMap));
+		
+		if (prop.hasProp("tpl_local_uid")) {
+			reconMap.put("localUid", evalTemplate(prop.readProp("tpl_local_uid"), user, reconMap, homeId, homeUid));
+		}
+		else {
+			reconMap.put("localUid", constructLocalUid(homeId, homeUid, user, reconMap));
+		}
+		
+		if (prop.hasProp("tpl_home_dir")) {
+			reconMap.put("homeDir", evalTemplate(prop.readProp("tpl_home_dir"), user, reconMap, homeId, homeUid));
+		}
+		else {
+			reconMap.put("homeDir", constructHomeDir(homeId, homeUid, user, reconMap));
+		}
 
 		reconMap.put("sambaEnabled", isSambaEnabled().toString());
 		
@@ -291,5 +338,32 @@ public abstract class AbstractLdapRegisterWorkflow
 			logger.warn("Calculating NT Password failed!", e);
 			return "";
 		}	
+	}
+	
+	private String evalTemplate(String template, UserEntity user, Map<String, String> reconMap, String homeId, String homeUid) 
+			throws RegisterException {
+		VelocityEngine engine = new VelocityEngine();
+		Map<String, Object> context = new HashMap<String, Object>();
+		context.put("user", user);
+		context.put("reconMap", reconMap);
+		context.put("homeId", homeId);
+		context.put("homeUid", homeUid);
+		VelocityContext velocityContext = new VelocityContext(context);
+		StringWriter out = new StringWriter();
+
+		try {
+			engine.evaluate(velocityContext, out, "log", template);
+			
+			return out.toString();
+		} catch (ParseErrorException e) {
+			logger.warn("Velocity problem: {}", e.getMessage());
+			throw new RegisterException(e);
+		} catch (MethodInvocationException e) {
+			logger.warn("Velocity problem: {}", e.getMessage());
+			throw new RegisterException(e);
+		} catch (ResourceNotFoundException e) {
+			logger.warn("Velocity problem: {}", e.getMessage());
+			throw new RegisterException(e);
+		}
 	}
 }
