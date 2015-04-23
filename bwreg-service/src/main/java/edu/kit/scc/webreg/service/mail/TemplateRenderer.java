@@ -10,11 +10,10 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.mail;
 
-import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Map;
 
-import javax.ejb.Singleton;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.apache.velocity.VelocityContext;
@@ -26,7 +25,7 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.exc.TemplateRenderingException;
 
-@Singleton
+@ApplicationScoped
 public class TemplateRenderer {
 
 	@Inject
@@ -38,6 +37,8 @@ public class TemplateRenderer {
 		
 		logger.info("Initializing Velocity Engine");
 		engine = new VelocityEngine();
+		engine.setProperty("runtime.log.logsystem.log4j.logger", "root");
+		engine.init();
 	}
 
 	
