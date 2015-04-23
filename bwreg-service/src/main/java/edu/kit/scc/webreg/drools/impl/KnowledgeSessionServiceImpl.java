@@ -101,7 +101,6 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 	
 	protected KieSession getStatefulSession(KieServices ks, ReleaseId releaseId) {
 		KieContainer kc = ks.newKieContainer(releaseId);
-		
 		return kc.newKieSession();
 	}
 
@@ -122,6 +121,7 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 		ksession.insert(idp);
 		ksession.insert(idpEntityDescriptor);
 		ksession.insert(sp);
+		ksession.insert(new Date());
 		
 		ksession.fireAllRules();
 
@@ -135,6 +135,8 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 			else
 				logger.warn("Facthandle for Object {} is null", o);
 		}
+
+		ksession.dispose();
 
 		return objectList;
 	}
@@ -183,12 +185,13 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 		ksession.insert(user);
 		ksession.insert(service);
 		ksession.insert(registry);
+		ksession.insert(new Date());
 		
 		logger.debug("Test all Rules for service {}", service.getName());
 		ksession.fireAllRules();
 
 		List<Object> objectList = new ArrayList<Object>(ksession.getObjects());
-		
+
 		for (Object o : objectList) {
 			logger.debug("Deleting fact handle for Object {}", o);
 			FactHandle factHandle = ksession.getFactHandle(o);
@@ -197,6 +200,8 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 			else
 				logger.warn("Facthandle for Object {} is null", o);
 		}
+		
+		ksession.dispose();
 		
 		if (registry != null) {
 			ServiceRegisterEvent serviceRegisterEvent = new ServiceRegisterEvent(registry);
