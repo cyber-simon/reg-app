@@ -107,6 +107,9 @@ public class IndexConfigBean implements Serializable {
 	}
 	
 	public boolean getScheduledReload() {
-		return (appConfig.getLastLoad().compareTo(appConfig.getNextScheduledReload()) < 0);
+		if (appConfig.getLastLoad() == null || appConfig.getNextScheduledReload() == null)
+			return false;
+		else
+			return (appConfig.getLastLoad().compareTo(appConfig.getNextScheduledReload()) < 0);
 	}
 }
