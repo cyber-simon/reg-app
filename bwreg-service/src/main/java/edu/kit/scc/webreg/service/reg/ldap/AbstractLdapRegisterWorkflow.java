@@ -343,6 +343,8 @@ public abstract class AbstractLdapRegisterWorkflow
 	private String evalTemplate(String template, UserEntity user, Map<String, String> reconMap, String homeId, String homeUid) 
 			throws RegisterException {
 		VelocityEngine engine = new VelocityEngine();
+		engine.setProperty("runtime.log.logsystem.log4j.logger", "root");
+		engine.init();
 		Map<String, Object> context = new HashMap<String, Object>();
 		context.put("user", user);
 		context.put("reconMap", reconMap);

@@ -76,6 +76,8 @@ public class HttpCallbackHook implements UserServiceHook {
 			positiveMatchRegex = appConfig.getConfigValue("HttpCallbackHook_positive_match_regex");
 		
 		VelocityEngine engine = new VelocityEngine();
+		engine.setProperty("runtime.log.logsystem.log4j.logger", "root");
+		engine.init();
 		Map<String, Object> context = new HashMap<String, Object>();
 		context.put("user", user);
 		VelocityContext velocityContext = new VelocityContext(context);
