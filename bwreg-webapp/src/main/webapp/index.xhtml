@@ -18,6 +18,12 @@
 	<ui:define name="content">
 
 	<div class="panel">
+		<p:panel header="#{messages.index_motd_header}" rendered="#{messages.index_motd_header != '???index_motd_header???'}"
+				style="margin-bottom: 8px;">
+			<div class="panel">
+				<h:outputText value="#{messages.index_motd_text1}" escape="false" />
+			</div>
+		</p:panel>
 		<p:panel>
 			<div style="margin-top: 4px;">
 				<h:outputText value="#{messages.index_text1}" />
