@@ -24,17 +24,11 @@ public class ResourceBundleHelper {
 	public String resolveMessage(String key) {
 		FacesContext facesContext = FacesContext.getCurrentInstance();
 
-		if (facesContext == null || facesContext.getApplication() == null ||
-				facesContext.getApplication().getMessageBundle() == null)
-			return "???" + key + "???";
-			
-		String messageBundleName = facesContext.getApplication().getMessageBundle();
-		
-		if (facesContext.getViewRoot() == null || facesContext.getViewRoot().getLocale() == null)
+		if (facesContext == null || facesContext.getViewRoot() == null || facesContext.getViewRoot().getLocale() == null)
 			return "???" + key + "???";
 			
 		Locale locale = facesContext.getViewRoot().getLocale();
-		ResourceBundle bundle = ResourceBundle.getBundle(messageBundleName, locale);		
+		ResourceBundle bundle = ResourceBundle.getBundle("edu.kit.scc.webreg.res.DbMessageBundle", locale);		
 
 		if (bundle == null)
 			return "???" + key + "???";
