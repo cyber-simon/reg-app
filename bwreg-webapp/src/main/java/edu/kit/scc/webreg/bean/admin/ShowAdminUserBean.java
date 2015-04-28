@@ -81,6 +81,12 @@ public class ShowAdminUserBean implements Serializable {
 
 	protected void fillHashMethod() {
 		Provider provider = Security.getProvider("BC");
+		
+		if (provider == null) {
+			Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+			provider = Security.getProvider("BC");
+		}
+		
 		List<String> algoList = new ArrayList<String>();
 		
 		for (Service service : provider.getServices()) {
