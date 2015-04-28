@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.Provider;
+import java.security.Security;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -121,6 +123,10 @@ public class SecurityFilter implements Filter {
 
 	@Override
 	public void init(FilterConfig config) throws ServletException {
+		if (Security.getProvider("BC") == null) {
+			logger.info("Register bouncy castle crypto provider");
+			Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+		}
 	}
 
 	private Set<String> convertRoles(List<RoleEntity> roleList) {
