@@ -1,0 +1,31 @@
+package edu.kit.scc.webreg.dools.unicluster
+
+import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.drools.UnauthorizedUser;
+import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
+import edu.kit.scc.webreg.entity.as.ASUserAttrValueStringEntity;
+
+global org.slf4j.Logger logger;
+
+rule "AA Attribute test"
+
+    when
+         $user : UserEntity( $userAttrs : userAttrs )
+         $userAttr : ASUserAttrEntity( attributeSource.name == "TestHttp1", $values : values ) from $userAttrs
+         ASUserAttrValueStringEntity( key == "key1" && valueString == "value1" ) from $values
+    then
+    	logger.info( "Insert AA String for user {}", $user.getEppn() );
+    	insert( new String ("aa-is-set") );
+
+end
+
+rule "AA String test"
+
+    when
+        not ( String( this == "aa-is-set" ) )
+    then
+    	logger.info( "String is not set" );
+    	insert( new UnauthorizedUser(null, "no-access") );
+
+end

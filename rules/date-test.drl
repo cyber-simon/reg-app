@@ -11,8 +11,8 @@ global org.slf4j.Logger logger;
 rule "Registry old"
 
 	when
-		Date( $t: time ) from new Date()
-		$registry : RegistryEntity( $t after[30d] agreedTime )
+		$date : Date()
+		$registry : RegistryEntity( ($date.getTime() - agreedTime.getTime()) > 30*24*60*1000 )
 	then 
 		logger.info( "Date is more than 30d before now" );
 		
