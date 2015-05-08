@@ -25,13 +25,13 @@ import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserGroupEntity;
-import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.GroupServiceHook;
 import edu.kit.scc.webreg.service.impl.AttributeMapHelper;
 import edu.vt.middleware.ldap.Ldap;
 import edu.vt.middleware.ldap.LdapConfig;
-import edu.vt.middleware.ldap.SearchFilter;
 import edu.vt.middleware.ldap.LdapConfig.SearchScope;
+import edu.vt.middleware.ldap.SearchFilter;
 import edu.vt.middleware.ldap.handler.ConnectionHandler.ConnectionStrategy;
 
 public class LdapUidNumberGroupHook implements GroupServiceHook {
@@ -49,13 +49,13 @@ public class LdapUidNumberGroupHook implements GroupServiceHook {
 	
 	@Override
 	public HomeOrgGroupEntity preUpdateUserPrimaryGroupFromAttribute(HomeOrgGroupDao dao, GroupDao groupDao, HomeOrgGroupEntity group, UserEntity user,
-			Map<String, List<Object>> attributeMap, Auditor auditor, Set<GroupEntity> changedGroups) throws RegisterException {
+			Map<String, List<Object>> attributeMap, Auditor auditor, Set<GroupEntity> changedGroups) throws UserUpdateException {
 
 		logger.info("LDAP-User Detected. Taking Primary Group from assertion");
 		
 		if (attributeMap.get("urn:oid:1.3.6.1.1.1.1.1") == null) {
 			 if (user.getPrimaryGroup() == null) {
-				 throw new RegisterException("GID Number Attribut ist nicht gesetzt und User hat keine primäre Gruppe");
+				 throw new UserUpdateException("GID Number Attribut ist nicht gesetzt und User hat keine primäre Gruppe");
 			 }
 			 else {
 				 logger.warn("User {} hat keine Gid in SAML Assertion, aber schon eine primäre Gruppe ({}).", user.getEppn(), user.getPrimaryGroup().getName());
@@ -163,13 +163,13 @@ public class LdapUidNumberGroupHook implements GroupServiceHook {
 
 	@Override
 	public HomeOrgGroupEntity postUpdateUserPrimaryGroupFromAttribute(HomeOrgGroupDao dao, GroupDao groupDao, HomeOrgGroupEntity group, UserEntity user,
-			Map<String, List<Object>> attributeMap, Auditor auditor, Set<GroupEntity> changedGroups) throws RegisterException {
+			Map<String, List<Object>> attributeMap, Auditor auditor, Set<GroupEntity> changedGroups) throws UserUpdateException {
 		return group;
 	}
 
 	@Override
 	public void preUpdateUserSecondaryGroupFromAttribute(HomeOrgGroupDao dao, GroupDao groupDao, UserEntity user,
-			Map<String, List<Object>> attributeMap, Auditor auditor, Set<GroupEntity> changedGroups) throws RegisterException {
+			Map<String, List<Object>> attributeMap, Auditor auditor, Set<GroupEntity> changedGroups) throws UserUpdateException {
 
 		logger.info("LDAP-User Detected. Taking Secondary Groups from assertion");
 		
@@ -325,7 +325,7 @@ public class LdapUidNumberGroupHook implements GroupServiceHook {
 
 	@Override
 	public void postUpdateUserSecondaryGroupFromAttribute(HomeOrgGroupDao dao, GroupDao groupDao, UserEntity user,
-			Map<String, List<Object>> attributeMap, Auditor auditor, Set<GroupEntity> changedGroups) throws RegisterException {
+			Map<String, List<Object>> attributeMap, Auditor auditor, Set<GroupEntity> changedGroups) throws UserUpdateException {
 		logger.debug("Empty postUpdateUserSecondaryGroupFromAttribute called");
 	}
 

@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.entity.AuditStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.exc.PropertyReaderException;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.service.reg.Infotainment;
 import edu.kit.scc.webreg.service.reg.InfotainmentTreeNode;
@@ -56,12 +57,16 @@ public class LdapWorker {
 		this.auditor = auditor;
 		this.sambaEnabled = sambaEnabled;
 		
-		connectionManager = new LdapConnectionManager(prop);
-		ldapUserBase = prop.readProp("ldap_user_base");		
-		ldapGroupBase = prop.readProp("ldap_group_base");
+		try {
+			connectionManager = new LdapConnectionManager(prop);
+			ldapUserBase = prop.readProp("ldap_user_base");
+			ldapGroupBase = prop.readProp("ldap_group_base");
 
-		if (sambaEnabled)
-			sidPrefix = prop.readProp("sid_prefix");
+			if (sambaEnabled)
+				sidPrefix = prop.readProp("sid_prefix");
+		} catch (PropertyReaderException e) {
+			throw new RegisterException(e);
+		}		
 	}
 
 	public void deleteUser(String uid) {

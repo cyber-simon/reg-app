@@ -10,7 +10,7 @@ import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.AuditStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.UserServiceHook;
 import edu.kit.scc.webreg.service.impl.AttributeMapHelper;
 
@@ -29,7 +29,7 @@ public class UidNumberFromAssertionUserHook implements UserServiceHook {
 		
 	@Override
 	public void preUpdateUserFromAttribute(UserEntity user,
-			Map<String, List<Object>> attributeMap, Auditor auditor) throws RegisterException {
+			Map<String, List<Object>> attributeMap, Auditor auditor) throws UserUpdateException {
 
 		if (isResponsibleIntern(user)) {
 			logger.info("UidNumberFromAssertion-User Detected. Taking UID from assertion");
@@ -47,7 +47,7 @@ public class UidNumberFromAssertionUserHook implements UserServiceHook {
 			}
 			else {
 				if (user.getUidNumber() == null) {
-					throw new RegisterException("UID Number Attribut ist nicht gesetzt und User hat keine");
+					throw new UserUpdateException("UID Number Attribut ist nicht gesetzt und User hat keine");
 				}
 				// else: Es kommt keine uidNumber (User ist geloescht), aber user hat schon eine
 			}
@@ -57,7 +57,7 @@ public class UidNumberFromAssertionUserHook implements UserServiceHook {
 
 	@Override
 	public void postUpdateUserFromAttribute(UserEntity user,
-			Map<String, List<Object>> attributeMap, Auditor auditor) throws RegisterException {
+			Map<String, List<Object>> attributeMap, Auditor auditor) throws UserUpdateException {
 
 	}
 	

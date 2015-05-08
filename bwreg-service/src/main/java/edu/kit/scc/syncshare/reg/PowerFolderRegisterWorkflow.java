@@ -29,12 +29,12 @@ public class PowerFolderRegisterWorkflow implements RegisterUserWorkflow, Infota
 	public void registerUser(UserEntity user, ServiceEntity service,
 			RegistryEntity registry, Auditor auditor) throws RegisterException {
 
-		PropertyReader prop = new PropertyReader(service.getServiceProps());
+		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
 		PFWorker pfWorker = new PFWorker(prop, auditor);
 
 		String spaceAllowed;
 		if (prop.hasProp("space_allowed")) 
-			spaceAllowed = prop.readProp("space_allowed");
+			spaceAllowed = prop.readPropOrNull("space_allowed");
 		else 
 			spaceAllowed = "" + 1024L * 1024L * 1024L * 10L;
 
@@ -70,7 +70,7 @@ public class PowerFolderRegisterWorkflow implements RegisterUserWorkflow, Infota
 	public void deregisterUser(UserEntity user, ServiceEntity service,
 			RegistryEntity registry, Auditor auditor) throws RegisterException {
 
-		PropertyReader prop = new PropertyReader(service.getServiceProps());
+		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
 		PFWorker pfWorker = new PFWorker(prop, auditor);
 
 		String userId = registry.getRegistryValues().get("powerfolderId");
@@ -106,7 +106,7 @@ public class PowerFolderRegisterWorkflow implements RegisterUserWorkflow, Infota
 
 	@Override
 	public Infotainment getInfo(RegistryEntity registry, UserEntity user, ServiceEntity service) throws RegisterException {
-		PropertyReader prop = new PropertyReader(service.getServiceProps());
+		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
 
 		PFWorker pfWorker = new PFWorker(prop, null);
 		
@@ -136,5 +136,4 @@ public class PowerFolderRegisterWorkflow implements RegisterUserWorkflow, Infota
 		return info;
 			
 	}
-
 }

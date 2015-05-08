@@ -33,7 +33,7 @@ import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
-import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.ASUserAttrService;
 import edu.kit.scc.webreg.service.AttributeSourceService;
 import edu.kit.scc.webreg.service.GroupService;
@@ -124,7 +124,7 @@ public class ShowUserBean implements Serializable {
 
 		try {
 			userUpdateService.updateUserFromIdp(user);
-		} catch (RegisterException e) {
+		} catch (UserUpdateException e) {
 			logger.info("Exception while Querying IDP: {}", e.getMessage());
 			if (e.getCause() != null) {
 				logger.info("Cause is: {}", e.getCause().getMessage());

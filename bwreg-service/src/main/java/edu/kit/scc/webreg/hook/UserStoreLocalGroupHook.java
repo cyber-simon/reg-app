@@ -35,7 +35,7 @@ import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserGroupEntity;
-import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.GroupServiceHook;
 import edu.kit.scc.webreg.service.SerialService;
 import edu.kit.scc.webreg.service.ServiceGroupFlagService;
@@ -57,7 +57,7 @@ public class UserStoreLocalGroupHook implements GroupServiceHook {
 			HomeOrgGroupDao dao, GroupDao groupDao, HomeOrgGroupEntity group,
 			UserEntity user, Map<String, List<Object>> attributeMap,
 			Auditor auditor, Set<GroupEntity> changedGroups)
-			throws RegisterException {
+			throws UserUpdateException {
 		return group;
 	}
 
@@ -66,7 +66,7 @@ public class UserStoreLocalGroupHook implements GroupServiceHook {
 			HomeOrgGroupDao dao, GroupDao groupDao, HomeOrgGroupEntity group,
 			UserEntity user, Map<String, List<Object>> attributeMap,
 			Auditor auditor, Set<GroupEntity> changedGroups)
-			throws RegisterException {
+			throws UserUpdateException {
 		return group;
 	}
 
@@ -74,14 +74,14 @@ public class UserStoreLocalGroupHook implements GroupServiceHook {
 	public void preUpdateUserSecondaryGroupFromAttribute(HomeOrgGroupDao dao,
 			GroupDao groupDao, UserEntity user,
 			Map<String, List<Object>> attributeMap, Auditor auditor,
-			Set<GroupEntity> changedGroups) throws RegisterException {
+			Set<GroupEntity> changedGroups) throws UserUpdateException {
 	}
 
 	@Override
 	public void postUpdateUserSecondaryGroupFromAttribute(HomeOrgGroupDao dao,
 			GroupDao groupDao, UserEntity user,
 			Map<String, List<Object>> attributeMap, Auditor auditor,
-			Set<GroupEntity> changedGroups) throws RegisterException {
+			Set<GroupEntity> changedGroups) throws UserUpdateException {
 
 		long start = System.currentTimeMillis();
 		

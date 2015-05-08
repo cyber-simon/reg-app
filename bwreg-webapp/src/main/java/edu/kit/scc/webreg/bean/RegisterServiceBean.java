@@ -38,6 +38,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceServiceEntity;
 import edu.kit.scc.webreg.exc.MisconfiguredServiceException;
 import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserService;
@@ -120,7 +121,7 @@ public class RegisterServiceBean implements Serializable {
 				logger.info("Updating attribute source {}", asse.getAttributeSource().getName());
 				try {
 					asQueryService.updateUserAttributes(user, asse.getAttributeSource(), "user-" + user.getId());
-				} catch (RegisterException e) {
+				} catch (UserUpdateException e) {
 					logger.info("Updating attribute source exception", e);
 				}
 			}

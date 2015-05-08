@@ -34,7 +34,7 @@ import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.rest.exc.LoginFailedException;
 import edu.kit.scc.webreg.rest.exc.NoItemFoundException;
 import edu.kit.scc.webreg.rest.exc.NoRegistryFoundException;
@@ -125,7 +125,7 @@ public class AttributeQueryController {
 	
 				user = userUpdateService.updateUserFromIdp(user, service);
 			}
-		} catch (RegisterException e) {
+		} catch (UserUpdateException e) {
 			logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
 			throw new NoItemFoundException("user update failed: " + e.getMessage());
 		}

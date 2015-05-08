@@ -28,7 +28,7 @@ public class PFAccountServiceImpl implements PFAccountService {
 	public PFAccount findById(String id, ServiceEntity serviceEntity) throws RegisterException {
 
 		serviceEntity = serviceService.findByIdWithServiceProps(serviceEntity.getId());
-		PFWorker pfWorker = new PFWorker(new PropertyReader(serviceEntity.getServiceProps()), null);
+		PFWorker pfWorker = new PFWorker(PropertyReader.newRegisterPropReader(serviceEntity), null);
 		return pfWorker.getAccountInfoById(id);
 	}
 
@@ -36,7 +36,7 @@ public class PFAccountServiceImpl implements PFAccountService {
 	public PFAccount findByUsername(String username, ServiceEntity serviceEntity) throws RegisterException {
 
 		serviceEntity = serviceService.findByIdWithServiceProps(serviceEntity.getId());
-		PFWorker pfWorker = new PFWorker(new PropertyReader(serviceEntity.getServiceProps()), null);
+		PFWorker pfWorker = new PFWorker(PropertyReader.newRegisterPropReader(serviceEntity), null);
 		return pfWorker.getAccountInfoByUsername(username);
 	}
 
@@ -44,7 +44,7 @@ public class PFAccountServiceImpl implements PFAccountService {
 	public PFAccount update(PFAccount account, ServiceEntity serviceEntity) throws RegisterException {
 
 		serviceEntity = serviceService.findByIdWithServiceProps(serviceEntity.getId());
-		PFWorker pfWorker = new PFWorker(new PropertyReader(serviceEntity.getServiceProps()), null);
+		PFWorker pfWorker = new PFWorker(PropertyReader.newRegisterPropReader(serviceEntity), null);
 		return pfWorker.storeAccount(account);
 	}
 }

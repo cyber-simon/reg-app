@@ -47,8 +47,8 @@ import edu.kit.scc.webreg.event.UserEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.MetadataException;
 import edu.kit.scc.webreg.exc.NoAssertionException;
-import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.exc.SamlAuthenticationException;
+import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.ASUserAttrService;
 import edu.kit.scc.webreg.service.HomeOrgGroupService;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
@@ -114,14 +114,14 @@ public class UserUpdateServiceImpl implements UserUpdateService {
 
 	@Override
 	public UserEntity updateUser(UserEntity user, Map<String, List<Object>> attributeMap, String executor)
-			throws RegisterException {
+			throws UserUpdateException {
 		return updateUser(user, attributeMap, executor, null);
 	}
 	
 	@Override
 	public UserEntity updateUser(UserEntity user, Map<String, List<Object>> attributeMap, String executor, 
 			ServiceEntity service)
-			throws RegisterException {
+			throws UserUpdateException {
 		logger.debug("Updating user {}", user.getEppn());
 
 		boolean changed = false;
@@ -214,7 +214,7 @@ public class UserUpdateServiceImpl implements UserUpdateService {
 	
 	@Override
 	public UserEntity updateUser(UserEntity user, Assertion assertion, String executor, ServiceEntity service)
-			throws RegisterException {
+			throws UserUpdateException {
 		Map<String, List<Object>> attributeMap = saml2AssertionService.extractAttributes(assertion);
 
 		return updateUser(user, attributeMap, executor, service);
@@ -222,13 +222,13 @@ public class UserUpdateServiceImpl implements UserUpdateService {
 
 	@Override
 	public UserEntity updateUserFromIdp(UserEntity user) 
-			throws RegisterException {
+			throws UserUpdateException {
 		return updateUserFromIdp(user, null);
 	}
 	
 	@Override
 	public UserEntity updateUserFromIdp(UserEntity user, ServiceEntity service) 
-			throws RegisterException {
+			throws UserUpdateException {
 
 		SamlSpConfigurationEntity spEntity = spService.findByEntityId(user.getPersistentSpId());
 		SamlIdpMetadataEntity idpEntity = idpService.findByEntityId(user.getIdp().getEntityId());
@@ -248,17 +248,17 @@ public class UserUpdateServiceImpl implements UserUpdateService {
 			 * This exception is thrown if the certificate chain is incomplete e.g.
 			 */
 			updateFail(user, e);
-			throw new RegisterException(e);
+			throw new UserUpdateException(e);
 		} catch (MetadataException e) {
 			/*
 			 * is thrown if AttributeQuery location is missing in metadata, or something is wrong
 			 * with the sp certificate
 			 */
 			updateFail(user, e);
-			throw new RegisterException(e);
+			throw new UserUpdateException(e);
 		} catch (SecurityException e) {
 			updateFail(user, e);
-			throw new RegisterException(e);
+			throw new UserUpdateException(e);
 		}
 
 		try {
@@ -280,16 +280,16 @@ public class UserUpdateServiceImpl implements UserUpdateService {
 			return updateUser(user, assertion, "attribute-query", service);
 		} catch (DecryptionException e) {
 			updateFail(user, e);
-			throw new RegisterException(e);
+			throw new UserUpdateException(e);
 		} catch (IOException e) {
 			updateFail(user, e);
-			throw new RegisterException(e);
+			throw new UserUpdateException(e);
 		} catch (SamlAuthenticationException e) {
 			/*
 			 * Thrown if i.e. the AttributeQuery profile is not configured correctly
 			 */
 			updateFail(user, e);
-			throw new RegisterException(e);
+			throw new UserUpdateException(e);
 		}
 	}
 	

@@ -21,7 +21,7 @@ import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceQueryStatus;
 import edu.kit.scc.webreg.entity.as.AttributeSourceServiceEntity;
-import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.reg.AttributeSourceQueryService;
 
 @Stateless
@@ -55,7 +55,7 @@ public class AttributeSourceQueryServiceImpl implements AttributeSourceQueryServ
 
 	@Override
 	public Boolean updateUserAttributes(UserEntity user, AttributeSourceEntity attributeSource, String executor) 
-		throws RegisterException {
+		throws UserUpdateException {
 		
 		Boolean changed = false;
 		

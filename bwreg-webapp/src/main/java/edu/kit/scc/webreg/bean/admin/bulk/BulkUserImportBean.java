@@ -32,7 +32,7 @@ import org.slf4j.Logger;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.SamlSpConfigurationService;
 import edu.kit.scc.webreg.service.UserCreateService;
@@ -120,7 +120,7 @@ public class BulkUserImportBean implements Serializable {
 				logger.debug("User {} already in system", userEntity.getEppn());
 				try {
 					userUpdateService.updateUserFromIdp(userEntity);
-				} catch (RegisterException e) {
+				} catch (UserUpdateException e) {
 					logger.warn("AttributeQuery failed", e);
 					importUser.setStatus("Fehler: " + e.getMessage());					
 				}

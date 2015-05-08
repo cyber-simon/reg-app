@@ -33,7 +33,7 @@ import edu.kit.scc.webreg.entity.AuditStatus;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.SerialService;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.UserServiceHook;
@@ -103,13 +103,13 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity, Long> implement
 
 	@Override
 	public boolean updateUserFromAttribute(UserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor) 
-				throws RegisterException {
+				throws UserUpdateException {
 		return updateUserFromAttribute(user, attributeMap, false, auditor);
 	}
 
 	@Override
 	public boolean updateUserFromAttribute(UserEntity user, Map<String, List<Object>> attributeMap, boolean withoutUidNumber, Auditor auditor) 
-				throws RegisterException {
+				throws UserUpdateException {
 
 		boolean changed = false;
 		

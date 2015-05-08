@@ -18,7 +18,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.exc.PropertyReaderException;
 import edu.vt.middleware.ldap.Ldap;
 import edu.vt.middleware.ldap.LdapConfig;
 import edu.vt.middleware.ldap.ssl.TLSSocketFactory;
@@ -31,7 +31,7 @@ public class LdapConnectionManager {
 	
 	private Map<String, Ldap> connectionMap;
 	
-	public LdapConnectionManager(PropertyReader prop) throws RegisterException {
+	public LdapConnectionManager(PropertyReader prop) throws PropertyReaderException {
 		
 		connectionMap = new HashMap<String, Ldap>();
 		
@@ -70,7 +70,7 @@ public class LdapConnectionManager {
 	}
 	
 	private Ldap getLdapConnect(String ldapConnect, String ldapBase, 
-			String bindDn, String bindPassword, String connectionSecurity) throws RegisterException {
+			String bindDn, String bindPassword, String connectionSecurity) {
 
 		logger.debug("Creating ldap connection connect: {} base: {} bind-dn: {}", new Object[] {ldapConnect, ldapBase, bindDn});
 		

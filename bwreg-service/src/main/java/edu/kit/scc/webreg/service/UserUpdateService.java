@@ -17,24 +17,24 @@ import org.opensaml.saml2.core.Assertion;
 
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.exc.UserUpdateException;
 
 public interface UserUpdateService {
 
-	UserEntity updateUserFromIdp(UserEntity user) throws RegisterException;
+	UserEntity updateUserFromIdp(UserEntity user) throws UserUpdateException;
 
 	UserEntity updateUser(UserEntity user,
 			Map<String, List<Object>> attributeMap, String executor,
-			ServiceEntity service) throws RegisterException;
+			ServiceEntity service) throws UserUpdateException;
 
 	UserEntity updateUser(UserEntity user, Assertion assertion,
-			String executor, ServiceEntity service) throws RegisterException;
+			String executor, ServiceEntity service) throws UserUpdateException;
 
 	UserEntity updateUserFromIdp(UserEntity user, ServiceEntity service)
-			throws RegisterException;
+			throws UserUpdateException;
 
 	UserEntity updateUser(UserEntity user,
 			Map<String, List<Object>> attributeMap, String executor)
-			throws RegisterException;
+			throws UserUpdateException;
 
 }

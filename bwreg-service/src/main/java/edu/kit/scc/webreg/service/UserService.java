@@ -17,7 +17,7 @@ import java.util.Map;
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.exc.UserUpdateException;
 
 public interface UserService extends BaseService<UserEntity, Long> {
 
@@ -29,11 +29,11 @@ public interface UserService extends BaseService<UserEntity, Long> {
 	UserEntity findByIdWithAll(Long id);
 	
 	boolean updateUserFromAttribute(UserEntity user,
-			Map<String, List<Object>> attributeMap, Auditor auditor) throws RegisterException;
+			Map<String, List<Object>> attributeMap, Auditor auditor) throws UserUpdateException;
 	
 	boolean updateUserFromAttribute(UserEntity user,
 			Map<String, List<Object>> attributeMap, boolean withoutUidNumber, Auditor auditor)
-			throws RegisterException;
+			throws UserUpdateException;
 
 	void convertLegacyUsers();
 

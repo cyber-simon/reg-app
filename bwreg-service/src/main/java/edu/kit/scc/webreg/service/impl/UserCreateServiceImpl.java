@@ -36,7 +36,7 @@ import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.UserEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
-import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.HomeOrgGroupService;
 import edu.kit.scc.webreg.service.RoleService;
 import edu.kit.scc.webreg.service.SerialService;
@@ -79,7 +79,7 @@ public class UserCreateServiceImpl implements UserCreateService {
 	@Override
 	public UserEntity preCreateUser(SamlIdpMetadataEntity idpEntity, SamlSpConfigurationEntity spConfigEntity, String persistentId,
 			String locale, Map<String, List<Object>> attributeMap)
-			throws RegisterException {
+			throws UserUpdateException {
 		
 		logger.debug("User {} from {} is being preCreated", persistentId, idpEntity.getEntityId());
 		
@@ -104,7 +104,7 @@ public class UserCreateServiceImpl implements UserCreateService {
 	@Override
 	public UserEntity createUser(UserEntity user,
 			Map<String, List<Object>> attributeMap, String executor)
-			throws RegisterException {
+			throws UserUpdateException {
 		logger.debug("Creating user {}", user.getEppn());
 
 		UserCreateAuditor auditor = new UserCreateAuditor(auditDao, auditDetailDao, appConfig);

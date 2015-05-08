@@ -40,7 +40,7 @@ import edu.kit.scc.webreg.entity.UserGroupEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.MultipleGroupEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
-import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.GroupServiceHook;
 import edu.kit.scc.webreg.service.HomeOrgGroupService;
 import edu.kit.scc.webreg.service.SerialService;
@@ -76,7 +76,7 @@ public class HomeOrgGroupServiceImpl extends BaseServiceImpl<HomeOrgGroupEntity,
 	
 	@Override
 	public Set<GroupEntity> updateGroupsForUser(UserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor)
-			throws RegisterException {
+			throws UserUpdateException {
 		HashSet<GroupEntity> changedGroups = new HashSet<GroupEntity>();
 		
 		changedGroups.addAll(updatePrimary(user, attributeMap, auditor));
@@ -115,7 +115,7 @@ public class HomeOrgGroupServiceImpl extends BaseServiceImpl<HomeOrgGroupEntity,
 	}
 	
 	protected Set<GroupEntity> updatePrimary(UserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor)
-			throws RegisterException {
+			throws UserUpdateException {
 		Set<GroupEntity> changedGroups = new HashSet<GroupEntity>();
 
 		GroupServiceHook completeOverrideHook = null;
@@ -214,7 +214,7 @@ public class HomeOrgGroupServiceImpl extends BaseServiceImpl<HomeOrgGroupEntity,
 	}	
 
 	protected Set<GroupEntity> updateSecondary(UserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor)
-			throws RegisterException {
+			throws UserUpdateException {
 		Set<GroupEntity> changedGroups = new HashSet<GroupEntity>();
 
 		GroupServiceHook completeOverrideHook = null;

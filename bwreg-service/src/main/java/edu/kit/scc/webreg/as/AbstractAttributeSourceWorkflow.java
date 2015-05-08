@@ -9,7 +9,8 @@ import edu.kit.scc.webreg.entity.AuditStatus;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrValueEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrValueStringEntity;
-import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.exc.PropertyReaderException;
+import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.reg.ldap.PropertyReader;
 
 public abstract class AbstractAttributeSourceWorkflow implements AttributeSourceWorkflow {
@@ -21,8 +22,12 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 	protected PropertyReader prop;
 
 	public void init(ASUserAttrEntity asUserAttr)
-			throws RegisterException {
-		prop = new PropertyReader(asUserAttr.getAttributeSource().getAsProps());
+			throws UserUpdateException {
+		try {
+			prop = new PropertyReader(asUserAttr.getAttributeSource().getAsProps());
+		} catch (PropertyReaderException e) {
+			throw new UserUpdateException(e);
+		}
 	}
 	
 	protected Boolean createOrUpdateValue(String key, Object o, ASUserAttrEntity asUserAttr, ASUserAttrValueDao asValueDao, AttributeSourceAuditor auditor) {

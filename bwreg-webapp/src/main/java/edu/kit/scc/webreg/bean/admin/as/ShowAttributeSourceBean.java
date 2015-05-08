@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
-import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.AttributeSourceService;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.reg.AttributeSourceQueryService;
@@ -66,7 +66,7 @@ public class ShowAttributeSourceBean implements Serializable {
 		
 		try {
 			asQueryService.updateUserAttributes(user, entity, "test");
-		} catch (RegisterException e) {
+		} catch (UserUpdateException e) {
 			logger.info("Exception!", e);
 		}
 	}

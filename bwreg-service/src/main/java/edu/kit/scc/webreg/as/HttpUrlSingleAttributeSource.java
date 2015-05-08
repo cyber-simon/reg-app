@@ -31,7 +31,8 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceQueryStatus;
-import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.exc.PropertyReaderException;
+import edu.kit.scc.webreg.exc.UserUpdateException;
 
 public class HttpUrlSingleAttributeSource extends
 		AbstractAttributeSourceWorkflow {
@@ -39,16 +40,21 @@ public class HttpUrlSingleAttributeSource extends
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public Boolean pollUserAttributes(ASUserAttrEntity asUserAttr, ASUserAttrValueDao asValueDao, AttributeSourceAuditor auditor) throws RegisterException {
+	public Boolean pollUserAttributes(ASUserAttrEntity asUserAttr, ASUserAttrValueDao asValueDao, AttributeSourceAuditor auditor) throws UserUpdateException {
 		
 		Boolean changed = false;
 		
 		init(asUserAttr);
 		
+		String urlTemplate;
+		try {
+			urlTemplate = prop.readProp("url_template");
+		} catch (PropertyReaderException e1) {
+			throw new UserUpdateException(e1);
+		}
+
 		UserEntity user = asUserAttr.getUser();
 		AttributeSourceEntity attributeSource = asUserAttr.getAttributeSource();
-		
-		String urlTemplate = prop.readProp("url_template");
 
 		VelocityEngine engine = new VelocityEngine();
 		engine.setProperty("runtime.log.logsystem.log4j.logger", "root");
@@ -129,9 +135,9 @@ public class HttpUrlSingleAttributeSource extends
 						asUserAttr.setQueryMessage(e.getMessage());
 					}
 				} catch (ParseException e) {
-					throw new RegisterException(e);
+					throw new UserUpdateException(e);
 				} catch (IOException e) {
-					throw new RegisterException(e);
+					throw new UserUpdateException(e);
 				}
 			}
 		}

@@ -21,23 +21,23 @@ import edu.kit.scc.webreg.dao.HomeOrgGroupDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.exc.UserUpdateException;
 
 public interface GroupServiceHook {
 
 	void setAppConfig(ApplicationConfig appConfig);
 	
 	HomeOrgGroupEntity preUpdateUserPrimaryGroupFromAttribute(HomeOrgGroupDao dao, GroupDao groupDao, HomeOrgGroupEntity group, UserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor, Set<GroupEntity> changedGroups) 
-			throws RegisterException;
+			throws UserUpdateException;
 
 	HomeOrgGroupEntity postUpdateUserPrimaryGroupFromAttribute(HomeOrgGroupDao dao, GroupDao groupDao, HomeOrgGroupEntity group, UserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor, Set<GroupEntity> changedGroups) 
-			throws RegisterException;
+			throws UserUpdateException;
 
 	void preUpdateUserSecondaryGroupFromAttribute(HomeOrgGroupDao dao, GroupDao groupDao, UserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor, Set<GroupEntity> changedGroups) 
-			throws RegisterException;
+			throws UserUpdateException;
 
 	void postUpdateUserSecondaryGroupFromAttribute(HomeOrgGroupDao dao, GroupDao groupDao, UserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor, Set<GroupEntity> changedGroups) 
-			throws RegisterException;
+			throws UserUpdateException;
 
 	boolean isPrimaryResponsible(UserEntity user, Map<String, List<Object>> attributeMap);
 

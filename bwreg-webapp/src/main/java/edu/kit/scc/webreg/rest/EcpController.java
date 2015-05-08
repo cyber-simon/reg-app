@@ -62,8 +62,8 @@ import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.MetadataException;
-import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.exc.SamlAuthenticationException;
+import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.rest.exc.AssertionException;
 import edu.kit.scc.webreg.rest.exc.LoginFailedException;
 import edu.kit.scc.webreg.rest.exc.NoItemFoundException;
@@ -434,7 +434,7 @@ public class EcpController {
 		
 		try {
 			user = userUpdateService.updateUser(user, assertion, caller, service);
-		} catch (RegisterException e) {
+		} catch (UserUpdateException e) {
 			logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
 			throw new NoItemFoundException("user update failed: " + e.getMessage());
 		}

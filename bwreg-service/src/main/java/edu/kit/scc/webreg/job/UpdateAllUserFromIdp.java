@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.UserUpdateService;
 
@@ -80,7 +80,7 @@ public class UpdateAllUserFromIdp extends AbstractExecutableJob {
 				try {
 					logger.info("Updating user {}", user.getEppn());
 					userUpdateService.updateUserFromIdp(user);
-				} catch (RegisterException e) {
+				} catch (UserUpdateException e) {
 					logger.warn("Could not update user {}: {}", user.getEppn(), e);
 				}
 			}

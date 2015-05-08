@@ -64,7 +64,7 @@ public abstract class AbstractLdapRegisterWorkflow
 			RegistryEntity registry, Auditor auditor) throws RegisterException {
 		logger.info("AbstractLdapRegister Deregister user {} for service {}", user.getEppn(), service.getName());
 
-		PropertyReader prop = new PropertyReader(service.getServiceProps());
+		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
 
 		Map<String, String> regMap = registry.getRegistryValues();
 
@@ -79,7 +79,7 @@ public abstract class AbstractLdapRegisterWorkflow
 	public void updateGroups(ServiceEntity service, GroupUpdateStructure updateStruct, Auditor auditor)
 			throws RegisterException {
 
-		PropertyReader prop = new PropertyReader(service.getServiceProps());
+		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
 		LdapWorker ldapWorker = new LdapWorker(prop, auditor, isSambaEnabled());
 
 		for (GroupEntity group : updateStruct.getGroups()) {
@@ -116,7 +116,7 @@ public abstract class AbstractLdapRegisterWorkflow
 			 throws RegisterException {
 		logger.debug("Delete Ldap Group for group {} and Service {}", group.getName(), service.getName());
 		
-		PropertyReader prop = new PropertyReader(service.getServiceProps());
+		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
 		LdapWorker ldapWorker = new LdapWorker(prop, auditor, isSambaEnabled());
 
 		ldapWorker.deleteGroup(constructGroupName(group));		
@@ -129,7 +129,7 @@ public abstract class AbstractLdapRegisterWorkflow
 	public Boolean updateRegistry(UserEntity user, ServiceEntity service,
 			RegistryEntity registry, Auditor auditor) throws RegisterException {
 
-		PropertyReader prop = new PropertyReader(service.getServiceProps());
+		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
 		
 		/*
 		 * Compare values from user and registry store. Found differences trigger 
@@ -139,24 +139,24 @@ public abstract class AbstractLdapRegisterWorkflow
 		
 		String homeId = user.getAttributeStore().get("http://bwidm.de/bwidmOrgId");
 		if (prop.hasProp("tpl_home_id")) {
-			homeId = evalTemplate(prop.readProp("tpl_home_id"), user, reconMap, homeId, null);
+			homeId = evalTemplate(prop.readPropOrNull("tpl_home_id"), user, reconMap, homeId, null);
 		}
 
 		String homeUid = user.getAttributeStore().get("urn:oid:0.9.2342.19200300.100.1.1");
 		homeId = homeId.toLowerCase();
 		if (prop.hasProp("tpl_home_uid")) {
-			homeId = evalTemplate(prop.readProp("tpl_home_uid"), user, reconMap, homeId, homeUid);
+			homeId = evalTemplate(prop.readPropOrNull("tpl_home_uid"), user, reconMap, homeId, homeUid);
 		}
 		
 		if (prop.hasProp("tpl_cn")) {
-			reconMap.put("cn", evalTemplate(prop.readProp("tpl_cn"), user, reconMap, homeId, homeUid));
+			reconMap.put("cn", evalTemplate(prop.readPropOrNull("tpl_cn"), user, reconMap, homeId, homeUid));
 		}
 		else {
 			reconMap.put("cn", user.getEppn());
 		}
 		
 		if (prop.hasProp("tpl_sn")) {
-			reconMap.put("sn", evalTemplate(prop.readProp("tpl_sn"), user, reconMap, homeId, homeUid));
+			reconMap.put("sn", evalTemplate(prop.readPropOrNull("tpl_sn"), user, reconMap, homeId, homeUid));
 		}
 		else {
 			if (user.getSurName() != null)
@@ -166,7 +166,7 @@ public abstract class AbstractLdapRegisterWorkflow
 		}
 		
 		if (prop.hasProp("tpl_given_name")) {
-			reconMap.put("givenName", evalTemplate(prop.readProp("tpl_given_name"), user, reconMap, homeId, homeUid));
+			reconMap.put("givenName", evalTemplate(prop.readPropOrNull("tpl_given_name"), user, reconMap, homeId, homeUid));
 		}
 		else {
 			if (user.getGivenName() != null)
@@ -176,7 +176,7 @@ public abstract class AbstractLdapRegisterWorkflow
 		}
 		
 		if (prop.hasProp("tpl_mail")) {
-			reconMap.put("mail", evalTemplate(prop.readProp("tpl_mail"), user, reconMap, homeId, homeUid));
+			reconMap.put("mail", evalTemplate(prop.readPropOrNull("tpl_mail"), user, reconMap, homeId, homeUid));
 		}
 		else {
 			reconMap.put("mail", user.getEmail());
@@ -189,14 +189,14 @@ public abstract class AbstractLdapRegisterWorkflow
 		reconMap.put("groupName", constructGroupName(user.getPrimaryGroup()));
 		
 		if (prop.hasProp("tpl_local_uid")) {
-			reconMap.put("localUid", evalTemplate(prop.readProp("tpl_local_uid"), user, reconMap, homeId, homeUid));
+			reconMap.put("localUid", evalTemplate(prop.readPropOrNull("tpl_local_uid"), user, reconMap, homeId, homeUid));
 		}
 		else {
 			reconMap.put("localUid", constructLocalUid(homeId, homeUid, user, reconMap));
 		}
 		
 		if (prop.hasProp("tpl_home_dir")) {
-			reconMap.put("homeDir", evalTemplate(prop.readProp("tpl_home_dir"), user, reconMap, homeId, homeUid));
+			reconMap.put("homeDir", evalTemplate(prop.readPropOrNull("tpl_home_dir"), user, reconMap, homeId, homeUid));
 		}
 		else {
 			reconMap.put("homeDir", constructHomeDir(homeId, homeUid, user, reconMap));
@@ -233,7 +233,7 @@ public abstract class AbstractLdapRegisterWorkflow
 			RegistryEntity registry, Auditor auditor) throws RegisterException {
 		logger.info("LDAP Reconsiliation user {} for service {}", user.getEppn(), service.getName());
 
-		PropertyReader prop = new PropertyReader(service.getServiceProps());
+		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
 		Map<String, String> regMap = registry.getRegistryValues();
 		
 		String cn = regMap.get("cn");
@@ -258,18 +258,18 @@ public abstract class AbstractLdapRegisterWorkflow
 			RegistryEntity registry, Auditor auditor, String password) throws RegisterException {
 		logger.debug("Setting service password for user {}", user.getEppn());
 
-		PropertyReader prop = new PropertyReader(service.getServiceProps());
+		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
 		Map<String, String> regMap = registry.getRegistryValues();
 
 		String passwordRegex;
 		if (prop.hasProp("password_regex")) 
-			passwordRegex = prop.readProp("password_regex");
+			passwordRegex = prop.readPropOrNull("password_regex");
 		else
 			passwordRegex = ".{6,}";
 
 		String passwordRegexMessage;
 		if (prop.hasProp("password_regex_message")) 
-			passwordRegexMessage = prop.readProp("password_regex_message");
+			passwordRegexMessage = prop.readPropOrNull("password_regex_message");
 		else
 			passwordRegexMessage = "Das Passwort ist nicht komplex genug";
 		
@@ -295,7 +295,7 @@ public abstract class AbstractLdapRegisterWorkflow
 	@Override
 	public void deletePassword(UserEntity user, ServiceEntity service,
 			RegistryEntity registry, Auditor auditor) throws RegisterException {
-		PropertyReader prop = new PropertyReader(service.getServiceProps());
+		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
 		Map<String, String> regMap = registry.getRegistryValues();
 		String localUid = regMap.get("localUid");
 		LdapWorker ldapWorker = new LdapWorker(prop, auditor, isSambaEnabled());
@@ -308,7 +308,7 @@ public abstract class AbstractLdapRegisterWorkflow
 			ServiceEntity service) throws RegisterException {
 		Infotainment info = new Infotainment();
 		
-		PropertyReader prop = new PropertyReader(service.getServiceProps());
+		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
 		Map<String, String> regMap = registry.getRegistryValues();
 		String localUid = regMap.get("localUid");
 		LdapWorker ldapWorker = new LdapWorker(prop, null, isSambaEnabled());

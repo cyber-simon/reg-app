@@ -37,8 +37,8 @@ import edu.kit.scc.webreg.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.exc.SamlAuthenticationException;
+import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.UserUpdateService;
@@ -143,7 +143,7 @@ public class Saml2PostHandlerServlet {
 			
 			try {
 				user = userUpdateService.updateUser(user, attributeMap, "web-sso");
-			} catch (RegisterException e) {
+			} catch (UserUpdateException e) {
 				logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
 				throw new SamlAuthenticationException(e.getMessage());
 			}

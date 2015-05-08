@@ -16,17 +16,17 @@ import java.util.Map;
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.exc.UserUpdateException;
 
 public interface UserServiceHook {
 
 	void setAppConfig(ApplicationConfig appConfig);
 	
 	void preUpdateUserFromAttribute(UserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor) 
-			throws RegisterException;
+			throws UserUpdateException;
 
 	void postUpdateUserFromAttribute(UserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor) 
-			throws RegisterException;
+			throws UserUpdateException;
 
 	boolean isResponsible(UserEntity user, Map<String, List<Object>> attributeMap);
 

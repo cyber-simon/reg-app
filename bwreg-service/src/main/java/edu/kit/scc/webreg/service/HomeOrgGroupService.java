@@ -18,7 +18,7 @@ import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.exc.UserUpdateException;
 
 public interface HomeOrgGroupService extends BaseService<HomeOrgGroupEntity, Long> {
 
@@ -30,7 +30,7 @@ public interface HomeOrgGroupService extends BaseService<HomeOrgGroupEntity, Lon
 
 	Set<GroupEntity> updateGroupsForUser(UserEntity user,
 			Map<String, List<Object>> attributeMap, Auditor auditor)
-			throws RegisterException;
+			throws UserUpdateException;
 
 	HomeOrgGroupEntity persistWithServiceFlags(HomeOrgGroupEntity entity);
 

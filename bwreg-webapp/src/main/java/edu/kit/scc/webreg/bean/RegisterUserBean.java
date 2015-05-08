@@ -24,9 +24,8 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
-import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.SamlSpConfigurationService;
 import edu.kit.scc.webreg.service.UserCreateService;
@@ -75,7 +74,7 @@ public class RegisterUserBean implements Serializable {
         	entity = userCreateService.preCreateUser(idpEntity, spConfigEntity, sessionManager.getPersistentId(),
         			sessionManager.getLocale(), sessionManager.getAttributeMap());
         	
-		} catch (RegisterException e) {
+		} catch (UserUpdateException e) {
 			errorState = true;
 			messageGenerator.addResolvedErrorMessage("missing-mandatory-attributes", e.getMessage(), true);
 			return;
@@ -92,7 +91,7 @@ public class RegisterUserBean implements Serializable {
 
 		try {
 			entity = userCreateService.createUser(entity, sessionManager.getAttributeMap(), null);
-		} catch (RegisterException e) {
+		} catch (UserUpdateException e) {
 			logger.warn("An error occured whilst creating user", e);
 			messageGenerator.addResolvedErrorMessage("error_msg", e.toString(), false);
 			return null;

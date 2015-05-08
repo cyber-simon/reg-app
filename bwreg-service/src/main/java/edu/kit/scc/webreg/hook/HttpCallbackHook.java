@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.UserServiceHook;
 
 public class HttpCallbackHook implements UserServiceHook {
@@ -54,13 +54,13 @@ public class HttpCallbackHook implements UserServiceHook {
 	@Override
 	public void preUpdateUserFromAttribute(UserEntity user,
 			Map<String, List<Object>> attributeMap, Auditor auditor)
-			throws RegisterException {
+			throws UserUpdateException {
 	}
 
 	@Override
 	public void postUpdateUserFromAttribute(UserEntity user,
 			Map<String, List<Object>> attributeMap, Auditor auditor)
-			throws RegisterException {
+			throws UserUpdateException {
 		
 		logger.debug("Calling postUpdateUserFromAttribute for Hook {}", getClass().getName());
 

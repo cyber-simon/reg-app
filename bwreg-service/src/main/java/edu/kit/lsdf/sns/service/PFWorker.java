@@ -43,6 +43,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.entity.AuditStatus;
+import edu.kit.scc.webreg.exc.PropertyReaderException;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.service.reg.ldap.PropertyReader;
 
@@ -67,9 +68,13 @@ public class PFWorker {
 	public PFWorker(PropertyReader prop, Auditor auditor) throws RegisterException {
 		this.auditor = auditor;
 		
-		pfApiUrl = prop.readProp("pf_api_url");
-		pfApiUsername = prop.readProp("pf_api_username");
-		pfApiPassword = prop.readProp("pf_api_password");
+		try {
+			pfApiUrl = prop.readProp("pf_api_url");
+			pfApiUsername = prop.readProp("pf_api_username");
+			pfApiPassword = prop.readProp("pf_api_password");
+		} catch (PropertyReaderException e) {
+			throw new RegisterException(e);
+		}
 
 		RequestConfig defaultRequestConfig = RequestConfig.custom()
 				.setConnectionRequestTimeout(5000)

@@ -12,26 +12,44 @@ package edu.kit.scc.webreg.service.reg.ldap;
 
 import java.util.Map;
 
+import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.exc.PropertyReaderException;
 import edu.kit.scc.webreg.exc.RegisterException;
 
 public class PropertyReader {
 	
 	private Map<String, String> serviceProps;
 	
-	public PropertyReader(Map<String, String> serviceProps) throws RegisterException {
+	public static PropertyReader newRegisterPropReader(ServiceEntity service) throws RegisterException {
+		PropertyReader prop;
+		try {
+			prop = new PropertyReader(service.getServiceProps());
+		} catch (PropertyReaderException e) {
+			throw new RegisterException(e);
+		}
+		
+		return prop;
+	}
+	
+	public PropertyReader(Map<String, String> serviceProps) throws PropertyReaderException {
 		this.serviceProps = serviceProps;
 
 		if (serviceProps == null || serviceProps.isEmpty()) {
-			throw new RegisterException("Service is not configured properly");
+			throw new PropertyReaderException("Service is not configured properly");
 		}		
 	}
 
-	public String readProp(String key) throws RegisterException {
+	public String readProp(String key) throws PropertyReaderException {
 		if (serviceProps.containsKey(key))
-			return serviceProps.get(key);
+			return readPropOrNull(key);
 		else
-			throw new RegisterException("Service is not configured properly. " + key + " is missing in Service Properties");		
+			throw new PropertyReaderException("Service is not configured properly. " + key + " is missing in Service Properties");		
 	}
+
+	public String readPropOrNull(String key) {
+		return serviceProps.get(key);
+	}
+	
 	
 	public boolean hasProp(String key) {
 		return serviceProps.containsKey(key);
