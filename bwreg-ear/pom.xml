@@ -99,6 +99,11 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.apache.jclouds.api</groupId>
+			<artifactId>openstack-keystone</artifactId>
+		</dependency>
+
+		<dependency>
 			<artifactId>dom4j</artifactId>
 			<groupId>dom4j</groupId>
 			<scope>provided</scope>

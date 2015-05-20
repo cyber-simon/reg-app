@@ -124,6 +124,12 @@
 		    <artifactId>commons-beanutils</artifactId>
 			<scope>provided</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.apache.jclouds.api</groupId>
+			<artifactId>openstack-keystone</artifactId>
+			<scope>provided</scope>
+		</dependency>
         	
 	</dependencies>
 
