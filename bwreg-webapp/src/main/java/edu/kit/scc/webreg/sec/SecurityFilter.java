@@ -19,6 +19,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.Filter;
@@ -30,6 +32,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
@@ -82,6 +85,9 @@ public class SecurityFilter implements Filter {
 		String path = request.getRequestURI().substring(
 				context.length());
 		
+		HttpSession httpSession = request.getSession(false);
+		logger.trace("Prechain Session is: {}", httpSession);
+		
 		if (path.startsWith("/resources/") ||
 			path.startsWith("/javax.faces.resource/") ||
 			path.startsWith("/welcome/") ||
@@ -91,12 +97,12 @@ public class SecurityFilter implements Filter {
 				) {
 			chain.doFilter(servletRequest, servletResponse);
 		}
+		else if ((path.startsWith("/admin") || path.startsWith("/rest")) 
+				&& (httpSession == null || (! session.isLoggedIn()))) {
+			processAdminLogin(path, request, response, chain);
+		}
 		else if (path.startsWith("/register/") && session != null && session.isUserInRole("ROLE_New")) {
 			chain.doFilter(servletRequest, servletResponse);
-		}
-		else if ((path.startsWith("/admin") || path.startsWith("/rest")) 
-				&& (session == null || (! session.isLoggedIn()))) {
-			processAdminLogin(path, request, response, chain);
 		}
 		else if (session != null && session.isLoggedIn()) {
 
@@ -118,6 +124,8 @@ public class SecurityFilter implements Filter {
 			request.getServletContext().getRequestDispatcher("/welcome/").forward(servletRequest, servletResponse);
 		}
 		
+		httpSession = request.getSession(false);
+		logger.trace("Postchain Session is: {}", httpSession);
 	}
 
 	@Override
@@ -156,8 +164,6 @@ public class SecurityFilter implements Filter {
     					List<RoleEntity> roleList = adminUserService.findRolesForUserById(adminUser.getId());
 	        			Set<String> roles = convertRoles(roleList);
 	        			
-		        		session.setRoles(roles);
-
 		        		if (accessChecker.check(path, roles)) {
 		        			request.setAttribute(ADMIN_USER_ID, adminUser.getId());
 			        		chain.doFilter(request, response);
