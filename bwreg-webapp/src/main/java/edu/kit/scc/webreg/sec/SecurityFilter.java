@@ -84,7 +84,9 @@ public class SecurityFilter implements Filter {
 				context.length());
 		
 		HttpSession httpSession = request.getSession(false);
-		logger.trace("Prechain Session is: {}", httpSession);
+		
+		if (logger.isTraceEnabled())
+			logger.trace("Prechain Session is: {}", httpSession);
 		
 		if (path.startsWith("/resources/") ||
 			path.startsWith("/javax.faces.resource/") ||
@@ -122,8 +124,10 @@ public class SecurityFilter implements Filter {
 			request.getServletContext().getRequestDispatcher("/welcome/").forward(servletRequest, servletResponse);
 		}
 		
-		httpSession = request.getSession(false);
-		logger.trace("Postchain Session is: {}", httpSession);
+		if (logger.isTraceEnabled()) {
+			httpSession = request.getSession(false);
+			logger.trace("Postchain Session is: {}", httpSession);
+		}
 	}
 
 	@Override
