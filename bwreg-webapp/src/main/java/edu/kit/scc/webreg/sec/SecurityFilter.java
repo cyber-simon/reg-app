@@ -97,9 +97,13 @@ public class SecurityFilter implements Filter {
 				) {
 			chain.doFilter(servletRequest, servletResponse);
 		}
-		else if ((path.startsWith("/admin") || path.startsWith("/rest")) 
+		else if (path.startsWith("/admin") 
 				&& (httpSession == null || (! session.isLoggedIn()))) {
 			processAdminLogin(path, request, response, chain);
+		}
+		else if (path.startsWith("/rest") 
+				&& (httpSession == null || (! session.isLoggedIn()))) {
+			processRestLogin(path, request, response, chain);
 		}
 		else if (path.startsWith("/register/") && session != null && session.isUserInRole("ROLE_New")) {
 			chain.doFilter(servletRequest, servletResponse);
@@ -147,8 +151,22 @@ public class SecurityFilter implements Filter {
 	}
 	
 	private void processAdminLogin(String path, HttpServletRequest request, 
-				HttpServletResponse response, FilterChain chain) 
-			throws IOException, ServletException {
+			HttpServletResponse response, FilterChain chain) 
+		throws IOException, ServletException {
+
+		processHttpLogin(path, request, response, chain, true);
+	}
+
+	private void processRestLogin(String path, HttpServletRequest request, 
+			HttpServletResponse response, FilterChain chain) 
+		throws IOException, ServletException {
+
+		processHttpLogin(path, request, response, chain, false);
+	}
+
+	private void processHttpLogin(String path, HttpServletRequest request, 
+			HttpServletResponse response, FilterChain chain, boolean setRoles) 
+		throws IOException, ServletException {
 
 	    String auth = request.getHeader("Authorization");
 	    if (auth != null) {
@@ -156,15 +174,18 @@ public class SecurityFilter implements Filter {
 	        if (index > 0) {
 	        	String[] credentials = StringUtils.split(
 	        			new String(Base64.decodeBase64(auth.substring(index).getBytes())), ":", 2);
- 
+	
 	        	if (credentials.length == 2) {
 	        		AdminUserEntity adminUser = adminUserService.findByUsername(
 	        				credentials[0]);
 	        		
 	        		if (adminUser != null && passwordsMatch(adminUser.getPassword(), credentials[1])) {
 	        			
-    					List<RoleEntity> roleList = adminUserService.findRolesForUserById(adminUser.getId());
+						List<RoleEntity> roleList = adminUserService.findRolesForUserById(adminUser.getId());
 	        			Set<String> roles = convertRoles(roleList);
+	        			
+	        			if (setRoles && session != null)
+	        				session.setRoles(roles);
 	        			
 		        		if (accessChecker.check(path, roles)) {
 		        			request.setAttribute(ADMIN_USER_ID, adminUser.getId());
@@ -182,7 +203,7 @@ public class SecurityFilter implements Filter {
 		response.setHeader( "WWW-Authenticate", "Basic realm=\"Admin Realm\"" );
 		response.sendError( HttpServletResponse.SC_UNAUTHORIZED );		
 	}
-	
+
 	private boolean passwordsMatch(String password, String comparePassword) {
 		if (password == null || comparePassword == null)
 			return false;
