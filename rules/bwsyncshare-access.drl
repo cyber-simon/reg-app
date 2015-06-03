@@ -1,9 +1,23 @@
 package edu.kit.scc.webreg.dools.unicluster
 
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;
 
 global org.slf4j.Logger logger;
+
+/*
+rule "Downtime rule"
+
+    when
+        $user : UserEntity()
+        not ( $registry : RegistryEntity( ) )
+    then
+    	logger.info( "syncshare-downtime denied registration to {}", $user.getEppn() );
+    	insert( new UnauthorizedUser($user, "syncshare-downtime") );
+
+end
+*/
 
 rule "Email is set"
 
