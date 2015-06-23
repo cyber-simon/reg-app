@@ -11,14 +11,29 @@
 </head>
 <body>
 	<ui:composition> 
-			<div id="header-logo">
-				<h:graphicImage value="#{resource['img/kit_logo_V2_de.png']}" alt="KIT Logo" />
+			<div id="metanavigation" class="ui-widget">
+				<a href="/">Home</a>
+				&nbsp;|&nbsp;
+				<a href="https://www.scc.kit.edu/impressum.php">Impressum</a>
+				&nbsp;|&nbsp;
+				<a href="https://www.kit.edu">KIT</a>
 			</div>
-			<div id="header-image">
-				<div id="header-right">
-					<h:graphicImage value="#{resource['img/header-r.jpg']}" alt="SCC Logo" />
+			<div id="header">
+				<div id="header-logo">
+					<a href="https://www.kit.edu">
+						<h:graphicImage value="#{resource['img/kit_logo_V2_de.png']}" alt="KIT Logo" />
+					</a>
 				</div>
-				<div id="header-text" class="ui-widget">Landesdienste am KIT</div>
+				<div id="header-image">
+					<div id="header-right">
+						<a href="https://www.scc.kit.edu">
+							<h:graphicImage value="#{resource['img/header-r.jpg']}" alt="SCC Logo" />
+						</a>
+					</div>
+					<div id="header-text" class="ui-widget">
+						<a href="https://bwidm.scc.kit.edu">Landesdienste am KIT</a>
+					</div>
+				</div>
 			</div>
 	</ui:composition>
 </body>
