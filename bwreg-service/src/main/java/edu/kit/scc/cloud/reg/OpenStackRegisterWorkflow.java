@@ -1,15 +1,16 @@
 package edu.kit.scc.cloud.reg;
 
-import org.jclouds.ContextBuilder;
-import org.jclouds.openstack.keystone.v2_0.KeystoneApi;
-import org.jclouds.openstack.keystone.v2_0.domain.User;
-import org.jclouds.openstack.keystone.v2_0.extensions.UserAdminApi;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-
-import edu.kit.lsdf.sns.service.PFWorker;
+import ch.ethz.ssh2.Connection;
+import ch.ethz.ssh2.Session;
+import ch.ethz.ssh2.StreamGobbler;
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
@@ -22,46 +23,49 @@ import edu.kit.scc.webreg.service.reg.RegisterUserWorkflow;
 import edu.kit.scc.webreg.service.reg.SetPasswordCapable;
 import edu.kit.scc.webreg.service.reg.ldap.PropertyReader;
 
+/**
+ * Workflow Class to register bwCloud OpenStack user
+ * 
+ * @author Oleg Dulov
+ */
 public class OpenStackRegisterWorkflow implements RegisterUserWorkflow,
 		InfotainmentCapable, SetPasswordCapable {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(OpenStackRegisterWorkflow.class);
+	
+	// OpenStack Connection variables
+	String openstack_host 	= "os-all-one.bwcloud.scc.kit.edu";
+    String openstack_user 	= "osweb";
+    String openstack_pass 	= "test123";
+    String openstack_path	= "~/ManageOS.py";
+    String defaultPass 		= "secretword";
+    String openstack_port 	= "22";
 
 	@Override
 	public void registerUser(UserEntity user, ServiceEntity service,
 			RegistryEntity registry, Auditor auditor) throws RegisterException {
 
-		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
+		// Initialize OpenStack Connection parameters
+		this.initWrapper(service);
+		
+		//logger.info("User: {}",user.getId());
+		logger.info("User-EPPN {}", user.getEppn());
+	    
+		logger.debug("try create new user");
+		// Create User
+		String osUserId = this.execute("add", user.getEppn(), user.getEmail(), this.defaultPass);
 
-		String osUrl;
-		if (prop.hasProp("openstack_url"))
-			osUrl = prop.readPropOrNull("openstack_url");
-		else
-			throw new RegisterException("not configured");
+		if(osUserId != null && !osUserId.isEmpty()){
+			// Put User to Registry
+			registry.getRegistryValues().put("osId", osUserId);		
 
-		KeystoneApi keystoneApi;
-
-		keystoneApi = ContextBuilder.newBuilder("openstack-keystone")
-				.endpoint(osUrl).credentials("username", "password")
-				.buildApi(KeystoneApi.class);
-
-		Optional<? extends UserAdminApi> userAdminApiExtension = keystoneApi
-				.getUserAdminApi();
-
-		if (userAdminApiExtension.isPresent()) {
-			logger.debug("UserAdminApi is present");
-			
-			UserAdminApi userAdminApi = userAdminApiExtension.get();
-			User osUser = userAdminApi.create(user.getEppn(), "sdfghijfse48");
-
-			registry.getRegistryValues().put("osId", osUser.getId());		
-
-			logger.debug("created user {}", user.getEppn());
+			logger.debug("created user {}", osUserId);
 		} else {
-			logger.error("UserAdminApi is *not* present");
-			throw new RegisterException("UserAdminApi is *not* present");
+			logger.info("Problem with user {}", osUserId);
+			throw new RegisterException("Cannot register user under bwCloud");
 		}
+		
 
 	}
 
@@ -69,10 +73,17 @@ public class OpenStackRegisterWorkflow implements RegisterUserWorkflow,
 	public void deregisterUser(UserEntity user, ServiceEntity service,
 			RegistryEntity registry, Auditor auditor) throws RegisterException {
 
-		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
-		PFWorker pfWorker = new PFWorker(prop, auditor);
+		// Initialize OpenStack Connection parameters
+		this.initWrapper(service);
+				
+		//logger.info("User: {}",user.getId());
+		logger.info("User-EPPN {}", user.getEppn());
+	    
+		logger.debug("try delete user: " + user.getEppn());
+		// Delete User
+		String osUserId = this.execute("del", user.getEppn(), "noemail", this.defaultPass);
 
-		String userId = registry.getRegistryValues().get("osId");
+		logger.debug("deleted user {}", osUserId);
 
 	}
 
@@ -105,18 +116,139 @@ public class OpenStackRegisterWorkflow implements RegisterUserWorkflow,
 		return info;
 	}
 
+	/**
+	 * SetPasswordCapable methods
+	 */
 	@Override
 	public void setPassword(UserEntity user, ServiceEntity service,
 			RegistryEntity registry, Auditor auditor, String password)
 			throws RegisterException {
-		// TODO Auto-generated method stub
-		
+		// Initialize OpenStack Connection parameters
+		this.initWrapper(service);
+				
+		//logger.info("User: {}",user.getId());
+		logger.info("User-EPPN {}", user.getEppn());
+	    
+		logger.debug("try set Dienstpassword: " + user.getEppn());
+		// Delete User
+		String osUserId = this.execute("upd", user.getEppn(), "noemail", password);
+
+		logger.debug("Dienstpassword set {}", osUserId);
 	}
 
 	@Override
 	public void deletePassword(UserEntity user, ServiceEntity service,
 			RegistryEntity registry, Auditor auditor) throws RegisterException {
-		// TODO Auto-generated method stub
-		
+		// Initialize OpenStack Connection parameters
+		this.initWrapper(service);
+				
+		//logger.info("User: {}",user.getId());
+		logger.info("User-EPPN {}", user.getEppn());
+	    
+		logger.debug("try delete Password: " + user.getEppn());
+		// Delete User
+		String osUserId = this.execute("pswd", user.getEppn(), "noemail", this.defaultPass);
+
+		logger.debug("Dienstpassword is deleted {}", osUserId);
 	}
+	
+	private void initWrapper(ServiceEntity service) throws RegisterException {	
+		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
+	    
+		// OpenStack Keystone URL, admin credentials
+		if ( prop.hasProp("openstack_host") ){			
+			this.openstack_host 	= prop.readPropOrNull("openstack_host");
+		} else
+			throw new RegisterException("not configured openstack_host");
+		
+		if ( prop.hasProp("openstack_user") ){			
+			this.openstack_user 	= prop.readPropOrNull("openstack_user");
+		} else
+			throw new RegisterException("not configured openstack_user");
+		
+		if ( prop.hasProp("openstack_pass") ){			
+			this.openstack_pass 	= prop.readPropOrNull("openstack_pass");
+		} else
+			throw new RegisterException("not configured openstack_pass");
+		
+		if ( prop.hasProp("openstack_path") ){			
+			this.openstack_path 	= prop.readPropOrNull("openstack_path");
+		}
+		else
+			throw new RegisterException("not configured openstack_path");
+		
+		if ( prop.hasProp("openstack_port") ){			
+			this.openstack_port 	= prop.readPropOrNull("openstack_port");
+		}
+		else
+			throw new RegisterException("not configured openstack_port");
+		
+		logger.debug("OpenStack Credentials are initialized {}");
+	}
+	
+private String execute(String method, String user, String email, String password) throws RegisterException{
+	
+	String command 	= 
+			openstack_path+" --method "+method+ " --user "+user+" --passwd "+password+" --email "+ email+"\n";
+	String line 	="";
+	
+	try {
+            /* Create a connection instance */
+
+            Connection conn = new Connection(this.openstack_host, Integer.parseInt(this.openstack_port));
+
+            /* Now connect */
+
+            conn.connect();
+
+            /* Authenticate.
+             * If you get an IOException saying something like
+             * "Authentication method password not supported by the server at this stage."
+             * then please check the FAQ.
+             */
+
+            boolean isAuthenticated = conn.authenticateWithPassword(this.openstack_user, this.openstack_pass);
+
+            if (isAuthenticated == false){
+//                    throw new IOException("Authentication failed.");
+                    throw new RegisterException("Authentication failed.");
+            }
+
+            /* Create a session */
+
+            Session sess = conn.openSession();
+
+            sess.execCommand(command);
+
+            /* 
+             * This basic example does not handle stderr, which is sometimes dangerous
+             * (please read the FAQ).
+             */
+
+            InputStream stdout = new StreamGobbler(sess.getStdout());
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
+
+            line = br.readLine();
+
+
+            /* Close this session */
+
+            sess.close();
+
+            /* Close the connection */
+
+            conn.close();
+
+    } catch (IOException e) {
+            e.printStackTrace(System.err);
+            System.exit(2);
+    }
+	
+	return line; 
+	
+	}
+
+
+
 }
