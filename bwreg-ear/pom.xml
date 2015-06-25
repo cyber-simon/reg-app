@@ -99,8 +99,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.apache.jclouds.api</groupId>
-			<artifactId>openstack-keystone</artifactId>
+			<groupId>ch.ethz.ganymed</groupId>
+			<artifactId>ganymed-ssh2</artifactId>
 		</dependency>
 
 		<dependency>
