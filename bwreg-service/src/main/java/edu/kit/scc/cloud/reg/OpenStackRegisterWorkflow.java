@@ -231,7 +231,8 @@ private String execute(String method, String user, String email, String password
 
             line = br.readLine();
 
-
+            br.close();
+            
             /* Close this session */
 
             sess.close();
@@ -241,8 +242,8 @@ private String execute(String method, String user, String email, String password
             conn.close();
 
     } catch (IOException e) {
-            e.printStackTrace(System.err);
-            System.exit(2);
+    	logger.error("IOExcetion happened in SSH Session", e);
+    	throw new RegisterException(e);
     }
 	
 	return line; 
