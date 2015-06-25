@@ -47,7 +47,6 @@ public class AuthorizationBean implements Serializable {
 
 	private List<ServiceEntity> unregisteredServiceList;
 	private List<RegistryEntity> userRegistryList;
-	private List<RegistryEntity> pendingRegistryList;
 	private List<ServiceEntity> serviceApproverList;
 	private List<ServiceEntity> serviceAdminList;
 	private List<ServiceEntity> serviceHotlineList;

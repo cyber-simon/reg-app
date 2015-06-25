@@ -2,9 +2,36 @@ package edu.kit.scc.webreg.dools.unicluster
 
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;
+import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
+import edu.kit.scc.webreg.entity.as.ASUserAttrValueStringEntity;
+import java.util.Date;
 
 global org.slf4j.Logger logger;
 
+rule "AA Attribute test"
+
+    when
+         $user : UserEntity( $userAttrs : userAttrs )
+         $userAttr : ASUserAttrEntity( attributeSource.name == "UC-StatsAccess", $values : values ) from $userAttrs
+         ASUserAttrValueStringEntity( key == "result" && valueString == "1" ) from $values
+    then
+    	logger.info( "Insert positive result String for user {}", $user.getEppn() );
+    	insert( new String ("umfrage-is-set") );
+
+end
+
+rule "AA String test"
+
+    when
+        not ( String( this == "umfrage-is-set" ) )
+		$date : Date()
+		$registry : RegistryEntity( ($date.getTime() - agreedTime.getTime()) > 14*24*60*60*1000 )
+    then
+    	logger.info( "Umfrage is not set or too old" );
+    	insert( new UnauthorizedUser(null, "no-umfrage") );
+
+end
 rule "Email is set"
 
     when

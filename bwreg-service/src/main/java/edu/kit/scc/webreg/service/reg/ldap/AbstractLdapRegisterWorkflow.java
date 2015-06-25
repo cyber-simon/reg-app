@@ -145,7 +145,7 @@ public abstract class AbstractLdapRegisterWorkflow
 		String homeUid = user.getAttributeStore().get("urn:oid:0.9.2342.19200300.100.1.1");
 		homeId = homeId.toLowerCase();
 		if (prop.hasProp("tpl_home_uid")) {
-			homeId = evalTemplate(prop.readPropOrNull("tpl_home_uid"), user, reconMap, homeId, homeUid);
+			homeUid = evalTemplate(prop.readPropOrNull("tpl_home_uid"), user, reconMap, homeId, homeUid);
 		}
 		
 		if (prop.hasProp("tpl_cn")) {
