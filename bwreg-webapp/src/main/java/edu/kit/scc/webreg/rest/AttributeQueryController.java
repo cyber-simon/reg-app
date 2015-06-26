@@ -48,6 +48,7 @@ import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.UserUpdateService;
+import edu.kit.scc.webreg.util.ResourceBundleHelper;
 
 @Path("/attrq")
 public class AttributeQueryController {
@@ -70,6 +71,9 @@ public class AttributeQueryController {
 	@Inject
 	private KnowledgeSessionService knowledgeSessionService;
 	
+	@Inject
+	private ResourceBundleHelper resourceHelper;
+
 	@GET
 	@Path("/eppn/{service}/{eppn}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -162,7 +166,7 @@ public class AttributeQueryController {
 			response.setMessage("rules failed");
 			
 			for (UnauthorizedUser uu : unauthorizedUserList) {
-				addXmlError(response, uu.getMessage(), "");
+				addXmlError(response, uu.getMessage(), resourceHelper.resolveMessage(uu.getMessage()));
 			}
 		}
 		
