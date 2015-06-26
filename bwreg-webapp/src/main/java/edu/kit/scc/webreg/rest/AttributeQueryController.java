@@ -29,6 +29,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.slf4j.Logger;
 
+import edu.kit.scc.webreg.dao.TextPropertyDao;
 import edu.kit.scc.webreg.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.drools.OverrideAccess;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;
@@ -36,6 +37,7 @@ import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.TextPropertyEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.rest.dto.AttributeQueryResponse;
@@ -71,6 +73,9 @@ public class AttributeQueryController {
 	
 	@Inject
 	private KnowledgeSessionService knowledgeSessionService;
+	
+	@Inject
+	private TextPropertyDao textPropertyDao;
 	
 	@GET
 	@Path("/eppn/{service}/{eppn}")
@@ -164,13 +169,27 @@ public class AttributeQueryController {
 			response.setMessage("rules failed");
 			
 			for (UnauthorizedUser uu : unauthorizedUserList) {
-				ResourceBundle bundle = ResourceBundle.getBundle("msg.messages", Locale.ENGLISH);		
-				String test = bundle.getString(uu.getMessage());
-				addXmlError(response, uu.getMessage(), test);
+				addXmlError(response, uu.getMessage(), resolveString(uu.getMessage()));
 			}
 		}
 		
 		return response;
+	}
+	
+	private String resolveString(String key) {
+		try {
+			TextPropertyEntity tpe = textPropertyDao.findByKeyAndLang(key, Locale.ENGLISH.getLanguage());
+
+			if (tpe != null)
+				return tpe.getValue();
+			else {
+				ResourceBundle bundle = ResourceBundle.getBundle("msg.messages", Locale.ENGLISH);		
+				return bundle.getString(key);
+			}
+		}
+		catch (Exception e) {
+			return "";
+		}
 	}
 	
 	private Map<String, String> attributeQueryInternJSON(String eppn, String serviceShortName)
