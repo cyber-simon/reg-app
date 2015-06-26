@@ -33,6 +33,7 @@ public class DbMessageBundle extends ResourceBundle {
 	
 	public DbMessageBundle() {
 		locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();
+		
 		ResourceBundle rb = ResourceBundle.getBundle(BASE_NAME, locale);
 		setParent(rb);
 		
