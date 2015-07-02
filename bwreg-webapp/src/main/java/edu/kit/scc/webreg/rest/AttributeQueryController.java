@@ -191,7 +191,10 @@ public class AttributeQueryController {
 		if (enString != null)
 			sb.append(enString);
 		
-		return sb.toString();
+		if (sb.length() == 0)
+			return null;
+		else
+			return sb.toString();
 	}
 	
 	private String resolveString(String key, Locale locale) {
@@ -350,7 +353,8 @@ public class AttributeQueryController {
 			response.setErrorList(new ArrayList<RestError>());
 		RestError restError = new RestError();
 		restError.setErrorShort(error);
-		restError.setErrorDetail(errorDetail);
+		if (errorDetail != null)
+			restError.setErrorDetail(errorDetail);
 		response.getErrorList().add(restError);
 	}
 	
