@@ -131,28 +131,28 @@ public class AttributeQueryController {
 		ServiceEntity service = findService(eppn, serviceShortName);
 		
 		if (service == null) {
-			generateFailXml(response, 400, "attribute query failed", "no-such-service", "Service does not exist");
+			generateFailXml(response, 400, "attribute query failed", "no-such-service");
 			return response;
 		}
 
 		UserEntity user = findUser(eppn);
 		
 		if (user == null) {
-			generateFailXml(response, 400, "attribute query failed", "no-such-user", "User does not exist");
+			generateFailXml(response, 400, "attribute query failed", "no-such-user");
 			return response;
 		}
 	
 		try {
 			updateUser(user, service);
 		} catch (UserUpdateFailedException e) {
-			generateFailXml(response, 400, "attribute query failed", "user-update-failed", "User update failed: " + e.getMessage());
+			generateFailXml(response, 400, "attribute query failed", "user-update-failed");
 			return response;
 		}
 
 		RegistryEntity registry = findRegistry(user, service);
 
 		if (registry == null) {
-			generateFailXml(response, 400, "attribute query failed", "no-registry-found", "User is not registered for service");
+			generateFailXml(response, 400, "attribute query failed", "no-registry-found");
 			return response;
 		}
 
@@ -342,10 +342,10 @@ public class AttributeQueryController {
 		return objectList;
 	}
 	
-	private void generateFailXml(AttributeQueryResponse response, int code, String message, String error, String errorDetail) {
+	private void generateFailXml(AttributeQueryResponse response, int code, String message, String error) {
 		response.setCode(code);
 		response.setMessage(message);
-		addXmlError(response, error, errorDetail);
+		addXmlError(response, error, resolveString(error));
 	}
 	
 	private void addXmlError(AttributeQueryResponse response, String error, String errorDetail) {
