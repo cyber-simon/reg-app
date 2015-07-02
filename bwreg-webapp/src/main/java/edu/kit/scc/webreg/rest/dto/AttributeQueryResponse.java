@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class AttributeQueryResponse {
 
-	@XmlElement(name = "code")
+	@XmlElement(name = "code", required = true)
 	private int code;
 	
 	@XmlElement(name = "message")

@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class RestError {
 
-	@XmlElement(name="short")
+	@XmlElement(name="short", required=true)
 	private String errorShort;
 	
 	@XmlElement(name="detail")
