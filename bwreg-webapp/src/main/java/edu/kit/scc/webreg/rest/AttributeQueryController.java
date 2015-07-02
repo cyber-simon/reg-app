@@ -177,18 +177,36 @@ public class AttributeQueryController {
 	}
 	
 	private String resolveString(String key) {
+		String enString = resolveString(key, Locale.ENGLISH);
+		String deString = resolveString(key, Locale.GERMAN);
+		
+		StringBuffer sb = new StringBuffer();
+		
+		if (deString != null)
+			sb.append(deString);
+		
+		if (deString != null && enString != null)
+			sb.append(" / ");
+		
+		if (enString != null)
+			sb.append(enString);
+		
+		return sb.toString();
+	}
+	
+	private String resolveString(String key, Locale locale) {
 		try {
-			TextPropertyEntity tpe = textPropertyDao.findByKeyAndLang(key, Locale.ENGLISH.getLanguage());
+			TextPropertyEntity tpe = textPropertyDao.findByKeyAndLang(key, locale.getLanguage());
 
 			if (tpe != null)
 				return tpe.getValue();
 			else {
-				ResourceBundle bundle = ResourceBundle.getBundle("msg.messages", Locale.ENGLISH);		
+				ResourceBundle bundle = ResourceBundle.getBundle("msg.messages", locale);		
 				return bundle.getString(key);
 			}
 		}
 		catch (Exception e) {
-			return "";
+			return null;
 		}
 	}
 	
