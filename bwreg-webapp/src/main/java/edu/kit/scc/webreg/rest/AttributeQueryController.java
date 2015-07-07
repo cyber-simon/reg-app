@@ -128,7 +128,7 @@ public class AttributeQueryController {
 	private AttributeQueryResponse attributeQueryInternXML(String eppn, String serviceShortName) {
 		AttributeQueryResponse response = new AttributeQueryResponse();
 
-		ServiceEntity service = findService(eppn, serviceShortName);
+		ServiceEntity service = findService(serviceShortName);
 		
 		if (service == null) {
 			generateFailXml(response, 400, "attribute query failed", "no-such-service");
@@ -216,7 +216,7 @@ public class AttributeQueryController {
 	private Map<String, String> attributeQueryInternJSON(String eppn, String serviceShortName)
 			throws RestInterfaceException {
 
-		ServiceEntity service = findService(eppn, serviceShortName);
+		ServiceEntity service = findService(serviceShortName);
 		
 		if (service == null)
 			throw new NoServiceFoundException("No such service");
@@ -263,7 +263,7 @@ public class AttributeQueryController {
 		return map;
 	}
 	
-	private ServiceEntity findService(String eppn, String serviceShortName) {
+	private ServiceEntity findService(String serviceShortName) {
 		ServiceEntity service = serviceService.findByShortName(serviceShortName);
 		
 		if (service != null) {
