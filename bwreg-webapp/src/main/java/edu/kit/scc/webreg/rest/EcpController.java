@@ -762,18 +762,11 @@ public class EcpController {
 			return response;
 		}
 
-		RegistryEntity registry = registryService.findByServiceAndUserAndStatus(service, user, RegistryStatus.ACTIVE);
+		RegistryEntity registry = findRegistry(user, service);
 		
 		if (registry == null) {
-			/*
-			 * Also check for Lost_access registries. They should also be allowed to be rechecked.
-			 */
-			registry = registryService.findByServiceAndUserAndStatus(service, user, RegistryStatus.LOST_ACCESS);
-			
-			if (registry == null) {
-				generateFailXml(response, 400, "ecp login failed", "user-not-registered");
-				return response;
-			}
+			generateFailXml(response, 400, "ecp login failed", "user-not-registered");
+			return response;
 		}
 			
 		List<Object> objectList = checkRules(user, service, registry);
@@ -818,17 +811,10 @@ public class EcpController {
 			throw new NoItemFoundException("user update failed: " + e.getMessage());
 		}
 
-		RegistryEntity registry = registryService.findByServiceAndUserAndStatus(service, user, RegistryStatus.ACTIVE);
+		RegistryEntity registry = findRegistry(user, service);
 		
 		if (registry == null) {
-			/*
-			 * Also check for Lost_access registries. They should also be allowed to be rechecked.
-			 */
-			registry = registryService.findByServiceAndUserAndStatus(service, user, RegistryStatus.LOST_ACCESS);
-			
-			if (registry == null) {
-				throw new NoRegistryFoundException("No such registry");
-			}
+			throw new NoRegistryFoundException("No such registry");
 		}
 			
 		List<Object> objectList;
