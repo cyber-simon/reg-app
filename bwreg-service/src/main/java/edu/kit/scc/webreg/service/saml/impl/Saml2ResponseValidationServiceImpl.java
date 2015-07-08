@@ -44,6 +44,7 @@ import org.slf4j.Logger;
 import edu.kit.scc.webreg.entity.SamlMetadataEntity;
 import edu.kit.scc.webreg.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.service.saml.Saml2ResponseValidationService;
+import edu.kit.scc.webreg.service.saml.SamlHelper;
 
 public class Saml2ResponseValidationServiceImpl implements
 		Saml2ResponseValidationService {
@@ -51,6 +52,9 @@ public class Saml2ResponseValidationServiceImpl implements
 	@Inject
 	private Logger logger;
 	
+	@Inject
+	private SamlHelper samlHelper;
+
 	@Override
 	public void verifyIssuer(SamlMetadataEntity metadataEntity,
 			Response samlResponse) throws SamlAuthenticationException {
@@ -90,9 +94,15 @@ public class Saml2ResponseValidationServiceImpl implements
 	public void verifyStatus(Response samlResponse) 
 			throws SamlAuthenticationException {
 
+		if (samlResponse.getStatus() == null || samlResponse.getStatus().getStatusCode() == null)
+			throw new SamlAuthenticationException("SAML Response does not contain a status code");
+			
 		Status status = samlResponse.getStatus();
-		if (! status.getStatusCode().getValue().equals(StatusCode.SUCCESS_URI)) 
+		if (! status.getStatusCode().getValue().equals(StatusCode.SUCCESS_URI)) {
+			String s = samlHelper.prettyPrint(status);
+			logger.info("SAML Response Status: {}", s);
 			throw new SamlAuthenticationException("SAML Response: Login was not successful " + status.getStatusCode().getValue());
+		}
 	}
 
 	@Override
