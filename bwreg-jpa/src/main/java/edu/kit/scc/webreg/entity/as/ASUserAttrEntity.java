@@ -21,13 +21,14 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import edu.kit.scc.webreg.entity.AbstractBaseEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.entity.UserStatus;
 
 @Entity(name = "ASUserAttrEntity")
-@Table(name = "attribute_src_ua")
+@Table(name = "attribute_src_ua", 
+	uniqueConstraints = @UniqueConstraint( columnNames = {"user_id", "attribute_src_id"}))
 public class ASUserAttrEntity extends AbstractBaseEntity {
 
 	private static final long serialVersionUID = 1L;
