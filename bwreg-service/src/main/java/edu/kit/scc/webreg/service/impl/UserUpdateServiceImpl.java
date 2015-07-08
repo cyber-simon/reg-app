@@ -163,6 +163,11 @@ public class UserUpdateServiceImpl implements UserUpdateService {
 			if (UserStatus.ON_HOLD.equals(user.getUserStatus())) {
 				user.setUserStatus(UserStatus.ACTIVE);
 				user.setLastStatusChange(new Date());
+				
+				/*
+				 * fire a user changed event to be sure, when the user is activated
+				 */
+				changed = true;
 			}
 
 			/*
