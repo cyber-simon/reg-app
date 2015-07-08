@@ -69,7 +69,6 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.MetadataException;
 import edu.kit.scc.webreg.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
-import edu.kit.scc.webreg.rest.dto.AttributeQueryResponse;
 import edu.kit.scc.webreg.rest.dto.ECPResponse;
 import edu.kit.scc.webreg.rest.dto.RestError;
 import edu.kit.scc.webreg.rest.exc.AssertionException;
