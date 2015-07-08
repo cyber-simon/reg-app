@@ -524,6 +524,34 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	}
 	
 	@Override
+	public void reconGroupsForRegistry(RegistryEntity registry, String executor) throws RegisterException {
+		ServiceEntity serviceEntity = serviceDao.findByIdWithServiceProps(registry.getService().getId());
+		UserEntity userEntity = userDao.findByIdWithAll(registry.getUser().getId());
+
+		HashSet<GroupEntity> userGroups = new HashSet<GroupEntity>(userEntity.getGroups().size());
+
+		for (UserGroupEntity userGroup : userEntity.getGroups()) {
+			GroupEntity group = userGroup.getGroup();
+			userGroups.add(group);
+
+			if (group instanceof ServiceBasedGroupEntity) {
+				List<ServiceGroupFlagEntity> groupFlagList = groupFlagDao.findByGroupAndService((ServiceBasedGroupEntity) group, serviceEntity);
+				for (ServiceGroupFlagEntity groupFlag : groupFlagList) {
+					groupFlag.setStatus(ServiceGroupStatus.DIRTY);
+					groupFlag = groupFlagDao.persist(groupFlag);
+				}
+			}
+		}
+		
+		MultipleGroupEvent mge = new MultipleGroupEvent(userGroups);
+		try {
+			eventSubmitter.submit(mge, EventType.GROUP_UPDATE, executor);
+		} catch (EventSubmitException e) {
+			logger.warn("Exeption", e);
+		}
+	}
+	
+	@Override
 	@Asynchronous
 	public void completeReconciliation(ServiceEntity service, Boolean fullRecon, Boolean withGroups, String executor) {
 		List<RegistryEntity> registryList = registryDao.findByServiceAndStatus(service, RegistryStatus.ACTIVE);

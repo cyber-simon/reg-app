@@ -52,5 +52,8 @@ public interface RegisterUserService {
 
 	void deletePassword(UserEntity user, ServiceEntity service,
 			RegistryEntity registry, String executor) throws RegisterException;
+
+	void reconGroupsForRegistry(RegistryEntity registry, String executor)
+			throws RegisterException;
 	
 }
