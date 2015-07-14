@@ -115,7 +115,7 @@ public class HttpCallbackHook implements UserServiceHook {
 					if (entity != null) {
 						String r = EntityUtils.toString(entity);
 						if (r != null) {
-							String lines[] = r.split("\\r?\\n");
+							String lines[] = r.split("\\r?\\n", -1);
 							if (lines.length > 0) {
 								if (lines[0].matches(positiveMatchRegex)) {
 									user.getGenericStore().put("http_callback_positive_match", "" + System.currentTimeMillis());
