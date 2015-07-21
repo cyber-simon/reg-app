@@ -25,11 +25,13 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.GroupEntity;
+import edu.kit.scc.webreg.entity.GroupStatus;
 import edu.kit.scc.webreg.entity.LocalGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserGroupEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.MultipleGroupEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
@@ -94,6 +96,12 @@ public class ShowLocalGroupBean implements Serializable {
 	}
 
 	public void addGroupFlag() {
+		if (entity.getGroupStatus() == null || GroupStatus.DELETED.equals(entity.getGroupStatus())) {
+			entity.setGroupStatus(GroupStatus.ACTIVE);
+			entity = groupService.save(entity);
+			entity = groupService.findWithUsersAndChildren(id);
+		}
+		
 		ServiceGroupFlagEntity groupFlag = groupFlagService.createNew();
 		groupFlag.setGroup(entity);
 		groupFlag.setService(selectedServiceEntity);
@@ -122,9 +130,6 @@ public class ShowLocalGroupBean implements Serializable {
 	}
 
 	public void addUserToGroup(UserEntity user) {
-		// TODO: Change group model
-		//entity.getUsers().add(user);
-		//entity = groupService.save(entity);
 		allGroupService.addUserToGroup(user, entity);
 		
 		for (ServiceGroupFlagEntity flag : groupFlagList) {
@@ -137,9 +142,6 @@ public class ShowLocalGroupBean implements Serializable {
 	}
 		
 	public void removeUserFromGroup(UserEntity user) {
-		// TODO: Change group model
-		//entity.getUsers().remove(user);
-		//entity = groupService.save(entity);
 		allGroupService.removeUserGromGroup(user, entity);
 
 		for (ServiceGroupFlagEntity flag : groupFlagList) {
@@ -182,6 +184,39 @@ public class ShowLocalGroupBean implements Serializable {
 		}
 	}
 	
+	public void deleteGroup() {
+		entity.setGroupStatus(GroupStatus.DELETED);
+
+		for (ServiceGroupFlagEntity flag : groupFlagList) {
+			flag.setStatus(ServiceGroupStatus.TO_DELETE);
+			groupFlagService.save(flag);
+		}
+
+		entity = groupService.save(entity);
+		
+		fireGroupChangeEvent();
+		
+		entity = groupService.findWithUsersAndChildren(id);
+		effectiveMemberList = new ArrayList<UserEntity>(allGroupService.getEffectiveMembers(entity));
+		initView();
+	}
+	
+	public void removeAllMembers() {
+		
+		for (GroupEntity subGroup : entity.getChildren())
+			removeGroupFromGroup(subGroup);
+		
+		for (UserGroupEntity userGroup : entity.getUsers())
+			removeUserFromGroup(userGroup.getUser());
+		
+		fireGroupChangeEvent();
+		
+		entity = groupService.findWithUsersAndChildren(id);
+		effectiveMemberList = new ArrayList<UserEntity>(allGroupService.getEffectiveMembers(entity));
+		initView();
+	}
+	
+
 	public LocalGroupEntity getEntity() {
 		return entity;
 	}

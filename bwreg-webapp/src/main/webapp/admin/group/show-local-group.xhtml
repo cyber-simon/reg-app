@@ -71,7 +71,8 @@
 						<f:facet name="header">
 							<h:outputText value="#{messages.action}" />
 						</f:facet>
-						<h:commandLink action="#{showLocalGroupBean.removeGroupFlag(flags)}" value="#{messages.remove}" />
+						<p:commandLink action="#{showLocalGroupBean.removeGroupFlag(flags)}" value="#{messages.remove}"
+							update="@form" />
 					</p:column>				 	
 				</p:dataTable>
 			</p:panel>
@@ -223,6 +224,16 @@
 				
 			</p:panel>
 		</div>		
+
+		<br/>
+		<div id="panelInline">
+			<p:panel header="#{messages.tools}">
+		        <p:commandButton id="delGrp" action="#{showLocalGroupBean.deleteGroup()}" value="#{messages.delete_group}"
+		        	style="color: red;" update="@form" />					
+		        <p:commandButton id="rmvMembers" action="#{showLocalGroupBean.removeAllMembers()}" value="#{messages.remove_all_members}"
+		        	style="color: red;" update="@form" />					
+			</p:panel>
+		</div>
 
 	</h:form>
 
