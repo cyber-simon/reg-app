@@ -12,6 +12,7 @@ package edu.kit.scc.webreg.entity;
 
 public enum GroupStatus {
 
-	CONVERTED
+	ACTIVE,
+	DELETED
 	
 }
