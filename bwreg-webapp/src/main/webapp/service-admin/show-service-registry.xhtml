@@ -100,7 +100,7 @@
 
 		<br/>
 		<div id="panelInline">
-			<p:panel header="#{messages.tools}">
+			<p:panel id="toolsPanel" header="#{messages.tools}">
 				<h:panelGroup rendered="#{serviceAdminUserDetailBean.entity.registryStatus == 'ACTIVE'}">
 					<p:commandButton action="#{serviceAdminUserDetailBean.reconsiliation()}" 
 						value="#{messages.reconsiliation}" update="@form" />				
@@ -120,6 +120,10 @@
         	<p:commandButton value="#{messages.yes}" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
         	<p:commandButton value="#{messages.no}" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
     	</p:confirmDialog>
+
+		<p:blockUI block="toolsPanel" trigger="delUsr">  
+      			<p:graphicImage value="#{resource['/img/ajax-loader.gif']}" alt="#{messages.loading}" />  
+		</p:blockUI>
 
 	</h:form>
 
