@@ -19,6 +19,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
 import edu.kit.scc.webreg.dao.ServiceGroupFlagDao;
+import edu.kit.scc.webreg.entity.GroupStatus;
 import edu.kit.scc.webreg.entity.ServiceBasedGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
@@ -63,8 +64,10 @@ public class JpaServiceGroupFlagDao extends JpaBaseDao<ServiceGroupFlagEntity, L
     public List<ServiceGroupFlagEntity> findLocalGroupsForService(ServiceEntity service) {
 		return em.createQuery("select gf from ServiceGroupFlagEntity gf, LocalGroupEntity g "
 				+ "where gf.group = g"
-				+ " and gf.service = :service")
-				.setParameter("service", service).getResultList();
+				+ " and gf.service = :service and (g.groupStatus = :groupStatus or g.groupStatus is null)")
+				.setParameter("service", service)
+				.setParameter("groupStatus", GroupStatus.ACTIVE)
+				.getResultList();
     }
 
     @Override

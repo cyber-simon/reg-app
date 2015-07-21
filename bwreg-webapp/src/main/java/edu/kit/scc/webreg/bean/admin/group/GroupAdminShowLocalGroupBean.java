@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.GroupEntity;
+import edu.kit.scc.webreg.entity.GroupStatus;
 import edu.kit.scc.webreg.entity.LocalGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
@@ -128,14 +129,7 @@ public class GroupAdminShowLocalGroupBean implements Serializable {
 			flag = groupFlagService.save(flag);
 		}
 		
-		HashSet<GroupEntity> gl = new HashSet<GroupEntity>();
-		gl.add(entity);
-		MultipleGroupEvent mge = new MultipleGroupEvent(gl);
-		try {
-			eventSubmitter.submit(mge, EventType.GROUP_UPDATE, "user-" + sessionManager.getUserId());
-		} catch (EventSubmitException e) {
-			logger.warn("Exeption", e);
-		}
+		fireGroupChangeEvent();
 		
 		messageGenerator.addResolvedInfoMessage("item_saved", "item_saved_long", true);
 		
@@ -144,6 +138,36 @@ public class GroupAdminShowLocalGroupBean implements Serializable {
 	
 	public String editGroup() {
 		return ViewIds.GROUP_ADMIN_EDIT_LOCAL_GROUP + "?faces-redirect=true&serviceId=" + serviceId + "&groupId=" + groupId;
+	}
+	
+	public String deleteGroup() {
+		if (editable == false) {
+			return "";
+		}
+
+		entity.setGroupStatus(GroupStatus.DELETED);
+
+		for (ServiceGroupFlagEntity flag : groupFlagList) {
+			flag.setStatus(ServiceGroupStatus.TO_DELETE);
+			groupFlagService.save(flag);
+		}
+
+		entity = service.save(entity);
+		
+		fireGroupChangeEvent();
+
+		return ViewIds.GROUP_ADMIN_INDEX + "?faces-redirect=true&serviceId=" + serviceId;
+	}
+	
+	public void fireGroupChangeEvent() {
+		HashSet<GroupEntity> gl = new HashSet<GroupEntity>();
+		gl.add(entity);
+		MultipleGroupEvent mge = new MultipleGroupEvent(gl);
+		try {
+			eventSubmitter.submit(mge, EventType.GROUP_UPDATE, "user-" + sessionManager.getUserId());
+		} catch (EventSubmitException e) {
+			logger.warn("Exeption", e);
+		}
 	}
 	
 	public LocalGroupEntity getEntity() {

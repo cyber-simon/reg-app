@@ -40,6 +40,9 @@
 			        <h:outputText value="#{messages.gid_number}:"/>
 			        <h:outputText value="#{groupAdminShowLocalGroupBean.entity.gidNumber}"/>
 						
+			        <h:outputText value="#{messages.status}:"/>
+			        <h:outputText value="#{groupAdminShowLocalGroupBean.entity.groupStatus}"/>
+						
 			        <h:outputText value="#{messages.services}:"/>
 			        <p:dataList var="flag" value="#{groupAdminShowLocalGroupBean.groupFlagList}">
 			        	<h:outputText value="#{flag.service.name}" />
@@ -87,6 +90,14 @@
 				</div>
 			</p:panel>
 		</div>		
+
+		<br/>
+		<div id="panelInline">
+			<p:panel header="#{messages.tools}">
+		        <p:commandButton id="delGrp" action="#{groupAdminShowLocalGroupBean.deleteGroup()}" value="#{messages.delete_group}"
+		        	style="color: red;" ajax="false" disabled="#{not groupAdminShowLocalGroupBean.editable}" />					
+			</p:panel>
+		</div>
 
 	</h:form>
 
