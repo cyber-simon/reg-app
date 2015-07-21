@@ -25,6 +25,7 @@ import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.sec.AuthorizationBean;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;
+import edu.kit.scc.webreg.util.SessionManager;
 
 @ManagedBean
 @ViewScoped
@@ -44,6 +45,9 @@ public class ServiceAdminUserDetailBean implements Serializable {
     @Inject
     private RegisterUserService registerUserService;
   
+    @Inject
+    private SessionManager sessionManager;
+    
     private RegistryEntity entity;
     
     private Long id;
@@ -59,7 +63,7 @@ public class ServiceAdminUserDetailBean implements Serializable {
 	public void reconsiliation() {
 		logger.debug("Manual quick recon for Account {} Service {}", entity.getUser().getEppn(), entity.getService().getName());
 		try {
-			registerUserService.reconsiliation(entity, false, "service-admin");
+			registerUserService.reconsiliation(entity, false, "service-admin-" + sessionManager.getUserId());
 		} catch (RegisterException e) {
 			logger.error("An error occured", e);
 		}
@@ -68,12 +72,21 @@ public class ServiceAdminUserDetailBean implements Serializable {
 	public void fullReconsiliation() {
 		logger.debug("Manual full recon for Account {} Service {}", entity.getUser().getEppn(), entity.getService().getName());
 		try {
-			registerUserService.reconsiliation(entity, true, "service-admin");
+			registerUserService.reconsiliation(entity, true, "service-admin-" + sessionManager.getUserId());
 		} catch (RegisterException e) {
 			logger.error("An error occured", e);
 		}
 	}
 	
+	public void deregister() {
+		try {
+			logger.info("Deregister registry {} via AdminRegistry page", entity.getId());
+			registerUserService.deregisterUser(entity, "service-admin-" + sessionManager.getUserId());
+		} catch (RegisterException e) {
+			logger.warn("Could not deregister User", e);
+		}
+	}
+
 	public Long getId() {
 		return id;
 	}

@@ -94,16 +94,32 @@
 						</f:facet>
 						<h:outputText value="#{serviceAdminUserDetailBean.entity.registryValues.get(key)}" />
 					</p:column>						
-				</p:dataTable>
-				
+				</p:dataTable>				
+			</p:panel>
+		</div>
+
+		<br/>
+		<div id="panelInline">
+			<p:panel header="#{messages.tools}">
 				<h:panelGroup rendered="#{serviceAdminUserDetailBean.entity.registryStatus == 'ACTIVE'}">
 					<p:commandButton action="#{serviceAdminUserDetailBean.reconsiliation()}" 
 						value="#{messages.reconsiliation}" update="@form" />				
 					<p:commandButton action="#{serviceAdminUserDetailBean.fullReconsiliation()}" 
 						value="#{messages.full_reconsiliation}" update="@form" />			
 				</h:panelGroup>	
+				<h:panelGroup rendered="#{(serviceAdminUserDetailBean.entity.registryStatus == 'ACTIVE' || serviceAdminUserDetailBean.entity.registryStatus == 'LOST_ACCESS')}">
+			        <p:commandButton id="delUsr" action="#{serviceAdminUserDetailBean.deregister()}" value="#{messages.deregister}"
+			        	style="color: red;" update="@form">
+						<p:confirm header="#{messages.confirm}" message="#{messages.are_you_sure}" icon="ui-icon-alert" />			        	
+			        </p:commandButton>					
+				</h:panelGroup>	
 			</p:panel>
 		</div>
+
+		<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+        	<p:commandButton value="#{messages.yes}" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+        	<p:commandButton value="#{messages.no}" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+    	</p:confirmDialog>
 
 	</h:form>
 
