@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.bean.admin.group;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
@@ -20,6 +21,8 @@ import javax.inject.Inject;
 
 import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
+import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserGroupEntity;
 import edu.kit.scc.webreg.service.HomeOrgGroupService;
 import edu.kit.scc.webreg.service.ServiceGroupFlagService;
 
@@ -38,13 +41,18 @@ public class ShowHomeOrgGroupBean implements Serializable {
 	private HomeOrgGroupEntity entity;
 
 	private List<ServiceGroupFlagEntity> groupFlagList;
-	
+	private List<UserEntity> memberList;
+
 	private Long id;
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
 			entity = groupService.findWithUsers(id);
 			groupFlagList = groupFlagService.findByGroup(entity);
+			memberList = new ArrayList<UserEntity>();
+			for (UserGroupEntity ug : entity.getUsers()) {
+				memberList.add(ug.getUser());
+			}			
 		}
 	}
 
@@ -71,5 +79,9 @@ public class ShowHomeOrgGroupBean implements Serializable {
 
 	public List<ServiceGroupFlagEntity> getGroupFlagList() {
 		return groupFlagList;
+	}
+
+	public List<UserEntity> getMemberList() {
+		return memberList;
 	}
 }

@@ -79,34 +79,40 @@
 		
 		<div class="panel">
 			<p:panel id="attrPanel" header="#{messages.members}">
-				<p:dataTable id="attrData" style="min-width: 500px;" 
-						value="#{showHomeOrgGroupBean.entity.users.toArray()}" var="userGroup">
-					<p:column>
+				<p:dataTable id="allUsersTable" var="user" value="#{showHomeOrgGroupBean.memberList}" paginator="true"
+							lazy="true" rows="15">
+					<p:column sortBy="#{user.id}">
 						<f:facet name="header">
 							<h:outputText value="#{messages.id}" />
 						</f:facet>
-						<h:outputText value="#{userGroup.user.id}" />
+						<h:outputText value="#{user.id}" />
 					</p:column>
-					<p:column>
-						<f:facet name="header">
-							<h:outputText value="#{messages.eppn}" />
-						</f:facet>
-						<h:link outcome="/admin/user/show-user.xhtml" value="#{userGroup.user.eppn}">
-			     				<f:param name="id" value="#{userGroup.user.id}"/>
-			   			</h:link>
-					</p:column>
-					<p:column>
+					<p:column sortBy="#{user.surName}" filterBy="#{user.surName}">
 						<f:facet name="header">
 							<h:outputText value="#{messages.sur_name}" />
 						</f:facet>
-						<h:outputText value="#{userGroup.user.surName}" />
-					</p:column>
-					<p:column>
+						<h:outputText value="#{user.surName}" />
+					</p:column>			
+					<p:column sortBy="#{user.givenName}" filterBy="#{user.givenName}">
 						<f:facet name="header">
 							<h:outputText value="#{messages.given_name}" />
 						</f:facet>
-						<h:outputText value="#{userGroup.user.givenName}" />
+						<h:outputText value="#{user.givenName}" />
+					</p:column>			
+					<p:column sortBy="#{user.eppn}" filterBy="#{user.eppn}">
+						<f:facet name="header">
+							<h:outputText value="#{messages.eppn}" />
+						</f:facet>
+						<h:link outcome="/admin/user/show-user.xhtml" value="#{user.eppn}">
+		      				<f:param name="id" value="#{user.id}"/>
+		    			</h:link>
 					</p:column>
+					<p:column sortBy="#{user.userStatus}">
+						<f:facet name="header">
+							<h:outputText value="#{messages.status}" />
+						</f:facet>
+						<h:outputText value="#{user.userStatus}" />
+					</p:column>			
 				</p:dataTable>
 			</p:panel>
 		</div>		

@@ -185,4 +185,8 @@ public class GroupAdminShowLocalGroupBean implements Serializable {
 	public List<UserEntity> getMemberList() {
 		return memberList;
 	}
+
+	public ServiceEntity getServiceEntity() {
+		return serviceEntity;
+	}
 }
