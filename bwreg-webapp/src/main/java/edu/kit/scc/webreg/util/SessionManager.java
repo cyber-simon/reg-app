@@ -37,22 +37,12 @@ public class SessionManager implements Serializable {
 	private String originalRequestPath;
 	private String originalIdpEntityId;
 	
-	private String assertion;
-	
 	private Set<String> roles;
 	
 	private String theme;
 	
 	private String locale;
 	
-	public String getAssertion() {
-		return assertion;
-	}
-
-	public void setAssertion(String assertion) {
-		this.assertion = assertion;
-	}
-
 	public Long getUserId() {
 		return userId;
 	}

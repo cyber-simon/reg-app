@@ -107,7 +107,6 @@ public class Saml2PostHandlerServlet {
 			String persistentId = saml2AssertionService.extractPersistentId(assertion, spConfig);
 			
 			logger.debug("Storing relevant SAML data in session");
-			session.setAssertion(samlHelper.marshal(assertion));
 			session.setPersistentId(persistentId);
 			Map<String, List<Object>> attributeMap = saml2AssertionService.extractAttributes(assertion);
 			session.setAttributeMap(attributeMap);
