@@ -51,7 +51,6 @@ public class AuthorizationBean implements Serializable {
 	private List<ServiceEntity> serviceAdminList;
 	private List<ServiceEntity> serviceHotlineList;
 	private List<ServiceEntity> serviceGroupAdminList;
-	private List<RoleEntity> roleList;
 	
     @Inject
     private RegistryService registryService;
@@ -124,9 +123,10 @@ public class AuthorizationBean implements Serializable {
     	}
     	unregisteredServiceList.removeAll(serviceToRemove);
     	
-    	roleList = roleService.findByUser(user);
+    	List<RoleEntity> roleList = roleService.findByUser(user);
     	
     	for (RoleEntity role : roleList) {
+    		sessionManager.addRole(role.getId());
     		if (role instanceof AdminRoleEntity) {
     			serviceAdminList.addAll(serviceService.findByAdminRole(role));
     			serviceHotlineList.addAll(serviceService.findByHotlineRole(role));
@@ -140,16 +140,23 @@ public class AuthorizationBean implements Serializable {
     	}
 	}
 
+    public boolean isUserInRole(String roleName) {
+    	if (roleName.startsWith("ROLE_"))
+    		roleName = roleName.substring(5);
+    	
+    	RoleEntity role = roleService.findByName(roleName);
+    	
+    	if (role == null)
+    		return false;
+    	
+    	return sessionManager.isUserInRole(role.getId());
+    }
+
     public boolean isUserInRole(RoleEntity role) {
     	if (role == null)
     		return false;
     	
-    	for (RoleEntity r : roleList) {
-    		if (role.equals(r))
-    			return true;
-    	}
-    	
-    	return false;
+    	return sessionManager.isUserInRole(role.getId());
     }
 
     public boolean isUserInRoles(Set<RoleEntity> roles) {

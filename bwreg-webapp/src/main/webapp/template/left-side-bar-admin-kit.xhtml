@@ -64,7 +64,7 @@
 	      </div>
 	    </div>
 
- 	  <h:panelGroup rendered="#{sessionManager.isUserInRole('ROLE_GroupAdmin') or sessionManager.isUserInRole('ROLE_MasterAdmin')}">
+ 	  <h:panelGroup rendered="#{authorizationBean.isUserInRole('ROLE_GroupAdmin') or authorizationBean.isUserInRole('ROLE_MasterAdmin')}">
        <div class="submenu">
 	      <div class="submenu-title">#{messages.groups}</div>
 	      <div class="submenu-content">
@@ -86,7 +86,7 @@
 	    </div>
 	  </h:panelGroup>
 	
-	  <h:panelGroup rendered="#{sessionManager.isUserInRole('ROLE_SamlAdmin') or sessionManager.isUserInRole('ROLE_MasterAdmin')}">
+	  <h:panelGroup rendered="#{authorizationBean.isUserInRole('ROLE_SamlAdmin') or authorizationBean.isUserInRole('ROLE_MasterAdmin')}">
         <div class="submenu">
 	      <div class="submenu-title">#{messages.saml_props}</div>
 	      <div class="submenu-content">
@@ -104,7 +104,7 @@
 	    </div>
 	  </h:panelGroup>
 
-	  <h:panelGroup rendered="#{sessionManager.isUserInRole('ROLE_AttributeSourceAdmin') or sessionManager.isUserInRole('ROLE_MasterAdmin')}">
+	  <h:panelGroup rendered="#{authorizationBean.isUserInRole('ROLE_AttributeSourceAdmin') or authorizationBean.isUserInRole('ROLE_MasterAdmin')}">
         <div class="submenu">
 	      <div class="submenu-title">#{messages.attribute_sources}</div>
 	      <div class="submenu-content">
@@ -119,7 +119,7 @@
 	    </div>
 	  </h:panelGroup>
 
-	  <h:panelGroup rendered="#{sessionManager.isUserInRole('ROLE_BusinessRuleAdmin') or sessionManager.isUserInRole('ROLE_MasterAdmin')}">
+	  <h:panelGroup rendered="#{authorizationBean.isUserInRole('ROLE_BusinessRuleAdmin') or authorizationBean.isUserInRole('ROLE_MasterAdmin')}">
 	    <div class="submenu">
 	      <div class="submenu-title">#{messages.business_rules}</div>
 	      <div class="submenu-content">
@@ -134,7 +134,7 @@
 	    </div>
 	  </h:panelGroup>
 			
-	  <h:panelGroup rendered="#{sessionManager.isUserInRole('ROLE_BulkAdmin') or sessionManager.isUserInRole('ROLE_MasterAdmin')}">
+	  <h:panelGroup rendered="#{authorizationBean.isUserInRole('ROLE_BulkAdmin') or authorizationBean.isUserInRole('ROLE_MasterAdmin')}">
 	    <div class="submenu">
 	      <div class="submenu-title">#{messages.bulk_ops}</div>
 	      <div class="submenu-content">
@@ -152,7 +152,7 @@
 	    </div>
 	  </h:panelGroup>
 			
-	  <h:panelGroup rendered="#{sessionManager.isUserInRole('ROLE_TimerAdmin') or sessionManager.isUserInRole('ROLE_MasterAdmin')}">
+	  <h:panelGroup rendered="#{authorizationBean.isUserInRole('ROLE_TimerAdmin') or authorizationBean.isUserInRole('ROLE_MasterAdmin')}">
 	    <div class="submenu">
 	      <div class="submenu-title">#{messages.scheduler_admin}</div> 
 	      <div class="submenu-content">
@@ -173,7 +173,7 @@
 	    </div>
 	  </h:panelGroup>
 
-	  <h:panelGroup rendered="#{sessionManager.isUserInRole('ROLE_AuditAdmin') or sessionManager.isUserInRole('ROLE_MasterAdmin')}">
+	  <h:panelGroup rendered="#{authorizationBean.isUserInRole('ROLE_AuditAdmin') or authorizationBean.isUserInRole('ROLE_MasterAdmin')}">
 	    <div class="submenu">
 	      <div class="submenu-title">#{messages.audit_admin}</div>
 	      <div class="submenu-content">

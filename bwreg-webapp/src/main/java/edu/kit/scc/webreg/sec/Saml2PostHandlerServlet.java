@@ -11,10 +11,8 @@
 package edu.kit.scc.webreg.sec;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.faces.bean.ApplicationScoped;
 import javax.inject.Inject;
@@ -116,9 +114,8 @@ public class Saml2PostHandlerServlet {
 			
 			if (user == null) {
 				logger.info("New User detected, sending to register Page");
-				Set<String> newRoles = new HashSet<String>();
-				newRoles.add("ROLE_New");
-				session.setRoles(newRoles);
+				// Role -1 is for new users
+				session.addRole(-1L);
 				response.sendRedirect("/register/register.xhtml");
 				return;
 			}

@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.util;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,7 +38,7 @@ public class SessionManager implements Serializable {
 	private String originalRequestPath;
 	private String originalIdpEntityId;
 	
-	private Set<String> roles;
+	private Set<Long> roles;
 	
 	private String theme;
 	
@@ -54,6 +55,20 @@ public class SessionManager implements Serializable {
 	public void logout() {
 		
 	}
+
+	public void addRole(Long role) {
+		if (roles == null) roles = new HashSet<Long>();
+		roles.add(role);
+	}
+	
+	public void addRoles(Set<Long> rolesToAdd) {
+		if (roles == null) roles = new HashSet<Long>();
+		roles.addAll(rolesToAdd);
+	}
+
+	public boolean isUserInRole(Long role) {
+        return roles.contains(role);
+    }
 
 	public Long getIdpId() {
 		return idpId;
@@ -91,14 +106,6 @@ public class SessionManager implements Serializable {
 		this.persistentId = persistentId;
 	}
 	
-    public void setRoles(Set<String> roles) {
-		this.roles = roles;
-	}
-
-	public boolean isUserInRole(String role) {
-        return roles.contains(role);
-    }
-
 	public void setTheme(String theme) {
 		this.theme = theme;
 	}

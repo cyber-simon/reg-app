@@ -22,6 +22,9 @@ import javax.inject.Named;
 
 import org.slf4j.Logger;
 
+import edu.kit.scc.webreg.entity.RoleEntity;
+import edu.kit.scc.webreg.service.RoleService;
+
 @Named("accessChecker")
 @ApplicationScoped
 public class AccessChecker {
@@ -29,13 +32,17 @@ public class AccessChecker {
 	@Inject
 	private Logger logger;
 
+	@Inject
+	private RoleService roleService;
+	
 	private AccessNode root;
 	
 	@PostConstruct
 	public void init() {
 		logger.info("Initializing accessChecker");
 		root = new AccessNode();
-		root.addAllowRole("ROLE_User");
+		RoleEntity rootRole = roleService.findByName("User");
+		root.addAllowRole(rootRole.getId());
 
 		addAccessNode(root, "user", true);
 		addAccessNode(root, "service", true);
@@ -43,22 +50,22 @@ public class AccessChecker {
 		addAccessNode(root, "service-approver", true);
 		addAccessNode(root, "service-group-admin", true);
 
-		addDenyNode(root, "register", false, "ROLE_User");
+		addDenyNode(root, "register", false, "User");
 		
-		AccessNode adminNode = addAccessNode(root, "admin", false, "ROLE_MasterAdmin");
-		addAccessNode(adminNode, "role", true, "ROLE_RoleAdmin");
-		addAccessNode(adminNode, "user", true, "ROLE_UserAdmin");
-		addAccessNode(adminNode, "service", true, "ROLE_ServiceAdmin");
-		addAccessNode(adminNode, "saml", true, "ROLE_SamlAdmin");
-		addAccessNode(adminNode, "business-rule", true, "ROLE_BusinessRuleAdmin");
-		addAccessNode(adminNode, "bulk", true, "ROLE_BulkAdmin");
-		addAccessNode(adminNode, "timer", true, "ROLE_TimerAdmin");
-		addAccessNode(adminNode, "audit", true, "ROLE_AuditAdmin");
-		addAccessNode(adminNode, "group", true, "ROLE_GroupAdmin");
-		addAccessNode(adminNode, "as", true, "ROLE_AttributeSourceAdmin");
+		AccessNode adminNode = addAccessNode(root, "admin", false, "MasterAdmin");
+		addAccessNode(adminNode, "role", true, "RoleAdmin");
+		addAccessNode(adminNode, "user", true, "UserAdmin");
+		addAccessNode(adminNode, "service", true, "ServiceAdmin");
+		addAccessNode(adminNode, "saml", true, "SamlAdmin");
+		addAccessNode(adminNode, "business-rule", true, "BusinessRuleAdmin");
+		addAccessNode(adminNode, "bulk", true, "BulkAdmin");
+		addAccessNode(adminNode, "timer", true, "TimerAdmin");
+		addAccessNode(adminNode, "audit", true, "AuditAdmin");
+		addAccessNode(adminNode, "group", true, "GroupAdmin");
+		addAccessNode(adminNode, "as", true, "AttributeSourceAdmin");
 
-		AccessNode restNode = addAccessNode(root, "rest", false, "ROLE_MasterAdmin", "ROLE_RestAdmin");
-		addAccessNode(restNode, "service-admin", true, "ROLE_RestServiceAdmin");
+		AccessNode restNode = addAccessNode(root, "rest", false, "MasterAdmin", "RestAdmin");
+		addAccessNode(restNode, "service-admin", true, "RestServiceAdmin");
 		
 		AccessNode droolsNode = addAccessNode(restNode, "drools", true);
 		addAccessNode(droolsNode, "test", true);
@@ -70,12 +77,12 @@ public class AccessChecker {
 		addAccessNode(ecpNode, "eppn", true);
 
 		AccessNode imageNode = addAccessNode(restNode, "image", true);
-		addAccessNode(imageNode, "original", true, "ROLE_User");
-		addAccessNode(imageNode, "small", true, "ROLE_User");
-		addAccessNode(imageNode, "icon", true, "ROLE_User");
+		addAccessNode(imageNode, "original", true, "User");
+		addAccessNode(imageNode, "small", true, "User");
+		addAccessNode(imageNode, "icon", true, "User");
 	}
 	
-	public Boolean check(String path, Set<String> roles) {
+	public Boolean check(String path, Set<Long> roles) {
 		if (path.startsWith("/"))
 			path = path.substring(1);
 		
@@ -88,7 +95,7 @@ public class AccessChecker {
 		return evaluate(root, splitList, roles);
 	}
 	
-	private Boolean evaluate(AccessNode an, List<String> splitList, Set<String> roles) {
+	private Boolean evaluate(AccessNode an, List<String> splitList, Set<Long> roles) {
 		if (splitList.size() == 0) {
 			return evaluateNode(an, roles);
 		}
@@ -99,7 +106,7 @@ public class AccessChecker {
 			if (subAn == null)
 				return evaluateNode(an, roles);
 			
-			for (String role : an.getDenyRoles()) {
+			for (Long role : an.getDenyRoles()) {
 				if (roles.contains(role))
 					return false;
 			}
@@ -108,13 +115,13 @@ public class AccessChecker {
 		}
 	}
 	
-	private Boolean evaluateNode(AccessNode an, Set<String> roles) {
-		for (String role : an.getDenyRoles()) {
+	private Boolean evaluateNode(AccessNode an, Set<Long> roles) {
+		for (Long role : an.getDenyRoles()) {
 			if (roles.contains(role))
 				return false;
 		}
 		
-		for (String role : an.getAllowRoles()) {
+		for (Long role : an.getAllowRoles()) {
 			if (roles.contains(role))
 				return true;
 		}
@@ -124,16 +131,22 @@ public class AccessChecker {
 	
 	private AccessNode addAccessNode(AccessNode parent, String path, Boolean inherit, String... roles) {
 		AccessNode an = new AccessNode(parent, path, inherit);
-		for (String role : roles)
-			an.addAllowRole(role);
+		for (String roleName : roles) {
+			RoleEntity role = roleService.findByName(roleName);
+			if (role != null)
+				an.addAllowRole(role.getId());
+		}
 		
 		return an;
 	}
 
 	private AccessNode addDenyNode(AccessNode parent, String path, Boolean inherit, String... roles) {
 		AccessNode an = new AccessNode(parent, path, inherit);
-		for (String role : roles)
-			an.addDenyRole(role);
+		for (String roleName : roles) {
+			RoleEntity role = roleService.findByName(roleName);
+			if (role != null)
+				an.addDenyRole(role.getId());
+		}
 		
 		return an;
 	}

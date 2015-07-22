@@ -23,8 +23,8 @@ public class AccessNode {
 	
 	private Map<String, AccessNode> children;
 	
-	private Set<String> allowRoles;
-	private Set<String> denyRoles;
+	private Set<Long> allowRoles;
+	private Set<Long> denyRoles;
 	
 	public AccessNode() {
 		this(null, "", false);
@@ -34,8 +34,8 @@ public class AccessNode {
 		this.parent = parent;
 		this.path = path;
 		children = new HashMap<String, AccessNode>();
-		allowRoles = new HashSet<String>();
-		denyRoles = new HashSet<String>();
+		allowRoles = new HashSet<Long>();
+		denyRoles = new HashSet<Long>();
 		
 		if (inherit) {
 			allowRoles.addAll(parent.getAllowRoles());
@@ -50,11 +50,11 @@ public class AccessNode {
 		return children.get(path);
 	}
 	
-	public void addAllowRole(String role) {
+	public void addAllowRole(Long role) {
 		allowRoles.add(role);
 	}
 
-	public void addDenyRole(String role) {
+	public void addDenyRole(Long role) {
 		denyRoles.add(role);
 	}
 	
@@ -64,11 +64,11 @@ public class AccessNode {
 		children.put(an.getPath(), an);
 	}
 	
-	public Set<String> getAllowRoles() {
+	public Set<Long> getAllowRoles() {
 		return allowRoles;
 	}
 
-	public Set<String> getDenyRoles() {
+	public Set<Long> getDenyRoles() {
 		return denyRoles;
 	}
 	
