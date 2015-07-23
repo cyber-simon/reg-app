@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
 
 import edu.kit.scc.webreg.dao.TextPropertyDao;
 import edu.kit.scc.webreg.entity.TextPropertyEntity;
@@ -41,19 +43,10 @@ public class DbMessageBundle extends ResourceBundle {
 		
 		messages = CacheBuilder.newBuilder()
 				.concurrencyLevel(4)
-				.weakKeys()
 				.maximumSize(10000)
 				.expireAfterWrite(30, TimeUnit.SECONDS)
-				.build(new CacheLoader<String, BundleEntry>() {
-					public BundleEntry load(String key) {
-						BundleEntry be = new BundleEntry();
-						TextPropertyEntity tpe = textPropertyDao
-								.findByKeyAndLang(key, locale.getLanguage());
-						if (tpe != null)
-							be.setValue(tpe.getValue());
-						return be;
-					}
-				});
+				.removalListener(removalListener)
+				.build(cacheLoader);
 	}
 
     @Override
@@ -79,4 +72,23 @@ public class DbMessageBundle extends ResourceBundle {
     	rets.addAll(parent.keySet());
         return Collections.enumeration(rets);
     }
+    
+    private CacheLoader<String, BundleEntry> cacheLoader = new CacheLoader<String, BundleEntry>() {
+		public BundleEntry load(String key) {
+			BundleEntry be = new BundleEntry();
+			TextPropertyEntity tpe = textPropertyDao
+					.findByKeyAndLang(key, locale.getLanguage());
+			if (tpe != null)
+				be.setValue(tpe.getValue());
+			return be;
+		}
+	};
+    
+	private RemovalListener<String, BundleEntry> removalListener = new RemovalListener<String, BundleEntry>() {
+		public void onRemoval(RemovalNotification<String, BundleEntry> removal) {
+			if (logger.isTraceEnabled() && removal.getValue() != null)
+				logger.trace("Removing entry {} -> {} from messageCache ({})",
+					removal.getKey(), removal.getValue().getValue(), removal.getCause());
+		}
+	};    
 }
