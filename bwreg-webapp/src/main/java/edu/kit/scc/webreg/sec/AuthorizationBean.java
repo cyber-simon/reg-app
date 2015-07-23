@@ -37,6 +37,7 @@ import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.RoleService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.util.RoleCache;
 import edu.kit.scc.webreg.util.SessionManager;
 
 @Named("authorizationBean")
@@ -72,6 +73,9 @@ public class AuthorizationBean implements Serializable {
     
     @Inject
     private ApplicationConfig appConfig;
+    
+    @Inject
+    private RoleCache roleCache;
     
     @PostConstruct
     private void init() {
@@ -144,12 +148,12 @@ public class AuthorizationBean implements Serializable {
     	if (roleName.startsWith("ROLE_"))
     		roleName = roleName.substring(5);
     	
-    	RoleEntity role = roleService.findByName(roleName);
+    	Long roleId = roleCache.getIdFromRolename(roleName);
     	
-    	if (role == null)
+    	if (roleId == null)
     		return false;
     	
-    	return sessionManager.isUserInRole(role.getId());
+    	return sessionManager.isUserInRole(roleId);
     }
 
     public boolean isUserInRole(RoleEntity role) {

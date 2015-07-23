@@ -104,16 +104,19 @@ public class Saml2PostHandlerServlet {
 			
 			String persistentId = saml2AssertionService.extractPersistentId(assertion, spConfig);
 			
-			logger.debug("Storing relevant SAML data in session");
-			session.setPersistentId(persistentId);
 			Map<String, List<Object>> attributeMap = saml2AssertionService.extractAttributes(assertion);
-			session.setAttributeMap(attributeMap);
-			
+
 			UserEntity user = userService.findByPersistentWithRoles(spConfig.getEntityId(), 
 						idpEntity.getEntityId(), persistentId);
 			
 			if (user == null) {
 				logger.info("New User detected, sending to register Page");
+
+				// Store SAML Data temporarily in Session
+				logger.debug("Storing relevant SAML data in session");
+				session.setPersistentId(persistentId);
+				session.setAttributeMap(attributeMap);				
+				
 				// Role -1 is for new users
 				session.addRole(-1L);
 				response.sendRedirect("/register/register.xhtml");
