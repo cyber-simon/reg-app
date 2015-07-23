@@ -36,7 +36,7 @@ public class RoleCache {
 		cache = CacheBuilder.newBuilder()
 				.concurrencyLevel(4)
 				.maximumSize(1000)
-				.expireAfterWrite(1, TimeUnit.MINUTES)
+				.expireAfterWrite(5, TimeUnit.MINUTES)
 				.removalListener(removalListener)
 				.build(cacheLoader);
 	}
