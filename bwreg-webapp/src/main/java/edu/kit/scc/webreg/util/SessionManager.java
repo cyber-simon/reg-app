@@ -39,6 +39,7 @@ public class SessionManager implements Serializable {
 	private String originalIdpEntityId;
 	
 	private Set<Long> roles;
+	private Long roleSetCreated;
 	
 	private String theme;
 	
@@ -138,5 +139,14 @@ public class SessionManager implements Serializable {
 
 	public void setOriginalRequestPath(String originalRequestPath) {
 		this.originalRequestPath = originalRequestPath;
-	}	
+	}
+
+	public Long getRoleSetCreated() {
+		return roleSetCreated;
+	}
+
+	public void setRoleSetCreated(Long roleSetCreated) {
+		this.roleSetCreated = roleSetCreated;
+	}
+
 }

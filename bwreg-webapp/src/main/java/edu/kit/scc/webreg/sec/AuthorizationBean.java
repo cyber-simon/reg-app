@@ -21,6 +21,8 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.slf4j.Logger;
+
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.AdminRoleEntity;
 import edu.kit.scc.webreg.entity.ApproverRoleEntity;
@@ -53,6 +55,9 @@ public class AuthorizationBean implements Serializable {
 	private List<ServiceEntity> serviceHotlineList;
 	private List<ServiceEntity> serviceGroupAdminList;
 	
+	@Inject
+	private Logger logger;
+	
     @Inject
     private RegistryService registryService;
 
@@ -82,10 +87,19 @@ public class AuthorizationBean implements Serializable {
     	if (sessionManager.getUserId() == null)
     		return;
     	
+    	long start, end;
+    	
     	UserEntity user = userService.findByIdWithStore(sessionManager.getUserId());
     	List<GroupEntity> groupList = groupService.findByUser(user);
     	String groupString = groupsToString(groupList);
     	
+    	List<ServiceEntity> unregisteredServiceList;
+    	List<RegistryEntity> userRegistryList;
+    	List<ServiceEntity> serviceApproverList;
+    	List<ServiceEntity> serviceAdminList;
+    	List<ServiceEntity> serviceHotlineList;
+    	List<ServiceEntity> serviceGroupAdminList;
+
     	userRegistryList = registryService.findByUserAndNotStatus(user, RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
 
     	serviceApproverList = new ArrayList<ServiceEntity>();
@@ -127,6 +141,8 @@ public class AuthorizationBean implements Serializable {
     	}
     	unregisteredServiceList.removeAll(serviceToRemove);
     	
+    	start = System.currentTimeMillis();
+
     	List<RoleEntity> roleList = roleService.findByUser(user);
     	
     	for (RoleEntity role : roleList) {
@@ -142,6 +158,8 @@ public class AuthorizationBean implements Serializable {
     			serviceGroupAdminList.addAll(serviceService.findByGroupAdminRole(role));
     		}
     	}
+    	end = System.currentTimeMillis();
+    	logger.debug("Role loading took {} ms", (end-start));
 	}
 
     public boolean isUserInRole(String roleName) {
