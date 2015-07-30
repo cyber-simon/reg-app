@@ -11,11 +11,13 @@
 package edu.kit.scc.webreg.util;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Named;
 
@@ -40,10 +42,27 @@ public class SessionManager implements Serializable {
 	
 	private Set<Long> roles;
 	private Long roleSetCreated;
+
+	private List<Long> serviceApproverList;
+	private List<Long> serviceAdminList;
+	private List<Long> serviceHotlineList;
+	private List<Long> serviceGroupAdminList;
+
+	private List<Long> groupList;
+	private String groupString;
 	
 	private String theme;
 	
 	private String locale;
+	
+	@PostConstruct
+	public void init() {
+		serviceApproverList = new ArrayList<Long>();
+		serviceAdminList = new ArrayList<Long>();
+		serviceHotlineList = new ArrayList<Long>();
+		serviceGroupAdminList = new ArrayList<Long>();
+		groupList = new ArrayList<Long>();
+	}
 	
 	public Long getUserId() {
 		return userId;
@@ -149,4 +168,51 @@ public class SessionManager implements Serializable {
 		this.roleSetCreated = roleSetCreated;
 	}
 
+	public List<Long> getServiceApproverList() {
+		return serviceApproverList;
+	}
+
+	public void setServiceApproverList(List<Long> serviceApproverList) {
+		this.serviceApproverList = serviceApproverList;
+	}
+
+	public List<Long> getServiceAdminList() {
+		return serviceAdminList;
+	}
+
+	public void setServiceAdminList(List<Long> serviceAdminList) {
+		this.serviceAdminList = serviceAdminList;
+	}
+
+	public List<Long> getServiceHotlineList() {
+		return serviceHotlineList;
+	}
+
+	public void setServiceHotlineList(List<Long> serviceHotlineList) {
+		this.serviceHotlineList = serviceHotlineList;
+	}
+
+	public List<Long> getServiceGroupAdminList() {
+		return serviceGroupAdminList;
+	}
+
+	public void setServiceGroupAdminList(List<Long> serviceGroupAdminList) {
+		this.serviceGroupAdminList = serviceGroupAdminList;
+	}
+
+	public List<Long> getGroupList() {
+		return groupList;
+	}
+
+	public void setGroupList(List<Long> groupList) {
+		this.groupList = groupList;
+	}
+
+	public String getGroupString() {
+		return groupString;
+	}
+
+	public void setGroupString(String groupString) {
+		this.groupString = groupString;
+	}
 }

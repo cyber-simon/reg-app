@@ -50,10 +50,6 @@ public class AuthorizationBean implements Serializable {
 
 	private List<ServiceEntity> unregisteredServiceList;
 	private List<RegistryEntity> userRegistryList;
-	private List<ServiceEntity> serviceApproverList;
-	private List<ServiceEntity> serviceAdminList;
-	private List<ServiceEntity> serviceHotlineList;
-	private List<ServiceEntity> serviceGroupAdminList;
 	
 	@Inject
 	private Logger logger;
@@ -89,24 +85,30 @@ public class AuthorizationBean implements Serializable {
     	
     	long start, end;
     	
+    	start = System.currentTimeMillis();
     	UserEntity user = userService.findByIdWithStore(sessionManager.getUserId());
-    	List<GroupEntity> groupList = groupService.findByUser(user);
-    	String groupString = groupsToString(groupList);
-    	
-    	List<ServiceEntity> unregisteredServiceList;
-    	List<RegistryEntity> userRegistryList;
-    	List<ServiceEntity> serviceApproverList;
-    	List<ServiceEntity> serviceAdminList;
-    	List<ServiceEntity> serviceHotlineList;
-    	List<ServiceEntity> serviceGroupAdminList;
+    	end = System.currentTimeMillis();
+    	logger.debug("user find by id with store loading took {} ms", (end-start));
 
+    	if (sessionManager.getRoleSetCreated() == null || 
+    			(System.currentTimeMillis() - sessionManager.getRoleSetCreated()) > 5 * 60 * 1000L) {
+	    	start = System.currentTimeMillis();
+	    	List<GroupEntity> groupList = groupService.findByUser(user);
+	    	sessionManager.setGroupString(groupsToString(groupList));
+	    	
+	    	for (GroupEntity g : groupList) {
+	    		sessionManager.getGroupList().add(g.getId());
+	    	}
+	    	
+	    	end = System.currentTimeMillis();
+	    	logger.debug("groups loading took {} ms", (end-start));
+    	}
+    	
+    	start = System.currentTimeMillis();
     	userRegistryList = registryService.findByUserAndNotStatus(user, RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
+    	end = System.currentTimeMillis();
+    	logger.debug("registered servs loading took {} ms", (end-start));
 
-    	serviceApproverList = new ArrayList<ServiceEntity>();
-    	serviceAdminList = new ArrayList<ServiceEntity>();
-    	serviceHotlineList = new ArrayList<ServiceEntity>();
-    	serviceGroupAdminList = new ArrayList<ServiceEntity>();
-    	
     	unregisteredServiceList = serviceService.findAllPublishedWithServiceProps();
     	
     	for (RegistryEntity registry : userRegistryList) {
@@ -127,7 +129,7 @@ public class AuthorizationBean implements Serializable {
     		if (s.getServiceProps().containsKey("group_filter")) {
     			String groupFilter = serviceProps.get("group_filter");
     			if (groupFilter != null &&
-    					(! groupString.matches(groupFilter)))
+    					(! sessionManager.getGroupString().matches(groupFilter)))
     				serviceToRemove.add(s);
     		}
 
@@ -141,25 +143,34 @@ public class AuthorizationBean implements Serializable {
     	}
     	unregisteredServiceList.removeAll(serviceToRemove);
     	
-    	start = System.currentTimeMillis();
-
-    	List<RoleEntity> roleList = roleService.findByUser(user);
-    	
-    	for (RoleEntity role : roleList) {
-    		sessionManager.addRole(role.getId());
-    		if (role instanceof AdminRoleEntity) {
-    			serviceAdminList.addAll(serviceService.findByAdminRole(role));
-    			serviceHotlineList.addAll(serviceService.findByHotlineRole(role));
-    		}
-    		else if (role instanceof ApproverRoleEntity) {
-        		serviceApproverList.addAll(serviceService.findByApproverRole(role));
-    		}
-    		else if (role instanceof GroupAdminRoleEntity) {
-    			serviceGroupAdminList.addAll(serviceService.findByGroupAdminRole(role));
-    		}
+    	if (sessionManager.getRoleSetCreated() == null || 
+    			(System.currentTimeMillis() - sessionManager.getRoleSetCreated()) > 5 * 60 * 1000L) {
+	    	start = System.currentTimeMillis();
+	
+	    	List<RoleEntity> roleList = roleService.findByUser(user);
+	    	
+	    	for (RoleEntity role : roleList) {
+	    		sessionManager.addRole(role.getId());
+	    		if (role instanceof AdminRoleEntity) {
+	    			for (ServiceEntity s : serviceService.findByAdminRole(role))
+	    				sessionManager.getServiceAdminList().add(s.getId());
+	    			for (ServiceEntity s : serviceService.findByHotlineRole(role))
+	    				sessionManager.getServiceHotlineList().add(s.getId());
+	    		}
+	    		else if (role instanceof ApproverRoleEntity) {
+	    			for (ServiceEntity s : serviceService.findByApproverRole(role))
+	    				sessionManager.getServiceApproverList().add(s.getId());
+	    		}
+	    		else if (role instanceof GroupAdminRoleEntity) {
+	    			for (ServiceEntity s : serviceService.findByGroupAdminRole(role))
+	    				sessionManager.getServiceGroupAdminList().add(s.getId());
+	    		}
+	    	}
+	    	end = System.currentTimeMillis();
+	    	logger.debug("Role loading took {} ms", (end-start));
+	    	
+	    	sessionManager.setRoleSetCreated(System.currentTimeMillis());
     	}
-    	end = System.currentTimeMillis();
-    	logger.debug("Role loading took {} ms", (end-start));
 	}
 
     public boolean isUserInRole(String roleName) {
@@ -203,45 +214,25 @@ public class AuthorizationBean implements Serializable {
     public boolean isUserServiceAdmin(Long id) {
     	if (id == null)
     		return false;
-    	
-    	for (ServiceEntity service : getServiceAdminList()) {
-    		if (id.equals(service.getId()))
-    			return true;
-    	}
-    	return false;
+    	return sessionManager.getServiceAdminList().contains(id);
     }
 
     public boolean isUserServiceApprover(Long id) {
     	if (id == null)
-    		return false;
-    	
-    	for (ServiceEntity service : getServiceApproverList()) {
-    		if (id.equals(service.getId()))
-    			return true;
-    	}
-    	return false;
+    		return false;    	
+    	return sessionManager.getServiceApproverList().contains(id);
     }
 
     public boolean isUserServiceHotline(Long id) {
     	if (id == null)
     		return false;
-    	
-    	for (ServiceEntity service : getServiceHotlineList()) {
-    		if (id.equals(service.getId()))
-    			return true;
-    	}
-    	return false;
+    	return sessionManager.getServiceHotlineList().contains(id);
     }
 
     public boolean isUserServiceGroupAdmin(Long id) {
     	if (id == null)
     		return false;
-    	
-    	for (ServiceEntity service : getServiceGroupAdminList()) {
-    		if (id.equals(service.getId()))
-    			return true;
-    	}
-    	return false;
+    	return sessionManager.getServiceGroupAdminList().contains(id);
     }
     
     public List<RegistryEntity> getUserRegistryList() {
@@ -249,19 +240,20 @@ public class AuthorizationBean implements Serializable {
    		return userRegistryList;
     }
 
-	public List<ServiceEntity> getServiceApproverList() {
-    	if (serviceApproverList == null) init();
-		return serviceApproverList;
+	public List<Long> getServiceApproverList() {
+		return sessionManager.getServiceApproverList();
 	}
 
-	public List<ServiceEntity> getServiceAdminList() {
-    	if (serviceAdminList == null) init();
-		return serviceAdminList;
+	public List<Long> getServiceAdminList() {
+		return sessionManager.getServiceAdminList();
 	}
 
-	public List<ServiceEntity> getServiceHotlineList() {
-    	if (serviceHotlineList == null) init();
-		return serviceHotlineList;
+	public List<Long> getServiceHotlineList() {
+		return sessionManager.getServiceHotlineList();
+	}
+
+	public List<Long> getServiceGroupAdminList() {
+		return sessionManager.getServiceGroupAdminList();
 	}
 
 	public boolean isPasswordCapable(ServiceEntity serviceEntity) {
@@ -290,10 +282,6 @@ public class AuthorizationBean implements Serializable {
 			sb.setLength(sb.length() - 1);
 		
 		return sb.toString();
-	}
-
-	public List<ServiceEntity> getServiceGroupAdminList() {
-		return serviceGroupAdminList;
 	}
 
 	public ApplicationConfig getAppConfig() {
