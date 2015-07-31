@@ -86,6 +86,23 @@ public class GroupServiceImpl extends BaseServiceImpl<GroupEntity, Long> impleme
 	}	
 
 	@Override
+	public Set<GroupEntity> findByUserWithParents(UserEntity user) {
+		Set<GroupEntity> groups = new HashSet<GroupEntity>(groupDao.findByUser(user));
+		Set<GroupEntity> targetGroups = new HashSet<GroupEntity>();
+		rollParents(targetGroups, groups, 0, 3);
+		return groups;
+	}	
+
+	private void rollParents(Set<GroupEntity> targetGroups, Set<GroupEntity> groups, int depth, int maxDepth) {
+		if (depth <= maxDepth) {
+			for (GroupEntity group : groups) {
+				rollParents(targetGroups, group.getParents(), depth + 1, maxDepth);
+				targetGroups.add(group);
+			}		
+		}
+	}
+	
+	@Override
 	protected BaseDao<GroupEntity, Long> getDao() {
 		return groupDao;
 	}	

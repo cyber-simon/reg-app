@@ -32,4 +32,6 @@ public interface GroupService extends BaseService<GroupEntity, Long> {
 
 	void removeUserGromGroup(UserEntity user, GroupEntity group);
 
+	Set<GroupEntity> findByUserWithParents(UserEntity user);
+
 }

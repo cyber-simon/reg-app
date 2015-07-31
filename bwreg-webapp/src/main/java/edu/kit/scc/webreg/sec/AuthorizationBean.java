@@ -93,7 +93,8 @@ public class AuthorizationBean implements Serializable {
     	if (sessionManager.getRoleSetCreated() == null || 
     			(System.currentTimeMillis() - sessionManager.getRoleSetCreated()) > 5 * 60 * 1000L) {
 	    	start = System.currentTimeMillis();
-	    	List<GroupEntity> groupList = groupService.findByUser(user);
+	    	Set<GroupEntity> groupList = groupService.findByUserWithParents(user);
+	    	
 	    	sessionManager.setGroupString(groupsToString(groupList));
 	    	
 	    	for (GroupEntity g : groupList) {
@@ -267,9 +268,9 @@ public class AuthorizationBean implements Serializable {
 		return unregisteredServiceList;
 	}
 
-	private String groupsToString(List<GroupEntity> groupList) {
+	private String groupsToString(Set<GroupEntity> groups) {
 		StringBuilder sb = new StringBuilder();
-		for (GroupEntity group : groupList) {
+		for (GroupEntity group : groups) {
 			if (group instanceof HomeOrgGroupEntity &&  
 					((HomeOrgGroupEntity) group).getPrefix() != null) {
 				sb.append(((HomeOrgGroupEntity) group).getPrefix());
