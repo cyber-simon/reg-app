@@ -83,6 +83,18 @@ public class AuthorizationBean implements Serializable {
     	if (sessionManager.getUserId() == null)
     		return;
     	
+    	Long rolesTimeout;
+    	if (appConfig.getConfigValue("AuthorizationBean_rolesTimeout") == null)
+    		rolesTimeout = Long.parseLong(appConfig.getConfigValue("AuthorizationBean_rolesTimeout"));
+    	else 
+    		rolesTimeout = 1 * 60 * 1000L;
+
+    	Long groupsTimeout;
+    	if (appConfig.getConfigValue("AuthorizationBean_groupsTimeout") == null)
+    		groupsTimeout = Long.parseLong(appConfig.getConfigValue("AuthorizationBean_groupsTimeout"));
+    	else 
+    		groupsTimeout = 1 * 60 * 1000L;
+    	
     	long start, end;
     	
     	start = System.currentTimeMillis();
@@ -90,8 +102,8 @@ public class AuthorizationBean implements Serializable {
     	end = System.currentTimeMillis();
     	logger.debug("user find by id with store loading took {} ms", (end-start));
 
-    	if (sessionManager.getRoleSetCreated() == null || 
-    			(System.currentTimeMillis() - sessionManager.getRoleSetCreated()) > 5 * 60 * 1000L) {
+    	if (sessionManager.getGroupSetCreated() == null || 
+    			(System.currentTimeMillis() - sessionManager.getGroupSetCreated()) > groupsTimeout) {
 	    	start = System.currentTimeMillis();
 	    	Set<GroupEntity> groupList = groupService.findByUserWithParents(user);
 	    	
@@ -101,6 +113,8 @@ public class AuthorizationBean implements Serializable {
 	    		sessionManager.getGroupList().add(g.getId());
 	    	}
 	    	
+	    	sessionManager.setGroupSetCreated(System.currentTimeMillis());
+
 	    	end = System.currentTimeMillis();
 	    	logger.debug("groups loading took {} ms", (end-start));
     	}
@@ -145,7 +159,7 @@ public class AuthorizationBean implements Serializable {
     	unregisteredServiceList.removeAll(serviceToRemove);
     	
     	if (sessionManager.getRoleSetCreated() == null || 
-    			(System.currentTimeMillis() - sessionManager.getRoleSetCreated()) > 5 * 60 * 1000L) {
+    			(System.currentTimeMillis() - sessionManager.getRoleSetCreated()) > rolesTimeout) {
 	    	start = System.currentTimeMillis();
 	
 	    	List<RoleEntity> roleList = roleService.findByUser(user);

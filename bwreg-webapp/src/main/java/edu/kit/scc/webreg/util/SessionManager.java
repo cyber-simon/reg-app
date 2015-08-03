@@ -50,6 +50,7 @@ public class SessionManager implements Serializable {
 
 	private List<Long> groupList;
 	private String groupString;
+	private Long groupSetCreated;
 	
 	private String theme;
 	
@@ -214,5 +215,13 @@ public class SessionManager implements Serializable {
 
 	public void setGroupString(String groupString) {
 		this.groupString = groupString;
+	}
+
+	public Long getGroupSetCreated() {
+		return groupSetCreated;
+	}
+
+	public void setGroupSetCreated(Long groupSetCreated) {
+		this.groupSetCreated = groupSetCreated;
 	}
 }
