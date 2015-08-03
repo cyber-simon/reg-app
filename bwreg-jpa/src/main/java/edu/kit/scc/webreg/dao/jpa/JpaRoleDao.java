@@ -21,7 +21,9 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Root;
 
 import edu.kit.scc.webreg.dao.RoleDao;
+import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
+import edu.kit.scc.webreg.entity.RoleGroupEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserRoleEntity;
 
@@ -39,6 +41,38 @@ public class JpaRoleDao extends JpaBaseDao<RoleEntity, Long> implements RoleDao 
 		em.persist(userRole);
 	}
 	
+	@Override
+	public void addGroupToRole(GroupEntity group, RoleEntity role) {
+		RoleGroupEntity roleGroup = createNewRoleGroup();
+		roleGroup.setRole(role);
+		roleGroup.setGroup(group);
+		em.persist(roleGroup);
+	}
+	
+	@Override
+	public void removeGroupFromRole(GroupEntity group, RoleEntity role) {
+		RoleGroupEntity roleGroup = findRoleGroupEntity(group, role);
+		if (roleGroup != null)
+			em.remove(roleGroup);
+	}
+	
+	@Override
+	public RoleGroupEntity createNewRoleGroup() {
+		return new RoleGroupEntity();
+	}
+
+	@Override
+	public RoleGroupEntity findRoleGroupEntity(GroupEntity group, RoleEntity role) {
+		try {
+			return (RoleGroupEntity) em.createQuery("select r from RoleGroupEntity r where r.role = :role "
+					+ "and r.group = :group")
+				.setParameter("role", role).setParameter("group", group).getSingleResult();
+		}
+		catch (NoResultException e) {
+			return null;
+		}
+	}
+
 	@Override
 	public void deleteUserRole(Long userId, String roleName) {
 		UserRoleEntity roleEntity = (UserRoleEntity) em.createQuery("select r from UserRoleEntity r where r.user.id = :userId "

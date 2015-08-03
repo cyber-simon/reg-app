@@ -12,7 +12,9 @@ package edu.kit.scc.webreg.dao;
 
 import java.util.List;
 
+import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
+import edu.kit.scc.webreg.entity.RoleGroupEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserRoleEntity;
 
@@ -35,5 +37,13 @@ public interface RoleDao extends BaseDao<RoleEntity, Long> {
 	Boolean checkUserInRole(Long userId, String roleName);
 
 	Boolean checkAdminUserInRole(Long userId, String roleName);
+
+	void addGroupToRole(GroupEntity group, RoleEntity role);
+
+	void removeGroupFromRole(GroupEntity group, RoleEntity role);
+
+	RoleGroupEntity createNewRoleGroup();
+
+	RoleGroupEntity findRoleGroupEntity(GroupEntity group, RoleEntity role);
 	
 }
