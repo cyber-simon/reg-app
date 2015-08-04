@@ -50,6 +50,11 @@ public class RoleServiceImpl extends BaseServiceImpl<RoleEntity, Long> implement
 	}
 
 	@Override
+	public List<RoleEntity> findByGroups(List<Long> groups) {
+		return dao.findByGroups(groups);
+	}
+
+	@Override
 	public List<RoleEntity> findByUserId(Long userId) {
 		return dao.findByUserId(userId);
 	}

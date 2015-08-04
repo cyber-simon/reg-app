@@ -12,6 +12,7 @@ package edu.kit.scc.webreg.sec;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -84,13 +85,13 @@ public class AuthorizationBean implements Serializable {
     		return;
     	
     	Long rolesTimeout;
-    	if (appConfig.getConfigValue("AuthorizationBean_rolesTimeout") == null)
+    	if (appConfig.getConfigValue("AuthorizationBean_rolesTimeout") != null)
     		rolesTimeout = Long.parseLong(appConfig.getConfigValue("AuthorizationBean_rolesTimeout"));
     	else 
     		rolesTimeout = 1 * 60 * 1000L;
 
     	Long groupsTimeout;
-    	if (appConfig.getConfigValue("AuthorizationBean_groupsTimeout") == null)
+    	if (appConfig.getConfigValue("AuthorizationBean_groupsTimeout") != null)
     		groupsTimeout = Long.parseLong(appConfig.getConfigValue("AuthorizationBean_groupsTimeout"));
     	else 
     		groupsTimeout = 1 * 60 * 1000L;
@@ -107,6 +108,7 @@ public class AuthorizationBean implements Serializable {
 	    	start = System.currentTimeMillis();
 	    	Set<GroupEntity> groupList = groupService.findByUserWithParents(user);
 	    	
+	    	sessionManager.clearGroupList();
 	    	sessionManager.setGroupString(groupsToString(groupList));
 	    	
 	    	for (GroupEntity g : groupList) {
@@ -161,10 +163,14 @@ public class AuthorizationBean implements Serializable {
     	if (sessionManager.getRoleSetCreated() == null || 
     			(System.currentTimeMillis() - sessionManager.getRoleSetCreated()) > rolesTimeout) {
 	    	start = System.currentTimeMillis();
-	
-	    	List<RoleEntity> roleList = roleService.findByUser(user);
+
+	    	sessionManager.clearRoleList();
 	    	
-	    	for (RoleEntity role : roleList) {
+	    	Set<RoleEntity> roles = new HashSet<RoleEntity>(roleService.findByUser(user));
+	    	List<RoleEntity> rolesForGroupList = roleService.findByGroups(sessionManager.getGroupList());
+	    	roles.addAll(rolesForGroupList);
+
+	    	for (RoleEntity role : roles) {
 	    		sessionManager.addRole(role.getId());
 	    		if (role instanceof AdminRoleEntity) {
 	    			for (ServiceEntity s : serviceService.findByAdminRole(role))

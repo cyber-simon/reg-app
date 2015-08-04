@@ -65,6 +65,17 @@ public class SessionManager implements Serializable {
 		groupList = new ArrayList<Long>();
 	}
 	
+	public void clearRoleList() {
+		serviceApproverList.clear();
+		serviceAdminList.clear();
+		serviceHotlineList.clear();
+		serviceGroupAdminList.clear();
+	}
+	
+	public void clearGroupList() {
+		groupList.clear();
+	}
+	
 	public Long getUserId() {
 		return userId;
 	}
