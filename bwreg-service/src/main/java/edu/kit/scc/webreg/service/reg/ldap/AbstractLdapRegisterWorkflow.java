@@ -14,6 +14,7 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -249,6 +250,13 @@ public abstract class AbstractLdapRegisterWorkflow
 		LdapWorker ldapWorker = new LdapWorker(prop, auditor, isSambaEnabled());
 
 		ldapWorker.reconUser(cn, sn, givenName, mail, localUid, uidNumber, gidNumber, homeDir, description);
+		if (! registry.getRegistryValues().containsKey("userPassword")) {
+			List<String> pwList = ldapWorker.getPasswords(localUid);
+			if (pwList.size() > 0) {
+				logger.debug("userPassword is not set in registry but in LDAP ({}). Importing from LDAP", pwList.size());
+				registry.getRegistryValues().put("userPassword", pwList.get(0));
+			}
+		}
 		
 		ldapWorker.closeConnections();
 	}

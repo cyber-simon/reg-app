@@ -185,48 +185,7 @@ public class LdapWorker {
 			}
 		}
 	}
-/*	
-	public void reconGroups(String uid, Set<String> groups) {
-		for (Ldap ldap : connectionManager.getConnections()) {
-			try {
-				Set<String> ldapGroups = new HashSet<String>();
-				Iterator<SearchResult> iterator = ldap.search(new SearchFilter("memberUid=" + uid), new String[] {"cn"});
-				while (iterator.hasNext()) {
-					SearchResult sr = iterator.next();
-					Attribute cnAttr = sr.getAttributes().get("cn");
-					String cn = (String) cnAttr.get();
-					ldapGroups.add(cn);
-				}
 
-				Set<String> addGroups = new HashSet<String>(groups);
-				addGroups.removeAll(ldapGroups);
-
-				Set<String> removeGroups = new HashSet<String>(ldapGroups);
-				removeGroups.removeAll(groups);
-				
-				for (String group : addGroups) {
-					logger.info("Adding member {} to group {}", uid, group);
-					ldap.modifyAttributes("cn=" + group + "," + ldapGroupBase, AttributeModification.ADD, 
-							AttributesFactory.createAttributes("memberUid", uid));
-					auditor.logAction(uid, "ADD LDAP GROUP MEMBER", group, "Added member on " + ldap.getLdapConfig().getLdapUrl(), AuditStatus.SUCCESS);
-				}
-				
-				for (String group : removeGroups) {
-					logger.info("Removing member {} from group {}", uid, group);
-					ldap.modifyAttributes("cn=" + group + "," + ldapGroupBase, AttributeModification.REMOVE, 
-							AttributesFactory.createAttributes("memberUid", uid));
-					auditor.logAction(uid, "REMOVE LDAP GROUP MEMBER", group, "Removed member on " + ldap.getLdapConfig().getLdapUrl(), AuditStatus.SUCCESS);
-				}
-				
-			} catch (NamingException e) {
-				if (ldap.getLdapConfig() != null)
-					logger.info("Group action failed for connection " + ldap.getLdapConfig().getLdapUrl(), e);
-				else
-					logger.info("Group action failed, and oh no, ldapConfig is null!", e);
-			}			
-		}
-	}
-*/	
 	public void reconUser(String cn, String sn, String givenName, String mail, String uid, String uidNumber, String gidNumber,
 			String homeDir, String description) {
 		for (Ldap ldap : connectionManager.getConnections()) {
@@ -381,6 +340,29 @@ public class LdapWorker {
 			}
 
 		}
+	}
+	
+	public List<String> getPasswords(String uid) {
+		List<String> pwList = new ArrayList<String>();
+		for (Ldap ldap : connectionManager.getConnections()) {
+			try {
+				String ldapDn = "uid=" + uid + "," + ldapUserBase;
+				Attributes attrs = ldap.getAttributes(ldapDn);
+				Attribute attr = attrs.get("userPassword");
+				if (attr != null) {
+					for (int i=0; i<attr.size(); i++) {
+						Object attrObject = attr.get(i);
+						if (attrObject != null)
+							pwList.add(new String((byte[]) attrObject));
+					}
+				}				
+			} catch (NamingException e) {
+				logger.warn("FAILED: Getting password for User {} in ldap {}: {}", 
+						new Object[] {uid, ldapUserBase, e.getMessage()});
+			}
+		}
+		
+		return pwList;
 	}
 	
 	public void setPassword(String uid, String password) {
