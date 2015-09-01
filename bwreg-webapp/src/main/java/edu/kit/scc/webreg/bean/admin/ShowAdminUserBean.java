@@ -12,7 +12,6 @@ package edu.kit.scc.webreg.bean.admin;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.security.Provider.Service;
@@ -25,7 +24,6 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
-import org.apache.commons.codec.binary.Base64;
 import org.primefaces.event.TransferEvent;
 import org.primefaces.model.DualListModel;
 import org.slf4j.Logger;
@@ -34,6 +32,7 @@ import edu.kit.scc.webreg.entity.AdminUserEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.service.AdminUserService;
 import edu.kit.scc.webreg.service.RoleService;
+import edu.kit.scc.webreg.service.reg.PasswordUtil;
 
 @ManagedBean
 @ViewScoped
@@ -49,6 +48,9 @@ public class ShowAdminUserBean implements Serializable {
 
 	@Inject
 	private RoleService roleService;
+	
+	@Inject
+	private PasswordUtil passwordUtil;
 	
 	private AdminUserEntity entity;
 
@@ -123,11 +125,7 @@ public class ShowAdminUserBean implements Serializable {
 			
 			if (hashPassword) {
 				try {
-					MessageDigest md = MessageDigest.getInstance(selectedHashMethod);
-					byte[] bytes = newPassword.getBytes(("UTF-8"));
-					md.update(bytes);
-					byte[] digest = md.digest();
-					String hash = "{" + selectedHashMethod + "|" + new String(Base64.encodeBase64(digest)) + "}";
+					String hash = passwordUtil.generatePassword(selectedHashMethod, newPassword);
 					entity.setPassword(hash);
 				} catch (NoSuchAlgorithmException e) {
 					logger.warn("Oh no", e);

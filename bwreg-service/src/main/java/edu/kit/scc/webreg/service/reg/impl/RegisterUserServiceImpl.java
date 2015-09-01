@@ -63,6 +63,7 @@ import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.service.reg.ApprovalService;
 import edu.kit.scc.webreg.service.reg.GroupCapable;
 import edu.kit.scc.webreg.service.reg.GroupUtil;
+import edu.kit.scc.webreg.service.reg.PasswordUtil;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;
 import edu.kit.scc.webreg.service.reg.RegisterUserWorkflow;
 import edu.kit.scc.webreg.service.reg.SetPasswordCapable;
@@ -94,6 +95,9 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	@Inject
 	private GroupUtil groupUtil;
 
+	@Inject
+	private PasswordUtil passwordUtil;
+	
 	@Inject
 	private ApprovalService approvalService;
 
@@ -455,8 +459,11 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 			auditor.setDetail("Setting service password for user " + registry.getUser().getEppn() + " for service " + serviceEntity.getName());
 			auditor.setRegistry(registry);
 			
+			registry.getRegistryValues().put("userPassword", passwordUtil.generatePassword("SHA-512", password));
 			((SetPasswordCapable) workflow).setPassword(userEntity, serviceEntity, registry, auditor, password);
 
+			registry = registryDao.persist(registry);
+			
 			auditor.finishAuditTrail();
 		} catch (RegisterException e) {
 			throw e;
@@ -481,7 +488,10 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 			auditor.setDetail("Delete service password for user " + registry.getUser().getEppn() + " for service " + serviceEntity.getName());
 			auditor.setRegistry(registry);
 			
+			registry.getRegistryValues().remove("userPassword");
 			((SetPasswordCapable) workflow).deletePassword(userEntity, serviceEntity, registry, auditor);
+
+			registry = registryDao.persist(registry);
 
 			auditor.finishAuditTrail();
 		} catch (RegisterException e) {
