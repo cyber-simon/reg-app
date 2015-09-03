@@ -34,6 +34,16 @@ public class PasswordUtil {
 		
 		if (hashMethod.equals("SSHA")) {
 			//@TODO Implement apacheds style salted sha-1
+			String hashPasswordBlank = getPassword(hashPassword);
+			byte[] pwAndSalt = Base64.decodeBase64(hashPasswordBlank);
+			
+			//SHA-1 is 20 bytes long
+			int saltLength = pwAndSalt.length - 20;
+			byte[] pw = new byte[20];
+			byte[] salt = new byte[saltLength];
+			System.arraycopy(pwAndSalt, 0, pw, 0, pw.length);
+			System.arraycopy(pwAndSalt, pw.length, salt, 0, saltLength);
+			
 			return Boolean.FALSE;
 		}
 		else {
@@ -48,12 +58,23 @@ public class PasswordUtil {
 		}
 	}
 	
-	private String getHashMethod(String hashPassword) {
-		if (hashPassword.matches("^{(.*)|(.*)}$")) {
-			return hashPassword.split("|")[0].substring(1);
+	private String getPassword(String hashPassword) {
+		if (hashPassword.matches("^\\{(.+)\\|(.+)\\}$")) {
+			return hashPassword.replaceAll("^\\{(.+)\\|(.+)\\}$", "$2");
 		}
-		else if (hashPassword.matches("^{(.*)}(.*)$")) {
-			return hashPassword.split("}")[0].substring(1);			
+		else if (hashPassword.matches("^\\{(.+)\\}(.+)$")) {
+			return hashPassword.replaceAll("^\\{(.+)\\|(.+)\\}$", "$2");
+		}
+		else
+			return null;
+	}
+	
+	private String getHashMethod(String hashPassword) {
+		if (hashPassword.matches("^\\{(.+)\\|(.+)\\}$")) {
+			return hashPassword.replaceAll("^\\{(.+)\\|(.+)\\}$", "$1");
+		}
+		else if (hashPassword.matches("^\\{(.+)\\}(.+)$")) {
+			return hashPassword.replaceAll("^\\{(.+)\\|(.+)\\}$", "$1");
 		}
 		else
 			return null;

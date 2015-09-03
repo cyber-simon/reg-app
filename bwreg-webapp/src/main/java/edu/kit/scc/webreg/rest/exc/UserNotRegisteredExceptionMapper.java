@@ -10,28 +10,18 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.rest.exc;
 
-import java.util.List;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
 
-import edu.kit.scc.webreg.drools.UnauthorizedUser;
+@Provider
+public class UserNotRegisteredExceptionMapper implements ExceptionMapper<UserNotRegisteredException> {
 
-public class UnauthorizedException extends RestInterfaceException {
-
-	private static final long serialVersionUID = 1L;
-
-	private List<UnauthorizedUser> unauthList;
-	
-	public UnauthorizedException(List<UnauthorizedUser> unauthList) {
-		super();
-		
-		this.unauthList = unauthList;
-	}
-
-	public UnauthorizedException(String message) {
-		super(message);
-	}
-
-	public List<UnauthorizedUser> getUnauthList() {
-		return unauthList;
+	@Override
+	public Response toResponse(UserNotRegisteredException ex) {
+		return Response.status(404).entity(ex.getMessage())
+				.type(MediaType.TEXT_PLAIN).build();
 	}
 
 }

@@ -72,10 +72,22 @@ import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.rest.dto.ECPResponse;
 import edu.kit.scc.webreg.rest.dto.RestError;
 import edu.kit.scc.webreg.rest.exc.AssertionException;
+import edu.kit.scc.webreg.rest.exc.GenericRestInterfaceException;
 import edu.kit.scc.webreg.rest.exc.LoginFailedException;
+import edu.kit.scc.webreg.rest.exc.NoDelegationConfiguredException;
+import edu.kit.scc.webreg.rest.exc.NoEcpSupportException;
+import edu.kit.scc.webreg.rest.exc.NoHostnameConfiguredException;
+import edu.kit.scc.webreg.rest.exc.NoIdpForScopeException;
+import edu.kit.scc.webreg.rest.exc.NoIdpFoundException;
 import edu.kit.scc.webreg.rest.exc.NoItemFoundException;
 import edu.kit.scc.webreg.rest.exc.NoRegistryFoundException;
+import edu.kit.scc.webreg.rest.exc.NoScopedUsernameException;
+import edu.kit.scc.webreg.rest.exc.NoServiceFoundException;
+import edu.kit.scc.webreg.rest.exc.NoUserFoundException;
 import edu.kit.scc.webreg.rest.exc.RestInterfaceException;
+import edu.kit.scc.webreg.rest.exc.UnauthorizedException;
+import edu.kit.scc.webreg.rest.exc.UserNotRegisteredException;
+import edu.kit.scc.webreg.rest.exc.UserUpdateFailedException;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.SamlSpConfigurationService;
@@ -149,13 +161,26 @@ public class EcpController {
 			@PathParam("service") String serviceShortName,
 			@FormParam("password") String password, @Context HttpServletRequest request)
 			throws IOException, ServletException, RestInterfaceException {
+
+		UserEntity user = findUser(eppn);
+		if (user == null)
+			throw new NoUserFoundException("no such user");
+		
+		ServiceEntity service = findService(serviceShortName);
+		if (service == null)
+			throw new NoServiceFoundException("no such service");
+		
+		RegistryEntity registry = findRegistry(user, service);
+		if (registry == null)
+			throw new NoRegistryFoundException("user not registered for service");
+		
 		if (password != null && (password.toLowerCase().startsWith("<?xml version") ||
 				password.startsWith("<saml2:Assertion "))) {
-			return delegateLogin(eppn, serviceShortName,
+			return delegateLogin(user, service, registry,
 					password, request);
 		}
-		else {
-			return ecpIntern(eppn, serviceShortName, password, request);
+		else {			
+			return ecp(user, service, registry, password, request);
 		}
 	}
 
@@ -167,13 +192,33 @@ public class EcpController {
 			@PathParam("service") String serviceShortName,
 			@FormParam("password") String password, @Context HttpServletRequest request)
 			throws IOException, ServletException, RestInterfaceException {
+
+		ECPResponse response = new ECPResponse();
+		
+		UserEntity user = findUser(eppn);
+		if (user == null) {
+			generateFailXml(response, 400, "ecp login failed", "user-not-found");
+			return response;
+		}
+		
+		ServiceEntity service = findService(serviceShortName);
+		if (service == null) {
+			generateFailXml(response, 400, "ecp login failed", "no-such-service");
+			return response;
+		}
+		
+		RegistryEntity registry = findRegistry(user, service);
+		if (registry == null) {
+			generateFailXml(response, 400, "ecp login failed", "user-not-registered");
+			return response;
+		}
+		
 		if (password != null && (password.toLowerCase().startsWith("<?xml version") ||
 				password.startsWith("<saml2:Assertion "))) {
-			return delegateLoginXml(eppn, serviceShortName,
-					password, request);
+			return delegateLoginXml(response, user, service, registry, password, request);
 		}
 		else {
-			return ecpInternXml(eppn, serviceShortName, password, request);
+			return ecpInternXml(response, user, service, registry, password, request);
 		}
 	}
 
@@ -193,11 +238,11 @@ public class EcpController {
 		
 		if (password != null && (password.toLowerCase().startsWith("<?xml version") ||
 				password.startsWith("<saml2:Assertion "))) {
-			return delegateLogin(registry.getUser().getEppn(), registry.getService().getShortName(),
+			return delegateLogin(registry.getUser(), registry.getService(), registry,
 					password, request);
 		}
 		else {
-			return ecpIntern(registry.getUser().getEppn(), registry.getService().getShortName(),
+			return ecp(registry.getUser(), registry.getService(), registry,
 				password, request);
 		}
 	}
@@ -209,478 +254,56 @@ public class EcpController {
 	public ECPResponse ecpLoginXml(@PathParam("regid") Long regId,
 			@FormParam("password") String password, @Context HttpServletRequest request)
 			throws IOException, ServletException, RestInterfaceException {
-		RegistryEntity registry = registryService.findById(regId);
 
+		ECPResponse response = new ECPResponse();
+
+		RegistryEntity registry = registryService.findById(regId);
 		if (registry == null) {
-			logger.info("No registry found for id {}", regId);
-			throw new NoItemFoundException("registry unknown");
+			generateFailXml(response, 400, "ecp login failed", "user-not-registered");
+			return response;
 		}
 		
 		if (password != null && (password.toLowerCase().startsWith("<?xml version") ||
 				password.startsWith("<saml2:Assertion "))) {
-			return delegateLoginXml(registry.getUser().getEppn(), registry.getService().getShortName(),
+			return delegateLoginXml(response, registry.getUser(), registry.getService(), registry,
 					password, request);
 		}
 		else {
-			return ecpInternXml(registry.getUser().getEppn(), registry.getService().getShortName(),
+			return ecpInternXml(response, registry.getUser(), registry.getService(), registry,
 				password, request);
 		}
 	}
 
-	private ECPResponse ecpInternXml(String eppn, String serviceShortName,
-			String password, HttpServletRequest request)
-			throws IOException, ServletException, RestInterfaceException {
+	private Map<String, String> ecp(UserEntity user, ServiceEntity service, RegistryEntity registry,
+			String password, HttpServletRequest request) throws RestInterfaceException {
 
-		logger.debug("Attempting ECP Authentication for {} and service {}", eppn, serviceShortName);
-		ECPResponse response = new ECPResponse();
-		
-		String[] splits = eppn.split("@");
+		logger.debug("Attempting ECP Authentication for {} and service {} (regId {})", user.getEppn(), service.getShortName(), registry.getId());
+
+		String[] splits = user.getEppn().split("@");
 		
 		if (splits.length != 2) {
-			generateFailXml(response, 400, "ecp login failed", "no-scoped-username");
-			return response;
+			throw new NoScopedUsernameException("username must be scoped");
 		}
-		
 		String username = splits[0];
 		String scope = splits[1];
 		
 		SamlIdpMetadataEntity idp = idpService.findByScope(scope);
 
 		if (idp == null) {
-			generateFailXml(response, 400, "ecp login failed", "no-idp-for-scope");
-			return response;
-		}
-
-		ServiceEntity service = findService(serviceShortName);
-		
-		if (service == null) {
-			generateFailXml(response, 400, "ecp login failed", "no-such-service");
-			return response;
+			throw new NoIdpForScopeException("scope unknown");
 		}
 
 		try {
 			EntityDescriptor idpEntityDesc = samlHelper.unmarshal(idp.getEntityDescriptor(), EntityDescriptor.class);
 			if (idpEntityDesc == null) {
 				logger.warn("EntityDescriptor for {} is not parsable", idp.getEntityId());
-				generateFailXml(response, 500, "ecp login failed", "idp-metadata-error");
-				return response;
+				throw new NoIdpFoundException("IDP metadata are not parseable");
 			}
 			
 			SingleSignOnService sso = metadataHelper.getSSO(idpEntityDesc, SAMLConstants.SAML2_SOAP11_BINDING_URI);
 			if (sso == null) {
 				logger.warn("No SOAP Endpoint defined for {}", idp.getEntityId());
-				generateFailXml(response, 400, "ecp login failed", "idp-ecp-not-supported");
-				return response;
-			}
-			String bindingLocation = sso.getLocation();
-			String bindingHost = (new URL(bindingLocation)).getHost();
-			String hostname = request.getLocalName();
-			logger.debug("hostname is {}", hostname);
-			SamlSpConfigurationEntity sp = spService.findByHostname(hostname);
-			
-			if (sp == null) {
-				logger.warn("No hostname configured for {}", hostname);
-				generateFailXml(response, 500, "ecp login failed", "no-hostname-configured");
-				return response;
-			}
-			
-			AuthnRequest authnRequest = ssoHelper.buildAuthnRequest(sp.getEntityId(), sp.getEcp(),
-					SAMLConstants.SAML2_PAOS_BINDING_URI);
-			Envelope envelope = attrQueryHelper.buildSOAP11Envelope(authnRequest);
-			BasicSOAPMessageContext soapContext = new BasicSOAPMessageContext();
-			soapContext.setOutboundMessage(envelope);
-			
-			HttpClientBuilder clientBuilder = new HttpClientBuilder();
-			HttpClient client = clientBuilder.buildClient();
-			client.getState().setCredentials(
-	                new AuthScope(bindingHost, 443),
-	                new UsernamePasswordCredentials(username, password));
-			HttpSOAPClient soapClient = new HttpSOAPClient(client, 
-					samlHelper.getBasicParserPool());
-		
-			try {
-				soapClient.send(bindingLocation, soapContext);
-			} catch (SOAPClientException se) {
-				logger.info("Login failed for user {} idp {}", username, idp.getEntityId());
-				generateFailXml(response, 500, "ecp login failed", "login-failed");
-				return response;
-			}
-			Envelope returnEnvelope = (Envelope) soapContext.getInboundMessage();
-			Response samlResponse = 
-					attrQueryHelper.getResponseFromEnvelope(returnEnvelope);
-
-			return processResponseXml(response, samlResponse, idpEntityDesc, service, idp, sp, "ecp");
-
-		} catch (SOAPException e) {
-			logger.info("exception at ecp query", e);
-			throw new NoItemFoundException("an error occured: " + e.getMessage());
-		} catch (SecurityException e) {
-			logger.info("exception at ecp query", e);
-			throw new NoItemFoundException("an error occured: " + e.getMessage());
-		} catch (DecryptionException e) {
-			logger.info("exception at ecp query", e);
-			throw new NoItemFoundException("an error occured: " + e.getMessage());
-		} catch (IOException e) {
-			logger.info("exception at ecp query", e);
-			throw new NoItemFoundException("an error occured: " + e.getMessage());
-		} catch (SamlAuthenticationException e) {
-			logger.info("exception at attribute query", e);
-			throw new NoItemFoundException("an error occured: " + e.getMessage());
-		}		
-	}
-
-	private ECPResponse delegateLoginXml(String eppn, String serviceShortName,
-			String password, HttpServletRequest request)
-			throws IOException, ServletException, RestInterfaceException {
-		
-		ECPResponse response = new ECPResponse();
-		
-		ServiceEntity service = findService(serviceShortName);
-		
-		if (service == null) {
-			generateFailXml(response, 400, "ecp login failed", "no-such-service");
-			return response;
-		}
-		
-		if (! service.getServiceProps().containsKey("delegate_entities")) {
-			generateFailXml(response, 500, "ecp login failed", "delegation-not-configured");
-			return response;
-		}
-		
-		List<String> delegateEntityList = Arrays.asList(service.getServiceProps().get("delegate_entities").split(" "));
-		
-		Long delegateAssertionTimeout;
-		
-		/* if not configured, use 4 hours */
-		if (! service.getServiceProps().containsKey("delegate_assertion_timeout"))
-			delegateAssertionTimeout = 4 * 60 * 60 * 1000L;
-		else
-			delegateAssertionTimeout = Long.parseLong(service.getServiceProps().get("delegate_assertion_timeout"));
-			
-		logger.info("Attempting delgated Authentication for {} and service {}", eppn, serviceShortName);
-
-		Assertion assertion = samlHelper.unmarshal(password, Assertion.class);
-		
-		if (assertion == null) {
-			generateFailXml(response, 400, "ecp login failed", "assertion-invalid");
-			return response;
-		}
-		
-		if (assertion.getConditions() == null ||
-				assertion.getConditions().getAudienceRestrictions() == null ||
-				assertion.getConditions().getAudienceRestrictions().size() == 0) {
-			generateFailXml(response, 400, "ecp login failed", "audience-restriction-missing");
-			return response;
-		}
-		
-		List<AudienceRestriction> audienceRestrictionList = assertion.getConditions().getAudienceRestrictions();
-		
-		if (System.currentTimeMillis() - assertion.getConditions().getNotBefore().getMillis() > delegateAssertionTimeout) {
-			logger.info("assertion is older than {} ms ({}, {})", delegateAssertionTimeout, eppn, serviceShortName);
-			generateFailXml(response, 400, "ecp login failed", "assertion-too-old");
-			return response;
-		}
-		
-		boolean audienceOk = false;
-		
-		for (AudienceRestriction audienceRestriction : audienceRestrictionList) {
-			for (Audience audience : audienceRestriction.getAudiences()) {
-				if (delegateEntityList.contains(audience.getAudienceURI())) {
-					logger.debug("Audience hit: {}", audience.getAudienceURI());
-					audienceOk = true;
-					break;
-				}
-			}
-		}
-		
-		if (! audienceOk) { 
-			logger.info("assertion does not match a configured audience (delegate_entities) ({}, {})", eppn, serviceShortName);
-			generateFailXml(response, 400, "ecp login failed", "assertion-not-from-configured-audience");
-			return response;
-		}
-		
-		String hostname = request.getLocalName();
-		logger.debug("hostname is {}", hostname);
-		SamlSpConfigurationEntity sp = spService.findByHostname(hostname);
-		
-		if (sp == null) {
-			logger.warn("No hostname configured for {}", hostname);
-			generateFailXml(response, 500, "ecp login failed", "no-hostname-configured");
-			return response;
-		}
-		
-		UserEntity user = findUser(eppn);
-		
-		if (user == null) {
-			logger.info("No user found by eppn {}", eppn);
-			generateFailXml(response, 400, "ecp login failed", "user-not-found");
-			return response;
-		}
-
-		SamlIdpMetadataEntity idp = idpService.findByEntityId(user.getIdp().getEntityId());
-
-		if (idp == null) {
-			logger.info("No IDP found for user {} by entityId {}", user.getEppn(), user.getIdp().getEntityId());
-			generateFailXml(response, 400, "ecp login failed", "idp-not-found");
-			return response;
-		}
-
-		if (assertion.getIssuer() != null && 
-				(! assertion.getIssuer().getValue().equals(idp.getEntityId()))) {
-			logger.info("User {} is from idp {}, but assertion from idp {}", user.getEppn(), idp.getEntityId(),
-					assertion.getIssuer().getValue());
-			generateFailXml(response, 400, "ecp login failed", "wrong-idp-for-user");
-			return response;
-		}
-		
-		EntityDescriptor idpEntityDesc = samlHelper.unmarshal(idp.getEntityDescriptor(), EntityDescriptor.class);
-		
-		if (idpEntityDesc == null) {
-			logger.warn("EntityDescriptor for {} is not parsable", idp.getEntityId());
-			generateFailXml(response, 500, "ecp login failed", "idp-metadata-error");
-			return response;
-		}
-
-		try {
-			logger.debug("Validating Signature for " + assertion.getID());					
-			saml2ResponseValidationService.validateIdpSignature(assertion, assertion.getIssuer(), idpEntityDesc);
-			logger.debug("Validating Signature success for " + assertion.getID());
-		} catch (SamlAuthenticationException e) {
-			logger.info("Could not validate signature for user {}", user.getEppn());
-			generateFailXml(response, 400, "ecp login failed", "assertion-signature-invalid");
-			return response;
-		}					
-
-		Map<String, List<Object>> attributeMap = saml2AssertionService.extractAttributes(assertion);
-		
-		String assertionEppn = attrHelper.getSingleStringFirst(attributeMap, "urn:oid:1.3.6.1.4.1.5923.1.1.1.6");
-		
-		if (assertionEppn != null &&
-				assertionEppn.equals(eppn)) {
-			
-			logger.debug("EPPN from assertion and login match");
-			
-			try {
-
-				Response samlResponse = attrQueryHelper.query(user, idp, idpEntityDesc, sp);
-				
-				return processResponseXml(response, samlResponse, idpEntityDesc, service, idp, sp, "ecp-delegate");
-			
-			} catch (SOAPException e) {
-				logger.info("exception at attribute query", e);
-				throw new NoItemFoundException("an error occured: " + e.getMessage());
-			} catch (MetadataException e) {
-				logger.info("exception at attribute query", e);
-				throw new NoItemFoundException("an error occured: " + e.getMessage());
-			} catch (SecurityException e) {
-				logger.info("exception at attribute query", e);
-				throw new NoItemFoundException("an error occured: " + e.getMessage());
-			} catch (DecryptionException e) {
-				logger.info("exception at attribute query", e);
-				throw new NoItemFoundException("an error occured: " + e.getMessage());
-			} catch (SamlAuthenticationException e) {
-				logger.info("exception at attribute query", e);
-				throw new NoItemFoundException("an error occured: " + e.getMessage());
-			}
-		}
-		else {
-			if (attributeMap.containsKey("urn:oid:1.3.6.1.4.1.5923.1.1.1.6"))
-				logger.warn("User tried to login with wrong Eppn from Assertion {} <-> {}", eppn, attributeMap.get("urn:oid:1.3.6.1.4.1.5923.1.1.1.6"));
-			else
-				logger.warn("User {} tried to login with missing Eppn in Assertion", eppn);
-
-			generateFailXml(response, 400, "ecp login failed", "assertion-has-wrong-eppn");
-			return response;
-		}
-	}
-
-	private Map<String, String> delegateLogin(String eppn, String serviceShortName,
-			String password, HttpServletRequest request)
-			throws IOException, ServletException, RestInterfaceException {
-		
-		ServiceEntity service = serviceService.findByShortName(serviceShortName);
-		service = serviceService.findByIdWithServiceProps(service.getId());
-		
-		if (service == null) {
-			throw new NoItemFoundException("unknown service");
-		}
-
-		if (! service.getServiceProps().containsKey("delegate_entities")) {
-			throw new NoItemFoundException("delegation not possible");
-		}
-		
-		List<String> delegateEntityList = Arrays.asList(service.getServiceProps().get("delegate_entities").split(" "));
-		
-		Long delegateAssertionTimeout;
-		
-		/* if not configured, use 4 hours */
-		if (! service.getServiceProps().containsKey("delegate_assertion_timeout"))
-			delegateAssertionTimeout = 4 * 60 * 60 * 1000L;
-		else
-			delegateAssertionTimeout = Long.parseLong(service.getServiceProps().get("delegate_assertion_timeout"));
-			
-		logger.info("Attempting delgated Authentication for {} and service {}", eppn, serviceShortName);
-
-		Assertion assertion = samlHelper.unmarshal(password, Assertion.class);
-		
-		if (assertion == null)
-			throw new AssertionException("assertion xml is not valid");
-
-		if (assertion.getConditions() == null ||
-				assertion.getConditions().getAudienceRestrictions() == null ||
-				assertion.getConditions().getAudienceRestrictions().size() == 0)
-			throw new AssertionException("assertion xml is missing audience restriction");
-			
-		List<AudienceRestriction> audienceRestrictionList = assertion.getConditions().getAudienceRestrictions();
-		
-		if (System.currentTimeMillis() - assertion.getConditions().getNotBefore().getMillis() > delegateAssertionTimeout) {
-			logger.info("assertion is older than {} ms ({}, {})", delegateAssertionTimeout, eppn, serviceShortName);
-			throw new AssertionException("assertion is older than " + delegateAssertionTimeout + " ms");
-		}
-		
-		boolean audienceOk = false;
-		
-		for (AudienceRestriction audienceRestriction : audienceRestrictionList) {
-			for (Audience audience : audienceRestriction.getAudiences()) {
-				if (delegateEntityList.contains(audience.getAudienceURI())) {
-					logger.debug("Audience hit: {}", audience.getAudienceURI());
-					audienceOk = true;
-					break;
-				}
-			}
-		}
-		
-		if (! audienceOk) { 
-			logger.info("assertion does not match a configured audience (delegate_entities) ({}, {})", eppn, serviceShortName);
-			throw new AssertionException("assertion is not from configured audience");
-		}
-		
-		String hostname = request.getLocalName();
-		logger.debug("hostname is {}", hostname);
-		SamlSpConfigurationEntity sp = spService.findByHostname(hostname);
-		
-		if (sp == null) {
-			logger.warn("No hostname configured for {}", hostname);
-			throw new NoItemFoundException("No hostname configured");
-		}
-		
-		UserEntity user = userService.findByEppn(eppn);
-		
-		if (user == null) {
-			logger.info("No user found by eppn {}", eppn);
-			throw new NoItemFoundException("user unknown");
-		}
-
-		SamlIdpMetadataEntity idp = idpService.findByEntityId(user.getIdp().getEntityId());
-
-		if (idp == null) {
-			logger.info("No IDP found for user {} by entityId {}", user.getEppn(), user.getIdp().getEntityId());
-			throw new NoItemFoundException("idp unknown");
-		}
-
-		if (assertion.getIssuer() != null && 
-				(! assertion.getIssuer().getValue().equals(idp.getEntityId()))) {
-			logger.info("User {} is from idp {}, but assertion from idp {}", user.getEppn(), idp.getEntityId(),
-					assertion.getIssuer().getValue());
-			throw new NoItemFoundException("issuing idp wrong for user");
-		}
-		
-		EntityDescriptor idpEntityDesc = samlHelper.unmarshal(idp.getEntityDescriptor(), EntityDescriptor.class);
-		
-		if (idpEntityDesc == null) {
-			logger.warn("EntityDescriptor for {} is not parsable", idp.getEntityId());
-			throw new NoItemFoundException("IDP metadata are not parseable");
-		}
-
-		try {
-			logger.debug("Validating Signature for " + assertion.getID());					
-			saml2ResponseValidationService.validateIdpSignature(assertion, assertion.getIssuer(), idpEntityDesc);
-			logger.debug("Validating Signature success for " + assertion.getID());
-		} catch (SamlAuthenticationException e) {
-			logger.info("Could not validate signature for user {}", user.getEppn());
-			throw new AssertionException("assertion signature cannot be validated");
-		}					
-
-		Map<String, List<Object>> attributeMap = saml2AssertionService.extractAttributes(assertion);
-		
-		String assertionEppn = attrHelper.getSingleStringFirst(attributeMap, "urn:oid:1.3.6.1.4.1.5923.1.1.1.6");
-		
-		if (assertionEppn != null &&
-				assertionEppn.equals(eppn)) {
-			
-			logger.debug("EPPN from assertion and login match");
-			
-			try {
-
-				Response response = attrQueryHelper.query(user, idp, idpEntityDesc, sp);
-				
-				return processResponse(response, idpEntityDesc, service, idp, sp, "ecp-delegate");
-			
-			} catch (SOAPException e) {
-				logger.info("exception at attribute query", e);
-				throw new NoItemFoundException("an error occured: " + e.getMessage());
-			} catch (MetadataException e) {
-				logger.info("exception at attribute query", e);
-				throw new NoItemFoundException("an error occured: " + e.getMessage());
-			} catch (SecurityException e) {
-				logger.info("exception at attribute query", e);
-				throw new NoItemFoundException("an error occured: " + e.getMessage());
-			} catch (DecryptionException e) {
-				logger.info("exception at attribute query", e);
-				throw new NoItemFoundException("an error occured: " + e.getMessage());
-			} catch (SamlAuthenticationException e) {
-				logger.info("exception at attribute query", e);
-				throw new NoItemFoundException("an error occured: " + e.getMessage());
-			}
-		}
-		else {
-			if (attributeMap.containsKey("urn:oid:1.3.6.1.4.1.5923.1.1.1.6"))
-				logger.warn("User tried to login with wrong Eppn from Assertion {} <-> {}", eppn, attributeMap.get("urn:oid:1.3.6.1.4.1.5923.1.1.1.6"));
-			else
-				logger.warn("User {} tried to login with missing Eppn in Assertion", eppn);
-			throw new LoginFailedException("Assertion is for wrong EPPN");
-		}
-	}
-	
-	private Map<String, String> ecpIntern(String eppn, String serviceShortName,
-			String password, HttpServletRequest request)
-			throws IOException, ServletException, RestInterfaceException {
-
-		logger.debug("Attempting ECP Authentication for {} and service {}", eppn, serviceShortName);
-
-		String[] splits = eppn.split("@");
-		
-		if (splits.length != 2) {
-			throw new NoItemFoundException("username must be scoped");
-		}
-		
-		String username = splits[0];
-		String scope = splits[1];
-		
-		SamlIdpMetadataEntity idp = idpService.findByScope(scope);
-
-		if (idp == null) {
-			logger.info("No IDP found for scope {}", scope);
-			throw new NoItemFoundException("scope unknown");
-		}
-
-		ServiceEntity service = serviceService.findByShortName(serviceShortName);
-		
-		if (service == null) {
-			throw new NoItemFoundException("unknown service");
-		}
-		
-		try {
-			EntityDescriptor idpEntityDesc = samlHelper.unmarshal(idp.getEntityDescriptor(), EntityDescriptor.class);
-			if (idpEntityDesc == null) {
-				logger.warn("EntityDescriptor for {} is not parsable", idp.getEntityId());
-				throw new NoItemFoundException("IDP metadata are not parseable");
-			}
-			
-			SingleSignOnService sso = metadataHelper.getSSO(idpEntityDesc, SAMLConstants.SAML2_SOAP11_BINDING_URI);
-			if (sso == null) {
-				logger.warn("No SOAP Endpoint defined for {}", idp.getEntityId());
-				throw new NoItemFoundException("IDP is not compatible. SOAP ECP Endpoint is missing in metadata");
+				throw new NoEcpSupportException("IDP is not compatible. SOAP ECP Endpoint is missing in metadata");
 			}
 			String bindingLocation = sso.getLocation();
 			String bindingHost = (new URL(bindingLocation)).getHost();
@@ -721,71 +344,268 @@ public class EcpController {
 
 		} catch (SOAPException e) {
 			logger.info("exception at ecp query", e);
-			throw new NoItemFoundException("an error occured: " + e.getMessage());
+			throw new GenericRestInterfaceException("an error occured: " + e.getMessage());
 		} catch (SecurityException e) {
 			logger.info("exception at ecp query", e);
-			throw new NoItemFoundException("an error occured: " + e.getMessage());
+			throw new GenericRestInterfaceException("an error occured: " + e.getMessage());
 		} catch (DecryptionException e) {
 			logger.info("exception at ecp query", e);
-			throw new NoItemFoundException("an error occured: " + e.getMessage());
+			throw new GenericRestInterfaceException("an error occured: " + e.getMessage());
 		} catch (IOException e) {
 			logger.info("exception at ecp query", e);
-			throw new NoItemFoundException("an error occured: " + e.getMessage());
+			throw new GenericRestInterfaceException("an error occured: " + e.getMessage());
 		} catch (SamlAuthenticationException e) {
 			logger.info("exception at attribute query", e);
-			throw new NoItemFoundException("an error occured: " + e.getMessage());
-		}		
+			throw new GenericRestInterfaceException("an error occured: " + e.getMessage());
+		}	
 	}
-
-	private ECPResponse processResponseXml(ECPResponse response, Response samlResponse, EntityDescriptor idpEntityDescriptor,
-			ServiceEntity service, SamlIdpMetadataEntity idp, SamlSpConfigurationEntity spEntity, String caller) 
-					throws RestInterfaceException, IOException, DecryptionException, SamlAuthenticationException {
-		
-		Assertion assertion = saml2AssertionService.processSamlResponse(samlResponse, idp, idpEntityDescriptor, spEntity);
-
-		String persistentId = saml2AssertionService.extractPersistentId(assertion, spEntity);
-		
-		UserEntity user = userService.findByPersistentWithRoles(spEntity.getEntityId(), 
-				idp.getEntityId(), persistentId);
 	
-		if (user == null) {
-			generateFailXml(response, 400, "ecp login failed", "user-not-found");
+	private ECPResponse ecpInternXml(ECPResponse response, UserEntity user, ServiceEntity service, RegistryEntity registry,
+			String password, HttpServletRequest request)
+			throws IOException, ServletException {
+
+		try {
+			ecp(user, service, registry, password, request);
+		}
+		catch (NoScopedUsernameException e) {
+			generateFailXml(response, 400, "ecp login failed", "no-scoped-username");
 			return response;
 		}
-		
-		try {
-			user = userUpdateService.updateUser(user, assertion, caller, service);
-		} catch (UserUpdateException e) {
-			logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
+		catch (NoIdpForScopeException e) {
+			generateFailXml(response, 400, "ecp login failed", "no-idp-for-scope");
+			return response;
+		}
+		catch (NoIdpFoundException e) {
+			generateFailXml(response, 500, "ecp login failed", "idp-metadata-error");
+			return response;
+		}
+		catch (NoEcpSupportException e) {
+			generateFailXml(response, 400, "ecp login failed", "idp-ecp-not-supported");
+			return response;
+		}
+		catch (NoHostnameConfiguredException e) {
+			generateFailXml(response, 500, "ecp login failed", "no-hostname-configured");
+			return response;
+		}
+		catch (LoginFailedException e) {
+			generateFailXml(response, 500, "ecp login failed", "login-failed");
+			return response;
+		}
+		catch (UserUpdateFailedException e) {
 			generateFailXml(response, 400, "ecp login failed", "user-update-failed");
 			return response;
 		}
-
-		RegistryEntity registry = findRegistry(user, service);
-		
-		if (registry == null) {
-			generateFailXml(response, 400, "ecp login failed", "user-not-registered");
-			return response;
-		}
-			
-		List<Object> objectList = checkRules(user, service, registry);
-		List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
-		List<UnauthorizedUser> unauthorizedUserList = extractUnauthorizedUser(objectList);
-		
-		if (unauthorizedUserList.size() == 0 || overrideAccessList.size() > 0) {
-			response.setCode(200);
-			response.setMessage("success");
-		}
-		else {
+		catch (UnauthorizedException e) {
 			response.setCode(405);
 			response.setMessage("rules failed");
 			
-			for (UnauthorizedUser uu : unauthorizedUserList) {
+			for (UnauthorizedUser uu : e.getUnauthList()) {
 				addXmlError(response, uu.getMessage(), resolveString(uu.getMessage()));
 			}
 		}
+		catch (GenericRestInterfaceException e) {
+			generateFailXml(response, 500, "ecp login failed", "generic-error");
+			return response;
+		}
+		catch (RestInterfaceException e) {
+			logger.warn("Unmapped RestInterfaceException!", e);
+			generateFailXml(response, 400, "ecp login failed", "unknown-error");
+			return response;
+		}	
+		
+		response.setCode(200);
+		response.setMessage("success");
 
 		return response;
+	}
+
+	private ECPResponse delegateLoginXml(ECPResponse response, UserEntity user, ServiceEntity service, RegistryEntity registry,
+			String password, HttpServletRequest request)
+			throws IOException, ServletException {
+		
+		try {
+			delegateLogin(user, service, registry, password, request);
+		} 
+		catch (NoDelegationConfiguredException e) {
+			generateFailXml(response, 500, "ecp login failed", "delegation-not-configured");
+			return response;
+		}
+		catch (AssertionException e) {
+			generateFailXml(response, 400, "ecp login failed", e.getMessage());
+			return response;
+		}
+		catch (LoginFailedException e) {
+			generateFailXml(response, 500, "ecp login failed", "eppn-mismatch");
+			return response;
+		}
+		catch (NoIdpFoundException e) {
+			generateFailXml(response, 500, "ecp login failed", "idp-metadata-error");
+			return response;
+		}
+		catch (NoHostnameConfiguredException e) {
+			generateFailXml(response, 500, "ecp login failed", "no-hostname-configured");
+			return response;
+		}
+		catch (UserUpdateFailedException e) {
+			generateFailXml(response, 400, "ecp login failed", "user-update-failed");
+			return response;
+		}
+		catch (UnauthorizedException e) {
+			response.setCode(405);
+			response.setMessage("rules failed");
+			
+			for (UnauthorizedUser uu : e.getUnauthList()) {
+				addXmlError(response, uu.getMessage(), resolveString(uu.getMessage()));
+			}
+		}
+		catch (GenericRestInterfaceException e) {
+			generateFailXml(response, 500, "ecp login failed", "generic-error");
+			return response;
+		}
+		catch (RestInterfaceException e) {
+			logger.warn("Unmapped RestInterfaceException!", e);
+			generateFailXml(response, 400, "ecp login failed", "unknown-error");
+			return response;			
+		}
+
+		response.setCode(200);
+		response.setMessage("success");
+
+		return response;
+	}
+
+	private Map<String, String> delegateLogin(UserEntity user, ServiceEntity service, RegistryEntity registry,
+			String password, HttpServletRequest request)
+			throws IOException, ServletException, RestInterfaceException {
+		
+		if (! service.getServiceProps().containsKey("delegate_entities")) {
+			throw new NoDelegationConfiguredException("delegation not possible");
+		}
+		
+		List<String> delegateEntityList = Arrays.asList(service.getServiceProps().get("delegate_entities").split(" "));
+		
+		Long delegateAssertionTimeout;
+		
+		/* if not configured, use 4 hours */
+		if (! service.getServiceProps().containsKey("delegate_assertion_timeout"))
+			delegateAssertionTimeout = 4 * 60 * 60 * 1000L;
+		else
+			delegateAssertionTimeout = Long.parseLong(service.getServiceProps().get("delegate_assertion_timeout"));
+			
+		logger.info("Attempting delgated Authentication for {} and service {}", user.getEppn(), service.getShortName());
+
+		Assertion assertion = samlHelper.unmarshal(password, Assertion.class);
+		
+		if (assertion == null)
+			throw new AssertionException("assertion-invalid");
+
+		if (assertion.getConditions() == null ||
+				assertion.getConditions().getAudienceRestrictions() == null ||
+				assertion.getConditions().getAudienceRestrictions().size() == 0)
+			throw new AssertionException("audience-restriction-missing");
+			
+		List<AudienceRestriction> audienceRestrictionList = assertion.getConditions().getAudienceRestrictions();
+		
+		if (System.currentTimeMillis() - assertion.getConditions().getNotBefore().getMillis() > delegateAssertionTimeout) {
+			logger.info("assertion is older than {} ms ({}, {})", delegateAssertionTimeout, user.getEppn(), service.getShortName());
+			throw new AssertionException("assertion-too-old");
+		}
+		
+		boolean audienceOk = false;
+		
+		for (AudienceRestriction audienceRestriction : audienceRestrictionList) {
+			for (Audience audience : audienceRestriction.getAudiences()) {
+				if (delegateEntityList.contains(audience.getAudienceURI())) {
+					logger.debug("Audience hit: {}", audience.getAudienceURI());
+					audienceOk = true;
+					break;
+				}
+			}
+		}
+		
+		if (! audienceOk) { 
+			logger.info("assertion does not match a configured audience (delegate_entities) ({}, {})", user.getEppn(), service.getShortName());
+			throw new AssertionException("assertion-not-from-configured-audience");
+		}
+		
+		String hostname = request.getLocalName();
+		logger.debug("hostname is {}", hostname);
+		SamlSpConfigurationEntity sp = spService.findByHostname(hostname);
+		
+		if (sp == null) {
+			logger.warn("No hostname configured for {}", hostname);
+			throw new NoHostnameConfiguredException("No hostname configured");
+		}
+		
+		SamlIdpMetadataEntity idp = idpService.findByEntityId(user.getIdp().getEntityId());
+
+		if (idp == null) {
+			logger.info("No IDP found for user {} by entityId {}", user.getEppn(), user.getIdp().getEntityId());
+			throw new NoIdpFoundException("idp unknown");
+		}
+
+		if (assertion.getIssuer() != null && 
+				(! assertion.getIssuer().getValue().equals(idp.getEntityId()))) {
+			logger.info("User {} is from idp {}, but assertion from idp {}", user.getEppn(), idp.getEntityId(),
+					assertion.getIssuer().getValue());
+			throw new AssertionException("wrong-idp-for-user");
+		}
+		
+		EntityDescriptor idpEntityDesc = samlHelper.unmarshal(idp.getEntityDescriptor(), EntityDescriptor.class);
+		
+		if (idpEntityDesc == null) {
+			logger.warn("EntityDescriptor for {} is not parsable", idp.getEntityId());
+			throw new NoIdpFoundException("IDP metadata are not parseable");
+		}
+
+		try {
+			logger.debug("Validating Signature for " + assertion.getID());					
+			saml2ResponseValidationService.validateIdpSignature(assertion, assertion.getIssuer(), idpEntityDesc);
+			logger.debug("Validating Signature success for " + assertion.getID());
+		} catch (SamlAuthenticationException e) {
+			logger.info("Could not validate signature for user {}", user.getEppn());
+			throw new AssertionException("assertion-signature-invalid");
+		}					
+
+		Map<String, List<Object>> attributeMap = saml2AssertionService.extractAttributes(assertion);
+		
+		String assertionEppn = attrHelper.getSingleStringFirst(attributeMap, "urn:oid:1.3.6.1.4.1.5923.1.1.1.6");
+		
+		if (assertionEppn != null &&
+				assertionEppn.equals(user.getEppn())) {
+			
+			logger.debug("EPPN from assertion and login match");
+			
+			try {
+
+				Response response = attrQueryHelper.query(user, idp, idpEntityDesc, sp);
+				
+				return processResponse(response, idpEntityDesc, service, idp, sp, "ecp-delegate");
+			
+			} catch (SOAPException e) {
+				logger.info("exception at attribute query", e);
+				throw new GenericRestInterfaceException("an error occured: " + e.getMessage());
+			} catch (MetadataException e) {
+				logger.info("exception at attribute query", e);
+				throw new GenericRestInterfaceException("an error occured: " + e.getMessage());
+			} catch (SecurityException e) {
+				logger.info("exception at attribute query", e);
+				throw new GenericRestInterfaceException("an error occured: " + e.getMessage());
+			} catch (DecryptionException e) {
+				logger.info("exception at attribute query", e);
+				throw new GenericRestInterfaceException("an error occured: " + e.getMessage());
+			} catch (SamlAuthenticationException e) {
+				logger.info("exception at attribute query", e);
+				throw new GenericRestInterfaceException("an error occured: " + e.getMessage());
+			}
+		}
+		else {
+			if (attributeMap.containsKey("urn:oid:1.3.6.1.4.1.5923.1.1.1.6"))
+				logger.warn("User tried to login with wrong Eppn from Assertion {} <-> {}", user.getEppn(), attributeMap.get("urn:oid:1.3.6.1.4.1.5923.1.1.1.6"));
+			else
+				logger.warn("User {} tried to login with missing Eppn in Assertion", user.getEppn());
+			throw new LoginFailedException("Assertion is for wrong EPPN");
+		}
 	}
 	
 	private Map<String, String> processResponse(Response samlResponse, EntityDescriptor idpEntityDescriptor,
@@ -800,14 +620,14 @@ public class EcpController {
 				idp.getEntityId(), persistentId);
 	
 		if (user == null) {
-			throw new NoItemFoundException("user not registered in webapp");
+			throw new UserNotRegisteredException("user not registered in webapp");
 		}
 		
 		try {
 			user = userUpdateService.updateUser(user, assertion, caller, service);
 		} catch (UserUpdateException e) {
 			logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
-			throw new NoItemFoundException("user update failed: " + e.getMessage());
+			throw new UserUpdateFailedException("user update failed: " + e.getMessage());
 		}
 
 		RegistryEntity registry = findRegistry(user, service);
@@ -816,42 +636,14 @@ public class EcpController {
 			throw new NoRegistryFoundException("No such registry");
 		}
 			
-		List<Object> objectList;
+		List<Object> objectList = checkRules(user, service, registry);
+		List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
+		List<UnauthorizedUser> unauthorizedUserList = extractUnauthorizedUser(objectList);
 		
-		if (service.getAccessRule() == null) {
-			objectList = knowledgeSessionService.checkRule("default", "permitAllRule", "1.0.0", user, service, registry, "user-self", false);
+		if (unauthorizedUserList.size() > 0 || overrideAccessList.size() == 0) {
+			throw new UnauthorizedException(unauthorizedUserList);
 		}
-		else {
-			BusinessRulePackageEntity rulePackage = service.getAccessRule().getRulePackage();
-			if (rulePackage != null) {
-				objectList = knowledgeSessionService.checkRule(rulePackage.getPackageName(), rulePackage.getKnowledgeBaseName(), 
-					rulePackage.getKnowledgeBaseVersion(), user, service, registry, "user-self", false);
-			}
-			else {
-				throw new IllegalStateException("checkServiceAccess called with a rule (" +
-							service.getAccessRule().getName() + ") that has no rulePackage");
-			}
-		}
-
-		StringBuilder sb = new StringBuilder();
-		for (Object o : objectList) {
-			if (o instanceof OverrideAccess) {
-				objectList.clear();
-				sb.setLength(0);
-				logger.debug("Removing requirements due to OverrideAccess");
-				break;
-			}
-			else if (o instanceof UnauthorizedUser) {
-				String s = ((UnauthorizedUser) o).getMessage();
-				sb.append(s);
-				sb.append("\n");
-			}
-		}
-
-		if (sb.length() > 0) {
-			throw new NoItemFoundException("user not allowd for service\n" + sb.toString());
-		}
-
+		
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("eppn", user.getEppn());
