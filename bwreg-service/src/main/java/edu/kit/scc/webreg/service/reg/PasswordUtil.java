@@ -3,6 +3,7 @@ package edu.kit.scc.webreg.service.reg;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -44,7 +45,22 @@ public class PasswordUtil {
 			System.arraycopy(pwAndSalt, 0, pw, 0, pw.length);
 			System.arraycopy(pwAndSalt, pw.length, salt, 0, saltLength);
 			
-			return Boolean.FALSE;
+			try {
+				byte[] plainPasswordBytes = plainPassword.getBytes("UTF-8");
+				byte[] plainPasswordAndSalt = new byte[plainPasswordBytes.length + salt.length];
+				System.arraycopy(plainPasswordBytes, 0, plainPasswordAndSalt, 0, plainPasswordBytes.length);
+				System.arraycopy(salt, 0, plainPasswordAndSalt, plainPasswordBytes.length, salt.length);
+
+				MessageDigest md = MessageDigest.getInstance("SHA-1");
+				md.update(plainPasswordAndSalt);
+				byte[] digest = md.digest();
+
+				return Arrays.equals(pw, digest);
+				
+			} catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+				logger.warn("No Algo found", e);
+				return Boolean.FALSE;
+			}
 		}
 		else {
 			String comparePassword;
@@ -63,7 +79,7 @@ public class PasswordUtil {
 			return hashPassword.replaceAll("^\\{(.+)\\|(.+)\\}$", "$2");
 		}
 		else if (hashPassword.matches("^\\{(.+)\\}(.+)$")) {
-			return hashPassword.replaceAll("^\\{(.+)\\|(.+)\\}$", "$2");
+			return hashPassword.replaceAll("^\\{(.+)\\}(.+)$", "$2");
 		}
 		else
 			return null;
@@ -74,7 +90,7 @@ public class PasswordUtil {
 			return hashPassword.replaceAll("^\\{(.+)\\|(.+)\\}$", "$1");
 		}
 		else if (hashPassword.matches("^\\{(.+)\\}(.+)$")) {
-			return hashPassword.replaceAll("^\\{(.+)\\|(.+)\\}$", "$1");
+			return hashPassword.replaceAll("^\\{(.+)\\}(.+)$", "$1");
 		}
 		else
 			return null;
