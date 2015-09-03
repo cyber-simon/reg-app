@@ -95,6 +95,7 @@ import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.UserUpdateService;
 import edu.kit.scc.webreg.service.impl.AttributeMapHelper;
+import edu.kit.scc.webreg.service.reg.PasswordUtil;
 import edu.kit.scc.webreg.service.saml.AttributeQueryHelper;
 import edu.kit.scc.webreg.service.saml.MetadataHelper;
 import edu.kit.scc.webreg.service.saml.Saml2AssertionService;
@@ -149,6 +150,9 @@ public class EcpController {
 
 	@Inject
 	private AttributeMapHelper attrHelper;
+	
+	@Inject
+	private PasswordUtil passwordUtil;
 	
 	@Inject
 	private TextPropertyDao textPropertyDao;
@@ -277,6 +281,12 @@ public class EcpController {
 	private Map<String, String> ecp(UserEntity user, ServiceEntity service, RegistryEntity registry,
 			String password, HttpServletRequest request) throws RestInterfaceException {
 
+		if (registry.getRegistryValues().containsKey("userPassword")) {
+			logger.debug("userPassword is set on registry. Comparing with given password");
+			Boolean match = passwordUtil.comparePassword(password, registry.getRegistryValues().get("userPassword"));
+			logger.debug("Passwords match: {}", match);
+		}
+		
 		logger.debug("Attempting ECP Authentication for {} and service {} (regId {})", user.getEppn(), service.getShortName(), registry.getId());
 
 		String[] splits = user.getEppn().split("@");
