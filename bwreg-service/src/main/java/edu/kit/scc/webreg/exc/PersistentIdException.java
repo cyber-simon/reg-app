@@ -8,13 +8,13 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.rest.exc;
+package edu.kit.scc.webreg.exc;
 
-public class NoUserFoundException extends RestInterfaceException {
+public class PersistentIdException extends RestInterfaceException {
 
 	private static final long serialVersionUID = 1L;
 
-	public NoUserFoundException(String message) {
+	public PersistentIdException(String message) {
 		super(message);
 	}
 

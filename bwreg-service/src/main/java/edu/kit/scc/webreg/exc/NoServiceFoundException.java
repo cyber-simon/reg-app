@@ -8,30 +8,14 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.rest.exc;
+package edu.kit.scc.webreg.exc;
 
-import java.util.List;
-
-import edu.kit.scc.webreg.drools.UnauthorizedUser;
-
-public class UnauthorizedException extends RestInterfaceException {
+public class NoServiceFoundException extends RestInterfaceException {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<UnauthorizedUser> unauthList;
-	
-	public UnauthorizedException(List<UnauthorizedUser> unauthList) {
-		super();
-		
-		this.unauthList = unauthList;
-	}
-
-	public UnauthorizedException(String message) {
+	public NoServiceFoundException(String message) {
 		super(message);
-	}
-
-	public List<UnauthorizedUser> getUnauthList() {
-		return unauthList;
 	}
 
 }

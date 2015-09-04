@@ -27,7 +27,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 import edu.kit.scc.webreg.entity.ImageEntity;
-import edu.kit.scc.webreg.rest.exc.NoItemFoundException;
+import edu.kit.scc.webreg.exc.NoItemFoundException;
 import edu.kit.scc.webreg.service.ImageService;
 
 @Path("/image")

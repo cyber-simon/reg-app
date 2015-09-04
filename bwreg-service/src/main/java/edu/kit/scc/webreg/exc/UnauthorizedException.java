@@ -8,14 +8,30 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.rest.exc;
+package edu.kit.scc.webreg.exc;
 
-public class NoRegistryFoundException extends RestInterfaceException {
+import java.util.List;
+
+import edu.kit.scc.webreg.drools.UnauthorizedUser;
+
+public class UnauthorizedException extends RestInterfaceException {
 
 	private static final long serialVersionUID = 1L;
 
-	public NoRegistryFoundException(String message) {
+	private List<UnauthorizedUser> unauthList;
+	
+	public UnauthorizedException(List<UnauthorizedUser> unauthList) {
+		super();
+		
+		this.unauthList = unauthList;
+	}
+
+	public UnauthorizedException(String message) {
 		super(message);
+	}
+
+	public List<UnauthorizedUser> getUnauthList() {
+		return unauthList;
 	}
 
 }

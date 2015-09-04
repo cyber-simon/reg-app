@@ -8,13 +8,13 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.rest.exc;
+package edu.kit.scc.webreg.exc;
 
-public class NoDelegationConfiguredException extends RestInterfaceException {
+public class NoItemFoundException extends RestInterfaceException {
 
 	private static final long serialVersionUID = 1L;
 
-	public NoDelegationConfiguredException(String message) {
+	public NoItemFoundException(String message) {
 		super(message);
 	}
 

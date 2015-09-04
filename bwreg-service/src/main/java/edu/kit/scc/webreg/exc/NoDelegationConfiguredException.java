@@ -8,13 +8,14 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.rest.exc;
+package edu.kit.scc.webreg.exc;
 
-public class GenericRestInterfaceException extends RestInterfaceException {
+
+public class NoDelegationConfiguredException extends RestInterfaceException {
 
 	private static final long serialVersionUID = 1L;
 
-	public GenericRestInterfaceException(String message) {
+	public NoDelegationConfiguredException(String message) {
 		super(message);
 	}
 

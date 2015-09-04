@@ -8,13 +8,14 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.rest.exc;
+package edu.kit.scc.webreg.exc;
 
-public class UserNotRegisteredException extends RestInterfaceException {
+
+public class LoginFailedException extends RestInterfaceException {
 
 	private static final long serialVersionUID = 1L;
 
-	public UserNotRegisteredException(String message) {
+	public LoginFailedException(String message) {
 		super(message);
 	}
 

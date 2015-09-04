@@ -10,17 +10,61 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.saml;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 
+import org.opensaml.common.SAMLObject;
+import org.opensaml.common.binding.BasicSAMLMessageContext;
+import org.opensaml.common.xml.SAMLConstants;
+import org.opensaml.saml2.binding.encoding.HTTPRedirectDeflateEncoder;
+import org.opensaml.saml2.core.AuthnRequest;
+import org.opensaml.saml2.core.NameID;
+import org.opensaml.saml2.metadata.EntityDescriptor;
+import org.opensaml.saml2.metadata.SingleSignOnService;
 import org.opensaml.ws.message.encoder.MessageEncodingException;
+import org.opensaml.ws.transport.http.HttpServletResponseAdapter;
+import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 
-public interface Saml2RedirectService {
+@ApplicationScoped
+public class Saml2RedirectService {
 
+	@Inject
+	private Logger logger;
+
+	@Inject
+	private SamlHelper samlHelper;
+
+	@Inject
+	private MetadataHelper metadataHelper;
+	
+	@Inject 
+	private SsoHelper ssoHelper;
+	
 	public void redirectClient(SamlIdpMetadataEntity idpEntity,
-			SamlSpConfigurationEntity spEntity, HttpServletResponse response)
-			throws MessageEncodingException;
+			SamlSpConfigurationEntity spEntity, HttpServletResponse response) 
+					throws MessageEncodingException {
+
+		EntityDescriptor entityDesc = samlHelper.unmarshal(
+				idpEntity.getEntityDescriptor(), EntityDescriptor.class);
+		SingleSignOnService sso = metadataHelper.getSSO(entityDesc, SAMLConstants.SAML2_REDIRECT_BINDING_URI);
+
+		AuthnRequest authnRequest = ssoHelper.buildAuthnRequest(
+				spEntity.getEntityId(), spEntity.getAcs(), SAMLConstants.SAML2_POST_BINDING_URI);
+
+		logger.debug("Sending client to idp {} endpoint {}", idpEntity.getEntityId(), sso.getLocation());
+		
+		HTTPRedirectDeflateEncoder encoder = new HTTPRedirectDeflateEncoder();
+		BasicSAMLMessageContext<SAMLObject, AuthnRequest, NameID> messageContext = 
+				new BasicSAMLMessageContext<SAMLObject, AuthnRequest, NameID>();
+		messageContext.setOutboundSAMLMessage(authnRequest);
+		messageContext.setPeerEntityEndpoint(sso);
+		messageContext.setOutboundMessageTransport(new HttpServletResponseAdapter(response, true));
+		encoder.encode(messageContext);
+		
+	}
 
 }

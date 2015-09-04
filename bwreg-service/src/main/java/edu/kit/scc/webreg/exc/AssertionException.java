@@ -8,13 +8,14 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.rest.exc;
+package edu.kit.scc.webreg.exc;
 
-public class UserUpdateFailedException extends RestInterfaceException {
+
+public class AssertionException extends RestInterfaceException {
 
 	private static final long serialVersionUID = 1L;
 
-	public UserUpdateFailedException(String message) {
+	public AssertionException(String message) {
 		super(message);
 	}
 

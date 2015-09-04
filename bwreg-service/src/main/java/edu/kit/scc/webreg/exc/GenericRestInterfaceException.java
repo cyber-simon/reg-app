@@ -8,13 +8,14 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.rest.exc;
+package edu.kit.scc.webreg.exc;
 
-public class NoServiceFoundException extends RestInterfaceException {
+
+public class GenericRestInterfaceException extends RestInterfaceException {
 
 	private static final long serialVersionUID = 1L;
 
-	public NoServiceFoundException(String message) {
+	public GenericRestInterfaceException(String message) {
 		super(message);
 	}
 

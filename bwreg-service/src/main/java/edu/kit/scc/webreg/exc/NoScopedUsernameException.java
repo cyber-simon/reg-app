@@ -1,4 +1,4 @@
-package edu.kit.scc.webreg.rest.exc;
+package edu.kit.scc.webreg.exc;
 
 
 public class NoScopedUsernameException extends RestInterfaceException {

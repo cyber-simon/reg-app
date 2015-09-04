@@ -8,13 +8,13 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.rest.exc;
+package edu.kit.scc.webreg.exc;
 
-public class NoItemFoundException extends RestInterfaceException {
+public class UserUpdateFailedException extends RestInterfaceException {
 
 	private static final long serialVersionUID = 1L;
 
-	public NoItemFoundException(String message) {
+	public UserUpdateFailedException(String message) {
 		super(message);
 	}
 

@@ -15,6 +15,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
+import edu.kit.scc.webreg.exc.NoUserFoundException;
+
 @Provider
 public class NoUserFoundExceptionMapper implements ExceptionMapper<NoUserFoundException> {
 
