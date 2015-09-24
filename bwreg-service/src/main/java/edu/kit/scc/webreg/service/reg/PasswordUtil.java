@@ -34,7 +34,6 @@ public class PasswordUtil {
 			return Boolean.FALSE;
 		
 		if (hashMethod.equals("SSHA")) {
-			//@TODO Implement apacheds style salted sha-1
 			String hashPasswordBlank = getPassword(hashPassword);
 			byte[] pwAndSalt = Base64.decodeBase64(hashPasswordBlank);
 			
