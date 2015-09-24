@@ -190,6 +190,26 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			logger.debug("userPassword is set on registry. Comparing with given password");
 			Boolean match = passwordUtil.comparePassword(password, registry.getRegistryValues().get("userPassword"));
 			logger.debug("Passwords match: {}", match);
+			
+			if (match) {
+				updateUser(user, service);
+
+				List<Object> objectList = checkRules(user, service, registry);
+				List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
+				List<UnauthorizedUser> unauthorizedUserList = extractUnauthorizedUser(objectList);
+				
+				if (unauthorizedUserList.size() > 0 || overrideAccessList.size() == 0) {
+					throw new UnauthorizedException(unauthorizedUserList);
+				}
+				
+				SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+				Map<String, String> map = new HashMap<String, String>();
+				map.put("eppn", user.getEppn());
+				map.put("email", user.getEmail());
+				map.put("last_update",  df.format(user.getLastUpdate()));
+				
+				return map;				
+			}
 		}
 		
 		logger.debug("Attempting ECP Authentication for {} and service {} (regId {})", user.getEppn(), service.getShortName(), registry.getId());
@@ -529,5 +549,30 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 		}
 
 		return returnList;
+	}	
+	
+	private void updateUser(UserEntity user, ServiceEntity service) throws UserUpdateFailedException {
+		// Default expiry Time after which an attrq is issued to IDP in millis
+		Long expireTime = 10000L;
+		
+		if (service.getServiceProps() != null && service.getServiceProps().containsKey("attrq_expire_time")) {
+			expireTime = Long.parseLong(service.getServiceProps().get("attrq_expire_time"));
+		}
+		
+		try {
+			if ((System.currentTimeMillis() - user.getLastUpdate().getTime()) < expireTime) {
+				logger.info("Skipping attributequery for {} with {}@{}", new Object[] {user.getEppn(), 
+						user.getPersistentId(), user.getIdp().getEntityId()});
+			}
+			else {
+				logger.info("Performing attributequery for {} with {}@{}", new Object[] {user.getEppn(), 
+						user.getPersistentId(), user.getIdp().getEntityId()});
+	
+				user = userUpdateService.updateUserFromIdp(user, service);
+			}
+		} catch (UserUpdateException e) {
+			logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
+			throw new UserUpdateFailedException("user update failed: " + e.getMessage());
+		}		
 	}	
 }
