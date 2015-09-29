@@ -36,7 +36,7 @@ import edu.kit.scc.webreg.service.GroupService;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserService;
-import edu.kit.scc.webreg.util.SessionManager;
+import edu.kit.scc.webreg.session.SessionManager;
 
 @Named("userIndexBean")
 @RequestScoped

@@ -35,7 +35,7 @@ import edu.kit.scc.webreg.service.reg.InfotainmentCapable;
 import edu.kit.scc.webreg.service.reg.InfotainmentTreeNode;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;
 import edu.kit.scc.webreg.service.reg.RegisterUserWorkflow;
-import edu.kit.scc.webreg.util.SessionManager;
+import edu.kit.scc.webreg.session.SessionManager;
 
 @ManagedBean
 @ViewScoped

@@ -20,9 +20,9 @@ import javax.inject.Inject;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;
+import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.BBCodeConverter;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
-import edu.kit.scc.webreg.util.SessionManager;
 import edu.kit.scc.webreg.util.ViewIds;
 
 @ManagedBean

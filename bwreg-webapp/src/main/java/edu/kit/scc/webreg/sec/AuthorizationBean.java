@@ -40,8 +40,8 @@ import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.RoleService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.RoleCache;
-import edu.kit.scc.webreg.util.SessionManager;
 
 @Named("authorizationBean")
 @RequestScoped

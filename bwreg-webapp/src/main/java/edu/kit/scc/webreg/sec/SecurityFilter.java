@@ -40,7 +40,7 @@ import edu.kit.scc.webreg.entity.AdminUserEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.service.AdminUserService;
 import edu.kit.scc.webreg.service.RoleService;
-import edu.kit.scc.webreg.util.SessionManager;
+import edu.kit.scc.webreg.session.SessionManager;
 
 @Named
 @WebFilter(urlPatterns = {"/*"})

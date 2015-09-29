@@ -25,7 +25,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.service.GroupService;
 import edu.kit.scc.webreg.service.RoleService;
 import edu.kit.scc.webreg.service.UserService;
-import edu.kit.scc.webreg.util.SessionManager;
+import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.Theme;
 import edu.kit.scc.webreg.util.ThemeSwitcherBean;
 

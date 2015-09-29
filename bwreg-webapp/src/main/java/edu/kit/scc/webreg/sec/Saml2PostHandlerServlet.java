@@ -43,7 +43,7 @@ import edu.kit.scc.webreg.service.UserUpdateService;
 import edu.kit.scc.webreg.service.saml.Saml2AssertionService;
 import edu.kit.scc.webreg.service.saml.Saml2DecoderService;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
-import edu.kit.scc.webreg.util.SessionManager;
+import edu.kit.scc.webreg.session.SessionManager;
 
 @ApplicationScoped
 public class Saml2PostHandlerServlet {

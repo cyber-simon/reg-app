@@ -8,7 +8,7 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.util;
+package edu.kit.scc.webreg.session;
 
 import java.io.Serializable;
 import java.util.ArrayList;

@@ -37,8 +37,8 @@ import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
-import edu.kit.scc.webreg.util.SessionManager;
 
 @ManagedBean
 @ViewScoped

@@ -41,8 +41,8 @@ import edu.kit.scc.webreg.service.LocalGroupService;
 import edu.kit.scc.webreg.service.ServiceGroupFlagService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
-import edu.kit.scc.webreg.util.SessionManager;
 import edu.kit.scc.webreg.util.ViewIds;
 
 @ManagedBean
