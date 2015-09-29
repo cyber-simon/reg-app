@@ -198,7 +198,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 				List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
 				List<UnauthorizedUser> unauthorizedUserList = extractUnauthorizedUser(objectList);
 				
-				if (unauthorizedUserList.size() > 0 || overrideAccessList.size() == 0) {
+				if (overrideAccessList.size() == 0 && unauthorizedUserList.size() > 0) {
 					throw new UnauthorizedException(unauthorizedUserList);
 				}
 				
@@ -460,7 +460,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 		List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
 		List<UnauthorizedUser> unauthorizedUserList = extractUnauthorizedUser(objectList);
 		
-		if (unauthorizedUserList.size() > 0 || overrideAccessList.size() == 0) {
+		if (overrideAccessList.size() == 0 && unauthorizedUserList.size() > 0) {
 			throw new UnauthorizedException(unauthorizedUserList);
 		}
 		
