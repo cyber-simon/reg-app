@@ -21,7 +21,6 @@ import edu.kit.scc.webreg.dao.RoleDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.entity.UserRoleEntity;
 import edu.kit.scc.webreg.service.RoleService;
 
 @Stateless
@@ -34,11 +33,7 @@ public class RoleServiceImpl extends BaseServiceImpl<RoleEntity, Long> implement
 
 	@Override
 	public void addUserToRole(UserEntity user, String roleName) {
-		RoleEntity role = dao.findByName(roleName);
-		UserRoleEntity userRole = dao.createNewUserRole();
-		userRole.setRole(role);
-		userRole.setUser(user);
-		dao.persistUserRole(userRole);
+		dao.addUserToRole(user, roleName);
 	}
 	
 	@Override

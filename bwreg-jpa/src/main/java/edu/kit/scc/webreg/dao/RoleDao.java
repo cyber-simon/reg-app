@@ -48,5 +48,7 @@ public interface RoleDao extends BaseDao<RoleEntity, Long> {
 	RoleGroupEntity findRoleGroupEntity(GroupEntity group, RoleEntity role);
 
 	List<RoleEntity> findByGroups(Set<GroupEntity> groups);
+
+	void addUserToRole(UserEntity user, String roleName);
 	
 }

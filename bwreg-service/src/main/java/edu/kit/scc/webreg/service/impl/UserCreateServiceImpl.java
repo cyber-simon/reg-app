@@ -26,6 +26,8 @@ import edu.kit.scc.webreg.audit.UserCreateAuditor;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.AuditDetailDao;
 import edu.kit.scc.webreg.dao.AuditEntryDao;
+import edu.kit.scc.webreg.dao.RoleDao;
+import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.entity.AuditStatus;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
@@ -37,10 +39,8 @@ import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.UserEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
-import edu.kit.scc.webreg.service.RoleService;
 import edu.kit.scc.webreg.service.SerialService;
 import edu.kit.scc.webreg.service.UserCreateService;
-import edu.kit.scc.webreg.service.UserService;
 
 @Stateless
 public class UserCreateServiceImpl implements UserCreateService {
@@ -55,13 +55,16 @@ public class UserCreateServiceImpl implements UserCreateService {
 	private AuditDetailDao auditDetailDao;
 
 	@Inject
-	private UserService userService;
+	private UserDao userDao;
+	
+	@Inject
+	private UserUpdater userUpdater;
 	
 	@Inject
 	private HomeOrgGroupUpdater homeOrgGroupUpdater;
 
 	@Inject
-	private RoleService roleService;
+	private RoleDao roleDao;
 
 	@Inject
 	private SerialService serialService;
@@ -82,7 +85,7 @@ public class UserCreateServiceImpl implements UserCreateService {
 		
 		logger.debug("User {} from {} is being preCreated", persistentId, idpEntity.getEntityId());
 		
-		UserEntity entity = userService.createNew();
+		UserEntity entity = userDao.createNew();
 		entity.setIdp(idpEntity);
     	entity.setPersistentIdpId(idpEntity.getEntityId());
     	entity.setPersistentSpId(spConfigEntity.getEntityId());
@@ -111,7 +114,7 @@ public class UserCreateServiceImpl implements UserCreateService {
 		auditor.setName(getClass().getName() + "-UserCreate-Audit");
 		auditor.setDetail("Create user " + user.getEppn());
 		
-    	userService.updateUserFromAttribute(user, attributeMap, true, auditor);
+    	userUpdater.updateUserFromAttribute(user, attributeMap, true, auditor);
 		
     	/** 
     	 * if user has no uid number yet, generate one
@@ -133,9 +136,9 @@ public class UserCreateServiceImpl implements UserCreateService {
     		user.setLastStatusChange(new Date());
     	}
 
-    	user = userService.save(user);
+    	user = userDao.persist(user);
 
-    	roleService.addUserToRole(user, "User");
+    	roleDao.addUserToRole(user, "User");
 
     	homeOrgGroupUpdater.updateGroupsForUser(user, attributeMap, auditor);
     			

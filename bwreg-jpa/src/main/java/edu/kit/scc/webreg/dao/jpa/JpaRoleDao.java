@@ -41,7 +41,16 @@ public class JpaRoleDao extends JpaBaseDao<RoleEntity, Long> implements RoleDao 
 	public void persistUserRole(UserRoleEntity userRole) {
 		em.persist(userRole);
 	}
-	
+
+	@Override
+	public void addUserToRole(UserEntity user, String roleName) {
+		RoleEntity role = findByName(roleName);
+		UserRoleEntity userRole = createNewUserRole();
+		userRole.setRole(role);
+		userRole.setUser(user);
+		persistUserRole(userRole);
+	}
+
 	@Override
 	public void addGroupToRole(GroupEntity group, RoleEntity role) {
 		RoleGroupEntity roleGroup = createNewRoleGroup();
