@@ -11,32 +11,26 @@
 package edu.kit.scc.webreg.service.impl;
 
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
-import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
 import edu.kit.scc.webreg.dao.UserDao;
-import edu.kit.scc.webreg.entity.AuditStatus;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
-import edu.kit.scc.webreg.service.SerialService;
 import edu.kit.scc.webreg.service.UserService;
-import edu.kit.scc.webreg.service.UserServiceHook;
 
 @Stateless
 public class UserServiceImpl extends BaseServiceImpl<UserEntity, Long> implements UserService, Serializable {
@@ -53,13 +47,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity, Long> implement
 	private SamlIdpMetadataDao idpDao;
 	
 	@Inject
-	private SerialService serialService;
-	
-	@Inject
-	private HookManager hookManager;
-
-	@Inject
-	private AttributeMapHelper attrHelper;
+	private UserUpdater userUpdater;
 	
 	@Override
 	public List<UserEntity> findOrderByUpdatedWithLimit(Date date, Integer limit) {
@@ -102,113 +90,36 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity, Long> implement
 	}
 
 	@Override
+	public UserEntity updateUserFromIdp(UserEntity user) 
+			throws UserUpdateException {
+		return userUpdater.updateUserFromIdp(user, null);
+	}
+
+	@Override
+	public UserEntity updateUserFromIdp(UserEntity user, ServiceEntity service) 
+			throws UserUpdateException {
+		return userUpdater.updateUserFromIdp(user, service);
+	}
+
+	@Override
+	public UserEntity updateUserFromAttribute(UserEntity user, Map<String, List<Object>> attributeMap, String executor) 
+				throws UserUpdateException {
+		return userUpdater.updateUser(user, attributeMap, executor);
+	}
+
+	@Override
 	public boolean updateUserFromAttribute(UserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor) 
 				throws UserUpdateException {
-		return updateUserFromAttribute(user, attributeMap, false, auditor);
+		return userUpdater.updateUserFromAttribute(user, attributeMap, false, auditor);
 	}
 
 	@Override
 	public boolean updateUserFromAttribute(UserEntity user, Map<String, List<Object>> attributeMap, boolean withoutUidNumber, Auditor auditor) 
 				throws UserUpdateException {
 
-		boolean changed = false;
-		
-		UserServiceHook completeOverrideHook = null;
-		Set<UserServiceHook> activeHooks = new HashSet<UserServiceHook>();
-		
-		for (UserServiceHook hook : hookManager.getUserHooks()) {
-			if (hook.isResponsible(user, attributeMap)) {
-				
-				hook.preUpdateUserFromAttribute(user, attributeMap, auditor);
-				activeHooks.add(hook);
-				
-				if (hook.isCompleteOverride()) {
-					completeOverrideHook = hook;
-				}
-			}
-		}
-		
-		if (completeOverrideHook == null) {
-			changed |= compareAndChangeProperty(user, "email", attributeMap.get("urn:oid:0.9.2342.19200300.100.1.3"), auditor);
-			changed |= compareAndChangeProperty(user, "eppn", attributeMap.get("urn:oid:1.3.6.1.4.1.5923.1.1.1.6"), auditor);
-			changed |= compareAndChangeProperty(user, "givenName", attributeMap.get("urn:oid:2.5.4.42"), auditor);
-			changed |= compareAndChangeProperty(user, "surName", attributeMap.get("urn:oid:2.5.4.4"), auditor);
-
-			List<String> emailList = attrHelper.attributeListToStringList(attributeMap, "urn:oid:0.9.2342.19200300.100.1.3");
-			if (emailList != null && emailList.size() > 1) {
-				
-				if (user.getEmailAddresses() == null) {
-					user.setEmailAddresses(new HashSet<String>());
-				}
-				
-				for (int i=1; i<emailList.size(); i++) {
-					user.getEmailAddresses().add(emailList.get(i));
-				}
-			}
-			
-			if ((! withoutUidNumber) && (user.getUidNumber() == null)) {
-				user.setUidNumber(serialService.next("uid-number-serial").intValue());
-				logger.info("Setting UID Number {} for user {}", user.getUidNumber(), user.getEppn());
-				auditor.logAction(user.getEppn(), "SET FIELD", "uidNumber", "" + user.getUidNumber(), AuditStatus.SUCCESS);
-				changed = true;
-			}
-		}
-		else {
-			logger.info("Overriding standard User Update Mechanism! Activator: {}", completeOverrideHook.getClass().getName());
-		}
-		
-		for (UserServiceHook hook : activeHooks) {
-			hook.postUpdateUserFromAttribute(user, attributeMap, auditor);
-		}
-
-		return changed;
+		return userUpdater.updateUserFromAttribute(user, attributeMap, withoutUidNumber, auditor);
 	}
 
-	
-	private boolean compareAndChangeProperty(UserEntity user, String property, List<Object> objectValue, Auditor auditor) {
-		String s = null;
-		String action = null;
-		
-		// In case of a List (multiple SAML Values), take the first value
-		String value = attrHelper.getSingleStringFirst(objectValue);
-		
-		try {
-			Object actualValue = PropertyUtils.getProperty(user, property);
-
-			if (actualValue != null && actualValue.equals(value)) {
-				// Value didn't change, do nothing
-				return false;
-			}
-			
-			if (actualValue == null) {
-				s = "null";
-				action = "SET FIELD";
-			}
-			else {
-				s = actualValue.toString();
-				action = "UPDATE FIELD";
-			}
-			
-			s = s + " -> " + value;
-			if (s.length() > 1017) s = s.substring(0, 1017) + "...";
-			
-			PropertyUtils.setProperty(user, property, value);
-			
-			auditor.logAction(user.getEppn(), action, property, s, AuditStatus.SUCCESS);
-		} catch (IllegalAccessException e) {
-			logger.warn("This probably shouldn't happen: ", e);
-			auditor.logAction(user.getEppn(), action, property, s, AuditStatus.FAIL);
-		} catch (InvocationTargetException e) {
-			logger.warn("This probably shouldn't happen: ", e);
-			auditor.logAction(user.getEppn(), action, property, s, AuditStatus.FAIL);
-		} catch (NoSuchMethodException e) {
-			logger.warn("This probably shouldn't happen: ", e);
-			auditor.logAction(user.getEppn(), action, property, s, AuditStatus.FAIL);
-		}
-		
-		return true;
-	}
-	
 	@Override
 	protected BaseDao<UserEntity, Long> getDao() {
 		return dao;

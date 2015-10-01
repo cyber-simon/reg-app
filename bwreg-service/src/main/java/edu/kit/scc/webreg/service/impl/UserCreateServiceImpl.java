@@ -37,7 +37,6 @@ import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.UserEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
-import edu.kit.scc.webreg.service.HomeOrgGroupService;
 import edu.kit.scc.webreg.service.RoleService;
 import edu.kit.scc.webreg.service.SerialService;
 import edu.kit.scc.webreg.service.UserCreateService;
@@ -59,7 +58,7 @@ public class UserCreateServiceImpl implements UserCreateService {
 	private UserService userService;
 	
 	@Inject
-	private HomeOrgGroupService homeOrgGroupService;
+	private HomeOrgGroupUpdater homeOrgGroupUpdater;
 
 	@Inject
 	private RoleService roleService;
@@ -138,7 +137,7 @@ public class UserCreateServiceImpl implements UserCreateService {
 
     	roleService.addUserToRole(user, "User");
 
-		homeOrgGroupService.updateGroupsForUser(user, attributeMap, auditor);
+    	homeOrgGroupUpdater.updateGroupsForUser(user, attributeMap, auditor);
     			
 		auditor.setUser(user);
 		auditor.auditUserCreate();

@@ -39,4 +39,6 @@ public interface BaseDao<T extends BaseEntity<PK>, PK extends Serializable> {
 
 	T findByIdWithAttrs(PK id, String... attrs);
 
+	void refresh(T entity);
+
 }

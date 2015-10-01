@@ -16,6 +16,7 @@ import java.util.Map;
 
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.entity.GroupEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 
@@ -46,4 +47,13 @@ public interface UserService extends BaseService<UserEntity, Long> {
 	List<UserEntity> findGenericStoreKeyWithLimit(String key, Integer limit);
 
 	List<UserEntity> findOrderByFailedUpdateWithLimit(Date date, Integer limit);
+
+	UserEntity updateUserFromIdp(UserEntity user) throws UserUpdateException;
+
+	UserEntity updateUserFromIdp(UserEntity user, ServiceEntity service)
+			throws UserUpdateException;
+
+	UserEntity updateUserFromAttribute(UserEntity user,
+			Map<String, List<Object>> attributeMap, String executor)
+			throws UserUpdateException;
 }

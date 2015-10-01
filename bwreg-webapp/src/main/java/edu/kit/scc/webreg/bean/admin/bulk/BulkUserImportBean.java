@@ -37,7 +37,6 @@ import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.SamlSpConfigurationService;
 import edu.kit.scc.webreg.service.UserCreateService;
 import edu.kit.scc.webreg.service.UserService;
-import edu.kit.scc.webreg.service.UserUpdateService;
 import edu.kit.scc.webreg.service.saml.AttributeQueryHelper;
 import edu.kit.scc.webreg.service.saml.Saml2AssertionService;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
@@ -57,9 +56,6 @@ public class BulkUserImportBean implements Serializable {
 	@Inject
 	private UserCreateService userCreateService;
 
-	@Inject
-	private UserUpdateService userUpdateService;
-	
 	@Inject
 	private AttributeQueryHelper attrQueryHelper;
 	
@@ -119,7 +115,7 @@ public class BulkUserImportBean implements Serializable {
 			if (userEntity != null) {
 				logger.debug("User {} already in system", userEntity.getEppn());
 				try {
-					userUpdateService.updateUserFromIdp(userEntity);
+					userService.updateUserFromIdp(userEntity);
 				} catch (UserUpdateException e) {
 					logger.warn("AttributeQuery failed", e);
 					importUser.setStatus("Fehler: " + e.getMessage());					

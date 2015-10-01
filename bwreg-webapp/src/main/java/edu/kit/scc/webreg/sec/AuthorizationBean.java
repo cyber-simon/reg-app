@@ -108,13 +108,10 @@ public class AuthorizationBean implements Serializable {
 	    	start = System.currentTimeMillis();
 	    	Set<GroupEntity> groupList = groupService.findByUserWithParents(user);
 	    	
-	    	sessionManager.clearGroupList();
-	    	sessionManager.setGroupString(groupsToString(groupList));
-	    	
-	    	for (GroupEntity g : groupList) {
-	    		sessionManager.getGroupList().add(g.getId());
-	    	}
-	    	
+	    	sessionManager.clearGroups();
+    		sessionManager.getGroups().addAll(groupList);
+    		for (GroupEntity g : groupList)
+    			sessionManager.getGroupNames().add(g.getName());
 	    	sessionManager.setGroupSetCreated(System.currentTimeMillis());
 
 	    	end = System.currentTimeMillis();
@@ -146,7 +143,7 @@ public class AuthorizationBean implements Serializable {
     		if (s.getServiceProps().containsKey("group_filter")) {
     			String groupFilter = serviceProps.get("group_filter");
     			if (groupFilter != null &&
-    					(! sessionManager.getGroupString().matches(groupFilter)))
+    					(! sessionManager.getGroupNames().contains(groupFilter)))
     				serviceToRemove.add(s);
     		}
 
@@ -167,7 +164,7 @@ public class AuthorizationBean implements Serializable {
 	    	sessionManager.clearRoleList();
 	    	
 	    	Set<RoleEntity> roles = new HashSet<RoleEntity>(roleService.findByUser(user));
-	    	List<RoleEntity> rolesForGroupList = roleService.findByGroups(sessionManager.getGroupList());
+	    	List<RoleEntity> rolesForGroupList = roleService.findByGroups(sessionManager.getGroups());
 	    	roles.addAll(rolesForGroupList);
 
 	    	for (RoleEntity role : roles) {

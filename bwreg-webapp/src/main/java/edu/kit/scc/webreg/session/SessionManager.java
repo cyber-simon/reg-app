@@ -21,6 +21,8 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Named;
 
+import edu.kit.scc.webreg.entity.GroupEntity;
+
 @Named("sessionManager")
 @SessionScoped
 public class SessionManager implements Serializable {
@@ -48,8 +50,8 @@ public class SessionManager implements Serializable {
 	private List<Long> serviceHotlineList;
 	private List<Long> serviceGroupAdminList;
 
-	private List<Long> groupList;
-	private String groupString;
+	private Set<GroupEntity> groups;
+	private Set<String> groupNames;
 	private Long groupSetCreated;
 	
 	private String theme;
@@ -62,7 +64,8 @@ public class SessionManager implements Serializable {
 		serviceAdminList = new ArrayList<Long>();
 		serviceHotlineList = new ArrayList<Long>();
 		serviceGroupAdminList = new ArrayList<Long>();
-		groupList = new ArrayList<Long>();
+		groups = new HashSet<GroupEntity>();
+		groupNames = new HashSet<String>();
 	}
 	
 	public void clearRoleList() {
@@ -72,8 +75,8 @@ public class SessionManager implements Serializable {
 		serviceGroupAdminList.clear();
 	}
 	
-	public void clearGroupList() {
-		groupList.clear();
+	public void clearGroups() {
+		groups.clear();
 	}
 	
 	public Long getUserId() {
@@ -212,20 +215,8 @@ public class SessionManager implements Serializable {
 		this.serviceGroupAdminList = serviceGroupAdminList;
 	}
 
-	public List<Long> getGroupList() {
-		return groupList;
-	}
-
-	public void setGroupList(List<Long> groupList) {
-		this.groupList = groupList;
-	}
-
-	public String getGroupString() {
-		return groupString;
-	}
-
-	public void setGroupString(String groupString) {
-		this.groupString = groupString;
+	public Set<GroupEntity> getGroups() {
+		return groups;
 	}
 
 	public Long getGroupSetCreated() {
@@ -234,5 +225,9 @@ public class SessionManager implements Serializable {
 
 	public void setGroupSetCreated(Long groupSetCreated) {
 		this.groupSetCreated = groupSetCreated;
+	}
+
+	public Set<String> getGroupNames() {
+		return groupNames;
 	}
 }

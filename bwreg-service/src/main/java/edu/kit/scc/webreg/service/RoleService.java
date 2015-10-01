@@ -11,7 +11,9 @@
 package edu.kit.scc.webreg.service;
 
 import java.util.List;
+import java.util.Set;
 
+import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 
@@ -33,6 +35,6 @@ public interface RoleService extends BaseService<RoleEntity, Long> {
 
 	Boolean checkAdminUserInRole(Long userId, String roleName);
 
-	List<RoleEntity> findByGroups(List<Long> groups);
-	
+	List<RoleEntity> findByGroups(Set<GroupEntity> groups);
+
 }

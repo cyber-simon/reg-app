@@ -51,7 +51,6 @@ import edu.kit.scc.webreg.rest.dto.RestError;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserService;
-import edu.kit.scc.webreg.service.UserUpdateService;
 
 @Path("/attrq")
 public class AttributeQueryController {
@@ -67,9 +66,6 @@ public class AttributeQueryController {
 	
 	@Inject
 	private RegistryService registryService;
-	
-	@Inject
-	private UserUpdateService userUpdateService;
 	
 	@Inject
 	private KnowledgeSessionService knowledgeSessionService;
@@ -300,7 +296,7 @@ public class AttributeQueryController {
 				logger.info("Performing attributequery for {} with {}@{}", new Object[] {user.getEppn(), 
 						user.getPersistentId(), user.getIdp().getEntityId()});
 	
-				user = userUpdateService.updateUserFromIdp(user, service);
+				user = userService.updateUserFromIdp(user, service);
 			}
 		} catch (UserUpdateException e) {
 			logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());

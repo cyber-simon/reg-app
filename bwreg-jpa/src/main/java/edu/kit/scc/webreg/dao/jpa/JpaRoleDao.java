@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.dao.jpa;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
@@ -83,8 +84,8 @@ public class JpaRoleDao extends JpaBaseDao<RoleEntity, Long> implements RoleDao 
 	
     @SuppressWarnings("unchecked")
 	@Override
-	public List<RoleEntity> findByGroups(List<Long> groups) {
-		return em.createQuery("select r.role from RoleGroupEntity r where r.group.id in (:groups)")
+	public List<RoleEntity> findByGroups(Set<GroupEntity> groups) {
+		return em.createQuery("select r.role from RoleGroupEntity r where r.group in (:groups)")
 				.setParameter("groups", groups).getResultList();
 	}
 

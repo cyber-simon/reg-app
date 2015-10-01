@@ -21,6 +21,8 @@ public interface BaseService<T extends BaseEntity<PK>, PK extends Serializable> 
 
     T createNew();
 
+    T merge(T entity);
+
     T save(T entity);
 
     void delete(T entity);

@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.UserService;
-import edu.kit.scc.webreg.service.UserUpdateService;
 
 
 public class UpdateAllUserFromIdp extends AbstractExecutableJob {
@@ -64,7 +63,6 @@ public class UpdateAllUserFromIdp extends AbstractExecutableJob {
 			InitialContext ic = new InitialContext();
 			
 			UserService userService = (UserService) ic.lookup("global/bwreg/bwreg-service/UserServiceImpl!edu.kit.scc.webreg.service.UserService");
-			UserUpdateService userUpdateService = (UserUpdateService) ic.lookup("global/bwreg/bwreg-service/UserUpdateServiceImpl!edu.kit.scc.webreg.service.UserUpdateService");
 			
 			List<UserEntity> userList = userService.findOrderByFailedUpdateWithLimit(new Date(System.currentTimeMillis() - lastUpdate), limit);
 			
@@ -79,7 +77,7 @@ public class UpdateAllUserFromIdp extends AbstractExecutableJob {
 			for (UserEntity user : userList) {
 				try {
 					logger.info("Updating user {}", user.getEppn());
-					userUpdateService.updateUserFromIdp(user);
+					userService.updateUserFromIdp(user);
 				} catch (UserUpdateException e) {
 					logger.warn("Could not update user {}: {}", user.getEppn(), e);
 				}

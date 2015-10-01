@@ -36,6 +36,11 @@ public abstract class BaseServiceImpl<T extends BaseEntity<PK>, PK extends Seria
 	}
 
 	@Override
+	public T merge(T entity) {
+		return getDao().merge(entity);
+	}
+
+	@Override
 	public void delete(T entity) {
 		getDao().delete(entity);
 	}

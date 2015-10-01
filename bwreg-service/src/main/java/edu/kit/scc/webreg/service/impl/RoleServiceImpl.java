@@ -11,12 +11,14 @@
 package edu.kit.scc.webreg.service.impl;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.RoleDao;
+import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserRoleEntity;
@@ -50,7 +52,7 @@ public class RoleServiceImpl extends BaseServiceImpl<RoleEntity, Long> implement
 	}
 
 	@Override
-	public List<RoleEntity> findByGroups(List<Long> groups) {
+	public List<RoleEntity> findByGroups(Set<GroupEntity> groups) {
 		return dao.findByGroups(groups);
 	}
 

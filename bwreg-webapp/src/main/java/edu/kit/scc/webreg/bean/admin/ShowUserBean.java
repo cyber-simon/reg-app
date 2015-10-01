@@ -40,7 +40,6 @@ import edu.kit.scc.webreg.service.GroupService;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.RoleService;
 import edu.kit.scc.webreg.service.UserService;
-import edu.kit.scc.webreg.service.UserUpdateService;
 import edu.kit.scc.webreg.session.SessionManager;
 
 @ManagedBean
@@ -58,9 +57,6 @@ public class ShowUserBean implements Serializable {
 	@Inject
 	private RoleService roleService;
 	
-	@Inject
-	private UserUpdateService userUpdateService;
-
 	@Inject
 	private RegistryService registryService;
 	
@@ -123,7 +119,7 @@ public class ShowUserBean implements Serializable {
 		logger.info("Trying user update for {}", user.getEppn());
 
 		try {
-			userUpdateService.updateUserFromIdp(user);
+			userService.updateUserFromIdp(user);
 		} catch (UserUpdateException e) {
 			logger.info("Exception while Querying IDP: {}", e.getMessage());
 			if (e.getCause() != null) {

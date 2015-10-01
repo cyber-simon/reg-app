@@ -71,7 +71,6 @@ import edu.kit.scc.webreg.exc.UserNotRegisteredException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.exc.UserUpdateFailedException;
 import edu.kit.scc.webreg.service.UserLoginService;
-import edu.kit.scc.webreg.service.UserUpdateService;
 import edu.kit.scc.webreg.service.reg.PasswordUtil;
 import edu.kit.scc.webreg.service.saml.AttributeQueryHelper;
 import edu.kit.scc.webreg.service.saml.MetadataHelper;
@@ -95,7 +94,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 	private UserDao userDao;
 	
 	@Inject
-	private UserUpdateService userUpdateService;
+	private UserUpdater userUpdater;
 
 	@Inject
 	private KnowledgeSessionService knowledgeSessionService;
@@ -444,7 +443,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 		}
 		
 		try {
-			user = userUpdateService.updateUser(user, assertion, caller, service);
+			user = userUpdater.updateUser(user, assertion, caller, service);
 		} catch (UserUpdateException e) {
 			logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
 			throw new UserUpdateFailedException("user update failed: " + e.getMessage());
@@ -568,7 +567,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 				logger.info("Performing attributequery for {} with {}@{}", new Object[] {user.getEppn(), 
 						user.getPersistentId(), user.getIdp().getEntityId()});
 	
-				user = userUpdateService.updateUserFromIdp(user, service);
+				user = userUpdater.updateUserFromIdp(user, service);
 			}
 		} catch (UserUpdateException e) {
 			logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());

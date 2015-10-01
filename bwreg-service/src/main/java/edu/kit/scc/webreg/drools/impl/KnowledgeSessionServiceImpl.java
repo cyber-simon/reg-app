@@ -155,7 +155,7 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 			RegistryEntity registry, String executor, Boolean withCache) 
 			throws MisconfiguredServiceException {
 
-		user = userDao.findById(user.getId());
+		user = userDao.merge(user);
 		
 		if (withCache) {
 			service = serviceDao.findById(service.getId());

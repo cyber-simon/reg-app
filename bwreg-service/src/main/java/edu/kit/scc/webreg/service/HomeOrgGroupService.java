@@ -11,14 +11,9 @@
 package edu.kit.scc.webreg.service;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import edu.kit.scc.webreg.audit.Auditor;
-import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.exc.UserUpdateException;
 
 public interface HomeOrgGroupService extends BaseService<HomeOrgGroupEntity, Long> {
 
@@ -27,10 +22,6 @@ public interface HomeOrgGroupService extends BaseService<HomeOrgGroupEntity, Lon
 	List<HomeOrgGroupEntity> findByUser(UserEntity user);
 
 	HomeOrgGroupEntity findWithUsers(Long id);
-
-	Set<GroupEntity> updateGroupsForUser(UserEntity user,
-			Map<String, List<Object>> attributeMap, Auditor auditor)
-			throws UserUpdateException;
 
 	HomeOrgGroupEntity persistWithServiceFlags(HomeOrgGroupEntity entity);
 

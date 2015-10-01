@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.dao;
 
 import java.util.List;
+import java.util.Set;
 
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
@@ -46,6 +47,6 @@ public interface RoleDao extends BaseDao<RoleEntity, Long> {
 
 	RoleGroupEntity findRoleGroupEntity(GroupEntity group, RoleEntity role);
 
-	List<RoleEntity> findByGroups(List<Long> groups);
+	List<RoleEntity> findByGroups(Set<GroupEntity> groups);
 	
 }

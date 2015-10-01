@@ -70,6 +70,11 @@ public abstract class JpaBaseDao<T extends BaseEntity<PK>, PK extends Serializab
 			return em.merge(entity);
 	}
 
+	@Override
+	public void refresh(T entity) {
+		em.refresh(entity);
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<T> findAll() {
