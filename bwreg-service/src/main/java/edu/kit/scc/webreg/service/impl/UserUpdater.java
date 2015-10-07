@@ -126,6 +126,8 @@ public class UserUpdater implements Serializable {
 			throws UserUpdateException {
 		logger.debug("Updating user {}", user.getEppn());
 
+		user = userDao.merge(user);
+		
 		boolean changed = false;
 		
 		UserUpdateAuditor auditor = new UserUpdateAuditor(auditDao, auditDetailDao, appConfig);
@@ -205,9 +207,6 @@ public class UserUpdater implements Serializable {
 		
 		user.setLastUpdate(new Date());
 		user.setLastFailedUpdate(null);
-		user.setGroups(null);
-		
-		user = userDao.persist(user);
 
 		if (changed) {
 			fireUserChangeEvent(user, auditor.getActualExecutor());

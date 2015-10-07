@@ -307,7 +307,7 @@ public class HomeOrgGroupUpdater implements Serializable {
 								logger.debug("Adding user {} to group {}", user.getEppn(), groupEntity.getName());
 								groupDao.addUserToGroup(user, groupEntity);
 								changedGroups.remove(groupEntity);
-								groupEntity = dao.persist(groupEntity);
+								//groupEntity = dao.persist(groupEntity);
 								auditor.logAction(user.getEppn(), "ADD TO GROUP", groupEntity.getName(), null, AuditStatus.SUCCESS);
 
 								changedGroups.add(groupEntity);

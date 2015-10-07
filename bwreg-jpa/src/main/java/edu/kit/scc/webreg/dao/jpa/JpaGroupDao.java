@@ -44,14 +44,28 @@ public class JpaGroupDao extends JpaBaseDao<GroupEntity, Long> implements GroupD
 		UserGroupEntity userGroup = createNewUserGroup();
 		userGroup.setUser(user);
 		userGroup.setGroup(group);
+		
+		if (user.getGroups() != null)
+			user.getGroups().add(userGroup);
+		
+		if (group.getUsers() != null)
+			group.getUsers().add(userGroup);
+		
 		em.persist(userGroup);
 	}
 	
 	@Override
 	public void removeUserGromGroup(UserEntity user, GroupEntity group) {
 		UserGroupEntity userGroup = findUserGroupEntity(user, group);
-		if (userGroup != null)
+		if (userGroup != null) {
+			if (user.getGroups() != null)
+				user.getGroups().remove(userGroup);
+			
+			if (group.getUsers() != null)
+				group.getUsers().remove(userGroup);
+
 			em.remove(userGroup);
+		}
 	}
 	
 	@Override
