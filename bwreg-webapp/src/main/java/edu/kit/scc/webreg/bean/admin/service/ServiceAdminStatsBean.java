@@ -54,12 +54,12 @@ public class ServiceAdminStatsBean implements Serializable {
 	private PieChartModel userPerIdpPie;
    
 	public void preRenderView(ComponentSystemEvent ev) {
-		if (! authBean.isUserServiceAdmin(serviceId))
-			throw new NotAuthorizedException("Nicht autorisiert");
-			
 		if (serviceEntity == null) {
 			serviceEntity = serviceService.findById(serviceId);
 		}
+
+		if (! authBean.isUserServiceAdmin(serviceEntity))
+			throw new NotAuthorizedException("Nicht autorisiert");
 	}
 
 	public List<Object> getUserPerIdpList() {

@@ -51,15 +51,15 @@ public class ServiceAdminDetailsBean implements Serializable {
 	private String descriptionEdit, shortDescriptionEdit;
 	
 	public void preRenderView(ComponentSystemEvent ev) {
-		if (! authBean.isUserServiceAdmin(serviceId))
-			throw new NotAuthorizedException("Nicht autorisiert");
-			
 		if (serviceEntity == null) {
 			serviceEntity = serviceService.findWithPolicies(serviceId);
 			serviceDescBB = bbCodeConverter.convert(serviceEntity.getDescription());
 			descriptionEdit = serviceEntity.getDescription();
 			shortDescriptionEdit = serviceEntity.getShortDescription();
 		}
+
+		if (! authBean.isUserServiceAdmin(serviceEntity))
+			throw new NotAuthorizedException("Nicht autorisiert");
 	}
 
 	public void updateDescription() {

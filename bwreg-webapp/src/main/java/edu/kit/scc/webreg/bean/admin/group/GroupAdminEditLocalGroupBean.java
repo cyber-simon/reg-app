@@ -98,9 +98,6 @@ public class GroupAdminEditLocalGroupBean implements Serializable {
 	private Boolean savePossible = false;
 	
 	public void preRenderView(ComponentSystemEvent ev) {
-		if (! authBean.isUserServiceGroupAdmin(serviceId))
-			throw new NotAuthorizedException("Nicht autorisiert");
-
 		if (entity == null) {
 			serviceEntity = serviceService.findById(serviceId);
 			entity = service.findWithUsersAndChildren(groupId);
@@ -111,6 +108,9 @@ public class GroupAdminEditLocalGroupBean implements Serializable {
 				throw new NotAuthorizedException("Gruppe ist diesem Service nicht zugeordnet");
 			usersInGroup = new ArrayList<UserEntity>(userService.findByGroup(entity));
 		}
+
+		if (! authBean.isUserServiceGroupAdmin(serviceEntity))
+			throw new NotAuthorizedException("Nicht autorisiert");
 
 		if (! authBean.isUserInRoles(entity.getAdminRoles())) {
 			throw new NotAuthorizedException("Nicht autorisiert");

@@ -59,7 +59,7 @@ public class ApproveUserBean implements Serializable {
 				throw new NotAuthorizedException("Nicht autorisiert");
 			}
 
-			if (! authBean.isUserServiceApprover(entity.getService().getId()))
+			if (! authBean.isUserServiceApprover(entity.getService()))
 				throw new NotAuthorizedException("Nicht autorisiert");
 		}
 	}

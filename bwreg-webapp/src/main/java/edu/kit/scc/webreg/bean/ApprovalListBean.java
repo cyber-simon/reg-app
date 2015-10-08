@@ -52,12 +52,12 @@ public class ApprovalListBean implements Serializable {
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (serviceEntity == null) {
-			if (authBean.isUserServiceApprover(serviceId)) {
-				serviceEntity = serviceService.findById(serviceId); 
-			}
-			else
-				throw new NotAuthorizedException("Nicht autorisiert");
+			serviceEntity = serviceService.findById(serviceId); 
 		}
+
+		if (! authBean.isUserServiceApprover(serviceEntity))
+			throw new NotAuthorizedException("Nicht autorisiert");
+		
 	}
     
 	public GenericLazyDataModel<RegistryEntity, RegistryService, Long> getList() {

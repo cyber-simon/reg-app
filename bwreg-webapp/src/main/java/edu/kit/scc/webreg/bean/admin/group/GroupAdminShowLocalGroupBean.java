@@ -92,11 +92,11 @@ public class GroupAdminShowLocalGroupBean implements Serializable {
 	private Boolean editable = true;
 	
 	public void preRenderView(ComponentSystemEvent ev) {
-		if (! authBean.isUserServiceGroupAdmin(serviceId))
-			throw new NotAuthorizedException("Nicht autorisiert");
-
 		if (entity == null)
 			init();
+
+		if (! authBean.isUserServiceGroupAdmin(serviceEntity))
+			throw new NotAuthorizedException("Nicht autorisiert");
 
 		if (! authBean.isUserInRoles(entity.getAdminRoles())) {
 			messageGenerator.addInfoMessage("Nicht editierbar", "Die Gruppe ist nicht editierbar");

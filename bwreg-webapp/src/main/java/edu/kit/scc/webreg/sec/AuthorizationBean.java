@@ -229,25 +229,25 @@ public class AuthorizationBean implements Serializable {
     	return false;
     }
     
-    public boolean isUserServiceAdmin(Long id) {
+    public boolean isUserServiceAdmin(ServiceEntity id) {
     	if (id == null)
     		return false;
     	return sessionManager.getServiceAdminList().contains(id);
     }
 
-    public boolean isUserServiceApprover(Long id) {
+    public boolean isUserServiceApprover(ServiceEntity id) {
     	if (id == null)
     		return false;    	
     	return sessionManager.getServiceApproverList().contains(id);
     }
 
-    public boolean isUserServiceHotline(Long id) {
+    public boolean isUserServiceHotline(ServiceEntity id) {
     	if (id == null)
     		return false;
     	return sessionManager.getServiceHotlineList().contains(id);
     }
 
-    public boolean isUserServiceGroupAdmin(Long id) {
+    public boolean isUserServiceGroupAdmin(ServiceEntity id) {
     	if (id == null)
     		return false;
     	return sessionManager.getServiceGroupAdminList().contains(id);

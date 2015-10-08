@@ -56,12 +56,12 @@ public class ServiceAdminUserListBean implements Serializable {
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (serviceEntity == null) {
-			if (authBean.isUserServiceAdmin(serviceId) || authBean.isUserServiceHotline(serviceId)) {
-				serviceEntity = serviceService.findById(serviceId); 
-			}
-			else
-				throw new NotAuthorizedException("Nicht autorisiert");
+			serviceEntity = serviceService.findById(serviceId); 
 		}
+
+		if (! (authBean.isUserServiceAdmin(serviceEntity) || 
+				authBean.isUserServiceHotline(serviceEntity)))
+			throw new NotAuthorizedException("Nicht autorisiert");		
 	}
 
 	public ServiceEntity getServiceEntity() {

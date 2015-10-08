@@ -55,8 +55,8 @@ public class ServiceAdminUserDetailBean implements Serializable {
 	public void preRenderView(ComponentSystemEvent ev) {
 		entity = service.findByIdWithAgreements(id);
 		
-		if (! (authBean.isUserServiceAdmin(entity.getService().getId()) || 
-				authBean.isUserServiceHotline(entity.getService().getId())))
+		if (! (authBean.isUserServiceAdmin(entity.getService()) || 
+				authBean.isUserServiceHotline(entity.getService())))
 			throw new NotAuthorizedException("Nicht autorisiert");		
 	}
 

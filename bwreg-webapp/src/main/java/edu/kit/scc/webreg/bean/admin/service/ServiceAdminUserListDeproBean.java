@@ -62,13 +62,12 @@ public class ServiceAdminUserListDeproBean implements Serializable {
     
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (serviceEntity == null) {
-			if (authBean.isUserServiceAdmin(serviceId)) {
-				serviceEntity = serviceService.findById(serviceId);
-				deproList = service.findRegistriesForDepro(serviceEntity.getShortName());
-			}
-			else
-				throw new NotAuthorizedException("Nicht autorisiert");
+			serviceEntity = serviceService.findById(serviceId);
+			deproList = service.findRegistriesForDepro(serviceEntity.getShortName());
+
 		}
+		if (! authBean.isUserServiceAdmin(serviceEntity))
+			throw new NotAuthorizedException("Nicht autorisiert");
 	}
 
 	public void depro(RegistryEntity registry) {
