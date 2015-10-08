@@ -45,13 +45,19 @@ public class GroupServiceImpl extends BaseServiceImpl<GroupEntity, Long> impleme
 
 		Set<UserEntity> usersToAdd = new HashSet<UserEntity>(newMembers);
 		usersToAdd.removeAll(oldMembers);
-		for (UserEntity user : usersToAdd) 
+		for (UserEntity user : usersToAdd) {
+			user = userDao.merge(user);
+			group = groupDao.merge(group);
 			groupDao.addUserToGroup(user, group);
+		}
 		
 		Set<UserEntity> usersToRemove = new HashSet<UserEntity>(oldMembers);
 		usersToRemove.removeAll(newMembers);
-		for (UserEntity user : usersToRemove) 
+		for (UserEntity user : usersToRemove) { 
+			user = userDao.merge(user);
+			group = groupDao.merge(group);
 			groupDao.removeUserGromGroup(user, group);
+		}
 	}
 	
 	@Override
