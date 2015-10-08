@@ -15,6 +15,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import edu.kit.scc.webreg.entity.RoleEntity;
+
 public class AccessNode {
 
 	private String path;
@@ -23,8 +25,8 @@ public class AccessNode {
 	
 	private Map<String, AccessNode> children;
 	
-	private Set<Long> allowRoles;
-	private Set<Long> denyRoles;
+	private Set<RoleEntity> allowRoles;
+	private Set<RoleEntity> denyRoles;
 	
 	public AccessNode() {
 		this(null, "", false);
@@ -34,8 +36,8 @@ public class AccessNode {
 		this.parent = parent;
 		this.path = path;
 		children = new HashMap<String, AccessNode>();
-		allowRoles = new HashSet<Long>();
-		denyRoles = new HashSet<Long>();
+		allowRoles = new HashSet<RoleEntity>();
+		denyRoles = new HashSet<RoleEntity>();
 		
 		if (inherit) {
 			allowRoles.addAll(parent.getAllowRoles());
@@ -50,11 +52,11 @@ public class AccessNode {
 		return children.get(path);
 	}
 	
-	public void addAllowRole(Long role) {
+	public void addAllowRole(RoleEntity role) {
 		allowRoles.add(role);
 	}
 
-	public void addDenyRole(Long role) {
+	public void addDenyRole(RoleEntity role) {
 		denyRoles.add(role);
 	}
 	
@@ -64,11 +66,11 @@ public class AccessNode {
 		children.put(an.getPath(), an);
 	}
 	
-	public Set<Long> getAllowRoles() {
+	public Set<RoleEntity> getAllowRoles() {
 		return allowRoles;
 	}
 
-	public Set<Long> getDenyRoles() {
+	public Set<RoleEntity> getDenyRoles() {
 		return denyRoles;
 	}
 	

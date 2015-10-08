@@ -27,7 +27,7 @@ public class RoleCache {
 	@Inject
 	private RoleService roleService;
 	
-	private LoadingCache<String, Long> cache;
+	private LoadingCache<String, RoleEntity> cache;
 
 	@PostConstruct
 	public void init() {
@@ -41,7 +41,7 @@ public class RoleCache {
 				.build(cacheLoader);
 	}
 	
-	public Long getIdFromRolename(String roleName) {
+	public RoleEntity getIdFromRolename(String roleName) {
 		try {
 			return cache.get(roleName);
 		} catch (ExecutionException e) {
@@ -50,17 +50,17 @@ public class RoleCache {
 		}
 	}
 	
-	private CacheLoader<String, Long> cacheLoader = new CacheLoader<String, Long>() {
-		public Long load(String key) {
+	private CacheLoader<String, RoleEntity> cacheLoader = new CacheLoader<String, RoleEntity>() {
+		public RoleEntity load(String key) {
 			RoleEntity role = roleService.findByName(key);
 			if (role != null)
-				return role.getId();
+				return role;
 			return null;
 		}
 	};
 	
-	private RemovalListener<String, Long> removalListener = new RemovalListener<String, Long>() {
-		public void onRemoval(RemovalNotification<String, Long> removal) {
+	private RemovalListener<String, RoleEntity> removalListener = new RemovalListener<String, RoleEntity>() {
+		public void onRemoval(RemovalNotification<String, RoleEntity> removal) {
 			if (logger.isTraceEnabled())
 				logger.trace("Removing entry {} -> {} from roleCache ({})",
 					removal.getKey(), removal.getValue(), removal.getCause());

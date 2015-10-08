@@ -22,6 +22,8 @@ import javax.enterprise.context.SessionScoped;
 import javax.inject.Named;
 
 import edu.kit.scc.webreg.entity.GroupEntity;
+import edu.kit.scc.webreg.entity.RoleEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity;
 
 @Named("sessionManager")
 @SessionScoped
@@ -42,13 +44,13 @@ public class SessionManager implements Serializable {
 	private String originalRequestPath;
 	private String originalIdpEntityId;
 	
-	private Set<Long> roles;
+	private Set<RoleEntity> roles;
 	private Long roleSetCreated;
 
-	private List<Long> serviceApproverList;
-	private List<Long> serviceAdminList;
-	private List<Long> serviceHotlineList;
-	private List<Long> serviceGroupAdminList;
+	private List<ServiceEntity> serviceApproverList;
+	private List<ServiceEntity> serviceAdminList;
+	private List<ServiceEntity> serviceHotlineList;
+	private List<ServiceEntity> serviceGroupAdminList;
 
 	private Set<GroupEntity> groups;
 	private Set<String> groupNames;
@@ -60,12 +62,13 @@ public class SessionManager implements Serializable {
 	
 	@PostConstruct
 	public void init() {
-		serviceApproverList = new ArrayList<Long>();
-		serviceAdminList = new ArrayList<Long>();
-		serviceHotlineList = new ArrayList<Long>();
-		serviceGroupAdminList = new ArrayList<Long>();
+		serviceApproverList = new ArrayList<ServiceEntity>();
+		serviceAdminList = new ArrayList<ServiceEntity>();
+		serviceHotlineList = new ArrayList<ServiceEntity>();
+		serviceGroupAdminList = new ArrayList<ServiceEntity>();
 		groups = new HashSet<GroupEntity>();
 		groupNames = new HashSet<String>();
+		roles = new HashSet<RoleEntity>();
 	}
 	
 	public void clearRoleList() {
@@ -91,17 +94,15 @@ public class SessionManager implements Serializable {
 		
 	}
 
-	public void addRole(Long role) {
-		if (roles == null) roles = new HashSet<Long>();
+	public void addRole(RoleEntity role) {
 		roles.add(role);
 	}
 	
-	public void addRoles(Set<Long> rolesToAdd) {
-		if (roles == null) roles = new HashSet<Long>();
+	public void addRoles(Set<RoleEntity> rolesToAdd) {
 		roles.addAll(rolesToAdd);
 	}
 
-	public boolean isUserInRole(Long role) {
+	public boolean isUserInRole(RoleEntity role) {
         return roles.contains(role);
     }
 
@@ -183,38 +184,6 @@ public class SessionManager implements Serializable {
 		this.roleSetCreated = roleSetCreated;
 	}
 
-	public List<Long> getServiceApproverList() {
-		return serviceApproverList;
-	}
-
-	public void setServiceApproverList(List<Long> serviceApproverList) {
-		this.serviceApproverList = serviceApproverList;
-	}
-
-	public List<Long> getServiceAdminList() {
-		return serviceAdminList;
-	}
-
-	public void setServiceAdminList(List<Long> serviceAdminList) {
-		this.serviceAdminList = serviceAdminList;
-	}
-
-	public List<Long> getServiceHotlineList() {
-		return serviceHotlineList;
-	}
-
-	public void setServiceHotlineList(List<Long> serviceHotlineList) {
-		this.serviceHotlineList = serviceHotlineList;
-	}
-
-	public List<Long> getServiceGroupAdminList() {
-		return serviceGroupAdminList;
-	}
-
-	public void setServiceGroupAdminList(List<Long> serviceGroupAdminList) {
-		this.serviceGroupAdminList = serviceGroupAdminList;
-	}
-
 	public Set<GroupEntity> getGroups() {
 		return groups;
 	}
@@ -229,5 +198,21 @@ public class SessionManager implements Serializable {
 
 	public Set<String> getGroupNames() {
 		return groupNames;
+	}
+
+	public List<ServiceEntity> getServiceApproverList() {
+		return serviceApproverList;
+	}
+
+	public List<ServiceEntity> getServiceAdminList() {
+		return serviceAdminList;
+	}
+
+	public List<ServiceEntity> getServiceHotlineList() {
+		return serviceHotlineList;
+	}
+
+	public List<ServiceEntity> getServiceGroupAdminList() {
+		return serviceGroupAdminList;
 	}
 }

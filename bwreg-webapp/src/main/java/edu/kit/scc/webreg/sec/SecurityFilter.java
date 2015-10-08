@@ -105,12 +105,12 @@ public class SecurityFilter implements Filter {
 				&& (httpSession == null || (! session.isLoggedIn()))) {
 			processRestLogin(path, request, response, chain);
 		}
-		else if (path.startsWith("/register/") && session != null && session.isUserInRole(-1L)) {
+		else if (path.startsWith("/register/") && session != null && session.getUserId() == null) {
 			chain.doFilter(servletRequest, servletResponse);
 		}
 		else if (session != null && session.isLoggedIn()) {
 
-			Set<Long> roles = convertRoles(roleService.findByUserId(session.getUserId()));
+			Set<RoleEntity> roles = new HashSet<RoleEntity>(roleService.findByUserId(session.getUserId()));
 			session.addRoles(roles);
 			
 			if (accessChecker.check(path, roles)) {
@@ -142,14 +142,6 @@ public class SecurityFilter implements Filter {
 		}
 	}
 
-	private Set<Long> convertRoles(List<RoleEntity> roleList) {
-		Set<Long> roles = new HashSet<Long>();
-		for (RoleEntity role : roleList)
-			roles.add(role.getId());
-		
-		return roles;
-	}
-	
 	private void processAdminLogin(String path, HttpServletRequest request, 
 			HttpServletResponse response, FilterChain chain) 
 		throws IOException, ServletException {
@@ -182,7 +174,7 @@ public class SecurityFilter implements Filter {
 	        		if (adminUser != null && passwordsMatch(adminUser.getPassword(), credentials[1])) {
 	        			
 						List<RoleEntity> roleList = adminUserService.findRolesForUserById(adminUser.getId());
-	        			Set<Long> roles = convertRoles(roleList);
+	        			Set<RoleEntity> roles = new HashSet<RoleEntity>(roleList);
 	        			
 	        			if (setRoles && session != null)
 	        				session.addRoles(roles);

@@ -42,7 +42,7 @@ public class AccessChecker {
 		logger.info("Initializing accessChecker");
 		root = new AccessNode();
 		RoleEntity rootRole = roleService.findByName("User");
-		root.addAllowRole(rootRole.getId());
+		root.addAllowRole(rootRole);
 
 		addAccessNode(root, "user", true);
 		addAccessNode(root, "service", true);
@@ -82,7 +82,7 @@ public class AccessChecker {
 		addAccessNode(imageNode, "icon", true, "User");
 	}
 	
-	public Boolean check(String path, Set<Long> roles) {
+	public Boolean check(String path, Set<RoleEntity> roles) {
 		if (path.startsWith("/"))
 			path = path.substring(1);
 		
@@ -95,7 +95,7 @@ public class AccessChecker {
 		return evaluate(root, splitList, roles);
 	}
 	
-	private Boolean evaluate(AccessNode an, List<String> splitList, Set<Long> roles) {
+	private Boolean evaluate(AccessNode an, List<String> splitList, Set<RoleEntity> roles) {
 		if (splitList.size() == 0) {
 			return evaluateNode(an, roles);
 		}
@@ -106,7 +106,7 @@ public class AccessChecker {
 			if (subAn == null)
 				return evaluateNode(an, roles);
 			
-			for (Long role : an.getDenyRoles()) {
+			for (RoleEntity role : an.getDenyRoles()) {
 				if (roles.contains(role))
 					return false;
 			}
@@ -115,13 +115,13 @@ public class AccessChecker {
 		}
 	}
 	
-	private Boolean evaluateNode(AccessNode an, Set<Long> roles) {
-		for (Long role : an.getDenyRoles()) {
+	private Boolean evaluateNode(AccessNode an, Set<RoleEntity> roles) {
+		for (RoleEntity role : an.getDenyRoles()) {
 			if (roles.contains(role))
 				return false;
 		}
 		
-		for (Long role : an.getAllowRoles()) {
+		for (RoleEntity role : an.getAllowRoles()) {
 			if (roles.contains(role))
 				return true;
 		}
@@ -134,7 +134,7 @@ public class AccessChecker {
 		for (String roleName : roles) {
 			RoleEntity role = roleService.findByName(roleName);
 			if (role != null)
-				an.addAllowRole(role.getId());
+				an.addAllowRole(role);
 		}
 		
 		return an;
@@ -145,7 +145,7 @@ public class AccessChecker {
 		for (String roleName : roles) {
 			RoleEntity role = roleService.findByName(roleName);
 			if (role != null)
-				an.addDenyRole(role.getId());
+				an.addDenyRole(role);
 		}
 		
 		return an;

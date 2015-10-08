@@ -168,20 +168,20 @@ public class AuthorizationBean implements Serializable {
 	    	roles.addAll(rolesForGroupList);
 
 	    	for (RoleEntity role : roles) {
-	    		sessionManager.addRole(role.getId());
+	    		sessionManager.addRole(role);
 	    		if (role instanceof AdminRoleEntity) {
 	    			for (ServiceEntity s : serviceService.findByAdminRole(role))
-	    				sessionManager.getServiceAdminList().add(s.getId());
+	    				sessionManager.getServiceAdminList().add(s);
 	    			for (ServiceEntity s : serviceService.findByHotlineRole(role))
-	    				sessionManager.getServiceHotlineList().add(s.getId());
+	    				sessionManager.getServiceHotlineList().add(s);
 	    		}
 	    		else if (role instanceof ApproverRoleEntity) {
 	    			for (ServiceEntity s : serviceService.findByApproverRole(role))
-	    				sessionManager.getServiceApproverList().add(s.getId());
+	    				sessionManager.getServiceApproverList().add(s);
 	    		}
 	    		else if (role instanceof GroupAdminRoleEntity) {
 	    			for (ServiceEntity s : serviceService.findByGroupAdminRole(role))
-	    				sessionManager.getServiceGroupAdminList().add(s.getId());
+	    				sessionManager.getServiceGroupAdminList().add(s);
 	    		}
 	    	}
 	    	end = System.currentTimeMillis();
@@ -195,19 +195,19 @@ public class AuthorizationBean implements Serializable {
     	if (roleName.startsWith("ROLE_"))
     		roleName = roleName.substring(5);
     	
-    	Long roleId = roleCache.getIdFromRolename(roleName);
+    	RoleEntity role = roleCache.getIdFromRolename(roleName);
     	
-    	if (roleId == null)
+    	if (role == null)
     		return false;
     	
-    	return sessionManager.isUserInRole(roleId);
+    	return sessionManager.isUserInRole(role);
     }
 
     public boolean isUserInRole(RoleEntity role) {
     	if (role == null)
     		return false;
     	
-    	return sessionManager.isUserInRole(role.getId());
+    	return sessionManager.isUserInRole(role);
     }
 
     public boolean isUserInRoles(Set<RoleEntity> roles) {
@@ -258,19 +258,19 @@ public class AuthorizationBean implements Serializable {
    		return userRegistryList;
     }
 
-	public List<Long> getServiceApproverList() {
+	public List<ServiceEntity> getServiceApproverList() {
 		return sessionManager.getServiceApproverList();
 	}
 
-	public List<Long> getServiceAdminList() {
+	public List<ServiceEntity> getServiceAdminList() {
 		return sessionManager.getServiceAdminList();
 	}
 
-	public List<Long> getServiceHotlineList() {
+	public List<ServiceEntity> getServiceHotlineList() {
 		return sessionManager.getServiceHotlineList();
 	}
 
-	public List<Long> getServiceGroupAdminList() {
+	public List<ServiceEntity> getServiceGroupAdminList() {
 		return sessionManager.getServiceGroupAdminList();
 	}
 

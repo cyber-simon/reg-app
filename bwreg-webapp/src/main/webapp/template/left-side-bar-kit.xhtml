@@ -82,30 +82,30 @@
        </div>
 	  </ui:repeat>
 
-      <ui:repeat var="serviceId" value="#{authorizationBean.serviceAdminList}">
+      <ui:repeat var="service" value="#{authorizationBean.serviceAdminList}">
        <div class="submenu">
-        <div class="submenu-title">#{serviceCache.getServiceFromId(serviceId).name} Admin</div>
+        <div class="submenu-title">#{service.name} Admin</div>
         <div class="submenu-content">
 		  <div>
 		    <ul>
 	          <li><span class="ui-icon ui-icon-carat-1-e" style="display:inline-block; vertical-align: bottom;" />
     	        <h:link outcome="/service-admin/index.xhtml" value="#{messages.service_props}">
-    	        	<f:param name="serviceId" value="#{serviceId}" />
+    	        	<f:param name="serviceId" value="#{service.id}" />
     	        </h:link>
 			  </li>
 	          <li><span class="ui-icon ui-icon-carat-1-e" style="display:inline-block; vertical-align: bottom;" />
     	        <h:link outcome="/service-admin/list-service-users.xhtml" value="#{messages.service_users}">
-    	        	<f:param name="serviceId" value="#{serviceId}" />
+    	        	<f:param name="serviceId" value="#{service.id}" />
     	        </h:link>
 	          </li>
 	          <li><span class="ui-icon ui-icon-carat-1-e" style="display:inline-block; vertical-align: bottom;" />
     	        <h:link outcome="/service-admin/list-service-users-for-depro.xhtml" value="#{messages.service_users_depro}">
-    	        	<f:param name="serviceId" value="#{serviceId}" />
+    	        	<f:param name="serviceId" value="#{service.id}" />
     	        </h:link>
 	          </li>
 	          <li><span class="ui-icon ui-icon-signal" style="display:inline-block; vertical-align: bottom;" />
     	        <h:link outcome="/service-admin/service-stats.xhtml" value="#{messages.statistics}">
-    	        	<f:param name="serviceId" value="#{serviceId}" />
+    	        	<f:param name="serviceId" value="#{service.id}" />
     	        </h:link>
 	          </li>
             </ul>
@@ -114,15 +114,15 @@
        </div>
 	  </ui:repeat>
 
-      <ui:repeat var="serviceId" value="#{authorizationBean.serviceHotlineList}">
+      <ui:repeat var="service" value="#{authorizationBean.serviceHotlineList}">
        <div class="submenu">
-        <div class="submenu-title">#{serviceCache.getServiceFromId(serviceId).name} Hotline</div>
+        <div class="submenu-title">#{service.name} Hotline</div>
         <div class="submenu-content">
 		  <div>
 		    <ul>
 	          <li><span class="ui-icon ui-icon-carat-1-e" style="display:inline-block; vertical-align: bottom;" />
     	        <h:link outcome="/service-admin/list-service-users.xhtml" value="#{messages.service_users}">
-    	        	<f:param name="serviceId" value="#{serviceId}" />
+    	        	<f:param name="serviceId" value="#{service.id}" />
     	        </h:link>
 	          </li>
             </ul>
@@ -131,15 +131,15 @@
        </div>
 	  </ui:repeat>
 	  	
-      <ui:repeat var="serviceId" value="#{authorizationBean.serviceApproverList}">
+      <ui:repeat var="service" value="#{authorizationBean.serviceApproverList}">
        <div class="submenu">
-        <div class="submenu-title">#{serviceCache.getServiceFromId(serviceId).name} Approver</div>
+        <div class="submenu-title">#{service.name} Approver</div>
         <div class="submenu-content">
 		  <div>
 		    <ul>
 	          <li><span class="ui-icon ui-icon-carat-1-e" style="display:inline-block; vertical-align: bottom;" />
     	        <h:link outcome="/service-approver/index.xhtml" value="#{messages.new_approvals}">
-    	        	<f:param name="serviceId" value="#{serviceId}" />
+    	        	<f:param name="serviceId" value="#{service.id}" />
     	        </h:link>
 			  </li>
             </ul>
@@ -148,15 +148,15 @@
        </div>
 	  </ui:repeat>
 
-      <ui:repeat var="serviceId" value="#{authorizationBean.serviceGroupAdminList}">
+      <ui:repeat var="service" value="#{authorizationBean.serviceGroupAdminList}">
        <div class="submenu">
-        <div class="submenu-title">#{serviceCache.getServiceFromId(serviceId).name} GroupAdmin</div>
+        <div class="submenu-title">#{service.name} GroupAdmin</div>
         <div class="submenu-content">
 		  <div>
 		    <ul>
 	          <li><span class="ui-icon ui-icon-carat-1-e" style="display:inline-block; vertical-align: bottom;" />
     	        <h:link outcome="/service-group-admin/index.xhtml" value="#{messages.groups}">
-    	        	<f:param name="serviceId" value="#{serviceId}" />
+    	        	<f:param name="serviceId" value="#{service.id}" />
     	        </h:link>
 			  </li>
             </ul>

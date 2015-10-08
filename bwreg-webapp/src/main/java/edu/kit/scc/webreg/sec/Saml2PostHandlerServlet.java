@@ -113,8 +113,6 @@ public class Saml2PostHandlerServlet {
 				session.setPersistentId(persistentId);
 				session.setAttributeMap(attributeMap);				
 				
-				// Role -1 is for new users
-				session.addRole(-1L);
 				response.sendRedirect("/register/register.xhtml");
 				return;
 			}
