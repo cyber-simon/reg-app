@@ -49,7 +49,10 @@
 						<f:facet name="header">
 							<h:outputText value="#{messages.value}" />
 						</f:facet>
-						<h:outputText value="#{registryDetailBean.entity.registryValues.get(key)}" />
+						<h:outputText value="#{registryDetailBean.entity.registryValues.get(key)}" 
+							rendered="#{key != 'userPassword'}"/>
+						<h:outputText value="set" 
+							rendered="#{key == 'userPassword'}"/>
 					</p:column>						
 				</p:dataTable>
 				
