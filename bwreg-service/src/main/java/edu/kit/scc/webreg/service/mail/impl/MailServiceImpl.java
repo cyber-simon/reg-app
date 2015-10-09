@@ -55,9 +55,12 @@ public class MailServiceImpl implements MailService {
 	}
 
 	private void sendMailIntern(String from, String to, String cc, String bcc, String subject, String body) 
-			throws AddressException, MessagingException {
+			throws AddressException, MessagingException, MailServiceException {
 		Message message = new MimeMessage(session);
 
+		if (from == null || to == null)
+			throw new MailServiceException("From or To may not be null. Please set From an To in Email Template");
+		
 		message.setFrom(new InternetAddress(from));
 
 		message.setRecipients(Message.RecipientType.TO,
