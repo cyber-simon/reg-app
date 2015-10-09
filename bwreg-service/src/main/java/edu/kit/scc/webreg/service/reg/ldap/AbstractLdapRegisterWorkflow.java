@@ -250,7 +250,9 @@ public abstract class AbstractLdapRegisterWorkflow
 		LdapWorker ldapWorker = new LdapWorker(prop, auditor, isSambaEnabled());
 
 		ldapWorker.reconUser(cn, sn, givenName, mail, localUid, uidNumber, gidNumber, homeDir, description);
-		if (! registry.getRegistryValues().containsKey("userPassword")) {
+		if ((prop.hasProp("pw_location") && 
+				(prop.readPropOrNull("pw_location").equalsIgnoreCase("registry")) || prop.readPropOrNull("pw_location").equalsIgnoreCase("both"))
+				&& (! registry.getRegistryValues().containsKey("userPassword"))) {
 			List<String> pwList = ldapWorker.getPasswords(localUid);
 			if (pwList.size() > 0) {
 				logger.debug("userPassword is not set in registry but in LDAP ({}). Importing from LDAP", pwList.size());

@@ -459,8 +459,18 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 			auditor.setDetail("Setting service password for user " + registry.getUser().getEppn() + " for service " + serviceEntity.getName());
 			auditor.setRegistry(registry);
 			
-			registry.getRegistryValues().put("userPassword", passwordUtil.generatePassword("SHA-512", password));
-			((SetPasswordCapable) workflow).setPassword(userEntity, serviceEntity, registry, auditor, password);
+			if (serviceEntity.getServiceProps().containsKey("pw_location") && 
+					serviceEntity.getServiceProps().get("pw_location").equalsIgnoreCase("registry")) {
+				registry.getRegistryValues().put("userPassword", passwordUtil.generatePassword("SHA-512", password));
+			}
+			if (serviceEntity.getServiceProps().containsKey("pw_location") && 
+					serviceEntity.getServiceProps().get("pw_location").equalsIgnoreCase("both")) {
+				registry.getRegistryValues().put("userPassword", passwordUtil.generatePassword("SHA-512", password));
+				((SetPasswordCapable) workflow).setPassword(userEntity, serviceEntity, registry, auditor, password);
+			}
+			else {
+				((SetPasswordCapable) workflow).setPassword(userEntity, serviceEntity, registry, auditor, password);
+			}
 
 			registry = registryDao.persist(registry);
 			
