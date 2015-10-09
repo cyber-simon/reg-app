@@ -45,6 +45,9 @@ public class TemplateRenderer {
 	public String evaluate(String template, Map<String, Object> context)
 			throws TemplateRenderingException {
 		
+		if (template == null)
+			return null;
+		
 		VelocityContext velocityContext = new VelocityContext(context);
 		StringWriter out = new StringWriter();
 
