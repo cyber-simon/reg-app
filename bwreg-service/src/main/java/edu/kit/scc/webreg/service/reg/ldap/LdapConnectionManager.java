@@ -40,6 +40,18 @@ public class LdapConnectionManager {
 		String bindPassword = prop.readProp("bind_password");
 		String connectionSecurity = prop.readProp("connection_security");
 		
+		int timeLimit;
+		if (prop.readPropOrNull("timelimit") != null)
+			timeLimit = Integer.parseInt(prop.readPropOrNull("timelimit"));
+		else
+			timeLimit = 30000;
+		
+		int timeout;
+		if (prop.readPropOrNull("timeout") != null)
+			timeout = Integer.parseInt(prop.readPropOrNull("timeout"));
+		else
+			timeout = 30000;
+		
 		ldapBase = prop.readProp("ldap_base");
 
 		String[] ldapConnects = ldapConnect.split(",");
@@ -48,7 +60,7 @@ public class LdapConnectionManager {
 			if (connect != null && (!connect.isEmpty())) {
 				connect = connect.trim();
 				logger.info("Creating ldap connection for {}", connect);
-				Ldap ldap = getLdapConnect(connect.trim(), ldapBase, bindDn, bindPassword, connectionSecurity);
+				Ldap ldap = getLdapConnect(connect.trim(), ldapBase, bindDn, bindPassword, connectionSecurity, timeLimit, timeout);
 				connectionMap.put(connect, ldap);
 			}
 		}
@@ -70,13 +82,16 @@ public class LdapConnectionManager {
 	}
 	
 	private Ldap getLdapConnect(String ldapConnect, String ldapBase, 
-			String bindDn, String bindPassword, String connectionSecurity) {
+			String bindDn, String bindPassword, String connectionSecurity, int timeLimit, int timeout) {
 
 		logger.debug("Creating ldap connection connect: {} base: {} bind-dn: {}", new Object[] {ldapConnect, ldapBase, bindDn});
 		
 		LdapConfig config = new LdapConfig(ldapConnect, ldapBase);
 		config.setBindDn(bindDn);
 		config.setBindCredential(bindPassword);
+		
+		config.setTimeLimit(timeLimit);
+		config.setTimeout(timeout);
 		
 		logger.debug("connection_security set to '{}'", connectionSecurity.toLowerCase());
 		if (connectionSecurity.toLowerCase().equals("tls")) {
