@@ -7,9 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.ejb.Asynchronous;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.servlet.ServletException;
 
 import org.slf4j.Logger;
 
@@ -59,7 +59,7 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 	@Override
 	public Map<String, String> updateUser(String eppn,
 			String serviceShortName, String localHostName)
-			throws IOException, ServletException, RestInterfaceException {
+			throws IOException, RestInterfaceException {
 
 		UserEntity user = findUser(eppn);
 		if (user == null)
@@ -77,8 +77,49 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 	}
 
 	@Override
+	public Map<String, String> updateUser(String eppn, String localHostName)
+			throws IOException, RestInterfaceException {
+
+		UserEntity user = findUser(eppn);
+		if (user == null)
+			throw new NoUserFoundException("no such user");
+		
+		try {
+			user = userUpdater.updateUserFromIdp(user);
+		} catch (UserUpdateException e) {
+			logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
+			throw new UserUpdateFailedException("user update failed: " + e.getMessage());
+		}		
+		
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("eppn", user.getEppn());
+		map.put("email", user.getEmail());
+		map.put("last_update",  df.format(user.getLastUpdate()));
+		
+		return map;
+	}
+
+	@Override
+	@Asynchronous
+	public void updateUserAsync(String eppn, String localHostName) {
+
+		UserEntity user = findUser(eppn);
+		if (user == null) {
+			logger.info("Not updating user. No such user: {}", eppn);
+			return;
+		}
+		
+		try {
+			user = userUpdater.updateUserFromIdp(user);
+		} catch (UserUpdateException e) {
+			logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
+		}		
+	}
+
+	@Override
 	public Map<String, String> updateUser(Long regId, String localHostName)
-			throws IOException, ServletException, RestInterfaceException {
+			throws IOException, RestInterfaceException {
 		RegistryEntity registry = registryDao.findById(regId);
 
 		if (registry == null) {
