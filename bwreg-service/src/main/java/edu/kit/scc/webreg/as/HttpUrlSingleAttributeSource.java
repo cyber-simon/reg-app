@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
@@ -27,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.kit.scc.webreg.audit.AttributeSourceAuditor;
 import edu.kit.scc.webreg.dao.as.ASUserAttrValueDao;
+import edu.kit.scc.webreg.dao.as.AttributeSourceGroupDao;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
@@ -40,7 +40,8 @@ public class HttpUrlSingleAttributeSource extends
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public Boolean pollUserAttributes(ASUserAttrEntity asUserAttr, ASUserAttrValueDao asValueDao, AttributeSourceAuditor auditor) throws UserUpdateException {
+	public Boolean pollUserAttributes(ASUserAttrEntity asUserAttr, ASUserAttrValueDao asValueDao,
+			AttributeSourceGroupDao attributeSourceGroupDao, AttributeSourceAuditor auditor) throws UserUpdateException {
 		
 		Boolean changed = false;
 		
@@ -118,12 +119,8 @@ public class HttpUrlSingleAttributeSource extends
 						Map<String, Object> map = om.readValue(r, Map.class);
 
 						logger.debug("Got {} values", map.size());
+						changed |= createOrUpdateValues(map, asUserAttr, asValueDao, attributeSourceGroupDao, auditor);
 						
-						for (Entry<String, Object> entry : map.entrySet()) {
-							logger.debug("Processing entry {}, value {}", entry.getKey(), entry.getValue());
-							changed |= createOrUpdateValue(entry.getKey(), entry.getValue(), asUserAttr, asValueDao, auditor);
-						}
-
 						asUserAttr.setQueryStatus(AttributeSourceQueryStatus.SUCCESS);
 						
 					} catch (JsonMappingException e) {

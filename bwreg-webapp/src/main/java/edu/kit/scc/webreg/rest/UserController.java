@@ -24,21 +24,18 @@ public class UserController {
 	@Path(value = "/update-async/{eppn}")
 	@Produces({"application/json"})
 	@GET
-	public Map<String, String> updateUserAsync(@PathParam("eppn") String eppn, @Context HttpServletRequest request)
+	public void updateUserAsync(@PathParam("eppn") String eppn, @Context HttpServletRequest request)
 					throws IOException, RestInterfaceException, ServletException {
 		
-		return userUpdateService.updateUser(eppn, request.getLocalName());
+		userUpdateService.updateUserAsync(eppn, request.getLocalName());
 	}
 
 	@Path(value = "/update/{eppn}")
 	@Produces({"application/json"})
 	@GET
-	public String updateUser(@PathParam("eppn") String eppn, @Context HttpServletRequest request)
+	public Map<String, String> updateUser(@PathParam("eppn") String eppn, @Context HttpServletRequest request)
 					throws IOException, RestInterfaceException, ServletException {
-
-		userUpdateService.updateUser(eppn, request.getLocalName());
-		return "";
-	}
-
-	
+		
+		return userUpdateService.updateUser(eppn, request.getLocalName());
+	}	
 }

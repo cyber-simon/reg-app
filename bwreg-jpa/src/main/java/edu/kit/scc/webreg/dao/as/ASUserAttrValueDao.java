@@ -10,6 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.as;
 
+import java.util.List;
+
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrValueDateEntity;
@@ -26,5 +28,7 @@ public interface ASUserAttrValueDao extends BaseDao<ASUserAttrValueEntity, Long>
 	ASUserAttrValueStringEntity createNewString();
 
 	ASUserAttrValueEntity findValueByKey(ASUserAttrEntity asUserAttr, String key);
+
+	List<ASUserAttrValueEntity> findValues(ASUserAttrEntity asUserAttr);
 
 }

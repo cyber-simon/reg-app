@@ -10,6 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa.as;
 
+import java.util.List;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 import javax.persistence.NoResultException;
@@ -39,6 +41,14 @@ public class JpaASUserAttrValueDao extends JpaBaseDao<ASUserAttrValueEntity, Lon
 	@Override
 	public ASUserAttrValueDateEntity createNewDate() {
 		return new ASUserAttrValueDateEntity();
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ASUserAttrValueEntity> findValues(ASUserAttrEntity asUserAttr) {
+		return (List<ASUserAttrValueEntity>) em.createQuery("select a from ASUserAttrValueEntity a where "
+					+ "a.asUserAttr = :asUserAttr")
+					.setParameter("asUserAttr", asUserAttr).getResultList();
 	}
 	
 	@Override
