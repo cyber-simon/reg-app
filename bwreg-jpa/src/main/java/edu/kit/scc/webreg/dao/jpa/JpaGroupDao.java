@@ -24,6 +24,7 @@ import javax.persistence.criteria.Root;
 import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.HomeOrgGroupDao;
 import edu.kit.scc.webreg.dao.LocalGroupDao;
+import edu.kit.scc.webreg.dao.as.AttributeSourceGroupDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.LocalGroupEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
@@ -38,6 +39,9 @@ public class JpaGroupDao extends JpaBaseDao<GroupEntity, Long> implements GroupD
 	
 	@Inject
 	private HomeOrgGroupDao homeOrgGroupDao;
+	
+	@Inject
+	private AttributeSourceGroupDao attributeSourceGroupDao;
 	
 	@Override
 	public void addUserToGroup(UserEntity user, GroupEntity group) {
@@ -172,5 +176,10 @@ public class JpaGroupDao extends JpaBaseDao<GroupEntity, Long> implements GroupD
 	@Override
 	public HomeOrgGroupDao getHomeOrgGroupDao() {
 		return homeOrgGroupDao;
+	}
+	
+	@Override
+	public AttributeSourceGroupDao getAttributeSourceGroupDao() {
+		return attributeSourceGroupDao;
 	}
 }

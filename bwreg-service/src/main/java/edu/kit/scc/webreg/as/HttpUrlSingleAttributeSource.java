@@ -25,11 +25,10 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.kit.scc.webreg.audit.AttributeSourceAuditor;
+import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.as.ASUserAttrValueDao;
-import edu.kit.scc.webreg.dao.as.AttributeSourceGroupDao;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
-import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceQueryStatus;
 import edu.kit.scc.webreg.exc.PropertyReaderException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
@@ -41,11 +40,11 @@ public class HttpUrlSingleAttributeSource extends
 
 	@Override
 	public Boolean pollUserAttributes(ASUserAttrEntity asUserAttr, ASUserAttrValueDao asValueDao,
-			AttributeSourceGroupDao attributeSourceGroupDao, AttributeSourceAuditor auditor) throws UserUpdateException {
+			GroupDao groupDao, AttributeSourceAuditor auditor) throws UserUpdateException {
 		
 		Boolean changed = false;
 		
-		init(asUserAttr);
+		init(asUserAttr, asValueDao, groupDao, auditor);
 		
 		String urlTemplate;
 		try {
@@ -55,7 +54,6 @@ public class HttpUrlSingleAttributeSource extends
 		}
 
 		UserEntity user = asUserAttr.getUser();
-		AttributeSourceEntity attributeSource = asUserAttr.getAttributeSource();
 
 		VelocityEngine engine = new VelocityEngine();
 		engine.setProperty("runtime.log.logsystem.log4j.logger", "root");
@@ -119,7 +117,7 @@ public class HttpUrlSingleAttributeSource extends
 						Map<String, Object> map = om.readValue(r, Map.class);
 
 						logger.debug("Got {} values", map.size());
-						changed |= createOrUpdateValues(map, asUserAttr, asValueDao, attributeSourceGroupDao, auditor);
+						changed |= createOrUpdateValues(map);
 						
 						asUserAttr.setQueryStatus(AttributeSourceQueryStatus.SUCCESS);
 						

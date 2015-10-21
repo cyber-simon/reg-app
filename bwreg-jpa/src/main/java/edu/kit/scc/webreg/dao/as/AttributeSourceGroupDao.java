@@ -22,5 +22,8 @@ public interface AttributeSourceGroupDao extends BaseDao<AttributeSourceGroupEnt
 	List<AttributeSourceGroupEntity> findByUserAndAS(UserEntity user,
 			AttributeSourceEntity attributeSource);
 
+	AttributeSourceGroupEntity findByNameAndAS(String name,
+			AttributeSourceEntity attributeSource);
+
 
 }

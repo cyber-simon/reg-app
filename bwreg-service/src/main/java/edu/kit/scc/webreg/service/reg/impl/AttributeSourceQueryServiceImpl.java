@@ -12,11 +12,11 @@ import edu.kit.scc.webreg.audit.AttributeSourceAuditor;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.AuditDetailDao;
 import edu.kit.scc.webreg.dao.AuditEntryDao;
+import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.as.ASUserAttrDao;
 import edu.kit.scc.webreg.dao.as.ASUserAttrValueDao;
 import edu.kit.scc.webreg.dao.as.AttributeSourceDao;
-import edu.kit.scc.webreg.dao.as.AttributeSourceGroupDao;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
@@ -40,7 +40,7 @@ public class AttributeSourceQueryServiceImpl implements AttributeSourceQueryServ
 	private AttributeSourceDao attributeSourceDao;
 
 	@Inject
-	private AttributeSourceGroupDao attributeSourceGroupDao;
+	private GroupDao groupDao;
 	
 	@Inject
 	private ASUserAttrDao asUserAttrDao;
@@ -100,7 +100,7 @@ public class AttributeSourceQueryServiceImpl implements AttributeSourceQueryServ
 		auditor.setDetail("Updating attributes for user " + user.getEppn());
 		auditor.setAsUserAttr(asUserAttr);
 
-		changed = workflow.pollUserAttributes(asUserAttr, asValueDao, attributeSourceGroupDao, auditor);
+		changed = workflow.pollUserAttributes(asUserAttr, asValueDao, groupDao, auditor);
 		
 		if (AttributeSourceQueryStatus.SUCCESS.equals(asUserAttr.getQueryStatus())) {
 			asUserAttr.setLastSuccessfulQuery(new Date());
