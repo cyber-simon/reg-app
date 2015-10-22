@@ -18,6 +18,7 @@ import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.LocalGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceBasedGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserGroupEntity;
 
@@ -58,5 +59,8 @@ public interface GroupDao extends BaseDao<GroupEntity, Long> {
 
 	ServiceBasedGroupEntity persistWithServiceFlags(
 			ServiceBasedGroupEntity entity, Set<ServiceEntity> services);
+
+	void setServiceFlags(ServiceBasedGroupEntity entity,
+			ServiceGroupStatus status);
 
 }

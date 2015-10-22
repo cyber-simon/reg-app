@@ -21,7 +21,9 @@ import edu.kit.scc.webreg.dao.as.AttributeSourceGroupDao;
 import edu.kit.scc.webreg.entity.AuditStatus;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.GroupEntity;
+import edu.kit.scc.webreg.entity.ServiceBasedGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrValueEntity;
@@ -171,9 +173,9 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 			ASUserAttrValueStringEntity asStringValue = (ASUserAttrValueStringEntity) asValue;
 			
 			if (! s.equals(asStringValue.getValueString())) {
-				asStringValue.setValueString(s);
 				auditor.logAction("as-workflow", "UPDATE VALUE (String)", key, asStringValue.getValueString() + " -> " + s, AuditStatus.SUCCESS);
 				logger.debug("Updating value for key {}: {} -> {}", key, asStringValue.getValueString(), s);
+				asStringValue.setValueString(s);
 				changed = true;
 			}
 			
@@ -200,6 +202,7 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 		if (asValue == null || asValue.getValueString() == null || asValue.getValueString().equals("")) {
 			//delete all groups for this user
 			for (AttributeSourceGroupEntity group : oldGroupList) {
+				logger.debug("Removeing {} grom group {}", user.getEppn(), group.getName());
 				groupDao.removeUserGromGroup(user, group);
 				allChangedGroups.add(group);
 			}
@@ -218,7 +221,7 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 			groupsToRemove.removeAll(newGroups);
 			
 			for(String s : groupsToRemove) {
-				logger.debug("Removeing {} grom group {}", user.getEppn(), s);
+				logger.debug("Removing {} grom group {}", user.getEppn(), s);
 				groupDao.removeUserGromGroup(user, oldGroupsMap.get(s));
 				allChangedGroups.add(oldGroupsMap.get(s));
 			}
@@ -243,6 +246,12 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 				logger.debug("Adding {} to group {}", user.getEppn(), s);
 				groupDao.addUserToGroup(user, group);
 				allChangedGroups.add(group);
+			}
+		}
+		
+		for (GroupEntity group : allChangedGroups) {
+			if (group instanceof ServiceBasedGroupEntity) {
+				groupDao.setServiceFlags((ServiceBasedGroupEntity) group, ServiceGroupStatus.DIRTY);
 			}
 		}
 		

@@ -94,6 +94,14 @@ public class JpaGroupDao extends JpaBaseDao<GroupEntity, Long> implements GroupD
 	}
 	
 	@Override
+	public void setServiceFlags(ServiceBasedGroupEntity entity, ServiceGroupStatus status) {
+		List<ServiceGroupFlagEntity> flagList = groupFlagDao.findByGroup(entity);
+		for (ServiceGroupFlagEntity groupFlag : flagList) {
+			groupFlag.setStatus(status);
+		}
+	}
+	
+	@Override
 	public void addUserToGroup(UserEntity user, GroupEntity group) {
 		UserGroupEntity userGroup = createNewUserGroup();
 		userGroup.setUser(user);
