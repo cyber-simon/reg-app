@@ -12,7 +12,6 @@ package edu.kit.scc.webreg.service.impl;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.NoResultException;
 
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.SerialDao;
@@ -34,27 +33,9 @@ public class SerialServiceImpl extends BaseServiceImpl<SerialEntity, Long> imple
 	
 	@Override
 	public Long next(String name) {
-		SerialEntity serial = dao.findByName(name);
-		Long value = serial.getActual();
-		value++;
-		serial.setActual(value);
-		dao.persist(serial);
-		return value;
+		return dao.next(name);
 	}
 	
-	@Override
-	public void createIfNotExistant(String name, Long initalValue) {
-		try {
-			dao.findByName(name);
-		} catch (NoResultException nre) {
-			SerialEntity serial = dao.createNew();
-			serial.setName(name);
-			serial.setActual(initalValue);
-			dao.persist(serial);
-		}
-		
-	}
-
 	@Override
 	protected BaseDao<SerialEntity, Long> getDao() {
 		return dao;

@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
@@ -25,41 +24,13 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Root;
 
 import edu.kit.scc.webreg.dao.HomeOrgGroupDao;
-import edu.kit.scc.webreg.dao.ServiceDao;
-import edu.kit.scc.webreg.dao.ServiceGroupFlagDao;
 import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;
-import edu.kit.scc.webreg.entity.ServiceEntity;
-import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
-import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
 
 @Named
 @ApplicationScoped
 public class JpaHomeOrgGroupDao extends JpaBaseDao<HomeOrgGroupEntity, Long> implements HomeOrgGroupDao {
 
-	@Inject
-	private ServiceDao serviceDao;
-	
-	@Inject
-	private ServiceGroupFlagDao groupFlagDao;
-	
-	@Override
-	public HomeOrgGroupEntity persistWithServiceFlags(HomeOrgGroupEntity entity) {
-		entity = persist(entity);
-		List<ServiceEntity> serviceList = serviceDao.findByGroupCapability(true);
-		for (ServiceEntity service : serviceList) {
-			List<ServiceGroupFlagEntity> flagList = groupFlagDao.findByGroupAndService(entity, service);
-			if (flagList.size() == 0) {
-				ServiceGroupFlagEntity groupFlag = groupFlagDao.createNew();
-				groupFlag.setGroup(entity);
-				groupFlag.setService(service);
-				groupFlag.setStatus(ServiceGroupStatus.DIRTY);
-				groupFlagDao.persist(groupFlag);
-			}
-		}
-		return entity;
-	}
-	
     @Override
 	public List<HomeOrgGroupEntity> findByUser(UserEntity user) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();

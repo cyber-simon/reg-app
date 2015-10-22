@@ -113,7 +113,7 @@ public class LdapUidNumberGroupHook implements GroupServiceHook {
 				group.setName("noname_" + gid);
 				group.setPrefix("ka");
 				group.setIdp(user.getIdp());
-				group = dao.persistWithServiceFlags(group);
+				group = (HomeOrgGroupEntity) groupDao.persistWithServiceFlags(group);
 				auditor.logAction(group.getName(), "SET FIELD (LDAP)", "idpEntityId", "" + user.getIdp().getEntityId(), AuditStatus.SUCCESS);
 				auditor.logAction(group.getName(), "SET FIELD (LDAP)", "name", group.getName(), AuditStatus.SUCCESS);
 				auditor.logAction(group.getName(), "SET FIELD (LDAP)", "prefix", group.getPrefix(), AuditStatus.SUCCESS);
@@ -131,7 +131,7 @@ public class LdapUidNumberGroupHook implements GroupServiceHook {
 				group.setName(groupNameFromLdap);
 				group.setPrefix("ka");
 				group.setIdp(user.getIdp());
-				group = dao.persistWithServiceFlags(group);
+				group = (HomeOrgGroupEntity) groupDao.persistWithServiceFlags(group);
 				auditor.logAction(group.getName(), "SET FIELD (LDAP)", "idpEntityId", "" + user.getIdp().getEntityId(), AuditStatus.SUCCESS);
 				auditor.logAction(group.getName(), "SET FIELD (LDAP)", "name", group.getName(), AuditStatus.SUCCESS);
 				auditor.logAction(group.getName(), "SET FIELD (LDAP)", "prefix", group.getPrefix(), AuditStatus.SUCCESS);
@@ -240,7 +240,7 @@ public class LdapUidNumberGroupHook implements GroupServiceHook {
 										groupEntity.setPrefix("ka");
 										groupEntity.setGidNumber(gidNumber);
 										groupEntity.setIdp(user.getIdp());
-										groupEntity = dao.persistWithServiceFlags(groupEntity);
+										groupEntity = (HomeOrgGroupEntity) groupDao.persistWithServiceFlags(groupEntity);
 										auditor.logAction(groupEntity.getName(), "SET FIELD (LDAP)", "idpEntityId", "" + user.getIdp().getEntityId(), AuditStatus.SUCCESS);
 										auditor.logAction(groupEntity.getName(), "SET FIELD (LDAP)", "name", groupEntity.getName(), AuditStatus.SUCCESS);
 										auditor.logAction(groupEntity.getName(), "SET FIELD (LDAP)", "prefix", groupEntity.getPrefix(), AuditStatus.SUCCESS);

@@ -34,6 +34,15 @@ public class JpaSerialDao extends JpaBaseDao<SerialEntity, Long> implements Seri
 	}
 
 	@Override
+	public Long next(String name) {
+		SerialEntity serial = findByName(name);
+		Long value = serial.getActual();
+		value++;
+		serial.setActual(value);
+		return value;
+	}
+
+	@Override
 	public Class<SerialEntity> getEntityClass() {
 		return SerialEntity.class;
 	}

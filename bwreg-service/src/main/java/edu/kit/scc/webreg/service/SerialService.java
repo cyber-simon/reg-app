@@ -16,8 +16,6 @@ public interface SerialService extends BaseService<SerialEntity, Long> {
 
 	SerialEntity findByName(String name);
 
-	void createIfNotExistant(String name, Long initalValue);
-
 	Long next(String name);
 
 }

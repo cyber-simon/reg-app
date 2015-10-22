@@ -29,6 +29,4 @@ public interface HomeOrgGroupDao extends BaseDao<HomeOrgGroupEntity, Long> {
 
 	List<HomeOrgGroupEntity> findByNameListAndPrefix(List<String> nameList,
 			String prefix);
-
-	HomeOrgGroupEntity persistWithServiceFlags(HomeOrgGroupEntity entity);
 }

@@ -16,12 +16,14 @@ import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.as.ASUserAttrValueDao;
 import edu.kit.scc.webreg.dao.as.AttributeSourceGroupDao;
 import edu.kit.scc.webreg.entity.AuditStatus;
+import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrValueEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrValueStringEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceGroupEntity;
+import edu.kit.scc.webreg.entity.as.AttributeSourceServiceEntity;
 import edu.kit.scc.webreg.exc.PropertyReaderException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.reg.ldap.PropertyReader;
@@ -194,7 +196,7 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 			changed = true;
 		}
 		else {
-			String[] groupsString = asValue.getValueString().split(groupSeparator);
+			String[] groupsString = asValue.getValueString().toLowerCase().split(groupSeparator);
 			Set<String> newGroups = new HashSet<String>(Arrays.asList(groupsString));
 			
 			Map<String, AttributeSourceGroupEntity> oldGroupsMap = new HashMap<String, AttributeSourceGroupEntity>();
@@ -220,8 +222,15 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 					group = attributeSourceGroupDao.createNew();
 					group.setName(s);
 					group.setAttributeSource(attributeSource);
-					
+					group.setGidNumber(groupDao.getNextGID().intValue());
+					Set<ServiceEntity> services = new HashSet<ServiceEntity>();
+					for (AttributeSourceServiceEntity asse : attributeSource.getAttributeSourceServices())
+						services.add(asse.getService());
+					group = (AttributeSourceGroupEntity) groupDao.persistWithServiceFlags(group, services);
 				}
+				
+				logger.debug("Adding {} to group {}", user.getEppn(), s);
+				groupDao.addUserToGroup(user, group);
 			}
 		}
 		

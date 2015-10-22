@@ -169,7 +169,7 @@ public class HomeOrgGroupUpdater implements Serializable {
 					auditor.logAction(group.getName(), "SET FIELD", "gidNumber", "" + group.getGidNumber(), AuditStatus.SUCCESS);
 					group.setIdp(user.getIdp());
 					auditor.logAction(group.getName(), "SET FIELD", "idpEntityId", "" + user.getIdp().getEntityId(), AuditStatus.SUCCESS);
-					group = dao.persistWithServiceFlags(group);
+					group = (HomeOrgGroupEntity) groupDao.persistWithServiceFlags(group);
 					auditor.logAction(group.getName(), "CREATE GROUP", null, "Group created", AuditStatus.SUCCESS);
 					
 					changedGroups.add(group);
@@ -294,7 +294,7 @@ public class HomeOrgGroupUpdater implements Serializable {
 							auditor.logAction(groupEntity.getName(), "SET FIELD", "gidNumber", "" + groupEntity.getGidNumber(), AuditStatus.SUCCESS);
 							groupEntity.setIdp(user.getIdp());
 							auditor.logAction(groupEntity.getName(), "SET FIELD", "idpEntityId", "" + user.getIdp().getEntityId(), AuditStatus.SUCCESS);
-							groupEntity = dao.persistWithServiceFlags(groupEntity);
+							groupEntity = (HomeOrgGroupEntity) groupDao.persistWithServiceFlags(groupEntity);
 							auditor.logAction(groupEntity.getName(), "CREATE GROUP", null, "Group created", AuditStatus.SUCCESS);
 							
 							changedGroups.add(groupEntity);

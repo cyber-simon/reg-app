@@ -11,10 +11,13 @@
 package edu.kit.scc.webreg.dao;
 
 import java.util.List;
+import java.util.Set;
 
 import edu.kit.scc.webreg.dao.as.AttributeSourceGroupDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.LocalGroupEntity;
+import edu.kit.scc.webreg.entity.ServiceBasedGroupEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserGroupEntity;
 
@@ -47,5 +50,13 @@ public interface GroupDao extends BaseDao<GroupEntity, Long> {
 	HomeOrgGroupDao getHomeOrgGroupDao();
 
 	AttributeSourceGroupDao getAttributeSourceGroupDao();
+
+	Long getNextGID();
+
+	ServiceBasedGroupEntity persistWithServiceFlags(
+			ServiceBasedGroupEntity entity);
+
+	ServiceBasedGroupEntity persistWithServiceFlags(
+			ServiceBasedGroupEntity entity, Set<ServiceEntity> services);
 
 }

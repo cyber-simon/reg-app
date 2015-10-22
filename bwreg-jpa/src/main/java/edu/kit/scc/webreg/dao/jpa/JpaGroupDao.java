@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.dao.jpa;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -24,9 +25,16 @@ import javax.persistence.criteria.Root;
 import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.HomeOrgGroupDao;
 import edu.kit.scc.webreg.dao.LocalGroupDao;
+import edu.kit.scc.webreg.dao.SerialDao;
+import edu.kit.scc.webreg.dao.ServiceDao;
+import edu.kit.scc.webreg.dao.ServiceGroupFlagDao;
 import edu.kit.scc.webreg.dao.as.AttributeSourceGroupDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.LocalGroupEntity;
+import edu.kit.scc.webreg.entity.ServiceBasedGroupEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
+import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserGroupEntity;
 
@@ -42,6 +50,48 @@ public class JpaGroupDao extends JpaBaseDao<GroupEntity, Long> implements GroupD
 	
 	@Inject
 	private AttributeSourceGroupDao attributeSourceGroupDao;
+	
+	@Inject
+	private SerialDao serialDao;
+	
+	@Inject
+	private ServiceGroupFlagDao groupFlagDao;
+	
+	@Inject
+	private ServiceDao serviceDao;
+	
+	@Override
+	public ServiceBasedGroupEntity persistWithServiceFlags(ServiceBasedGroupEntity entity) {
+		entity = (ServiceBasedGroupEntity) persist(entity);
+		List<ServiceEntity> serviceList = serviceDao.findByGroupCapability(true);
+		for (ServiceEntity service : serviceList) {
+			List<ServiceGroupFlagEntity> flagList = groupFlagDao.findByGroupAndService(entity, service);
+			if (flagList.size() == 0) {
+				ServiceGroupFlagEntity groupFlag = groupFlagDao.createNew();
+				groupFlag.setGroup(entity);
+				groupFlag.setService(service);
+				groupFlag.setStatus(ServiceGroupStatus.DIRTY);
+				groupFlagDao.persist(groupFlag);
+			}
+		}
+		return entity;
+	}
+	
+	@Override
+	public ServiceBasedGroupEntity persistWithServiceFlags(ServiceBasedGroupEntity entity, Set<ServiceEntity> services) {
+		entity = (ServiceBasedGroupEntity) persist(entity);
+		for (ServiceEntity service : services) {
+			List<ServiceGroupFlagEntity> flagList = groupFlagDao.findByGroupAndService(entity, service);
+			if (flagList.size() == 0) {
+				ServiceGroupFlagEntity groupFlag = groupFlagDao.createNew();
+				groupFlag.setGroup(entity);
+				groupFlag.setService(service);
+				groupFlag.setStatus(ServiceGroupStatus.DIRTY);
+				groupFlagDao.persist(groupFlag);
+			}
+		}
+		return entity;
+	}
 	
 	@Override
 	public void addUserToGroup(UserEntity user, GroupEntity group) {
@@ -163,6 +213,11 @@ public class JpaGroupDao extends JpaBaseDao<GroupEntity, Long> implements GroupD
 		}
 	}
 
+	@Override
+	public Long getNextGID() {
+		return serialDao.next("gid-number-serial");
+	}
+	
 	@Override
 	public Class<GroupEntity> getEntityClass() {
 		return GroupEntity.class;

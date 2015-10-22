@@ -16,4 +16,6 @@ public interface SerialDao extends BaseDao<SerialEntity, Long> {
 
 	SerialEntity findByName(String name);
 
+	Long next(String name);
+
 }

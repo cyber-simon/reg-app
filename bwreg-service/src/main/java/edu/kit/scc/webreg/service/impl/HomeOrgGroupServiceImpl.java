@@ -16,6 +16,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import edu.kit.scc.webreg.dao.BaseDao;
+import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.HomeOrgGroupDao;
 import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
@@ -28,7 +29,10 @@ public class HomeOrgGroupServiceImpl extends BaseServiceImpl<HomeOrgGroupEntity,
 
 	@Inject
 	private HomeOrgGroupDao dao;
-		
+	
+	@Inject
+	private GroupDao groupDao;
+	
 	@Override
 	public HomeOrgGroupEntity findWithUsers(Long id) {
 		return dao.findWithUsers(id);
@@ -46,7 +50,7 @@ public class HomeOrgGroupServiceImpl extends BaseServiceImpl<HomeOrgGroupEntity,
 	
 	@Override
 	public HomeOrgGroupEntity persistWithServiceFlags(HomeOrgGroupEntity entity) {
-		return dao.persistWithServiceFlags(entity);
+		return (HomeOrgGroupEntity) groupDao.persistWithServiceFlags(entity);
 	}	
 	
 	@Override
