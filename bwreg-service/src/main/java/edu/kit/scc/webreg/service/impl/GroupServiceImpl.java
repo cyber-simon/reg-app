@@ -21,6 +21,7 @@ import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
+import edu.kit.scc.webreg.entity.ServiceBasedGroupEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.service.GroupService;
 import edu.kit.scc.webreg.service.reg.GroupUtil;
@@ -89,6 +90,11 @@ public class GroupServiceImpl extends BaseServiceImpl<GroupEntity, Long> impleme
 	@Override
 	public List<GroupEntity> findByUser(UserEntity user) {
 		return groupDao.findByUser(user);
+	}	
+
+	@Override
+	public ServiceBasedGroupEntity persistWithServiceFlags(ServiceBasedGroupEntity entity) {
+		return groupDao.persistWithServiceFlags(entity);
 	}	
 
 	@Override

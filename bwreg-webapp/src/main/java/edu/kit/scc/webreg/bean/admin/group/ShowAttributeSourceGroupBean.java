@@ -19,17 +19,17 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
-import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserGroupEntity;
+import edu.kit.scc.webreg.entity.as.AttributeSourceGroupEntity;
+import edu.kit.scc.webreg.service.AttributeSourceGroupService;
 import edu.kit.scc.webreg.service.GroupService;
-import edu.kit.scc.webreg.service.HomeOrgGroupService;
 import edu.kit.scc.webreg.service.ServiceGroupFlagService;
 
 @ManagedBean
 @ViewScoped
-public class ShowHomeOrgGroupBean implements Serializable {
+public class ShowAttributeSourceGroupBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -37,12 +37,12 @@ public class ShowHomeOrgGroupBean implements Serializable {
 	private GroupService service;
 	
 	@Inject
-	private HomeOrgGroupService groupService;
+	private AttributeSourceGroupService groupService;
 
 	@Inject
 	private ServiceGroupFlagService groupFlagService;
 
-	private HomeOrgGroupEntity entity;
+	private AttributeSourceGroupEntity entity;
 
 	private List<ServiceGroupFlagEntity> groupFlagList;
 	private List<UserEntity> memberList;
@@ -51,7 +51,7 @@ public class ShowHomeOrgGroupBean implements Serializable {
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
-			entity = groupService.findWithUsers(id);
+			entity = groupService.findByIdWithAttrs(id, "users");
 			groupFlagList = groupFlagService.findByGroup(entity);
 			memberList = new ArrayList<UserEntity>();
 			for (UserGroupEntity ug : entity.getUsers()) {
@@ -61,15 +61,15 @@ public class ShowHomeOrgGroupBean implements Serializable {
 	}
 
 	public void addGroupFlags() {
-		entity = (HomeOrgGroupEntity) service.persistWithServiceFlags(entity);
+		entity = (AttributeSourceGroupEntity) service.persistWithServiceFlags(entity);
 		groupFlagList = groupFlagService.findByGroup(entity);
 	}
 	
-	public HomeOrgGroupEntity getEntity() {
+	public AttributeSourceGroupEntity getEntity() {
 		return entity;
 	}
 
-	public void setEntity(HomeOrgGroupEntity entity) {
+	public void setEntity(AttributeSourceGroupEntity entity) {
 		this.entity = entity;
 	}
 

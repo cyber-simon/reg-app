@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 import edu.kit.scc.webreg.entity.GroupEntity;
+import edu.kit.scc.webreg.entity.ServiceBasedGroupEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 
 public interface GroupService extends BaseService<GroupEntity, Long> {
@@ -33,5 +34,8 @@ public interface GroupService extends BaseService<GroupEntity, Long> {
 	void removeUserGromGroup(UserEntity user, GroupEntity group);
 
 	Set<GroupEntity> findByUserWithParents(UserEntity user);
+
+	ServiceBasedGroupEntity persistWithServiceFlags(
+			ServiceBasedGroupEntity entity);
 
 }
