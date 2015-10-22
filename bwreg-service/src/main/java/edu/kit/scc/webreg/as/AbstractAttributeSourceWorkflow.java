@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +19,8 @@ import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.as.ASUserAttrValueDao;
 import edu.kit.scc.webreg.dao.as.AttributeSourceGroupDao;
 import edu.kit.scc.webreg.entity.AuditStatus;
+import edu.kit.scc.webreg.entity.EventType;
+import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
@@ -24,6 +29,9 @@ import edu.kit.scc.webreg.entity.as.ASUserAttrValueStringEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceGroupEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceServiceEntity;
+import edu.kit.scc.webreg.event.EventSubmitter;
+import edu.kit.scc.webreg.event.MultipleGroupEvent;
+import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.PropertyReaderException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.reg.ldap.PropertyReader;
@@ -183,7 +191,8 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 	private Boolean processGroups(ASUserAttrValueStringEntity asValue) {
 	
 		Boolean changed = false;
-
+		HashSet<GroupEntity> allChangedGroups = new HashSet<GroupEntity>();
+		
 		UserEntity user = asUserAttr.getUser();
 		AttributeSourceEntity attributeSource = asUserAttr.getAttributeSource();
 		List<AttributeSourceGroupEntity> oldGroupList = attributeSourceGroupDao.findByUserAndAS(asUserAttr.getUser(), attributeSource);
@@ -192,6 +201,7 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 			//delete all groups for this user
 			for (AttributeSourceGroupEntity group : oldGroupList) {
 				groupDao.removeUserGromGroup(user, group);
+				allChangedGroups.add(group);
 			}
 			changed = true;
 		}
@@ -210,6 +220,7 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 			for(String s : groupsToRemove) {
 				logger.debug("Removeing {} grom group {}", user.getEppn(), s);
 				groupDao.removeUserGromGroup(user, oldGroupsMap.get(s));
+				allChangedGroups.add(oldGroupsMap.get(s));
 			}
 			
 			Set<String> groupsToAdd = new HashSet<String>(newGroups);
@@ -231,9 +242,23 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 				
 				logger.debug("Adding {} to group {}", user.getEppn(), s);
 				groupDao.addUserToGroup(user, group);
+				allChangedGroups.add(group);
 			}
 		}
 		
+		if (allChangedGroups.size() > 0) {
+			EventSubmitter eventSubmitter;
+			try {
+				InitialContext ic = new InitialContext();
+				eventSubmitter = (EventSubmitter) ic.lookup("global/bwreg/bwreg-service/EventSubmitterImpl!edu.kit.scc.webreg.event.EventSubmitter");
+				MultipleGroupEvent mge = new MultipleGroupEvent(allChangedGroups);
+				eventSubmitter.submit(mge, EventType.GROUP_UPDATE, auditor.getActualExecutor());
+			} catch (NamingException e) {
+				logger.warn("Exeption", e);
+			} catch (EventSubmitException e) {
+				logger.warn("Exeption", e);
+			}
+		}
 		return changed;
 	}	
 }

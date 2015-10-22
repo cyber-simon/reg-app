@@ -15,11 +15,6 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 import javax.persistence.NoResultException;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Root;
 
 import edu.kit.scc.webreg.dao.as.AttributeSourceGroupDao;
 import edu.kit.scc.webreg.dao.jpa.JpaBaseDao;
@@ -31,21 +26,15 @@ import edu.kit.scc.webreg.entity.as.AttributeSourceGroupEntity;
 @ApplicationScoped
 public class JpaAttributeSourceGroupDao extends JpaBaseDao<AttributeSourceGroupEntity, Long> implements AttributeSourceGroupDao {
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<AttributeSourceGroupEntity> findByUserAndAS(UserEntity user, AttributeSourceEntity attributeSource) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-	    CriteriaQuery<AttributeSourceGroupEntity> criteria = builder.createQuery(AttributeSourceGroupEntity.class);
-	    Root<UserEntity> userRoot = criteria.from(UserEntity.class);
-	    Root<AttributeSourceGroupEntity> asgRoot = criteria.from(AttributeSourceGroupEntity.class);
-	    criteria.where(
-	    		builder.and(
-	    				builder.equal(userRoot.get("id"), user.getId()),
-	    				builder.equal(asgRoot.get("id"), attributeSource.getId())
-	    		));
-	    Join<UserEntity, AttributeSourceGroupEntity> users = userRoot.join("groups");
-	    CriteriaQuery<AttributeSourceGroupEntity> cq = criteria.select(users);
-	    TypedQuery<AttributeSourceGroupEntity> query = em.createQuery(cq);
-	    return query.getResultList();		
+		return (List<AttributeSourceGroupEntity>) em.createQuery("select e from AttributeSourceGroupEntity e left join e.users as ug"
+				+ " where ug.user = :user"
+				+ " and e.attributeSource = :attributeSource")
+				.setParameter("user", user)
+				.setParameter("attributeSource", attributeSource)
+				.getResultList();
 	}
 	
 	@Override
