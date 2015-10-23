@@ -11,17 +11,25 @@
 package edu.kit.scc.webreg.bean.admin.role;
 
 import java.io.Serializable;
+import java.util.List;
 
-import javax.enterprise.context.RequestScoped;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
-import javax.inject.Named;
 
+import org.primefaces.model.LazyDataModel;
+
+import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
+import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.model.GenericLazyDataModelImpl;
+import edu.kit.scc.webreg.service.GroupService;
 import edu.kit.scc.webreg.service.RoleService;
+import edu.kit.scc.webreg.service.UserService;
 
-@Named("showRoleBean")
-@RequestScoped
+@ManagedBean
+@ViewScoped
 public class ShowRoleBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -29,12 +37,50 @@ public class ShowRoleBean implements Serializable {
 	@Inject
 	private RoleService service;
 
-	private RoleEntity entity;
+	@Inject
+	private UserService userService;
 	
+	@Inject
+	private GroupService groupService;
+	
+	private RoleEntity entity;
+	private List<UserEntity> userList;
+	private List<GroupEntity> groupList;
+
+	private LazyDataModel<UserEntity> allUserList;
+	private LazyDataModel<GroupEntity> allGroupList;
+
 	private Long id;
 
 	public void preRenderView(ComponentSystemEvent ev) {
-		entity = service.findWithUsers(id);
+		if (entity == null) {
+			entity = service.findById(id);
+			userList = service.findUsersForRole(entity);
+			groupList = service.findGroupsForRole(entity);
+
+			allUserList = new GenericLazyDataModelImpl<UserEntity, UserService, Long>(userService);
+			allGroupList = new GenericLazyDataModelImpl<GroupEntity, GroupService, Long>(groupService);
+		}
+	}
+	
+	public void removeUserFromRole(UserEntity user) {
+		service.removeUserFromRole(user, entity.getName());
+		userList = service.findUsersForRole(entity);
+	}
+
+	public void removeGroupFromRole(GroupEntity group) {
+		service.removeGroupFromRole(group, entity);
+		groupList = service.findGroupsForRole(entity);
+	}
+	
+	public void addUserToRole(UserEntity user) {
+		service.addUserToRole(user, entity.getName());
+		userList = service.findUsersForRole(entity);
+	}
+
+	public void addGroupToRole(GroupEntity group) {
+		service.addGroupToRole(group, entity);
+		groupList = service.findGroupsForRole(entity);
 	}
 	
 	public RoleEntity getEntity() {
@@ -51,5 +97,21 @@ public class ShowRoleBean implements Serializable {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public List<UserEntity> getUserList() {
+		return userList;
+	}
+
+	public List<GroupEntity> getGroupList() {
+		return groupList;
+	}
+
+	public LazyDataModel<UserEntity> getAllUserList() {
+		return allUserList;
+	}
+
+	public LazyDataModel<GroupEntity> getAllGroupList() {
+		return allGroupList;
 	}
 }

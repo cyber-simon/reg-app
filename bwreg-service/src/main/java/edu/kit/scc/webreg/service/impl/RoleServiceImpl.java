@@ -42,6 +42,16 @@ public class RoleServiceImpl extends BaseServiceImpl<RoleEntity, Long> implement
 	}
 	
 	@Override
+	public void addGroupToRole(GroupEntity group, RoleEntity role) {
+		dao.addGroupToRole(group, role);
+	}
+	
+	@Override
+	public void removeGroupFromRole(GroupEntity group, RoleEntity role) {
+		dao.removeGroupFromRole(group, role);
+	}
+	
+	@Override
 	public List<RoleEntity> findByUser(UserEntity user) {
 		return dao.findByUser(user);
 	}
@@ -69,6 +79,16 @@ public class RoleServiceImpl extends BaseServiceImpl<RoleEntity, Long> implement
 	@Override
 	public RoleEntity findWithUsers(Long id) {
 		return dao.findWithUsers(id);
+	}
+	
+	@Override
+	public List<UserEntity> findUsersForRole(RoleEntity role) {
+		return dao.findUsersForRole(role);
+	}
+	
+	@Override
+	public List<GroupEntity> findGroupsForRole(RoleEntity role) {
+		return dao.findGroupsForRole(role);
 	}
 	
 	@Override

@@ -35,6 +35,9 @@
 					<h:outputText value="#{messages.name}:" />
 					<h:outputText value="#{showRoleBean.entity.name}" />
 
+					<h:outputText value="#{messages.approval_bean}:" rendered="#{showRoleBean.entity.class.simpleName == 'ApproverRoleEntity'}"/>
+					<h:outputText value="#{showRoleBean.entity.approvalBean}" rendered="#{showRoleBean.entity.class.simpleName == 'ApproverRoleEntity'}"/>
+					
 				</p:panelGrid>
 
 				<h:link outcome="edit-role.xhtml" value="#{messages.edit}">
@@ -44,37 +47,137 @@
 			</p:panel>
 		</div>
 
-		<h3><h:outputText value="#{messages.users}" /></h3>
-		
-		<p:dataTable id="userTable" var="ur" style="min-width: 500px;"
-			value="#{showRoleBean.entity.users.toArray()}">
-			<p:column>
-				<f:facet name="header"> 
-					<h:outputText value="#{messages.id}" />
-				</f:facet>
-				<h:outputText value="#{ur.user.id}" />
-			</p:column>
-			<p:column>
-				<f:facet name="header">
-					<h:outputText value="#{messages.eppn}" />
-				</f:facet>
-				<h:outputText value="#{ur.user.eppn}" />
-			</p:column>
-			<p:column>
-				<f:facet name="header">
-					<h:outputText value="#{messages.sur_name}" />
-				</f:facet>
-				<h:outputText value="#{ur.user.surName}" />
-			</p:column>
-			<p:column>
-				<f:facet name="header">
-					<h:outputText value="#{messages.given_name}" />
-				</f:facet>
-				<h:outputText value="#{ur.user.givenName}" />
-			</p:column>
-		</p:dataTable>
+		<div class="panel">
+			<p:panel id="memberPanel" header="#{messages.members}">
+				<p:dataTable id="memberData" style="min-width: 500px;" 
+						value="#{showRoleBean.userList}" var="user">
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.id}" />
+						</f:facet>
+						<h:outputText value="#{user.id}" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.eppn}" />
+						</f:facet>
+						<h:link outcome="/admin/user/show-user.xhtml" value="#{user.eppn}">
+			     				<f:param name="id" value="#{user.id}"/>
+			   			</h:link>
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.sur_name}" />
+						</f:facet>
+						<h:outputText value="#{user.surName}" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.given_name}" />
+						</f:facet>
+						<h:outputText value="#{user.givenName}" />
+					</p:column>
+					<p:column>
+						<p:commandLink action="#{showRoleBean.removeUserFromRole(user)}" value="#{messages.remove}"
+							update="@form"/>
+					</p:column>		
+				</p:dataTable>
+			</p:panel>
 
-		
+				<br/>
+				<br/>
+			
+			<p:panel id="groupMemberPanel" header="#{messages.groups}">
+				<p:dataTable id="groupMemberData" style="min-width: 500px;" 
+						value="#{showRoleBean.groupList}" var="group">
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.id}" />
+						</f:facet>
+						<h:outputText value="#{group.id}" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.name}" />
+						</f:facet>
+						<h:outputText value="#{group.name}" />
+					</p:column>
+					<p:column>
+						<p:commandLink action="#{showRoleBean.removeGroupFromRole(group)}" value="#{messages.remove}"
+							update="@form"/>
+					</p:column>		
+				</p:dataTable>
+
+				<br/>
+				<br/>
+				
+				<p:dataTable id="allUsersTable" var="user" value="#{showRoleBean.allUserList}" paginator="true"
+							lazy="true" rows="15">
+					<p:column sortBy="#{user.id}">
+						<f:facet name="header">
+							<h:outputText value="#{messages.id}" />
+						</f:facet>
+						<h:outputText value="#{user.id}" />
+					</p:column>
+					<p:column sortBy="#{user.surName}" filterBy="#{user.surName}">
+						<f:facet name="header">
+							<h:outputText value="#{messages.sur_name}" />
+						</f:facet>
+						<h:outputText value="#{user.surName}" />
+					</p:column>			
+					<p:column sortBy="#{user.givenName}" filterBy="#{user.givenName}">
+						<f:facet name="header">
+							<h:outputText value="#{messages.given_name}" />
+						</f:facet>
+						<h:outputText value="#{user.givenName}" />
+					</p:column>			
+					<p:column sortBy="#{user.eppn}" filterBy="#{user.eppn}">
+						<f:facet name="header">
+							<h:outputText value="#{messages.eppn}" />
+						</f:facet>
+						<h:link outcome="/admin/user/show-user.xhtml" value="#{user.eppn}">
+		      				<f:param name="id" value="#{user.id}"/>
+		    			</h:link>
+					</p:column>
+					<p:column sortBy="#{user.userStatus}">
+						<f:facet name="header">
+							<h:outputText value="#{messages.status}" />
+						</f:facet>
+						<h:outputText value="#{user.userStatus}" />
+					</p:column>			
+					<p:column>
+						<p:commandLink action="#{showRoleBean.addUserToRole(user)}" value="#{messages.add}"
+							update="@form"/>
+					</p:column>		
+				</p:dataTable>
+
+				<br/>
+				<br/>
+
+				<p:dataTable id="allGroupTable" var="group" value="#{showRoleBean.allGroupList}" paginator="true"
+							lazy="true" rows="15">
+					<p:column sortBy="#{user.id}">
+						<f:facet name="header">
+							<h:outputText value="#{messages.id}" />
+						</f:facet>
+						<h:outputText value="#{group.id}" />
+					</p:column>
+					<p:column sortBy="#{group.name}" filterBy="#{group.name}">
+						<f:facet name="header">
+							<h:outputText value="#{messages.name}" />
+						</f:facet>
+						<h:outputText value="#{group.name}" />
+					</p:column>			
+					<p:column>
+						<p:commandLink action="#{showRoleBean.addGroupToRole(group)}" value="#{messages.add}"
+							update="@form"/>
+					</p:column>		
+				</p:dataTable>
+				
+			</p:panel>
+			
+		</div>
+
 	</h:form>
 
 	</ui:define>

@@ -46,6 +46,9 @@ public class GroupEntity extends AbstractBaseEntity {
 	@OneToMany(targetEntity = UserGroupEntity.class, mappedBy="group")
 	private Set<UserGroupEntity> users;		
 	
+	@OneToMany(targetEntity = RoleGroupEntity.class, mappedBy="group")
+	private Set<RoleGroupEntity> roles;		
+	
 	@ManyToMany(targetEntity=RoleEntity.class, cascade = CascadeType.ALL)
 	@JoinTable(name = "group_role",
 			joinColumns = @JoinColumn(name="role_id"),

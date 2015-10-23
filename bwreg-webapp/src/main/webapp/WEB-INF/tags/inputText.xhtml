@@ -7,10 +7,11 @@
 
     <c:set var="id" value="#{not empty id ? id : label}" />
     <c:set var="required" value="#{not empty required and required}" />
+    <c:set var="rendered" value="#{not empty rendered ? rendered : true}" />
 
-    <p:outputLabel for="#{id}" value="#{label}" />
+    <p:outputLabel for="#{id}" value="#{label}" rendered="#{rendered}"/>
     <h:panelGroup>
-	    <p:inputText id="#{id}" size="50" value="#{value}" label="#{label}" required="#{required}">
+	    <p:inputText id="#{id}" size="50" value="#{value}" label="#{label}" required="#{required}" rendered="#{rendered}">
 	        <f:ajax event="blur" execute="@this" render="#{id}-message" />
 	    </p:inputText>
 	    <p:message id="#{id}-message" for="#{id}" />
