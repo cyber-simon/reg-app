@@ -101,7 +101,7 @@ public class AuthorizationBean implements Serializable {
     	start = System.currentTimeMillis();
     	UserEntity user = userService.findByIdWithStore(sessionManager.getUserId());
     	end = System.currentTimeMillis();
-    	logger.debug("user find by id with store loading took {} ms", (end-start));
+    	logger.trace("user find by id with store loading took {} ms", (end-start));
 
     	if (sessionManager.getGroupSetCreated() == null || 
     			(System.currentTimeMillis() - sessionManager.getGroupSetCreated()) > groupsTimeout) {
@@ -115,13 +115,13 @@ public class AuthorizationBean implements Serializable {
 	    	sessionManager.setGroupSetCreated(System.currentTimeMillis());
 
 	    	end = System.currentTimeMillis();
-	    	logger.debug("groups loading took {} ms", (end-start));
+	    	logger.trace("groups loading took {} ms", (end-start));
     	}
     	
     	start = System.currentTimeMillis();
     	userRegistryList = registryService.findByUserAndNotStatus(user, RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
     	end = System.currentTimeMillis();
-    	logger.debug("registered servs loading took {} ms", (end-start));
+    	logger.trace("registered servs loading took {} ms", (end-start));
 
     	unregisteredServiceList = serviceService.findAllPublishedWithServiceProps();
     	
@@ -185,7 +185,7 @@ public class AuthorizationBean implements Serializable {
 	    		}
 	    	}
 	    	end = System.currentTimeMillis();
-	    	logger.debug("Role loading took {} ms", (end-start));
+	    	logger.trace("Role loading took {} ms", (end-start));
 	    	
 	    	sessionManager.setRoleSetCreated(System.currentTimeMillis());
     	}
