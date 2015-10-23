@@ -77,13 +77,16 @@ public class PowerFolderRegisterWorkflow implements RegisterUserWorkflow, Infota
 		
 		DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH);
 		
-		PFAccount pfAccount = new PFAccount();
+		PFAccount pfAccount = pfWorker.getAccountInfoById(userId);
 		
 		pfAccount.setId(userId);
-		pfAccount.setUsername(user.getEppn());
+		if (user.getEppn() != null)
+			pfAccount.setUsername(user.getEppn());
 		pfAccount.setNotes("Deactivated from Webreg");
-		pfAccount.setFirstname(user.getGivenName());
-		pfAccount.setSurname(user.getSurName());
+		if (user.getGivenName() != null)
+			pfAccount.setFirstname(user.getGivenName());
+		if (user.getSurName() != null)
+			pfAccount.setSurname(user.getSurName());
 		pfAccount.setSpaceAllowed("0");
 		pfAccount.setCustom3("webreg-inactive");
 		pfAccount.setValidTil(dateFormat.format(new Date(System.currentTimeMillis())));
