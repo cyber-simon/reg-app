@@ -41,4 +41,8 @@ public interface RoleService extends BaseService<RoleEntity, Long> {
 
 	List<GroupEntity> findGroupsForRole(RoleEntity role);
 
+	void addGroupToRole(GroupEntity group, RoleEntity role);
+
+	void removeGroupFromRole(GroupEntity group, RoleEntity role);
+
 }

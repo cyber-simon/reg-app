@@ -12,12 +12,10 @@ package edu.kit.scc.webreg.entity.as;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 
 import edu.kit.scc.webreg.entity.GlobalGroupEntity;
 
 @Entity(name = "AttributeSourceGroupEntity")
-@Table(name = "attribute_src_group")
 public class AttributeSourceGroupEntity extends GlobalGroupEntity {
 
 	private static final long serialVersionUID = 1L;

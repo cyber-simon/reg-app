@@ -69,7 +69,7 @@ public class ShowRoleBean implements Serializable {
 	}
 
 	public void removeGroupFromRole(GroupEntity group) {
-		//service.removeGroupFromRole(group, entity.getName());
+		service.removeGroupFromRole(group, entity);
 		groupList = service.findGroupsForRole(entity);
 	}
 	
@@ -79,7 +79,7 @@ public class ShowRoleBean implements Serializable {
 	}
 
 	public void addGroupToRole(GroupEntity group) {
-		//service.removeGroupFromRole(group, entity.getName());
+		service.addGroupToRole(group, entity);
 		groupList = service.findGroupsForRole(entity);
 	}
 	
