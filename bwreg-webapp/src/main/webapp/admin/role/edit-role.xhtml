@@ -34,6 +34,12 @@
 					<bw:inputText id="nameField" label="#{messages.name}"
 						value="#{editRoleBean.entity.name}" required="true" />
 
+					<bw:inputText id="approvalBeanField"
+							label="#{messages.approval_bean}"
+							value="#{editRoleBean.entity.approvalBean}"
+							rendered="#{editRoleBean.entity.class.simpleName == 'ApproverRoleEntity'}"
+							required="true" />
+					
 				</p:panelGrid>
 
 				<p:commandButton id="save" action="#{editRoleBean.save}" value="#{messages.save}"/>

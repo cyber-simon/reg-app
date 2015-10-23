@@ -28,20 +28,7 @@
 				<f:facet name="header">
 					<h:outputText value="#{messages.name}" />
 				</f:facet>
-				<h:link outcome="show-approver-role.xhtml" value="#{role.name}" 
-						rendered="#{role.class.simpleName == 'ApproverRoleEntity'}">
-      				<f:param name="id" value="#{role.id}"/>
-    			</h:link>
-				<h:link outcome="show-admin-role.xhtml" value="#{role.name}" 
-						rendered="#{role.class.simpleName == 'AdminRoleEntity'}">
-      				<f:param name="id" value="#{role.id}"/>
-    			</h:link>
-				<h:link outcome="show-group-admin-role.xhtml" value="#{role.name}" 
-						rendered="#{role.class.simpleName == 'GroupAdminRoleEntity'}">
-      				<f:param name="id" value="#{role.id}"/>
-    			</h:link>
-				<h:link outcome="show-role.xhtml" value="#{role.name}" 
-						rendered="#{role.class.simpleName == 'RoleEntity'}">
+				<h:link outcome="show-role.xhtml" value="#{role.name}">
       				<f:param name="id" value="#{role.id}"/>
     			</h:link>
 			</p:column>			

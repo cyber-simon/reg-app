@@ -35,6 +35,9 @@
 					<h:outputText value="#{messages.name}:" />
 					<h:outputText value="#{showRoleBean.entity.name}" />
 
+					<h:outputText value="#{messages.approval_bean}:" rendered="#{showRoleBean.entity.class.simpleName == 'ApproverRoleEntity'}"/>
+					<h:outputText value="#{showRoleBean.entity.approvalBean}" rendered="#{showRoleBean.entity.class.simpleName == 'ApproverRoleEntity'}"/>
+					
 				</p:panelGrid>
 
 				<h:link outcome="edit-role.xhtml" value="#{messages.edit}">
