@@ -72,6 +72,16 @@ public class RoleServiceImpl extends BaseServiceImpl<RoleEntity, Long> implement
 	}
 	
 	@Override
+	public List<UserEntity> findUsersForRole(RoleEntity role) {
+		return dao.findUsersForRole(role);
+	}
+	
+	@Override
+	public List<GroupEntity> findGroupsForRole(RoleEntity role) {
+		return dao.findGroupsForRole(role);
+	}
+	
+	@Override
 	public RoleEntity findByName(String name) {
 		return dao.findByName(name);
 	}

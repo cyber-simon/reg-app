@@ -114,6 +114,20 @@ public class JpaRoleDao extends JpaBaseDao<RoleEntity, Long> implements RoleDao 
 
     @SuppressWarnings("unchecked")
 	@Override
+	public List<UserEntity> findUsersForRole(RoleEntity role) {
+		return em.createQuery("select u from UserEntity u left join u.roles ur where ur.role = :role")
+				.setParameter("role", role).getResultList();
+	}
+
+    @SuppressWarnings("unchecked")
+	@Override
+	public List<GroupEntity> findGroupsForRole(RoleEntity role) {
+		return em.createQuery("select g from GroupEntity g left join g.roles gr where gr.role = :role")
+				.setParameter("role", role).getResultList();
+	}
+
+    @SuppressWarnings("unchecked")
+	@Override
 	public Boolean checkUserInRole(Long userId, String roleName) {
 		List<RoleEntity> roleList =  em.createQuery("select r.role from UserRoleEntity r where r.user.id = :userId and r.role.name = :roleName")
 				.setParameter("userId", userId).setParameter("roleName", roleName).getResultList();

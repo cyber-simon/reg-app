@@ -37,4 +37,8 @@ public interface RoleService extends BaseService<RoleEntity, Long> {
 
 	List<RoleEntity> findByGroups(Set<GroupEntity> groups);
 
+	List<UserEntity> findUsersForRole(RoleEntity role);
+
+	List<GroupEntity> findGroupsForRole(RoleEntity role);
+
 }
