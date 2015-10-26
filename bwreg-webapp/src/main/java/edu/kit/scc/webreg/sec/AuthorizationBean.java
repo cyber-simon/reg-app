@@ -106,12 +106,13 @@ public class AuthorizationBean implements Serializable {
     	if (sessionManager.getGroupSetCreated() == null || 
     			(System.currentTimeMillis() - sessionManager.getGroupSetCreated()) > groupsTimeout) {
 	    	start = System.currentTimeMillis();
-	    	Set<GroupEntity> groupList = groupService.findByUserWithParents(user);
+	    	Set<GroupEntity> groupList = groupService.findByUserWithChildren(user);
 	    	
 	    	sessionManager.clearGroups();
     		sessionManager.getGroups().addAll(groupList);
-    		for (GroupEntity g : groupList)
+    		for (GroupEntity g : groupList) {
     			sessionManager.getGroupNames().add(g.getName());
+    		}
 	    	sessionManager.setGroupSetCreated(System.currentTimeMillis());
 
 	    	end = System.currentTimeMillis();

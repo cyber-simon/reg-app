@@ -17,6 +17,8 @@ import java.util.Set;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.UserDao;
@@ -31,6 +33,9 @@ public class GroupServiceImpl extends BaseServiceImpl<GroupEntity, Long> impleme
 
 	private static final long serialVersionUID = 1L;
 
+	@Inject
+	private Logger logger;
+	
 	@Inject
 	private GroupDao groupDao;
 	
@@ -98,17 +103,19 @@ public class GroupServiceImpl extends BaseServiceImpl<GroupEntity, Long> impleme
 	}	
 
 	@Override
-	public Set<GroupEntity> findByUserWithParents(UserEntity user) {
+	public Set<GroupEntity> findByUserWithChildren(UserEntity user) {
 		Set<GroupEntity> groups = new HashSet<GroupEntity>(groupDao.findByUser(user));
 		Set<GroupEntity> targetGroups = new HashSet<GroupEntity>();
-		rollParents(targetGroups, groups, 0, 3);
-		return groups;
+		rollChildren(targetGroups, groups, 0, 3);
+		return targetGroups;
 	}	
 
-	private void rollParents(Set<GroupEntity> targetGroups, Set<GroupEntity> groups, int depth, int maxDepth) {
+	private void rollChildren(Set<GroupEntity> targetGroups, Set<GroupEntity> groups, int depth, int maxDepth) {
 		if (depth <= maxDepth) {
 			for (GroupEntity group : groups) {
-				rollParents(targetGroups, group.getParents(), depth + 1, maxDepth);
+				if (logger.isTraceEnabled())
+					logger.trace("Inspecting group {} with children count {}", group.getName(), group.getParents().size());
+				rollChildren(targetGroups, group.getParents(), depth + 1, maxDepth);
 				targetGroups.add(group);
 			}		
 		}
