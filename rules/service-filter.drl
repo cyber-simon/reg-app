@@ -4,19 +4,9 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.LocalGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 
 global org.slf4j.Logger logger;
-
-rule "Filter test"
-
-    when
-        $user : UserEntity( eppn == "ugcne@student.kit.edu" )
-        $service : ServiceEntity( shortName == "ucb" )
-    then
-    	logger.debug( "allow user {} for service {}", $user.getEppn(), $service.getName() );
-    	retract( $service );
-
-end
 
 rule "FH1 Filter"
 
@@ -26,6 +16,90 @@ rule "FH1 Filter"
         $group : LocalGroupEntity( name == "fh1-access" )
     then
     	logger.debug( "allow user {} for service {}, because of membership in group {}", $user.getEppn(), $service.getName(), $group.getName() );
+    	retract( $service );
+
+end
+
+rule "UC1 Filter"
+
+    when
+        $user : UserEntity( ( idp.getEntityCategoryList() contains "http://aai.dfn.de/category/bwidm-member" )
+        	&& 
+        	( attributeStore["urn:oid:1.3.6.1.4.1.5923.1.1.1.7"] 
+        		matches ".*(^|;)http://bwidm.de/entitlement/bwUniCluster(;|$).*" ) )
+        $service : ServiceEntity( shortName == "uc1" )
+    then
+    	logger.debug( "allow user {} for service {}, because of entitlement", $user.getEppn(), $service.getName() );
+    	retract( $service );
+
+end
+
+rule "UCB Filter"
+
+    when
+        $user : UserEntity( ( idp.getEntityCategoryList() contains "http://aai.dfn.de/category/bwidm-member" )
+        	&& 
+        	( attributeStore["urn:oid:1.3.6.1.4.1.5923.1.1.1.7"] 
+        		matches ".*(^|;)http://bwidm.de/entitlement/bwUniClusterTest(;|$).*" ) )
+        $service : ServiceEntity( shortName == "ucb" )
+    then
+    	logger.debug( "allow user {} for service {}, because of entitlement", $user.getEppn(), $service.getName() );
+    	retract( $service );
+
+end
+
+rule "HC3 Filter"
+
+    when
+        $user : UserEntity( ( idp.entityId == "https://idp.scc.kit.edu/idp/shibboleth" ) 
+        	&& 
+        	( attributeStore["urn:oid:1.3.6.1.4.1.5923.1.1.1.7"] 
+        		matches ".*(^|;)http://bwidm.scc.kit.edu/entitlement/hc3(;|$).*" ) )
+        $service : ServiceEntity( shortName == "hc3" )
+    then
+    	logger.debug( "allow user {} for service {}, because of entitlement", $user.getEppn(), $service.getName() );
+    	retract( $service );
+
+end
+
+rule "HCD Filter"
+
+    when
+        $user : UserEntity( ( idp.entityId == "https://idp.scc.kit.edu/idp/shibboleth" ) 
+        	&& 
+        	( attributeStore["urn:oid:1.3.6.1.4.1.5923.1.1.1.7"] 
+        		matches ".*(^|;)http://bwidm.scc.kit.edu/entitlement/hcd(;|$).*" ) )
+        $service : ServiceEntity( shortName == "hcd" )
+    then
+    	logger.debug( "allow user {} for service {}, because of entitlement", $user.getEppn(), $service.getName() );
+    	retract( $service );
+
+end
+
+rule "IC2 Filter"
+
+    when
+        $user : UserEntity( ( idp.entityId == "https://idp.scc.kit.edu/idp/shibboleth" ) 
+        	&& 
+        	( attributeStore["urn:oid:1.3.6.1.4.1.5923.1.1.1.7"] 
+        		matches ".*(^|;)http://bwidm.scc.kit.edu/entitlement/ic2(;|$).*" ) )
+        $service : ServiceEntity( shortName == "ic2" )
+    then
+    	logger.debug( "allow user {} for service {}, because of entitlement", $user.getEppn(), $service.getName() );
+    	retract( $service );
+
+end
+
+rule "ICC Filter"
+
+    when
+        $user : UserEntity( ( idp.entityId == "https://idp.scc.kit.edu/idp/shibboleth" ) 
+        	&& 
+        	( attributeStore["urn:oid:1.3.6.1.4.1.5923.1.1.1.7"] 
+        		matches ".*(^|;)http://bwidm.scc.kit.edu/entitlement/icc(;|$).*" ) )
+        $service : ServiceEntity( shortName == "icc" )
+    then
+    	logger.debug( "allow user {} for service {}, because of entitlement", $user.getEppn(), $service.getName() );
     	retract( $service );
 
 end

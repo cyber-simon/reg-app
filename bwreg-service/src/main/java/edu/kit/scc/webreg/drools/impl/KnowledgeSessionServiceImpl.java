@@ -131,7 +131,8 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 		List<Object> objectList = new ArrayList<Object>(ksession.getObjects());
 
 		for (Object o : objectList) {
-			logger.debug("Deleting fact handle for Object {}", o);
+			if (logger.isTraceEnabled())
+				logger.trace("Deleting fact handle for Object {}", o);
 			FactHandle factHandle = ksession.getFactHandle(o);
 			if (factHandle != null)
 				ksession.delete(factHandle);
@@ -149,6 +150,8 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 			Set<GroupEntity> groups, Set<RoleEntity> roles) 
 			throws MisconfiguredServiceException {
 		
+		user = userDao.merge(user);
+
 		KieSession ksession = getStatefulSession(unitId);
 
 		if (ksession == null)
@@ -242,7 +245,8 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 		List<Object> objectList = new ArrayList<Object>(ksession.getObjects());
 
 		for (Object o : objectList) {
-			logger.debug("Deleting fact handle for Object {}", o);
+			if (logger.isTraceEnabled())
+				logger.trace("Deleting fact handle for Object {}", o);
 			FactHandle factHandle = ksession.getFactHandle(o);
 			if (factHandle != null)
 				ksession.delete(factHandle);
