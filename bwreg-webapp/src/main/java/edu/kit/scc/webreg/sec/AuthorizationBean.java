@@ -25,6 +25,7 @@ import javax.inject.Named;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
+import edu.kit.scc.webreg.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.entity.AdminRoleEntity;
 import edu.kit.scc.webreg.entity.ApproverRoleEntity;
 import edu.kit.scc.webreg.entity.GroupAdminRoleEntity;
@@ -79,6 +80,9 @@ public class AuthorizationBean implements Serializable {
     @Inject
     private RoleCache roleCache;
     
+    @Inject
+    private KnowledgeSessionService knowledgeSessionService;
+    
     @PostConstruct
     private void init() {
     	if (sessionManager.getUserId() == null)
@@ -118,46 +122,7 @@ public class AuthorizationBean implements Serializable {
 	    	end = System.currentTimeMillis();
 	    	logger.trace("groups loading took {} ms", (end-start));
     	}
-    	
-    	start = System.currentTimeMillis();
-    	userRegistryList = registryService.findByUserAndNotStatus(user, RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
-    	end = System.currentTimeMillis();
-    	logger.trace("registered servs loading took {} ms", (end-start));
 
-    	unregisteredServiceList = serviceService.findAllPublishedWithServiceProps();
-    	
-    	for (RegistryEntity registry : userRegistryList) {
-    		unregisteredServiceList.remove(registry.getService());
-    	}
-
-    	List<ServiceEntity> serviceToRemove = new ArrayList<ServiceEntity>();
-    	for (ServiceEntity s : unregisteredServiceList) {
-    		Map<String, String> serviceProps = s.getServiceProps();
-
-    		if (serviceProps.containsKey("idp_filter")) {
-    			String idpFilter = serviceProps.get("idp_filter");
-    			if (idpFilter != null &&
-    					(! idpFilter.contains(user.getIdp().getEntityId())))
-    				serviceToRemove.add(s);
-    		}
-
-    		if (s.getServiceProps().containsKey("group_filter")) {
-    			String groupFilter = serviceProps.get("group_filter");
-    			if (groupFilter != null &&
-    					(! sessionManager.getGroupNames().contains(groupFilter)))
-    				serviceToRemove.add(s);
-    		}
-
-    		if (s.getServiceProps().containsKey("entitlement_filter")) {
-    			String entitlementFilter = serviceProps.get("entitlement_filter");
-    			String entitlement = user.getAttributeStore().get("urn:oid:1.3.6.1.4.1.5923.1.1.1.7");
-    			if (entitlementFilter != null && entitlement != null &&
-    					(! entitlement.matches(entitlementFilter)))
-    				serviceToRemove.add(s);
-    		}
-    	}
-    	unregisteredServiceList.removeAll(serviceToRemove);
-    	
     	if (sessionManager.getRoleSetCreated() == null || 
     			(System.currentTimeMillis() - sessionManager.getRoleSetCreated()) > rolesTimeout) {
 	    	start = System.currentTimeMillis();
@@ -189,6 +154,60 @@ public class AuthorizationBean implements Serializable {
 	    	logger.trace("Role loading took {} ms", (end-start));
 	    	
 	    	sessionManager.setRoleSetCreated(System.currentTimeMillis());
+    	}
+    	
+    	start = System.currentTimeMillis();
+    	userRegistryList = registryService.findByUserAndNotStatus(user, RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
+    	end = System.currentTimeMillis();
+    	logger.trace("registered servs loading took {} ms", (end-start));
+
+    	unregisteredServiceList = serviceService.findAllPublishedWithServiceProps();
+    	
+    	for (RegistryEntity registry : userRegistryList) {
+    		unregisteredServiceList.remove(registry.getService());
+    	}
+
+    	if (appConfig.getConfigValue("service_filter_rule") != null) {
+    		String serviceFilterRule = appConfig.getConfigValue("service_filter_rule");
+			logger.debug("Checking service filter rule {}", serviceFilterRule);
+	    	start = System.currentTimeMillis();
+
+	    	unregisteredServiceList = knowledgeSessionService.checkServiceFilterRule(
+	    			serviceFilterRule, user, unregisteredServiceList,
+	    			sessionManager.getGroups(), sessionManager.getRoles());
+			
+	    	end = System.currentTimeMillis();
+	    	logger.debug("Rule processing took {} ms", end - start);
+
+    	}
+    	else {
+	    	List<ServiceEntity> serviceToRemove = new ArrayList<ServiceEntity>();
+	    	for (ServiceEntity s : unregisteredServiceList) {
+	    		Map<String, String> serviceProps = s.getServiceProps();
+	
+	    		if (serviceProps.containsKey("idp_filter")) {
+	    			String idpFilter = serviceProps.get("idp_filter");
+	    			if (idpFilter != null &&
+	    					(! idpFilter.contains(user.getIdp().getEntityId())))
+	    				serviceToRemove.add(s);
+	    		}
+	
+	    		if (s.getServiceProps().containsKey("group_filter")) {
+	    			String groupFilter = serviceProps.get("group_filter");
+	    			if (groupFilter != null &&
+	    					(! sessionManager.getGroupNames().contains(groupFilter)))
+	    				serviceToRemove.add(s);
+	    		}
+	
+	    		if (s.getServiceProps().containsKey("entitlement_filter")) {
+	    			String entitlementFilter = serviceProps.get("entitlement_filter");
+	    			String entitlement = user.getAttributeStore().get("urn:oid:1.3.6.1.4.1.5923.1.1.1.7");
+	    			if (entitlementFilter != null && entitlement != null &&
+	    					(! entitlement.matches(entitlementFilter)))
+	    				serviceToRemove.add(s);
+	    		}
+	    	}
+	    	unregisteredServiceList.removeAll(serviceToRemove);
     	}
 	}
 

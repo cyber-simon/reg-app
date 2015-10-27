@@ -12,12 +12,15 @@ package edu.kit.scc.webreg.drools;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.kie.api.runtime.KieSession;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 
+import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
@@ -52,5 +55,9 @@ public interface KnowledgeSessionService {
 			Map<String, List<Object>> attributeMap, Assertion assertion,
 			SamlIdpMetadataEntity idp, EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity sp)
 			throws MisconfiguredServiceException;
+
+	List<ServiceEntity> checkServiceFilterRule(String unitId, UserEntity user,
+			List<ServiceEntity> serviceList, Set<GroupEntity> groups,
+			Set<RoleEntity> roles) throws MisconfiguredServiceException;
 
 }

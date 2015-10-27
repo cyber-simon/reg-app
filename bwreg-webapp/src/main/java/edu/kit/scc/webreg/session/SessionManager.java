@@ -215,4 +215,8 @@ public class SessionManager implements Serializable {
 	public List<ServiceEntity> getServiceGroupAdminList() {
 		return serviceGroupAdminList;
 	}
+
+	public Set<RoleEntity> getRoles() {
+		return roles;
+	}
 }

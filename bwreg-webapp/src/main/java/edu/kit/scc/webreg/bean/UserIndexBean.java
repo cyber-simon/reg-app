@@ -10,7 +10,6 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.bean;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,13 +25,10 @@ import org.slf4j.Logger;
 import edu.kit.scc.webreg.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.drools.OverrideAccess;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;
-import edu.kit.scc.webreg.entity.GroupEntity;
-import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.service.GroupService;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserService;
@@ -43,8 +39,7 @@ import edu.kit.scc.webreg.session.SessionManager;
 public class UserIndexBean {
 
 	private List<ServiceEntity> allServiceList;
-	private List<ServiceEntity> unregisteredServiceList;
-	
+
 	private List<RegistryEntity> userRegistryList;
 	private List<RegistryEntity> pendingRegistryList;
 
@@ -67,9 +62,6 @@ public class UserIndexBean {
     @Inject
     private UserService userService;
 
-    @Inject
-    private GroupService groupService;
-    
 	@Inject
 	private KnowledgeSessionService knowledgeSessionService;
 
@@ -81,62 +73,13 @@ public class UserIndexBean {
     	userRegistryList.addAll(registryService.findByUserAndStatus(user, RegistryStatus.LOST_ACCESS));
     	pendingRegistryList = registryService.findByUserAndStatus(user, RegistryStatus.PENDING);
     	
-    	unregisteredServiceList = new ArrayList<ServiceEntity>(allServiceList);
-    	
     	serviceAccessMap = new HashMap<ServiceEntity, String>(userRegistryList.size());
-
-    	
-    	for (RegistryEntity registry : userRegistryList) {
-    		unregisteredServiceList.remove(registry.getService());
-    	}   	
-
-    	for (RegistryEntity registry : pendingRegistryList) {
-    		unregisteredServiceList.remove(registry.getService());
-    	}   	
 
     	long start = System.currentTimeMillis();
     	checkServiceAccess(userRegistryList, user);
     	long end = System.currentTimeMillis();
     	logger.debug("Rule processing took {} ms", end - start);
-
-    	List<GroupEntity> groupList = groupService.findByUser(user);
-    	String groupString = groupsToString(groupList);
-    	
-    	List<ServiceEntity> serviceToRemove = new ArrayList<ServiceEntity>();
-    	for (ServiceEntity s : unregisteredServiceList) {
-    		Map<String, String> serviceProps = s.getServiceProps();
-
-    		if (serviceProps.containsKey("idp_filter")) {
-    			String idpFilter = serviceProps.get("idp_filter");
-    			if (idpFilter != null &&
-    					(! idpFilter.contains(user.getIdp().getEntityId())))
-    				serviceToRemove.add(s);
-    		}
-
-    		if (s.getServiceProps().containsKey("group_filter")) {
-    			String groupFilter = serviceProps.get("group_filter");
-    			if (groupFilter != null &&
-    					(! groupString.matches(groupFilter)))
-    				serviceToRemove.add(s);
-    		}
-
-    		if (s.getServiceProps().containsKey("entitlement_filter")) {
-    			String entitlementFilter = serviceProps.get("entitlement_filter");
-    			String entitlement = user.getAttributeStore().get("urn:oid:1.3.6.1.4.1.5923.1.1.1.7");
-    			if (entitlementFilter != null && entitlement != null &&
-    					(! entitlement.matches(entitlementFilter)))
-    				serviceToRemove.add(s);
-    		}
-    	}
-    	unregisteredServiceList.removeAll(serviceToRemove);    	
 	}
-
-    public Boolean isServiceRegistered(ServiceEntity service) {
-    	if (service == null)
-    		return false;
-    	
-    	return (! unregisteredServiceList.contains(service));
-    }
 
     public String getServiceAccessStatus(ServiceEntity service) {
     	return serviceAccessMap.get(service);
@@ -183,21 +126,5 @@ public class UserIndexBean {
 				serviceAccessMap.put(registry.getService(), sb.toString());
 		}
 	}
-	
-	private String groupsToString(List<GroupEntity> groupList) {
-		StringBuilder sb = new StringBuilder();
-		for (GroupEntity group : groupList) {
-			if (group instanceof HomeOrgGroupEntity &&  
-					((HomeOrgGroupEntity) group).getPrefix() != null) {
-				sb.append(((HomeOrgGroupEntity) group).getPrefix());
-			}
-			sb.append("_");
-			sb.append(group.getName());
-			sb.append(";");
-		}
-		if (sb.length() > 0)
-			sb.setLength(sb.length() - 1);
-		
-		return sb.toString();
-	}	
+
 }

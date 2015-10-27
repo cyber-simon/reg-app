@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -41,8 +42,10 @@ import edu.kit.scc.webreg.drools.UnauthorizedUser;
 import edu.kit.scc.webreg.entity.AuditStatus;
 import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.EventType;
+import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
+import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
@@ -112,7 +115,7 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 		KieSession ksession = getStatefulSession(unitId);
 
 		if (ksession == null)
-			throw new MisconfiguredApplicationException("Es ist keine valide Regel fuer den Benutzer zugriff konfiguriert");
+			throw new MisconfiguredApplicationException("Es ist keine valide Regel fuer den Benutzerzugriff konfiguriert");
 
 		ksession.setGlobal("logger", logger);
 		ksession.insert(user);
@@ -139,6 +142,52 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 		ksession.dispose();
 
 		return objectList;
+	}
+	
+	@Override
+	public List<ServiceEntity> checkServiceFilterRule(String unitId, UserEntity user, List<ServiceEntity> serviceList,
+			Set<GroupEntity> groups, Set<RoleEntity> roles) 
+			throws MisconfiguredServiceException {
+		
+		KieSession ksession = getStatefulSession(unitId);
+
+		if (ksession == null)
+			throw new MisconfiguredApplicationException("Es ist keine valide Regel fuer den Benutzerzugriff konfiguriert");
+
+		ksession.setGlobal("logger", logger);
+		ksession.insert(user);
+		for (GroupEntity group : groups)
+			ksession.insert(group);
+		for (ServiceEntity service : serviceList)
+			ksession.insert(service);
+		ksession.insert(new Date());
+		
+		ksession.fireAllRules();
+
+		List<Object> objectList = new ArrayList<Object>(ksession.getObjects());
+		List<ServiceEntity> removeList = new ArrayList<ServiceEntity>();
+		
+		for (Object o : objectList) {
+			if (logger.isTraceEnabled())
+				logger.trace("Deleting fact handle for Object {}", o);
+			
+			FactHandle factHandle = ksession.getFactHandle(o);
+			if (factHandle != null)
+				ksession.delete(factHandle);
+			else
+				logger.warn("Facthandle for Object {} is null", o);
+			
+			if (o instanceof ServiceEntity) {
+				removeList.add((ServiceEntity) o);
+			}
+		}
+
+		ksession.dispose();
+
+		List<ServiceEntity> returnList = new ArrayList<ServiceEntity>(serviceList);
+		returnList.removeAll(removeList);
+		
+		return returnList;
 	}
 	
 	@Override

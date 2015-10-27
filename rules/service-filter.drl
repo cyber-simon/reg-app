@@ -1,0 +1,31 @@
+package edu.kit.scc.webreg.drools.sf;
+
+import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.GroupEntity;
+import edu.kit.scc.webreg.entity.LocalGroupEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity;
+
+global org.slf4j.Logger logger;
+
+rule "Filter test"
+
+    when
+        $user : UserEntity( eppn == "ugcne@student.kit.edu" )
+        $service : ServiceEntity( shortName == "ucb" )
+    then
+    	logger.debug( "allow user {} for service {}", $user.getEppn(), $service.getName() );
+    	retract( $service );
+
+end
+
+rule "FH1 Filter"
+
+    when
+        $user : UserEntity()
+        $service : ServiceEntity( shortName == "fh1" )
+        $group : LocalGroupEntity( name == "fh1-access" )
+    then
+    	logger.debug( "allow user {} for service {}, because of membership in group {}", $user.getEppn(), $service.getName(), $group.getName() );
+    	retract( $service );
+
+end
