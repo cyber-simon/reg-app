@@ -214,6 +214,7 @@ public class RegisterServiceBean implements Serializable {
     	
     	try {
     		registerUserService.registerUser(user, service, "user-self");
+    		sessionManager.setUnregisteredServiceCreated(null);
     	} catch (RegisterException e) {
 			FacesContext.getCurrentInstance().addMessage("need_check", 
 					new FacesMessage(FacesMessage.SEVERITY_FATAL, "Registrierung fehlgeschlagen", e.getMessage()));

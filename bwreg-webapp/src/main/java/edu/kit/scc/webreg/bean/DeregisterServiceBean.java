@@ -81,6 +81,7 @@ public class DeregisterServiceBean implements Serializable {
     	
     	try {
     		registerUserService.deregisterUser(registry, "user-self");
+    		sessionManager.setUnregisteredServiceCreated(null);
     	} catch (RegisterException e) {
     		logger.warn("Deregister failed!", e);
 		}

@@ -50,7 +50,6 @@ public class AuthorizationBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<ServiceEntity> unregisteredServiceList;
 	private List<RegistryEntity> userRegistryList;
 	
 	@Inject
@@ -99,6 +98,12 @@ public class AuthorizationBean implements Serializable {
     		groupsTimeout = Long.parseLong(appConfig.getConfigValue("AuthorizationBean_groupsTimeout"));
     	else 
     		groupsTimeout = 1 * 60 * 1000L;
+    	
+    	Long unregisteredServiceTimeout;
+    	if (appConfig.getConfigValue("AuthorizationBean_unregisteredServiceTimeout") != null)
+    		unregisteredServiceTimeout = Long.parseLong(appConfig.getConfigValue("AuthorizationBean_unregisteredServiceTimeout"));
+    	else 
+    		unregisteredServiceTimeout = 1 * 60 * 1000L;
     	
     	long start, end;
     	
@@ -160,55 +165,62 @@ public class AuthorizationBean implements Serializable {
     	userRegistryList = registryService.findByUserAndNotStatus(user, RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
     	end = System.currentTimeMillis();
     	logger.trace("registered servs loading took {} ms", (end-start));
-
-    	unregisteredServiceList = serviceService.findAllPublishedWithServiceProps();
     	
-    	for (RegistryEntity registry : userRegistryList) {
-    		unregisteredServiceList.remove(registry.getService());
-    	}
-
-    	if (appConfig.getConfigValue("service_filter_rule") != null) {
-    		String serviceFilterRule = appConfig.getConfigValue("service_filter_rule");
-			logger.debug("Checking service filter rule {}", serviceFilterRule);
-	    	start = System.currentTimeMillis();
-
-	    	unregisteredServiceList = knowledgeSessionService.checkServiceFilterRule(
-	    			serviceFilterRule, user, unregisteredServiceList,
-	    			sessionManager.getGroups(), sessionManager.getRoles());
-			
-	    	end = System.currentTimeMillis();
-	    	logger.debug("Rule processing took {} ms", end - start);
-
-    	}
-    	else {
-	    	List<ServiceEntity> serviceToRemove = new ArrayList<ServiceEntity>();
-	    	for (ServiceEntity s : unregisteredServiceList) {
-	    		Map<String, String> serviceProps = s.getServiceProps();
-	
-	    		if (serviceProps.containsKey("idp_filter")) {
-	    			String idpFilter = serviceProps.get("idp_filter");
-	    			if (idpFilter != null &&
-	    					(! idpFilter.contains(user.getIdp().getEntityId())))
-	    				serviceToRemove.add(s);
-	    		}
-	
-	    		if (s.getServiceProps().containsKey("group_filter")) {
-	    			String groupFilter = serviceProps.get("group_filter");
-	    			if (groupFilter != null &&
-	    					(! sessionManager.getGroupNames().contains(groupFilter)))
-	    				serviceToRemove.add(s);
-	    		}
-	
-	    		if (s.getServiceProps().containsKey("entitlement_filter")) {
-	    			String entitlementFilter = serviceProps.get("entitlement_filter");
-	    			String entitlement = user.getAttributeStore().get("urn:oid:1.3.6.1.4.1.5923.1.1.1.7");
-	    			if (entitlementFilter != null && entitlement != null &&
-	    					(! entitlement.matches(entitlementFilter)))
-	    				serviceToRemove.add(s);
-	    		}
+    	if (sessionManager.getUnregisteredServiceCreated() == null || 
+    			(System.currentTimeMillis() - sessionManager.getUnregisteredServiceCreated()) > unregisteredServiceTimeout) {
+    		
+	    	List<ServiceEntity> unregisteredServiceList = serviceService.findAllPublishedWithServiceProps();
+	    	
+	    	for (RegistryEntity registry : userRegistryList) {
+	    		unregisteredServiceList.remove(registry.getService());
 	    	}
-	    	unregisteredServiceList.removeAll(serviceToRemove);
-    	}
+	
+	    	if (appConfig.getConfigValue("service_filter_rule") != null) {
+	    		String serviceFilterRule = appConfig.getConfigValue("service_filter_rule");
+				logger.debug("Checking service filter rule {}", serviceFilterRule);
+		    	start = System.currentTimeMillis();
+	
+		    	unregisteredServiceList = knowledgeSessionService.checkServiceFilterRule(
+		    			serviceFilterRule, user, unregisteredServiceList,
+		    			sessionManager.getGroups(), sessionManager.getRoles());
+				
+		    	end = System.currentTimeMillis();
+		    	logger.debug("Rule processing took {} ms", end - start);
+	
+	    	}
+	    	else {
+		    	List<ServiceEntity> serviceToRemove = new ArrayList<ServiceEntity>();
+		    	for (ServiceEntity s : unregisteredServiceList) {
+		    		Map<String, String> serviceProps = s.getServiceProps();
+		
+		    		if (serviceProps.containsKey("idp_filter")) {
+		    			String idpFilter = serviceProps.get("idp_filter");
+		    			if (idpFilter != null &&
+		    					(! idpFilter.contains(user.getIdp().getEntityId())))
+		    				serviceToRemove.add(s);
+		    		}
+		
+		    		if (s.getServiceProps().containsKey("group_filter")) {
+		    			String groupFilter = serviceProps.get("group_filter");
+		    			if (groupFilter != null &&
+		    					(! sessionManager.getGroupNames().contains(groupFilter)))
+		    				serviceToRemove.add(s);
+		    		}
+		
+		    		if (s.getServiceProps().containsKey("entitlement_filter")) {
+		    			String entitlementFilter = serviceProps.get("entitlement_filter");
+		    			String entitlement = user.getAttributeStore().get("urn:oid:1.3.6.1.4.1.5923.1.1.1.7");
+		    			if (entitlementFilter != null && entitlement != null &&
+		    					(! entitlement.matches(entitlementFilter)))
+		    				serviceToRemove.add(s);
+		    		}
+		    	}
+		    	unregisteredServiceList.removeAll(serviceToRemove);
+	    	}
+	    	
+	    	sessionManager.setUnregisteredServiceList(unregisteredServiceList);
+	    	sessionManager.setUnregisteredServiceCreated(System.currentTimeMillis());
+	    }
 	}
 
     public boolean isUserInRole(String roleName) {
@@ -302,24 +314,7 @@ public class AuthorizationBean implements Serializable {
 	}
 
 	public List<ServiceEntity> getUnregisteredServiceList() {
-		return unregisteredServiceList;
-	}
-
-	private String groupsToString(Set<GroupEntity> groups) {
-		StringBuilder sb = new StringBuilder();
-		for (GroupEntity group : groups) {
-			if (group instanceof HomeOrgGroupEntity &&  
-					((HomeOrgGroupEntity) group).getPrefix() != null) {
-				sb.append(((HomeOrgGroupEntity) group).getPrefix());
-			}
-			sb.append("_");
-			sb.append(group.getName());
-			sb.append(";");
-		}
-		if (sb.length() > 0)
-			sb.setLength(sb.length() - 1);
-		
-		return sb.toString();
+		return sessionManager.getUnregisteredServiceList();
 	}
 
 	public ApplicationConfig getAppConfig() {

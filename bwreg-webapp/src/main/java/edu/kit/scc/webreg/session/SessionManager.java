@@ -52,6 +52,9 @@ public class SessionManager implements Serializable {
 	private List<ServiceEntity> serviceHotlineList;
 	private List<ServiceEntity> serviceGroupAdminList;
 
+	private List<ServiceEntity> unregisteredServiceList;
+	private Long unregisteredServiceCreated;
+
 	private Set<GroupEntity> groups;
 	private Set<String> groupNames;
 	private Long groupSetCreated;
@@ -218,5 +221,22 @@ public class SessionManager implements Serializable {
 
 	public Set<RoleEntity> getRoles() {
 		return roles;
+	}
+
+	public List<ServiceEntity> getUnregisteredServiceList() {
+		return unregisteredServiceList;
+	}
+
+	public void setUnregisteredServiceList(
+			List<ServiceEntity> unregisteredServiceList) {
+		this.unregisteredServiceList = unregisteredServiceList;
+	}
+
+	public Long getUnregisteredServiceCreated() {
+		return unregisteredServiceCreated;
+	}
+
+	public void setUnregisteredServiceCreated(Long unregisteredServiceCreated) {
+		this.unregisteredServiceCreated = unregisteredServiceCreated;
 	}
 }
