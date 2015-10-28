@@ -71,7 +71,7 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 			if (prop.readPropOrNull("group_key") != null)
 				groupKey = prop.readPropOrNull("group_key");
 			else
-				groupKey = "group";
+				groupKey = null;
 
 			if (prop.readPropOrNull("group_separator") != null)
 				groupSeparator = prop.readPropOrNull("group_separator");
@@ -138,7 +138,7 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 			auditor.logAction("as-workflow", "CREATE VALUE (String)", key, "", AuditStatus.SUCCESS);
 			asValue = (ASUserAttrValueStringEntity) asValueDao.persist(asValue);
 			
-			if (key.equals(groupKey)) {
+			if (groupKey != null && key.equals(groupKey)) {
 				processGroups(asValue);
 			}
 		}
@@ -156,7 +156,7 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 		auditor.logAction("as-workflow", "DELETE VALUE", key, "", AuditStatus.SUCCESS);
 		asValueDao.delete(asValue);
 
-		if (key.equals(groupKey)) {
+		if (groupKey != null && key.equals(groupKey)) {
 			processGroups(null);
 		}
 
@@ -179,7 +179,7 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 				changed = true;
 			}
 			
-			if (key.equals(groupKey)) {
+			if (groupKey != null && key.equals(groupKey)) {
 				changed |= processGroups(asStringValue);
 			}
 		}
