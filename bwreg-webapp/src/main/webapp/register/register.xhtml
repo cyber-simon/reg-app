@@ -31,15 +31,17 @@
 		
 				<div class="panel">
 					<h3><h:outputText value="#{messages.my_data}:"/></h3>
-					<p:panelGrid id="baseData" columns="2">
-						<bw:outputText label="#{messages.eppn}" value="#{registerUserBean.entity.eppn}" />
-						<bw:outputText label="#{messages.email}" value="#{registerUserBean.entity.email}" />
-						<bw:outputText label="#{messages.sur_name}" value="#{registerUserBean.entity.surName}" />
-						<bw:outputText label="#{messages.given_name}" value="#{registerUserBean.entity.givenName}" />
-						<bw:outputText label="#{messages.persistent_id}" value="#{registerUserBean.entity.persistentId}" />
-						<bw:outputText label="#{messages.issued_by}" value="#{registerUserBean.entity.persistentIdpId}" />
-						<bw:outputText label="#{messages.issued_for}" value="#{registerUserBean.entity.persistentSpId}" />
-					</p:panelGrid>
+					<p:dataTable var="key" value="#{registerUserBean.printableAttributesList}">
+						<p:column headerText="#{messages.name}">
+							#{resourceBundleHelper.resolveMessage(key)}
+						</p:column>
+						<p:column headerText="#{messages.value}">
+							#{registerUserBean.printableAttributesMap[key]}
+						</p:column>
+					</p:dataTable>
+					<p:dataList var="key" value="#{registerUserBean.unprintableAttributesMap.keySet().toArray()}">
+						#{key}: #{registerUserBean.unprintableAttributesMap[key]}
+					</p:dataList>
 					<p:commandButton id="save" action="#{registerUserBean.save}" value="#{messages.confirm}" ajax="false" 
 						disabled="#{registerUserBean.errorState}"/>
 				</div>
