@@ -10,6 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -94,6 +95,9 @@ public class JpaRoleDao extends JpaBaseDao<RoleEntity, Long> implements RoleDao 
     @SuppressWarnings("unchecked")
 	@Override
 	public List<RoleEntity> findByGroups(Set<GroupEntity> groups) {
+    	if (groups == null || groups.isEmpty())
+    		return new ArrayList<RoleEntity>();
+    	
 		return em.createQuery("select r.role from RoleGroupEntity r where r.group in (:groups)")
 				.setParameter("groups", groups).getResultList();
 	}
