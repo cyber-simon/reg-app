@@ -20,7 +20,7 @@ import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
+import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -62,19 +62,21 @@ public class DirectAuthController {
 	private TextPropertyDao textPropertyDao;
 	
 	@Path("/eppn/{service}")
-	@POST
+	@GET
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Map<String, String> ecpLogin(@PathParam("service") String serviceShortName,
 			@Context HttpServletRequest request)
 			throws IOException, ServletException, RestInterfaceException {
+		//appConfig.getConfigValue(key)
+		
 		String eppn = (String) request.getAttribute(SecurityFilter.DIRECT_USER_ID);
 		String password = (String) request.getAttribute(SecurityFilter.DIRECT_USER_PW);
 		return userLoginService.ecpLogin(eppn, serviceShortName, password, request.getLocalName());
 	}
 
 	@Path("/eppn-xml/{service}")
-	@POST
+	@GET
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.APPLICATION_XML)
 	public ECPResponse ecpLoginXml(@PathParam("service") String serviceShortName,

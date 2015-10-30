@@ -36,6 +36,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
+import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.AdminUserEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.service.AdminUserService;
@@ -65,7 +66,10 @@ public class SecurityFilter implements Filter {
 	
 	@Inject
 	private AdminUserService adminUserService;
-	
+
+	@Inject
+	private ApplicationConfig appConfig;
+
 	@Override
 	public void destroy() {
 	}
@@ -206,6 +210,16 @@ public class SecurityFilter implements Filter {
 			HttpServletResponse response, FilterChain chain) 
 		throws IOException, ServletException {
 
+		if (appConfig.getConfigValue("direct_auth_allow") == null) {
+			logger.info("Denying direct-auth from {}", request.getRemoteAddr());
+			response.sendError( HttpServletResponse.SC_NOT_ACCEPTABLE );
+			return;
+		}
+		String directAuthAllow = appConfig.getConfigValue("direct_auth_allow");
+		/*
+		 * need to implement subnet matching here
+		 */
+		
 	    String auth = request.getHeader("Authorization");
 	    if (auth != null) {
 	    	int index = auth.indexOf(' ');
