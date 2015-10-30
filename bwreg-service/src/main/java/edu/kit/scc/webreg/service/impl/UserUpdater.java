@@ -272,6 +272,10 @@ public class UserUpdater implements Serializable {
 			try {
 				assertion = saml2AssertionService.processSamlResponse(samlResponse, idpEntity, 
 						idpEntityDescriptor, spEntity, false);
+				
+				if (logger.isTraceEnabled())
+					logger.trace("{}", samlHelper.prettyPrint(assertion));
+				
 			} catch (NoAssertionException e) {
 				if (user.getIdp() != null)
 					logger.warn("No assertion delivered for user {} from idp {}", user.getEppn(), user.getIdp().getEntityId());
