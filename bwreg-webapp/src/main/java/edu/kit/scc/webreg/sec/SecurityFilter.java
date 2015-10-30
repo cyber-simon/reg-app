@@ -48,6 +48,8 @@ public class SecurityFilter implements Filter {
 
 	public static final String ADMIN_USER_ID = "_admin_user_id";
 	public static final String USER_ID = "_user_id";
+	public static final String DIRECT_USER_ID = "_direct_user_id";
+	public static final String DIRECT_USER_PW = "_direct_user_pw";
 	
 	@Inject 
 	private Logger logger;
@@ -100,6 +102,10 @@ public class SecurityFilter implements Filter {
 		else if (path.startsWith("/admin") 
 				&& (httpSession == null || (! session.isLoggedIn()))) {
 			processAdminLogin(path, request, response, chain);
+		}
+		else if (path.startsWith("/rest/direct-auth") 
+				&& (httpSession == null || (! session.isLoggedIn()))) {
+			processDirectAuth(path, request, response, chain);
 		}
 		else if (path.startsWith("/rest") 
 				&& (httpSession == null || (! session.isLoggedIn()))) {
@@ -188,6 +194,30 @@ public class SecurityFilter implements Filter {
 	        			
 		        		return;
 	        		}
+	        	}
+	        }
+	    }
+		
+		response.setHeader( "WWW-Authenticate", "Basic realm=\"Admin Realm\"" );
+		response.sendError( HttpServletResponse.SC_UNAUTHORIZED );		
+	}
+
+	private void processDirectAuth(String path, HttpServletRequest request, 
+			HttpServletResponse response, FilterChain chain) 
+		throws IOException, ServletException {
+
+	    String auth = request.getHeader("Authorization");
+	    if (auth != null) {
+	    	int index = auth.indexOf(' ');
+	        if (index > 0) {
+	        	String[] credentials = StringUtils.split(
+	        			new String(Base64.decodeBase64(auth.substring(index).getBytes())), ":", 2);
+	
+	        	if (credentials.length == 2) {
+	        		request.setAttribute(DIRECT_USER_ID, credentials[0]);
+	        		request.setAttribute(DIRECT_USER_PW, credentials[1]);
+	        		chain.doFilter(request, response);
+	        		return;
 	        	}
 	        }
 	    }
