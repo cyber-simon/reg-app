@@ -10,6 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.bean.admin;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 
@@ -20,6 +21,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
+import org.apache.commons.io.IOUtils;
 import org.primefaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,18 +95,24 @@ public class ImageGalleryBean implements Serializable {
     public void handleFileUpload(FileUploadEvent event) {
 		logger.debug("A file was uploaded: {}", event.getFile().getFileName());
 		
-		ImageEntity image = imageService.createNew();
-		image.setImageData(new ImageDataEntity());
-		
-		image.setName(event.getFile().getFileName());
-		image.setImageType(ImageType.PNG);
-		image.getImageData().setData(event.getFile().getContents());
-		imageService.save(image);
-		
-		imageList = imageService.findAll();
+		try {
+			ImageEntity image = imageService.createNew();
+			image.setImageData(new ImageDataEntity());
+			
+			image.setName(event.getFile().getFileName());
+			image.setImageType(ImageType.PNG);
+			image.getImageData().setData(IOUtils.toByteArray(event.getFile().getInputstream()));
+			imageService.save(image);
+			
+			imageList = imageService.findAll();
 
-		FacesMessage msg = new FacesMessage("Hochgeladen", event.getFile().getFileName());
-		FacesContext.getCurrentInstance().addMessage("messageBox", msg);
+			FacesMessage msg = new FacesMessage("Hochgeladen", event.getFile().getFileName());
+			FacesContext.getCurrentInstance().addMessage("messageBox", msg);
+		} catch (IOException e) {
+			FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Bild Daten fehlen", e.getMessage());
+			FacesContext.getCurrentInstance().addMessage("messageBox", msg);
+			logger.warn("Exception while upload of image", e);
+		}
 	}
 
 	
