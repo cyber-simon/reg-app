@@ -13,6 +13,7 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 
+import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
 import edu.kit.scc.webreg.dao.UserDao;
@@ -55,6 +56,9 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 	
 	@Inject
 	private ServiceDao serviceDao;
+	
+	@Inject
+	private ApplicationConfig appConfig;
 	
 	@Override
 	public Map<String, String> updateUser(String eppn,
@@ -110,11 +114,25 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 			return;
 		}
 		
-		try {
-			user = userUpdater.updateUserFromIdp(user);
-		} catch (UserUpdateException e) {
-			logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
-		}		
+		Long expireTime = 24 * 60 * 60 * 1000L; // one stay standard expire time for async checks
+		if (appConfig.getConfigValue("async_userupdate_expire_time") != null) {
+			expireTime = Long.parseLong(appConfig.getConfigValue("async_userupdate_expire_time"));
+		}
+		
+		if ((System.currentTimeMillis() - user.getLastUpdate().getTime()) < expireTime) {
+			logger.info("Skipping async attributequery for {} with {}@{}", new Object[] {user.getEppn(), 
+					user.getPersistentId(), user.getIdp().getEntityId()});
+		}
+		else {
+			logger.info("Performing async attributequery for {} with {}@{}", new Object[] {user.getEppn(), 
+					user.getPersistentId(), user.getIdp().getEntityId()});
+
+			try {
+				user = userUpdater.updateUserFromIdp(user);
+			} catch (UserUpdateException e) {
+				logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
+			}
+		}
 	}
 
 	@Override
