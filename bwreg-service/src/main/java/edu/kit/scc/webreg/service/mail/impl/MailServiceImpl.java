@@ -73,8 +73,12 @@ public class MailServiceImpl implements MailService {
 			message.setRecipients(Message.RecipientType.BCC,
 				InternetAddress.parse(bcc, false));
 
-		message.setSubject(subject);
-		message.setText(body);
+		if (subject != null)
+			message.setSubject(subject);
+		
+		if (body != null)
+			message.setText(body);
+		
 		message.setHeader("X-Mailer", "bwIdm Webregistrierung Mail");
 		message.setSentDate(new Date());
 		Transport.send(message);
