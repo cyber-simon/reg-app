@@ -119,8 +119,13 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 			expireTime = Long.parseLong(appConfig.getConfigValue("async_userupdate_expire_time"));
 		}
 		
-		if ((System.currentTimeMillis() - user.getLastUpdate().getTime()) < expireTime) {
+		if (((System.currentTimeMillis() - user.getLastUpdate().getTime()) < expireTime)) {
 			logger.info("Skipping async attributequery for {} with {}@{}", new Object[] {user.getEppn(), 
+					user.getPersistentId(), user.getIdp().getEntityId()});
+		}
+		else if ((user.getLastFailedUpdate() != null) &&
+				(System.currentTimeMillis() - user.getLastFailedUpdate().getTime()) < expireTime) {
+			logger.info("Skipping async attributequery for {} with {}@{} (last failed)", new Object[] {user.getEppn(), 
 					user.getPersistentId(), user.getIdp().getEntityId()});
 		}
 		else {

@@ -1,6 +1,7 @@
 package edu.kit.scc.webreg.rest;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -24,10 +25,14 @@ public class UserController {
 	@Path(value = "/update-async/{eppn}")
 	@Produces({"application/json"})
 	@GET
-	public void updateUserAsync(@PathParam("eppn") String eppn, @Context HttpServletRequest request)
+	public Map<String, String> updateUserAsync(@PathParam("eppn") String eppn, @Context HttpServletRequest request)
 					throws IOException, RestInterfaceException, ServletException {
 		
 		userUpdateService.updateUserAsync(eppn, request.getLocalName());
+		
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("reuqest", "submitted");
+		return map;
 	}
 
 	@Path(value = "/update/{eppn}")
