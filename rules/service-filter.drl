@@ -20,6 +20,30 @@ rule "FH1 Filter"
 
 end
 
+rule "FH2 Filter"
+
+    when
+        $user : UserEntity()
+        $service : ServiceEntity( shortName == "fh2" )
+        $group : LocalGroupEntity( name == "fh2-access" )
+    then
+    	logger.debug( "allow user {} for service {}, because of membership in group {}", $user.getEppn(), $service.getName(), $group.getName() );
+    	retract( $service );
+
+end
+
+rule "FHC Filter"
+
+    when
+        $user : UserEntity()
+        $service : ServiceEntity( shortName == "fhc" )
+        $group : LocalGroupEntity( name == "fhc-access" )
+    then
+    	logger.debug( "allow user {} for service {}, because of membership in group {}", $user.getEppn(), $service.getName(), $group.getName() );
+    	retract( $service );
+
+end
+
 rule "UC1 Filter"
 
     when
@@ -27,7 +51,7 @@ rule "UC1 Filter"
         	&& 
         	( attributeStore["urn:oid:1.3.6.1.4.1.5923.1.1.1.7"] 
         		matches ".*(^|;)http://bwidm.de/entitlement/bwUniCluster(;|$).*" ) )
-        $service : ServiceEntity( shortName == "uc1" )
+        $service : ServiceEntity( shortName == "bwuc" )
     then
     	logger.debug( "allow user {} for service {}, because of entitlement", $user.getEppn(), $service.getName() );
     	retract( $service );
@@ -103,3 +127,43 @@ rule "ICC Filter"
     	retract( $service );
 
 end
+
+rule "bwFileStorage Filter"
+
+    when
+        $user : UserEntity( idp.getEntityCategoryList() contains "http://aai.dfn.de/category/bwidm-member" )
+        $service : ServiceEntity( shortName == "lsdf-file" )
+    then
+    	logger.debug( "allow user {} for service {}, because of entitlement", $user.getEppn(), $service.getName() );
+    	retract( $service );
+
+end
+
+rule "bwSNS Filter"
+
+    when
+        $user : UserEntity( ( idp.getEntityCategoryList() contains "http://aai.dfn.de/category/bwidm-member" )
+        	&& 
+        	( attributeStore["urn:oid:1.3.6.1.4.1.5923.1.1.1.7"] 
+        		matches ".*(^|;)http://bwidm.de/entitlement/bwLSDF-SyncShare(;|$).*" ) )
+        $service : ServiceEntity( shortName == "sns" )
+    then
+    	logger.debug( "allow user {} for service {}, because of entitlement", $user.getEppn(), $service.getName() );
+    	retract( $service );
+
+end
+
+rule "LSDF-DIS Filter"
+
+    when
+        $user : UserEntity( ( idp.entityId == "https://idp.scc.kit.edu/idp/shibboleth" ) 
+        	&& 
+        	( attributeStore["urn:oid:1.3.6.1.4.1.5923.1.1.1.7"] 
+        		matches ".*(^|;)http://bwidm.scc.kit.edu/entitlement/lsdf-dis(;|$).*" ) )
+        $service : ServiceEntity( shortName == "lsdfdis" )
+    then
+    	logger.debug( "allow user {} for service {}, because of entitlement", $user.getEppn(), $service.getName() );
+    	retract( $service );
+
+end
+
