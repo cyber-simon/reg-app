@@ -463,7 +463,7 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 					serviceEntity.getServiceProps().get("pw_location").equalsIgnoreCase("registry")) {
 				registry.getRegistryValues().put("userPassword", passwordUtil.generatePassword("SHA-512", password));
 			}
-			if (serviceEntity.getServiceProps().containsKey("pw_location") && 
+			else if (serviceEntity.getServiceProps().containsKey("pw_location") && 
 					serviceEntity.getServiceProps().get("pw_location").equalsIgnoreCase("both")) {
 				registry.getRegistryValues().put("userPassword", passwordUtil.generatePassword("SHA-512", password));
 				((SetPasswordCapable) workflow).setPassword(userEntity, serviceEntity, registry, auditor, password);
