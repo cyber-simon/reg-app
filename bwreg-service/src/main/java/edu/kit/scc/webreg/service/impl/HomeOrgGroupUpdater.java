@@ -198,12 +198,14 @@ public class HomeOrgGroupUpdater implements Serializable {
 				auditor.logAction(user.getEppn(), "UPDATE FIELD", "primaryGroup", 
 					user.getPrimaryGroup().getName() + " (" + user.getPrimaryGroup().getGidNumber() + ") -> " + 
 					group.getName() + " (" + group.getGidNumber() + ")", AuditStatus.SUCCESS);
+				changedGroups.add(group);
 			}
 		}
 		else if (user.getPrimaryGroup() == null && group != null) {
 			auditor.logAction(user.getEppn(), "UPDATE FIELD", "primaryGroup", 
 					"null -> " + 
 					group.getName() + " (" + group.getGidNumber() + ")", AuditStatus.SUCCESS);
+			changedGroups.add(group);
 		}
 
 		user.setPrimaryGroup(group);
