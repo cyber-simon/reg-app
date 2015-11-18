@@ -42,6 +42,16 @@ public abstract class SamlConfigurationEntity extends AbstractBaseEntity {
 	@Type(type = "org.hibernate.type.TextType")		
 	private String certificate;
 	
+	@Column(name = "standby_private_key")
+	@Lob
+	@Type(type = "org.hibernate.type.TextType")		
+	private String standbyPrivateKey;
+	
+	@Column(name = "standby_certificate")
+	@Lob
+	@Type(type = "org.hibernate.type.TextType")		
+	private String standbyCertificate;
+	
 	public String getPrivateKey() {
 		return privateKey;
 	}
@@ -64,5 +74,29 @@ public abstract class SamlConfigurationEntity extends AbstractBaseEntity {
 
 	public void setEntityId(String entityId) {
 		this.entityId = entityId;
+	}
+
+	public SamlMetadataEntityStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(SamlMetadataEntityStatus status) {
+		this.status = status;
+	}
+
+	public String getStandbyPrivateKey() {
+		return standbyPrivateKey;
+	}
+
+	public void setStandbyPrivateKey(String standbyPrivateKey) {
+		this.standbyPrivateKey = standbyPrivateKey;
+	}
+
+	public String getStandbyCertificate() {
+		return standbyCertificate;
+	}
+
+	public void setStandbyCertificate(String standbyCertificate) {
+		this.standbyCertificate = standbyCertificate;
 	}
 }

@@ -53,7 +53,7 @@ public class CryptoHelper implements Serializable {
 		pemReader.close();
 		
 		if (certHolder == null) {
-			logger.warn("Invalid Certificate. CertHoler is null.");
+			logger.warn("Invalid Certificate. CertHolder is null.");
 			return null;
 		}
 

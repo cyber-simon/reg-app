@@ -72,6 +72,14 @@
 					<p:inputTextarea id="certificate" rows="12" cols="80" autoResize="false"
 		       	    		value="#{editSamlSpConfigurationBean.entity.certificate}"/>
 
+					<h:outputLabel for="sprivate_key" value="#{messages.private_key}:"/>
+					<p:inputTextarea id="sprivate_key" rows="12" cols="80" autoResize="false"
+		            		value="#{editSamlSpConfigurationBean.entity.standbyPrivateKey}"/>
+		
+					<h:outputLabel for="scertificate" value="#{messages.certificate}:"/>
+					<p:inputTextarea id="scertificate" rows="12" cols="80" autoResize="false"
+		       	    		value="#{editSamlSpConfigurationBean.entity.standbyCertificate}"/>
+
 				</p:panelGrid>
 			<h:commandButton id="save" action="#{editSamlSpConfigurationBean.save}" value="#{messages.save}"/>
 			</p:panel>
