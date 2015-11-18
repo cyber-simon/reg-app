@@ -65,23 +65,23 @@
 					<h:outputText id="private_key" styleClass="pretext"
 		            		value="#{showSamlSpConfigurationBean.entity.privateKey}"/>
 
-					<h:outputLabel for="certinfo5" value="#{messages.cert_dn}:"/>
+					<h:outputLabel for="certinfo5" value="#{messages.cert_dn} (#{messages.standby}):"/>
 					<h:outputText id="certinfo5" value="#{showSamlSpConfigurationBean.standbyCertificate.subjectDN}"/>
 		
-					<h:outputLabel for="certinfo6" value="#{messages.cert_issuer}:"/>
+					<h:outputLabel for="certinfo6" value="#{messages.cert_issuer} (#{messages.standby}):"/>
 					<h:outputText id="certinfo6" value="#{showSamlSpConfigurationBean.standbyCertificate.issuerDN}"/>
 					
-					<h:outputLabel for="certinfo7" value="#{messages.valid_from}:"/>
+					<h:outputLabel for="certinfo7" value="#{messages.valid_from} (#{messages.standby}):"/>
 					<h:outputText id="certinfo7" value="#{showSamlSpConfigurationBean.standbyCertificate.notBefore}"/>
 					
-					<h:outputLabel for="certinfo8" value="#{messages.valid_to}:"/>
+					<h:outputLabel for="certinfo8" value="#{messages.valid_to} (#{messages.standby}):"/>
 					<h:outputText id="certinfo8" value="#{showSamlSpConfigurationBean.standbyCertificate.notAfter}"/>
 					
-					<h:outputLabel for="certificate9" value="#{messages.certificate}:"/>
+					<h:outputLabel for="certificate9" value="#{messages.certificate} (#{messages.standby}):"/>
 					<h:outputText id="certificate9" styleClass="pretext"
 		       	    		value="#{showSamlSpConfigurationBean.entity.standbyCertificate}"/>
 					
-					<h:outputLabel for="private_key2" value="#{messages.private_key}:"/>
+					<h:outputLabel for="private_key2" value="#{messages.private_key} (#{messages.standby}):"/>
 					<h:outputText id="private_key2" styleClass="pretext"
 		            		value="#{showSamlSpConfigurationBean.entity.standbyPrivateKey}"/>
 				</p:panelGrid>

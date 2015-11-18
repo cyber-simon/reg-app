@@ -45,13 +45,23 @@ public class ShowSamlAAConfigurationBean implements Serializable {
 	private Long id;
 
 	private X509Certificate certificate;
-	
+	private X509Certificate standbyCertificate;
+		
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
 			entity = service.findByIdWithAttrs(id, "hostNameList");
 			if (entity != null && entity.getCertificate() != null) {
 				try {
 					certificate = cryptoHelper.getCertificate(entity.getCertificate());
+				} catch (IOException e) {
+					logger.info("No valid X509 Cert", e);
+					certificate = null;
+				}
+			}
+			if (entity != null && entity.getStandbyCertificate() != null && 
+					(! entity.getStandbyCertificate().equals(""))) {
+				try {
+					standbyCertificate = cryptoHelper.getCertificate(entity.getStandbyCertificate());
 				} catch (IOException e) {
 					logger.info("No valid X509 Cert", e);
 					certificate = null;
@@ -82,5 +92,13 @@ public class ShowSamlAAConfigurationBean implements Serializable {
 
 	public void setCertificate(X509Certificate certificate) {
 		this.certificate = certificate;
+	}
+
+	public X509Certificate getStandbyCertificate() {
+		return standbyCertificate;
+	}
+
+	public void setStandbyCertificate(X509Certificate standbyCertificate) {
+		this.standbyCertificate = standbyCertificate;
 	}	
 }
