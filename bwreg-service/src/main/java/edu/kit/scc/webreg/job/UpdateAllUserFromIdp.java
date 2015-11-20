@@ -64,7 +64,7 @@ public class UpdateAllUserFromIdp extends AbstractExecutableJob {
 			
 			UserService userService = (UserService) ic.lookup("global/bwreg/bwreg-service/UserServiceImpl!edu.kit.scc.webreg.service.UserService");
 			
-			List<UserEntity> userList = userService.findOrderByFailedUpdateWithLimit(new Date(System.currentTimeMillis() - lastUpdate), limit);
+			List<UserEntity> userList = userService.findOrderByFailedUpdateWithLimit(new Date(System.currentTimeMillis() - lastFailedUpdate), limit);
 			
 			logger.debug("Updating user whith failed IDP communication attemp: {}", userList.size());
 			
