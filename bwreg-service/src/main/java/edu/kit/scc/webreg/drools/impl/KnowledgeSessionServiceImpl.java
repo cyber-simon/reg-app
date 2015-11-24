@@ -118,7 +118,8 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 			throw new MisconfiguredApplicationException("Es ist keine valide Regel fuer den Benutzerzugriff konfiguriert");
 
 		ksession.setGlobal("logger", logger);
-		ksession.insert(user);
+		if (user != null)
+			ksession.insert(user);
 		ksession.insert(attributeMap);
 		ksession.insert(assertion);
 		ksession.insert(idp);
