@@ -162,7 +162,8 @@ public class AuthorizationBean implements Serializable {
     	}
     	
     	start = System.currentTimeMillis();
-    	userRegistryList = registryService.findByUserAndNotStatus(user, RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
+    	userRegistryList = registryService.findByUserAndNotStatusAndNotHidden(
+    			user, RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
     	end = System.currentTimeMillis();
     	logger.trace("registered servs loading took {} ms", (end-start));
     	

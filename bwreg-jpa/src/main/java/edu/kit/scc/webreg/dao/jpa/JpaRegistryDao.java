@@ -235,7 +235,7 @@ public class JpaRegistryDao extends JpaBaseDao<RegistryEntity, Long> implements 
 	}	
 		
 	@Override
-	public List<RegistryEntity> findByUserAndNotStatus(UserEntity user, RegistryStatus... status) {
+	public List<RegistryEntity> findByUserAndNotStatusAndNotHidden(UserEntity user, RegistryStatus... status) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<RegistryEntity> criteria = builder.createQuery(RegistryEntity.class);
 		Root<RegistryEntity> root = criteria.from(RegistryEntity.class);
