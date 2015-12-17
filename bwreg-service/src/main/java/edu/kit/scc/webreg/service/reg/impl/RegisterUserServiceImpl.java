@@ -123,8 +123,16 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 		service = serviceDao.findById(service.getId());
 		
 		if (service.getParentService() != null) {
-			logger.info("Service has Parent. Registering parent first.");
-			registerUser(user, service.getParentService(), executor);
+			logger.info("Service has Parent. Checking parent first.");
+			List<RegistryEntity> r = registryDao.findByServiceAndUserAndNotStatus(service.getParentService(), user, 
+					RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
+			if (r.size() == 0) {
+				logger.info("User {} is not registered with parent service {} yet", user.getEppn(), service.getParentService().getName());
+				registerUser(user, service.getParentService(), executor);
+			}
+			else {
+				logger.debug("User {} is already registered with parent service {}", user.getEppn(), service.getParentService().getName());
+			}
 		}
 		
 		RegistryEntity registry = registryDao.createNew();
