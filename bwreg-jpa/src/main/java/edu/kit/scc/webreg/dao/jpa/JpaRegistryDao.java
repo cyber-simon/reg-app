@@ -21,6 +21,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -28,8 +29,10 @@ import javax.persistence.criteria.Root;
 import edu.kit.scc.webreg.dao.GenericSortOrder;
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.RegistryEntity_;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity_;
 import edu.kit.scc.webreg.entity.UserEntity;
 
 @Named
@@ -236,9 +239,15 @@ public class JpaRegistryDao extends JpaBaseDao<RegistryEntity, Long> implements 
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<RegistryEntity> criteria = builder.createQuery(RegistryEntity.class);
 		Root<RegistryEntity> root = criteria.from(RegistryEntity.class);
-
+		Join<RegistryEntity, ServiceEntity> serviceJoin = root.join(RegistryEntity_.service);
+		
 		List<Predicate> predList = new ArrayList<Predicate>();
-		predList.add(builder.equal(root.get("user"), user));
+
+		predList.add(builder.or(
+				builder.isNull(serviceJoin.get(ServiceEntity_.hidden)),
+				builder.equal(serviceJoin.get(ServiceEntity_.hidden), false)));
+		
+		predList.add(builder.equal(root.get(RegistryEntity_.user), user));
 		for (RegistryStatus s : status)
 			predList.add(builder.notEqual(root.get("registryStatus"), s));
 		

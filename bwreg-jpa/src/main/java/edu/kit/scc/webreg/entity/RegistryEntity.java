@@ -31,7 +31,7 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
-@Entity(name = "RegistryEntity")
+@Entity
 @Table(name = "registry")
 public class RegistryEntity extends AbstractBaseEntity {
 

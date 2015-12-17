@@ -69,8 +69,7 @@ public class UserIndexBean {
     public void init() {
     	user = userService.findByIdWithStore(sessionManager.getUserId());
     	allServiceList = serviceService.findAllPublishedWithServiceProps();
-    	userRegistryList = registryService.findByUserAndStatus(user, RegistryStatus.ACTIVE);
-    	userRegistryList.addAll(registryService.findByUserAndStatus(user, RegistryStatus.LOST_ACCESS));
+    	userRegistryList = registryService.findByUserAndNotStatus(user, RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED, RegistryStatus.PENDING);
     	pendingRegistryList = registryService.findByUserAndStatus(user, RegistryStatus.PENDING);
     	
     	serviceAccessMap = new HashMap<ServiceEntity, String>(userRegistryList.size());
