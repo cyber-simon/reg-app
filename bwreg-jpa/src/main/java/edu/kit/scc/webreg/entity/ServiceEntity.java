@@ -106,6 +106,9 @@ public class ServiceEntity extends AbstractBaseEntity {
 	@Column(name = "published")
 	private Boolean published;
 	
+	@Column(name = "hidden")
+	private Boolean hidden;
+	
 	public Set<PolicyEntity> getPolicies() {
 		return policies;
 	}
@@ -267,6 +270,14 @@ public class ServiceEntity extends AbstractBaseEntity {
 
 	public void setParentService(ServiceEntity parentService) {
 		this.parentService = parentService;
+	}
+
+	public Boolean getHidden() {
+		return hidden;
+	}
+
+	public void setHidden(Boolean hidden) {
+		this.hidden = hidden;
 	}
 
 }
