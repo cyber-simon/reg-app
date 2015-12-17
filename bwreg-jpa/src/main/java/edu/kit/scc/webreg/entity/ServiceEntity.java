@@ -45,6 +45,9 @@ public class ServiceEntity extends AbstractBaseEntity {
 	@Column(name="short_name", length=32, nullable=false, unique=true)
 	private String shortName;
 	
+	@ManyToOne(targetEntity = ServiceEntity.class)
+	private ServiceEntity parentService;
+	
 	@ManyToOne(targetEntity = AdminRoleEntity.class)
 	private AdminRoleEntity adminRole;
 	
@@ -256,6 +259,14 @@ public class ServiceEntity extends AbstractBaseEntity {
 	public void setAttributeSourceService(
 			Set<AttributeSourceServiceEntity> attributeSourceService) {
 		this.attributeSourceService = attributeSourceService;
+	}
+
+	public ServiceEntity getParentService() {
+		return parentService;
+	}
+
+	public void setParentService(ServiceEntity parentService) {
+		this.parentService = parentService;
 	}
 
 }

@@ -39,6 +39,12 @@
 					<h:outputText value="#{messages.short_name}:" />
 					<h:outputText value="#{showServiceBean.entity.shortName}" />
 
+					<h:outputText value="#{messages.parent_service}:" />
+					<h:outputText value="#{showServiceBean.entity.parentService.name}"
+						rendered="#{showServiceBean.entity.parentService != null}"/>
+					<h:outputText value="#{messages.no_parent_service}"
+						rendered="#{showServiceBean.entity.parentService == null}"/>
+
 					<h:outputText value="#{messages.approver_role}:" />
 					<h:outputText value="#{showServiceBean.entity.approverRole.name}"
 						rendered="#{showServiceBean.entity.approverRole != null}"/>
@@ -71,6 +77,12 @@
 						rendered="#{showServiceBean.entity.accessRule != null}"/>
 					<h:outputText value="#{messages.no_access_rule}" 
 						rendered="#{showServiceBean.entity.accessRule == null}"/>
+
+					<h:outputText value="#{messages.mandatory_value_rule}:" />
+					<h:outputText value="#{showServiceBean.entity.mandatoryValueRulePackage.knowledgeBaseName}" 
+						rendered="#{showServiceBean.entity.mandatoryValueRulePackage != null}"/>
+					<h:outputText value="#{messages.no_mandatory_value_rule}" 
+						rendered="#{showServiceBean.entity.mandatoryValueRulePackage == null}"/>
 
 					<h:outputText value="#{messages.group_filter_rule}:" />
 					<h:outputText value="#{showServiceBean.entity.groupFilterRulePackage.knowledgeBaseName}" 

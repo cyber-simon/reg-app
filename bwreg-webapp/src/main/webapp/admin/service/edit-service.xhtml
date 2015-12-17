@@ -38,6 +38,14 @@
 			        <bw:inputText id="shortNameField" label="#{messages.short_name}" 
 			        	value="#{editServiceBean.entity.shortName}" required="true"/>
 				
+			        <h:outputText value="#{messages.parent_service}:"/>
+			        <h:selectOneMenu value="#{editServiceBean.selectedParentService}"
+			        	converter="#{serviceConverter}">
+			        	<f:selectItem itemLabel="Kein Parent Service" itemValue="#{null}"/>
+		            	<f:selectItems value="#{editServiceBean.parentServiceList}" 
+		            		var="service" itemLabel="#{service.name} (id #{service.id})" itemValue="#{service}"/>
+		            </h:selectOneMenu>
+				
 			        <h:outputText value="#{messages.approver_role}:"/>
 			        <h:selectOneMenu value="#{editServiceBean.selectedApproverRole}"
 			        	converter="#{approverRoleConverter}">

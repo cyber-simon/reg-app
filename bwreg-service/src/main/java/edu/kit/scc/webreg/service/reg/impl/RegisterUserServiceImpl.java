@@ -119,6 +119,14 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	@Override
 	public void registerUser(UserEntity user, ServiceEntity service, String executor)
 			throws RegisterException {
+		
+		service = serviceDao.findById(service.getId());
+		
+		if (service.getParentService() != null) {
+			logger.info("Service has Parent. Registering parent first.");
+			registerUser(user, service.getParentService(), executor);
+		}
+		
 		RegistryEntity registry = registryDao.createNew();
 		
 		try {

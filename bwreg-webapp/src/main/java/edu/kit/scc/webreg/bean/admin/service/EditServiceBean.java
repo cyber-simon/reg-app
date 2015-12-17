@@ -64,6 +64,7 @@ public class EditServiceBean implements Serializable {
 	
 	private ServiceEntity entity;
 
+	private List<ServiceEntity> parentServiceList;
 	private List<ApproverRoleEntity> approverRoleList;
 	private List<AdminRoleEntity> adminRoleList;
 	private List<AdminRoleEntity> hotlineRoleList;
@@ -72,6 +73,7 @@ public class EditServiceBean implements Serializable {
 	private List<BusinessRuleEntity> ruleList;
 	private List<BusinessRulePackageEntity> rulePackageList;
 	
+	private ServiceEntity selectedParentService;
 	private ApproverRoleEntity selectedApproverRole;
 	private AdminRoleEntity selectedAdminRole;
 	private AdminRoleEntity selectedHotlineRole;
@@ -99,6 +101,8 @@ public class EditServiceBean implements Serializable {
 			imageList = imageService.findAll();
 			ruleList = ruleService.findAll();
 			rulePackageList = rulePackageService.findAll();
+			parentServiceList = service.findAll();
+			
 			selectedApproverRole = entity.getApproverRole();
 			selectedAdminRole = entity.getAdminRole();
 			selectedHotlineRole = entity.getHotlineRole();
@@ -107,6 +111,8 @@ public class EditServiceBean implements Serializable {
 			selectedRule = entity.getAccessRule();
 			selectedRulePackage = entity.getGroupFilterRulePackage();
 			selectedMandatoryValuesRulePackage = entity.getMandatoryValueRulePackage();
+			selectedParentService = entity.getParentService();
+			
 			propertyMap = new HashMap<String, String>(entity.getServiceProps());
 			initialized = true;
 		}
@@ -122,6 +128,7 @@ public class EditServiceBean implements Serializable {
 		entity.setServiceProps(propertyMap);
 		entity.setGroupFilterRulePackage(selectedRulePackage);
 		entity.setMandatoryValueRulePackage(selectedMandatoryValuesRulePackage);
+		entity.setParentService(selectedParentService);
 		entity = service.save(entity);
 		return "show-service.xhtml?faces-redirect=true&id=" + entity.getId();
 	}
@@ -296,5 +303,21 @@ public class EditServiceBean implements Serializable {
 	public void setSelectedMandatoryValuesRulePackage(
 			BusinessRulePackageEntity selectedMandatoryValuesRulePackage) {
 		this.selectedMandatoryValuesRulePackage = selectedMandatoryValuesRulePackage;
+	}
+
+	public List<ServiceEntity> getParentServiceList() {
+		return parentServiceList;
+	}
+
+	public void setParentServiceList(List<ServiceEntity> parentServiceList) {
+		this.parentServiceList = parentServiceList;
+	}
+
+	public ServiceEntity getSelectedParentService() {
+		return selectedParentService;
+	}
+
+	public void setSelectedParentService(ServiceEntity selectedParentService) {
+		this.selectedParentService = selectedParentService;
 	}
 }
