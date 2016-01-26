@@ -60,6 +60,11 @@ public class RegistryServiceImpl extends BaseServiceImpl<RegistryEntity, Long> i
 	}
 
 	@Override
+	public List<RegistryEntity> findByServiceAndNotStatus(ServiceEntity service, RegistryStatus... status) {
+		return dao.findByServiceAndNotStatus(service, status);
+	}
+
+	@Override
 	public List<RegistryEntity> findByServiceAndStatusPaging(ServiceEntity service, RegistryStatus status,
 			int first, int pageSize, String sortField,
 			GenericSortOrder sortOrder, Map<String, Object> filterMap) {

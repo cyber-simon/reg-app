@@ -180,7 +180,12 @@
 		        <p:commandButton id="recon2" action="#{showServiceBean.startRecon(true, false)}" value="#{messages.full_reconsiliation}"
 		        	ajax="false"/>					
 		        <p:commandButton id="recon3" action="#{showServiceBean.startRecon(true, true)}" value="#{messages.full_reconsiliation_with_groups}"
-		        	ajax="false"/>					
+		        	ajax="false"/>	
+
+				<h:link outcome="compare-child-registries.xhtml" value="#{messages.compare_child_registries}">
+					<f:param name="id" value="#{showServiceBean.entity.id}" />
+				</h:link>
+		        					
 			</p:panel>
 		</div>		
 	</h:form>

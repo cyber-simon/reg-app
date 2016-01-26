@@ -60,4 +60,8 @@ public interface RegistryDao extends BaseDao<RegistryEntity, Long> {
 
 	List<RegistryEntity> findByUserAndNotStatusAndNotHidden(UserEntity user,
 			RegistryStatus... status);
+
+	List<RegistryEntity> findByServiceAndNotStatus(ServiceEntity service,
+			RegistryStatus... status);
+
 }

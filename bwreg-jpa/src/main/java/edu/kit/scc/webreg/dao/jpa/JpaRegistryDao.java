@@ -126,6 +126,23 @@ public class JpaRegistryDao extends JpaBaseDao<RegistryEntity, Long> implements 
 	}	
 	
 	@Override
+	public List<RegistryEntity> findByServiceAndNotStatus(ServiceEntity service, RegistryStatus... status) {
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<RegistryEntity> criteria = builder.createQuery(RegistryEntity.class);
+		Root<RegistryEntity> root = criteria.from(RegistryEntity.class);
+
+		List<Predicate> predList = new ArrayList<Predicate>();
+		predList.add(builder.equal(root.get("service"), service));
+		for (RegistryStatus s : status)
+			predList.add(builder.notEqual(root.get("registryStatus"), s));
+		
+		criteria.where(builder.and(predList.toArray(new Predicate[]{})));
+		criteria.select(root);
+
+		return em.createQuery(criteria).getResultList();
+	}	
+	
+	@Override
 	public List<RegistryEntity> findByServiceAndStatusPaging(ServiceEntity service, RegistryStatus status,
 			int first, int pageSize, String sortField,
 			GenericSortOrder sortOrder, Map<String, Object> filterMap) {

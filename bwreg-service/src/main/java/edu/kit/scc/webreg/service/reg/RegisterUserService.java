@@ -55,5 +55,8 @@ public interface RegisterUserService {
 
 	void reconGroupsForRegistry(RegistryEntity registry, String executor)
 			throws RegisterException;
+
+	void registerUser(UserEntity user, ServiceEntity service, String executor,
+			Boolean sendGroupUpdate) throws RegisterException;
 	
 }

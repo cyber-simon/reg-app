@@ -55,6 +55,7 @@ import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserGroupEntity;
+import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.MultipleGroupEvent;
 import edu.kit.scc.webreg.event.ServiceRegisterEvent;
@@ -119,6 +120,17 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	@Override
 	public void registerUser(UserEntity user, ServiceEntity service, String executor)
 			throws RegisterException {
+		registerUser(user, service, executor, true);
+	}
+	
+	@Override
+	public void registerUser(UserEntity user, ServiceEntity service, String executor, Boolean sendGroupUpdate)
+			throws RegisterException {
+		
+		if (! UserStatus.ACTIVE.equals(user.getUserStatus())) {
+			logger.warn("Only Users in status ACTIVE can register with a service. User {} is {}", user.getEppn(), user.getUserStatus());
+			throw new RegisterException("Only Users in status ACTIVE can register with a service");
+		}
 		
 		service = serviceDao.findById(service.getId());
 		

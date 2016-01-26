@@ -70,6 +70,11 @@ public class ServiceServiceImpl extends BaseServiceImpl<ServiceEntity, Long> imp
 	}
 
 	@Override
+	public List<ServiceEntity> findByParentService(ServiceEntity service) {
+		return dao.findByParentService(service);
+	}
+
+	@Override
 	public List<ServiceEntity> findByHotlineRole(RoleEntity role) {
 		return dao.findByHotlineRole(role);
 	}

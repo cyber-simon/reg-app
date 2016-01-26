@@ -21,5 +21,8 @@ public interface ApprovalService {
 
 	void denyApproval(RegistryEntity registry, String executor)
 			throws RegisterException;
+
+	void approve(RegistryEntity registry, String executor,
+			Boolean sendGroupUpdate) throws RegisterException;
 	
 }

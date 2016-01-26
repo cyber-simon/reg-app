@@ -55,6 +55,13 @@ public class JpaServiceDao extends JpaBaseDao<ServiceEntity, Long> implements Se
 
 	@Override
     @SuppressWarnings({"unchecked"})
+	public List<ServiceEntity> findByParentService(ServiceEntity service) {
+		return em.createQuery("select e from ServiceEntity e where e.parentService = :service")
+				.setParameter("service", service).getResultList();
+	}
+	
+	@Override
+    @SuppressWarnings({"unchecked"})
 	public List<ServiceEntity> findByAdminRole(RoleEntity role) {
 		return em.createQuery("select e from ServiceEntity e where e.adminRole = :role")
 				.setParameter("role", role).getResultList();

@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="id" value="#{compareChildRegistriesBean.id}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{compareChildRegistriesBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+
+	<h:form id="form">
+		<h2><h:outputText value="#{messages.compare_child_registries}: #{compareChildRegistriesBean.entity.name}"/></h2>
+		<div id="panelInline">
+			Active registries: <h:outputText value="#{compareChildRegistriesBean.registryList.size()}"/>
+		</div>
+			
+		<div id="panelInline">
+			<p:panel id="childPanel">
+				<p:dataList var="child" value="#{compareChildRegistriesBean.childServiceList}">
+					<div><h:outputText value="#{child.name}" /></div>
+					<div>
+						<h:panelGroup rendered="#{compareChildRegistriesBean.getRegistries(child) == null}">
+							<p:commandButton action="#{compareChildRegistriesBean.loadRegistries(child)}"
+								value="Load" update=":form:childPanel" />
+						</h:panelGroup>
+						<h:panelGroup rendered="#{compareChildRegistriesBean.getRegistries(child) != null}">
+							Active registries: <h:outputText value="#{compareChildRegistriesBean.getRegistries(child).size()}"/><br/>
+							Missing registries: <h:outputText value="#{compareChildRegistriesBean.compareMissing(child).size()}"/><br/>
+							<p:commandButton action="#{compareChildRegistriesBean.registerMissing(child)}"
+								value="Register Missing" update=":form:childPanel" />
+						</h:panelGroup>
+					</div>
+				</p:dataList>
+			</p:panel>
+		</div>
+	</h:form>
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>

@@ -111,9 +111,15 @@ public class ApprovalServiceImpl implements ApprovalService {
 			logger.warn("Exeption", e);
 		}		
 	}
-	
+
 	@Override
 	public void approve(RegistryEntity registry, String executor)
+			throws RegisterException {
+		approve(registry, executor, true);
+	}
+	
+	@Override
+	public void approve(RegistryEntity registry, String executor, Boolean sendGroupUpdate)
 			throws RegisterException {
 		logger.info("Finally approving registry {} for user {} and service {}", registry.getId(),
 				registry.getUser().getEppn(), registry.getService().getName());
@@ -155,11 +161,13 @@ public class ApprovalServiceImpl implements ApprovalService {
 				}
 			}
 			
-			MultipleGroupEvent mge = new MultipleGroupEvent(userGroups);
-			try {
-				eventSubmitter.submit(mge, EventType.GROUP_UPDATE, auditor.getActualExecutor());
-			} catch (EventSubmitException e) {
-				logger.warn("Exeption", e);
+			if (sendGroupUpdate) {
+				MultipleGroupEvent mge = new MultipleGroupEvent(userGroups);
+				try {
+					eventSubmitter.submit(mge, EventType.GROUP_UPDATE, auditor.getActualExecutor());
+				} catch (EventSubmitException e) {
+					logger.warn("Exeption", e);
+				}
 			}
 			
 			ServiceRegisterEvent serviceRegisterEvent = new ServiceRegisterEvent(registry);
