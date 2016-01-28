@@ -30,7 +30,7 @@ public interface RegistryService extends BaseService<RegistryEntity, Long> {
 			RegistryStatus status);
 
 	List<RegistryEntity> findByUserAndStatus(UserEntity user,
-			RegistryStatus status);
+			RegistryStatus... status);
 
 	List<RegistryEntity> findByServiceAndUser(ServiceEntity service, UserEntity user);
 

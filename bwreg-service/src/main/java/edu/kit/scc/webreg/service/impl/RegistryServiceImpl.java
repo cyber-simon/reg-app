@@ -98,7 +98,7 @@ public class RegistryServiceImpl extends BaseServiceImpl<RegistryEntity, Long> i
 	}
 
 	@Override
-	public List<RegistryEntity> findByUserAndStatus(UserEntity user, RegistryStatus status) {
+	public List<RegistryEntity> findByUserAndStatus(UserEntity user, RegistryStatus... status) {
 		return dao.findByUserAndStatus(user, status);
 	}
 

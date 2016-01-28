@@ -28,6 +28,7 @@ import edu.kit.scc.webreg.audit.UserUpdateAuditor;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.AuditDetailDao;
 import edu.kit.scc.webreg.dao.AuditEntryDao;
+import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
 import edu.kit.scc.webreg.dao.SamlSpConfigurationDao;
 import edu.kit.scc.webreg.dao.UserDao;
@@ -35,6 +36,8 @@ import edu.kit.scc.webreg.dao.as.ASUserAttrDao;
 import edu.kit.scc.webreg.entity.AuditStatus;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.GroupEntity;
+import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
@@ -82,6 +85,9 @@ public class UserUpdater implements Serializable {
 
 	@Inject
 	private ServiceService serviceService;
+	
+	@Inject
+	private RegistryDao registryDao;
 	
 	@Inject
 	private HomeOrgGroupUpdater homeOrgGroupUpdater;
@@ -155,6 +161,16 @@ public class UserUpdater implements Serializable {
 			if (UserStatus.ACTIVE.equals(user.getUserStatus())) {
 				user.setUserStatus(UserStatus.ON_HOLD);
 				user.setLastStatusChange(new Date());
+				
+				/*
+				 * Also flag all registries for user ON_HOLD
+				 */
+				List<RegistryEntity> registryList = registryDao.findByUserAndStatus(user, 
+						RegistryStatus.ACTIVE, RegistryStatus.LOST_ACCESS, RegistryStatus.INVALID);
+				for (RegistryEntity registry : registryList) {
+					registry.setRegistryStatus(RegistryStatus.ON_HOLD);
+					registry.setLastStatusChange(new Date());
+				}
 			}
 		}
 		else {
@@ -167,6 +183,17 @@ public class UserUpdater implements Serializable {
 			if (UserStatus.ON_HOLD.equals(user.getUserStatus())) {
 				user.setUserStatus(UserStatus.ACTIVE);
 				user.setLastStatusChange(new Date());
+				
+				/*
+				 * Also reenable all registries for user to LOST_ACCESS. 
+				 * They are rechecked then
+				 */
+				List<RegistryEntity> registryList = registryDao.findByUserAndStatus(user, 
+						RegistryStatus.ON_HOLD);
+				for (RegistryEntity registry : registryList) {
+					registry.setRegistryStatus(RegistryStatus.LOST_ACCESS);
+					registry.setLastStatusChange(new Date());
+				}
 				
 				/*
 				 * fire a user changed event to be sure, when the user is activated
