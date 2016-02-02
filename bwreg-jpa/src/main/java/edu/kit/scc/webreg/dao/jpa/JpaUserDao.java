@@ -25,6 +25,7 @@ import javax.persistence.criteria.Root;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserStatus;
 
 @Named
 @ApplicationScoped
@@ -112,6 +113,16 @@ public class JpaUserDao extends JpaBaseDao<UserEntity, Long> implements UserDao,
 		catch (NoResultException e) {
 			return null;
 		}
+	}	
+
+	@Override
+	public List<UserEntity> findByStatus(UserStatus status) {
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<UserEntity> criteria = builder.createQuery(UserEntity.class);
+		Root<UserEntity> user = criteria.from(UserEntity.class);
+		criteria.where(builder.equal(user.get("userStatus"), status));
+		criteria.select(user);
+		return em.createQuery(criteria).getResultList();
 	}	
 
 	@Override

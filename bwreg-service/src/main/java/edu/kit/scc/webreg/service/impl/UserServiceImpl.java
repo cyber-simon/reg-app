@@ -23,12 +23,16 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.dao.BaseDao;
+import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
+import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.UserService;
 
@@ -48,6 +52,9 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity, Long> implement
 	
 	@Inject
 	private UserUpdater userUpdater;
+	
+	@Inject 
+	private RegistryDao registryDao;
 	
 	@Override
 	public List<UserEntity> findOrderByUpdatedWithLimit(Date date, Integer limit) {
@@ -79,6 +86,11 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity, Long> implement
 		return dao.findByEppn(eppn);
 	}
 
+	@Override
+	public List<UserEntity> findByStatus(UserStatus status) {
+		return dao.findByStatus(status);
+	}
+	
 	@Override
 	public UserEntity findByIdWithAll(Long id) {
 		return dao.findByIdWithAll(id);
@@ -125,6 +137,19 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity, Long> implement
 		return dao;
 	}
 
+	@Override
+	public void checkOnHoldRegistries(UserEntity user) {
+		if (user.getUserStatus().equals(UserStatus.ON_HOLD)) {
+			List<RegistryEntity> registryList = registryDao.findByUserAndStatus(user, 
+					RegistryStatus.ACTIVE, RegistryStatus.LOST_ACCESS, RegistryStatus.INVALID);
+			for (RegistryEntity registry : registryList) {
+				logger.debug("Setting registry {} (user {}) ON_HOLD", registry.getId(), user.getEppn()); 
+				registry.setRegistryStatus(RegistryStatus.ON_HOLD);
+				registry.setLastStatusChange(new Date());
+			}			
+		}
+	}
+	
 	@Override
 	public void convertLegacyUsers() {
 		List<UserEntity> userList = dao.findLegacyUsers();

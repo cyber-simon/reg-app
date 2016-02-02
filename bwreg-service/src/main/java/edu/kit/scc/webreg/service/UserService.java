@@ -18,6 +18,7 @@ import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 
 public interface UserService extends BaseService<UserEntity, Long> {
@@ -56,4 +57,8 @@ public interface UserService extends BaseService<UserEntity, Long> {
 	UserEntity updateUserFromAttribute(UserEntity user,
 			Map<String, List<Object>> attributeMap, String executor)
 			throws UserUpdateException;
+
+	List<UserEntity> findByStatus(UserStatus status);
+
+	void checkOnHoldRegistries(UserEntity user);
 }

@@ -15,6 +15,7 @@ import java.util.List;
 
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserStatus;
 
 public interface UserDao extends BaseDao<UserEntity, Long> {
 
@@ -29,4 +30,5 @@ public interface UserDao extends BaseDao<UserEntity, Long> {
 	List<UserEntity> findOrderByUpdatedWithLimit(Date date, Integer limit);
 	List<UserEntity> findGenericStoreKeyWithLimit(String key, Integer limit);
 	List<UserEntity> findOrderByFailedUpdateWithLimit(Date date, Integer limit);
+	List<UserEntity> findByStatus(UserStatus status);
 }
