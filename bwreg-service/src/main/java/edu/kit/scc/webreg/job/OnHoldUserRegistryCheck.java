@@ -45,7 +45,7 @@ public class OnHoldUserRegistryCheck extends AbstractExecutableJob {
 				userService.checkOnHoldRegistries(user);
 			}
 		} catch (NamingException e) {
-			logger.warn("Could not Deregister Invald Registries: {}", e);
+			logger.warn("Could not check ON_HOLD user registries: {}", e);
 		}
 	}
 }
