@@ -21,6 +21,7 @@ import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.exc.NotAuthorizedException;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.sec.AuthorizationBean;
 import edu.kit.scc.webreg.service.RegistryService;
@@ -73,7 +74,10 @@ public class SetServicePasswordBean implements Serializable {
 			
 			userEntity = userService.findById(sessionManager.getUserId());
 			serviceEntity = registryEntity.getService();
-	
+
+			if (! registryEntity.getUser().getId().equals(userEntity.getId()))
+				throw new NotAuthorizedException("Not authorized to view this item");
+
 			if (! authBean.isUserInService(serviceEntity)) 
 				throw new IllegalArgumentException("Not authorized for this service");
 
