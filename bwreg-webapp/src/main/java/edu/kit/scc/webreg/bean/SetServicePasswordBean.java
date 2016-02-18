@@ -25,6 +25,7 @@ import edu.kit.scc.webreg.exc.NotAuthorizedException;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.sec.AuthorizationBean;
 import edu.kit.scc.webreg.service.RegistryService;
+import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;
 import edu.kit.scc.webreg.service.reg.RegisterUserWorkflow;
@@ -41,6 +42,9 @@ public class SetServicePasswordBean implements Serializable {
 	@Inject
 	private RegistryService registryService;
 
+	@Inject
+	private ServiceService serviceService;
+	
 	@Inject
 	private AuthorizationBean authBean;
 	
@@ -61,20 +65,33 @@ public class SetServicePasswordBean implements Serializable {
 	private UserEntity userEntity;
 	
 	private Long id;
+	private String serviceShortName;
 	
 	private String password1, password2;
 	
-	private Long initializedId;
+	private Boolean initialized = false;
 	
 	public void preRenderView(ComponentSystemEvent ev) {
-		if (id != initializedId) {
-			registryEntity = registryService.findById(id);
-			if (registryEntity == null)
-				throw new IllegalArgumentException("Service Registry not found");
-			
+		if (! initialized) {
 			userEntity = userService.findById(sessionManager.getUserId());
-			serviceEntity = registryEntity.getService();
 
+			if (id != null) {
+				registryEntity = registryService.findById(id);
+
+				if (registryEntity == null)
+					throw new IllegalArgumentException("Service Registry not found");
+
+				serviceEntity = registryEntity.getService();
+			}
+			else if (serviceShortName != null) {
+				serviceEntity = serviceService.findByShortName(serviceShortName);
+				
+				if (serviceEntity == null)
+					throw new IllegalArgumentException("Service not found");
+				
+				registryEntity = registryService.findByServiceAndUserAndStatus(serviceEntity, userEntity, RegistryStatus.ACTIVE);
+			}
+			
 			if (! registryEntity.getUser().getId().equals(userEntity.getId()))
 				throw new NotAuthorizedException("Not authorized to view this item");
 
@@ -84,7 +101,7 @@ public class SetServicePasswordBean implements Serializable {
 			password1 = null;
 			password2 = null;
 			
-			initializedId = id;
+			initialized = true;
 		}
 	}
 
@@ -171,5 +188,13 @@ public class SetServicePasswordBean implements Serializable {
 
 	public void setPassword2(String password2) {
 		this.password2 = password2;
+	}
+
+	public String getServiceShortName() {
+		return serviceShortName;
+	}
+
+	public void setServiceShortName(String serviceShortName) {
+		this.serviceShortName = serviceShortName;
 	}
 }
