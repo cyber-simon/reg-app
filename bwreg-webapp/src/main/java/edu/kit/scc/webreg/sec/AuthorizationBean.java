@@ -236,7 +236,7 @@ public class AuthorizationBean implements Serializable {
     	return sessionManager.isUserInRole(role);
     }
 
-    public boolean isUserInRole(RoleEntity role) {
+    public boolean isUserInRoleEntity(RoleEntity role) {
     	if (role == null)
     		return false;
     	
@@ -245,7 +245,7 @@ public class AuthorizationBean implements Serializable {
 
     public boolean isUserInRoles(Set<RoleEntity> roles) {
     	for (RoleEntity role : roles) {
-    		if (isUserInRole(role))
+    		if (isUserInRoleEntity(role))
     			return true;
     	}
     	return false;
