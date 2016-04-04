@@ -292,6 +292,43 @@
 		</profile>
 
 		<profile>
+			<id>prod-wildfly</id>
+			<properties>
+				<bwreg.name.suffix></bwreg.name.suffix>
+				<bwreg.faces.stage>Production</bwreg.faces.stage>
+				<bwreg.hibernate.dialect>org.hibernate.dialect.PostgreSQLDialect</bwreg.hibernate.dialect>
+				<bwreg.hibernate.datasource>java:/ds/bwidmDS</bwreg.hibernate.datasource>
+				<bwreg.theme>aristo</bwreg.theme>
+				<bwreg.css>std.css</bwreg.css>
+				<bwreg.template>layout-template.xhtml</bwreg.template>
+				<bwreg.template.head-bar>head-bar.xhtml</bwreg.template.head-bar>
+				<bwreg.template.left-side-bar>left-side-bar.xhtml</bwreg.template.left-side-bar>
+				<bwreg.template.left-side-bar-admin>left-side-bar-admin.xhtml</bwreg.template.left-side-bar-admin>
+				<bwreg.template.footer>footer.xhtml</bwreg.template.footer>
+				<bwreg.jboss-singleton>org.wildfly.clustering.singleton</bwreg.jboss-singleton>
+				<bwreg.jboss-singleton-activator>edu.kit.scc.webreg.service.timer.WildflyClusterSingletonServiceActivator</bwreg.jboss-singleton-activator>
+			</properties>
+		</profile>
+		<profile>
+			<id>dev-wildfly</id>
+			<properties>
+				<bwreg.name.suffix>-dev</bwreg.name.suffix>
+				<bwreg.faces.stage>Development</bwreg.faces.stage>
+				<bwreg.hibernate.dialect>org.hibernate.dialect.PostgreSQLDialect</bwreg.hibernate.dialect>
+				<bwreg.hibernate.datasource>java:/ds/bwidmDS</bwreg.hibernate.datasource>
+				<bwreg.theme>aristo</bwreg.theme>
+				<bwreg.css>std.css</bwreg.css>
+				<bwreg.template>layout-template.xhtml</bwreg.template>
+				<bwreg.template.head-bar>head-bar.xhtml</bwreg.template.head-bar>
+				<bwreg.template.left-side-bar>left-side-bar.xhtml</bwreg.template.left-side-bar>
+				<bwreg.template.left-side-bar-admin>left-side-bar-admin.xhtml</bwreg.template.left-side-bar-admin>
+				<bwreg.template.footer>footer.xhtml</bwreg.template.footer>
+				<bwreg.jboss-singleton>org.wildfly.clustering.singleton</bwreg.jboss-singleton>
+				<bwreg.jboss-singleton-activator>edu.kit.scc.webreg.service.timer.WildflyClusterSingletonServiceActivator</bwreg.jboss-singleton-activator>
+			</properties>
+		</profile>
+
+		<profile>
 			<id>doc</id>
 			<build>
 				<plugins>
