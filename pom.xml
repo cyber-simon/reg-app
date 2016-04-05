@@ -253,9 +253,6 @@
 	<profiles>
 		<profile>
 			<id>prod</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
 			<properties>
 				<bwreg.name.suffix></bwreg.name.suffix>
 				<bwreg.faces.stage>Production</bwreg.faces.stage>
@@ -293,6 +290,9 @@
 
 		<profile>
 			<id>prod-wildfly</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
 			<properties>
 				<bwreg.name.suffix></bwreg.name.suffix>
 				<bwreg.faces.stage>Production</bwreg.faces.stage>
