@@ -10,6 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.bean;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,6 +20,7 @@ import java.util.List;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
@@ -107,7 +109,7 @@ public class RegisterServiceBean implements Serializable {
     			id = service.getId();
     		}
     		
-			service = serviceService.findByIdWithAttrs(id, "policies", "attributeSourceService");
+			service = serviceService.findByIdWithAttrs(id, "policies", "attributeSourceService", "serviceProps");
 			
 			List<RegistryEntity> r = registryService.findByServiceAndUserAndNotStatus(service, user, 
 					RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
@@ -227,6 +229,16 @@ public class RegisterServiceBean implements Serializable {
 			return null;
 		}
   	
+    	if (service.getServiceProps().containsKey("redirect_after_register")) {
+    		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+    		try {
+				context.redirect(service.getServiceProps().get("redirect_after_register"));
+				return null;
+			} catch (IOException e) {
+				logger.info("Could not redirect client", e);
+			}
+    	}
+    	
     	return ViewIds.INDEX_USER + "?faces-redirect=true";
     }
     
