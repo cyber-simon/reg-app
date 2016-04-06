@@ -215,10 +215,13 @@ public class SecurityFilter implements Filter {
 			response.sendError( HttpServletResponse.SC_NOT_ACCEPTABLE );
 			return;
 		}
+
 		String directAuthAllow = appConfig.getConfigValue("direct_auth_allow");
-		/*
-		 * need to implement subnet matching here
-		 */
+		if (! request.getRemoteAddr().matches(directAuthAllow)) {
+			logger.info("Denying direct-auth from {}. Does not match.", request.getRemoteAddr());
+			response.sendError( HttpServletResponse.SC_NOT_ACCEPTABLE );
+			return;
+		}
 		
 	    String auth = request.getHeader("Authorization");
 	    if (auth != null) {
