@@ -10,9 +10,9 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.entity;
 
+import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Lob;
 import javax.persistence.Table;
 
 @Entity(name = "ImageDataEntity")
@@ -22,7 +22,7 @@ public class ImageDataEntity extends AbstractBaseEntity {
 	private static final long serialVersionUID = 1L;
 
 	@Column(name = "image_data")
-	@Lob
+	@Basic
 	private byte[] data;
 		
 	public byte[] getData() {
