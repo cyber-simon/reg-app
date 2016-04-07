@@ -51,6 +51,7 @@ import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.MetadataException;
 import edu.kit.scc.webreg.exc.NoAssertionException;
 import edu.kit.scc.webreg.exc.SamlAuthenticationException;
+import edu.kit.scc.webreg.exc.SamlUnknownPrincipalException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.SerialService;
 import edu.kit.scc.webreg.service.ServiceService;
@@ -289,8 +290,8 @@ public class UserUpdater implements Serializable {
 		} catch (SecurityException e) {
 			updateFail(user, e);
 			throw new UserUpdateException(e);
-		}
-
+		} 
+		
 		try {
 			/*
 			 * Don't check Assertion Signature, because we are contacting the IDP directly
@@ -308,6 +309,12 @@ public class UserUpdater implements Serializable {
 					logger.warn("No assertion delivered for user {} from idp {}", user.getEppn(), user.getIdp().getEntityId());
 				else
 					logger.warn("No assertion delivered for user {} from idp {}", user.getEppn());
+				assertion = null;
+			} catch (SamlUnknownPrincipalException e) {
+				if (user.getIdp() != null)
+					logger.warn("Unknown principal status for user {} from idp {}", user.getEppn(), user.getIdp().getEntityId());
+				else
+					logger.warn("Unknown principal status  for user {}", user.getEppn());
 				assertion = null;
 			}
 

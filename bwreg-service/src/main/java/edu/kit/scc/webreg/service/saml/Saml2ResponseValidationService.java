@@ -44,6 +44,7 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.SamlMetadataEntity;
 import edu.kit.scc.webreg.exc.SamlAuthenticationException;
+import edu.kit.scc.webreg.exc.SamlUnknownPrincipalException;
 
 @ApplicationScoped
 public class Saml2ResponseValidationService {
@@ -92,7 +93,13 @@ public class Saml2ResponseValidationService {
 			throw new SamlAuthenticationException("SAML Response does not contain a status code");
 			
 		Status status = samlResponse.getStatus();
-		if (! status.getStatusCode().getValue().equals(StatusCode.SUCCESS_URI)) {
+		if (status.getStatusCode().getStatusCode() != null &&
+				StatusCode.UNKNOWN_PRINCIPAL_URI.equals(status.getStatusCode().getStatusCode().getValue())) {
+			String s = samlHelper.prettyPrint(status);
+			logger.info("SAML Response Status: {}", s);
+			throw new SamlUnknownPrincipalException("SAML Response: Unknown Principal " + status.getStatusCode().getValue());
+		}
+		else if (! status.getStatusCode().getValue().equals(StatusCode.SUCCESS_URI)) {
 			String s = samlHelper.prettyPrint(status);
 			logger.info("SAML Response Status: {}", s);
 			throw new SamlAuthenticationException("SAML Response: Login was not successful " + status.getStatusCode().getValue());
