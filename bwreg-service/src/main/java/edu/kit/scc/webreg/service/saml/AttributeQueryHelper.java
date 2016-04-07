@@ -12,8 +12,6 @@ package edu.kit.scc.webreg.service.saml;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.List;
