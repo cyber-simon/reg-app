@@ -24,6 +24,8 @@
 	<ui:define name="content">
 	<h:form id="form">
 		
+		<h2><h:outputText value="#{messages.service}: #{serviceAdminUserListDeproBean.serviceEntity.name}"/></h2>
+
 		<div id="panelInline">
 
 			<p:dataTable id="registeredTable1" var="registry" value="#{serviceAdminUserListDeproBean.deproList}" paginator="true"

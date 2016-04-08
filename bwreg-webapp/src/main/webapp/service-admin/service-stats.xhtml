@@ -24,28 +24,24 @@
 	<ui:define name="content">
 	<h:form id="form">
 
+		<h2>#{messages.statistics}: #{serviceAdminStatsBean.serviceEntity.name}</h2>
+
 		<div id="panelInline">
-			<p:tabView id="tabVw" dynamic="true" cache="true">
-				<p:tab id="tab1" title="#{messages.service_desc_short}">
-					<p:chart type="pie" model="#{serviceAdminStatsBean.userPerIdpPie}" style="height:400px;" />
-					<p:dataTable id="dataTable" var="o" value="#{serviceAdminStatsBean.userPerIdpList}">
-						<p:column>
-							<f:facet name="header">
-								<h:outputText value="#{messages.users}" />
-							</f:facet>
-							<h:outputText value="#{o[0]}" />
-						</p:column>
-						<p:column>
-							<f:facet name="header">
-								<h:outputText value="#{messages.idp}" />
-							</f:facet>
-							<h:outputText value="#{o[1].orgName}" />
-						</p:column>					
-					</p:dataTable>				
-				</p:tab>
-				<p:tab id="tab2" title="#{messages.service_desc}">
-				</p:tab>
-			</p:tabView>
+			<p:chart type="pie" model="#{serviceAdminStatsBean.userPerIdpPie}" style="height:400px;" />
+			<p:dataTable id="dataTable" var="o" value="#{serviceAdminStatsBean.userPerIdpList}">
+				<p:column>
+					<f:facet name="header">
+						<h:outputText value="#{messages.users}" />
+					</f:facet>
+					<h:outputText value="#{o[0]}" />
+				</p:column>
+				<p:column>
+					<f:facet name="header">
+						<h:outputText value="#{messages.idp}" />
+					</f:facet>
+					<h:outputText value="#{o[1].orgName}" />
+				</p:column>					
+			</p:dataTable>				
 		</div>
 
 	</h:form>

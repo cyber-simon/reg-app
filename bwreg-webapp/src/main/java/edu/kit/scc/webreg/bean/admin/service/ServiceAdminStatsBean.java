@@ -97,4 +97,12 @@ public class ServiceAdminStatsBean implements Serializable {
 		return userPerIdpPie;
 	}
 
+	public ServiceEntity getServiceEntity() {
+		return serviceEntity;
+	}
+
+	public void setServiceEntity(ServiceEntity serviceEntity) {
+		this.serviceEntity = serviceEntity;
+	}
+
 }
