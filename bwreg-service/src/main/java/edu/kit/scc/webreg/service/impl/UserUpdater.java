@@ -39,6 +39,7 @@ import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
+import edu.kit.scc.webreg.entity.SamlIdpMetadataEntityStatus;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
@@ -279,6 +280,7 @@ public class UserUpdater implements Serializable {
 			 * This exception is thrown if the certificate chain is incomplete e.g.
 			 */
 			updateFail(user, e);
+			updateIdpStatus(SamlIdpMetadataEntityStatus.FAULTY, idpEntity);
 			throw new UserUpdateException(e);
 		} catch (MetadataException e) {
 			/*
@@ -286,9 +288,11 @@ public class UserUpdater implements Serializable {
 			 * with the sp certificate
 			 */
 			updateFail(user, e);
+			updateIdpStatus(SamlIdpMetadataEntityStatus.FAULTY, idpEntity);
 			throw new UserUpdateException(e);
 		} catch (SecurityException e) {
 			updateFail(user, e);
+			updateIdpStatus(SamlIdpMetadataEntityStatus.FAULTY, idpEntity);
 			throw new UserUpdateException(e);
 		} 
 		
@@ -318,19 +322,31 @@ public class UserUpdater implements Serializable {
 				assertion = null;
 			}
 
+			updateIdpStatus(SamlIdpMetadataEntityStatus.GOOD, idpEntity);
+
 			return updateUser(user, assertion, "attribute-query", service);
 		} catch (DecryptionException e) {
 			updateFail(user, e);
+			updateIdpStatus(SamlIdpMetadataEntityStatus.FAULTY, idpEntity);
 			throw new UserUpdateException(e);
 		} catch (IOException e) {
 			updateFail(user, e);
+			updateIdpStatus(SamlIdpMetadataEntityStatus.FAULTY, idpEntity);
 			throw new UserUpdateException(e);
 		} catch (SamlAuthenticationException e) {
 			/*
 			 * Thrown if i.e. the AttributeQuery profile is not configured correctly
 			 */
 			updateFail(user, e);
+			updateIdpStatus(SamlIdpMetadataEntityStatus.FAULTY, idpEntity);
 			throw new UserUpdateException(e);
+		}
+	}
+	
+	protected void updateIdpStatus(SamlIdpMetadataEntityStatus status, SamlIdpMetadataEntity idpEntity) {
+		if (! status.equals(idpEntity.getAqIdpStatus())) {
+			idpEntity.setAqIdpStatus(status);
+			idpEntity.setLastAqStatusChange(new Date());
 		}
 	}
 	

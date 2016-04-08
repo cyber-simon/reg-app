@@ -10,6 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.entity;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -17,6 +18,8 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -45,6 +48,18 @@ public class SamlIdpMetadataEntity extends SamlMetadataEntity {
 	@Column(name = "value_data", length = 2048)
 	private List<String> entityCategoryList;
 	
+	@Enumerated(EnumType.STRING)
+	private SamlIdpMetadataEntityStatus aqIdpStatus;
+	
+	@Column(name = "last_aq_status_change")
+	private Date lastAqStatusChange;
+
+	@Enumerated(EnumType.STRING)
+	private SamlIdpMetadataEntityStatus idIdpStatus;
+	
+	@Column(name = "last_id_status_change")
+	private Date lastIdStatusChange;
+	
 	public Set<FederationEntity> getFederations() {
 		return federations;
 	}
@@ -67,5 +82,37 @@ public class SamlIdpMetadataEntity extends SamlMetadataEntity {
 
 	public void setEntityCategoryList(List<String> entityCategoryList) {
 		this.entityCategoryList = entityCategoryList;
+	}
+
+	public SamlIdpMetadataEntityStatus getAqIdpStatus() {
+		return aqIdpStatus;
+	}
+
+	public void setAqIdpStatus(SamlIdpMetadataEntityStatus aqIdpStatus) {
+		this.aqIdpStatus = aqIdpStatus;
+	}
+
+	public Date getLastAqStatusChange() {
+		return lastAqStatusChange;
+	}
+
+	public void setLastAqStatusChange(Date lastAqStatusChange) {
+		this.lastAqStatusChange = lastAqStatusChange;
+	}
+
+	public SamlIdpMetadataEntityStatus getIdIdpStatus() {
+		return idIdpStatus;
+	}
+
+	public void setIdIdpStatus(SamlIdpMetadataEntityStatus idIdpStatus) {
+		this.idIdpStatus = idIdpStatus;
+	}
+
+	public Date getLastIdStatusChange() {
+		return lastIdStatusChange;
+	}
+
+	public void setLastIdStatusChange(Date lastIdStatusChange) {
+		this.lastIdStatusChange = lastIdStatusChange;
 	}
 }
