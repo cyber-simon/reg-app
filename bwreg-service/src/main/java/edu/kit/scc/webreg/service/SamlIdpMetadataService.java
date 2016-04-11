@@ -14,6 +14,7 @@ import java.util.List;
 
 import edu.kit.scc.webreg.entity.FederationEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
+import edu.kit.scc.webreg.entity.SamlIdpMetadataEntityStatus;
 import edu.kit.scc.webreg.entity.SamlMetadataEntityStatus;
 
 public interface SamlIdpMetadataService extends BaseService<SamlIdpMetadataEntity, Long> {
@@ -31,5 +32,8 @@ public interface SamlIdpMetadataService extends BaseService<SamlIdpMetadataEntit
 
 	List<SamlIdpMetadataEntity> findAllByStatusOrderedByOrgname(
 			SamlMetadataEntityStatus status);
+
+	void updateIdpStatus(SamlIdpMetadataEntityStatus status,
+			SamlIdpMetadataEntity idpEntity);
 
 }

@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
+import edu.kit.scc.webreg.entity.SamlIdpMetadataEntityStatus;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.SamlAuthenticationException;
@@ -94,12 +95,24 @@ public class Saml2PostHandlerServlet {
 			EntityDescriptor idpEntityDescriptor = samlHelper.unmarshal(
 					idpEntity.getEntityDescriptor(), EntityDescriptor.class);
 		
-			Response samlResponse = saml2DecoderService.decodePostMessage(request);
+			Assertion assertion;
+			String persistentId;
+			try {
+				Response samlResponse = saml2DecoderService.decodePostMessage(request);
 
-			Assertion assertion = saml2AssertionService.processSamlResponse(samlResponse, idpEntity, idpEntityDescriptor, spConfig);
+				assertion = saml2AssertionService.processSamlResponse(samlResponse, idpEntity, idpEntityDescriptor, spConfig);
+				
+				persistentId = saml2AssertionService.extractPersistentId(assertion, spConfig);
+			} catch (Exception e1) {
+				/*
+				 * Catch Exception here for a probabyl faulty IDP. Register Exception and rethrow.
+				 */
+				idpService.updateIdpStatus(SamlIdpMetadataEntityStatus.FAULTY, idpEntity);
+				throw e1;
+			}
 			
-			String persistentId = saml2AssertionService.extractPersistentId(assertion, spConfig);
-			
+			idpService.updateIdpStatus(SamlIdpMetadataEntityStatus.GOOD, idpEntity);
+
 			Map<String, List<Object>> attributeMap = saml2AssertionService.extractAttributes(assertion);
 
 			UserEntity user = userService.findByPersistentWithRoles(spConfig.getEntityId(), 

@@ -10,6 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.ejb.Stateless;
@@ -19,6 +20,7 @@ import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
 import edu.kit.scc.webreg.entity.FederationEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
+import edu.kit.scc.webreg.entity.SamlIdpMetadataEntityStatus;
 import edu.kit.scc.webreg.entity.SamlMetadataEntityStatus;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 
@@ -29,6 +31,15 @@ public class SamlIdpMetadataServiceImpl extends BaseServiceImpl<SamlIdpMetadataE
 
 	@Inject
 	private SamlIdpMetadataDao dao;
+	
+	@Override
+	public void updateIdpStatus(SamlIdpMetadataEntityStatus status, SamlIdpMetadataEntity idpEntity) {
+		idpEntity = dao.merge(idpEntity);
+		if (! status.equals(idpEntity.getIdIdpStatus())) {
+			idpEntity.setIdIdpStatus(status);
+			idpEntity.setLastIdStatusChange(new Date());
+		}
+	}
 	
 	@Override
 	public List<SamlIdpMetadataEntity> findAllByFederation(FederationEntity federation) {
