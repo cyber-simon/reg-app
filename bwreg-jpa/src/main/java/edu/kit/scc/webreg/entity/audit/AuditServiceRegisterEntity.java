@@ -8,25 +8,26 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.entity;
+package edu.kit.scc.webreg.entity.audit;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 
-@Entity(name = "AuditServiceEntity")
-public class AuditServiceEntity extends AuditEntryEntity {
+import edu.kit.scc.webreg.entity.RegistryEntity;
+
+@Entity(name = "AuditServiceRegisterEntity")
+public class AuditServiceRegisterEntity extends AuditEntryEntity {
 
 	private static final long serialVersionUID = 1L;
 
-	@ManyToOne(targetEntity = ServiceEntity.class)
-	private ServiceEntity service;
+	@ManyToOne(targetEntity = RegistryEntity.class)
+	private RegistryEntity registry;
 
-	public ServiceEntity getService() {
-		return service;
+	public RegistryEntity getRegistry() {
+		return registry;
 	}
 
-	public void setService(ServiceEntity service) {
-		this.service = service;
+	public void setRegistry(RegistryEntity registry) {
+		this.registry = registry;
 	}
-
 }

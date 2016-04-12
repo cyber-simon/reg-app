@@ -1,8 +1,10 @@
-package edu.kit.scc.webreg.entity;
+package edu.kit.scc.webreg.entity.audit;
 
 import javax.annotation.Generated;
 import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.StaticMetamodel;
+
+import edu.kit.scc.webreg.entity.RegistryEntity;
 
 @Generated(value="Dali", date="2015-12-17T10:35:38.121+0100")
 @StaticMetamodel(AuditServiceRegisterEntity.class)

@@ -1,4 +1,4 @@
-package edu.kit.scc.webreg.entity;
+package edu.kit.scc.webreg.entity.audit;
 
 import javax.annotation.Generated;
 import javax.persistence.metamodel.SingularAttribute;

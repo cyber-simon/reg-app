@@ -1,7 +1,7 @@
 package edu.kit.scc.webreg.audit;
 
-import edu.kit.scc.webreg.entity.AuditEntryEntity;
-import edu.kit.scc.webreg.entity.AuditStatus;
+import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
+import edu.kit.scc.webreg.entity.audit.AuditStatus;
 
 public interface Auditor {
 

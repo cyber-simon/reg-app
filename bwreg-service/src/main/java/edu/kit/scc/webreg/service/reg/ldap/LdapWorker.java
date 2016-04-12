@@ -28,8 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.kit.scc.webreg.audit.Auditor;
-import edu.kit.scc.webreg.entity.AuditStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.audit.AuditStatus;
 import edu.kit.scc.webreg.exc.PropertyReaderException;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.service.reg.Infotainment;

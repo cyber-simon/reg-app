@@ -8,12 +8,13 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.entity;
+package edu.kit.scc.webreg.entity.audit;
 
-public enum AuditStatus {
+import javax.persistence.Entity;
 
-	SUCCESS,
-	FAIL,
-	WARN
-	
+@Entity(name = "AuditUserCreateEntity")
+public class AuditUserCreateEntity extends AuditUserEntity {
+
+	private static final long serialVersionUID = 1L;
+
 }

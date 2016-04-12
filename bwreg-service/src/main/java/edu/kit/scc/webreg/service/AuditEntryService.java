@@ -13,8 +13,8 @@ package edu.kit.scc.webreg.service;
 import java.util.Date;
 import java.util.List;
 
-import edu.kit.scc.webreg.entity.AuditEntryEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
 
 public interface AuditEntryService extends BaseService<AuditEntryEntity, Long> {
 

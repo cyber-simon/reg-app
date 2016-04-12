@@ -17,8 +17,8 @@ import javax.inject.Inject;
 
 import edu.kit.scc.webreg.dao.AuditDetailDao;
 import edu.kit.scc.webreg.dao.BaseDao;
-import edu.kit.scc.webreg.entity.AuditDetailEntity;
-import edu.kit.scc.webreg.entity.AuditEntryEntity;
+import edu.kit.scc.webreg.entity.audit.AuditDetailEntity;
+import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
 import edu.kit.scc.webreg.service.AuditDetailService;
 
 @Stateless

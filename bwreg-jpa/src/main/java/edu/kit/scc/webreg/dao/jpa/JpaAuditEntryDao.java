@@ -17,9 +17,9 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 
 import edu.kit.scc.webreg.dao.AuditEntryDao;
-import edu.kit.scc.webreg.entity.AuditEntryEntity;
-import edu.kit.scc.webreg.entity.AuditServiceRegisterEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
+import edu.kit.scc.webreg.entity.audit.AuditServiceRegisterEntity;
 
 @Named
 @ApplicationScoped

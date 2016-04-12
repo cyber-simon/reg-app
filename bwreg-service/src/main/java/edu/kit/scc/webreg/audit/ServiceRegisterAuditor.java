@@ -13,9 +13,9 @@ package edu.kit.scc.webreg.audit;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.AuditDetailDao;
 import edu.kit.scc.webreg.dao.AuditEntryDao;
-import edu.kit.scc.webreg.entity.AuditEntryEntity;
-import edu.kit.scc.webreg.entity.AuditServiceRegisterEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
+import edu.kit.scc.webreg.entity.audit.AuditServiceRegisterEntity;
 
 public class ServiceRegisterAuditor extends AbstractAuditor {
 

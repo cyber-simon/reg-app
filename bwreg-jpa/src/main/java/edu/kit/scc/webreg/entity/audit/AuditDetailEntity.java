@@ -8,7 +8,7 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.entity;
+package edu.kit.scc.webreg.entity.audit;
 
 import java.util.Date;
 
@@ -18,6 +18,8 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
+import edu.kit.scc.webreg.entity.AbstractBaseEntity;
 
 @Entity(name = "AuditDetailEntity")
 @Table(name = "audit_detail")

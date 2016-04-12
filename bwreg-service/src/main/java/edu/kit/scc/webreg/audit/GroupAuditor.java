@@ -13,8 +13,8 @@ package edu.kit.scc.webreg.audit;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.AuditDetailDao;
 import edu.kit.scc.webreg.dao.AuditEntryDao;
-import edu.kit.scc.webreg.entity.AuditGroupEntity;
 import edu.kit.scc.webreg.entity.GroupEntity;
+import edu.kit.scc.webreg.entity.audit.AuditGroupEntity;
 
 public class GroupAuditor extends AbstractAuditor {
 

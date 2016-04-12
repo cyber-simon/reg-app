@@ -13,8 +13,8 @@ package edu.kit.scc.webreg.dao;
 
 import java.util.List;
 
-import edu.kit.scc.webreg.entity.AuditDetailEntity;
-import edu.kit.scc.webreg.entity.AuditEntryEntity;
+import edu.kit.scc.webreg.entity.audit.AuditDetailEntity;
+import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
 
 public interface AuditDetailDao extends BaseDao<AuditDetailEntity, Long> {
 

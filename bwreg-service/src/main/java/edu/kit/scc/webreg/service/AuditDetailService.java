@@ -12,8 +12,8 @@ package edu.kit.scc.webreg.service;
 
 import java.util.List;
 
-import edu.kit.scc.webreg.entity.AuditDetailEntity;
-import edu.kit.scc.webreg.entity.AuditEntryEntity;
+import edu.kit.scc.webreg.entity.audit.AuditDetailEntity;
+import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
 
 public interface AuditDetailService extends BaseService<AuditDetailEntity, Long> {
 

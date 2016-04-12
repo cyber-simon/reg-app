@@ -15,10 +15,10 @@ import java.util.Map.Entry;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.AuditDetailDao;
 import edu.kit.scc.webreg.dao.AuditEntryDao;
-import edu.kit.scc.webreg.entity.AuditEntryEntity;
-import edu.kit.scc.webreg.entity.AuditStatus;
-import edu.kit.scc.webreg.entity.AuditUserCreateEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
+import edu.kit.scc.webreg.entity.audit.AuditStatus;
+import edu.kit.scc.webreg.entity.audit.AuditUserCreateEntity;
 
 public class UserCreateAuditor extends AbstractAuditor {
 
