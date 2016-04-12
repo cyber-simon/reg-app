@@ -287,26 +287,17 @@ public class UserUpdater implements Serializable {
 			/*
 			 * This exception is thrown if the certificate chain is incomplete e.g.
 			 */
-			updateFail(user, e);
-			auditor.logAction(idpEntity.getEntityId(), "SAML ATTRIBUTE QUERY", user.getEppn(), e.getMessage(), AuditStatus.FAIL);
-			auditor.finishAuditTrail();
-			updateIdpStatus(SamlIdpMetadataEntityStatus.FAULTY, idpEntity);
+			handleException(user, e, idpEntity, auditor);
 			throw new UserUpdateException(e);
 		} catch (MetadataException e) {
 			/*
 			 * is thrown if AttributeQuery location is missing in metadata, or something is wrong
 			 * with the sp certificate
 			 */
-			updateFail(user, e);
-			auditor.logAction(idpEntity.getEntityId(), "SAML ATTRIBUTE QUERY", user.getEppn(), e.getMessage(), AuditStatus.FAIL);
-			auditor.finishAuditTrail();
-			updateIdpStatus(SamlIdpMetadataEntityStatus.FAULTY, idpEntity);
+			handleException(user, e, idpEntity, auditor);
 			throw new UserUpdateException(e);
 		} catch (SecurityException e) {
-			updateFail(user, e);
-			auditor.logAction(idpEntity.getEntityId(), "SAML ATTRIBUTE QUERY", user.getEppn(), e.getMessage(), AuditStatus.FAIL);
-			auditor.finishAuditTrail();
-			updateIdpStatus(SamlIdpMetadataEntityStatus.FAULTY, idpEntity);
+			handleException(user, e, idpEntity, auditor);
 			throw new UserUpdateException(e);
 		} 
 		
@@ -340,27 +331,28 @@ public class UserUpdater implements Serializable {
 
 			return updateUser(user, assertion, "attribute-query", service);
 		} catch (DecryptionException e) {
-			updateFail(user, e);
-			auditor.logAction(idpEntity.getEntityId(), "SAML ATTRIBUTE QUERY", user.getEppn(), e.getMessage(), AuditStatus.FAIL);
-			auditor.finishAuditTrail();
-			updateIdpStatus(SamlIdpMetadataEntityStatus.FAULTY, idpEntity);
+			handleException(user, e, idpEntity, auditor);
 			throw new UserUpdateException(e);
 		} catch (IOException e) {
-			updateFail(user, e);
-			auditor.logAction(idpEntity.getEntityId(), "SAML ATTRIBUTE QUERY", user.getEppn(), e.getMessage(), AuditStatus.FAIL);
-			auditor.finishAuditTrail();
-			updateIdpStatus(SamlIdpMetadataEntityStatus.FAULTY, idpEntity);
+			handleException(user, e, idpEntity, auditor);
 			throw new UserUpdateException(e);
 		} catch (SamlAuthenticationException e) {
 			/*
 			 * Thrown if i.e. the AttributeQuery profile is not configured correctly
 			 */
-			updateFail(user, e);
-			auditor.logAction(idpEntity.getEntityId(), "SAML ATTRIBUTE QUERY", user.getEppn(), e.getMessage(), AuditStatus.FAIL);
-			auditor.finishAuditTrail();
-			updateIdpStatus(SamlIdpMetadataEntityStatus.FAULTY, idpEntity);
+			handleException(user, e, idpEntity, auditor);
 			throw new UserUpdateException(e);
 		}
+	}
+	
+	protected void handleException(UserEntity user, Exception e, SamlIdpMetadataEntity idpEntity, Auditor auditor) {
+		updateFail(user);
+		String message = e.getMessage();
+		if (e.getCause() != null)
+			message += " InnerCause: " + e.getCause().getMessage();
+		auditor.logAction(idpEntity.getEntityId(), "SAML ATTRIBUTE QUERY", user.getEppn(), message, AuditStatus.FAIL);
+		auditor.finishAuditTrail();
+		updateIdpStatus(SamlIdpMetadataEntityStatus.FAULTY, idpEntity);
 	}
 	
 	protected void updateIdpStatus(SamlIdpMetadataEntityStatus status, SamlIdpMetadataEntity idpEntity) {
@@ -370,7 +362,7 @@ public class UserUpdater implements Serializable {
 		}
 	}
 	
-	protected void updateFail(UserEntity user, Exception e) {
+	protected void updateFail(UserEntity user) {
 		user.setLastFailedUpdate(new Date());
 		user.setGroups(null);
 		user = userDao.persist(user);
