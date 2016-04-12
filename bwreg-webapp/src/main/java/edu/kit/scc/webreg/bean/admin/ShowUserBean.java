@@ -119,7 +119,7 @@ public class ShowUserBean implements Serializable {
 		logger.info("Trying user update for {}", user.getEppn());
 
 		try {
-			userService.updateUserFromIdp(user);
+			userService.updateUserFromIdp(user, "user-" + sessionManager.getUserId());
 		} catch (UserUpdateException e) {
 			logger.info("Exception while Querying IDP: {}", e.getMessage());
 			if (e.getCause() != null) {

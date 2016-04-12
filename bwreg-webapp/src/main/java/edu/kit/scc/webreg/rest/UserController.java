@@ -28,7 +28,7 @@ public class UserController {
 	public Map<String, String> updateUserAsync(@PathParam("eppn") String eppn, @Context HttpServletRequest request)
 					throws IOException, RestInterfaceException, ServletException {
 		
-		userUpdateService.updateUserAsync(eppn, request.getLocalName());
+		userUpdateService.updateUserAsync(eppn, request.getLocalName(), "rest-/user-admin/update-async/" + eppn);
 		
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("reuqest", "submitted");
@@ -41,6 +41,6 @@ public class UserController {
 	public Map<String, String> updateUser(@PathParam("eppn") String eppn, @Context HttpServletRequest request)
 					throws IOException, RestInterfaceException, ServletException {
 		
-		return userUpdateService.updateUser(eppn, request.getLocalName());
+		return userUpdateService.updateUser(eppn, request.getLocalName(), "rest-/user-admin/update/" + eppn);
 	}	
 }

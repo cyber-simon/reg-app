@@ -255,12 +255,12 @@ public class UserUpdater implements Serializable {
 		return updateUser(user, attributeMap, executor, service);
 	}
 
-	public UserEntity updateUserFromIdp(UserEntity user) 
+	public UserEntity updateUserFromIdp(UserEntity user, String executor) 
 			throws UserUpdateException {
-		return updateUserFromIdp(user, null);
+		return updateUserFromIdp(user, null, executor);
 	}
 	
-	public UserEntity updateUserFromIdp(UserEntity user, ServiceEntity service) 
+	public UserEntity updateUserFromIdp(UserEntity user, ServiceEntity service, String executor) 
 			throws UserUpdateException {
 
 		SamlSpConfigurationEntity spEntity = spDao.findByEntityId(user.getPersistentSpId());
@@ -271,7 +271,7 @@ public class UserUpdater implements Serializable {
 		auditor.setDetail("Call IDP " + idpEntity.getEntityId() + " from SP " + spEntity.getEntityId() + " for User " + user.getEppn());
 		auditor.setIdp(idpEntity);
 		auditor.setSpConfig(spEntity);
-		auditor.startAuditTrail("");
+		auditor.startAuditTrail(executor);
 		
 		EntityDescriptor idpEntityDescriptor = samlHelper.unmarshal(
 				idpEntity.getEntityDescriptor(), EntityDescriptor.class, auditor);

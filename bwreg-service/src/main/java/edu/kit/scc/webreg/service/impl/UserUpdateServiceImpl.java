@@ -62,7 +62,7 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 	
 	@Override
 	public Map<String, String> updateUser(String eppn,
-			String serviceShortName, String localHostName)
+			String serviceShortName, String localHostName, String executor)
 			throws IOException, RestInterfaceException {
 
 		UserEntity user = findUser(eppn);
@@ -77,11 +77,11 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 		if (registry == null)
 			throw new NoRegistryFoundException("user not registered for service");
 		
-		return update(user, service, registry, localHostName);
+		return update(user, service, registry, localHostName, executor);
 	}
 
 	@Override
-	public Map<String, String> updateUser(String eppn, String localHostName)
+	public Map<String, String> updateUser(String eppn, String localHostName, String executor)
 			throws IOException, RestInterfaceException {
 
 		UserEntity user = findUser(eppn);
@@ -89,7 +89,7 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 			throw new NoUserFoundException("no such user");
 		
 		try {
-			user = userUpdater.updateUserFromIdp(user);
+			user = userUpdater.updateUserFromIdp(user, executor);
 		} catch (UserUpdateException e) {
 			logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
 			throw new UserUpdateFailedException("user update failed: " + e.getMessage());
@@ -106,7 +106,7 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 
 	@Override
 	@Asynchronous
-	public void updateUserAsync(String eppn, String localHostName) {
+	public void updateUserAsync(String eppn, String localHostName, String executor) {
 
 		UserEntity user = findUser(eppn);
 		if (user == null) {
@@ -133,7 +133,7 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 					user.getPersistentId(), user.getIdp().getEntityId()});
 
 			try {
-				user = userUpdater.updateUserFromIdp(user);
+				user = userUpdater.updateUserFromIdp(user, executor);
 			} catch (UserUpdateException e) {
 				logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
 			}
@@ -141,7 +141,7 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 	}
 
 	@Override
-	public Map<String, String> updateUser(Long regId, String localHostName)
+	public Map<String, String> updateUser(Long regId, String localHostName, String executor)
 			throws IOException, RestInterfaceException {
 		RegistryEntity registry = registryDao.findById(regId);
 
@@ -150,10 +150,10 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 			throw new NoRegistryFoundException("registry unknown");
 		}
 		
-		return update(registry.getUser(), registry.getService(), registry, localHostName);
+		return update(registry.getUser(), registry.getService(), registry, localHostName, executor);
 	}
 
-	private Map<String, String> update(UserEntity user, ServiceEntity service, RegistryEntity registry, String localHostName)
+	private Map<String, String> update(UserEntity user, ServiceEntity service, RegistryEntity registry, String localHostName, String executor)
 			throws RestInterfaceException {
 
 		// Default expiry Time after which an attrq is issued to IDP in millis
@@ -172,7 +172,7 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 				logger.info("Performing attributequery for {} with {}@{}", new Object[] {user.getEppn(), 
 						user.getPersistentId(), user.getIdp().getEntityId()});
 	
-				user = userUpdater.updateUserFromIdp(user, service);
+				user = userUpdater.updateUserFromIdp(user, service, executor);
 			}
 		} catch (UserUpdateException e) {
 			logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());

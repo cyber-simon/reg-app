@@ -115,7 +115,7 @@ public class BulkUserImportBean implements Serializable {
 			if (userEntity != null) {
 				logger.debug("User {} already in system", userEntity.getEppn());
 				try {
-					userService.updateUserFromIdp(userEntity);
+					userService.updateUserFromIdp(userEntity, "bulk-import");
 				} catch (UserUpdateException e) {
 					logger.warn("AttributeQuery failed", e);
 					importUser.setStatus("Fehler: " + e.getMessage());					

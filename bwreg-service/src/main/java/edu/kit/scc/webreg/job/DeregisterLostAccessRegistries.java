@@ -84,7 +84,7 @@ public class DeregisterLostAccessRegistries extends AbstractExecutableJob {
 						// user is too old, try update first
 						logger.info("User {} lastUpdate is older than {}ms. Trying update", user.getEppn(), lastUserUpdate);
 						try {
-							userService.updateUserFromIdp(user);
+							userService.updateUserFromIdp(user, "lost-access-reg-job");
 						} catch (UserUpdateException e) {
 							logger.info("Exception while Querying IDP: {}", e.getMessage());
 							if (e.getCause() != null) {

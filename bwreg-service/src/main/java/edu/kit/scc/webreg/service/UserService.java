@@ -49,9 +49,9 @@ public interface UserService extends BaseService<UserEntity, Long> {
 
 	List<UserEntity> findOrderByFailedUpdateWithLimit(Date date, Integer limit);
 
-	UserEntity updateUserFromIdp(UserEntity user) throws UserUpdateException;
+	UserEntity updateUserFromIdp(UserEntity user, String executor) throws UserUpdateException;
 
-	UserEntity updateUserFromIdp(UserEntity user, ServiceEntity service)
+	UserEntity updateUserFromIdp(UserEntity user, ServiceEntity service, String executor)
 			throws UserUpdateException;
 
 	UserEntity updateUserFromAttribute(UserEntity user,

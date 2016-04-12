@@ -191,7 +191,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			logger.debug("Passwords match: {}", match);
 			
 			if (match) {
-				updateUser(user, service);
+				updateUser(user, service, "login-with-service-password");
 
 				List<Object> objectList = checkRules(user, service, registry);
 				List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
@@ -550,7 +550,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 		return returnList;
 	}	
 	
-	private void updateUser(UserEntity user, ServiceEntity service) throws UserUpdateFailedException {
+	private void updateUser(UserEntity user, ServiceEntity service, String executor) throws UserUpdateFailedException {
 		// Default expiry Time after which an attrq is issued to IDP in millis
 		Long expireTime = 10000L;
 		
@@ -567,7 +567,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 				logger.info("Performing attributequery for {} with {}@{}", new Object[] {user.getEppn(), 
 						user.getPersistentId(), user.getIdp().getEntityId()});
 	
-				user = userUpdater.updateUserFromIdp(user, service);
+				user = userUpdater.updateUserFromIdp(user, service, executor);
 			}
 		} catch (UserUpdateException e) {
 			logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());

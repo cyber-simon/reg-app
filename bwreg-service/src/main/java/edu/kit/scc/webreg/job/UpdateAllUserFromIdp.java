@@ -77,7 +77,7 @@ public class UpdateAllUserFromIdp extends AbstractExecutableJob {
 			for (UserEntity user : userList) {
 				try {
 					logger.info("Updating user {}", user.getEppn());
-					userService.updateUserFromIdp(user);
+					userService.updateUserFromIdp(user, "update-all-users-from-idp-job");
 				} catch (UserUpdateException e) {
 					logger.warn("Could not update user {}: {}", user.getEppn(), e);
 				}
