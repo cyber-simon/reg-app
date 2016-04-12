@@ -46,6 +46,9 @@ import org.slf4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import edu.kit.scc.webreg.audit.Auditor;
+import edu.kit.scc.webreg.entity.audit.AuditStatus;
+
 @Named("samlHelper")
 @ApplicationScoped
 public class SamlHelper implements Serializable {
@@ -135,8 +138,12 @@ public class SamlHelper implements Serializable {
 		return returnList;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public <T extends XMLObject> T unmarshal(String s, Class<T> c) {
+		return unmarshal(s, c, null);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T extends XMLObject> T unmarshal(String s, Class<T> c, Auditor auditor) {
 		try {
 			Document document = basicParserPool.parse(new StringReader(s));
 			Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(document.getDocumentElement());
@@ -144,9 +151,15 @@ public class SamlHelper implements Serializable {
 			return (T) xmlObject;
 		} catch (XMLParserException e) {
 			logger.error("No Unmarshalling possible", e);
+			if (auditor != null) {
+				auditor.logAction(c.getClass().getName(), "XML UNMARSHALL", s, e.getMessage(), AuditStatus.FAIL);
+			}
 			return null;
 		} catch (UnmarshallingException e) {
 			logger.error("No Unmarshalling possible", e);
+			if (auditor != null) {
+				auditor.logAction(c.getClass().getName(), "XML UNMARSHALL", s, e.getMessage(), AuditStatus.FAIL);
+			}
 			return null;
 		}
 	}
