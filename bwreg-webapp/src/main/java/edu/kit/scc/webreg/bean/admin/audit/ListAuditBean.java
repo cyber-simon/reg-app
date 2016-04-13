@@ -19,9 +19,9 @@ import javax.inject.Inject;
 
 import org.primefaces.model.LazyDataModel;
 
+import edu.kit.scc.webreg.audit.AuditEntryService;
 import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
 import edu.kit.scc.webreg.model.GenericLazyDataModelImpl;
-import edu.kit.scc.webreg.service.AuditEntryService;
 
 @ManagedBean
 @ViewScoped

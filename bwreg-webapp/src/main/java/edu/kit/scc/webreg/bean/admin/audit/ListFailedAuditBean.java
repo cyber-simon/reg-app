@@ -18,8 +18,8 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import edu.kit.scc.webreg.audit.AuditDetailService;
 import edu.kit.scc.webreg.entity.audit.AuditDetailEntity;
-import edu.kit.scc.webreg.service.AuditDetailService;
 
 @Named("listFailedAuditBean")
 @RequestScoped

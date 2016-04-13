@@ -8,18 +8,18 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.service.impl;
+package edu.kit.scc.webreg.audit;
 
 import java.util.List;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
-import edu.kit.scc.webreg.dao.AuditDetailDao;
 import edu.kit.scc.webreg.dao.BaseDao;
+import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.entity.audit.AuditDetailEntity;
 import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
-import edu.kit.scc.webreg.service.AuditDetailService;
+import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
 
 @Stateless
 public class AuditDetailServiceImpl extends BaseServiceImpl<AuditDetailEntity, Long> implements AuditDetailService {

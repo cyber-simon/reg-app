@@ -8,14 +8,15 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.dao.jpa;
+package edu.kit.scc.webreg.dao.jpa.audit;
 
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 
-import edu.kit.scc.webreg.dao.AuditDetailDao;
+import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
+import edu.kit.scc.webreg.dao.jpa.JpaBaseDao;
 import edu.kit.scc.webreg.entity.audit.AuditDetailEntity;
 import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;

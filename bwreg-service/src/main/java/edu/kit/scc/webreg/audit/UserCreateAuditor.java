@@ -13,8 +13,8 @@ package edu.kit.scc.webreg.audit;
 import java.util.Map.Entry;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
-import edu.kit.scc.webreg.dao.AuditDetailDao;
-import edu.kit.scc.webreg.dao.AuditEntryDao;
+import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
+import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;

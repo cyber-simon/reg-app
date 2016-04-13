@@ -31,11 +31,11 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.audit.ServiceRegisterAuditor;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
-import edu.kit.scc.webreg.dao.AuditDetailDao;
-import edu.kit.scc.webreg.dao.AuditEntryDao;
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
 import edu.kit.scc.webreg.dao.UserDao;
+import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
+import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
 import edu.kit.scc.webreg.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.drools.OverrideAccess;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;

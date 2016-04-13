@@ -8,18 +8,20 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.dao;
+package edu.kit.scc.webreg.dao.audit;
 
-
+import java.util.Date;
 import java.util.List;
 
-import edu.kit.scc.webreg.entity.audit.AuditDetailEntity;
+import edu.kit.scc.webreg.dao.BaseDao;
+import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
+import edu.kit.scc.webreg.entity.audit.AuditServiceRegisterEntity;
 
-public interface AuditDetailDao extends BaseDao<AuditDetailEntity, Long> {
+public interface AuditEntryDao extends BaseDao<AuditEntryEntity, Long> {
 
-	List<AuditDetailEntity> findNewestFailed(int limit);
+	List<AuditEntryEntity> findAllOlderThan(Date date, int limit);
 
-	List<AuditDetailEntity> findAllByAuditEntry(AuditEntryEntity auditEntry);
-
+	List<AuditServiceRegisterEntity> findAllServiceRegister(
+			RegistryEntity registry);
 }

@@ -8,12 +8,13 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.service;
+package edu.kit.scc.webreg.audit;
 
 import java.util.List;
 
 import edu.kit.scc.webreg.entity.audit.AuditDetailEntity;
 import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
+import edu.kit.scc.webreg.service.BaseService;
 
 public interface AuditDetailService extends BaseService<AuditDetailEntity, Long> {
 

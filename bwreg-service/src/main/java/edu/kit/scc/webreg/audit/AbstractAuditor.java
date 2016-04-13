@@ -14,8 +14,8 @@ import java.util.Date;
 import java.util.HashSet;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
-import edu.kit.scc.webreg.dao.AuditDetailDao;
-import edu.kit.scc.webreg.dao.AuditEntryDao;
+import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
+import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
 import edu.kit.scc.webreg.entity.audit.AuditDetailEntity;
 import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
