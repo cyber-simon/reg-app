@@ -36,7 +36,13 @@
 						
 			        <h:outputText value="#{messages.status}:"/>
 			        <h:outputText value="#{showIdpBean.entity.status}"/>
+
+			        <h:outputText value="#{messages.artifact_resolution} #{messages.status}:"/>
+			        <h:outputText value="#{showIdpBean.entity.aqIdpStatus} (changed: #{showIdpBean.entity.lastAqStatusChange})"/>
 						
+			        <h:outputText value="#{messages.single_sign_on} #{messages.status}:"/>
+			        <h:outputText value="#{showIdpBean.entity.idIdpStatus} (changed: #{showIdpBean.entity.lastIdStatusChange})"/>
+												
 			        <h:outputText value="#{messages.name}:"/>
 			        <h:outputText value="#{showIdpBean.entity.displayName}"/>
 						
