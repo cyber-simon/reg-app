@@ -6,6 +6,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +48,7 @@ import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
+import edu.kit.scc.webreg.entity.SamlIdpMetadataEntityStatus;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
@@ -427,6 +429,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			throw new LoginFailedException("Assertion is for wrong EPPN");
 		}
 	}
+	
 	private Map<String, String> processResponse(Response samlResponse, EntityDescriptor idpEntityDescriptor,
 			ServiceEntity service, SamlIdpMetadataEntity idp, SamlSpConfigurationEntity spEntity, String caller) 
 					throws RestInterfaceException, IOException, DecryptionException, SamlAuthenticationException {
@@ -573,5 +576,12 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
 			throw new UserUpdateFailedException("user update failed: " + e.getMessage());
 		}		
-	}	
+	}
+	
+	protected void updateIdpStatus(SamlIdpMetadataEntityStatus status, SamlIdpMetadataEntity idpEntity) {
+		if (! status.equals(idpEntity.getIdIdpStatus())) {
+			idpEntity.setIdIdpStatus(status);
+			idpEntity.setLastIdStatusChange(new Date());
+		}
+	}
 }
