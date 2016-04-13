@@ -12,6 +12,7 @@ package edu.kit.scc.webreg.bean.admin;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,8 +24,11 @@ import javax.inject.Inject;
 import org.opensaml.saml2.core.Attribute;
 import org.primefaces.event.TransferEvent;
 import org.primefaces.model.DualListModel;
+import org.primefaces.model.LazyDataModel;
 import org.slf4j.Logger;
 
+import edu.kit.scc.webreg.audit.AuditUserEntryService;
+import edu.kit.scc.webreg.dao.ops.AndPredicate;
 import edu.kit.scc.webreg.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
@@ -33,7 +37,9 @@ import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
+import edu.kit.scc.webreg.entity.audit.AuditUserEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
+import edu.kit.scc.webreg.model.GenericLazyDataModelImpl;
 import edu.kit.scc.webreg.service.ASUserAttrService;
 import edu.kit.scc.webreg.service.AttributeSourceService;
 import edu.kit.scc.webreg.service.GroupService;
@@ -73,6 +79,9 @@ public class ShowUserBean implements Serializable {
 	private AttributeSourceService attributeSourceService;
 	
 	@Inject
+	private AuditUserEntryService auditUserEntryService;
+	
+	@Inject
 	private SessionManager sessionManager;
 	
 	private UserEntity user;
@@ -88,7 +97,8 @@ public class ShowUserBean implements Serializable {
 	private List<ASUserAttrEntity> asUserAttrList;
 	private AttributeSourceEntity selectedAttributeSource;
 	private ASUserAttrEntity selectedUserAttr;
-
+	private LazyDataModel<AuditUserEntity> auditUserEntryList;
+	
 	private Long id;
 
 	public void preRenderView(ComponentSystemEvent ev) {
@@ -223,5 +233,14 @@ public class ShowUserBean implements Serializable {
 
 	public AttributeSourceEntity getSelectedAttributeSource() {
 		return selectedAttributeSource;
+	}
+
+	public LazyDataModel<AuditUserEntity> getAuditUserEntryList() {
+		if (auditUserEntryList == null) {
+			Map<String, Object> additionalFilterMap = new HashMap<String, Object>();
+			additionalFilterMap.put("user", new AndPredicate(user));
+			auditUserEntryList = new GenericLazyDataModelImpl<AuditUserEntity, AuditUserEntryService, Long>(auditUserEntryService, additionalFilterMap);
+		}		
+		return auditUserEntryList;
 	}
 }
