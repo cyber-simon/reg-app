@@ -36,7 +36,12 @@ public abstract class AbstractAuditor implements Auditor {
 
 	@Override
 	public abstract AuditEntryEntity getAudit();
-	 
+	
+	@Override
+	public void setParent(Auditor auditor) {
+		getAudit().setParentEntry(auditor.getAudit().getParentEntry());
+	}
+	
 	@Override
 	public void startAuditTrail(String executor) {
 		getAudit().setStartTime(new Date());

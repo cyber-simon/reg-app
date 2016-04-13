@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.audit.IdpCommunicationAuditor;
+import edu.kit.scc.webreg.audit.RegistryAuditor;
 import edu.kit.scc.webreg.audit.UserUpdateAuditor;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.RegistryDao;
@@ -162,17 +163,15 @@ public class UserUpdater implements Serializable {
 			user.getAttributeStore().clear();
 
 			if (UserStatus.ACTIVE.equals(user.getUserStatus())) {
-				user.setUserStatus(UserStatus.ON_HOLD);
-				user.setLastStatusChange(new Date());
-				
+				changeUserStatus(user, UserStatus.ON_HOLD, auditor);
+
 				/*
 				 * Also flag all registries for user ON_HOLD
 				 */
 				List<RegistryEntity> registryList = registryDao.findByUserAndStatus(user, 
 						RegistryStatus.ACTIVE, RegistryStatus.LOST_ACCESS, RegistryStatus.INVALID);
 				for (RegistryEntity registry : registryList) {
-					registry.setRegistryStatus(RegistryStatus.ON_HOLD);
-					registry.setLastStatusChange(new Date());
+					changeRegistryStatus(registry, RegistryStatus.ON_HOLD, auditor);
 				}
 			}
 		}
@@ -184,8 +183,7 @@ public class UserUpdater implements Serializable {
 			changed |= updateUserFromAttribute(user, attributeMap, auditor);
 			
 			if (UserStatus.ON_HOLD.equals(user.getUserStatus())) {
-				user.setUserStatus(UserStatus.ACTIVE);
-				user.setLastStatusChange(new Date());
+				changeUserStatus(user, UserStatus.ACTIVE, auditor);
 				
 				/*
 				 * Also reenable all registries for user to LOST_ACCESS. 
@@ -194,8 +192,7 @@ public class UserUpdater implements Serializable {
 				List<RegistryEntity> registryList = registryDao.findByUserAndStatus(user, 
 						RegistryStatus.ON_HOLD);
 				for (RegistryEntity registry : registryList) {
-					registry.setRegistryStatus(RegistryStatus.LOST_ACCESS);
-					registry.setLastStatusChange(new Date());
+					changeRegistryStatus(registry, RegistryStatus.LOST_ACCESS, auditor);
 				}
 				
 				/*
@@ -483,5 +480,30 @@ public class UserUpdater implements Serializable {
 		}
 		
 		return true;
+	}
+	
+	protected void changeUserStatus(UserEntity user, UserStatus toStatus, Auditor auditor) {
+		UserStatus fromStatus = user.getUserStatus();
+		user.setUserStatus(toStatus);
+		user.setLastStatusChange(new Date());
+		
+		auditor.logAction(user.getEppn(), "CHANGE STATUS", fromStatus + " -> " + toStatus, 
+				"Change status " + fromStatus + " -> " + toStatus, AuditStatus.SUCCESS);
+	}
+	
+	protected void changeRegistryStatus(RegistryEntity registry, RegistryStatus toStatus, Auditor parentAuditor) {
+		RegistryStatus fromStatus = registry.getRegistryStatus();
+		registry.setRegistryStatus(toStatus);
+		registry.setLastStatusChange(new Date());
+
+		RegistryAuditor registryAuditor = new RegistryAuditor(auditDao, auditDetailDao, appConfig);
+		registryAuditor.setParent(parentAuditor);
+		registryAuditor.startAuditTrail(parentAuditor.getActualExecutor());
+		registryAuditor.setName(getClass().getName() + "-UserUpdate-Registry-Audit");
+		registryAuditor.setDetail("Update registry " + registry.getId() + " for user " + registry.getUser().getEppn());
+		registryAuditor.setRegistry(registry);
+		registryAuditor.logAction(registry.getUser().getEppn(), "CHANGE STATUS", "registry-" + registry.getId(), 
+				"Change status " + fromStatus + " -> " + toStatus, AuditStatus.SUCCESS);
+		registryAuditor.finishAuditTrail();
 	}
 }

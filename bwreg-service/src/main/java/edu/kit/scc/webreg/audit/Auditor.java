@@ -19,4 +19,6 @@ public interface Auditor {
 	public abstract void setDetail(String detail);
 
 	public abstract String getActualExecutor();
+
+	void setParent(Auditor auditor);
 }
