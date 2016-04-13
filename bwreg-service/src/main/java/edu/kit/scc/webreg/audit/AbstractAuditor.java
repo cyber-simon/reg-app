@@ -39,7 +39,8 @@ public abstract class AbstractAuditor implements Auditor {
 	
 	@Override
 	public void setParent(Auditor auditor) {
-		getAudit().setParentEntry(auditor.getAudit().getParentEntry());
+		if (auditor != null)
+			getAudit().setParentEntry(auditor.getAudit());
 	}
 	
 	@Override
