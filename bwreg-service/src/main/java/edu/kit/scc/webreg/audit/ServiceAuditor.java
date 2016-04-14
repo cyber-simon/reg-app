@@ -14,28 +14,24 @@ import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
 import edu.kit.scc.webreg.entity.ServiceEntity;
-import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
 import edu.kit.scc.webreg.entity.audit.AuditServiceEntity;
 
-public class ServiceAuditor extends AbstractAuditor {
+public class ServiceAuditor extends AbstractAuditor<AuditServiceEntity> {
 
-	private AuditServiceEntity audit;
-	
+	private static final long serialVersionUID = 1L;
+
 	public ServiceAuditor(AuditEntryDao auditEntryDao,
 			AuditDetailDao auditDetailDao, ApplicationConfig appConfig) {
 
 		super(auditEntryDao, auditDetailDao, appConfig);
 	}
 
-	@Override
-	public AuditEntryEntity getAudit() {
-		if (audit == null)
-			audit = new AuditServiceEntity();
-		
-		return audit;
-	}
-
 	public void setService(ServiceEntity entity) {
 		audit.setService(entity);
+	}
+
+	@Override
+	protected AuditServiceEntity newInstance() {
+		return new AuditServiceEntity();
 	}
 }

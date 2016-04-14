@@ -14,28 +14,24 @@ import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
 import edu.kit.scc.webreg.entity.RegistryEntity;
-import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
 import edu.kit.scc.webreg.entity.audit.AuditRegistryEntity;
 
-public class RegistryAuditor extends AbstractAuditor {
+public class RegistryAuditor extends AbstractAuditor<AuditRegistryEntity> {
 
-	private AuditRegistryEntity audit;
-	
+	private static final long serialVersionUID = 1L;
+
 	public RegistryAuditor(AuditEntryDao auditEntryDao,
 			AuditDetailDao auditDetailDao, ApplicationConfig appConfig) {
 
 		super(auditEntryDao, auditDetailDao, appConfig);
 	}
 
-	@Override
-	public AuditEntryEntity getAudit() {
-		if (audit == null)
-			audit = new AuditRegistryEntity();
-		
-		return audit;
-	}
-
 	public void setRegistry(RegistryEntity entity) {
 		audit.setRegistry(entity);
+	}
+
+	@Override
+	protected AuditRegistryEntity newInstance() {
+		return new AuditRegistryEntity();
 	}
 }

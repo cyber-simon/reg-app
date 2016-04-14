@@ -15,27 +15,23 @@ import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 import edu.kit.scc.webreg.entity.audit.AuditAttributeSourceEntity;
-import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
 
-public class AttributeSourceAuditor extends AbstractAuditor {
+public class AttributeSourceAuditor extends AbstractAuditor<AuditAttributeSourceEntity> {
 
-	private AuditAttributeSourceEntity audit;
-	
+	private static final long serialVersionUID = 1L;
+
 	public AttributeSourceAuditor(AuditEntryDao auditEntryDao,
 			AuditDetailDao auditDetailDao, ApplicationConfig appConfig) {
 
 		super(auditEntryDao, auditDetailDao, appConfig);
 	}
 
-	@Override
-	public AuditEntryEntity getAudit() {
-		if (audit == null)
-			audit = new AuditAttributeSourceEntity();
-		
-		return audit;
-	}
-
 	public void setAsUserAttr(ASUserAttrEntity entity) {
 		audit.setAsUserAttr(entity);
+	}
+
+	@Override
+	protected AuditAttributeSourceEntity newInstance() {
+		return new AuditAttributeSourceEntity();
 	}
 }

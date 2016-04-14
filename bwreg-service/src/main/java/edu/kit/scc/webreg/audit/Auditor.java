@@ -1,9 +1,11 @@
 package edu.kit.scc.webreg.audit;
 
+import java.io.Serializable;
+
 import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
 
-public interface Auditor {
+public interface Auditor extends Serializable {
 
 	public abstract AuditEntryEntity getAudit();
 

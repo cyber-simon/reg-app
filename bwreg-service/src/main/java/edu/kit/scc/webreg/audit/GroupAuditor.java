@@ -16,25 +16,22 @@ import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.audit.AuditGroupEntity;
 
-public class GroupAuditor extends AbstractAuditor {
+public class GroupAuditor extends AbstractAuditor<AuditGroupEntity> {
 
-	private AuditGroupEntity audit;
-	
+	private static final long serialVersionUID = 1L;
+
 	public GroupAuditor(AuditEntryDao auditEntryDao,
 			AuditDetailDao auditDetailDao, ApplicationConfig appConfig) {
 
 		super(auditEntryDao, auditDetailDao, appConfig);
 	}
 
-	@Override
-	public AuditGroupEntity getAudit() {
-		if (audit == null)
-			audit = new AuditGroupEntity();
-		
-		return audit;
-	}
-
 	public void setGroup(GroupEntity entity) {
 		audit.setGroup(entity);
+	}
+
+	@Override
+	protected AuditGroupEntity newInstance() {
+		return new AuditGroupEntity();
 	}
 }

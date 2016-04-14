@@ -17,22 +17,14 @@ import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.audit.AuditIdpCommunicationEntity;
 
-public class IdpCommunicationAuditor extends AbstractAuditor {
+public class IdpCommunicationAuditor extends AbstractAuditor<AuditIdpCommunicationEntity> {
 
-	private AuditIdpCommunicationEntity audit;
-	
+	private static final long serialVersionUID = 1L;
+
 	public IdpCommunicationAuditor(AuditEntryDao auditEntryDao,
 			AuditDetailDao auditDetailDao, ApplicationConfig appConfig) {
 
 		super(auditEntryDao, auditDetailDao, appConfig);
-	}
-
-	@Override
-	public AuditIdpCommunicationEntity getAudit() {
-		if (audit == null)
-			audit = new AuditIdpCommunicationEntity();
-		
-		return audit;
 	}
 
 	public void setIdp(SamlIdpMetadataEntity idp) {
@@ -41,5 +33,10 @@ public class IdpCommunicationAuditor extends AbstractAuditor {
 
 	public void setSpConfig(SamlSpConfigurationEntity spConfig) {
 		audit.setSpConfig(spConfig);
+	}
+
+	@Override
+	protected AuditIdpCommunicationEntity newInstance() {
+		return new AuditIdpCommunicationEntity();
 	}
 }

@@ -51,9 +51,13 @@ public class AuditEntryEntity extends AbstractBaseEntity {
 	@Column(name = "audit_executor", length=64)
 	private String executor;
 
-	@ManyToOne(targetEntity = AuditEntryEntity.class)
+	@ManyToOne(targetEntity = AuditEntryEntity.class, cascade = { CascadeType.MERGE })
 	private AuditEntryEntity parentEntry;
 	
+	@OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE },
+			targetEntity = AuditEntryEntity.class, mappedBy = "parentEntry")
+	private Set<AuditEntryEntity> childEntries;
+
 	public Date getStartTime() {
 		return startTime;
 	}

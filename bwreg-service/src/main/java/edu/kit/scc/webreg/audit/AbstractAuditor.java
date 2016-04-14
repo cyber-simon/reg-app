@@ -20,22 +20,32 @@ import edu.kit.scc.webreg.entity.audit.AuditDetailEntity;
 import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
 
-public abstract class AbstractAuditor implements Auditor {
+public abstract class AbstractAuditor<T extends AuditEntryEntity> implements Auditor {
+
+	private static final long serialVersionUID = 1L;
 
 	protected static final String WRITE_EMPTY_AUDITS = "AbstractAuditor.writeEmptyAudits";
 	
 	protected AuditEntryDao auditEntryDao;
 	protected AuditDetailDao auditDetailDao;
 	protected ApplicationConfig appConfig;
+
+	protected T audit;
 	
 	public AbstractAuditor(AuditEntryDao auditEntryDao, AuditDetailDao auditDetailDao, ApplicationConfig appConfig) {
 		this.auditDetailDao = auditDetailDao;
 		this.auditEntryDao = auditEntryDao;
 		this.appConfig = appConfig;
+
+		audit = newInstance();
 	}
 
+	protected abstract T newInstance();
+	
 	@Override
-	public abstract AuditEntryEntity getAudit();
+	public T getAudit() {
+		return audit;
+	}
 	
 	@Override
 	public void setParent(Auditor auditor) {
@@ -73,12 +83,13 @@ public abstract class AbstractAuditor implements Auditor {
 		getAudit().getAuditDetails().add(detail);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public void finishAuditTrail() {
 		if (getAudit().getAuditDetails().size() > 0 ||
 				getWriteEmptyAudits()) {
 			getAudit().setEndTime(new Date());
-			auditEntryDao.persist(getAudit());
+			audit = (T) auditEntryDao.persist(getAudit());
 		}
 	}
 	

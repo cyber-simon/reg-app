@@ -192,11 +192,13 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 			if (registry.getApprovalBean() != null) {
 				logger.debug("Registering {} for approval {}", user.getEppn(), registry.getApprovalBean());
 				auditor.logAction(user.getEppn(), "STARTING APPROVAL", "registry-" + registry.getId(), "Approval is started: " + registry.getApprovalBean(), AuditStatus.SUCCESS);
+				auditor.finishAuditTrail();
 				approvalService.registerApproval(registry, auditor);
 			}
 			else {
 				logger.debug("No approval role for service {}. AutoApproving {}", service.getName(), user.getEppn());
 				auditor.logAction(user.getEppn(), "STARTING AUTO APPROVE", "registry-" + registry.getId(), "Autoapproving registry", AuditStatus.SUCCESS);
+				auditor.finishAuditTrail();
 				approvalService.approve(registry, executor, auditor);
 			}
 			

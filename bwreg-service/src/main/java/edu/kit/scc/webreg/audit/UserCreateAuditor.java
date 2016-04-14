@@ -16,26 +16,17 @@ import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
 import edu.kit.scc.webreg.entity.audit.AuditUserCreateEntity;
 
-public class UserCreateAuditor extends AbstractAuditor {
+public class UserCreateAuditor extends AbstractAuditor<AuditUserCreateEntity> {
 
-	private AuditUserCreateEntity audit;
-	
+	private static final long serialVersionUID = 1L;
+
 	public UserCreateAuditor(AuditEntryDao auditEntryDao,
 			AuditDetailDao auditDetailDao, ApplicationConfig appConfig) {
 
 		super(auditEntryDao, auditDetailDao, appConfig);
-	}
-
-	@Override
-	public AuditEntryEntity getAudit() {
-		if (audit == null)
-			audit = new AuditUserCreateEntity();
-		
-		return audit;
 	}
 
 	public void setUser(UserEntity entity) {
@@ -51,5 +42,10 @@ public class UserCreateAuditor extends AbstractAuditor {
 			logAction(user.getEppn(), "SET SAML ATTRIBUTE", entry.getKey(),
 					entry.getValue(), AuditStatus.SUCCESS);			
 		}
+	}
+
+	@Override
+	protected AuditUserCreateEntity newInstance() {
+		return new AuditUserCreateEntity();
 	}
 }

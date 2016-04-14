@@ -16,25 +16,22 @@ import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.audit.AuditUserUpdateEntity;
 
-public class UserUpdateAuditor extends AbstractAuditor {
+public class UserUpdateAuditor extends AbstractAuditor<AuditUserUpdateEntity> {
 
-	private AuditUserUpdateEntity audit;
-	
+	private static final long serialVersionUID = 1L;
+
 	public UserUpdateAuditor(AuditEntryDao auditEntryDao,
 			AuditDetailDao auditDetailDao, ApplicationConfig appConfig) {
 
 		super(auditEntryDao, auditDetailDao, appConfig);
 	}
 
-	@Override
-	public AuditUserUpdateEntity getAudit() {
-		if (audit == null)
-			audit = new AuditUserUpdateEntity();
-		
-		return audit;
-	}
-
 	public void setUser(UserEntity entity) {
 		audit.setUser(entity);
+	}
+
+	@Override
+	protected AuditUserUpdateEntity newInstance() {
+		return new AuditUserUpdateEntity();
 	}
 }

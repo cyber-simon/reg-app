@@ -15,27 +15,24 @@ import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.audit.AuditApprovalEntity;
-import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
 
-public class ApprovalAuditor extends AbstractAuditor {
+public class ApprovalAuditor extends AbstractAuditor<AuditApprovalEntity> {
 
-	private AuditApprovalEntity audit;
-	
+	private static final long serialVersionUID = 1L;
+
 	public ApprovalAuditor(AuditEntryDao auditEntryDao,
 			AuditDetailDao auditDetailDao, ApplicationConfig appConfig) {
 
 		super(auditEntryDao, auditDetailDao, appConfig);
 	}
 
-	@Override
-	public AuditEntryEntity getAudit() {
-		if (audit == null)
-			audit = new AuditApprovalEntity();
-		
-		return audit;
-	}
-
 	public void setRegistry(RegistryEntity entity) {
 		audit.setRegistry(entity);
 	}
+
+	@Override
+	protected AuditApprovalEntity newInstance() {
+		return new AuditApprovalEntity();
+	}
+
 }
