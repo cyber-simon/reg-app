@@ -32,6 +32,8 @@ public abstract class AbstractAuditor<T extends AuditEntryEntity> implements Aud
 
 	protected T audit;
 	
+	protected Boolean writeAlways;
+	
 	public AbstractAuditor(AuditEntryDao auditEntryDao, AuditDetailDao auditDetailDao, ApplicationConfig appConfig) {
 		this.auditDetailDao = auditDetailDao;
 		this.auditEntryDao = auditEntryDao;
@@ -52,12 +54,22 @@ public abstract class AbstractAuditor<T extends AuditEntryEntity> implements Aud
 		if (auditor != null)
 			getAudit().setParentEntry(auditor.getAudit());
 	}
-	
+
 	@Override
 	public void startAuditTrail(String executor) {
+		startAuditTrail(executor, false);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public void startAuditTrail(String executor, Boolean writeAlways) {
 		getAudit().setStartTime(new Date());
 		getAudit().setAuditDetails(new HashSet<AuditDetailEntity>());
 		getAudit().setExecutor(executor);
+		this.writeAlways = writeAlways;
+		if (writeAlways) {
+			audit = (T) auditEntryDao.persist(getAudit());
+		}
 	}
 
 	@Override
@@ -86,9 +98,11 @@ public abstract class AbstractAuditor<T extends AuditEntryEntity> implements Aud
 	@SuppressWarnings("unchecked")
 	@Override
 	public void finishAuditTrail() {
-		if (getAudit().getAuditDetails().size() > 0 ||
+		getAudit().setEndTime(new Date());
+
+		if ((! writeAlways) &&
+				getAudit().getAuditDetails().size() > 0 ||
 				getWriteEmptyAudits()) {
-			getAudit().setEndTime(new Date());
 			audit = (T) auditEntryDao.persist(getAudit());
 		}
 	}

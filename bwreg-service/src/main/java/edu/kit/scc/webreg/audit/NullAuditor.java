@@ -5,6 +5,7 @@ import edu.kit.scc.webreg.entity.audit.AuditStatus;
 
 public class NullAuditor implements Auditor {
 
+	private static final long serialVersionUID = 1L;
 	private String executor;
 	
 	@Override
@@ -14,6 +15,11 @@ public class NullAuditor implements Auditor {
 
 	@Override
 	public void startAuditTrail(String executor) {
+		this.executor = executor;
+	}
+
+	@Override
+	public void startAuditTrail(String executor, Boolean writeAlways) {
 		this.executor = executor;
 	}
 

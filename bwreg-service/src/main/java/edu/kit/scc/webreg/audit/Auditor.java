@@ -23,4 +23,6 @@ public interface Auditor extends Serializable {
 	public abstract String getActualExecutor();
 
 	void setParent(Auditor auditor);
+
+	void startAuditTrail(String executor, Boolean writeAlways);
 }

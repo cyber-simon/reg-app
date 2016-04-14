@@ -144,7 +144,7 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 		service = serviceDao.findById(service.getId());
 
 		ServiceRegisterAuditor auditor = new ServiceRegisterAuditor(auditDao, auditDetailDao, appConfig);
-		auditor.startAuditTrail(executor);
+		auditor.startAuditTrail(executor, true);
 		auditor.setName(this.getClass().getName() + "-ServiceRegister-Audit");
 		auditor.setDetail("Register user " + user.getEppn() + " for service " + service.getName());
 		auditor.setParent(parentAuditor);

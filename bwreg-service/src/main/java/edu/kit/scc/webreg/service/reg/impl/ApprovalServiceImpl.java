@@ -103,7 +103,7 @@ public class ApprovalServiceImpl implements ApprovalService {
 	public void denyApproval(RegistryEntity registry, String executor, Auditor parentAuditor) throws RegisterException {
 
 		ApprovalAuditor auditor = new ApprovalAuditor(auditDao, auditDetailDao, appConfig);
-		auditor.startAuditTrail(executor);
+		auditor.startAuditTrail(executor, true);
 		auditor.setName(this.getClass().getName() + "-ApprovalDeny-Audit");
 		auditor.setDetail("Deny user " + registry.getUser().getEppn() + " for service " + registry.getService().getName());
 		auditor.setParent(parentAuditor);
@@ -145,7 +145,7 @@ public class ApprovalServiceImpl implements ApprovalService {
 			UserEntity userEntity = userDao.findByIdWithAll(registry.getUser().getId());
 
 			ApprovalAuditor auditor = new ApprovalAuditor(auditDao, auditDetailDao, appConfig);
-			auditor.startAuditTrail(executor);
+			auditor.startAuditTrail(executor, true);
 			auditor.setName(workflow.getClass().getName() + "-ApprovalApprove-Audit");
 			auditor.setDetail("Approve user " + userEntity.getEppn() + " for service " + serviceEntity.getName());
 			auditor.setParent(parentAuditor);
