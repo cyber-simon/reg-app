@@ -20,7 +20,8 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 
-import edu.kit.scc.webreg.audit.ServiceRegisterAuditor;
+import edu.kit.scc.webreg.audit.ApprovalAuditor;
+import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
@@ -40,6 +41,7 @@ import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserGroupEntity;
+import edu.kit.scc.webreg.entity.audit.AuditStatus;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.MultipleGroupEvent;
 import edu.kit.scc.webreg.event.ServiceRegisterEvent;
@@ -83,7 +85,7 @@ public class ApprovalServiceImpl implements ApprovalService {
 	private ApplicationConfig appConfig;
 	
 	@Override
-	public void registerApproval(RegistryEntity registry) throws RegisterException {
+	public void registerApproval(RegistryEntity registry, Auditor parentAuditor) throws RegisterException {
 		ApprovalWorkflow workflow = getApprovalWorkflowInstance(registry.getApprovalBean());
 		workflow.startWorkflow(registry);
 		registry = registryDao.persist(registry);
@@ -98,28 +100,39 @@ public class ApprovalServiceImpl implements ApprovalService {
 	}
 
 	@Override
-	public void denyApproval(RegistryEntity registry, String executor) throws RegisterException {
+	public void denyApproval(RegistryEntity registry, String executor, Auditor parentAuditor) throws RegisterException {
+
+		ApprovalAuditor auditor = new ApprovalAuditor(auditDao, auditDetailDao, appConfig);
+		auditor.startAuditTrail(executor);
+		auditor.setName(this.getClass().getName() + "-ApprovalDeny-Audit");
+		auditor.setDetail("Deny user " + registry.getUser().getEppn() + " for service " + registry.getService().getName());
+		auditor.setParent(parentAuditor);
+		auditor.setRegistry(registry);
 
 		registry.setRegistryStatus(RegistryStatus.DELETED);
 		registry = registryDao.persist(registry);
 
-		ServiceRegisterEvent serviceRegisterEvent = new ServiceRegisterEvent(registry);
+		auditor.logAction(registry.getUser().getEppn(), "DENY APPROVAL", "registry-" + registry.getId(), "User is denied acces for service", AuditStatus.SUCCESS);
+		
+		ServiceRegisterEvent serviceRegisterEvent = new ServiceRegisterEvent(registry, auditor);
 		List<EventEntity> eventList = new ArrayList<EventEntity>(serviceEventDao.findAllByService(registry.getService()));
 		try {
 			eventSubmitter.submit(serviceRegisterEvent, eventList, EventType.APPROVAL_DENIED, executor);
 		} catch (EventSubmitException e) {
 			logger.warn("Exeption", e);
-		}		
+		}	
+		
+		auditor.finishAuditTrail();
 	}
 
 	@Override
-	public void approve(RegistryEntity registry, String executor)
+	public void approve(RegistryEntity registry, String executor, Auditor parentAuditor)
 			throws RegisterException {
-		approve(registry, executor, true);
+		approve(registry, executor, true, parentAuditor);
 	}
 	
 	@Override
-	public void approve(RegistryEntity registry, String executor, Boolean sendGroupUpdate)
+	public void approve(RegistryEntity registry, String executor, Boolean sendGroupUpdate, Auditor parentAuditor)
 			throws RegisterException {
 		logger.info("Finally approving registry {} for user {} and service {}", registry.getId(),
 				registry.getUser().getEppn(), registry.getService().getName());
@@ -131,10 +144,11 @@ public class ApprovalServiceImpl implements ApprovalService {
 			ServiceEntity serviceEntity = serviceDao.findByIdWithServiceProps(registry.getService().getId());
 			UserEntity userEntity = userDao.findByIdWithAll(registry.getUser().getId());
 
-			ServiceRegisterAuditor auditor = new ServiceRegisterAuditor(auditDao, auditDetailDao, appConfig);
+			ApprovalAuditor auditor = new ApprovalAuditor(auditDao, auditDetailDao, appConfig);
 			auditor.startAuditTrail(executor);
-			auditor.setName(workflow.getClass().getName() + "-Register-Audit");
-			auditor.setDetail("Register user " + userEntity.getEppn() + " for service " + serviceEntity.getName());
+			auditor.setName(workflow.getClass().getName() + "-ApprovalApprove-Audit");
+			auditor.setDetail("Approve user " + userEntity.getEppn() + " for service " + serviceEntity.getName());
+			auditor.setParent(parentAuditor);
 			auditor.setRegistry(registry);
 			
 			workflow.updateRegistry(userEntity, serviceEntity, registry, auditor);
@@ -145,6 +159,8 @@ public class ApprovalServiceImpl implements ApprovalService {
 			registry.setLastReconcile(new Date());
 
 			registry = registryDao.persist(registry);
+
+			auditor.logAction(registry.getUser().getEppn(), "APPROVE", "registry-" + registry.getId(), "User is approved for service", AuditStatus.SUCCESS);
 
 			HashSet<GroupEntity> userGroups = new HashSet<GroupEntity>(userEntity.getGroups().size());
 			
@@ -170,7 +186,7 @@ public class ApprovalServiceImpl implements ApprovalService {
 				}
 			}
 			
-			ServiceRegisterEvent serviceRegisterEvent = new ServiceRegisterEvent(registry);
+			ServiceRegisterEvent serviceRegisterEvent = new ServiceRegisterEvent(registry, auditor);
 			List<EventEntity> eventList = new ArrayList<EventEntity>(serviceEventDao.findAllByService(serviceEntity));
 			eventSubmitter.submit(serviceRegisterEvent, eventList, EventType.SERVICE_REGISTER, executor);
 

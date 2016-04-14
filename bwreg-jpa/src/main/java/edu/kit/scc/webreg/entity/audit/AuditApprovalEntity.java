@@ -8,20 +8,26 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.event;
+package edu.kit.scc.webreg.entity.audit;
 
-import edu.kit.scc.webreg.audit.Auditor;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+
 import edu.kit.scc.webreg.entity.RegistryEntity;
 
-public class ServiceRegisterEvent extends AbstractEvent<RegistryEntity> {
+@Entity(name = "AuditApprovalEntity")
+public class AuditApprovalEntity extends AuditEntryEntity {
 
 	private static final long serialVersionUID = 1L;
 
-	public ServiceRegisterEvent(RegistryEntity entity) {
-		super(entity);
+	@ManyToOne(targetEntity = RegistryEntity.class)
+	private RegistryEntity registry;
+
+	public RegistryEntity getRegistry() {
+		return registry;
 	}
 
-	public ServiceRegisterEvent(RegistryEntity entity, Auditor auditor) {
-		super(entity, auditor);
+	public void setRegistry(RegistryEntity registry) {
+		this.registry = registry;
 	}
 }

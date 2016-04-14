@@ -12,18 +12,31 @@ package edu.kit.scc.webreg.event;
 
 import java.io.Serializable;
 
+import edu.kit.scc.webreg.audit.Auditor;
+
 public class AbstractEvent<E extends Serializable> implements Event<E> {
 
 	private static final long serialVersionUID = 1L;
 
 	private E entity;
+	
+	private Auditor auditor;
+
+	public AbstractEvent(E entity, Auditor auditor) {
+		this.entity = entity;
+		this.auditor = auditor;
+	}
 
 	public AbstractEvent(E entity) {
-		this.entity = entity;
+		this(entity, null);
 	}
 
 	public E getEntity() {
 		return entity;
+	}
+
+	public Auditor getAuditor() {
+		return auditor;
 	}
 		
 }

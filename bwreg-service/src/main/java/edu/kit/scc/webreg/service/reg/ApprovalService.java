@@ -10,19 +10,20 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.reg;
 
+import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
 
 public interface ApprovalService {
 
-	void registerApproval(RegistryEntity registry) throws RegisterException;
+	void registerApproval(RegistryEntity registry, Auditor auditor) throws RegisterException;
 
-	void approve(RegistryEntity registry, String executor) throws RegisterException;
+	void approve(RegistryEntity registry, String executor, Auditor auditor) throws RegisterException;
 
-	void denyApproval(RegistryEntity registry, String executor)
+	void denyApproval(RegistryEntity registry, String executor, Auditor auditor)
 			throws RegisterException;
 
 	void approve(RegistryEntity registry, String executor,
-			Boolean sendGroupUpdate) throws RegisterException;
+			Boolean sendGroupUpdate, Auditor auditor) throws RegisterException;
 	
 }

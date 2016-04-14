@@ -40,4 +40,8 @@ public class NullAuditor implements Auditor {
 		return executor;
 	}
 
+	@Override
+	public void setParent(Auditor auditor) {
+	}
+
 }

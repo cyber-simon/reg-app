@@ -24,7 +24,9 @@ import javax.inject.Inject;
 import org.kie.api.runtime.KieSession;
 import org.slf4j.Logger;
 
+import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.audit.GroupAuditor;
+import edu.kit.scc.webreg.audit.RegistryAuditor;
 import edu.kit.scc.webreg.audit.ServiceAuditor;
 import edu.kit.scc.webreg.audit.ServiceRegisterAuditor;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
@@ -56,6 +58,7 @@ import edu.kit.scc.webreg.entity.UserGroupEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.entity.audit.AuditDetailEntity;
 import edu.kit.scc.webreg.entity.audit.AuditServiceRegisterEntity;
+import edu.kit.scc.webreg.entity.audit.AuditStatus;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.MultipleGroupEvent;
 import edu.kit.scc.webreg.event.ServiceRegisterEvent;
@@ -122,9 +125,15 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 			throws RegisterException {
 		registerUser(user, service, executor, true);
 	}
-	
+
 	@Override
 	public void registerUser(UserEntity user, ServiceEntity service, String executor, Boolean sendGroupUpdate)
+			throws RegisterException {
+		registerUser(user, service, executor, sendGroupUpdate, null);
+	}
+	
+	@Override
+	public void registerUser(UserEntity user, ServiceEntity service, String executor, Boolean sendGroupUpdate, Auditor parentAuditor)
 			throws RegisterException {
 		
 		if (! UserStatus.ACTIVE.equals(user.getUserStatus())) {
@@ -133,14 +142,20 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 		}
 		
 		service = serviceDao.findById(service.getId());
-		
+
+		ServiceRegisterAuditor auditor = new ServiceRegisterAuditor(auditDao, auditDetailDao, appConfig);
+		auditor.startAuditTrail(executor);
+		auditor.setName(this.getClass().getName() + "-ServiceRegister-Audit");
+		auditor.setDetail("Register user " + user.getEppn() + " for service " + service.getName());
+		auditor.setParent(parentAuditor);
+
 		if (service.getParentService() != null) {
 			logger.info("Service has Parent. Checking parent first.");
 			List<RegistryEntity> r = registryDao.findByServiceAndUserAndNotStatus(service.getParentService(), user, 
 					RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
 			if (r.size() == 0) {
 				logger.info("User {} is not registered with parent service {} yet", user.getEppn(), service.getParentService().getName());
-				registerUser(user, service.getParentService(), executor);
+				registerUser(user, service.getParentService(), executor, true, auditor);
 			}
 			else {
 				logger.debug("User {} is already registered with parent service {}", user.getEppn(), service.getParentService().getName());
@@ -170,14 +185,19 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 			registry.setLastStatusChange(new Date());
 			
 			registry = registryDao.persist(registry);
-			
+
+			auditor.logAction(user.getEppn(), "CREATED REGISTRY", "registry-" + registry.getId(), "Registry is created", AuditStatus.SUCCESS);
+			auditor.setRegistry(registry);
+
 			if (registry.getApprovalBean() != null) {
 				logger.debug("Registering {} for approval {}", user.getEppn(), registry.getApprovalBean());
-				approvalService.registerApproval(registry);
+				auditor.logAction(user.getEppn(), "STARTING APPROVAL", "registry-" + registry.getId(), "Approval is started: " + registry.getApprovalBean(), AuditStatus.SUCCESS);
+				approvalService.registerApproval(registry, auditor);
 			}
 			else {
 				logger.debug("No approval role for service {}. AutoApproving {}", service.getName(), user.getEppn());
-				approvalService.approve(registry, executor);
+				auditor.logAction(user.getEppn(), "STARTING AUTO APPROVE", "registry-" + registry.getId(), "Autoapproving registry", AuditStatus.SUCCESS);
+				approvalService.approve(registry, executor, auditor);
 			}
 			
 		} catch (Throwable t) {
@@ -335,9 +355,14 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 			throw new RegisterException(t);
 		}
 	}
-	
+
 	@Override
 	public final void reconsiliation(RegistryEntity registry, Boolean fullRecon, String executor) throws RegisterException {
+		reconsiliation(registry, fullRecon, executor, null);
+	}
+	
+	@Override
+	public final void reconsiliation(RegistryEntity registry, Boolean fullRecon, String executor, Auditor parentAuditor) throws RegisterException {
 
 		RegisterUserWorkflow workflow = getWorkflowInstance(registry.getRegisterBean());
 
@@ -345,10 +370,11 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 			ServiceEntity serviceEntity = serviceDao.findById(registry.getService().getId());
 			UserEntity userEntity = userDao.findById(registry.getUser().getId());
 			
-			ServiceRegisterAuditor auditor = new ServiceRegisterAuditor(auditDao, auditDetailDao, appConfig);
+			RegistryAuditor auditor = new RegistryAuditor(auditDao, auditDetailDao, appConfig);
 			auditor.startAuditTrail(executor);
 			auditor.setName(workflow.getClass().getName() + "-Reconsiliation-Audit");
 			auditor.setDetail("Recon user " + userEntity.getEppn() + " for service " + serviceEntity.getName());
+			auditor.setParent(parentAuditor);
 			auditor.setRegistry(registry);
 
 			Boolean missingMandatoryValues = false;

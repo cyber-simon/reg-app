@@ -12,6 +12,7 @@ package edu.kit.scc.webreg.service.reg;
 
 import java.util.Set;
 
+import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
@@ -28,7 +29,7 @@ public interface RegisterUserService {
 			throws RegisterException;
 
 	void reconsiliation(RegistryEntity registry, Boolean fullRecon,
-			String executor) throws RegisterException;
+			String executor, Auditor parentAuditor) throws RegisterException;
 
 	void deregisterUser(RegistryEntity registry, String executor)
 			throws RegisterException;
@@ -58,5 +59,12 @@ public interface RegisterUserService {
 
 	void registerUser(UserEntity user, ServiceEntity service, String executor,
 			Boolean sendGroupUpdate) throws RegisterException;
+
+	void reconsiliation(RegistryEntity registry, Boolean fullRecon,
+			String executor) throws RegisterException;
+
+	void registerUser(UserEntity user, ServiceEntity service, String executor,
+			Boolean sendGroupUpdate, Auditor parentAuditor)
+			throws RegisterException;
 	
 }

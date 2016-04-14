@@ -29,7 +29,7 @@ public class ApproverRoleApprovalWorkflow extends AbstractApprovalWorkflow {
 				
 			ApprovalService approvalService = (ApprovalService) ic.lookup("global/bwreg/bwreg-service/ApprovalServiceImpl!edu.kit.scc.webreg.service.reg.ApprovalService");
 
-			approvalService.denyApproval(registry, executor);
+			approvalService.denyApproval(registry, executor, null);
 		} catch (NamingException e) {
 			throw new RegisterException(e);
 		}		
@@ -41,7 +41,7 @@ public class ApproverRoleApprovalWorkflow extends AbstractApprovalWorkflow {
 				
 			ApprovalService approvalService = (ApprovalService) ic.lookup("global/bwreg/bwreg-service/ApprovalServiceImpl!edu.kit.scc.webreg.service.reg.ApprovalService");
 
-			approvalService.approve(registry, executor);
+			approvalService.approve(registry, executor, null);
 		} catch (NamingException e) {
 			throw new RegisterException(e);
 		}

@@ -236,7 +236,7 @@ public class UserUpdater implements Serializable {
 		user.setLastFailedUpdate(null);
 
 		if (changed) {
-			fireUserChangeEvent(user, auditor.getActualExecutor());
+			fireUserChangeEvent(user, auditor.getActualExecutor(), auditor);
 		}
 		
 		auditor.setUser(user);
@@ -365,9 +365,9 @@ public class UserUpdater implements Serializable {
 		user = userDao.persist(user);
 	}
 
-	protected void fireUserChangeEvent(UserEntity user, String executor) {
+	protected void fireUserChangeEvent(UserEntity user, String executor, Auditor auditor) {
 		
-		UserEvent userEvent = new UserEvent(user);
+		UserEvent userEvent = new UserEvent(user, auditor);
 		
 		try {
 			eventSubmitter.submit(userEvent, EventType.USER_UPDATE, executor);

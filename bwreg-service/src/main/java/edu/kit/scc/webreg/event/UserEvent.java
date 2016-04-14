@@ -10,13 +10,19 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.event;
 
+import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.entity.UserEntity;
 
 public class UserEvent extends AbstractEvent<UserEntity> {
+
 
 	private static final long serialVersionUID = 1L;
 
 	public UserEvent(UserEntity entity) {
 		super(entity);
+	}
+
+	public UserEvent(UserEntity entity, Auditor auditor) {
+		super(entity, auditor);
 	}
 }
