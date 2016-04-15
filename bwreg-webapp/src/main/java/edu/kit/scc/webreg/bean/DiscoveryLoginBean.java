@@ -154,9 +154,16 @@ public class DiscoveryLoginBean implements Serializable {
 		List<SamlIdpMetadataEntity> filteredList = new ArrayList<SamlIdpMetadataEntity>();
 		
 		for (SamlIdpMetadataEntity idp : idpList) {
-			if (Pattern.compile(
+			if (idp.getOrgName() != null &&
+					Pattern.compile(
 					Pattern.quote(filter), Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE)
 					.matcher(idp.getOrgName()).find()) {
+				filteredList.add(idp);
+			}
+			else if (idp.getDisplayName() != null &&
+					Pattern.compile(
+					Pattern.quote(filter), Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE)
+					.matcher(idp.getDisplayName()).find()) {
 				filteredList.add(idp);
 			}
 		}
