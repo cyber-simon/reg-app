@@ -39,6 +39,7 @@ import org.opensaml.xml.io.UnmarshallerFactory;
 import org.opensaml.xml.io.UnmarshallingException;
 import org.opensaml.xml.parse.BasicParserPool;
 import org.opensaml.xml.parse.XMLParserException;
+import org.opensaml.xml.schema.XSAny;
 import org.opensaml.xml.schema.XSDateTime;
 import org.opensaml.xml.schema.XSString;
 import org.opensaml.xml.util.XMLHelper;
@@ -132,6 +133,19 @@ public class SamlHelper implements Serializable {
 				}
 				else if (obj instanceof XSDateTime) {
 					returnList.add(((XSDateTime) obj).getValue());
+				}
+				/*
+				 * Support Attributes with no encoded type. They come as XSAny.
+				 * Assume it's a string
+				 */
+				else if (obj instanceof XSAny) {
+					XSAny any = (XSAny) obj;
+					if (any.getTextContent() != null) {
+						returnList.add(any.getTextContent().trim());
+					}
+				}
+				else {
+					logger.info("Unknown Attribute type: {}", obj.getClass());
 				}
 			}
 		}
