@@ -453,6 +453,11 @@ public class UserUpdater implements Serializable {
 				return false;
 			}
 			
+			if (actualValue == null && value == null) {
+				// Value stayed null
+				return false;
+			}
+			
 			if (actualValue == null) {
 				s = "null";
 				action = "SET FIELD";
