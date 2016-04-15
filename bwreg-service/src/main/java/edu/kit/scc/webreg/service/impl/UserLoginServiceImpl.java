@@ -260,6 +260,9 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			
 			HttpClientBuilder clientBuilder = new HttpClientBuilder();
 			HttpClient client = clientBuilder.buildClient();
+			
+			client.getParams().setAuthenticationPreemptive(true);
+			
 			client.getState().setCredentials(
 	                new AuthScope(bindingHost, 443),
 	                new UsernamePasswordCredentials(username, password));
