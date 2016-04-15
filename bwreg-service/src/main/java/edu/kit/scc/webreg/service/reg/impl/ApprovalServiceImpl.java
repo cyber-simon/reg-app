@@ -114,7 +114,7 @@ public class ApprovalServiceImpl implements ApprovalService {
 
 		auditor.logAction(registry.getUser().getEppn(), "DENY APPROVAL", "registry-" + registry.getId(), "User is denied acces for service", AuditStatus.SUCCESS);
 		
-		ServiceRegisterEvent serviceRegisterEvent = new ServiceRegisterEvent(registry, auditor);
+		ServiceRegisterEvent serviceRegisterEvent = new ServiceRegisterEvent(registry, auditor.getAudit());
 		List<EventEntity> eventList = new ArrayList<EventEntity>(serviceEventDao.findAllByService(registry.getService()));
 		try {
 			eventSubmitter.submit(serviceRegisterEvent, eventList, EventType.APPROVAL_DENIED, executor);
@@ -186,7 +186,7 @@ public class ApprovalServiceImpl implements ApprovalService {
 				}
 			}
 			
-			ServiceRegisterEvent serviceRegisterEvent = new ServiceRegisterEvent(registry, auditor);
+			ServiceRegisterEvent serviceRegisterEvent = new ServiceRegisterEvent(registry, auditor.getAudit());
 			List<EventEntity> eventList = new ArrayList<EventEntity>(serviceEventDao.findAllByService(serviceEntity));
 			eventSubmitter.submit(serviceRegisterEvent, eventList, EventType.SERVICE_REGISTER, executor);
 

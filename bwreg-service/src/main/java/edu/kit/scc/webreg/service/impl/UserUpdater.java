@@ -367,7 +367,7 @@ public class UserUpdater implements Serializable {
 
 	protected void fireUserChangeEvent(UserEntity user, String executor, Auditor auditor) {
 		
-		UserEvent userEvent = new UserEvent(user, auditor);
+		UserEvent userEvent = new UserEvent(user, auditor.getAudit());
 		
 		try {
 			eventSubmitter.submit(userEvent, EventType.USER_UPDATE, executor);

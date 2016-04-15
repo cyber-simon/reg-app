@@ -10,8 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.event;
 
-import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
 
 public class ServiceRegisterEvent extends AbstractEvent<RegistryEntity> {
 
@@ -21,7 +21,7 @@ public class ServiceRegisterEvent extends AbstractEvent<RegistryEntity> {
 		super(entity);
 	}
 
-	public ServiceRegisterEvent(RegistryEntity entity, Auditor auditor) {
-		super(entity, auditor);
+	public ServiceRegisterEvent(RegistryEntity entity, AuditEntryEntity audit) {
+		super(entity, audit);
 	}
 }

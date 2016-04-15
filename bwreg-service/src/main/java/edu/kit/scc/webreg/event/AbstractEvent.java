@@ -12,7 +12,7 @@ package edu.kit.scc.webreg.event;
 
 import java.io.Serializable;
 
-import edu.kit.scc.webreg.audit.Auditor;
+import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
 
 public class AbstractEvent<E extends Serializable> implements Event<E> {
 
@@ -20,11 +20,11 @@ public class AbstractEvent<E extends Serializable> implements Event<E> {
 
 	private E entity;
 	
-	private Auditor auditor;
+	private AuditEntryEntity audit;
 
-	public AbstractEvent(E entity, Auditor auditor) {
+	public AbstractEvent(E entity, AuditEntryEntity audit) {
 		this.entity = entity;
-		this.auditor = auditor;
+		this.audit = audit;
 	}
 
 	public AbstractEvent(E entity) {
@@ -35,8 +35,7 @@ public class AbstractEvent<E extends Serializable> implements Event<E> {
 		return entity;
 	}
 
-	public Auditor getAuditor() {
-		return auditor;
+	public AuditEntryEntity getAudit() {
+		return audit;
 	}
-		
 }
