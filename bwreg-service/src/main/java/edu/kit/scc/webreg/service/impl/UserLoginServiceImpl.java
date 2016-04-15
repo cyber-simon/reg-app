@@ -223,8 +223,13 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 		String username = splits[0];
 		String scope = splits[1];
 		
-		SamlIdpMetadataEntity idp = idpDao.findByScope(scope);
-
+		SamlIdpMetadataEntity idp = user.getIdp();
+		
+		if (idp == null) {
+			// if idp is not connected with user (legacy) try lookup via scope
+			idp = idpDao.findByScope(scope);
+		}
+		
 		if (idp == null) {
 			throw new NoIdpForScopeException("scope unknown");
 		}
