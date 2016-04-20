@@ -68,11 +68,15 @@ public class GroupServiceImpl extends BaseServiceImpl<GroupEntity, Long> impleme
 	
 	@Override
 	public void addUserToGroup(UserEntity user, GroupEntity group) {
+		group = groupDao.merge(group);
+		user = userDao.merge(user);
 		groupDao.addUserToGroup(user, group);
 	}	
 	
 	@Override
 	public void removeUserGromGroup(UserEntity user, GroupEntity group) {
+		group = groupDao.merge(group);
+		user = userDao.merge(user);
 		groupDao.removeUserGromGroup(user, group);
 	}	
 	
