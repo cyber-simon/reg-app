@@ -4,8 +4,13 @@ import javax.annotation.Generated;
 import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.StaticMetamodel;
 
-@Generated(value="Dali", date="2015-12-17T10:35:38.229+0100")
+@Generated(value = "org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor")
 @StaticMetamodel(SamlIdpScopeEntity.class)
-public class SamlIdpScopeEntity_ {
-	public static volatile SingularAttribute<SamlIdpScopeEntity, Object> idp;
+public abstract class SamlIdpScopeEntity_ extends edu.kit.scc.webreg.entity.AbstractBaseEntity_ {
+
+	public static volatile SingularAttribute<SamlIdpScopeEntity, Boolean> regex;
+	public static volatile SingularAttribute<SamlIdpScopeEntity, SamlIdpMetadataEntity> idp;
+	public static volatile SingularAttribute<SamlIdpScopeEntity, String> scope;
+
 }
+

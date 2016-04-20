@@ -1,11 +1,15 @@
 package edu.kit.scc.webreg.entity.audit;
 
+import edu.kit.scc.webreg.entity.RegistryEntity;
+import javax.annotation.Generated;
 import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.StaticMetamodel;
 
-import edu.kit.scc.webreg.entity.RegistryEntity;
-
+@Generated(value = "org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor")
 @StaticMetamodel(AuditApprovalEntity.class)
-public class AuditApprovalEntity_ extends AuditEntryEntity_ {
+public abstract class AuditApprovalEntity_ extends edu.kit.scc.webreg.entity.audit.AuditEntryEntity_ {
+
 	public static volatile SingularAttribute<AuditApprovalEntity, RegistryEntity> registry;
+
 }
+

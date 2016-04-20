@@ -4,10 +4,13 @@ import javax.annotation.Generated;
 import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.StaticMetamodel;
 
-@Generated(value="Dali", date="2015-12-17T10:35:38.254+0100")
+@Generated(value = "org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor")
 @StaticMetamodel(ServiceGroupFlagEntity.class)
-public class ServiceGroupFlagEntity_ extends AbstractBaseEntity_ {
+public abstract class ServiceGroupFlagEntity_ extends edu.kit.scc.webreg.entity.AbstractBaseEntity_ {
+
 	public static volatile SingularAttribute<ServiceGroupFlagEntity, ServiceEntity> service;
 	public static volatile SingularAttribute<ServiceGroupFlagEntity, ServiceBasedGroupEntity> group;
 	public static volatile SingularAttribute<ServiceGroupFlagEntity, ServiceGroupStatus> status;
+
 }
+

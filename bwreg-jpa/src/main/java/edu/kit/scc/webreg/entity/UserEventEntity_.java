@@ -4,8 +4,11 @@ import javax.annotation.Generated;
 import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.StaticMetamodel;
 
-@Generated(value="Dali", date="2015-12-17T10:35:38.263+0100")
+@Generated(value = "org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor")
 @StaticMetamodel(UserEventEntity.class)
-public class UserEventEntity_ {
-	public static volatile SingularAttribute<UserEventEntity, Object> user;
+public abstract class UserEventEntity_ extends edu.kit.scc.webreg.entity.EventEntity_ {
+
+	public static volatile SingularAttribute<UserEventEntity, UserEntity> user;
+
 }
+

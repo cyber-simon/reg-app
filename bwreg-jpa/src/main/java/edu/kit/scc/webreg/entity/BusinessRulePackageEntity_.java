@@ -1,11 +1,20 @@
 package edu.kit.scc.webreg.entity;
 
+import java.util.Date;
 import javax.annotation.Generated;
-import javax.persistence.metamodel.CollectionAttribute;
+import javax.persistence.metamodel.SetAttribute;
+import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.StaticMetamodel;
 
-@Generated(value="Dali", date="2015-12-17T10:35:38.149+0100")
+@Generated(value = "org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor")
 @StaticMetamodel(BusinessRulePackageEntity.class)
-public class BusinessRulePackageEntity_ {
-	public static volatile CollectionAttribute<BusinessRulePackageEntity, Object> rules;
+public abstract class BusinessRulePackageEntity_ extends edu.kit.scc.webreg.entity.AbstractBaseEntity_ {
+
+	public static volatile SingularAttribute<BusinessRulePackageEntity, String> knowledgeBaseVersion;
+	public static volatile SingularAttribute<BusinessRulePackageEntity, String> knowledgeBaseName;
+	public static volatile SetAttribute<BusinessRulePackageEntity, BusinessRuleEntity> rules;
+	public static volatile SingularAttribute<BusinessRulePackageEntity, String> packageName;
+	public static volatile SingularAttribute<BusinessRulePackageEntity, Date> dirtyStamp;
+
 }
+

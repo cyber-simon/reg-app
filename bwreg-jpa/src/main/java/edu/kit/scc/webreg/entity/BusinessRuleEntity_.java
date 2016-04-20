@@ -4,8 +4,15 @@ import javax.annotation.Generated;
 import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.StaticMetamodel;
 
-@Generated(value="Dali", date="2015-12-17T10:35:38.144+0100")
+@Generated(value = "org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor")
 @StaticMetamodel(BusinessRuleEntity.class)
-public class BusinessRuleEntity_ {
-	public static volatile SingularAttribute<BusinessRuleEntity, Object> rulePackage;
+public abstract class BusinessRuleEntity_ extends edu.kit.scc.webreg.entity.AbstractBaseEntity_ {
+
+	public static volatile SingularAttribute<BusinessRuleEntity, BusinessRulePackageEntity> rulePackage;
+	public static volatile SingularAttribute<BusinessRuleEntity, String> ruleType;
+	public static volatile SingularAttribute<BusinessRuleEntity, String> name;
+	public static volatile SingularAttribute<BusinessRuleEntity, String> rule;
+	public static volatile SingularAttribute<BusinessRuleEntity, String> knowledgeBaseName;
+
 }
+

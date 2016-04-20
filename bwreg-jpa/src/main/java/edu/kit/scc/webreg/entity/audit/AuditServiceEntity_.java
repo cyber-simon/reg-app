@@ -1,11 +1,15 @@
 package edu.kit.scc.webreg.entity.audit;
 
+import edu.kit.scc.webreg.entity.ServiceEntity;
 import javax.annotation.Generated;
 import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.StaticMetamodel;
 
-@Generated(value="Dali", date="2015-12-17T10:35:38.118+0100")
+@Generated(value = "org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor")
 @StaticMetamodel(AuditServiceEntity.class)
-public class AuditServiceEntity_ {
-	public static volatile SingularAttribute<AuditServiceEntity, Object> service;
+public abstract class AuditServiceEntity_ extends edu.kit.scc.webreg.entity.audit.AuditEntryEntity_ {
+
+	public static volatile SingularAttribute<AuditServiceEntity, ServiceEntity> service;
+
 }
+

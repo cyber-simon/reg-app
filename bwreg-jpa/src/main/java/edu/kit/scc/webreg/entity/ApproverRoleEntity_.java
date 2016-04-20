@@ -1,11 +1,16 @@
 package edu.kit.scc.webreg.entity;
 
 import javax.annotation.Generated;
-import javax.persistence.metamodel.CollectionAttribute;
+import javax.persistence.metamodel.SetAttribute;
+import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.StaticMetamodel;
 
-@Generated(value="Dali", date="2015-12-17T10:35:38.062+0100")
+@Generated(value = "org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor")
 @StaticMetamodel(ApproverRoleEntity.class)
-public class ApproverRoleEntity_ {
-	public static volatile CollectionAttribute<ApproverRoleEntity, Object> approverForServices;
+public abstract class ApproverRoleEntity_ extends edu.kit.scc.webreg.entity.RoleEntity_ {
+
+	public static volatile SingularAttribute<ApproverRoleEntity, String> approvalBean;
+	public static volatile SetAttribute<ApproverRoleEntity, ServiceEntity> approverForServices;
+
 }
+

@@ -1,9 +1,14 @@
 package edu.kit.scc.webreg.entity.as;
 
 import javax.annotation.Generated;
+import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.StaticMetamodel;
 
-@Generated(value="Dali", date="2015-12-17T10:35:38.081+0100")
+@Generated(value = "org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor")
 @StaticMetamodel(ASUserAttrValueLongEntity.class)
-public class ASUserAttrValueLongEntity_ {
+public abstract class ASUserAttrValueLongEntity_ extends edu.kit.scc.webreg.entity.as.ASUserAttrValueEntity_ {
+
+	public static volatile SingularAttribute<ASUserAttrValueLongEntity, Long> valueLong;
+
 }
+

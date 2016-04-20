@@ -4,8 +4,11 @@ import javax.annotation.Generated;
 import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.StaticMetamodel;
 
-@Generated(value="Dali", date="2015-12-17T10:35:38.170+0100")
+@Generated(value = "org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor")
 @StaticMetamodel(GroupAdminRoleEntity.class)
-public class GroupAdminRoleEntity_ extends RoleEntity_ {
+public abstract class GroupAdminRoleEntity_ extends edu.kit.scc.webreg.entity.RoleEntity_ {
+
 	public static volatile SetAttribute<GroupAdminRoleEntity, GroupEntity> adminForGroups;
+
 }
+

@@ -4,10 +4,13 @@ import javax.annotation.Generated;
 import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.StaticMetamodel;
 
-@Generated(value="Dali", date="2015-12-17T10:35:38.256+0100")
+@Generated(value = "org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor")
 @StaticMetamodel(TextPropertyEntity.class)
-public class TextPropertyEntity_ extends AbstractBaseEntity_ {
-	public static volatile SingularAttribute<TextPropertyEntity, String> key;
-	public static volatile SingularAttribute<TextPropertyEntity, String> value;
+public abstract class TextPropertyEntity_ extends edu.kit.scc.webreg.entity.AbstractBaseEntity_ {
+
 	public static volatile SingularAttribute<TextPropertyEntity, String> language;
+	public static volatile SingularAttribute<TextPropertyEntity, String> value;
+	public static volatile SingularAttribute<TextPropertyEntity, String> key;
+
 }
+
