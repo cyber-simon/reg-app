@@ -25,11 +25,16 @@ import javax.inject.Named;
 import javax.xml.namespace.QName;
 
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
+import net.shibboleth.utilities.java.support.xml.ParserPool;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
 
 import org.opensaml.core.config.Configuration;
+import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.XMLObjectBuilder;
+import org.opensaml.core.xml.XMLObjectBuilderFactory;
+import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
+import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.Marshaller;
 import org.opensaml.core.xml.io.MarshallerFactory;
 import org.opensaml.core.xml.io.MarshallingException;
@@ -63,6 +68,7 @@ public class SamlHelper implements Serializable {
 	protected MarshallerFactory marshallerFactory;
 	protected UnmarshallerFactory unmarshallerFactory;
 	protected BasicParserPool basicParserPool;
+	protected XMLObjectBuilderFactory builderFactory;
 	
 	@PostConstruct
 	public void init() {
@@ -72,10 +78,21 @@ public class SamlHelper implements Serializable {
 			logger.error("No SecureRandomIdentifierGenerator available", e);
 		}
 		
-		marshallerFactory = Configuration.getMarshallerFactory();
-		unmarshallerFactory = Configuration.getUnmarshallerFactory();
 		basicParserPool = new BasicParserPool();
 		basicParserPool.setNamespaceAware(true);
+		
+        XMLObjectProviderRegistry registry;
+        synchronized(ConfigurationService.class) {
+            registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
+            if (registry == null) {
+                registry = new XMLObjectProviderRegistry();
+                ConfigurationService.register(XMLObjectProviderRegistry.class, registry);
+            }
+        }
+        registry.setParserPool(basicParserPool);
+
+		marshallerFactory = registry.getMarshallerFactory();
+		unmarshallerFactory = registry.getUnmarshallerFactory();
 	}
 	
 	public String getRandomId() {
@@ -85,15 +102,13 @@ public class SamlHelper implements Serializable {
 	@SuppressWarnings ("unchecked")
 	public <T> T create (Class<T> cls, QName qname)
 	{
-	  return (T) ((XMLObjectBuilder<?>) Configuration.getBuilderFactory()
-			  .getBuilder(qname)).buildObject(qname);
+	  return (T) ((XMLObjectBuilder<?>)  builderFactory.getBuilder(qname)).buildObject(qname);
 	}
 	
 	@SuppressWarnings ("unchecked")
 	public <T> T create (Class<T> cls, QName typeName, QName qname)
 	{
-	  return (T) ((XMLObjectBuilder<?>) Configuration.getBuilderFactory()
-			  .getBuilder(typeName)).buildObject(qname, typeName);
+	  return (T) ((XMLObjectBuilder<?>) builderFactory.getBuilder(typeName)).buildObject(qname, typeName);
 	}
 	
 	public <T extends XMLObject> String marshal(T t) {
