@@ -13,6 +13,8 @@ package edu.kit.scc.webreg.service.saml;
 import javax.enterprise.context.ApplicationScoped;
 import javax.servlet.http.HttpServletRequest;
 
+import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
+
 import org.opensaml.messaging.decoder.MessageDecodingException;
 import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.saml2.binding.decoding.impl.HTTPPostDecoder;
@@ -26,15 +28,15 @@ import edu.kit.scc.webreg.exc.SamlAuthenticationException;
 public class Saml2DecoderService {
 
 	public Response decodePostMessage(HttpServletRequest request)
-			throws MessageDecodingException, SecurityException, SamlAuthenticationException {
+			throws MessageDecodingException, SecurityException, SamlAuthenticationException, ComponentInitializationException {
 
 		HTTPPostDecoder decoder = new HTTPPostDecoder();
-		BasicSAMLMessageContext<SAMLObject, SAMLObject, SAMLObject> messageContext = 
-				new BasicSAMLMessageContext<SAMLObject, SAMLObject, SAMLObject>();
-		HttpServletRequestAdapter adapter = new HttpServletRequestAdapter(request);
-		messageContext.setInboundMessageTransport(adapter);
-		decoder.decode(messageContext);
-		SAMLObject obj = messageContext.getInboundSAMLMessage();
+		decoder.setHttpServletRequest(request);
+
+		decoder.initialize();
+		decoder.decode();
+
+		SAMLObject obj = decoder.getMessageContext().getMessage();
 		if (obj instanceof Response) 
 			return (Response) obj;
 		else
@@ -42,15 +44,15 @@ public class Saml2DecoderService {
 	}
 
 	public AttributeQuery decodeAttributeQuery(HttpServletRequest request)
-			throws MessageDecodingException, SecurityException, SamlAuthenticationException {
+			throws MessageDecodingException, SecurityException, SamlAuthenticationException, ComponentInitializationException {
 
 		HTTPSOAP11Decoder decoder = new HTTPSOAP11Decoder();
-		BasicSAMLMessageContext<SAMLObject, SAMLObject, SAMLObject> messageContext = 
-				new BasicSAMLMessageContext<SAMLObject, SAMLObject, SAMLObject>();
-		HttpServletRequestAdapter adapter = new HttpServletRequestAdapter(request);
-		messageContext.setInboundMessageTransport(adapter);
-		decoder.decode(messageContext);
-		SAMLObject obj = messageContext.getInboundSAMLMessage();
+		decoder.setHttpServletRequest(request);
+
+		decoder.initialize();
+		decoder.decode();
+
+		SAMLObject obj = decoder.getMessageContext().getMessage();
 		if (obj instanceof AttributeQuery) 
 			return (AttributeQuery) obj;
 		else

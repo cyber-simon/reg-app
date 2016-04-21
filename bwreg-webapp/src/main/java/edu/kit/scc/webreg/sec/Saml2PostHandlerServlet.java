@@ -22,12 +22,11 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.Response;
-import org.opensaml.saml2.metadata.EntityDescriptor;
-import org.opensaml.ws.message.decoder.MessageDecodingException;
-import org.opensaml.xml.encryption.DecryptionException;
-import org.opensaml.xml.security.SecurityException;
+import org.opensaml.messaging.decoder.MessageDecodingException;
+import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+import org.opensaml.xmlsec.encryption.support.DecryptionException;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
