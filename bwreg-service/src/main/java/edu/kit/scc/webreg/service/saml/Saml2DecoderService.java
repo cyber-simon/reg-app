@@ -13,15 +13,12 @@ package edu.kit.scc.webreg.service.saml;
 import javax.enterprise.context.ApplicationScoped;
 import javax.servlet.http.HttpServletRequest;
 
-import org.opensaml.common.SAMLObject;
-import org.opensaml.common.binding.BasicSAMLMessageContext;
-import org.opensaml.saml2.binding.decoding.HTTPPostDecoder;
-import org.opensaml.saml2.binding.decoding.HTTPSOAP11Decoder;
-import org.opensaml.saml2.core.AttributeQuery;
-import org.opensaml.saml2.core.Response;
-import org.opensaml.ws.message.decoder.MessageDecodingException;
-import org.opensaml.ws.transport.http.HttpServletRequestAdapter;
-import org.opensaml.xml.security.SecurityException;
+import org.opensaml.messaging.decoder.MessageDecodingException;
+import org.opensaml.saml.common.SAMLObject;
+import org.opensaml.saml.saml2.binding.decoding.impl.HTTPPostDecoder;
+import org.opensaml.saml.saml2.binding.decoding.impl.HTTPSOAP11Decoder;
+import org.opensaml.saml.saml2.core.AttributeQuery;
+import org.opensaml.saml.saml2.core.Response;
 
 import edu.kit.scc.webreg.exc.SamlAuthenticationException;
 

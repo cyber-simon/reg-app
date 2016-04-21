@@ -23,7 +23,9 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.opensaml.ws.message.encoder.MessageEncodingException;
+import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
+
+import org.opensaml.messaging.encoder.MessageEncodingException;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
@@ -79,7 +81,9 @@ public class Saml2RedirectLoginHandlerServlet implements Servlet {
 
 		} catch (MessageEncodingException e) {
             throw new ServletException("Error encoding outgoing message", e);
-        }
+        } catch (ComponentInitializationException e) {
+            throw new ServletException("Error encoding outgoing message", e);
+		}
 		
 	}
 	

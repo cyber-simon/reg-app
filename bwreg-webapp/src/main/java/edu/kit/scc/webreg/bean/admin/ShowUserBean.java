@@ -21,7 +21,7 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
-import org.opensaml.saml2.core.Attribute;
+import org.opensaml.saml.saml2.core.Attribute;
 import org.primefaces.event.TransferEvent;
 import org.primefaces.model.DualListModel;
 import org.primefaces.model.LazyDataModel;
