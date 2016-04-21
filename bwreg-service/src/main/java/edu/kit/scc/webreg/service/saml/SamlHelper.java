@@ -12,11 +12,11 @@ package edu.kit.scc.webreg.service.saml;
 
 import java.io.Serializable;
 import java.io.StringReader;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -25,16 +25,13 @@ import javax.inject.Named;
 import javax.xml.namespace.QName;
 
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
-import net.shibboleth.utilities.java.support.xml.ParserPool;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
 
-import org.opensaml.core.config.Configuration;
 import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.XMLObjectBuilder;
 import org.opensaml.core.xml.XMLObjectBuilderFactory;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
-import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.Marshaller;
 import org.opensaml.core.xml.io.MarshallerFactory;
 import org.opensaml.core.xml.io.MarshallingException;
@@ -63,7 +60,8 @@ public class SamlHelper implements Serializable {
 	@Inject
 	private Logger logger;
 	
-	protected SecureRandomIdentifierGenerator randomIdGen;
+	@Inject
+	private XMLHelper xmlHelper;
 	
 	protected MarshallerFactory marshallerFactory;
 	protected UnmarshallerFactory unmarshallerFactory;
@@ -72,12 +70,6 @@ public class SamlHelper implements Serializable {
 	
 	@PostConstruct
 	public void init() {
-		try {
-			randomIdGen = new SecureRandomIdentifierGenerator();
-		} catch (NoSuchAlgorithmException e) {
-			logger.error("No SecureRandomIdentifierGenerator available", e);
-		}
-		
 		basicParserPool = new BasicParserPool();
 		basicParserPool.setNamespaceAware(true);
 		
@@ -96,7 +88,7 @@ public class SamlHelper implements Serializable {
 	}
 	
 	public String getRandomId() {
-		return randomIdGen.generateIdentifier();
+		return UUID.randomUUID().toString();
 	}
 
 	@SuppressWarnings ("unchecked")
@@ -114,7 +106,7 @@ public class SamlHelper implements Serializable {
 	public <T extends XMLObject> String marshal(T t) {
 		try {
 			Element element = toXmlElement(t);
-			return XMLHelper.nodeToString(element);
+			return xmlHelper.nodeToString(element);
 		} catch (MarshallingException e) {
 			logger.error("No Marshalling possible", e);
 			return null;
@@ -124,7 +116,7 @@ public class SamlHelper implements Serializable {
 	public <T extends XMLObject> String prettyPrint(T t) {
 		try {
 			Element element = toXmlElement(t);
-			return XMLHelper.prettyPrintXML(element);
+			return xmlHelper.prettyPrintXML(element);
 		} catch (MarshallingException e) {
 			logger.error("No Marshalling possible", e);
 			return null;
@@ -205,10 +197,6 @@ public class SamlHelper implements Serializable {
 		return attrMap;
 	}
 	
-	public SecureRandomIdentifierGenerator getRandomIdGen() {
-		return randomIdGen;
-	}
-
 	public MarshallerFactory getMarshallerFactory() {
 		return marshallerFactory;
 	}
