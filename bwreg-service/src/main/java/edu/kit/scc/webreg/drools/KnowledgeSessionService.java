@@ -15,8 +15,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.kie.api.runtime.KieSession;
-import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.metadata.EntityDescriptor;
+import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;

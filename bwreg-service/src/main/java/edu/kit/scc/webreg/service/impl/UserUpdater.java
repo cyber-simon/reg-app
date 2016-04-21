@@ -15,12 +15,11 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.Response;
-import org.opensaml.saml2.metadata.EntityDescriptor;
-import org.opensaml.ws.soap.common.SOAPException;
-import org.opensaml.xml.encryption.DecryptionException;
-import org.opensaml.xml.security.SecurityException;
+import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+import org.opensaml.soap.common.SOAPException;
+import org.opensaml.xmlsec.encryption.support.DecryptionException;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.audit.Auditor;

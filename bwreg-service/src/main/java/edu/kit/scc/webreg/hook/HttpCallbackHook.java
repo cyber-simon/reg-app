@@ -15,6 +15,7 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
@@ -75,9 +76,9 @@ public class HttpCallbackHook implements UserServiceHook {
 		if (appConfig.getConfigValue("HttpCallbackHook_positive_match_regex") != null)
 			positiveMatchRegex = appConfig.getConfigValue("HttpCallbackHook_positive_match_regex");
 		
-		VelocityEngine engine = new VelocityEngine();
-		engine.setProperty("runtime.log.logsystem.log4j.logger", "root");
-		engine.init();
+		Properties p = new Properties();
+		p.put("runtime.log.logsystem.log4j.logger", "root");
+		VelocityEngine engine = new VelocityEngine(p);
 		Map<String, Object> context = new HashMap<String, Object>();
 		context.put("user", user);
 		VelocityContext velocityContext = new VelocityContext(context);

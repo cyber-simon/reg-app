@@ -19,10 +19,8 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
 
-import org.opensaml.Configuration;
-import org.opensaml.DefaultBootstrap;
-import org.opensaml.xml.ConfigurationException;
-import org.opensaml.xml.XMLConfigurator;
+import org.opensaml.core.config.InitializationException;
+import org.opensaml.core.config.InitializationService;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.drools.BpmProcessService;
@@ -132,19 +130,12 @@ public class ApplicationBootstrap {
 		
     	userService.convertLegacyUsers();
 
-        try {
-			
-        	logger.info("OpenSAML Bootstrap...");
-        	DefaultBootstrap.bootstrap();
-
-        	logger.info("Loading XMLTooling configuration /liberty-paos-config.xml");
-	        XMLConfigurator configurator = new XMLConfigurator();
-	        configurator.load(Configuration.class.getResourceAsStream("/liberty-paos-config.xml"));
-			
-		} catch (ConfigurationException e) {
+    	try {
+    		logger.info("OpenSAML Bootstrap...");
+			InitializationService.initialize();
+		} catch (InitializationException e) {
 			logger.error("Serious Error happened", e);
 		}
-
         
         bpmProcessService.init();
         
