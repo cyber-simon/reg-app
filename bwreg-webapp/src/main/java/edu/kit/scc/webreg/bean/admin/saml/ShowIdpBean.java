@@ -18,8 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.enterprise.context.RequestScoped;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
@@ -34,11 +34,10 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
-import edu.kit.scc.webreg.service.saml.MetadataHelper;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
 
 @ManagedBean
-@ViewScoped
+@RequestScoped
 public class ShowIdpBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -52,9 +51,6 @@ public class ShowIdpBean implements Serializable {
 	@Inject
 	private SamlHelper samlHelper;
 
-	@Inject
-	private MetadataHelper metadataHelper;
-	
 	private SamlIdpMetadataEntity entity;
 	
 	private EntityDescriptor entityDescriptor;
