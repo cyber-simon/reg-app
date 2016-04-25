@@ -24,6 +24,7 @@ import net.shibboleth.utilities.java.support.httpclient.HttpClientBuilder;
 
 import org.joda.time.DateTime;
 import org.opensaml.core.config.Configuration;
+import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.XMLObjectBuilderFactory;
 import org.opensaml.saml.common.SAMLVersion;
@@ -38,6 +39,8 @@ import org.opensaml.security.x509.BasicX509Credential;
 import org.opensaml.soap.common.SOAPException;
 import org.opensaml.soap.soap11.Body;
 import org.opensaml.soap.soap11.Envelope;
+import org.opensaml.xmlsec.DecryptionConfiguration;
+import org.opensaml.xmlsec.SignatureSigningConfiguration;
 import org.opensaml.xmlsec.keyinfo.KeyInfoGenerator;
 import org.opensaml.xmlsec.keyinfo.impl.X509KeyInfoGeneratorFactory;
 import org.opensaml.xmlsec.signature.KeyInfo;
@@ -77,6 +80,7 @@ public class AttributeQueryHelper implements Serializable {
 		AttributeQuery attrQuery = buildAttributeQuery(
 				persistentId, spEntity.getEntityId());
 		Envelope envelope = buildSOAP11Envelope(attrQuery);
+		
 		BasicSOAPMessageContext soapContext = new BasicSOAPMessageContext();
 		soapContext.setOutboundMessage(envelope);
 		
@@ -105,8 +109,10 @@ public class AttributeQueryHelper implements Serializable {
 		Signature signature = (Signature) samlHelper.getBuilderFactory()
             	.getBuilder(Signature.DEFAULT_ELEMENT_NAME)
             	.buildObject(Signature.DEFAULT_ELEMENT_NAME);
-		X509KeyInfoGeneratorFactory keyInfoFac = (X509KeyInfoGeneratorFactory) Configuration
-				.getGlobalSecurityConfiguration()
+		
+		SignatureSigningConfiguration ssc = ConfigurationService.get(SignatureSigningConfiguration.class);
+		
+		X509KeyInfoGeneratorFactory keyInfoFac = (X509KeyInfoGeneratorFactory) ssc
 				.getKeyInfoGeneratorManager().getDefaultManager()
 				.getFactory(signingCredential);
 		keyInfoFac.setEmitEntityCertificate(false);
@@ -165,7 +171,7 @@ public class AttributeQueryHelper implements Serializable {
 	}
 
 	public Envelope buildSOAP11Envelope(XMLObject payload) {
-		XMLObjectBuilderFactory bf = Configuration.getBuilderFactory();
+		XMLObjectBuilderFactory bf = samlHelper.getBuilderFactory();
 		Envelope envelope = (Envelope) bf.getBuilder(
 				Envelope.DEFAULT_ELEMENT_NAME).buildObject(
 				Envelope.DEFAULT_ELEMENT_NAME);

@@ -16,6 +16,7 @@ import java.io.Serializable;
 import java.nio.charset.Charset;
 
 import net.shibboleth.utilities.java.support.xml.ParserPool;
+import net.shibboleth.utilities.java.support.xml.SerializeSupport;
 
 import org.apache.http.client.HttpClient;
 import org.opensaml.core.config.Configuration;
@@ -49,7 +50,6 @@ public class HttpSignableSoapClient extends HttpSOAPClient implements Serializab
         try {
             Marshaller marshaller = Configuration.getMarshallerFactory().getMarshaller(message);
             ByteArrayOutputStream arrayOut = new ByteArrayOutputStream();
-            OutputStreamWriter writer = new OutputStreamWriter(arrayOut, charset);
 
             Element element = marshaller.marshall(message);
             try {
@@ -59,9 +59,9 @@ public class HttpSignableSoapClient extends HttpSOAPClient implements Serializab
 			}
             
             if (logger.isDebugEnabled()) {
-                logger.debug("Outbound SOAP message is:\n" + XMLHelper.prettyPrintXML(element));
+                logger.debug("Outbound SOAP message is:\n" + SerializeSupport.prettyPrintXML(element));
             }
-            XMLHelper.writeNode(element, writer);
+            SerializeSupport.writeNode(element, arrayOut);
             return new ByteArrayRequestEntity(arrayOut.toByteArray(), "text/xml");
         } catch (MarshallingException e) {
             throw new SOAPClientException("Unable to marshall SOAP envelope", e);

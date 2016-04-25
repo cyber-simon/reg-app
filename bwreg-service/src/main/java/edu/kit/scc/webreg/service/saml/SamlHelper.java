@@ -25,6 +25,7 @@ import javax.inject.Named;
 import javax.xml.namespace.QName;
 
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
+import net.shibboleth.utilities.java.support.xml.SerializeSupport;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
 
 import org.opensaml.core.config.ConfigurationService;
@@ -59,9 +60,6 @@ public class SamlHelper implements Serializable {
 
 	@Inject
 	private Logger logger;
-	
-	@Inject
-	private XMLHelper xmlHelper;
 	
 	protected MarshallerFactory marshallerFactory;
 	protected UnmarshallerFactory unmarshallerFactory;
@@ -106,7 +104,7 @@ public class SamlHelper implements Serializable {
 	public <T extends XMLObject> String marshal(T t) {
 		try {
 			Element element = toXmlElement(t);
-			return xmlHelper.nodeToString(element);
+			return SerializeSupport.nodeToString(element);
 		} catch (MarshallingException e) {
 			logger.error("No Marshalling possible", e);
 			return null;
@@ -116,7 +114,7 @@ public class SamlHelper implements Serializable {
 	public <T extends XMLObject> String prettyPrint(T t) {
 		try {
 			Element element = toXmlElement(t);
-			return xmlHelper.prettyPrintXML(element);
+			return SerializeSupport.prettyPrintXML(element);
 		} catch (MarshallingException e) {
 			logger.error("No Marshalling possible", e);
 			return null;
