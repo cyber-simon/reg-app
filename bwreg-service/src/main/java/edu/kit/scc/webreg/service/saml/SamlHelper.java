@@ -208,4 +208,8 @@ public class SamlHelper implements Serializable {
 	public BasicParserPool getBasicParserPool() {
 		return basicParserPool;
 	}
+
+	public XMLObjectBuilderFactory getBuilderFactory() {
+		return builderFactory;
+	}
 }
