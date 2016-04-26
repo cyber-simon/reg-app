@@ -10,10 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.saml;
 
-import java.io.IOException;
 import java.io.Serializable;
-import java.security.PrivateKey;
-import java.security.cert.X509Certificate;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -22,11 +19,14 @@ import javax.inject.Named;
 
 import net.shibboleth.utilities.java.support.httpclient.HttpClientBuilder;
 
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.joda.time.DateTime;
-import org.opensaml.core.config.Configuration;
-import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.XMLObjectBuilderFactory;
+import org.opensaml.messaging.context.InOutOperationContext;
+import org.opensaml.messaging.context.MessageContext;
+import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.common.SAMLVersion;
 import org.opensaml.saml.saml2.core.AttributeQuery;
 import org.opensaml.saml.saml2.core.Issuer;
@@ -35,17 +35,8 @@ import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Subject;
 import org.opensaml.saml.saml2.metadata.AttributeService;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
-import org.opensaml.security.x509.BasicX509Credential;
-import org.opensaml.soap.common.SOAPException;
 import org.opensaml.soap.soap11.Body;
 import org.opensaml.soap.soap11.Envelope;
-import org.opensaml.xmlsec.DecryptionConfiguration;
-import org.opensaml.xmlsec.SignatureSigningConfiguration;
-import org.opensaml.xmlsec.keyinfo.KeyInfoGenerator;
-import org.opensaml.xmlsec.keyinfo.impl.X509KeyInfoGeneratorFactory;
-import org.opensaml.xmlsec.signature.KeyInfo;
-import org.opensaml.xmlsec.signature.Signature;
-import org.opensaml.xmlsec.signature.support.SignatureConstants;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.SamlMetadataEntity;
@@ -72,18 +63,25 @@ public class AttributeQueryHelper implements Serializable {
 	private CryptoHelper cryptoHelper;
 
 	public Response query(String persistentId, SamlMetadataEntity idpEntity, 
-			EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity spEntity) throws MetadataException, SOAPException, SecurityException {
+			EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity spEntity) throws Exception {
 		AttributeService attributeService = metadataHelper.getAttributeService(idpEntityDescriptor);
 		if (attributeService == null || attributeService.getLocation() == null)
 			throw new MetadataException("No Attribute Service found for IDP " + idpEntity.getEntityId());
 			
 		AttributeQuery attrQuery = buildAttributeQuery(
 				persistentId, spEntity.getEntityId());
-		Envelope envelope = buildSOAP11Envelope(attrQuery);
+		//Envelope envelope = buildSOAP11Envelope(attrQuery);
 		
-		BasicSOAPMessageContext soapContext = new BasicSOAPMessageContext();
-		soapContext.setOutboundMessage(envelope);
-		
+		MessageContext<SAMLObject> inbound = new MessageContext<SAMLObject>();
+		MessageContext<SAMLObject> outbound = new MessageContext<SAMLObject>();
+		outbound.setMessage(attrQuery);
+
+		InOutOperationContext<SAMLObject, SAMLObject> inOutContext =
+				new InOutOperationContext<SAMLObject, SAMLObject>(inbound, outbound);
+
+		//		BasicSOAPMessageContext soapContext = new BasicSOAPMessageContext();
+//		soapContext.setOutboundMessage(envelope);
+/*		
 		BasicX509Credential signingCredential;
 		X509Certificate x509Cert;
 		PrivateKey privateKey;
@@ -95,8 +93,8 @@ public class AttributeQueryHelper implements Serializable {
 		} catch (IOException e1) {
 			throw new MetadataException("No signing credential for SP " + spEntity.getEntityId(), e1);
 		}
-
-		HttpClientBuilder clientBuilder = new HttpClientBuilder();
+*/
+//		HttpClientBuilder clientBuilder = new HttpClientBuilder();
 /*		
 		try {
 			clientBuilder.setHttpsProtocolSocketFactory(new CustomSecureProtocolSocketFactory(x509Cert, privateKey));
@@ -106,6 +104,8 @@ public class AttributeQueryHelper implements Serializable {
 			logger.info("Cannot spawn CustomSecureProtocolSocketFactory: {}", e.getMessage());
 		}
 */		
+
+/*		
 		Signature signature = (Signature) samlHelper.getBuilderFactory()
             	.getBuilder(Signature.DEFAULT_ELEMENT_NAME)
             	.buildObject(Signature.DEFAULT_ELEMENT_NAME);
@@ -131,20 +131,21 @@ public class AttributeQueryHelper implements Serializable {
 		signature.setKeyInfo(keyInfo);
 
 		attrQuery.setSignature(signature);
-		
-		HttpSignableSoapClient soapClient = new HttpSignableSoapClient(
-				clientBuilder.buildClient(), samlHelper.getBasicParserPool(),
-				signature);
+*/		
+		HttpClient client = HttpClients.custom().build();
 
-		soapClient.send(attributeService.getLocation(), soapContext);
+		HttpSignableSoapClient soapClient = new HttpSignableSoapClient(
+				client, samlHelper.getBasicParserPool());
+
+		soapClient.send(attributeService.getLocation(), inOutContext);
 		
-		Envelope returnEnvelope = (Envelope) soapContext.getInboundMessage();
+		Envelope returnEnvelope = (Envelope) inOutContext.getInboundMessageContext().getMessage();
 
 		return getResponseFromEnvelope(returnEnvelope);
 	}
 		
 	public Response query(UserEntity entity, SamlMetadataEntity idpEntity, 
-			EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity spEntity) throws MetadataException, SOAPException, SecurityException {
+			EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity spEntity) throws Exception {
 		return query(entity.getPersistentId(), idpEntity, idpEntityDescriptor, spEntity);	
 	}
 	

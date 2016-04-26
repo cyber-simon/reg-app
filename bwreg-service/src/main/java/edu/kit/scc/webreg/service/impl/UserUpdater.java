@@ -295,6 +295,9 @@ public class UserUpdater implements Serializable {
 		} catch (SecurityException e) {
 			handleException(user, e, idpEntity, auditor);
 			throw new UserUpdateException(e);
+		} catch (Exception e) {
+			handleException(user, e, idpEntity, auditor);
+			throw new UserUpdateException(e);
 		} 
 		
 		try {

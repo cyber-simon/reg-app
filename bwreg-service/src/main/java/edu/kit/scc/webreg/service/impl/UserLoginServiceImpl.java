@@ -15,10 +15,17 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 
+import net.shibboleth.utilities.java.support.httpclient.HttpClientBuilder;
+
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.HttpClients;
+import org.opensaml.messaging.context.InOutOperationContext;
+import org.opensaml.messaging.context.MessageContext;
+import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Audience;
@@ -257,28 +264,32 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			
 			AuthnRequest authnRequest = ssoHelper.buildAuthnRequest(sp.getEntityId(), sp.getEcp(),
 					SAMLConstants.SAML2_PAOS_BINDING_URI);
-			Envelope envelope = attrQueryHelper.buildSOAP11Envelope(authnRequest);
-			BasicSOAPMessageContext soapContext = new BasicSOAPMessageContext();
-			soapContext.setOutboundMessage(envelope);
+			//Envelope envelope = attrQueryHelper.buildSOAP11Envelope(authnRequest);
+
+			MessageContext<SAMLObject> inbound = new MessageContext<SAMLObject>();
+			MessageContext<SAMLObject> outbound = new MessageContext<SAMLObject>();
+			outbound.setMessage(authnRequest);
+
+			InOutOperationContext<SAMLObject, SAMLObject> inOutContext =
+					new InOutOperationContext<SAMLObject, SAMLObject>(inbound, outbound);
 			
-			HttpClientBuilder clientBuilder = new HttpClientBuilder();
-			HttpClient client = clientBuilder.buildClient();
-			
-			client.getParams().setAuthenticationPreemptive(true);
-			
-			client.getState().setCredentials(
-	                new AuthScope(bindingHost, 443),
+			CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+			credentialsProvider.setCredentials(new AuthScope(bindingHost, 443),
 	                new UsernamePasswordCredentials(username, password));
-			HttpSOAPClient soapClient = new HttpSOAPClient(client, 
-					samlHelper.getBasicParserPool());
+			
+			HttpClient client = HttpClients.custom().setDefaultCredentialsProvider(credentialsProvider).build();
+			
+			HttpSOAPClient soapClient = new HttpSOAPClient();
+			soapClient.setHttpClient(client);
+			soapClient.setParserPool(samlHelper.getBasicParserPool());
 		
 			try {
-				soapClient.send(bindingLocation, soapContext);
+				soapClient.send(bindingLocation, inOutContext);
 			} catch (SOAPClientException se) {
 				logger.info("Login failed for user {} idp {}", username, idp.getEntityId());
 				throw new LoginFailedException(se.getMessage());
 			}
-			Envelope returnEnvelope = (Envelope) soapContext.getInboundMessage();
+			Envelope returnEnvelope = (Envelope) inOutContext.getInboundMessageContext().getMessage();
 			Response response = 
 					attrQueryHelper.getResponseFromEnvelope(returnEnvelope);
 
@@ -287,7 +298,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 		} catch (SOAPException e) {
 			logger.info("exception at ecp query", e);
 			throw new GenericRestInterfaceException("an error occured: " + e.getMessage());
-		} catch (SecurityException e) {
+		} catch (org.opensaml.security.SecurityException e) {
 			logger.info("exception at ecp query", e);
 			throw new GenericRestInterfaceException("an error occured: " + e.getMessage());
 		} catch (DecryptionException e) {
@@ -423,6 +434,9 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 				logger.info("exception at attribute query", e);
 				throw new GenericRestInterfaceException("an error occured: " + e.getMessage());
 			} catch (SamlAuthenticationException e) {
+				logger.info("exception at attribute query", e);
+				throw new GenericRestInterfaceException("an error occured: " + e.getMessage());
+			} catch (Exception e) {
 				logger.info("exception at attribute query", e);
 				throw new GenericRestInterfaceException("an error occured: " + e.getMessage());
 			}
