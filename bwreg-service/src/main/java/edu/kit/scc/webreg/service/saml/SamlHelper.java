@@ -24,6 +24,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.xml.namespace.QName;
 
+import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import net.shibboleth.utilities.java.support.xml.SerializeSupport;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
@@ -70,6 +71,11 @@ public class SamlHelper implements Serializable {
 	public void init() {
 		basicParserPool = new BasicParserPool();
 		basicParserPool.setNamespaceAware(true);
+		try {
+			basicParserPool.initialize();
+		} catch (ComponentInitializationException e) {
+			logger.error("Init of ParserPool failed", e);
+		}
 		
         XMLObjectProviderRegistry registry;
         synchronized(ConfigurationService.class) {
@@ -83,6 +89,7 @@ public class SamlHelper implements Serializable {
 
 		marshallerFactory = registry.getMarshallerFactory();
 		unmarshallerFactory = registry.getUnmarshallerFactory();
+		builderFactory = registry.getBuilderFactory();
 	}
 	
 	public String getRandomId() {

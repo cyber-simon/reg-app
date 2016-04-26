@@ -17,8 +17,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import net.shibboleth.utilities.java.support.httpclient.HttpClientBuilder;
-
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.joda.time.DateTime;
@@ -35,6 +33,7 @@ import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Subject;
 import org.opensaml.saml.saml2.metadata.AttributeService;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+import org.opensaml.soap.messaging.context.SOAP11Context;
 import org.opensaml.soap.soap11.Body;
 import org.opensaml.soap.soap11.Envelope;
 import org.slf4j.Logger;
@@ -70,14 +69,17 @@ public class AttributeQueryHelper implements Serializable {
 			
 		AttributeQuery attrQuery = buildAttributeQuery(
 				persistentId, spEntity.getEntityId());
-		//Envelope envelope = buildSOAP11Envelope(attrQuery);
+		Envelope envelope = buildSOAP11Envelope(attrQuery);
 		
 		MessageContext<SAMLObject> inbound = new MessageContext<SAMLObject>();
-		MessageContext<SAMLObject> outbound = new MessageContext<SAMLObject>();
-		outbound.setMessage(attrQuery);
+		MessageContext<Envelope> outbound = new MessageContext<Envelope>();
+		outbound.setMessage(envelope);
+		SOAP11Context soapContext = new SOAP11Context();
+		soapContext.setEnvelope(envelope);
+		outbound.addSubcontext(soapContext);
 
-		InOutOperationContext<SAMLObject, SAMLObject> inOutContext =
-				new InOutOperationContext<SAMLObject, SAMLObject>(inbound, outbound);
+		InOutOperationContext<SAMLObject, Envelope> inOutContext =
+				new InOutOperationContext<SAMLObject, Envelope>(inbound, outbound);
 
 		//		BasicSOAPMessageContext soapContext = new BasicSOAPMessageContext();
 //		soapContext.setOutboundMessage(envelope);

@@ -129,6 +129,7 @@ public class Saml2ResponseValidationService {
 			throw new SamlAuthenticationException("No Signature on SignableSamlObject");
 		
 		DOMMetadataResolver mp = new DOMMetadataResolver(entityDescriptor.getDOM());
+		mp.setId(entityDescriptor.getEntityID() + "-resolver");
 		try {
 			mp.initialize();
 		} catch (ComponentInitializationException e) {
