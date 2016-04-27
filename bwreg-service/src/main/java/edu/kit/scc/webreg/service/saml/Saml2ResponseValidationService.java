@@ -22,8 +22,11 @@ import org.joda.time.Instant;
 import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.criterion.EntityIdCriterion;
 import org.opensaml.saml.common.SignableSAMLObject;
+import org.opensaml.saml.common.messaging.SAMLMessageSecuritySupport;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.criterion.EntityRoleCriterion;
+import org.opensaml.saml.metadata.resolver.MetadataResolver;
+import org.opensaml.saml.metadata.resolver.impl.BasicRoleDescriptorResolver;
 import org.opensaml.saml.metadata.resolver.impl.DOMMetadataResolver;
 import org.opensaml.saml.saml2.core.AttributeQuery;
 import org.opensaml.saml.saml2.core.Issuer;
@@ -38,6 +41,8 @@ import org.opensaml.saml.security.impl.SAMLSignatureProfileValidator;
 import org.opensaml.security.credential.UsageType;
 import org.opensaml.security.criteria.UsageCriterion;
 import org.opensaml.xmlsec.DecryptionConfiguration;
+import org.opensaml.xmlsec.config.DefaultSecurityConfigurationBootstrap;
+import org.opensaml.xmlsec.impl.BasicSignatureValidationConfiguration;
 import org.opensaml.xmlsec.keyinfo.KeyInfoCredentialResolver;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngine;
@@ -130,16 +135,24 @@ public class Saml2ResponseValidationService {
 		
 		DOMMetadataResolver mp = new DOMMetadataResolver(entityDescriptor.getDOM());
 		mp.setId(entityDescriptor.getEntityID() + "-resolver");
+		
+		BasicRoleDescriptorResolver roleResolver = new BasicRoleDescriptorResolver(mp);
+		KeyInfoCredentialResolver keyInfoCredResolver = DefaultSecurityConfigurationBootstrap.buildBasicInlineKeyInfoCredentialResolver();
+
+		MetadataCredentialResolver mdCredResolver = new MetadataCredentialResolver();
+		mdCredResolver.setKeyInfoCredentialResolver(keyInfoCredResolver);
+		mdCredResolver.setRoleDescriptorResolver(roleResolver);
 		try {
 			mp.initialize();
+			roleResolver.initialize();
+			mdCredResolver.initialize();
 		} catch (ComponentInitializationException e) {
-			throw new SamlAuthenticationException("ComponentInit Exception", e);
+			logger.error("Cannot init MDCredResolver", e);
+			throw new SamlAuthenticationException("Cannot init MDCredResolver", e);
 		}
 		
-		MetadataCredentialResolver mdCredResolver = new MetadataCredentialResolver();
-
-		DecryptionConfiguration dc = ConfigurationService.get(DecryptionConfiguration.class);
-		KeyInfoCredentialResolver keyInfoCredResolver = dc.getDataKeyInfoCredentialResolver();
+//		DecryptionConfiguration dc = ConfigurationService.get(DecryptionConfiguration.class);
+//		KeyInfoCredentialResolver keyInfoCredResolver = dc.getDataKeyInfoCredentialResolver();
 		
 //		KeyInfoCredentialResolver keyInfoCredResolver =
 //			    ConfigurationService.getGlobalSecurityConfiguration().getDefaultKeyInfoCredentialResolver();
