@@ -135,6 +135,7 @@ public class AttributeQueryHelper implements Serializable {
 		SAMLMetadataSignatureSigningParametersResolver smsspr = new SAMLMetadataSignatureSigningParametersResolver();
 		
 		SignatureSigningParameters ssp = smsspr.resolveSingle(criteriaSet);
+		logger.debug("Resolved algo {} for signing", ssp.getSignatureAlgorithm());
 		SecurityParametersContext securityContext = new SecurityParametersContext();
 		securityContext.setSignatureSigningParameters(ssp);
 		outbound.addSubcontext(securityContext);
