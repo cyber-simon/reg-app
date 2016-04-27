@@ -25,8 +25,13 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClients;
 import org.opensaml.messaging.context.InOutOperationContext;
 import org.opensaml.messaging.context.MessageContext;
+import org.opensaml.messaging.pipeline.httpclient.BasicHttpClientMessagePipeline;
+import org.opensaml.messaging.pipeline.httpclient.HttpClientMessagePipeline;
+import org.opensaml.messaging.pipeline.httpclient.HttpClientMessagePipelineFactory;
 import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.common.xml.SAMLConstants;
+import org.opensaml.saml.saml2.binding.decoding.impl.HttpClientResponseSOAP11Decoder;
+import org.opensaml.saml.saml2.binding.encoding.impl.HttpClientRequestSOAP11Encoder;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Audience;
 import org.opensaml.saml.saml2.core.AudienceRestriction;
@@ -36,7 +41,9 @@ import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.SingleSignOnService;
 import org.opensaml.soap.client.SOAPClientException;
 import org.opensaml.soap.client.http.HttpSOAPClient;
+import org.opensaml.soap.client.http.PipelineFactoryHttpSOAPClient;
 import org.opensaml.soap.common.SOAPException;
+import org.opensaml.soap.messaging.context.SOAP11Context;
 import org.opensaml.soap.soap11.Envelope;
 import org.opensaml.xmlsec.encryption.support.DecryptionException;
 import org.slf4j.Logger;
@@ -270,6 +277,9 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			MessageContext<SAMLObject> outbound = new MessageContext<SAMLObject>();
 			outbound.setMessage(authnRequest);
 
+			SOAP11Context soapContext = new SOAP11Context();
+			outbound.addSubcontext(soapContext);
+
 			InOutOperationContext<SAMLObject, SAMLObject> inOutContext =
 					new InOutOperationContext<SAMLObject, SAMLObject>(inbound, outbound);
 			
@@ -279,25 +289,35 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			
 			HttpClient client = HttpClients.custom().setDefaultCredentialsProvider(credentialsProvider).build();
 			
-			HttpSOAPClient soapClient = new HttpSOAPClient();
-			soapClient.setHttpClient(client);
-			soapClient.setParserPool(samlHelper.getBasicParserPool());
-		
+			PipelineFactoryHttpSOAPClient<SAMLObject, SAMLObject> pf = new PipelineFactoryHttpSOAPClient<SAMLObject, SAMLObject>();
+			pf.setHttpClient(client);
+			pf.setPipelineFactory(new HttpClientMessagePipelineFactory<SAMLObject, SAMLObject>() {
+				
+				@Override
+				public HttpClientMessagePipeline<SAMLObject, SAMLObject> newInstance(
+						String pipelineName) {
+					return new BasicHttpClientMessagePipeline<SAMLObject, SAMLObject>(new HttpClientRequestSOAP11Encoder(), new HttpClientResponseSOAP11Decoder());
+				}
+				
+				@Override
+				public HttpClientMessagePipeline<SAMLObject, SAMLObject> newInstance() {
+					return new BasicHttpClientMessagePipeline<SAMLObject, SAMLObject>(new HttpClientRequestSOAP11Encoder(), new HttpClientResponseSOAP11Decoder());
+				}
+			});
+			
 			try {
-				soapClient.send(bindingLocation, inOutContext);
-			} catch (SOAPClientException se) {
+				pf.send(sso.getLocation(), inOutContext);
+			} catch (SOAPException se) {
 				logger.info("Login failed for user {} idp {}", username, idp.getEntityId());
+				logger.debug("SoapException: {}", se.getMessage());
+				if (se.getCause() != null)
+					logger.debug("Inner Exception: {}", se.getCause().getMessage());
 				throw new LoginFailedException(se.getMessage());
 			}
-			Envelope returnEnvelope = (Envelope) inOutContext.getInboundMessageContext().getMessage();
-			Response response = 
-					attrQueryHelper.getResponseFromEnvelope(returnEnvelope);
+			Response response = (Response) inOutContext.getInboundMessageContext().getMessage();
 
 			return processResponse(response, idpEntityDesc, service, idp, sp, "ecp");
 
-		} catch (SOAPException e) {
-			logger.info("exception at ecp query", e);
-			throw new GenericRestInterfaceException("an error occured: " + e.getMessage());
 		} catch (org.opensaml.security.SecurityException e) {
 			logger.info("exception at ecp query", e);
 			throw new GenericRestInterfaceException("an error occured: " + e.getMessage());
