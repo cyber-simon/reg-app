@@ -11,9 +11,6 @@
 package edu.kit.scc.webreg.sec;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.util.HashSet;
 import java.util.List;
@@ -41,6 +38,7 @@ import edu.kit.scc.webreg.entity.AdminUserEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.service.AdminUserService;
 import edu.kit.scc.webreg.service.RoleService;
+import edu.kit.scc.webreg.service.reg.PasswordUtil;
 import edu.kit.scc.webreg.session.SessionManager;
 
 @Named
@@ -70,6 +68,9 @@ public class SecurityFilter implements Filter {
 	@Inject
 	private ApplicationConfig appConfig;
 
+	@Inject
+	private PasswordUtil passwordUtil;
+	
 	@Override
 	public void destroy() {
 	}
@@ -246,26 +247,12 @@ public class SecurityFilter implements Filter {
 	private boolean passwordsMatch(String password, String comparePassword) {
 		if (password == null || comparePassword == null)
 			return false;
-		
-		if (password.startsWith("{") && password.endsWith("}") && password.contains("|")) {
-			String method = password.substring(1, password.indexOf("|"));
-			try {
-				MessageDigest md = MessageDigest.getInstance(method);
-				byte[] bytes = comparePassword.getBytes(("UTF-8"));
-				md.update(bytes);
-				byte[] digest = md.digest();
-				comparePassword = "{" + method + "|" + new String(Base64.encodeBase64(digest)) + "}";
-			} catch (NoSuchAlgorithmException e) {
-				logger.warn("Oh no", e);
-			} catch (UnsupportedEncodingException e) {
-				logger.warn("Oh no", e);
-			}
+		if (password.matches("^\\{(.+)\\|(.+)\\|(.+)\\}$")) {
+			return passwordUtil.comparePassword(comparePassword, password);
 		}
-
-		if (password.equals(comparePassword))
-			return true;
-		else
-			return false;
+		else {
+			return comparePassword.equals(password);
+		}
 	}
 	
 	private String getFullURL(HttpServletRequest request) {
