@@ -14,32 +14,38 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
+import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
+import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
+
 import org.joda.time.Duration;
 import org.joda.time.Instant;
-import org.opensaml.Configuration;
-import org.opensaml.common.SignableSAMLObject;
-import org.opensaml.common.xml.SAMLConstants;
-import org.opensaml.saml2.core.AttributeQuery;
-import org.opensaml.saml2.core.Issuer;
-import org.opensaml.saml2.core.Response;
-import org.opensaml.saml2.core.Status;
-import org.opensaml.saml2.core.StatusCode;
-import org.opensaml.saml2.metadata.EntityDescriptor;
-import org.opensaml.saml2.metadata.IDPSSODescriptor;
-import org.opensaml.saml2.metadata.SPSSODescriptor;
-import org.opensaml.saml2.metadata.provider.DOMMetadataProvider;
-import org.opensaml.saml2.metadata.provider.MetadataProviderException;
-import org.opensaml.security.MetadataCredentialResolver;
-import org.opensaml.security.MetadataCriteria;
-import org.opensaml.security.SAMLSignatureProfileValidator;
-import org.opensaml.xml.security.CriteriaSet;
-import org.opensaml.xml.security.SecurityException;
-import org.opensaml.xml.security.credential.UsageType;
-import org.opensaml.xml.security.criteria.EntityIDCriteria;
-import org.opensaml.xml.security.criteria.UsageCriteria;
-import org.opensaml.xml.security.keyinfo.KeyInfoCredentialResolver;
-import org.opensaml.xml.signature.impl.ExplicitKeySignatureTrustEngine;
-import org.opensaml.xml.validation.ValidationException;
+import org.opensaml.core.config.ConfigurationService;
+import org.opensaml.core.criterion.EntityIdCriterion;
+import org.opensaml.saml.common.SignableSAMLObject;
+import org.opensaml.saml.common.messaging.SAMLMessageSecuritySupport;
+import org.opensaml.saml.common.xml.SAMLConstants;
+import org.opensaml.saml.criterion.EntityRoleCriterion;
+import org.opensaml.saml.metadata.resolver.MetadataResolver;
+import org.opensaml.saml.metadata.resolver.impl.BasicRoleDescriptorResolver;
+import org.opensaml.saml.metadata.resolver.impl.DOMMetadataResolver;
+import org.opensaml.saml.saml2.core.AttributeQuery;
+import org.opensaml.saml.saml2.core.Issuer;
+import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.core.Status;
+import org.opensaml.saml.saml2.core.StatusCode;
+import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
+import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
+import org.opensaml.saml.security.impl.MetadataCredentialResolver;
+import org.opensaml.saml.security.impl.SAMLSignatureProfileValidator;
+import org.opensaml.security.credential.UsageType;
+import org.opensaml.security.criteria.UsageCriterion;
+import org.opensaml.xmlsec.DecryptionConfiguration;
+import org.opensaml.xmlsec.config.DefaultSecurityConfigurationBootstrap;
+import org.opensaml.xmlsec.impl.BasicSignatureValidationConfiguration;
+import org.opensaml.xmlsec.keyinfo.KeyInfoCredentialResolver;
+import org.opensaml.xmlsec.signature.support.SignatureException;
+import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngine;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.SamlMetadataEntity;
@@ -94,12 +100,12 @@ public class Saml2ResponseValidationService {
 			
 		Status status = samlResponse.getStatus();
 		if (status.getStatusCode().getStatusCode() != null &&
-				StatusCode.UNKNOWN_PRINCIPAL_URI.equals(status.getStatusCode().getStatusCode().getValue())) {
+				StatusCode.UNKNOWN_PRINCIPAL.equals(status.getStatusCode().getStatusCode().getValue())) {
 			String s = samlHelper.prettyPrint(status);
 			logger.info("SAML Response Status: {}", s);
 			throw new SamlUnknownPrincipalException("SAML Response: Unknown Principal " + status.getStatusCode().getValue());
 		}
-		else if (! status.getStatusCode().getValue().equals(StatusCode.SUCCESS_URI)) {
+		else if (! status.getStatusCode().getValue().equals(StatusCode.SUCCESS)) {
 			String s = samlHelper.prettyPrint(status);
 			logger.info("SAML Response Status: {}", s);
 			throw new SamlAuthenticationException("SAML Response: Login was not successful " + status.getStatusCode().getValue());
@@ -127,29 +133,46 @@ public class Saml2ResponseValidationService {
 		if (signableSamlObject.getSignature() == null)
 			throw new SamlAuthenticationException("No Signature on SignableSamlObject");
 		
-		DOMMetadataProvider mp = new DOMMetadataProvider(entityDescriptor.getDOM());
+		DOMMetadataResolver mp = new DOMMetadataResolver(entityDescriptor.getDOM());
+		mp.setId(entityDescriptor.getEntityID() + "-resolver");
+		
+		BasicRoleDescriptorResolver roleResolver = new BasicRoleDescriptorResolver(mp);
+		KeyInfoCredentialResolver keyInfoCredResolver = DefaultSecurityConfigurationBootstrap.buildBasicInlineKeyInfoCredentialResolver();
+
+		MetadataCredentialResolver mdCredResolver = new MetadataCredentialResolver();
+		mdCredResolver.setKeyInfoCredentialResolver(keyInfoCredResolver);
+		mdCredResolver.setRoleDescriptorResolver(roleResolver);
 		try {
 			mp.initialize();
-		} catch (MetadataProviderException e) {
-			throw new SamlAuthenticationException("Metadata for IDP " + entityDescriptor.getEntityID() + " could not be established");			
+			roleResolver.initialize();
+			mdCredResolver.initialize();
+		} catch (ComponentInitializationException e) {
+			logger.error("Cannot init MDCredResolver", e);
+			throw new SamlAuthenticationException("Cannot init MDCredResolver", e);
 		}
 		
-		MetadataCredentialResolver mdCredResolver = new MetadataCredentialResolver(mp);
-		KeyInfoCredentialResolver keyInfoCredResolver =
-			    Configuration.getGlobalSecurityConfiguration().getDefaultKeyInfoCredentialResolver();
+//		DecryptionConfiguration dc = ConfigurationService.get(DecryptionConfiguration.class);
+//		KeyInfoCredentialResolver keyInfoCredResolver = dc.getDataKeyInfoCredentialResolver();
+		
+//		KeyInfoCredentialResolver keyInfoCredResolver =
+//			    ConfigurationService.getGlobalSecurityConfiguration().getDefaultKeyInfoCredentialResolver();
 		ExplicitKeySignatureTrustEngine trustEngine = new ExplicitKeySignatureTrustEngine(mdCredResolver, keyInfoCredResolver);
 		
 		SAMLSignatureProfileValidator sigValidator = new SAMLSignatureProfileValidator();
+//		try {
 		try {
 			sigValidator.validate(signableSamlObject.getSignature());
-		} catch (ValidationException e) {
+		} catch (SignatureException e) {
 			throw new SamlAuthenticationException("SAMLSignableObject signature is not valid");
 		}
+//		} catch (ValidationException e) {
+//			throw new SamlAuthenticationException("SAMLSignableObject signature is not valid");
+//		}
 		
 		CriteriaSet criteriaSet = new CriteriaSet();
-		criteriaSet.add(new EntityIDCriteria(issuer.getValue()));
-		criteriaSet.add(new MetadataCriteria(role, protocol));
-		criteriaSet.add(new UsageCriteria(UsageType.SIGNING));
+		criteriaSet.add(new EntityIdCriterion(issuer.getValue()));
+		criteriaSet.add(new EntityRoleCriterion(role));
+		criteriaSet.add(new UsageCriterion(UsageType.SIGNING));
 			
 		try {
 			if (trustEngine.validate(signableSamlObject.getSignature(), criteriaSet))
@@ -157,7 +180,7 @@ public class Saml2ResponseValidationService {
 			else {
 				throw new SamlAuthenticationException("SAMLSignableObject could not be validated.");
 			}
-		} catch (SecurityException e) {
+		} catch (org.opensaml.security.SecurityException e) {
 			throw new SamlAuthenticationException("SAMLSignableObject could not be validated.");
 		}
 	}	

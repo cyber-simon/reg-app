@@ -12,6 +12,7 @@ package edu.kit.scc.webreg.service.saml;
 
 import java.io.IOException;
 import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,21 +22,21 @@ import java.util.Map.Entry;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.opensaml.common.SAMLObject;
-import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.Attribute;
-import org.opensaml.saml2.core.EncryptedAssertion;
-import org.opensaml.saml2.core.EncryptedID;
-import org.opensaml.saml2.core.NameID;
-import org.opensaml.saml2.core.Response;
-import org.opensaml.saml2.encryption.Decrypter;
-import org.opensaml.saml2.metadata.EntityDescriptor;
-import org.opensaml.xml.encryption.DecryptionException;
-import org.opensaml.xml.encryption.InlineEncryptedKeyResolver;
-import org.opensaml.xml.security.credential.Credential;
-import org.opensaml.xml.security.keyinfo.KeyInfoCredentialResolver;
-import org.opensaml.xml.security.keyinfo.StaticKeyInfoCredentialResolver;
-import org.opensaml.xml.security.x509.BasicX509Credential;
+import org.opensaml.saml.common.SAMLObject;
+import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.Attribute;
+import org.opensaml.saml.saml2.core.EncryptedAssertion;
+import org.opensaml.saml.saml2.core.EncryptedID;
+import org.opensaml.saml.saml2.core.NameID;
+import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.encryption.Decrypter;
+import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+import org.opensaml.security.credential.Credential;
+import org.opensaml.security.x509.BasicX509Credential;
+import org.opensaml.xmlsec.encryption.support.DecryptionException;
+import org.opensaml.xmlsec.encryption.support.InlineEncryptedKeyResolver;
+import org.opensaml.xmlsec.keyinfo.KeyInfoCredentialResolver;
+import org.opensaml.xmlsec.keyinfo.impl.StaticKeyInfoCredentialResolver;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.SamlMetadataEntity;
@@ -98,7 +99,8 @@ public class Saml2AssertionService {
 		 */
 		if (encryptedAssertionList.size() > 0) {
 			assertion = decryptAssertion(
-					encryptedAssertionList.get(0), spEntity.getPrivateKey(), spEntity.getStandbyPrivateKey());
+					encryptedAssertionList.get(0), spEntity.getCertificate(), spEntity.getPrivateKey(), 
+					spEntity.getStandbyCertificate(), spEntity.getStandbyPrivateKey());
 		}
 		else if (assertionList.size() > 0) {
 			assertion = assertionList.get(0);
@@ -145,7 +147,8 @@ public class Saml2AssertionService {
 		NameID nid;
 		if (assertion.getSubject().getEncryptedID() != null) {
 			EncryptedID eid = assertion.getSubject().getEncryptedID();
-			SAMLObject samlObject = decryptNameID(eid, spEntity.getPrivateKey(), spEntity.getStandbyPrivateKey());
+			SAMLObject samlObject = decryptNameID(eid, spEntity.getCertificate(), spEntity.getPrivateKey(), 
+					spEntity.getStandbyCertificate(), spEntity.getStandbyPrivateKey());
 			
 			if (samlObject instanceof NameID)
 				nid = (NameID) samlObject;
@@ -169,19 +172,19 @@ public class Saml2AssertionService {
 	}
 	
 	public Assertion decryptAssertion(EncryptedAssertion encryptedAssertion,
-			String privateKey, String standbyPrivateKey) throws IOException, DecryptionException, SamlAuthenticationException {
+			String cert, String privateKey, String standbyCert, String standbyPrivateKey) throws IOException, DecryptionException, SamlAuthenticationException {
 		logger.debug("Decrypting assertion...");
 		
-		Decrypter decrypter = buildDecrypter(privateKey, standbyPrivateKey);
+		Decrypter decrypter = buildDecrypter(cert, privateKey, standbyCert, standbyPrivateKey);
 		Assertion assertion = decrypter.decrypt(encryptedAssertion);
 		return assertion;
 	}
 	
 	public SAMLObject decryptNameID(EncryptedID encryptedID,
-			String privateKey, String standbyPrivateKey) throws IOException, DecryptionException, SamlAuthenticationException {
+			String cert, String privateKey, String standbyCert, String standbyPrivateKey) throws IOException, DecryptionException, SamlAuthenticationException {
 		logger.debug("Decrypting nameID...");
 		
-		Decrypter decrypter = buildDecrypter(privateKey, standbyPrivateKey);
+		Decrypter decrypter = buildDecrypter(cert, privateKey, standbyCert, standbyPrivateKey);
 		SAMLObject samlObject = decrypter.decrypt(encryptedID);
 		return samlObject;
 	}	
@@ -200,11 +203,13 @@ public class Saml2AssertionService {
 		return attributeMap;
 	}
 	
-	private Decrypter buildDecrypter(String privateKey, String standbyPrivateKey) 
+	private Decrypter buildDecrypter(String cert, String privateKey, String standbyCert, String standbyPrivateKey) 
 			throws SamlAuthenticationException {
 		PrivateKey pk;
+		X509Certificate c;
 		try {
 			pk = cryptoHelper.getPrivateKey(privateKey);
+			c = cryptoHelper.getCertificate(cert);
 		} catch (IOException e) {
 			throw new SamlAuthenticationException("Private key is not set up properly", e);
 		}
@@ -214,15 +219,14 @@ public class Saml2AssertionService {
 		}
 			
 		List<Credential> decryptCredentialList = new ArrayList<Credential>();
-		BasicX509Credential decryptCredential = new BasicX509Credential();
-		decryptCredential.setPrivateKey(pk);
+		BasicX509Credential decryptCredential = new BasicX509Credential(c, pk);
 		decryptCredentialList.add(decryptCredential);
 		
 		if (standbyPrivateKey != null && (! standbyPrivateKey.equals(""))) {
 			try {
 				PrivateKey spk = cryptoHelper.getPrivateKey(standbyPrivateKey);
-				BasicX509Credential standbyDecryptCredential = new BasicX509Credential();
-				standbyDecryptCredential.setPrivateKey(spk);
+				X509Certificate sc = cryptoHelper.getCertificate(standbyCert);
+				BasicX509Credential standbyDecryptCredential = new BasicX509Credential(sc, spk);
 				decryptCredentialList.add(standbyDecryptCredential);
 			} catch (IOException e) {
 				logger.warn("Standby private Key is not set up properly: {}. I won't use it", e.getMessage());

@@ -43,18 +43,18 @@
 			</dependency>
 			<dependency>
 				<groupId>org.opensaml</groupId>
-				<artifactId>opensaml</artifactId>
-				<version>2.6.5</version>
-				<exclusions>
-					<exclusion>
-						<groupId>org.slf4j</groupId>
-						<artifactId>jcl-over-slf4j</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.slf4j</groupId>
-						<artifactId>log4j-over-slf4j</artifactId>
-					</exclusion>
-				</exclusions>
+				<artifactId>opensaml-saml-api</artifactId>
+				<version>3.2.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.opensaml</groupId>
+				<artifactId>opensaml-saml-impl</artifactId>
+				<version>3.2.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.velocity</groupId>
+				<artifactId>velocity</artifactId>
+				<version>1.7</version>
 			</dependency>
 			<dependency>
     			<groupId>commons-beanutils</groupId>

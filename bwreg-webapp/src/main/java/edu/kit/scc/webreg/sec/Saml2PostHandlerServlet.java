@@ -22,12 +22,13 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.Response;
-import org.opensaml.saml2.metadata.EntityDescriptor;
-import org.opensaml.ws.message.decoder.MessageDecodingException;
-import org.opensaml.xml.encryption.DecryptionException;
-import org.opensaml.xml.security.SecurityException;
+import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
+
+import org.opensaml.messaging.decoder.MessageDecodingException;
+import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+import org.opensaml.xmlsec.encryption.support.DecryptionException;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
@@ -105,7 +106,7 @@ public class Saml2PostHandlerServlet {
 				persistentId = saml2AssertionService.extractPersistentId(assertion, spConfig);
 			} catch (Exception e1) {
 				/*
-				 * Catch Exception here for a probabyl faulty IDP. Register Exception and rethrow.
+				 * Catch Exception here for a probably faulty IDP. Register Exception and rethrow.
 				 */
 				idpService.updateIdpStatus(SamlIdpMetadataEntityStatus.FAULTY, idpEntity);
 				throw e1;
@@ -170,6 +171,8 @@ public class Saml2PostHandlerServlet {
 		} catch (DecryptionException e) {
 			throw new ServletException("Authentication problem", e);
 		} catch (SamlAuthenticationException e) {
+			throw new ServletException("Authentication problem", e);
+		} catch (ComponentInitializationException e) {
 			throw new ServletException("Authentication problem", e);
 		}
 	}

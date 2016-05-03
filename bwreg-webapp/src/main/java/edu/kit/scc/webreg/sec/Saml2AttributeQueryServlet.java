@@ -20,29 +20,28 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
+
 import org.joda.time.DateTime;
-import org.opensaml.Configuration;
-import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.Attribute;
-import org.opensaml.saml2.core.AttributeQuery;
-import org.opensaml.saml2.core.AttributeStatement;
-import org.opensaml.saml2.core.AttributeValue;
-import org.opensaml.saml2.core.Issuer;
-import org.opensaml.saml2.core.NameID;
-import org.opensaml.saml2.core.Response;
-import org.opensaml.saml2.core.Status;
-import org.opensaml.saml2.core.StatusCode;
-import org.opensaml.saml2.core.StatusMessage;
-import org.opensaml.saml2.core.Subject;
-import org.opensaml.saml2.metadata.EntityDescriptor;
-import org.opensaml.ws.message.decoder.MessageDecodingException;
-import org.opensaml.ws.soap.soap11.Body;
-import org.opensaml.ws.soap.soap11.Envelope;
-import org.opensaml.xml.XMLObject;
-import org.opensaml.xml.XMLObjectBuilderFactory;
-import org.opensaml.xml.schema.XSAny;
-import org.opensaml.xml.schema.XSString;
-import org.opensaml.xml.security.SecurityException;
+import org.opensaml.core.xml.XMLObject;
+import org.opensaml.core.xml.XMLObjectBuilderFactory;
+import org.opensaml.core.xml.schema.XSString;
+import org.opensaml.messaging.decoder.MessageDecodingException;
+import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.Attribute;
+import org.opensaml.saml.saml2.core.AttributeQuery;
+import org.opensaml.saml.saml2.core.AttributeStatement;
+import org.opensaml.saml.saml2.core.AttributeValue;
+import org.opensaml.saml.saml2.core.Issuer;
+import org.opensaml.saml.saml2.core.NameID;
+import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.core.Status;
+import org.opensaml.saml.saml2.core.StatusCode;
+import org.opensaml.saml.saml2.core.StatusMessage;
+import org.opensaml.saml.saml2.core.Subject;
+import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+import org.opensaml.soap.soap11.Body;
+import org.opensaml.soap.soap11.Envelope;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
@@ -108,7 +107,7 @@ public class Saml2AttributeQueryServlet {
 			saml2ValidationService.verifyIssuer(spEntity, query);
 			saml2ValidationService.validateSpSignature(query, issuer, spEntityDescriptor);
 			
-			Response samlResponse = buildSamlRespone(StatusCode.SUCCESS_URI, null);
+			Response samlResponse = buildSamlRespone(StatusCode.SUCCESS, null);
 			samlResponse.setIssuer(buildIssuser(aaConfig.getEntityId()));
 			samlResponse.setIssueInstant(new DateTime());
 
@@ -132,13 +131,16 @@ public class Saml2AttributeQueryServlet {
 			
 		} catch (MessageDecodingException e) {
 			logger.info("Could not execute AttributeQuery: {}", e.getMessage());
-			sendErrorResponse(response, StatusCode.REQUEST_DENIED_URI, e.getMessage());
+			sendErrorResponse(response, StatusCode.REQUEST_DENIED, e.getMessage());
 		} catch (SecurityException e) {
 			logger.info("Could not execute AttributeQuery: {}", e.getMessage());
-			sendErrorResponse(response, StatusCode.REQUEST_DENIED_URI, e.getMessage());
+			sendErrorResponse(response, StatusCode.REQUEST_DENIED, e.getMessage());
 		} catch (SamlAuthenticationException e) {
 			logger.info("Could not execute AttributeQuery: {}", e.getMessage());
-			sendErrorResponse(response, StatusCode.REQUEST_DENIED_URI, e.getMessage());
+			sendErrorResponse(response, StatusCode.REQUEST_DENIED, e.getMessage());
+		} catch (ComponentInitializationException e) {
+			logger.info("Could not execute AttributeQuery: {}", e.getMessage());
+			sendErrorResponse(response, StatusCode.REQUEST_DENIED, e.getMessage());
 		}
 	}
 
@@ -151,7 +153,7 @@ public class Saml2AttributeQueryServlet {
 	}
 	
 	private Envelope buildSoapEnvelope(XMLObject xmlObject) {
-		XMLObjectBuilderFactory bf = Configuration.getBuilderFactory();
+		XMLObjectBuilderFactory bf = samlHelper.getBuilderFactory();
 		Envelope envelope = (Envelope) bf.getBuilder(
 				Envelope.DEFAULT_ELEMENT_NAME).buildObject(
 				Envelope.DEFAULT_ELEMENT_NAME);

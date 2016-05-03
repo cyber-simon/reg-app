@@ -20,8 +20,8 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import org.kie.api.runtime.KieSession;
-import org.opensaml.saml2.metadata.EntitiesDescriptor;
-import org.opensaml.saml2.metadata.EntityDescriptor;
+import org.opensaml.saml.saml2.metadata.EntitiesDescriptor;
+import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dao.BaseDao;

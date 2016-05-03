@@ -15,25 +15,37 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.opensaml.common.xml.SAMLConstants;
-import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.Audience;
-import org.opensaml.saml2.core.AudienceRestriction;
-import org.opensaml.saml2.core.AuthnRequest;
-import org.opensaml.saml2.core.Response;
-import org.opensaml.saml2.metadata.EntityDescriptor;
-import org.opensaml.saml2.metadata.SingleSignOnService;
-import org.opensaml.ws.soap.client.BasicSOAPMessageContext;
-import org.opensaml.ws.soap.client.SOAPClientException;
-import org.opensaml.ws.soap.client.http.HttpClientBuilder;
-import org.opensaml.ws.soap.client.http.HttpSOAPClient;
-import org.opensaml.ws.soap.common.SOAPException;
-import org.opensaml.ws.soap.soap11.Envelope;
-import org.opensaml.xml.encryption.DecryptionException;
-import org.opensaml.xml.security.SecurityException;
+import net.shibboleth.utilities.java.support.httpclient.HttpClientBuilder;
+
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.HttpClients;
+import org.opensaml.messaging.context.InOutOperationContext;
+import org.opensaml.messaging.context.MessageContext;
+import org.opensaml.messaging.pipeline.httpclient.BasicHttpClientMessagePipeline;
+import org.opensaml.messaging.pipeline.httpclient.HttpClientMessagePipeline;
+import org.opensaml.messaging.pipeline.httpclient.HttpClientMessagePipelineFactory;
+import org.opensaml.saml.common.SAMLObject;
+import org.opensaml.saml.common.xml.SAMLConstants;
+import org.opensaml.saml.saml2.binding.decoding.impl.HttpClientResponseSOAP11Decoder;
+import org.opensaml.saml.saml2.binding.encoding.impl.HttpClientRequestSOAP11Encoder;
+import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.Audience;
+import org.opensaml.saml.saml2.core.AudienceRestriction;
+import org.opensaml.saml.saml2.core.AuthnRequest;
+import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+import org.opensaml.saml.saml2.metadata.SingleSignOnService;
+import org.opensaml.soap.client.SOAPClientException;
+import org.opensaml.soap.client.http.HttpSOAPClient;
+import org.opensaml.soap.client.http.PipelineFactoryHttpSOAPClient;
+import org.opensaml.soap.common.SOAPException;
+import org.opensaml.soap.messaging.context.SOAP11Context;
+import org.opensaml.soap.soap11.Envelope;
+import org.opensaml.xmlsec.encryption.support.DecryptionException;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dao.RegistryDao;
@@ -259,37 +271,54 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			
 			AuthnRequest authnRequest = ssoHelper.buildAuthnRequest(sp.getEntityId(), sp.getEcp(),
 					SAMLConstants.SAML2_PAOS_BINDING_URI);
-			Envelope envelope = attrQueryHelper.buildSOAP11Envelope(authnRequest);
-			BasicSOAPMessageContext soapContext = new BasicSOAPMessageContext();
-			soapContext.setOutboundMessage(envelope);
+			//Envelope envelope = attrQueryHelper.buildSOAP11Envelope(authnRequest);
+
+			MessageContext<SAMLObject> inbound = new MessageContext<SAMLObject>();
+			MessageContext<SAMLObject> outbound = new MessageContext<SAMLObject>();
+			outbound.setMessage(authnRequest);
+
+			SOAP11Context soapContext = new SOAP11Context();
+			outbound.addSubcontext(soapContext);
+
+			InOutOperationContext<SAMLObject, SAMLObject> inOutContext =
+					new InOutOperationContext<SAMLObject, SAMLObject>(inbound, outbound);
 			
-			HttpClientBuilder clientBuilder = new HttpClientBuilder();
-			HttpClient client = clientBuilder.buildClient();
-			
-			client.getParams().setAuthenticationPreemptive(true);
-			
-			client.getState().setCredentials(
-	                new AuthScope(bindingHost, 443),
+			CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+			credentialsProvider.setCredentials(new AuthScope(bindingHost, 443),
 	                new UsernamePasswordCredentials(username, password));
-			HttpSOAPClient soapClient = new HttpSOAPClient(client, 
-					samlHelper.getBasicParserPool());
-		
+			
+			HttpClient client = HttpClients.custom().setDefaultCredentialsProvider(credentialsProvider).build();
+			
+			PipelineFactoryHttpSOAPClient<SAMLObject, SAMLObject> pf = new PipelineFactoryHttpSOAPClient<SAMLObject, SAMLObject>();
+			pf.setHttpClient(client);
+			pf.setPipelineFactory(new HttpClientMessagePipelineFactory<SAMLObject, SAMLObject>() {
+				
+				@Override
+				public HttpClientMessagePipeline<SAMLObject, SAMLObject> newInstance(
+						String pipelineName) {
+					return new BasicHttpClientMessagePipeline<SAMLObject, SAMLObject>(new HttpClientRequestSOAP11Encoder(), new HttpClientResponseSOAP11Decoder());
+				}
+				
+				@Override
+				public HttpClientMessagePipeline<SAMLObject, SAMLObject> newInstance() {
+					return new BasicHttpClientMessagePipeline<SAMLObject, SAMLObject>(new HttpClientRequestSOAP11Encoder(), new HttpClientResponseSOAP11Decoder());
+				}
+			});
+			
 			try {
-				soapClient.send(bindingLocation, soapContext);
-			} catch (SOAPClientException se) {
+				pf.send(sso.getLocation(), inOutContext);
+			} catch (SOAPException se) {
 				logger.info("Login failed for user {} idp {}", username, idp.getEntityId());
+				logger.debug("SoapException: {}", se.getMessage());
+				if (se.getCause() != null)
+					logger.debug("Inner Exception: {}", se.getCause().getMessage());
 				throw new LoginFailedException(se.getMessage());
 			}
-			Envelope returnEnvelope = (Envelope) soapContext.getInboundMessage();
-			Response response = 
-					attrQueryHelper.getResponseFromEnvelope(returnEnvelope);
+			Response response = (Response) inOutContext.getInboundMessageContext().getMessage();
 
 			return processResponse(response, idpEntityDesc, service, idp, sp, "ecp");
 
-		} catch (SOAPException e) {
-			logger.info("exception at ecp query", e);
-			throw new GenericRestInterfaceException("an error occured: " + e.getMessage());
-		} catch (SecurityException e) {
+		} catch (org.opensaml.security.SecurityException e) {
 			logger.info("exception at ecp query", e);
 			throw new GenericRestInterfaceException("an error occured: " + e.getMessage());
 		} catch (DecryptionException e) {
@@ -425,6 +454,9 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 				logger.info("exception at attribute query", e);
 				throw new GenericRestInterfaceException("an error occured: " + e.getMessage());
 			} catch (SamlAuthenticationException e) {
+				logger.info("exception at attribute query", e);
+				throw new GenericRestInterfaceException("an error occured: " + e.getMessage());
+			} catch (Exception e) {
 				logger.info("exception at attribute query", e);
 				throw new GenericRestInterfaceException("an error occured: " + e.getMessage());
 			}

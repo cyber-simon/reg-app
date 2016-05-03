@@ -25,32 +25,33 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.xml.namespace.QName;
 
+import net.shibboleth.utilities.java.support.xml.BasicParserPool;
+import net.shibboleth.utilities.java.support.xml.XMLParserException;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.opensaml.common.xml.SAMLConstants;
-import org.opensaml.saml2.common.Extensions;
-import org.opensaml.saml2.core.Attribute;
-import org.opensaml.saml2.metadata.AttributeAuthorityDescriptor;
-import org.opensaml.saml2.metadata.AttributeService;
-import org.opensaml.saml2.metadata.EntitiesDescriptor;
-import org.opensaml.saml2.metadata.EntityDescriptor;
-import org.opensaml.saml2.metadata.IDPSSODescriptor;
-import org.opensaml.saml2.metadata.OrganizationDisplayName;
-import org.opensaml.saml2.metadata.SPSSODescriptor;
-import org.opensaml.saml2.metadata.SingleSignOnService;
-import org.opensaml.samlext.saml2mdattr.EntityAttributes;
-import org.opensaml.samlext.saml2mdui.UIInfo;
-import org.opensaml.xml.XMLObject;
-import org.opensaml.xml.io.Unmarshaller;
-import org.opensaml.xml.io.UnmarshallerFactory;
-import org.opensaml.xml.io.UnmarshallingException;
-import org.opensaml.xml.parse.BasicParserPool;
-import org.opensaml.xml.parse.XMLParserException;
-import org.opensaml.xml.schema.XSAny;
+import org.opensaml.core.xml.XMLObject;
+import org.opensaml.core.xml.io.Unmarshaller;
+import org.opensaml.core.xml.io.UnmarshallerFactory;
+import org.opensaml.core.xml.io.UnmarshallingException;
+import org.opensaml.core.xml.schema.XSAny;
+import org.opensaml.saml.common.xml.SAMLConstants;
+import org.opensaml.saml.ext.saml2mdattr.EntityAttributes;
+import org.opensaml.saml.ext.saml2mdui.UIInfo;
+import org.opensaml.saml.saml2.core.Attribute;
+import org.opensaml.saml.saml2.metadata.AttributeAuthorityDescriptor;
+import org.opensaml.saml.saml2.metadata.AttributeService;
+import org.opensaml.saml.saml2.metadata.EntitiesDescriptor;
+import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+import org.opensaml.saml.saml2.metadata.Extensions;
+import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
+import org.opensaml.saml.saml2.metadata.OrganizationDisplayName;
+import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
+import org.opensaml.saml.saml2.metadata.SingleSignOnService;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 
@@ -211,7 +212,7 @@ public class MetadataHelper implements Serializable {
 			List<OrganizationDisplayName> displayList = entityDesc.getOrganization().getDisplayNames();
 			
 			if (displayList.size() > 0)
-				return displayList.get(0).getName().getLocalString();
+				return displayList.get(0).getValue();
 			else
 				return entityDesc.getEntityID();
 		}
@@ -256,13 +257,13 @@ public class MetadataHelper implements Serializable {
 						UIInfo uiInfo = (UIInfo) xmlObject;
 	
 						if (uiInfo.getDescriptions().size() > 0) {
-							idp.setDescription(uiInfo.getDescriptions().get(0).getName().getLocalString());
+							idp.setDescription(uiInfo.getDescriptions().get(0).getValue());
 						}
 						if (uiInfo.getDisplayNames().size() > 0) {
-							idp.setDisplayName(uiInfo.getDisplayNames().get(0).getName().getLocalString());
+							idp.setDisplayName(uiInfo.getDisplayNames().get(0).getValue());
 						}
 						if (uiInfo.getInformationURLs().size() > 0) {
-							idp.setInformationUrl(uiInfo.getInformationURLs().get(0).getURI().getLocalString());
+							idp.setInformationUrl(uiInfo.getInformationURLs().get(0).getValue());
 						}
 					}
 				}
