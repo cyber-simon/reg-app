@@ -207,7 +207,7 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 		}    			
 	}
 
-	protected final void updateGroups(GroupPerServiceList groupUpdateList, String executor) throws RegisterException {
+	protected void updateGroups(GroupPerServiceList groupUpdateList, String executor) throws RegisterException {
 
 		for (ServiceEntity service : groupUpdateList.getServices()) {
 			RegisterUserWorkflow workflow = getWorkflowInstance(service.getRegisterBean());
@@ -299,7 +299,7 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	}
 	
 	@Override
-	public final void updateGroups(Set<GroupEntity> groupUpdateSet, String executor) throws RegisterException {
+	public void updateGroups(Set<GroupEntity> groupUpdateSet, String executor) throws RegisterException {
 		GroupPerServiceList groupUpdateList = new GroupPerServiceList();
 		
 		for (GroupEntity group : groupUpdateSet) {
@@ -333,7 +333,7 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	}
 	
 	@Override
-	public final void deleteGroup(GroupEntity group, ServiceEntity service, String executor) throws RegisterException {
+	public void deleteGroup(GroupEntity group, ServiceEntity service, String executor) throws RegisterException {
 		group = groupDao.findWithUsers(group.getId());
 
 		RegisterUserWorkflow workflow = getWorkflowInstance(service.getRegisterBean());
@@ -359,12 +359,12 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	}
 
 	@Override
-	public final void reconsiliation(RegistryEntity registry, Boolean fullRecon, String executor) throws RegisterException {
+	public void reconsiliation(RegistryEntity registry, Boolean fullRecon, String executor) throws RegisterException {
 		reconsiliation(registry, fullRecon, executor, null);
 	}
 	
 	@Override
-	public final void reconsiliation(RegistryEntity registry, Boolean fullRecon, String executor, Auditor parentAuditor) throws RegisterException {
+	public void reconsiliation(RegistryEntity registry, Boolean fullRecon, String executor, Auditor parentAuditor) throws RegisterException {
 
 		RegisterUserWorkflow workflow = getWorkflowInstance(registry.getRegisterBean());
 
@@ -441,7 +441,7 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	}
 
 	@Override
-	public final void deregisterUser(RegistryEntity registry, String executor) throws RegisterException {
+	public void deregisterUser(RegistryEntity registry, String executor) throws RegisterException {
 		
 		if (RegistryStatus.DELETED.equals(registry.getRegistryStatus())) {
 			throw new RegisterException("Registry " + registry.getId() + " is already deregistered!");
