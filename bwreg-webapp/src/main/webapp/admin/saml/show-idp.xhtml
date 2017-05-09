@@ -140,17 +140,17 @@
 					<h:panelGroup>
 						<ul>
 							<ui:repeat var="org" value="#{showIdpBean.entityDescriptor.organization.organizationNames}">
-								<li>OrgName: <h:outputText value="#{org.name.localString}"/> (<h:outputText value="#{org.name.language}"/>)</li>
+								<li>OrgName: <h:outputText value="#{org.value}"/> (<h:outputText value="#{org.XMLLang}"/>)</li>
 							</ui:repeat>
 						</ul>
 						<ul>
 							<ui:repeat var="org" value="#{showIdpBean.entityDescriptor.organization.displayNames}">
-								<li>DisplayName: <h:outputText value="#{org.name.localString}"/> (<h:outputText value="#{org.name.language}"/>)</li>
+								<li>DisplayName: <h:outputText value="#{org.value}"/> (<h:outputText value="#{org.XMLLang}"/>)</li>
 							</ui:repeat>
 						</ul>
 						<ul>
 							<ui:repeat var="org" value="#{showIdpBean.entityDescriptor.organization.URLs}">
-								<li>URL: <h:outputText value="#{org.URL.localString}"/> (<h:outputText value="#{org.URL.language}"/>)</li>
+								<li>URL: <h:outputText value="#{org.value}"/> (<h:outputText value="#{org.XMLLang}"/>)</li>
 							</ui:repeat>
 						</ul>
 					</h:panelGroup>
