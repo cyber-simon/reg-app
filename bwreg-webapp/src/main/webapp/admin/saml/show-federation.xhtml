@@ -83,6 +83,12 @@
 						</f:facet>
 						<h:outputText value="#{idp.orgName}" />
 					</p:column>			    	
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.status}" />
+						</f:facet>
+						<h:outputText value="#{idp.idIdpStatus}/#{idp.aqIdpStatus}" />
+					</p:column>			    	
 		    	</p:dataTable>	
 			</p:panel>
 		</div>
