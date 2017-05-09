@@ -3,7 +3,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:ui="http://java.sun.com/jsf/facelets">
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
 <head>
 <title></title>
 </head>
@@ -23,6 +24,21 @@
 	
 			<h:outputText value="#{messages.url}:" />
 			<h:inputText value="#{addFederationBean.entity.federationMetadataUrl}" />
+
+			<h:outputText value="#{messages.fetch_idps}" />
+			<p:selectBooleanButton id="idpsField"
+				onLabel="#{messages.yes}" offLabel="#{messages.no}" 
+				value="#{addFederationBean.entity.fetchIdps}"/>
+
+			<h:outputText value="#{messages.fetch_sps}" />
+			<p:selectBooleanButton id="spsField"
+				onLabel="#{messages.yes}" offLabel="#{messages.no}" 
+				value="#{addFederationBean.entity.fetchSps}"/>
+
+			<h:outputText value="#{messages.fetch_aas}" />
+			<p:selectBooleanButton id="aasField"
+				onLabel="#{messages.yes}" offLabel="#{messages.no}" 
+				value="#{addFederationBean.entity.fetchAAs}"/>
 					
 		</h:panelGrid>
 

@@ -34,6 +34,9 @@ public class AddFederationBean implements Serializable {
 	@PostConstruct
 	public void init() {
 		entity = service.createNew();
+		entity.setFetchIdps(Boolean.TRUE);
+		entity.setFetchSps(Boolean.FALSE);
+		entity.setFetchAAs(Boolean.FALSE);
 	}
 
 	public String save() {

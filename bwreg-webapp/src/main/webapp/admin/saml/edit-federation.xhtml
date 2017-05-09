@@ -48,6 +48,21 @@
 		            		var="rp" itemLabel="#{rp.knowledgeBaseName} (#{rp.packageName})" itemValue="#{rp}"/>
 		            </h:selectOneMenu>
  
+		 			<h:outputText value="#{messages.fetch_idps}" />
+					<p:selectBooleanButton id="idpsField"
+						onLabel="#{messages.yes}" offLabel="#{messages.no}" 
+						value="#{editFederationBean.entity.fetchIdps}"/>
+		
+					<h:outputText value="#{messages.fetch_sps}" />
+					<p:selectBooleanButton id="spsField"
+						onLabel="#{messages.yes}" offLabel="#{messages.no}" 
+						value="#{editFederationBean.entity.fetchSps}"/>
+		
+					<h:outputText value="#{messages.fetch_aas}" />
+					<p:selectBooleanButton id="aasField"
+						onLabel="#{messages.yes}" offLabel="#{messages.no}" 
+						value="#{editFederationBean.entity.fetchAAs}"/>
+ 
 				</p:panelGrid>
 				<p:commandButton id="save" action="#{editFederationBean.save}" value="#{messages.save}"/>
 			</p:panel>
