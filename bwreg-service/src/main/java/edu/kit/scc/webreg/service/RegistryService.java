@@ -61,4 +61,7 @@ public interface RegistryService extends BaseService<RegistryEntity, Long> {
 
 	List<RegistryEntity> findByServiceAndNotStatus(ServiceEntity service,
 			RegistryStatus... status);
+
+	List<RegistryEntity> findByServiceAndStatusAndIDPGood(String serviceShortName, RegistryStatus status, Date date,
+			int limit);
 }

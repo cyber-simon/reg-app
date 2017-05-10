@@ -70,7 +70,7 @@ public class DeregisterLostAccessRegistries extends AbstractExecutableJob {
 			UserService userService = (UserService) ic.lookup("global/bwreg/bwreg-service/UserServiceImpl!edu.kit.scc.webreg.service.UserService");
 			KnowledgeSessionService knowledgeSessionService = (KnowledgeSessionService) ic.lookup("global/bwreg/bwreg-service/KnowledgeSessionServiceImpl!edu.kit.scc.webreg.drools.KnowledgeSessionService");
 			
-			List<RegistryEntity> registryList = registryService.findByServiceAndStatus(ssn, RegistryStatus.LOST_ACCESS, 
+			List<RegistryEntity> registryList = registryService.findByServiceAndStatusAndIDPGood(ssn, RegistryStatus.LOST_ACCESS, 
 					new Date(System.currentTimeMillis() - lastUpdate), limit);
 			
 			if (registryList.size() == 0)

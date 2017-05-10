@@ -31,6 +31,7 @@ import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity_;
 import edu.kit.scc.webreg.entity.RegistryStatus;
+import edu.kit.scc.webreg.entity.SamlIdpMetadataEntityStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity_;
 import edu.kit.scc.webreg.entity.UserEntity;
@@ -88,6 +89,17 @@ public class JpaRegistryDao extends JpaBaseDao<RegistryEntity, Long> implements 
 		return em.createQuery("select r from RegistryEntity r where r.service.shortName = :ssn and r.registryStatus = :status"
 				+ " and lastStatusChange < :is order by lastStatusChange asc")
 				.setParameter("ssn", serviceShortName).setParameter("status", status).setParameter("is", date)
+				.setMaxResults(limit).getResultList();
+	}	
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<RegistryEntity> findByServiceAndStatusAndIDPGood(String serviceShortName, RegistryStatus status, Date date, int limit) {
+		return em.createQuery("select r from RegistryEntity r where r.service.shortName = :ssn and r.registryStatus = :status"
+				+ " and lastStatusChange < :is and r.user.idp.aqIdpStatus = :aqStatus order by lastStatusChange asc")
+				.setParameter("ssn", serviceShortName).setParameter("status", status)
+				.setParameter("is", date)
+				.setParameter("aqStatus", SamlIdpMetadataEntityStatus.GOOD)
 				.setMaxResults(limit).getResultList();
 	}	
 
