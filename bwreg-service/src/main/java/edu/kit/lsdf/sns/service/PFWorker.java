@@ -94,6 +94,12 @@ public class PFWorker {
 		parameterMap.put("action", "store");
 
 		String s = executeGet(parameterMap);
+		
+		if (s == null) {
+			logger.warn("Account not found: {}", pfAccount.getId());
+			throw new RegisterException("account not found");
+		}
+		
 		ObjectMapper mapper = new ObjectMapper();
 		
 		Map<String, Object> userData;
@@ -143,6 +149,10 @@ public class PFWorker {
 
 		String s = executeGet(parameterMap);
 
+		if (s == null) {
+			return null;
+		}
+		
 		ObjectMapper mapper = new ObjectMapper();
 		
 		Map<String, Object> userData;
@@ -184,7 +194,11 @@ public class PFWorker {
 		
 		logger.debug("Status line of response: {}", response.getStatusLine());
 		
-		if (response.getStatusLine() == null || response.getStatusLine().getStatusCode() != 200) {
+		if (response.getStatusLine() != null && response.getStatusLine().getStatusCode() == 404) {
+			logger.warn("Status answer is 404, Account not found.");
+			return null;
+		}
+		else if (response.getStatusLine() == null || response.getStatusLine().getStatusCode() != 200) {
 			logger.warn("Status answer was not HTTP OK 200");
 			throw new RegisterException("Powerfolder: " + response.getStatusLine());
 		}

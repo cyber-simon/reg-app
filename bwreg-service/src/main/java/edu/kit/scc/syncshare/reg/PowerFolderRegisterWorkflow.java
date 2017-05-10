@@ -79,6 +79,11 @@ public class PowerFolderRegisterWorkflow implements RegisterUserWorkflow, Infota
 		
 		PFAccount pfAccount = pfWorker.getAccountInfoById(userId);
 		
+		if (pfAccount == null) {
+			logger.warn("Account userId was deleted in Powerfolder system. Deregister is resumed.");
+			return;
+		}
+		
 		pfAccount.setId(userId);
 		if (user.getEppn() != null)
 			pfAccount.setUsername(user.getEppn());
