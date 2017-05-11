@@ -123,6 +123,8 @@ public class ApprovalServiceImpl implements ApprovalService {
 		}	
 		
 		auditor.finishAuditTrail();
+		if (parentAuditor == null)
+			auditor.commitAuditTrail();
 	}
 
 	@Override
@@ -191,6 +193,8 @@ public class ApprovalServiceImpl implements ApprovalService {
 			eventSubmitter.submit(serviceRegisterEvent, eventList, EventType.SERVICE_REGISTER, executor);
 
 			auditor.finishAuditTrail();
+			if (parentAuditor == null)
+				auditor.commitAuditTrail();
 			
 		} catch (Throwable t) {
 			throw new RegisterException(t);

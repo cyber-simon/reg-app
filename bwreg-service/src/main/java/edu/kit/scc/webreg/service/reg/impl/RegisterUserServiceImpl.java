@@ -193,12 +193,16 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 				logger.debug("Registering {} for approval {}", user.getEppn(), registry.getApprovalBean());
 				auditor.logAction(user.getEppn(), "STARTING APPROVAL", "registry-" + registry.getId(), "Approval is started: " + registry.getApprovalBean(), AuditStatus.SUCCESS);
 				auditor.finishAuditTrail();
+				if (parentAuditor == null)
+					auditor.commitAuditTrail();
 				approvalService.registerApproval(registry, auditor);
 			}
 			else {
 				logger.debug("No approval role for service {}. AutoApproving {}", service.getName(), user.getEppn());
 				auditor.logAction(user.getEppn(), "STARTING AUTO APPROVE", "registry-" + registry.getId(), "Autoapproving registry", AuditStatus.SUCCESS);
 				auditor.finishAuditTrail();
+				if (parentAuditor == null)
+					auditor.commitAuditTrail();
 				approvalService.approve(registry, executor, auditor);
 			}
 			
@@ -291,6 +295,8 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 				logger.debug("Persist service Flags took {}ms", (System.currentTimeMillis() - a)); a = System.currentTimeMillis();
 
 				auditor.finishAuditTrail();
+				auditor.commitAuditTrail();
+
 			}
 			catch (Throwable t) {
 				throw new RegisterException(t);
@@ -352,6 +358,7 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 			((GroupCapable) workflow).deleteGroup(group, service, auditor);
 			
 			auditor.finishAuditTrail();
+			auditor.commitAuditTrail();
 		}
 		catch (Throwable t) {
 			throw new RegisterException(t);
@@ -434,6 +441,8 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 			registry = registryDao.persist(registry);
 
 			auditor.finishAuditTrail();
+			if (parentAuditor == null)
+				auditor.commitAuditTrail();
 
 		} catch (Throwable t) {
 			throw new RegisterException(t);
@@ -492,6 +501,8 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 			eventSubmitter.submit(serviceRegisterEvent, eventList, EventType.SERVICE_DEREGISTER, executor);
 			
 			auditor.finishAuditTrail();
+			auditor.commitAuditTrail();
+
 		} catch (RegisterException e) {
 			throw e;
 		} catch (Throwable t) {
@@ -531,6 +542,8 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 			registry = registryDao.persist(registry);
 			
 			auditor.finishAuditTrail();
+			auditor.commitAuditTrail();
+
 		} catch (RegisterException e) {
 			throw e;
 		} catch (Throwable t) {
@@ -560,6 +573,7 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 			registry = registryDao.persist(registry);
 
 			auditor.finishAuditTrail();
+			auditor.commitAuditTrail();
 		} catch (RegisterException e) {
 			throw e;
 		} catch (Throwable t) {
@@ -696,6 +710,7 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 		registry = registryDao.persist(registry);
 
 		auditor.finishAuditTrail();
+		auditor.commitAuditTrail();
 	}
 
 	@Override

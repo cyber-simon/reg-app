@@ -109,6 +109,7 @@ public class AttributeSourceQueryServiceImpl implements AttributeSourceQueryServ
 		asUserAttr.setLastQuery(new Date());
 		asUserAttr = asUserAttrDao.persist(asUserAttr);
 		auditor.finishAuditTrail();
+		auditor.commitAuditTrail();
 		
 		return changed;
 	}

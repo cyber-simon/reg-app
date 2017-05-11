@@ -147,7 +147,8 @@ public class UserCreateServiceImpl implements UserCreateService {
 		auditor.logAction(user.getEppn(), "CREATE USER", null, null, AuditStatus.SUCCESS);
 		
 		auditor.finishAuditTrail();
-
+		auditor.commitAuditTrail();
+		
 		UserEvent userEvent = new UserEvent(user);
 
 		try {

@@ -352,6 +352,7 @@ public class UserUpdater implements Serializable {
 			message += " InnerCause: " + e.getCause().getMessage();
 		auditor.logAction(idpEntity.getEntityId(), "SAML ATTRIBUTE QUERY", user.getEppn(), message, AuditStatus.FAIL);
 		auditor.finishAuditTrail();
+		auditor.commitAuditTrail();
 		updateIdpStatus(SamlIdpMetadataEntityStatus.FAULTY, idpEntity);
 	}
 	
@@ -495,6 +496,7 @@ public class UserUpdater implements Serializable {
 		user.setUserStatus(toStatus);
 		user.setLastStatusChange(new Date());
 		
+		logger.debug("{}: change user status from {} to {}", user.getEppn(), fromStatus, toStatus);
 		auditor.logAction(user.getEppn(), "CHANGE STATUS", fromStatus + " -> " + toStatus, 
 				"Change status " + fromStatus + " -> " + toStatus, AuditStatus.SUCCESS);
 	}
@@ -504,6 +506,8 @@ public class UserUpdater implements Serializable {
 		registry.setRegistryStatus(toStatus);
 		registry.setLastStatusChange(new Date());
 
+		logger.debug("{} {} {}: change registry status from {} to {}", new Object[] { 
+				registry.getUser().getEppn(), registry.getService().getShortName(), registry.getId(), fromStatus, toStatus });
 		RegistryAuditor registryAuditor = new RegistryAuditor(auditDao, auditDetailDao, appConfig);
 		registryAuditor.setParent(parentAuditor);
 		registryAuditor.startAuditTrail(parentAuditor.getActualExecutor());
