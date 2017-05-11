@@ -15,25 +15,25 @@ import org.slf4j.LoggerFactory;
 
 import edu.kit.scc.webreg.entity.RegistryStatus;
 
-
-public class DeregisterInvalidRegistries extends AbstractDeregisterRegistries {
+public class DeregisterOnHoldRegistries extends AbstractDeregisterRegistries {
 
 	private static final long serialVersionUID = 1L;
-
+	
 	@Override
 	public void execute() {
-		Logger logger = LoggerFactory.getLogger(DeregisterInvalidRegistries.class);
-
-		if (! getJobStore().containsKey("invalid_since_millis")) {
-			logger.warn("DeregisterInvalidRegistries Job is not configured correctly. invalid_since_millis Parameter is missing in JobMap");
+		Logger logger = LoggerFactory.getLogger(DeregisterOnHoldRegistries.class);
+		
+		if (! getJobStore().containsKey("on_hold_since_millis")) {
+			logger.warn("DeregisterOnHoldRegistries Job is not configured correctly. on_hold_since_millis Parameter is missing in JobMap");
 			return;
 		}
-
-		Long lastUpdate = Long.parseLong(getJobStore().get("invalid_since_millis"));
+	
+		Long lastUpdate = Long.parseLong(getJobStore().get("on_hold_since_millis"));
+		
 		Long lastUserUpdate =  14 * 24 * 60 * 60 * 1000L; // 14 days standard value
 		if (getJobStore().containsKey("last_user_update_millis")) 
 			lastUserUpdate = Long.parseLong(getJobStore().get("last_user_update_millis"));
-
-		executeDeregister(RegistryStatus.INVALID, lastUpdate, lastUserUpdate);
+		
+		executeDeregister(RegistryStatus.LOST_ACCESS, lastUpdate, lastUserUpdate);
 	}
 }
