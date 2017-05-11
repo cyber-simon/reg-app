@@ -29,7 +29,9 @@
 				<f:facet name="header">
 					<h:outputText value="#{messages.id}" />
 				</f:facet>
-				<h:outputText value="#{entity.id}" />
+				<h:link outcome="show-audit-entry.xhtml" value="#{entity.id}">
+      				<f:param name="id" value="#{entity.id}"/>
+    			</h:link>
 			</p:column>
 			<p:column sortBy="#{entity.endTime}">
 				<f:facet name="header">
