@@ -260,7 +260,8 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 		if (registry != null) {
 			ServiceRegisterEvent serviceRegisterEvent = new ServiceRegisterEvent(registry);
 
-			if (RegistryStatus.LOST_ACCESS.equals(registry.getRegistryStatus())) {
+			if (RegistryStatus.LOST_ACCESS.equals(registry.getRegistryStatus()) ||
+					RegistryStatus.ON_HOLD.equals(registry.getRegistryStatus())) {
 				if (hasAccess(objectList)) {
 					registry.setRegistryStatus(RegistryStatus.ACTIVE);
 					registry.setLastStatusChange(new Date());
