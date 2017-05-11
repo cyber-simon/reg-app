@@ -263,6 +263,8 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 			if (RegistryStatus.LOST_ACCESS.equals(registry.getRegistryStatus()) ||
 					RegistryStatus.ON_HOLD.equals(registry.getRegistryStatus())) {
 				if (hasAccess(objectList)) {
+					logger.debug("{} {} {}: registry status changed from {} to ACTIVE", new Object[] {user.getEppn(), 
+							service.getShortName(), registry.getId(), registry.getRegistryStatus()});
 					registry.setRegistryStatus(RegistryStatus.ACTIVE);
 					registry.setLastStatusChange(new Date());
 					auditAccessChange(user, service, registry, false, executor);
@@ -272,9 +274,15 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 						logger.warn("Could not submit event", e);
 					}
 				}
+				else {
+					logger.debug("{} {} {}: stays in status {}", new Object[] {user.getEppn(), 
+							service.getShortName(), registry.getId(), registry.getRegistryStatus()});
+				}
 			}
 			else {
 				if (! hasAccess(objectList)) {
+					logger.debug("{} {} {}: registry status changed from {} to LOST_ACCESS", new Object[] {user.getEppn(), 
+							service.getShortName(), registry.getId(), registry.getRegistryStatus()});
 					registry.setRegistryStatus(RegistryStatus.LOST_ACCESS);
 					registry.setLastStatusChange(new Date());
 					auditAccessChange(user, service, registry, true, executor);
