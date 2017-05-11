@@ -357,5 +357,6 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 		auditor.setRegistry(registry);
 
 		auditor.finishAuditTrail();
+		auditor.commitAuditTrail();
 	}
 }
