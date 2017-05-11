@@ -51,8 +51,12 @@ public abstract class AbstractAuditor<T extends AuditEntryEntity> implements Aud
 	
 	@Override
 	public void setParent(Auditor auditor) {
-		if (auditor != null)
+		if (auditor != null) {
 			getAudit().setParentEntry(auditor.getAudit());
+			if (auditor.getAudit().getChildEntries() == null)
+				auditor.getAudit().setChildEntries(new HashSet<AuditEntryEntity>());
+			auditor.getAudit().getChildEntries().add(getAudit());
+		}
 	}
 
 	@Override
@@ -99,7 +103,11 @@ public abstract class AbstractAuditor<T extends AuditEntryEntity> implements Aud
 	@Override
 	public void finishAuditTrail() {
 		getAudit().setEndTime(new Date());
-
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public void commitAuditTrail() {
 		if ((! writeAlways) &&
 				getAudit().getAuditDetails().size() > 0 ||
 				getWriteEmptyAudits()) {

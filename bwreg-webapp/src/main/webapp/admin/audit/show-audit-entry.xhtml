@@ -44,9 +44,6 @@
 					<h:outputText value="#{messages.class}:" />
 					<h:outputText value="#{showAuditEntryBean.entity.class.name}" />
 
-					<h:outputText value="#{messages.parent}:" />
-					<h:outputText value="#{showAuditEntryBean.entity.parentEntry.name}" />
-					
 					<h:outputText value="#{messages.start_time}:" />
 					<h:outputText value="#{showAuditEntryBean.entity.startTime}" />
 					
@@ -55,6 +52,14 @@
 					
 				</p:panelGrid>
 
+				<p:panelGrid id="parentAuditData" columns="2" 
+					rendered="#{showAuditEntryBean.entity.parentEntry != null}">
+					<h:outputText value="#{messages.parent}:" />
+					<h:link outcome="show-audit-entry.xhtml" value="#{showAuditEntryBean.entity.parentEntry.name}">
+      					<f:param name="id" value="#{showAuditEntryBean.entity.parentEntry.id}"/>
+    				</h:link>
+				</p:panelGrid>
+				
 				<p:panelGrid id="baseDataUser" columns="2" 
 					rendered="#{(showAuditEntryBean.entity.class.simpleName == 'AuditUserCreateEntity') || 
 						(showAuditEntryBean.entity.class.simpleName == 'AuditUserUpdateEntity')}">

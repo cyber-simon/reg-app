@@ -240,6 +240,7 @@ public class UserUpdater implements Serializable {
 		
 		auditor.setUser(user);
 		auditor.finishAuditTrail();
+		auditor.commitAuditTrail();
 		
 		return user;
 	}

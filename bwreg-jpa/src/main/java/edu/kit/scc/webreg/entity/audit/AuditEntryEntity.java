@@ -51,10 +51,10 @@ public class AuditEntryEntity extends AbstractBaseEntity {
 	@Column(name = "audit_executor", length=64)
 	private String executor;
 
-	@ManyToOne(targetEntity = AuditEntryEntity.class, cascade = { CascadeType.MERGE })
+	@ManyToOne(targetEntity = AuditEntryEntity.class)
 	private AuditEntryEntity parentEntry;
 	
-	@OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE },
+	@OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE, CascadeType.PERSIST, CascadeType.MERGE },
 			targetEntity = AuditEntryEntity.class, mappedBy = "parentEntry")
 	private Set<AuditEntryEntity> childEntries;
 
@@ -112,6 +112,14 @@ public class AuditEntryEntity extends AbstractBaseEntity {
 
 	public void setParentEntry(AuditEntryEntity parentEntry) {
 		this.parentEntry = parentEntry;
+	}
+
+	public Set<AuditEntryEntity> getChildEntries() {
+		return childEntries;
+	}
+
+	public void setChildEntries(Set<AuditEntryEntity> childEntries) {
+		this.childEntries = childEntries;
 	}
 
 
