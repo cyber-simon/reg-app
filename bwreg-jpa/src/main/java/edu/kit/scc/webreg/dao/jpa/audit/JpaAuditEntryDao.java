@@ -29,7 +29,7 @@ public class JpaAuditEntryDao extends JpaBaseDao<AuditEntryEntity, Long> impleme
     @Override
     @SuppressWarnings({"unchecked"})
 	public List<AuditEntryEntity> findAllOlderThan(Date date, int limit) {
-		return em.createQuery("select e from AuditEntryEntity e where parentEntry is not null and endTime < :date order by endTime asc")
+		return em.createQuery("select e from AuditEntryEntity e where parentEntry is null and endTime < :date order by endTime asc")
 				.setParameter("date", date).setMaxResults(limit).getResultList();
 	}
 
