@@ -50,4 +50,8 @@ public class NullAuditor implements Auditor {
 	public void setParent(Auditor auditor) {
 	}
 
+	@Override
+	public void commitAuditTrail() {
+	}
+
 }
