@@ -44,7 +44,7 @@ public class AuditEntryEntity extends AbstractBaseEntity {
 	@Column(name = "audit_detail", length=1024)
 	private String detail;
 	
-	@OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE },
+	@OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE, CascadeType.PERSIST, CascadeType.MERGE },
 			targetEntity = AuditDetailEntity.class, mappedBy = "auditEntry")
 	private Set<AuditDetailEntity> auditDetails;
 

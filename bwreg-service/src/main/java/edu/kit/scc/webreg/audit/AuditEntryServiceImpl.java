@@ -19,9 +19,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dao.BaseDao;
-import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
-import edu.kit.scc.webreg.entity.audit.AuditDetailEntity;
 import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
 
@@ -36,9 +34,6 @@ public class AuditEntryServiceImpl extends BaseServiceImpl<AuditEntryEntity, Lon
 	@Inject
 	private AuditEntryDao dao;
 	
-	@Inject
-	private AuditDetailDao detailDao;
-	
 	@Override
 	public List<AuditEntryEntity> findAllOlderThan(Date date, int limit) {
 		return dao.findAllOlderThan(date, limit);
@@ -52,9 +47,6 @@ public class AuditEntryServiceImpl extends BaseServiceImpl<AuditEntryEntity, Lon
 
 		for (AuditEntryEntity audit : auditList) {
 			logger.debug("Deleting audit {} with {} auditentries", audit.getId(), audit.getAuditDetails().size());
-			for (AuditDetailEntity detail : audit.getAuditDetails()) {
-				detailDao.delete(detail);
-			}
 			dao.delete(audit);
 		}
 	}
