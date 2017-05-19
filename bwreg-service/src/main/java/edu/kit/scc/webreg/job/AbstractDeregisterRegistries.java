@@ -73,10 +73,10 @@ public abstract class AbstractDeregisterRegistries extends AbstractExecutableJob
 								}
 							}
 						}
-						List<RegistryEntity> tempRegistryList = new ArrayList<RegistryEntity>();
-						tempRegistryList.add(registry);
-						knowledgeSessionService.checkRules(tempRegistryList, user, "lost-access-reg-job", false);
 					}
+					List<RegistryEntity> tempRegistryList = new ArrayList<RegistryEntity>();
+					tempRegistryList.add(registry);
+					knowledgeSessionService.checkRules(tempRegistryList, user, "lost-access-reg-job", false);
 					
 					if (RegistryStatus.LOST_ACCESS.equals(registry.getRegistryStatus())) {
 						registerUserService.deregisterUser(registry, "lost-access-reg-job");
