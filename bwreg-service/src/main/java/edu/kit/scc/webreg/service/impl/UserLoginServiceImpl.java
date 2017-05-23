@@ -524,6 +524,13 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			 */
 			registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.LOST_ACCESS);
 		}
+
+		if (registry == null) {
+			/*
+			 * Also check for On_hold registries. They should also be allowed to be rechecked.
+			 */
+			registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.ON_HOLD);
+		}
 		
 		return registry;
 	}
