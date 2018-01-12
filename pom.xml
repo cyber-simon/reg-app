@@ -13,7 +13,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>edu.kit.scc</groupId>
 	<artifactId>bwreg</artifactId>
-	<version>2.5.11</version>
+	<version>2.5.12</version>
 	<packaging>pom</packaging>
 	<name>bw Services Registration Webapp</name>
 
@@ -79,7 +79,7 @@
 			<dependency>
 				<groupId>org.primefaces</groupId>
 				<artifactId>primefaces</artifactId>
-				<version>5.1</version>
+				<version>6.1</version>
 			</dependency>
 			<dependency>
 				<groupId>org.primefaces.themes</groupId>
