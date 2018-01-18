@@ -29,11 +29,13 @@ import org.slf4j.Logger;
 
 import edu.kit.lsdf.sns.service.PFAccount;
 import edu.kit.lsdf.sns.service.PFAccountService;
+import edu.kit.scc.webreg.entity.AgreementTextEntity;
 import edu.kit.scc.webreg.entity.PolicyEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.service.AgreementTextService;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserService;
@@ -67,6 +69,9 @@ public class SyncAndShareGuestBean implements Serializable {
 	@Inject
 	private UserService userService;
 	
+	@Inject
+	private AgreementTextService agreementTextService;
+	
 	private ServiceEntity serviceEntity;
 	
 	private PFAccount pfAccount;
@@ -76,6 +81,8 @@ public class SyncAndShareGuestBean implements Serializable {
 	private String password1, password2;
 	private String passwordRegex, passwordRegexMessage;
 	private String entitlement;
+	
+	private AgreementTextEntity agreementText;
 	
 	private Boolean touAccepted = false;
 	
@@ -104,6 +111,12 @@ public class SyncAndShareGuestBean implements Serializable {
 			
 			serviceEntity = serviceService.findByIdWithServiceProps(serviceEntity.getId());
 
+			if (serviceEntity.getServiceProps().containsKey("guest_agreement")) {
+				String ga = serviceEntity.getServiceProps().get("guest_agreement");
+				Long l = Long.parseLong(ga);
+				agreementText = agreementTextService.findById(l);
+			}
+			
 			if (serviceEntity.getServiceProps().containsKey("password_regex"))
 				passwordRegex = serviceEntity.getServiceProps().get("password_regex");
 			if (serviceEntity.getServiceProps().containsKey("password_regex_message"))
@@ -261,6 +274,14 @@ public class SyncAndShareGuestBean implements Serializable {
 
 	public List<PolicyEntity> getPolicyList() {
 		return policyList;
+	}
+
+	public AgreementTextEntity getAgreementText() {
+		return agreementText;
+	}
+
+	public void setAgreementText(AgreementTextEntity agreementText) {
+		this.agreementText = agreementText;
 	}
 
 }

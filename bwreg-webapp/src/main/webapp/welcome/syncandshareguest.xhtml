@@ -33,11 +33,18 @@
 					<p:panel id="touPanel">
 	
 						<div style="margin: 16px 0;">
-							<ui:repeat var="policy" value="#{syncAndShareGuestBean.policyList}">
-								<bw:contentBox header="#{policy.name} - #{policy.actualAgreement.name}">
-									<h:outputText value="#{bbCodeConverter.convert(policy.actualAgreement.agreement)}" escape="false"/>
+							<h:panelGroup rendered="#{syncAndShareGuestBean.agreementText == null}">
+								<ui:repeat var="policy" value="#{syncAndShareGuestBean.policyList}">
+									<bw:contentBox header="#{policy.name} - #{policy.actualAgreement.name}">
+										<h:outputText value="#{bbCodeConverter.convert(policy.actualAgreement.agreement)}" escape="false"/>
+									</bw:contentBox>
+								</ui:repeat>
+							</h:panelGroup>
+							<h:panelGroup rendered="#{syncAndShareGuestBean.agreementText != null}">
+								<bw:contentBox header="#{syncAndShareGuestBean.agreementText.name}">
+									<h:outputText value="#{bbCodeConverter.convert(syncAndShareGuestBean.agreementText.agreement)}" escape="false"/>
 								</bw:contentBox>
-							</ui:repeat>
+							</h:panelGroup>
 						</div>
 
 						<div class="panel" style="margin-top: 12px;">
