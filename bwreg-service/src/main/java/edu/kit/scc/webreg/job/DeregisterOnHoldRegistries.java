@@ -34,6 +34,6 @@ public class DeregisterOnHoldRegistries extends AbstractDeregisterRegistries {
 		if (getJobStore().containsKey("last_user_update_millis")) 
 			lastUserUpdate = Long.parseLong(getJobStore().get("last_user_update_millis"));
 		
-		executeDeregister(RegistryStatus.LOST_ACCESS, lastUpdate, lastUserUpdate);
+		executeDeregister(RegistryStatus.ON_HOLD, lastUpdate, lastUserUpdate);
 	}
 }
