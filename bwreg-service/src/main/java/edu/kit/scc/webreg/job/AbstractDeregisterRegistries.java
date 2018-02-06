@@ -25,6 +25,7 @@ public abstract class AbstractDeregisterRegistries extends AbstractExecutableJob
 	private static final long serialVersionUID = 1L;
 
 	public void executeDeregister(RegistryStatus registryStatus, Long lastUpdate, Long lastUserUpdate) {
+		String auditName = registryStatus.toString() + "-reg-job";
 		Logger logger = LoggerFactory.getLogger(AbstractDeregisterRegistries.class);
 
 		if (! getJobStore().containsKey("service_short_name")) {
@@ -53,7 +54,7 @@ public abstract class AbstractDeregisterRegistries extends AbstractExecutableJob
 					new Date(System.currentTimeMillis() - lastUpdate), limit);
 			
 			if (registryList.size() == 0)
-				logger.debug("No LostAccess registries found");
+				logger.debug("No {} registries found", registryStatus);
 			
 			for (RegistryEntity registry : registryList) {
 				try {
@@ -63,7 +64,7 @@ public abstract class AbstractDeregisterRegistries extends AbstractExecutableJob
 						// user is too old, try update first
 						logger.info("User {} lastUpdate is older than {}ms. Trying update", user.getEppn(), lastUserUpdate);
 						try {
-							userService.updateUserFromIdp(user, "lost-access-reg-job");
+							userService.updateUserFromIdp(user, auditName);
 						} catch (UserUpdateException e) {
 							logger.info("Exception while Querying IDP: {}", e.getMessage());
 							if (e.getCause() != null) {
@@ -76,10 +77,10 @@ public abstract class AbstractDeregisterRegistries extends AbstractExecutableJob
 					}
 					List<RegistryEntity> tempRegistryList = new ArrayList<RegistryEntity>();
 					tempRegistryList.add(registry);
-					knowledgeSessionService.checkRules(tempRegistryList, user, "lost-access-reg-job", false);
+					knowledgeSessionService.checkRules(tempRegistryList, user, auditName, false);
 					
-					if (RegistryStatus.LOST_ACCESS.equals(registry.getRegistryStatus())) {
-						registerUserService.deregisterUser(registry, "lost-access-reg-job");
+					if (registryStatus.equals(registry.getRegistryStatus())) {
+						registerUserService.deregisterUser(registry, auditName);
 					}
 				} catch (RegisterException e) {
 					logger.info("Could not deregister", e);
