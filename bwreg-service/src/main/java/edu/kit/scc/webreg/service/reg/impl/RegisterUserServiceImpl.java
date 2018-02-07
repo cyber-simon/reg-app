@@ -474,26 +474,28 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 			registry.setLastStatusChange(new Date());
 			registry = registryDao.persist(registry);
 
-			HashSet<GroupEntity> userGroups = new HashSet<GroupEntity>(userEntity.getGroups().size());
-
-			for (UserGroupEntity userGroup : userEntity.getGroups()) {
-				GroupEntity group = userGroup.getGroup();
-				userGroups.add(group);
-
-				if (group instanceof ServiceBasedGroupEntity) {
-					List<ServiceGroupFlagEntity> groupFlagList = groupFlagDao.findByGroupAndService((ServiceBasedGroupEntity) group, serviceEntity);
-					for (ServiceGroupFlagEntity groupFlag : groupFlagList) {
-						groupFlag.setStatus(ServiceGroupStatus.DIRTY);
-						groupFlag = groupFlagDao.persist(groupFlag);
+			if (userEntity.getGroups() != null) {
+				HashSet<GroupEntity> userGroups = new HashSet<GroupEntity>(userEntity.getGroups().size());
+	
+				for (UserGroupEntity userGroup : userEntity.getGroups()) {
+					GroupEntity group = userGroup.getGroup();
+					userGroups.add(group);
+	
+					if (group instanceof ServiceBasedGroupEntity) {
+						List<ServiceGroupFlagEntity> groupFlagList = groupFlagDao.findByGroupAndService((ServiceBasedGroupEntity) group, serviceEntity);
+						for (ServiceGroupFlagEntity groupFlag : groupFlagList) {
+							groupFlag.setStatus(ServiceGroupStatus.DIRTY);
+							groupFlag = groupFlagDao.persist(groupFlag);
+						}
 					}
 				}
-			}
-			
-			MultipleGroupEvent mge = new MultipleGroupEvent(userGroups);
-			try {
-				eventSubmitter.submit(mge, EventType.GROUP_UPDATE, auditor.getActualExecutor());
-			} catch (EventSubmitException e) {
-				logger.warn("Exeption", e);
+				
+				MultipleGroupEvent mge = new MultipleGroupEvent(userGroups);
+				try {
+					eventSubmitter.submit(mge, EventType.GROUP_UPDATE, auditor.getActualExecutor());
+				} catch (EventSubmitException e) {
+					logger.warn("Exeption", e);
+				}
 			}
 			
 			ServiceRegisterEvent serviceRegisterEvent = new ServiceRegisterEvent(registry);
