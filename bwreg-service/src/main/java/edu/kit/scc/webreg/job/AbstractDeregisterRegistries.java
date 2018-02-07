@@ -73,6 +73,9 @@ public abstract class AbstractDeregisterRegistries extends AbstractExecutableJob
 									logger.info("Inner Cause is: {}", e.getCause().getCause().getMessage());
 								}
 							}
+							
+							// resume without deregistering user
+							throw new RegisterException("IDP failed");
 						}
 					}
 					List<RegistryEntity> tempRegistryList = new ArrayList<RegistryEntity>();
