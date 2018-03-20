@@ -1,0 +1,309 @@
+/*******************************************************************************
+ * Copyright (c) 2014 Michael Simon.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v3.0
+ * which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/gpl.html
+ * 
+ * Contributors:
+ *     Michael Simon - initial
+ ******************************************************************************/
+package edu.kit.scc.webreg.service.reg.ldap;
+
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import edu.kit.scc.webreg.audit.Auditor;
+import edu.kit.scc.webreg.entity.GroupEntity;
+import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.audit.AuditStatus;
+import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.service.reg.GroupCapable;
+import edu.kit.scc.webreg.service.reg.Infotainment;
+import edu.kit.scc.webreg.service.reg.InfotainmentCapable;
+import edu.kit.scc.webreg.service.reg.RegisterUserWorkflow;
+import edu.kit.scc.webreg.service.reg.SetPasswordCapable;
+import edu.kit.scc.webreg.service.reg.impl.GroupUpdateStructure;
+import jcifs.util.Hexdump;
+import jcifs.util.MD4;
+
+public class ScriptedLdapRegisterWorkflow 
+		implements RegisterUserWorkflow, InfotainmentCapable, GroupCapable, SetPasswordCapable {
+
+	protected static Logger logger = LoggerFactory.getLogger(ScriptedLdapRegisterWorkflow.class);
+	
+	@Override
+	public void registerUser(UserEntity user, ServiceEntity service,
+			RegistryEntity registry, Auditor auditor) throws RegisterException {
+		reconciliation(user, service, registry, auditor);
+	}
+
+	@Override
+	public void deregisterUser(UserEntity user, ServiceEntity service,
+			RegistryEntity registry, Auditor auditor) throws RegisterException {
+		logger.info("AbstractLdapRegister Deregister user {} for service {}", user.getEppn(), service.getName());
+
+		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
+
+		Map<String, String> regMap = registry.getRegistryValues();
+
+		String localUid = regMap.get("localUid");
+
+		LdapWorker ldapWorker = new LdapWorker(prop, auditor, Boolean.parseBoolean(regMap.get("sambaEnabled")));
+		ldapWorker.deleteUser(localUid);
+		ldapWorker.closeConnections();
+	}
+	
+	@Override
+	public Boolean updateRegistry(UserEntity user, ServiceEntity service,
+			RegistryEntity registry, Auditor auditor) throws RegisterException {
+
+		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
+		
+		/*
+		 * Compare values from user and registry store. Found differences trigger 
+		 * a full reconsiliation
+		 */
+		Map<String, String> reconMap = new HashMap<String, String>();
+		
+		String homeId = user.getAttributeStore().get("http://bwidm.de/bwidmOrgId");
+		homeId = homeId.toLowerCase();
+
+		String homeUid = user.getAttributeStore().get("urn:oid:0.9.2342.19200300.100.1.1");
+		
+		reconMap.put("cn", user.getEppn());
+		if (user.getSurName() != null)
+			reconMap.put("sn", user.getSurName());
+		else
+			reconMap.put("sn", "Unknown");
+		
+		if (user.getGivenName() != null)
+			reconMap.put("givenName", user.getGivenName());
+		else 
+			reconMap.put("givenName", "Unknown");
+		
+		reconMap.put("mail", user.getEmail());
+		
+		reconMap.put("uidNumber", "" + user.getUidNumber());
+		reconMap.put("gidNumber", "" + user.getPrimaryGroup().getGidNumber());
+		reconMap.put("description", registry.getId().toString());
+		
+		//TODO add script capability here
+		reconMap.put("groupName", user.getPrimaryGroup().getName());
+		reconMap.put("localUid", homeUid);
+		reconMap.put("homeDir", "/home/" + homeUid);
+		
+		if ("true".equals(prop.readPropOrNull("samba_enabled")))
+			reconMap.put("sambaEnabled", "true");
+		else
+			reconMap.put("sambaEnabled", "false");
+		
+		Boolean change = false;
+		
+		for (Entry<String, String> entry : reconMap.entrySet()) {
+			if (! registry.getRegistryValues().containsKey(entry.getKey())) {
+				auditor.logAction("", "UPDATE USER REGISTRY", user.getEppn(), "ADD " + 
+						entry.getKey() + ": " + registry.getRegistryValues().get(entry.getKey()) +
+						" => " + entry.getValue()
+						, AuditStatus.SUCCESS);
+				registry.getRegistryValues().put(entry.getKey(), entry.getValue());
+				change |= true;
+			}
+			else if (! registry.getRegistryValues().get(entry.getKey()).equals(entry.getValue())) {
+				auditor.logAction("", "UPDATE USER REGISTRY", user.getEppn(), "REPLACE " + 
+						entry.getKey() + ": " + registry.getRegistryValues().get(entry.getKey()) +
+						" => " + entry.getValue()
+						, AuditStatus.SUCCESS);
+				registry.getRegistryValues().put(entry.getKey(), entry.getValue());
+				change |= true;
+			}
+		}
+		
+		return change;
+	}	
+	
+	@Override
+	public void reconciliation(UserEntity user, ServiceEntity service,
+			RegistryEntity registry, Auditor auditor) throws RegisterException {
+		logger.info("LDAP Reconsiliation user {} for service {}", user.getEppn(), service.getName());
+
+		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
+		Map<String, String> regMap = registry.getRegistryValues();
+		
+		String cn = regMap.get("cn");
+		String sn = regMap.get("sn");
+		String givenName = regMap.get("givenName");
+		String mail = regMap.get("mail");
+		String localUid = regMap.get("localUid");
+		String uidNumber = regMap.get("uidNumber");
+		String gidNumber = regMap.get("gidNumber");
+		String homeDir = regMap.get("homeDir");
+		String description = registry.getId().toString();
+		
+		LdapWorker ldapWorker = new LdapWorker(prop, auditor, Boolean.parseBoolean(regMap.get("sambaEnabled")));
+
+		ldapWorker.reconUser(cn, sn, givenName, mail, localUid, uidNumber, gidNumber, homeDir, description);
+		if (prop.hasProp("pw_location") && 
+				((prop.readPropOrNull("pw_location").equalsIgnoreCase("registry")) || prop.readPropOrNull("pw_location").equalsIgnoreCase("both"))
+				&& (! registry.getRegistryValues().containsKey("userPassword"))) {
+			List<String> pwList = ldapWorker.getPasswords(localUid);
+			if (pwList.size() > 0) {
+				logger.debug("userPassword is not set in registry but in LDAP ({}). Importing from LDAP", pwList.size());
+				registry.getRegistryValues().put("userPassword", pwList.get(0));
+			}
+		}
+		
+		ldapWorker.closeConnections();
+	}
+
+	@Override
+	public Infotainment getInfo(RegistryEntity registry, UserEntity user,
+			ServiceEntity service) throws RegisterException {
+		Infotainment info = new Infotainment();
+		
+		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
+		Map<String, String> regMap = registry.getRegistryValues();
+		String localUid = regMap.get("localUid");
+		LdapWorker ldapWorker = new LdapWorker(prop, null, Boolean.parseBoolean(regMap.get("sambaEnabled")));
+
+		ldapWorker.getInfo(info, localUid);
+		
+		ldapWorker.closeConnections();		
+
+		return info;
+	}
+
+	@Override
+	public void updateGroups(ServiceEntity service, GroupUpdateStructure updateStruct, Auditor auditor)
+			throws RegisterException {
+
+		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
+		LdapWorker ldapWorker = new LdapWorker(prop, auditor, Boolean.parseBoolean(prop.readPropOrNull("samba_enabled")));
+
+		for (GroupEntity group : updateStruct.getGroups()) {
+			long a = System.currentTimeMillis();
+			Set<UserEntity> users = updateStruct.getUsersForGroup(group);
+			
+			logger.debug("Update Ldap Group for group {} and Service {}", group.getName(), service.getName());
+
+			Set<String> memberUids = new HashSet<String>(users.size());
+
+			Map<String, String> reconMap = new HashMap<String, String>();
+
+			for (UserEntity user : users) {
+				String homeId = user.getAttributeStore().get("http://bwidm.de/bwidmOrgId");
+				String homeUid = user.getAttributeStore().get("urn:oid:0.9.2342.19200300.100.1.1");
+
+				//Skip group member with incomplete data
+				if (homeId != null && homeUid != null) {
+					homeId = homeId.toLowerCase();
+					//TODO add script capability here
+					memberUids.add(homeUid);
+				}
+			}
+			
+			a = System.currentTimeMillis();
+			//TODO add script capability here
+			ldapWorker.reconGroup(group.getName(), "" + group.getGidNumber(), memberUids);
+			logger.debug("reconGroup {} took {} ms", group.getName(), (System.currentTimeMillis() - a)); a = System.currentTimeMillis();
+		}
+		
+		ldapWorker.closeConnections();
+	}
+	
+	@Override
+	public void deleteGroup(GroupEntity group, ServiceEntity service, Auditor auditor)
+			 throws RegisterException {
+		logger.debug("Delete Ldap Group for group {} and Service {}", group.getName(), service.getName());
+		
+		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
+		LdapWorker ldapWorker = new LdapWorker(prop, auditor, Boolean.parseBoolean(prop.readPropOrNull("samba_enabled")));
+
+		//TODO add script capability here
+		ldapWorker.deleteGroup(group.getName());		
+		
+		ldapWorker.closeConnections();
+		
+	}
+	
+	@Override
+	public void setPassword(UserEntity user, ServiceEntity service,
+			RegistryEntity registry, Auditor auditor, String password) throws RegisterException {
+		logger.debug("Setting service password for user {}", user.getEppn());
+
+		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
+		Map<String, String> regMap = registry.getRegistryValues();
+
+		String passwordRegex;
+		if (prop.hasProp("password_regex")) 
+			passwordRegex = prop.readPropOrNull("password_regex");
+		else
+			passwordRegex = ".{6,}";
+
+		String passwordRegexMessage;
+		if (prop.hasProp("password_regex_message")) 
+			passwordRegexMessage = prop.readPropOrNull("password_regex_message");
+		else
+			passwordRegexMessage = "Das Passwort ist nicht komplex genug";
+		
+		if (! password.matches(passwordRegex))
+			throw new RegisterException(passwordRegexMessage);
+
+		String localUid = regMap.get("localUid");
+
+		String ntPassword = null;
+		
+		if (Boolean.parseBoolean(regMap.get("sambaEnabled")))
+			ntPassword = calcNtPassword(password);
+
+		LdapWorker ldapWorker = new LdapWorker(prop, auditor, Boolean.parseBoolean(regMap.get("sambaEnabled")));
+		ldapWorker.setPassword(localUid, password);
+
+		if (Boolean.parseBoolean(regMap.get("sambaEnabled")))
+			ldapWorker.setSambaPassword(localUid, ntPassword, user);
+		
+		ldapWorker.closeConnections();		
+	}
+
+	@Override
+	public void deletePassword(UserEntity user, ServiceEntity service,
+			RegistryEntity registry, Auditor auditor) throws RegisterException {
+		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
+		Map<String, String> regMap = registry.getRegistryValues();
+		String localUid = regMap.get("localUid");
+		LdapWorker ldapWorker = new LdapWorker(prop, auditor, Boolean.parseBoolean(regMap.get("sambaEnabled")));
+		ldapWorker.deletePassword(localUid);
+		ldapWorker.closeConnections();		
+	}	
+
+	private String calcNtPassword(String password) {
+		String ntHash = "";
+		MD4 md4 = new MD4();
+		byte[] bpass;
+		try {
+			bpass = password.getBytes("UnicodeLittleUnmarked");
+
+			md4.engineUpdate(bpass, 0, bpass.length);
+			byte[] hashbytes = new byte[32];
+			hashbytes = md4.engineDigest();
+			ntHash = new String(Hexdump.toHexString(hashbytes, 0,
+					hashbytes.length * 2));
+
+			return ntHash;
+		} catch (UnsupportedEncodingException e) {
+			logger.warn("Calculating NT Password failed!", e);
+			return "";
+		}	
+	}
+}
+
