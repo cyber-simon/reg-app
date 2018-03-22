@@ -93,14 +93,24 @@ public class ScriptedLdapRegisterWorkflow
 
 			ScriptEntity scriptEntity = scriptingEnv.getScriptDao().findByName(scriptName);
 			
+			if (scriptEntity == null)
+				throw new RegisterException("service not configured properly. script is missing.");
+			
 			if (scriptEntity.getScriptType().equalsIgnoreCase("javascript")) {
 				ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
+
+				if (engine == null)
+					throw new RegisterException("service not configured properly. engine not found: " + scriptEntity.getScriptEngine());
+				
 				engine.eval(scriptEntity.getScript());
 			
 				Invocable invocable = (Invocable) engine;
 				
-				Object result = invocable.invokeFunction("updateRegistry", scriptingEnv, reconMap, user, registry, service, auditor);
-			}			
+				Object result = invocable.invokeFunction("updateRegistry", scriptingEnv, reconMap, user, registry, service, auditor, logger);
+			}
+			else {
+				throw new RegisterException("unkown script type: " + scriptEntity.getScriptType());
+			}
 		} catch (PropertyReaderException e) {
 			throw new RegisterException(e);
 		} catch (ScriptException e) {
@@ -339,7 +349,7 @@ public class ScriptedLdapRegisterWorkflow
 	}
 
 	@Override
-	public void setScriptingEnv(ScriptingEnv env) {
+	public void setScriptingEnv(ScriptingEnv scriptingEnv) {
 		this.scriptingEnv = scriptingEnv;
 	}
 }

@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.RegistryDao;
@@ -11,6 +12,7 @@ import edu.kit.scc.webreg.dao.ScriptDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
 import edu.kit.scc.webreg.dao.UserDao;
 
+@Named
 @ApplicationScoped
 public class ScriptingEnv implements Serializable {
 
