@@ -119,32 +119,6 @@ public class ScriptedLdapRegisterWorkflow
 			throw new RegisterException(e);
 		}
 		
-		String homeId = user.getAttributeStore().get("http://bwidm.de/bwidmOrgId");
-		homeId = homeId.toLowerCase();
-
-		String homeUid = user.getAttributeStore().get("urn:oid:0.9.2342.19200300.100.1.1");
-		
-		reconMap.put("cn", user.getEppn());
-		if (user.getSurName() != null)
-			reconMap.put("sn", user.getSurName());
-		else
-			reconMap.put("sn", "Unknown");
-		
-		if (user.getGivenName() != null)
-			reconMap.put("givenName", user.getGivenName());
-		else 
-			reconMap.put("givenName", "Unknown");
-		
-		reconMap.put("mail", user.getEmail());
-		
-		reconMap.put("uidNumber", "" + user.getUidNumber());
-		reconMap.put("gidNumber", "" + user.getPrimaryGroup().getGidNumber());
-		reconMap.put("description", registry.getId().toString());
-		
-		reconMap.put("groupName", user.getPrimaryGroup().getName());
-		reconMap.put("localUid", homeUid);
-		reconMap.put("homeDir", "/home/" + homeUid);
-		
 		if ("true".equals(prop.readPropOrNull("samba_enabled")))
 			reconMap.put("sambaEnabled", "true");
 		else
