@@ -18,29 +18,41 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import javax.xml.registry.RegistryException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
+import edu.kit.scc.webreg.exc.PropertyReaderException;
 import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.script.ScriptingEnv;
 import edu.kit.scc.webreg.service.reg.GroupCapable;
 import edu.kit.scc.webreg.service.reg.Infotainment;
 import edu.kit.scc.webreg.service.reg.InfotainmentCapable;
 import edu.kit.scc.webreg.service.reg.RegisterUserWorkflow;
+import edu.kit.scc.webreg.service.reg.ScriptingWorkflow;
 import edu.kit.scc.webreg.service.reg.SetPasswordCapable;
 import edu.kit.scc.webreg.service.reg.impl.GroupUpdateStructure;
 import jcifs.util.Hexdump;
 import jcifs.util.MD4;
 
 public class ScriptedLdapRegisterWorkflow 
-		implements RegisterUserWorkflow, InfotainmentCapable, GroupCapable, SetPasswordCapable {
+		implements RegisterUserWorkflow, InfotainmentCapable, GroupCapable, SetPasswordCapable, ScriptingWorkflow {
 
 	protected static Logger logger = LoggerFactory.getLogger(ScriptedLdapRegisterWorkflow.class);
+
+	protected ScriptingEnv scriptingEnv;
 	
 	@Override
 	public void registerUser(UserEntity user, ServiceEntity service,
@@ -69,12 +81,33 @@ public class ScriptedLdapRegisterWorkflow
 			RegistryEntity registry, Auditor auditor) throws RegisterException {
 
 		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
-		
+
 		/*
 		 * Compare values from user and registry store. Found differences trigger 
 		 * a full reconsiliation
 		 */
 		Map<String, String> reconMap = new HashMap<String, String>();
+
+		try {
+			String scriptName = prop.readProp("script_name");
+
+			ScriptEntity scriptEntity = scriptingEnv.getScriptDao().findByName(scriptName);
+			
+			if (scriptEntity.getScriptType().equalsIgnoreCase("javascript")) {
+				ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
+				engine.eval(scriptEntity.getScript());
+			
+				Invocable invocable = (Invocable) engine;
+				
+				Object result = invocable.invokeFunction("updateRegistry", scriptingEnv, reconMap, user, registry, service, auditor);
+			}			
+		} catch (PropertyReaderException e) {
+			throw new RegisterException(e);
+		} catch (ScriptException e) {
+			throw new RegisterException(e);
+		} catch (NoSuchMethodException e) {
+			throw new RegisterException(e);
+		}
 		
 		String homeId = user.getAttributeStore().get("http://bwidm.de/bwidmOrgId");
 		homeId = homeId.toLowerCase();
@@ -98,7 +131,6 @@ public class ScriptedLdapRegisterWorkflow
 		reconMap.put("gidNumber", "" + user.getPrimaryGroup().getGidNumber());
 		reconMap.put("description", registry.getId().toString());
 		
-		//TODO add script capability here
 		reconMap.put("groupName", user.getPrimaryGroup().getName());
 		reconMap.put("localUid", homeUid);
 		reconMap.put("homeDir", "/home/" + homeUid);
@@ -304,6 +336,11 @@ public class ScriptedLdapRegisterWorkflow
 			logger.warn("Calculating NT Password failed!", e);
 			return "";
 		}	
+	}
+
+	@Override
+	public void setScriptingEnv(ScriptingEnv env) {
+		this.scriptingEnv = scriptingEnv;
 	}
 }
 

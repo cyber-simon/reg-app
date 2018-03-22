@@ -28,8 +28,11 @@ public class ScriptEntity extends AbstractBaseEntity {
 	@Type(type = "org.hibernate.type.TextType")	
 	private String script;
 	
-	@Column(name = "rule_type", length = 32)
+	@Column(name = "script_type", length = 32)
 	private String scriptType;
+	
+	@Column(name = "script_engine", length = 64)
+	private String scriptEngine;
 	
 	@Column(name = "name", length = 128)
 	private String name;
@@ -48,5 +51,21 @@ public class ScriptEntity extends AbstractBaseEntity {
 
 	public void setScript(String script) {
 		this.script = script;
+	}
+
+	public String getScriptType() {
+		return scriptType;
+	}
+
+	public void setScriptType(String scriptType) {
+		this.scriptType = scriptType;
+	}
+
+	public String getScriptEngine() {
+		return scriptEngine;
+	}
+
+	public void setScriptEngine(String scriptEngine) {
+		this.scriptEngine = scriptEngine;
 	}
 }

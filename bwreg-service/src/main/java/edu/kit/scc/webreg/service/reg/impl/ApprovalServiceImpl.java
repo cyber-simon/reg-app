@@ -47,9 +47,11 @@ import edu.kit.scc.webreg.event.MultipleGroupEvent;
 import edu.kit.scc.webreg.event.ServiceRegisterEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.script.ScriptingEnv;
 import edu.kit.scc.webreg.service.reg.ApprovalService;
 import edu.kit.scc.webreg.service.reg.ApprovalWorkflow;
 import edu.kit.scc.webreg.service.reg.RegisterUserWorkflow;
+import edu.kit.scc.webreg.service.reg.ScriptingWorkflow;
 
 @Stateless
 public class ApprovalServiceImpl implements ApprovalService {
@@ -83,6 +85,9 @@ public class ApprovalServiceImpl implements ApprovalService {
 
 	@Inject
 	private ApplicationConfig appConfig;
+	
+	@Inject
+	private ScriptingEnv scriptingEnv;
 	
 	@Override
 	public void registerApproval(RegistryEntity registry, Auditor parentAuditor) throws RegisterException {
@@ -140,7 +145,7 @@ public class ApprovalServiceImpl implements ApprovalService {
 				registry.getUser().getEppn(), registry.getService().getName());
 
 		RegisterUserWorkflow workflow = getRegisterWorkflowInstance(registry.getRegisterBean());
-
+		
 		try {
 
 			ServiceEntity serviceEntity = serviceDao.findByIdWithServiceProps(registry.getService().getId());
@@ -205,8 +210,12 @@ public class ApprovalServiceImpl implements ApprovalService {
 	private RegisterUserWorkflow getRegisterWorkflowInstance(String className) {
 		try {
 			Object o = Class.forName(className).newInstance();
-			if (o instanceof RegisterUserWorkflow)
+			if (o instanceof RegisterUserWorkflow) {
+				if (o instanceof ScriptingWorkflow)
+					((ScriptingWorkflow) o).setScriptingEnv(scriptingEnv);
+				
 				return (RegisterUserWorkflow) o;
+			}
 			else {
 				logger.warn("Service Register bean misconfigured, Object not Type RegisterUserWorkflow but: {}", o.getClass());
 				return null;
