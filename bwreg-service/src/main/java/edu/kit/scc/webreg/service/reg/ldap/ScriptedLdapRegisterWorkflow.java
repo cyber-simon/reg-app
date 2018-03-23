@@ -22,7 +22,6 @@ import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-import javax.xml.registry.RegistryException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,7 +105,7 @@ public class ScriptedLdapRegisterWorkflow
 			
 				Invocable invocable = (Invocable) engine;
 				
-				Object result = invocable.invokeFunction("updateRegistry", scriptingEnv, reconMap, user, registry, service, auditor, logger);
+				invocable.invokeFunction("updateRegistry", scriptingEnv, reconMap, user, registry, service, auditor, logger);
 			}
 			else {
 				throw new RegisterException("unkown script type: " + scriptEntity.getScriptType());
@@ -206,34 +205,65 @@ public class ScriptedLdapRegisterWorkflow
 		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
 		LdapWorker ldapWorker = new LdapWorker(prop, auditor, Boolean.parseBoolean(prop.readPropOrNull("samba_enabled")));
 
-		for (GroupEntity group : updateStruct.getGroups()) {
-			long a = System.currentTimeMillis();
-			Set<UserEntity> users = updateStruct.getUsersForGroup(group);
+		try {
+			String scriptName = prop.readProp("script_name");
+
+			ScriptEntity scriptEntity = scriptingEnv.getScriptDao().findByName(scriptName);
 			
-			logger.debug("Update Ldap Group for group {} and Service {}", group.getName(), service.getName());
-
-			Set<String> memberUids = new HashSet<String>(users.size());
-
-			Map<String, String> reconMap = new HashMap<String, String>();
-
-			for (UserEntity user : users) {
-				String homeId = user.getAttributeStore().get("http://bwidm.de/bwidmOrgId");
-				String homeUid = user.getAttributeStore().get("urn:oid:0.9.2342.19200300.100.1.1");
-
-				//Skip group member with incomplete data
-				if (homeId != null && homeUid != null) {
-					homeId = homeId.toLowerCase();
-					//TODO add script capability here
-					memberUids.add(homeUid);
-				}
-			}
+			if (scriptEntity == null)
+				throw new RegisterException("service not configured properly. script is missing.");
 			
-			a = System.currentTimeMillis();
-			//TODO add script capability here
-			ldapWorker.reconGroup(group.getName(), "" + group.getGidNumber(), memberUids);
-			logger.debug("reconGroup {} took {} ms", group.getName(), (System.currentTimeMillis() - a)); a = System.currentTimeMillis();
-		}
+			if (scriptEntity.getScriptType().equalsIgnoreCase("javascript")) {
+				ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
+
+				if (engine == null)
+					throw new RegisterException("service not configured properly. engine not found: " + scriptEntity.getScriptEngine());
+				
+				engine.eval(scriptEntity.getScript());
+			
+				Invocable invocable = (Invocable) engine;
 		
+				for (GroupEntity group : updateStruct.getGroups()) {
+					long a = System.currentTimeMillis();
+					Set<UserEntity> users = updateStruct.getUsersForGroup(group);
+					
+					logger.debug("Update Ldap Group for group {} and Service {}", group.getName(), service.getName());
+
+					Set<String> memberUids = new HashSet<String>(users.size());
+
+					Map<String, String> reconMap = new HashMap<String, String>();
+
+					for (UserEntity user : users) {
+						Object result = invocable.invokeFunction("resolveUid", scriptingEnv, reconMap, user, null, service, auditor, logger);
+						if (result != null) {
+							memberUids.add(result.toString());
+						}
+					}
+					
+					a = System.currentTimeMillis();
+
+					Object result = invocable.invokeFunction("resolveGroupname", scriptingEnv, reconMap, group, service, auditor, logger);
+					if (result != null) {
+						ldapWorker.reconGroup(group.getName(), "" + group.getGidNumber(), memberUids);
+					} else {
+						logger.debug("Groupname for group {} did not resolve", group.getName());
+					}
+					
+					logger.debug("reconGroup {} took {} ms", group.getName(), (System.currentTimeMillis() - a)); a = System.currentTimeMillis();
+				}
+				
+			}
+			else {
+				throw new RegisterException("unkown script type: " + scriptEntity.getScriptType());
+			}
+		} catch (PropertyReaderException e) {
+			throw new RegisterException(e);
+		} catch (ScriptException e) {
+			throw new RegisterException(e);
+		} catch (NoSuchMethodException e) {
+			throw new RegisterException(e);
+		}
+				
 		ldapWorker.closeConnections();
 	}
 	
@@ -245,8 +275,45 @@ public class ScriptedLdapRegisterWorkflow
 		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
 		LdapWorker ldapWorker = new LdapWorker(prop, auditor, Boolean.parseBoolean(prop.readPropOrNull("samba_enabled")));
 
-		//TODO add script capability here
-		ldapWorker.deleteGroup(group.getName());		
+		Map<String, String> reconMap = new HashMap<String, String>();
+
+		try {
+			String scriptName = prop.readProp("script_name");
+
+			ScriptEntity scriptEntity = scriptingEnv.getScriptDao().findByName(scriptName);
+			
+			if (scriptEntity == null)
+				throw new RegisterException("service not configured properly. script is missing.");
+			
+			if (scriptEntity.getScriptType().equalsIgnoreCase("javascript")) {
+				ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
+
+				if (engine == null)
+					throw new RegisterException("service not configured properly. engine not found: " + scriptEntity.getScriptEngine());
+				
+				engine.eval(scriptEntity.getScript());
+			
+				Invocable invocable = (Invocable) engine;
+		
+				Object result = invocable.invokeFunction("resolveGroupname", scriptingEnv, reconMap, group, service, auditor, logger);
+				if (result != null) {
+					ldapWorker.deleteGroup(group.getName());		
+				} else {
+					logger.debug("Groupname for group {} did not resolve", group.getName());
+				}
+				
+			}
+			else {
+				throw new RegisterException("unkown script type: " + scriptEntity.getScriptType());
+			}
+		} catch (PropertyReaderException e) {
+			throw new RegisterException(e);
+		} catch (ScriptException e) {
+			throw new RegisterException(e);
+		} catch (NoSuchMethodException e) {
+			throw new RegisterException(e);
+		}
+		
 		
 		ldapWorker.closeConnections();
 		
