@@ -160,7 +160,7 @@ public class JpaGroupDao extends JpaBaseDao<GroupEntity, Long> implements GroupD
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<GroupEntity> findByUser(UserEntity user) {
-		return em.createQuery("select r.group from UserGroupEntity r where r.user = :user")
+		return em.createQuery("select r.group from UserGroupEntity r where r.user = :user order by r.group.name")
 			.setParameter("user", user).getResultList();
 	}
 
