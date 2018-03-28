@@ -64,12 +64,14 @@ import edu.kit.scc.webreg.event.MultipleGroupEvent;
 import edu.kit.scc.webreg.event.ServiceRegisterEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.script.ScriptingEnv;
 import edu.kit.scc.webreg.service.reg.ApprovalService;
 import edu.kit.scc.webreg.service.reg.GroupCapable;
 import edu.kit.scc.webreg.service.reg.GroupUtil;
 import edu.kit.scc.webreg.service.reg.PasswordUtil;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;
 import edu.kit.scc.webreg.service.reg.RegisterUserWorkflow;
+import edu.kit.scc.webreg.service.reg.ScriptingWorkflow;
 import edu.kit.scc.webreg.service.reg.SetPasswordCapable;
 
 @Stateless
@@ -120,6 +122,9 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	@Inject
 	private ApplicationConfig appConfig;
 	
+	@Inject
+	private ScriptingEnv scriptingEnv;
+
 	@Override
 	public void registerUser(UserEntity user, ServiceEntity service, String executor)
 			throws RegisterException {
@@ -343,6 +348,7 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 		group = groupDao.findWithUsers(group.getId());
 
 		RegisterUserWorkflow workflow = getWorkflowInstance(service.getRegisterBean());
+		
 		if (! (workflow instanceof GroupCapable)) {
 			logger.warn("Workflow " + workflow.getClass() + " is not GroupCapable! But Group will be deleted anyway.");
 			return;
@@ -597,8 +603,12 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	public RegisterUserWorkflow getWorkflowInstance(String className) {
 		try {
 			Object o = Class.forName(className).newInstance();
-			if (o instanceof RegisterUserWorkflow)
+			if (o instanceof RegisterUserWorkflow) {
+				if (o instanceof ScriptingWorkflow)
+					((ScriptingWorkflow) o).setScriptingEnv(scriptingEnv);
+
 				return (RegisterUserWorkflow) o;
+			}
 			else {
 				logger.warn("Service Register bean misconfigured, Object not Type RegisterUserWorkflow but: {}", o.getClass());
 				return null;
