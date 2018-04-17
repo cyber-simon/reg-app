@@ -21,8 +21,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
-
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.joda.time.DateTime;
@@ -65,9 +63,10 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.SamlMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
-import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.exc.MetadataException;
 import edu.kit.scc.webreg.exc.SamlAuthenticationException;
+import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 
 @Named("attributeQueryHelper")
 @ApplicationScoped
@@ -169,7 +168,7 @@ public class AttributeQueryHelper implements Serializable {
 		return returnResponse;
 	}
 		
-	public Response query(UserEntity entity, SamlMetadataEntity idpEntity, 
+	public Response query(SamlUserEntity entity, SamlMetadataEntity idpEntity, 
 			EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity spEntity) throws Exception {
 		return query(entity.getPersistentId(), idpEntity, idpEntityDescriptor, spEntity);	
 	}

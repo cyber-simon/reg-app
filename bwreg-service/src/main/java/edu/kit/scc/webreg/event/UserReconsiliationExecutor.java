@@ -42,11 +42,6 @@ public class UserReconsiliationExecutor extends
 		Boolean fullRecon = Boolean.parseBoolean(getJobStore().get("full_recon"));
 		String executor = getJobStore().get("executor");
 
-		if (fullRecon == null) {
-			logger.warn("No full_recon configured for UserReconsiliationExecutor. Using false");
-			fullRecon = false;
-		}
-		
 		if (executor == null) {
 			logger.warn("No executor configured for UserReconsiliationExecutor. Using unknown");
 			executor = "unknown";

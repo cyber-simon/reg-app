@@ -31,10 +31,10 @@ import edu.kit.scc.webreg.dao.ServiceGroupFlagDao;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ServiceBasedGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupStatus;
-import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserGroupEntity;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
 import edu.kit.scc.webreg.event.EventSubmitter;
@@ -73,7 +73,7 @@ public class HomeOrgGroupUpdater implements Serializable {
 	@Inject 
 	private EventSubmitter eventSubmitter;
 	
-	public Set<GroupEntity> updateGroupsForUser(UserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor)
+	public Set<GroupEntity> updateGroupsForUser(SamlUserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor)
 			throws UserUpdateException {
 		HashSet<GroupEntity> changedGroups = new HashSet<GroupEntity>();
 		
@@ -112,7 +112,7 @@ public class HomeOrgGroupUpdater implements Serializable {
 		return allChangedGroups;
 	}
 	
-	protected Set<GroupEntity> updatePrimary(UserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor)
+	protected Set<GroupEntity> updatePrimary(SamlUserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor)
 			throws UserUpdateException {
 		Set<GroupEntity> changedGroups = new HashSet<GroupEntity>();
 
@@ -213,7 +213,7 @@ public class HomeOrgGroupUpdater implements Serializable {
 		return changedGroups;
 	}	
 
-	protected Set<GroupEntity> updateSecondary(UserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor)
+	protected Set<GroupEntity> updateSecondary(SamlUserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor)
 			throws UserUpdateException {
 		Set<GroupEntity> changedGroups = new HashSet<GroupEntity>();
 

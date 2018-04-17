@@ -22,6 +22,7 @@ import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.HomeOrgGroupDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserGroupEntity;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
@@ -48,9 +49,15 @@ public class LdapUidNumberGroupHook implements GroupServiceHook {
 	}
 	
 	@Override
-	public HomeOrgGroupEntity preUpdateUserPrimaryGroupFromAttribute(HomeOrgGroupDao dao, GroupDao groupDao, HomeOrgGroupEntity group, UserEntity user,
+	public HomeOrgGroupEntity preUpdateUserPrimaryGroupFromAttribute(HomeOrgGroupDao dao, GroupDao groupDao, HomeOrgGroupEntity group, UserEntity genericUser,
 			Map<String, List<Object>> attributeMap, Auditor auditor, Set<GroupEntity> changedGroups) throws UserUpdateException {
 
+		if (! (genericUser instanceof SamlUserEntity)) {
+			throw new UserUpdateException("Hook is intended for SamlUserEntites only");
+		}
+
+		SamlUserEntity user = (SamlUserEntity) genericUser;
+		
 		logger.info("LDAP-User Detected. Taking Primary Group from assertion");
 		
 		if (attributeMap.get("urn:oid:1.3.6.1.1.1.1.1") == null) {
@@ -168,9 +175,15 @@ public class LdapUidNumberGroupHook implements GroupServiceHook {
 	}
 
 	@Override
-	public void preUpdateUserSecondaryGroupFromAttribute(HomeOrgGroupDao dao, GroupDao groupDao, UserEntity user,
+	public void preUpdateUserSecondaryGroupFromAttribute(HomeOrgGroupDao dao, GroupDao groupDao, UserEntity genericUser,
 			Map<String, List<Object>> attributeMap, Auditor auditor, Set<GroupEntity> changedGroups) throws UserUpdateException {
 
+		if (! (genericUser instanceof SamlUserEntity)) {
+			throw new UserUpdateException("Hook is intended for SamlUserEntites only");
+		}
+
+		SamlUserEntity user = (SamlUserEntity) genericUser;
+		
 		logger.info("LDAP-User Detected. Taking Secondary Groups from assertion");
 		
 		if (attributeMap.get("memberOf") == null) {
@@ -330,17 +343,22 @@ public class LdapUidNumberGroupHook implements GroupServiceHook {
 	}
 
 	@Override
-	public boolean isPrimaryResponsible(UserEntity user,
+	public boolean isPrimaryResponsible(UserEntity genericUser,
 			Map<String, List<Object>> attributeMap) {
-		if (appConfig != null) {
-			String entityIdsConfig = "";
-			if (appConfig.getConfigValue("LdapUidNumberGroupHook_entityIds") != null) {
-				entityIdsConfig = appConfig.getConfigValue("LdapUidNumberGroupHook_entityIds");
-			}
-			String[] entityIds = entityIdsConfig.split(" ");
-			for (String entityId : entityIds) {
-				if (user.getIdp().getEntityId().equals(entityId.trim()))
-					return true;
+		
+		if (genericUser instanceof SamlUserEntity) {
+			SamlUserEntity user = (SamlUserEntity) genericUser;
+			
+			if (appConfig != null) {
+				String entityIdsConfig = "";
+				if (appConfig.getConfigValue("LdapUidNumberGroupHook_entityIds") != null) {
+					entityIdsConfig = appConfig.getConfigValue("LdapUidNumberGroupHook_entityIds");
+				}
+				String[] entityIds = entityIdsConfig.split(" ");
+				for (String entityId : entityIds) {
+					if (user.getIdp().getEntityId().equals(entityId.trim()))
+						return true;
+				}
 			}
 		}
 		
@@ -353,17 +371,21 @@ public class LdapUidNumberGroupHook implements GroupServiceHook {
 	}
 
 	@Override
-	public boolean isSecondaryResponsible(UserEntity user,
+	public boolean isSecondaryResponsible(UserEntity genericUser,
 			Map<String, List<Object>> attributeMap) {
-		if (appConfig != null) {
-			String entityIdsConfig = "";
-			if (appConfig.getConfigValue("LdapUidNumberGroupHook_entityIds") != null) {
-				entityIdsConfig = appConfig.getConfigValue("LdapUidNumberGroupHook_entityIds");
-			}
-			String[] entityIds = entityIdsConfig.split(" ");
-			for (String entityId : entityIds) {
-				if (user.getIdp().getEntityId().equals(entityId.trim()))
-					return true;
+		if (genericUser instanceof SamlUserEntity) {
+			SamlUserEntity user = (SamlUserEntity) genericUser;
+			
+			if (appConfig != null) {
+				String entityIdsConfig = "";
+				if (appConfig.getConfigValue("LdapUidNumberGroupHook_entityIds") != null) {
+					entityIdsConfig = appConfig.getConfigValue("LdapUidNumberGroupHook_entityIds");
+				}
+				String[] entityIds = entityIdsConfig.split(" ");
+				for (String entityId : entityIds) {
+					if (user.getIdp().getEntityId().equals(entityId.trim()))
+						return true;
+				}
 			}
 		}
 		

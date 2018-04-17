@@ -19,8 +19,6 @@ import edu.kit.scc.webreg.entity.UserStatus;
 
 public interface UserDao extends BaseDao<UserEntity, Long> {
 
-	UserEntity findByPersistentWithRoles(String spId, String idpId,
-			String persistentId);
 	UserEntity findByEppn(String eppn);
 	UserEntity findByIdWithAll(Long id);
 	List<UserEntity> findLegacyUsers();

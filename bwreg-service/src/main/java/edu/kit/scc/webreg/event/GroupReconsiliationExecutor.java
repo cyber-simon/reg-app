@@ -38,14 +38,8 @@ public class GroupReconsiliationExecutor extends
 			Logger logger = LoggerFactory.getLogger(GroupReconsiliationExecutor.class);
 			logger.debug("Executing");
 			
-			Boolean fullRecon = Boolean.parseBoolean(getJobStore().get("full_recon"));
 			String executor = getJobStore().get("executor");
 	
-			if (fullRecon == null) {
-				logger.warn("No full_recon configured for GroupReconsiliationExecutor. Using false");
-				fullRecon = false;
-			}
-			
 			if (executor == null) {
 				logger.warn("No executor configured for GroupReconsiliationExecutor. Using unknown");
 				executor = "unknown";

@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
 import edu.kit.scc.webreg.exc.UserUpdateException;
@@ -67,16 +68,20 @@ public class UidNumberFromAssertionUserHook implements UserServiceHook {
 		return isResponsibleIntern(user);
 	}
 	
-	protected boolean isResponsibleIntern(UserEntity user) {
-		if (appConfig != null) {
-			String entityIdsConfig = "";
-			if (appConfig.getConfigValue("UidNumberFromAssertionUserHook_entityIds") != null) {
-				entityIdsConfig = appConfig.getConfigValue("UidNumberFromAssertionUserHook_entityIds");
-			}
-			String[] entityIds = entityIdsConfig.split(" ");
-			for (String entityId : entityIds) {
-				if (user.getIdp().getEntityId().equals(entityId.trim()))
-					return true;
+	protected boolean isResponsibleIntern(UserEntity genericUser) {
+		if (genericUser instanceof SamlUserEntity) {
+			SamlUserEntity user = (SamlUserEntity) genericUser;
+			
+			if (appConfig != null) {
+				String entityIdsConfig = "";
+				if (appConfig.getConfigValue("UidNumberFromAssertionUserHook_entityIds") != null) {
+					entityIdsConfig = appConfig.getConfigValue("UidNumberFromAssertionUserHook_entityIds");
+				}
+				String[] entityIds = entityIdsConfig.split(" ");
+				for (String entityId : entityIds) {
+					if (user.getIdp().getEntityId().equals(entityId.trim()))
+						return true;
+				}
 			}
 		}
 		

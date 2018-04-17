@@ -19,6 +19,7 @@ import javax.naming.NamingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.UserService;
@@ -77,7 +78,12 @@ public class UpdateAllUserFromIdp extends AbstractExecutableJob {
 			for (UserEntity user : userList) {
 				try {
 					logger.info("Updating user {}", user.getEppn());
-					userService.updateUserFromIdp(user, "update-all-users-from-idp-job");
+					if (user instanceof SamlUserEntity) {
+						userService.updateUserFromIdp((SamlUserEntity) user, "update-all-users-from-idp-job");
+					}
+					else {
+						logger.info("No update method available for user {}", user.getEppn());
+					}
 				} catch (UserUpdateException e) {
 					logger.warn("Could not update user {}: {}", user.getEppn(), e);
 				}

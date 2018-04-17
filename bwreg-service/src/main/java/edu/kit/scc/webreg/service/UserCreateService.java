@@ -15,15 +15,15 @@ import java.util.Map;
 
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
-import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 
 public interface UserCreateService {
 
-	UserEntity createUser(UserEntity user, Map<String, List<Object>> attributeMap, String executor)
+	SamlUserEntity createUser(SamlUserEntity user, Map<String, List<Object>> attributeMap, String executor)
 			throws UserUpdateException;
 
-	UserEntity preCreateUser(SamlIdpMetadataEntity idpEntity, SamlSpConfigurationEntity spEntity, String persistentId,
+	SamlUserEntity preCreateUser(SamlIdpMetadataEntity idpEntity, SamlSpConfigurationEntity spEntity, String persistentId,
 			String locale, Map<String, List<Object>> attributeMap) throws UserUpdateException;
 
 }

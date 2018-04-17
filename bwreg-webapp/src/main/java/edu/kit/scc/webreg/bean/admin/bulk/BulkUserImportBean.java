@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
-import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.SamlSpConfigurationService;
@@ -106,7 +106,7 @@ public class BulkUserImportBean implements Serializable {
 	public void processSelected() {
 		for (ImportUser importUser : selectedImport) {
 			logger.debug("Processing user {} for import: {}", importUser.getUid(), importUser.getPersistentId());
-			UserEntity userEntity = userService.findByPersistentWithRoles(importUser.getSpEntityId(), 
+			SamlUserEntity userEntity = userService.findByPersistentWithRoles(importUser.getSpEntityId(), 
 					importUser.getIdpEntityId(), importUser.getPersistentId());
 			
 			SamlSpConfigurationEntity spEntity = spService.findByEntityId(importUser.getSpEntityId());

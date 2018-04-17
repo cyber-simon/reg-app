@@ -34,6 +34,7 @@ import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.RoleEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
@@ -128,16 +129,21 @@ public class ShowUserBean implements Serializable {
 		user = userService.findByIdWithAll(id);
 		logger.info("Trying user update for {}", user.getEppn());
 
-		try {
-			userService.updateUserFromIdp(user, "user-" + sessionManager.getUserId());
-		} catch (UserUpdateException e) {
-			logger.info("Exception while Querying IDP: {}", e.getMessage());
-			if (e.getCause() != null) {
-				logger.info("Cause is: {}", e.getCause().getMessage());
-				if (e.getCause().getCause() != null) {
-					logger.info("Inner Cause is: {}", e.getCause().getCause().getMessage());
+		if (user instanceof SamlUserEntity) {
+			try {
+				userService.updateUserFromIdp((SamlUserEntity) user, "user-" + sessionManager.getUserId());
+			} catch (UserUpdateException e) {
+				logger.info("Exception while Querying IDP: {}", e.getMessage());
+				if (e.getCause() != null) {
+					logger.info("Cause is: {}", e.getCause().getMessage());
+					if (e.getCause().getCause() != null) {
+						logger.info("Inner Cause is: {}", e.getCause().getCause().getMessage());
+					}
 				}
 			}
+		}
+		else {
+			logger.info("No update method available for class {}", user.getClass().getName());
 		}
 	}
 

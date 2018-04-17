@@ -30,7 +30,7 @@ import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
 import edu.kit.scc.webreg.dao.SamlSpConfigurationDao;
-import edu.kit.scc.webreg.dao.UserDao;
+import edu.kit.scc.webreg.dao.SamlUserDao;
 import edu.kit.scc.webreg.dao.as.ASUserAttrDao;
 import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
@@ -41,6 +41,7 @@ import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntityStatus;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
@@ -84,7 +85,7 @@ public class UserUpdater implements Serializable {
 	private AttributeQueryHelper attrQueryHelper;
 	
 	@Inject
-	private UserDao userDao;
+	private SamlUserDao userDao;
 
 	@Inject
 	private ServiceService serviceService;
@@ -125,12 +126,12 @@ public class UserUpdater implements Serializable {
 	@Inject
 	private ApplicationConfig appConfig;
 	
-	public UserEntity updateUser(UserEntity user, Map<String, List<Object>> attributeMap, String executor)
+	public SamlUserEntity updateUser(SamlUserEntity user, Map<String, List<Object>> attributeMap, String executor)
 			throws UserUpdateException {
 		return updateUser(user, attributeMap, executor, null);
 	}
 	
-	public UserEntity updateUser(UserEntity user, Map<String, List<Object>> attributeMap, String executor, 
+	public SamlUserEntity updateUser(SamlUserEntity user, Map<String, List<Object>> attributeMap, String executor, 
 			ServiceEntity service)
 			throws UserUpdateException {
 		logger.debug("Updating user {}", user.getEppn());
@@ -218,10 +219,12 @@ public class UserUpdater implements Serializable {
 				}
 			}
 			
-			Set<GroupEntity> changedGroups = homeOrgGroupUpdater.updateGroupsForUser(user, attributeMap, auditor);
+			if (user instanceof SamlUserEntity) {
+				Set<GroupEntity> changedGroups = homeOrgGroupUpdater.updateGroupsForUser((SamlUserEntity) user, attributeMap, auditor);
 
-			if (changedGroups.size() > 0) {
-				changed = true;
+				if (changedGroups.size() > 0) {
+					changed = true;
+				}
 			}
 			
 			Map<String, String> attributeStore = user.getAttributeStore();
@@ -245,19 +248,19 @@ public class UserUpdater implements Serializable {
 		return user;
 	}
 	
-	public UserEntity updateUser(UserEntity user, Assertion assertion, String executor, ServiceEntity service)
+	public SamlUserEntity updateUser(SamlUserEntity user, Assertion assertion, String executor, ServiceEntity service)
 			throws UserUpdateException {
 		Map<String, List<Object>> attributeMap = saml2AssertionService.extractAttributes(assertion);
 
 		return updateUser(user, attributeMap, executor, service);
 	}
 
-	public UserEntity updateUserFromIdp(UserEntity user, String executor) 
+	public SamlUserEntity updateUserFromIdp(SamlUserEntity user, String executor) 
 			throws UserUpdateException {
 		return updateUserFromIdp(user, null, executor);
 	}
 	
-	public UserEntity updateUserFromIdp(UserEntity user, ServiceEntity service, String executor) 
+	public SamlUserEntity updateUserFromIdp(SamlUserEntity user, ServiceEntity service, String executor) 
 			throws UserUpdateException {
 
 		SamlSpConfigurationEntity spEntity = spDao.findByEntityId(user.getPersistentSpId());
@@ -345,7 +348,7 @@ public class UserUpdater implements Serializable {
 		}
 	}
 	
-	protected void handleException(UserEntity user, Exception e, SamlIdpMetadataEntity idpEntity, Auditor auditor) {
+	protected void handleException(SamlUserEntity user, Exception e, SamlIdpMetadataEntity idpEntity, Auditor auditor) {
 		updateFail(user);
 		String message = e.getMessage();
 		if (e.getCause() != null)
@@ -363,7 +366,7 @@ public class UserUpdater implements Serializable {
 		}
 	}
 	
-	protected void updateFail(UserEntity user) {
+	protected void updateFail(SamlUserEntity user) {
 		user.setLastFailedUpdate(new Date());
 		user.setGroups(null);
 		user = userDao.persist(user);

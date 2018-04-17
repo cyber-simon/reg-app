@@ -128,8 +128,6 @@ public class ApplicationBootstrap {
 		logger.info("Initializing Hooks");
     	hookManager.reloadHooks();
 		
-    	userService.convertLegacyUsers();
-
     	try {
     		logger.info("OpenSAML Bootstrap...");
 			InitializationService.initialize();

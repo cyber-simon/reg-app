@@ -36,6 +36,7 @@ import edu.kit.scc.webreg.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntityStatus;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
@@ -116,7 +117,7 @@ public class Saml2PostHandlerServlet {
 
 			Map<String, List<Object>> attributeMap = saml2AssertionService.extractAttributes(assertion);
 
-			UserEntity user = userService.findByPersistentWithRoles(spConfig.getEntityId(), 
+			SamlUserEntity user = userService.findByPersistentWithRoles(spConfig.getEntityId(), 
 						idpEntity.getEntityId(), persistentId);
 
 			String userLoginRule = appConfig.getConfigValue("user_login_rule");

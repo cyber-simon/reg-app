@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.service.GroupService;
 import edu.kit.scc.webreg.service.RoleService;
@@ -67,7 +68,9 @@ public class UserPropertiesBean implements Serializable {
 	    	groupList = groupService.findByUser(user);
 	    	theme = sessionManager.getTheme();
 	    	
-			idpEntity = user.getIdp();
+	    	if (user instanceof SamlUserEntity) {
+	    		idpEntity = ((SamlUserEntity) user).getIdp();
+	    	}
 		}
 	}
 	

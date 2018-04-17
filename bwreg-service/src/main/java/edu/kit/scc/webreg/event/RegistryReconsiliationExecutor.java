@@ -37,11 +37,6 @@ public class RegistryReconsiliationExecutor extends
 		Boolean fullRecon = Boolean.parseBoolean(getJobStore().get("full_recon"));
 		String executor = getJobStore().get("executor");
 
-		if (fullRecon == null) {
-			logger.warn("No full_recon configured for RegistryReconsiliationExecutor. Using false");
-			fullRecon = true;
-		}
-		
 		if (executor == null) {
 			logger.warn("No executor configured for RegistryReconsiliationExecutor. Using unknown");
 			executor = "unknown";

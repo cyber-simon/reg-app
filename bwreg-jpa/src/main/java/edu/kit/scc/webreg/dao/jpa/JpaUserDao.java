@@ -75,31 +75,6 @@ public class JpaUserDao extends JpaBaseDao<UserEntity, Long> implements UserDao,
 	}
     
 	@Override
-	public UserEntity findByPersistentWithRoles(String spId, String idpId, String persistentId) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<UserEntity> criteria = builder.createQuery(UserEntity.class);
-		Root<UserEntity> user = criteria.from(UserEntity.class);
-		criteria.where(builder.and(
-				builder.equal(user.get("persistentSpId"), spId),
-				builder.equal(user.get("persistentIdpId"), idpId),
-				builder.equal(user.get("persistentId"), persistentId)
-				));
-		criteria.select(user);
-		criteria.distinct(true);
-		user.fetch("roles", JoinType.LEFT);
-		user.fetch("groups", JoinType.LEFT);
-		user.fetch("genericStore", JoinType.LEFT);
-		user.fetch("attributeStore", JoinType.LEFT);
-		
-		try {
-			return em.createQuery(criteria).getSingleResult();
-		}
-		catch (NoResultException e) {
-			return null;
-		}			
-	}	
-
-	@Override
 	public UserEntity findByEppn(String eppn) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<UserEntity> criteria = builder.createQuery(UserEntity.class);

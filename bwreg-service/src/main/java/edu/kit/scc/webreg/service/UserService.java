@@ -14,8 +14,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.entity.GroupEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
@@ -23,22 +23,13 @@ import edu.kit.scc.webreg.exc.UserUpdateException;
 
 public interface UserService extends BaseService<UserEntity, Long> {
 
-	UserEntity findByPersistentWithRoles(String spId, String idpId,
+	SamlUserEntity findByPersistentWithRoles(String spId, String idpId,
 			String persistentId);
 	
 	UserEntity findByEppn(String eppn);
 	
 	UserEntity findByIdWithAll(Long id);
 	
-	boolean updateUserFromAttribute(UserEntity user,
-			Map<String, List<Object>> attributeMap, Auditor auditor) throws UserUpdateException;
-	
-	boolean updateUserFromAttribute(UserEntity user,
-			Map<String, List<Object>> attributeMap, boolean withoutUidNumber, Auditor auditor)
-			throws UserUpdateException;
-
-	void convertLegacyUsers();
-
 	UserEntity findByIdWithStore(Long id);
 
 	List<UserEntity> findByGroup(GroupEntity group);
@@ -49,12 +40,12 @@ public interface UserService extends BaseService<UserEntity, Long> {
 
 	List<UserEntity> findOrderByFailedUpdateWithLimit(Date date, Integer limit);
 
-	UserEntity updateUserFromIdp(UserEntity user, String executor) throws UserUpdateException;
+	SamlUserEntity updateUserFromIdp(SamlUserEntity user, String executor) throws UserUpdateException;
 
-	UserEntity updateUserFromIdp(UserEntity user, ServiceEntity service, String executor)
+	SamlUserEntity updateUserFromIdp(SamlUserEntity user, ServiceEntity service, String executor)
 			throws UserUpdateException;
 
-	UserEntity updateUserFromAttribute(UserEntity user,
+	SamlUserEntity updateUserFromAttribute(SamlUserEntity user,
 			Map<String, List<Object>> attributeMap, String executor)
 			throws UserUpdateException;
 

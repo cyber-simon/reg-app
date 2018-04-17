@@ -25,13 +25,13 @@ import org.slf4j.Logger;
 import edu.kit.scc.webreg.audit.UserCreateAuditor;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.RoleDao;
-import edu.kit.scc.webreg.dao.UserDao;
+import edu.kit.scc.webreg.dao.SamlUserDao;
 import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
-import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserRoleEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
@@ -55,7 +55,7 @@ public class UserCreateServiceImpl implements UserCreateService {
 	private AuditDetailDao auditDetailDao;
 
 	@Inject
-	private UserDao userDao;
+	private SamlUserDao samlUserDao;
 	
 	@Inject
 	private UserUpdater userUpdater;
@@ -79,13 +79,13 @@ public class UserCreateServiceImpl implements UserCreateService {
 	private ApplicationConfig appConfig;
 	
 	@Override
-	public UserEntity preCreateUser(SamlIdpMetadataEntity idpEntity, SamlSpConfigurationEntity spConfigEntity, String persistentId,
+	public SamlUserEntity preCreateUser(SamlIdpMetadataEntity idpEntity, SamlSpConfigurationEntity spConfigEntity, String persistentId,
 			String locale, Map<String, List<Object>> attributeMap)
 			throws UserUpdateException {
 		
 		logger.debug("User {} from {} is being preCreated", persistentId, idpEntity.getEntityId());
 		
-		UserEntity entity = userDao.createNew();
+		SamlUserEntity entity = samlUserDao.createNew();
 		entity.setIdp(idpEntity);
     	entity.setPersistentIdpId(idpEntity.getEntityId());
     	entity.setPersistentSpId(spConfigEntity.getEntityId());
@@ -104,7 +104,7 @@ public class UserCreateServiceImpl implements UserCreateService {
 	}	
 	
 	@Override
-	public UserEntity createUser(UserEntity user,
+	public SamlUserEntity createUser(SamlUserEntity user,
 			Map<String, List<Object>> attributeMap, String executor)
 			throws UserUpdateException {
 		logger.debug("Creating user {}", user.getEppn());
@@ -136,7 +136,7 @@ public class UserCreateServiceImpl implements UserCreateService {
     		user.setLastStatusChange(new Date());
     	}
 
-    	user = userDao.persist(user);
+    	user = samlUserDao.persist(user);
 
     	roleDao.addUserToRole(user, "User");
 

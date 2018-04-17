@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import edu.kit.scc.webreg.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
-import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.RegistryService;
@@ -59,31 +59,36 @@ public abstract class AbstractDeregisterRegistries extends AbstractExecutableJob
 			for (RegistryEntity registry : registryList) {
 				try {
 					logger.info("Deregister Registry {}", registry.getId());
-					UserEntity user = registry.getUser();
-					if ((System.currentTimeMillis() - user.getLastUpdate().getTime()) > lastUserUpdate) {
-						// user is too old, try update first
-						logger.info("User {} lastUpdate is older than {}ms. Trying update", user.getEppn(), lastUserUpdate);
-						try {
-							userService.updateUserFromIdp(user, auditName);
-						} catch (UserUpdateException e) {
-							logger.info("Exception while Querying IDP: {}", e.getMessage());
-							if (e.getCause() != null) {
-								logger.info("Cause is: {}", e.getCause().getMessage());
-								if (e.getCause().getCause() != null) {
-									logger.info("Inner Cause is: {}", e.getCause().getCause().getMessage());
+
+					if (registry.getUser() instanceof SamlUserEntity) {
+						
+						SamlUserEntity user = (SamlUserEntity) registry.getUser();
+						
+						if ((System.currentTimeMillis() - user.getLastUpdate().getTime()) > lastUserUpdate) {
+							// user is too old, try update first
+							logger.info("User {} lastUpdate is older than {}ms. Trying update", user.getEppn(), lastUserUpdate);
+							try {
+								userService.updateUserFromIdp(user, auditName);
+							} catch (UserUpdateException e) {
+								logger.info("Exception while Querying IDP: {}", e.getMessage());
+								if (e.getCause() != null) {
+									logger.info("Cause is: {}", e.getCause().getMessage());
+									if (e.getCause().getCause() != null) {
+										logger.info("Inner Cause is: {}", e.getCause().getCause().getMessage());
+									}
 								}
+								
+								// resume without deregistering user
+								throw new RegisterException("IDP failed");
 							}
-							
-							// resume without deregistering user
-							throw new RegisterException("IDP failed");
 						}
-					}
-					List<RegistryEntity> tempRegistryList = new ArrayList<RegistryEntity>();
-					tempRegistryList.add(registry);
-					knowledgeSessionService.checkRules(tempRegistryList, user, auditName, false);
-					
-					if (registryStatus.equals(registry.getRegistryStatus())) {
-						registerUserService.deregisterUser(registry, auditName);
+						List<RegistryEntity> tempRegistryList = new ArrayList<RegistryEntity>();
+						tempRegistryList.add(registry);
+						knowledgeSessionService.checkRules(tempRegistryList, user, auditName, false);
+						
+						if (registryStatus.equals(registry.getRegistryStatus())) {
+							registerUserService.deregisterUser(registry, auditName);
+						}
 					}
 				} catch (RegisterException e) {
 					logger.info("Could not deregister", e);

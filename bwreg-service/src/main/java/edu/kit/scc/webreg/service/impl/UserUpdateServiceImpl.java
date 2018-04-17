@@ -23,6 +23,7 @@ import edu.kit.scc.webreg.drools.UnauthorizedUser;
 import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.LoginFailedException;
@@ -88,12 +89,14 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 		if (user == null)
 			throw new NoUserFoundException("no such user");
 		
-		try {
-			user = userUpdater.updateUserFromIdp(user, executor);
-		} catch (UserUpdateException e) {
-			logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
-			throw new UserUpdateFailedException("user update failed: " + e.getMessage());
-		}		
+		if (user instanceof SamlUserEntity) {
+			try {
+				user = userUpdater.updateUserFromIdp((SamlUserEntity) user, executor);
+			} catch (UserUpdateException e) {
+				logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
+				throw new UserUpdateFailedException("user update failed: " + e.getMessage());
+			}		
+		}
 		
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		Map<String, String> map = new HashMap<String, String>();
@@ -120,22 +123,21 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 		}
 		
 		if (((System.currentTimeMillis() - user.getLastUpdate().getTime()) < expireTime)) {
-			logger.info("Skipping async attributequery for {} with {}@{}", new Object[] {user.getEppn(), 
-					user.getPersistentId(), user.getIdp().getEntityId()});
+			logger.info("Skipping async user update for {} with id {}", new Object[] {user.getEppn(), user.getId()});
 		}
 		else if ((user.getLastFailedUpdate() != null) &&
 				(System.currentTimeMillis() - user.getLastFailedUpdate().getTime()) < expireTime) {
-			logger.info("Skipping async attributequery for {} with {}@{} (last failed)", new Object[] {user.getEppn(), 
-					user.getPersistentId(), user.getIdp().getEntityId()});
+			logger.info("Skipping async user update for {} with id {} (last failed)", new Object[] {user.getEppn(), user.getId()});
 		}
 		else {
-			logger.info("Performing async attributequery for {} with {}@{}", new Object[] {user.getEppn(), 
-					user.getPersistentId(), user.getIdp().getEntityId()});
+			logger.info("Performing async update for {} with id {}", new Object[] {user.getEppn(), user.getId()}); 
 
-			try {
-				user = userUpdater.updateUserFromIdp(user, executor);
-			} catch (UserUpdateException e) {
-				logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
+			if (user instanceof SamlUserEntity) {
+				try {
+					user = userUpdater.updateUserFromIdp((SamlUserEntity) user, executor);
+				} catch (UserUpdateException e) {
+					logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
+				}
 			}
 		}
 	}
@@ -165,14 +167,13 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 		
 		try {
 			if ((System.currentTimeMillis() - user.getLastUpdate().getTime()) < expireTime) {
-				logger.info("Skipping attributequery for {} with {}@{}", new Object[] {user.getEppn(), 
-						user.getPersistentId(), user.getIdp().getEntityId()});
+				logger.info("Skipping user update for {} with id {}", new Object[] {user.getEppn(), user.getId()});
 			}
 			else {
-				logger.info("Performing attributequery for {} with {}@{}", new Object[] {user.getEppn(), 
-						user.getPersistentId(), user.getIdp().getEntityId()});
+				logger.info("Performing user update for {} with id {}", new Object[] {user.getEppn(), user.getId()}); 
 	
-				user = userUpdater.updateUserFromIdp(user, service, executor);
+				if (user instanceof SamlUserEntity)
+					user = userUpdater.updateUserFromIdp((SamlUserEntity) user, service, executor);
 			}
 		} catch (UserUpdateException e) {
 			logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());

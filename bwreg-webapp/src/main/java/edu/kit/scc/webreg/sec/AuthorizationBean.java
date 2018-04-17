@@ -34,6 +34,7 @@ import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.RoleEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.service.GroupService;
@@ -196,8 +197,8 @@ public class AuthorizationBean implements Serializable {
 		
 		    		if (serviceProps.containsKey("idp_filter")) {
 		    			String idpFilter = serviceProps.get("idp_filter");
-		    			if (idpFilter != null &&
-		    					(! idpFilter.contains(user.getIdp().getEntityId())))
+		    			if ((idpFilter != null) && (user instanceof SamlUserEntity) &&
+		    					(! idpFilter.contains(((SamlUserEntity) user).getIdp().getEntityId())))
 		    				serviceToRemove.add(s);
 		    		}
 		

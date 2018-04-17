@@ -15,8 +15,6 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 
-import net.shibboleth.utilities.java.support.httpclient.HttpClientBuilder;
-
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
@@ -39,20 +37,17 @@ import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.SingleSignOnService;
-import org.opensaml.soap.client.SOAPClientException;
-import org.opensaml.soap.client.http.HttpSOAPClient;
 import org.opensaml.soap.client.http.PipelineFactoryHttpSOAPClient;
 import org.opensaml.soap.common.SOAPException;
 import org.opensaml.soap.messaging.context.SOAP11Context;
-import org.opensaml.soap.soap11.Envelope;
 import org.opensaml.xmlsec.encryption.support.DecryptionException;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
 import edu.kit.scc.webreg.dao.SamlSpConfigurationDao;
+import edu.kit.scc.webreg.dao.SamlUserDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
-import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.drools.OverrideAccess;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;
@@ -62,6 +57,7 @@ import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntityStatus;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.AssertionException;
@@ -105,7 +101,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 	private PasswordUtil passwordUtil;
 
 	@Inject
-	private UserDao userDao;
+	private SamlUserDao samlUserDao;
 	
 	@Inject
 	private UserUpdater userUpdater;
@@ -152,7 +148,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			String password, String localHostName)
 			throws IOException, ServletException, RestInterfaceException {
 
-		UserEntity user = findUser(eppn);
+		SamlUserEntity user = findUser(eppn);
 		if (user == null)
 			throw new NoUserFoundException("no such user");
 		
@@ -185,18 +181,23 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			throw new NoRegistryFoundException("registry unknown");
 		}
 		
+		if (! (registry.getUser() instanceof SamlUserEntity)) {
+			logger.info("Registry {} is not connected with a SAML User", regId);
+			throw new NoRegistryFoundException("not a saml user");
+		}
+		
 		if (password != null && (password.toLowerCase().startsWith("<?xml version") ||
 				password.startsWith("<saml2:Assertion "))) {
-			return delegateLogin(registry.getUser(), registry.getService(), registry,
+			return delegateLogin((SamlUserEntity) registry.getUser(), registry.getService(), registry,
 					password, localHostName);
 		}
 		else {
-			return ecp(registry.getUser(), registry.getService(), registry,
+			return ecp((SamlUserEntity) registry.getUser(), registry.getService(), registry,
 				password, localHostName);
 		}
 	}
 
-	private Map<String, String> ecp(UserEntity user, ServiceEntity service, RegistryEntity registry,
+	private Map<String, String> ecp(SamlUserEntity user, ServiceEntity service, RegistryEntity registry,
 			String password, String localHostName) throws RestInterfaceException {
 
 		if (registry.getRegistryValues().containsKey("userPassword")) {
@@ -333,7 +334,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 		}	
 	}
 
-	private Map<String, String> delegateLogin(UserEntity user, ServiceEntity service, RegistryEntity registry,
+	private Map<String, String> delegateLogin(SamlUserEntity user, ServiceEntity service, RegistryEntity registry,
 			String password, String localHostName)
 			throws IOException, ServletException, RestInterfaceException {
 		
@@ -478,7 +479,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 
 		String persistentId = saml2AssertionService.extractPersistentId(assertion, spEntity);
 		
-		UserEntity user = userDao.findByPersistentWithRoles(spEntity.getEntityId(), 
+		SamlUserEntity user = samlUserDao.findByPersistentWithRoles(spEntity.getEntityId(), 
 				idp.getEntityId(), persistentId);
 	
 		if (user == null) {
@@ -545,11 +546,11 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 		return service;
 	}
 
-	private UserEntity findUser(String eppn) {
-		UserEntity user = userDao.findByEppn(eppn);
+	private SamlUserEntity findUser(String eppn) {
+		SamlUserEntity user = samlUserDao.findByEppn(eppn);
 
 		if (user != null) {
-			user = userDao.findByIdWithStore(user.getId());
+			user = samlUserDao.findByIdWithStore(user.getId());
 		}
 
 		return user;
@@ -600,7 +601,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 		return returnList;
 	}	
 	
-	private void updateUser(UserEntity user, ServiceEntity service, String executor) throws UserUpdateFailedException {
+	private void updateUser(SamlUserEntity user, ServiceEntity service, String executor) throws UserUpdateFailedException {
 		// Default expiry Time after which an attrq is issued to IDP in millis
 		Long expireTime = 10000L;
 		

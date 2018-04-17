@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
@@ -69,7 +70,7 @@ public class RegisterUserBean implements Serializable {
 	@Inject
 	private FacesMessageGenerator messageGenerator;
 	
-	private UserEntity entity;
+	private SamlUserEntity entity;
 	private SamlIdpMetadataEntity idpEntity;
 	private SamlSpConfigurationEntity spConfigEntity;
 	
@@ -190,7 +191,7 @@ public class RegisterUserBean implements Serializable {
 		return entity;
 	}
 
-	public void setEntity(UserEntity entity) {
+	public void setEntity(SamlUserEntity entity) {
 		this.entity = entity;
 	}
 

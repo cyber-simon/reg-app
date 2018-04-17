@@ -14,10 +14,8 @@ public abstract class UserEntity_ extends edu.kit.scc.webreg.entity.AbstractBase
 
 	public static volatile SetAttribute<UserEntity, ASUserAttrEntity> userAttrs;
 	public static volatile SingularAttribute<UserEntity, UserStatus> userStatus;
-	public static volatile SingularAttribute<UserEntity, String> persistentSpId;
 	public static volatile SingularAttribute<UserEntity, String> surName;
 	public static volatile MapAttribute<UserEntity, String, String> genericStore;
-	public static volatile SingularAttribute<UserEntity, String> persistentIdpId;
 	public static volatile SingularAttribute<UserEntity, String> eppn;
 	public static volatile SingularAttribute<UserEntity, String> givenName;
 	public static volatile SetAttribute<UserEntity, UserRoleEntity> roles;
@@ -25,9 +23,7 @@ public abstract class UserEntity_ extends edu.kit.scc.webreg.entity.AbstractBase
 	public static volatile MapAttribute<UserEntity, String, String> attributeStore;
 	public static volatile SingularAttribute<UserEntity, String> locale;
 	public static volatile SingularAttribute<UserEntity, Date> lastFailedUpdate;
-	public static volatile SingularAttribute<UserEntity, String> persistentId;
 	public static volatile SetAttribute<UserEntity, String> emailAddresses;
-	public static volatile SingularAttribute<UserEntity, SamlIdpMetadataEntity> idp;
 	public static volatile SingularAttribute<UserEntity, Integer> uidNumber;
 	public static volatile SingularAttribute<UserEntity, Date> lastUpdate;
 	public static volatile SingularAttribute<UserEntity, Date> lastStatusChange;

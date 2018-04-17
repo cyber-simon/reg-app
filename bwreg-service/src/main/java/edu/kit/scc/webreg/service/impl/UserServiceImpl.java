@@ -12,7 +12,6 @@ package edu.kit.scc.webreg.service.impl;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,15 +20,14 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 
-import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.RegistryDao;
-import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
+import edu.kit.scc.webreg.dao.SamlUserDao;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
-import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
@@ -48,7 +46,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity, Long> implement
 	private UserDao dao;
 	
 	@Inject
-	private SamlIdpMetadataDao idpDao;
+	private SamlUserDao samlUserDao;
 	
 	@Inject
 	private UserUpdater userUpdater;
@@ -72,8 +70,8 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity, Long> implement
 	}
 	
 	@Override
-	public UserEntity findByPersistentWithRoles(String spId, String idpId, String persistentId) {
-		return dao.findByPersistentWithRoles(spId, idpId, persistentId);
+	public SamlUserEntity findByPersistentWithRoles(String spId, String idpId, String persistentId) {
+		return samlUserDao.findByPersistentWithRoles(spId, idpId, persistentId);
 	}
 
 	@Override
@@ -102,34 +100,21 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity, Long> implement
 	}
 
 	@Override
-	public UserEntity updateUserFromIdp(UserEntity user, String executor) 
+	public SamlUserEntity updateUserFromIdp(SamlUserEntity user, String executor) 
 			throws UserUpdateException {
 		return userUpdater.updateUserFromIdp(user, null, executor);
 	}
 
 	@Override
-	public UserEntity updateUserFromIdp(UserEntity user, ServiceEntity service, String executor) 
+	public SamlUserEntity updateUserFromIdp(SamlUserEntity user, ServiceEntity service, String executor) 
 			throws UserUpdateException {
 		return userUpdater.updateUserFromIdp(user, executor);
 	}
 
 	@Override
-	public UserEntity updateUserFromAttribute(UserEntity user, Map<String, List<Object>> attributeMap, String executor) 
+	public SamlUserEntity updateUserFromAttribute(SamlUserEntity user, Map<String, List<Object>> attributeMap, String executor) 
 				throws UserUpdateException {
 		return userUpdater.updateUser(user, attributeMap, executor);
-	}
-
-	@Override
-	public boolean updateUserFromAttribute(UserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor) 
-				throws UserUpdateException {
-		return userUpdater.updateUserFromAttribute(user, attributeMap, false, auditor);
-	}
-
-	@Override
-	public boolean updateUserFromAttribute(UserEntity user, Map<String, List<Object>> attributeMap, boolean withoutUidNumber, Auditor auditor) 
-				throws UserUpdateException {
-
-		return userUpdater.updateUserFromAttribute(user, attributeMap, withoutUidNumber, auditor);
 	}
 
 	@Override
@@ -147,25 +132,6 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity, Long> implement
 				registry.setRegistryStatus(RegistryStatus.ON_HOLD);
 				registry.setLastStatusChange(new Date());
 			}			
-		}
-	}
-	
-	@Override
-	public void convertLegacyUsers() {
-		List<UserEntity> userList = dao.findLegacyUsers();
-    	
-		if (userList.size() > 0) {
-    		logger.warn("Legacy Users found. Converting...");
-    		Map<String, SamlIdpMetadataEntity> idpCache = new HashMap<String, SamlIdpMetadataEntity>();
-	    	for (UserEntity user : userList) {
-	    		logger.info("Converting user {}", user.getEppn());
-	    		if (! idpCache.containsKey(user.getPersistentIdpId())) {
-	    			idpCache.put(user.getPersistentIdpId(), idpDao.findByEntityId(user.getPersistentIdpId()));
-	    		}
-	    		
-	    		user.setIdp(idpCache.get(user.getPersistentIdpId()));
-	    		user = dao.persist(user);
-	    	}
 		}
 	}
 }

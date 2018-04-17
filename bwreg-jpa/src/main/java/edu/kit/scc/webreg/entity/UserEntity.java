@@ -20,6 +20,8 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
@@ -30,21 +32,10 @@ import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 
 @Entity(name = "UserEntity")
 @Table(name = "usertable")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class UserEntity extends AbstractBaseEntity {
 
 	private static final long serialVersionUID = 1L;
-	
-	@Column(name = "persistent_id", length = 1024)
-	private String persistentId;
-	
-	@Column(name = "persistent_spid", length = 1024)
-	private String persistentSpId;
-	
-	@Column(name = "persistent_idpid", length = 1024)
-	private String persistentIdpId;
-
-	@ManyToOne(targetEntity = SamlIdpMetadataEntity.class)
-	private SamlIdpMetadataEntity idp;
 	
 	@Column(name = "eppn", length = 1024)
 	private String eppn;
@@ -115,14 +106,6 @@ public class UserEntity extends AbstractBaseEntity {
 		this.roles = roles;
 	}
 
-	public String getPersistentId() {
-		return persistentId;
-	}
-
-	public void setPersistentId(String persistentId) {
-		this.persistentId = persistentId;
-	}
-
 	public String getEppn() {
 		return eppn;
 	}
@@ -179,24 +162,6 @@ public class UserEntity extends AbstractBaseEntity {
 		this.userStatus = userStatus;
 	}
 
-	public String getPersistentSpId() {
-		return persistentSpId;
-	}
-
-	public void setPersistentSpId(String persistentSpId) {
-		this.persistentSpId = persistentSpId;
-	}
-
-	@Deprecated
-	public String getPersistentIdpId() {
-		return persistentIdpId;
-	}
-
-	@Deprecated
-	public void setPersistentIdpId(String persistentIdpId) {
-		this.persistentIdpId = persistentIdpId;
-	}
-
 	public String getTheme() {
 		return theme;
 	}
@@ -243,14 +208,6 @@ public class UserEntity extends AbstractBaseEntity {
 
 	public void setEmailAddresses(Set<String> emailAddresses) {
 		this.emailAddresses = emailAddresses;
-	}
-
-	public SamlIdpMetadataEntity getIdp() {
-		return idp;
-	}
-
-	public void setIdp(SamlIdpMetadataEntity idp) {
-		this.idp = idp;
 	}
 
 	public Set<UserGroupEntity> getGroups() {
