@@ -5,11 +5,18 @@
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
-	xmlns:p="http://primefaces.org/ui">
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
 <head>
 <title></title>
 </head>
 <body>
+<f:view>
+
+	<f:metadata>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{listUserBean.preRenderView}" />
+	</f:metadata>
 
 <ui:composition template="/template/default-admin.xhtml">
 	<ui:param name="title" value="#{messages.title}"/>
@@ -18,7 +25,8 @@
 	
 	<h:form id="form">
 	
-		<p:dataTable id="dataTable" var="entity" value="#{listBusinessRuleBean.list}">
+		<p:dataTable id="dataTable" var="entity" value="#{listBusinessRuleBean.list}" paginator="true"
+					lazy="true" rows="15">
 			<p:column>
 				<f:facet name="header">
 					<h:outputText value="#{messages.id}" />
@@ -52,9 +60,24 @@
         <h:link outcome="add-rule-package.xhtml" value="#{messages.add_rule_package}"/><br/>
         <h:link outcome="add-business-rule.xhtml" value="#{messages.add_business_rule}"/><br/>
 		
+ 		<div id="panelInline">
+			<p:panel header="#{messages.tools}">
+
+		        <bw:inputText id="regexField" label="#{messages.regex}" 
+			        	value="#{listBusinessRuleBean.regex}" required="true"/>
+				
+		        <bw:inputText id="replaceField" label="#{messages.replace}" 
+			        	value="#{listBusinessRuleBean.replace}" required="true"/>
+				
+		        <p:commandButton id="rr" action="#{listBusinessRuleBean.regexReplace}" value="#{messages.regex_replace}"
+		        	ajax="false"/>							        					
+			</p:panel>
+		</div>		
+		
 	</h:form>
 
 	</ui:define>
-</ui:composition>		
+</ui:composition>
+</f:view>		
 </body>
 </html>

@@ -16,6 +16,8 @@ import java.util.List;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.BusinessRuleDao;
 import edu.kit.scc.webreg.entity.BusinessRuleEntity;
@@ -26,6 +28,9 @@ public class BusinessRuleServiceImpl extends BaseServiceImpl<BusinessRuleEntity,
 
 	private static final long serialVersionUID = 1L;
 
+	@Inject
+	private Logger logger;
+	
 	@Inject
 	private BusinessRuleDao dao;
 	
@@ -42,5 +47,27 @@ public class BusinessRuleServiceImpl extends BaseServiceImpl<BusinessRuleEntity,
 	@Override
 	protected BaseDao<BusinessRuleEntity, Long> getDao() {
 		return dao;
+	}
+
+	@Override
+	public void replaceRegexSingle(Long ruleId, String regex, String replace) {
+		BusinessRuleEntity rule = dao.findById(ruleId);
+		if (rule !=  null) {
+			replaceRegexIntern(rule, regex, replace);
+		}
+	}
+
+	@Override
+	public void replaceRegex(String regex, String replace) {
+		List<BusinessRuleEntity> ruleList = dao.findAll();
+		for (BusinessRuleEntity rule : ruleList) {
+			replaceRegexIntern(rule, regex, replace);
+		}
+	}
+	
+	private void replaceRegexIntern(BusinessRuleEntity rule, String regex, String replace) {
+		logger.info("Processing rule {}", rule.getName());
+		String newRule = rule.getRule().replaceAll(regex, replace);
+		rule.setRule(newRule);;
 	}
 }

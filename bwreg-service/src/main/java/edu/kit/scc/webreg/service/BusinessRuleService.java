@@ -21,4 +21,7 @@ public interface BusinessRuleService extends BaseService<BusinessRuleEntity, Lon
 
 	List<BusinessRuleEntity> findAllKnowledgeBaseNotNull();
 
+	void replaceRegexSingle(Long ruleId, String regex, String replace);
+
+	void replaceRegex(String regex, String replace);
 }

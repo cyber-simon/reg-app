@@ -20,6 +20,7 @@ import javax.inject.Named;
 
 import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.service.BusinessRulePackageService;
+import edu.kit.scc.webreg.service.BusinessRuleService;
 
 @Named("listBusinessRuleBean")
 @RequestScoped
@@ -29,8 +30,14 @@ public class ListBusinessRuleBean implements Serializable {
 
 	private List<BusinessRulePackageEntity> list;
     
+	private String regex;
+	private String replace;
+	
     @Inject
     private BusinessRulePackageService service;
+
+    @Inject
+    private BusinessRuleService businessRuleService;
 
     @PostConstruct
     public void init() {
@@ -41,4 +48,23 @@ public class ListBusinessRuleBean implements Serializable {
    		return list;
     }
 
+    public void regexReplace() {
+    	businessRuleService.replaceRegex(regex, replace);
+    }
+
+	public String getRegex() {
+		return regex;
+	}
+
+	public void setRegex(String regex) {
+		this.regex = regex;
+	}
+
+	public String getReplace() {
+		return replace;
+	}
+
+	public void setReplace(String replace) {
+		this.replace = replace;
+	}
 }
