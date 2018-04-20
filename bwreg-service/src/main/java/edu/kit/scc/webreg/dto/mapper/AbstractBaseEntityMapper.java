@@ -24,11 +24,6 @@ public abstract class AbstractBaseEntityMapper<T extends BaseEntity<PK>,E extend
 		toDtoEntity.setId(fromBaseEntity.getId());
 		if ((fromBaseEntity instanceof AbstractBaseEntity) 
 				&& (toDtoEntity instanceof AbstractBaseEntityDto)) {
-//			AbstractBaseEntity f = (AbstractBaseEntity) fromBaseEntity;
-//			AbstractBaseEntityDto t = (AbstractBaseEntityDto) toDtoEntity;
-//			t.setCreatedAt(f.getCreatedAt());
-//			t.setUpdatedAt(f.getUpdatedAt());
-//			t.setVersion(f.getVersion());
 			copy(fromBaseEntity, toDtoEntity, "createdAt", "updatedAt", "version");
 		}
 		
