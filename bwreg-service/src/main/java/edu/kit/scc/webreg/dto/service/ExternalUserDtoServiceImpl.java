@@ -53,6 +53,14 @@ public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserE
 	}
 	
 	@Override
+	public void updateExternalUser(ExternalUserEntityDto dto) throws NoUserFoundException {
+		ExternalUserEntity entity = dao.findByExternalId(dto.getExternalId());
+		if (entity == null)
+			throw new NoUserFoundException("no such user");
+		reverseMapper.copyProperties(dto, entity);
+	}
+	
+	@Override
 	protected BaseEntityMapper<ExternalUserEntity, ExternalUserEntityDto, Long> getMapper() {
 		return mapper;
 	}

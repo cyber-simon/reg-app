@@ -48,6 +48,22 @@ public class ExternalUserController {
 		return map;
 	}
 
+	@Path(value = "/update")
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	@POST
+	public Map<String, String> update(@Valid ExternalUserEntityDto externalUserDto, @Context HttpServletRequest request)
+					throws IOException, RestInterfaceException, ServletException {
+
+		logger.info("Update external user called for {}", externalUserDto.getExternalId());
+		
+		externalUserDtoService.updateExternalUser(externalUserDto);
+		
+		Map<String, String> map = new HashMap<>();
+		map.put("result", "success");
+		return map;
+	}
+
 	@Path(value = "/find/externalId/{externalId}")
 	@Produces({MediaType.APPLICATION_JSON})
 	@GET

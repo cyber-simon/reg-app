@@ -11,4 +11,6 @@ public interface ExternalUserDtoService extends BaseDtoService<ExternalUserEntit
 
 	void createExternalUser(ExternalUserEntityDto dto) throws UserCreateException;
 
+	void updateExternalUser(ExternalUserEntityDto dto) throws NoUserFoundException;
+
 }
