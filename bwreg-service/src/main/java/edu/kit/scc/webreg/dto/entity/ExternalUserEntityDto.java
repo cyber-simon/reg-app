@@ -3,10 +3,13 @@ package edu.kit.scc.webreg.dto.entity;
 import java.util.Map;
 import java.util.Set;
 
+import javax.validation.constraints.NotNull;
+
 public class ExternalUserEntityDto extends AbstractBaseEntityDto {
 
 	private static final long serialVersionUID = 1L;
 
+	@NotNull
 	private String externalId;
 	
     private Map<String, String> attributeStore; 
