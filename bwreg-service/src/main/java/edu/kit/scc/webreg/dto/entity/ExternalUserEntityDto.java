@@ -18,7 +18,7 @@ public class ExternalUserEntityDto extends AbstractBaseEntityDto {
 
     private String eppn;
 
-	private String emailAddress;
+	private String email;
 	
 	private String givenName;
 	
@@ -60,12 +60,12 @@ public class ExternalUserEntityDto extends AbstractBaseEntityDto {
 		this.eppn = eppn;
 	}
 
-	public String getEmailAddress() {
-		return emailAddress;
+	public String getEmail() {
+		return email;
 	}
 
-	public void setEmailAddress(String emailAddress) {
-		this.emailAddress = emailAddress;
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 	public Set<String> getEmailAddresses() {

@@ -34,8 +34,8 @@ public class ExternalUserReverseEntityMapper extends AbstractBaseReverseEntityMa
 
 	@Override
 	protected String[] getPropertiesToCopy() {
-		return new String[] {"externalId", "eppn", "emailAddress", 
-				"givenName", "surName", "uidNumber"};
+		return new String[] {"externalId", "eppn", "email", 
+				"givenName", "surName"};
 	}
 
 
