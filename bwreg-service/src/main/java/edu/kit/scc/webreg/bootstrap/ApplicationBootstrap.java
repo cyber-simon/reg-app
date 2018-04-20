@@ -106,6 +106,7 @@ public class ApplicationBootstrap {
     	checkRole("AuditAdmin");
     	checkRole("User");
     	checkRole("AttributeSourceAdmin");
+    	checkRole("ExternalUserAdmin");
     	
     	logger.info("Initializing admin Account");
     	if (adminUserService.findByUsername("admin") == null) {
