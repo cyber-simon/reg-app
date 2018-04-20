@@ -8,7 +8,10 @@ import edu.kit.scc.webreg.dao.ExternalUserDao;
 import edu.kit.scc.webreg.dto.entity.ExternalUserEntityDto;
 import edu.kit.scc.webreg.dto.mapper.BaseEntityMapper;
 import edu.kit.scc.webreg.dto.mapper.ExternalUserEntityMapper;
+import edu.kit.scc.webreg.dto.mapper.ExternalUserReverseEntityMapper;
 import edu.kit.scc.webreg.entity.ExternalUserEntity;
+import edu.kit.scc.webreg.exc.NoUserFoundException;
+import edu.kit.scc.webreg.exc.UserCreateException;
 
 @Stateless
 public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserEntity, ExternalUserEntityDto, Long> implements ExternalUserDtoService {
@@ -17,16 +20,31 @@ public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserE
 
 	@Inject
 	private ExternalUserEntityMapper mapper;
+
+	@Inject
+	private ExternalUserReverseEntityMapper reverseMapper;
 	
 	@Inject
 	private ExternalUserDao dao;
 
 	@Override
-	public ExternalUserEntityDto findByExternalId(String externalId) {
+	public ExternalUserEntityDto findByExternalId(String externalId) throws NoUserFoundException {
 		ExternalUserEntity entity = dao.findByExternalId(externalId);
+		if (entity == null)
+			throw new NoUserFoundException("no such user");
 		ExternalUserEntityDto dto = createNewDto();
 		mapper.copyProperties(entity, dto);
 		return dto;
+	}
+	
+	@Override
+	public void createExternalUser(ExternalUserEntityDto dto) throws UserCreateException {
+		ExternalUserEntity entity = dao.findByExternalId(dto.getExternalId());
+		if (entity != null)
+			throw new UserCreateException("user already exists");
+		entity = dao.createNew();
+		reverseMapper.copyProperties(dto, entity);
+		entity = dao.persist(entity);
 	}
 	
 	@Override
