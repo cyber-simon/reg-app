@@ -11,6 +11,7 @@ import edu.kit.scc.webreg.dto.mapper.BaseEntityMapper;
 import edu.kit.scc.webreg.dto.mapper.ExternalUserEntityMapper;
 import edu.kit.scc.webreg.dto.mapper.ExternalUserReverseEntityMapper;
 import edu.kit.scc.webreg.entity.ExternalUserEntity;
+import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.exc.NoUserFoundException;
 import edu.kit.scc.webreg.exc.RestInterfaceException;
 import edu.kit.scc.webreg.exc.UserCreateException;
@@ -50,6 +51,7 @@ public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserE
 		entity = dao.createNew();
 		reverseMapper.copyProperties(dto, entity);
 		entity.setUidNumber(serialDao.next("uid-number-serial").intValue());
+		entity.setUserStatus(UserStatus.ACTIVE);
 		entity = dao.persist(entity);
 	}
 	
@@ -60,7 +62,23 @@ public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserE
 			throw new NoUserFoundException("no such user");
 		reverseMapper.copyProperties(dto, entity);
 	}
-	
+
+	@Override
+	public void activateExternalUser(String externalId) throws RestInterfaceException {
+		ExternalUserEntity entity = dao.findByExternalId(externalId);
+		if (entity == null)
+			throw new NoUserFoundException("no such user");
+		entity.setUserStatus(UserStatus.ACTIVE);
+	}
+		
+	@Override
+	public void deactivateExternalUser(String externalId) throws RestInterfaceException {
+		ExternalUserEntity entity = dao.findByExternalId(externalId);
+		if (entity == null)
+			throw new NoUserFoundException("no such user");
+		entity.setUserStatus(UserStatus.ON_HOLD);
+	}
+		
 	@Override
 	protected BaseEntityMapper<ExternalUserEntity, ExternalUserEntityDto, Long> getMapper() {
 		return mapper;

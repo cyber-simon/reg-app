@@ -71,4 +71,20 @@ public class ExternalUserController {
 					throws IOException, RestInterfaceException, ServletException {
 		return externalUserDtoService.findByExternalId(externalId);
 	}
+	
+	@Path(value = "/activate/externalId/{externalId}")
+	@Produces({MediaType.APPLICATION_JSON})
+	@GET
+	public void activateUser(@PathParam("externalId") String externalId, @Context HttpServletRequest request)
+					throws IOException, RestInterfaceException, ServletException {
+		externalUserDtoService.activateExternalUser(externalId);
+	}
+
+	@Path(value = "/deactivate/externalId/{externalId}")
+	@Produces({MediaType.APPLICATION_JSON})
+	@GET
+	public void deactivateUser(@PathParam("externalId") String externalId, @Context HttpServletRequest request)
+					throws IOException, RestInterfaceException, ServletException {
+		externalUserDtoService.deactivateExternalUser(externalId);
+	}
 }

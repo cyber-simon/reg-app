@@ -30,6 +30,7 @@ import edu.kit.scc.webreg.audit.RegistryAuditor;
 import edu.kit.scc.webreg.audit.ServiceAuditor;
 import edu.kit.scc.webreg.audit.ServiceRegisterAuditor;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
+import edu.kit.scc.webreg.dao.ExternalUserDao;
 import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
@@ -96,6 +97,9 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	private UserDao userDao;
 
 	@Inject
+	private ExternalUserDao externalUserDao;
+	
+	@Inject
 	private GroupDao groupDao;
 
 	@Inject
@@ -126,23 +130,32 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	private ScriptingEnv scriptingEnv;
 
 	@Override
-	public void registerUser(UserEntity user, ServiceEntity service, String executor)
+	public RegistryEntity registerUser(UserEntity user, ServiceEntity service, String executor)
 			throws RegisterException {
-		registerUser(user, service, executor, true);
+		return registerUser(user, service, executor, true);
 	}
 
 	@Override
-	public void registerUser(UserEntity user, ServiceEntity service, String executor, Boolean sendGroupUpdate)
+	public RegistryEntity registerUser(UserEntity user, ServiceEntity service, String executor, Boolean sendGroupUpdate)
 			throws RegisterException {
-		registerUser(user, service, executor, sendGroupUpdate, null);
+		return registerUser(user, service, executor, sendGroupUpdate, null);
+	}
+
+	@Override
+	public RegistryEntity registerUser(String externalId, String shortName, String executor, Boolean sendGroupUpdate, Auditor parentAuditor)
+			throws RegisterException {
+		UserEntity user = externalUserDao.findByExternalId(externalId);
+		ServiceEntity service = serviceDao.findByShortName(shortName);
+		return registerUser(user, service, executor, sendGroupUpdate, parentAuditor);
 	}
 	
 	@Override
-	public void registerUser(UserEntity user, ServiceEntity service, String executor, Boolean sendGroupUpdate, Auditor parentAuditor)
+	public RegistryEntity registerUser(UserEntity user, ServiceEntity service, String executor, Boolean sendGroupUpdate, Auditor parentAuditor)
 			throws RegisterException {
 		
 		if (! UserStatus.ACTIVE.equals(user.getUserStatus())) {
-			logger.warn("Only Users in status ACTIVE can register with a service. User {} is {}", user.getEppn(), user.getUserStatus());
+			logger.warn("Only Users in status ACTIVE can register with a service. User {} ({}) is {}", user.getEppn()
+					,user.getId(), user.getUserStatus());
 			throw new RegisterException("Only Users in status ACTIVE can register with a service");
 		}
 		
@@ -211,6 +224,7 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 				approvalService.approve(registry, executor, auditor);
 			}
 			
+			return registry;
 		} catch (Throwable t) {
 			throw new RegisterException(t);
 		}    			

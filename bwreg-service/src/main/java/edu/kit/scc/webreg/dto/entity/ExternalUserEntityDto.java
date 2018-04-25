@@ -5,6 +5,8 @@ import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
+import edu.kit.scc.webreg.entity.UserStatus;
+
 public class ExternalUserEntityDto extends AbstractBaseEntityDto {
 
 	private static final long serialVersionUID = 1L;
@@ -31,6 +33,8 @@ public class ExternalUserEntityDto extends AbstractBaseEntityDto {
 	private GroupEntityDto primaryGroup;
 	
 	private Set<GroupEntityDto> secondaryGroups;
+	
+	private UserStatus userStatus;
 	
 	public String getExternalId() {
 		return externalId;
@@ -118,6 +122,14 @@ public class ExternalUserEntityDto extends AbstractBaseEntityDto {
 
 	public void setSecondaryGroups(Set<GroupEntityDto> secondaryGroups) {
 		this.secondaryGroups = secondaryGroups;
+	}
+
+	public UserStatus getUserStatus() {
+		return userStatus;
+	}
+
+	public void setUserStatus(UserStatus userStatus) {
+		this.userStatus = userStatus;
 	}
 	
 

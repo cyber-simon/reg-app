@@ -25,7 +25,7 @@ public interface RegisterUserService {
 
 	RegisterUserWorkflow getWorkflowInstance(String className);
 
-	void registerUser(UserEntity user, ServiceEntity service, String executor)
+	RegistryEntity registerUser(UserEntity user, ServiceEntity service, String executor)
 			throws RegisterException;
 
 	void reconsiliation(RegistryEntity registry, Boolean fullRecon,
@@ -57,14 +57,17 @@ public interface RegisterUserService {
 	void reconGroupsForRegistry(RegistryEntity registry, String executor)
 			throws RegisterException;
 
-	void registerUser(UserEntity user, ServiceEntity service, String executor,
+	RegistryEntity registerUser(UserEntity user, ServiceEntity service, String executor,
 			Boolean sendGroupUpdate) throws RegisterException;
 
 	void reconsiliation(RegistryEntity registry, Boolean fullRecon,
 			String executor) throws RegisterException;
 
-	void registerUser(UserEntity user, ServiceEntity service, String executor,
+	RegistryEntity registerUser(UserEntity user, ServiceEntity service, String executor,
 			Boolean sendGroupUpdate, Auditor parentAuditor)
 			throws RegisterException;
+
+	RegistryEntity registerUser(String externalId, String shortName, String executor, Boolean sendGroupUpdate,
+			Auditor parentAuditor) throws RegisterException;
 	
 }

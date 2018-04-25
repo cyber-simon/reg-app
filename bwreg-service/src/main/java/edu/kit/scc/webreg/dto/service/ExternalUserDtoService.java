@@ -12,4 +12,8 @@ public interface ExternalUserDtoService extends BaseDtoService<ExternalUserEntit
 
 	void updateExternalUser(ExternalUserEntityDto dto) throws RestInterfaceException ;
 
+	void activateExternalUser(String externalId) throws RestInterfaceException;
+
+	void deactivateExternalUser(String externalId) throws RestInterfaceException;
+
 }

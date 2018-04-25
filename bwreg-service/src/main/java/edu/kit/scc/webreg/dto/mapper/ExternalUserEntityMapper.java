@@ -52,7 +52,7 @@ public class ExternalUserEntityMapper extends AbstractBaseEntityMapper<ExternalU
 	@Override
 	protected String[] getPropertiesToCopy() {
 		return new String[] {"externalId", "eppn", "email", 
-				"givenName", "surName", "uidNumber"};
+				"givenName", "surName", "uidNumber", "userStatus"};
 	}
 
 }
