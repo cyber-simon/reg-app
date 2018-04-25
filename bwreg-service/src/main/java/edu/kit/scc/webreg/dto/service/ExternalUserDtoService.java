@@ -2,15 +2,14 @@ package edu.kit.scc.webreg.dto.service;
 
 import edu.kit.scc.webreg.dto.entity.ExternalUserEntityDto;
 import edu.kit.scc.webreg.entity.ExternalUserEntity;
-import edu.kit.scc.webreg.exc.NoUserFoundException;
-import edu.kit.scc.webreg.exc.UserCreateException;
+import edu.kit.scc.webreg.exc.RestInterfaceException;
 
 public interface ExternalUserDtoService extends BaseDtoService<ExternalUserEntity, ExternalUserEntityDto, Long> {
 
-	ExternalUserEntityDto findByExternalId(String externalId) throws NoUserFoundException;
+	ExternalUserEntityDto findByExternalId(String externalId) throws RestInterfaceException ;
 
-	void createExternalUser(ExternalUserEntityDto dto) throws UserCreateException;
+	void createExternalUser(ExternalUserEntityDto dto) throws RestInterfaceException ;
 
-	void updateExternalUser(ExternalUserEntityDto dto) throws NoUserFoundException;
+	void updateExternalUser(ExternalUserEntityDto dto) throws RestInterfaceException ;
 
 }

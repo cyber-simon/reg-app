@@ -12,6 +12,7 @@ import edu.kit.scc.webreg.dto.mapper.ExternalUserEntityMapper;
 import edu.kit.scc.webreg.dto.mapper.ExternalUserReverseEntityMapper;
 import edu.kit.scc.webreg.entity.ExternalUserEntity;
 import edu.kit.scc.webreg.exc.NoUserFoundException;
+import edu.kit.scc.webreg.exc.RestInterfaceException;
 import edu.kit.scc.webreg.exc.UserCreateException;
 
 @Stateless
@@ -42,7 +43,7 @@ public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserE
 	}
 	
 	@Override
-	public void createExternalUser(ExternalUserEntityDto dto) throws UserCreateException {
+	public void createExternalUser(ExternalUserEntityDto dto) throws RestInterfaceException {
 		ExternalUserEntity entity = dao.findByExternalId(dto.getExternalId());
 		if (entity != null)
 			throw new UserCreateException("user already exists");
@@ -53,7 +54,7 @@ public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserE
 	}
 	
 	@Override
-	public void updateExternalUser(ExternalUserEntityDto dto) throws NoUserFoundException {
+	public void updateExternalUser(ExternalUserEntityDto dto) throws RestInterfaceException {
 		ExternalUserEntity entity = dao.findByExternalId(dto.getExternalId());
 		if (entity == null)
 			throw new NoUserFoundException("no such user");

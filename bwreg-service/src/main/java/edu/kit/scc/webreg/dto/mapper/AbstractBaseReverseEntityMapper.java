@@ -7,20 +7,21 @@ import org.apache.commons.beanutils.PropertyUtils;
 
 import edu.kit.scc.webreg.dto.entity.BaseEntityDto;
 import edu.kit.scc.webreg.entity.BaseEntity;
+import edu.kit.scc.webreg.exc.RestInterfaceException;
 
 public abstract class AbstractBaseReverseEntityMapper<E extends BaseEntityDto<PK>, T extends BaseEntity<PK>, PK extends Serializable>
 		implements BaseReverseEntityMapper<E, T, PK>, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-    protected abstract void copyAllProperties(E fromBaseEntity, T toDtoEntity); 
+    protected abstract void copyAllProperties(E fromBaseEntity, T toDtoEntity) throws RestInterfaceException; 
 
 	protected String[] getPropertiesToCopy() {
 		return new String[]{};
 	}
 	
 	@Override
-	public void copyProperties(E fromBaseEntity, T toDtoEntity) {
+	public void copyProperties(E fromBaseEntity, T toDtoEntity) throws RestInterfaceException {
 		
 		copy(fromBaseEntity, toDtoEntity, getPropertiesToCopy());
 		copyAllProperties(fromBaseEntity, toDtoEntity);
