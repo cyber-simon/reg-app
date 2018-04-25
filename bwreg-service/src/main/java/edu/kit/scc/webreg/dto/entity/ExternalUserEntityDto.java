@@ -28,6 +28,10 @@ public class ExternalUserEntityDto extends AbstractBaseEntityDto {
 	
 	private Set<String> emailAddresses;
 
+	private GroupEntityDto primaryGroup;
+	
+	private Set<GroupEntityDto> secondaryGroups;
+	
 	public String getExternalId() {
 		return externalId;
 	}
@@ -98,6 +102,22 @@ public class ExternalUserEntityDto extends AbstractBaseEntityDto {
 
 	public void setUidNumber(Integer uidNumber) {
 		this.uidNumber = uidNumber;
+	}
+
+	public GroupEntityDto getPrimaryGroup() {
+		return primaryGroup;
+	}
+
+	public void setPrimaryGroup(GroupEntityDto primaryGroup) {
+		this.primaryGroup = primaryGroup;
+	}
+
+	public Set<GroupEntityDto> getSecondaryGroups() {
+		return secondaryGroups;
+	}
+
+	public void setSecondaryGroups(Set<GroupEntityDto> secondaryGroups) {
+		this.secondaryGroups = secondaryGroups;
 	}
 	
 
