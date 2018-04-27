@@ -19,55 +19,28 @@ import javax.inject.Inject;
 
 import org.primefaces.model.LazyDataModel;
 
-import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
+import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.model.GenericLazyDataModelImpl;
-import edu.kit.scc.webreg.service.BusinessRulePackageService;
-import edu.kit.scc.webreg.service.BusinessRuleService;
+import edu.kit.scc.webreg.service.ScriptService;
 
 @ManagedBean
 @ViewScoped
-public class ListBusinessRuleBean implements Serializable {
+public class ListScriptBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private LazyDataModel<BusinessRulePackageEntity> list;
+	private LazyDataModel<ScriptEntity> list;
     
-	private String regex;
-	private String replace;
-	
     @Inject
-    private BusinessRulePackageService service;
-
-    @Inject
-    private BusinessRuleService businessRuleService;
+    private ScriptService service;
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (list == null) {
-			list = new GenericLazyDataModelImpl<BusinessRulePackageEntity, BusinessRulePackageService, Long>(service, "rules");
+			list = new GenericLazyDataModelImpl<ScriptEntity, ScriptService, Long>(service);
 		}
 	}
 
-    public LazyDataModel<BusinessRulePackageEntity> getList() {
+    public LazyDataModel<ScriptEntity> getList() {
    		return list;
     }
-
-    public void regexReplace() {
-    	businessRuleService.replaceRegex(regex, replace);
-    }
-
-	public String getRegex() {
-		return regex;
-	}
-
-	public void setRegex(String regex) {
-		this.regex = regex;
-	}
-
-	public String getReplace() {
-		return replace;
-	}
-
-	public void setReplace(String replace) {
-		this.replace = replace;
-	}
 }
