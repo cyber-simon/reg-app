@@ -106,7 +106,12 @@ public class ViewIds {
 	public static final String ADD_RULE_PACKAGE = "/admin/business-rule/add-rule-package.xhtml";	
 	public static final String EDIT_RULE_PACKAGE = "/admin/business-rule/edit-rule-package.xhtml";	
 	public static final String SHOW_RULE_PACKAGE = "/admin/business-rule/show-rule-package.xhtml";	
-	
+
+	public static final String ADD_SCRIPT = "/admin/business-rule/add-script.xhtml";	
+	public static final String EDIT_SCRIPT = "/admin/business-rule/edit-script.xhtml";	
+	public static final String SHOW_SCRIPT = "/admin/business-rule/show-script.xhtml";	
+	public static final String LIST_SCRIPTS = "/admin/business-rule/list-scripts.xhtml";	
+
 	/*
 	 * Timer and Schedule
 	 */
