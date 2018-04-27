@@ -84,7 +84,7 @@ public abstract class JpaBaseDao<T extends BaseEntity<PK>, PK extends Serializab
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<T> findAllPaging(int first, int pageSize, String sortField,
-			GenericSortOrder sortOrder, Map<String, Object> filterMap) {
+			GenericSortOrder sortOrder, Map<String, Object> filterMap, String... attrs) {
 
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<T> criteria = builder.createQuery(getEntityClass());
@@ -94,7 +94,13 @@ public abstract class JpaBaseDao<T extends BaseEntity<PK>, PK extends Serializab
 		criteria.where(builder.and(predicates.toArray(new Predicate[predicates.size()])));
 		
 		criteria.select(root);
-
+		if (attrs != null) {
+			criteria.distinct(true);
+			
+			for (String attr : attrs)
+				root.fetch(attr, JoinType.LEFT);			
+		}
+		
 		if (sortField != null && sortOrder != null && sortOrder != GenericSortOrder.NONE) {
 			criteria.orderBy(getSortOrder(builder, root, sortField, sortOrder));
 		}

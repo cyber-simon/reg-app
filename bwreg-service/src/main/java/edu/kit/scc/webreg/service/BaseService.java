@@ -34,7 +34,7 @@ public interface BaseService<T extends BaseEntity<PK>, PK extends Serializable> 
     T findByIdWithAttrs(PK id, String... attrs);
 
 	List<T> findAllPaging(int first, int pageSize, String sortField,
-			GenericSortOrder sortOrder, Map<String, Object> filterMap);
+			GenericSortOrder sortOrder, Map<String, Object> filterMap, String... attrs);
 
 	Number countAll(Map<String, Object> filterMap);
 

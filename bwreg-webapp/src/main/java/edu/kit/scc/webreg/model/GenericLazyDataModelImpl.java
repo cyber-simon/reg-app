@@ -30,6 +30,7 @@ public class GenericLazyDataModelImpl<E extends BaseEntity<PK>, T extends BaseSe
 	private T service;
 
 	private Map<String, Object> additionalFilterMap;
+	private String[] attrs;
 	
 	public GenericLazyDataModelImpl(T service) {
 		super();
@@ -39,6 +40,17 @@ public class GenericLazyDataModelImpl<E extends BaseEntity<PK>, T extends BaseSe
 	public GenericLazyDataModelImpl(T service, Map<String, Object> additionalFilterMap) {
 		this(service);
 		this.additionalFilterMap = additionalFilterMap;
+	}
+
+	public GenericLazyDataModelImpl(T service, Map<String, Object> additionalFilterMap, String... attrs) {
+		this(service);
+		this.additionalFilterMap = additionalFilterMap;
+		this.attrs = attrs;
+	}
+
+	public GenericLazyDataModelImpl(T service, String... attrs) {
+		this(service);
+		this.attrs = attrs;
 	}
 	
 	@Override
@@ -52,11 +64,11 @@ public class GenericLazyDataModelImpl<E extends BaseEntity<PK>, T extends BaseSe
 		List<E> returnList;
 		
 		if (sortOrder == SortOrder.ASCENDING)
-			returnList = getService().findAllPaging(first, pageSize, sortField, GenericSortOrder.ASC, filterMap);
+			returnList = getService().findAllPaging(first, pageSize, sortField, GenericSortOrder.ASC, filterMap, attrs);
 		else if (sortOrder == SortOrder.DESCENDING)
-			returnList = getService().findAllPaging(first, pageSize, sortField, GenericSortOrder.DESC, filterMap);
+			returnList = getService().findAllPaging(first, pageSize, sortField, GenericSortOrder.DESC, filterMap, attrs);
 		else
-			returnList = getService().findAllPaging(first, pageSize, sortField, GenericSortOrder.NONE, filterMap);
+			returnList = getService().findAllPaging(first, pageSize, sortField, GenericSortOrder.NONE, filterMap, attrs);
 		
 		setPageSize(pageSize);
 		

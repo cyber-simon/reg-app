@@ -52,8 +52,8 @@ public abstract class BaseServiceImpl<T extends BaseEntity<PK>, PK extends Seria
 
 	@Override
 	public List<T> findAllPaging(int first, int pageSize, String sortField,
-			GenericSortOrder sortOrder, Map<String, Object> filterMap) {
-		return getDao().findAllPaging(first, pageSize, sortField, sortOrder, filterMap);
+			GenericSortOrder sortOrder, Map<String, Object> filterMap, String... attrs) {
+		return getDao().findAllPaging(first, pageSize, sortField, sortOrder, filterMap, attrs);
 	}
 	
 	@Override
