@@ -47,6 +47,12 @@
 				</f:facet>
 					<h:outputText value="#{entity.scriptEngine}" />
 			</p:column>
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.script_type}" />
+				</f:facet>
+					<h:outputText value="#{entity.scriptType}" />
+			</p:column>
 		</p:dataTable>
 
         <h:link outcome="add-script.xhtml" value="#{messages.add_script}"/><br/>

@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="scriptId" value="#{showScriptBean.id}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{showScriptBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+		<h2><h:outputText value="#{messages.business_rule}: #{showScriptBean.entity.name}"/></h2>
+	
+		<div id="panelInline">
+			<p:panel header="#{messages.business_rule}">
+				<p:panelGrid id="baseData" columns="2">
+		
+			        <h:outputText value="#{messages.id}:"/>
+			        <h:outputText value="#{showScriptBean.entity.id}"/>
+			
+			        <h:outputText value="#{messages.name}:"/>
+			        <h:outputText value="#{showScriptBean.entity.name}"/>
+						
+			        <h:outputText value="#{messages.script_engine}:"/>
+			        <h:outputText value="#{showScriptBean.entity.scriptEngine}"/>
+						
+			        <h:outputText value="#{messages.script_type}:"/>
+			        <h:outputText value="#{showScriptBean.entity.scriptType}"/>
+						
+			        <h:outputText value="#{messages.script}:"/>
+			        <h:panelGroup>
+			        	<div style="font-family: 'Courier New', monospace; white-space: pre; font-size: 70%;">
+			        		<h:outputText value="#{showScriptBean.entity.script}"/>
+			        	</div> 
+					</h:panelGroup>
+					
+				</p:panelGrid>
+				
+				<h:link outcome="edit-script.xhtml" value="#{messages.edit}">
+					<f:param name="scriptId" value="#{showScriptBean.entity.id}"/>
+				</h:link>
+			</p:panel>
+		</div>
+
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>
