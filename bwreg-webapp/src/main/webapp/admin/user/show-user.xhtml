@@ -62,11 +62,18 @@
 				        <h:outputText value="#{showUserBean.entity.uidNumber}"/>
 							
 				        <h:outputText value="#{messages.primary_group}:"/>
-				        <h:outputText value="#{showUserBean.entity.primaryGroup.name} (Prefix: #{showUserBean.entity.primaryGroup.prefix}, GID: #{showUserBean.entity.primaryGroup.gidNumber})"/>
-							
+				        <h:panelGroup>
+					        <h:outputText value="#{showUserBean.entity.primaryGroup.name} ("/>
+					        <h:outputText value="Prefix: #{showUserBean.entity.primaryGroup.prefix}" rendered="#{showUserBean.entity.primaryGroup.class.simpleName == 'HomeOrgGroupEntity'}"/>
+					        <h:outputText value=", GID: #{showUserBean.entity.primaryGroup.gidNumber})"/>
+						</h:panelGroup>
+						
 				        <h:outputText value="#{messages.persistent_id}:"/>
-				        <h:outputText value="#{showUserBean.entity.persistentId} (#{showUserBean.entity.persistentSpId}, #{showUserBean.entity.persistentIdpId})"/>
-
+				        <h:panelGroup>
+				        	<h:outputText value="#{showUserBean.entity.persistentId} (#{showUserBean.entity.persistentSpId}, #{showUserBean.entity.persistentIdpId})" rendered="#{showUserBean.entity.class.simpleName == 'SamlUserEntity'}"/>
+				        	<h:outputText value="#{showUserBean.entity.externalId} (externalId)" rendered="#{showUserBean.entity.class.simpleName == 'ExternalUserEntity'}"/>
+						</h:panelGroup>
+						
 				        <h:outputText value="#{messages.status}:"/>
 				        <h:outputText value="#{showUserBean.entity.userStatus}"/>
 
