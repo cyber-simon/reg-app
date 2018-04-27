@@ -14,6 +14,8 @@ import javax.ws.rs.core.MediaType;
 
 import org.slf4j.Logger;
 
+import edu.kit.scc.webreg.dto.entity.RegistryEntityDto;
+import edu.kit.scc.webreg.dto.service.RegistryDtoService;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.exc.RestInterfaceException;
@@ -28,16 +30,19 @@ public class ExternalRegistryController {
 	@Inject
 	private RegisterUserService registerUserService;
 	
+	@Inject
+	private RegistryDtoService registryDtoService;
+	
 	@Path(value = "/register/externalId/{externalId}/ssn/{ssn}")
 	@Produces({MediaType.APPLICATION_JSON})
 	@GET
-	public RegistryEntity registerExternalUser(@PathParam("externalId") String externalId,
+	public RegistryEntityDto registerExternalUser(@PathParam("externalId") String externalId,
 			@PathParam("ssn") String ssn, @Context HttpServletRequest request)
 			throws IOException, RestInterfaceException, ServletException {
 		RegistryEntity registry;
 		try {
 			registry = registerUserService.registerUser(externalId, ssn, "external", true, null);
-			return registry;
+			return registryDtoService.findById(registry.getId());
 		} catch (RegisterException e) {
 			logger.info("Exception", e);
 			return null;
