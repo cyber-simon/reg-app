@@ -148,58 +148,70 @@ public class RegisterServiceBean implements Serializable {
 			if (! registerUserService.checkWorkflow(service.getRegisterBean()))
 				throw new MisconfiguredServiceException("Der Registrierungsprozess für den Dienst ist nicht korrekt konfiguriert");
 
-    		
-			List<Object> objectList;
-			
-			if (service.getAccessRule() == null) {
-				objectList = knowledgeSessionService.checkRule("default", "permitAllRule", "1.0.0", user, service, null, "user-self", false);
-			}
-			else {
-				BusinessRulePackageEntity rulePackage = service.getAccessRule().getRulePackage();
-				if (rulePackage != null) {
-					objectList = knowledgeSessionService.checkRule(rulePackage.getPackageName(), rulePackage.getKnowledgeBaseName(), 
-						rulePackage.getKnowledgeBaseVersion(), user, service, null, "user-self", false);
-				}
-				else {
-					throw new IllegalStateException("checkServiceAccess called with a rule (" +
-								service.getAccessRule().getName() + ") that has no rulePackage");
-				}
-			}
-
-			requirementsList = new ArrayList<String>();
-			for (Object o : objectList) {
-				if (o instanceof OverrideAccess) {
-					requirementsList.clear();
-					logger.debug("Removing requirements due to OverrideAccess");
-					break;
-				}
-				else if (o instanceof UnauthorizedUser) {
-					String s = ((UnauthorizedUser) o).getMessage();
-					requirementsList.add(s);
-				}
-			}
-
-			if (requirementsList.size() == 0) {
-				accessAllowed = true;
-			}
-			else {
-				accessAllowed = false;
-			}
-
-			for (String s : requirementsList) {
-	    		messageGenerator.addResolvedErrorMessage("reqs", "error", s, true);
-			}
+    		checkUserAccess();
 			
 			initialzed = true;
 		}
 	}
 
+	public void checkUserAccess() {
+		List<Object> objectList;
+		
+		if (service.getAccessRule() == null) {
+			objectList = knowledgeSessionService.checkRule("default", "permitAllRule", "1.0.0", user, service, null, "user-self", false);
+		}
+		else {
+			BusinessRulePackageEntity rulePackage = service.getAccessRule().getRulePackage();
+			if (rulePackage != null) {
+				objectList = knowledgeSessionService.checkRule(rulePackage.getPackageName(), rulePackage.getKnowledgeBaseName(), 
+					rulePackage.getKnowledgeBaseVersion(), user, service, null, "user-self", false);
+			}
+			else {
+				throw new IllegalStateException("checkServiceAccess called with a rule (" +
+							service.getAccessRule().getName() + ") that has no rulePackage");
+			}
+		}
+
+		requirementsList = new ArrayList<String>();
+		for (Object o : objectList) {
+			if (o instanceof OverrideAccess) {
+				requirementsList.clear();
+				logger.debug("Removing requirements due to OverrideAccess");
+				break;
+			}
+			else if (o instanceof UnauthorizedUser) {
+				String s = ((UnauthorizedUser) o).getMessage();
+				requirementsList.add(s);
+			}
+		}
+
+		if (requirementsList.size() == 0) {
+			accessAllowed = true;
+		}
+		else {
+			accessAllowed = false;
+		}
+
+		for (String s : requirementsList) {
+    		messageGenerator.addResolvedErrorMessage("reqs", "error", s, true);
+		}
+	}
+	
     public String registerUser() {
+
+		checkUserAccess();
 
     	if (! accessAllowed) {
     		messageGenerator.addErrorMessage("need_check", "Zugangsvorraussetzungen!", "Sie erfüllen nicht alle Zugangsvorraussetzungen.");
 			return null;
     	}
+
+		List<RegistryEntity> r = registryService.findByServiceAndUserAndNotStatus(service, user, 
+				RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
+		if (r.size() != 0) {
+    		messageGenerator.addResolvedErrorMessage("errorState", "error", "already_registered", true);
+			return null;
+		}
     	
     	logger.debug("testing all checkboxes");
     	
