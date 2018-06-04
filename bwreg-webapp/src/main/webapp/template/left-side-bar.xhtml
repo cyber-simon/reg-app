@@ -131,7 +131,7 @@
        </div>
 	  </ui:repeat>
 	  	
-      <ui:repeat var="serviceId" value="#{authorizationBean.serviceApproverList}">
+      <ui:repeat var="service" value="#{authorizationBean.serviceApproverList}">
        <div class="submenu">
         <div class="submenu-title">#{service.name} Approver</div>
         <div class="submenu-content">
@@ -148,7 +148,7 @@
        </div>
 	  </ui:repeat>
 
-      <ui:repeat var="serviceId" value="#{authorizationBean.serviceGroupAdminList}">
+      <ui:repeat var="service" value="#{authorizationBean.serviceGroupAdminList}">
        <div class="submenu">
         <div class="submenu-title">#{service.name} GroupAdmin</div>
         <div class="submenu-content">
