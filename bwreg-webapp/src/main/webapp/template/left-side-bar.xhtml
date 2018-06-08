@@ -23,7 +23,7 @@
 		  <ul>
 	        <li><span class="ui-icon ui-icon-home" style="display:inline-block; vertical-align: bottom;" /><a href="#{request.contextPath}/index.xhtml">#{messages.index}</a></li>
             <li><span class="ui-icon ui-icon-star" style="display:inline-block; vertical-align: bottom;" />
-	    	  <h:link outcome="#{request.contextPath}/user/index.xhtml" value="#{messages.user_properties}" />
+	    	  <h:link outcome="#{request.contextPath}/user/index.xhtml" value="#{messages.my_data}" />
 			</li>
 			<h:panelGroup rendered="#{authorizationBean.appConfig.getConfigValue('show_user_attribute_source').equalsIgnoreCase('true')}">
 	            <li><span class="ui-icon ui-icon-suitcase" style="display:inline-block; vertical-align: bottom;" />
