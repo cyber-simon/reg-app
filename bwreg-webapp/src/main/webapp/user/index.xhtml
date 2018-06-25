@@ -26,36 +26,64 @@
 	<h:form>
 
 	<div class="panel">
-		<p:panel header="#{messages.my_data}">
-			<p:panelGrid id="baseData" columns="2">
-				<bw:outputText label="#{messages.name}" value="#{userPropertiesBean.user.surName}, #{userPropertiesBean.user.givenName}"/>
-				<bw:outputText label="#{messages.email}" value="#{userPropertiesBean.user.email}"/>
-				<bw:outputText label="#{messages.eppn}" value="#{userPropertiesBean.user.eppn}"/>
-				<bw:outputText label="#{messages.persistent_id}" value="#{userPropertiesBean.user.persistentId}"/>
-				<bw:outputText label="#{messages.uid_number}" value="#{userPropertiesBean.user.uidNumber}"/>
-				<bw:outputText label="#{messages.primary_group}" value="#{userPropertiesBean.user.primaryGroup.name} (#{userPropertiesBean.user.primaryGroup.gidNumber})"/>
-				
-				<bw:outputText label="#{messages.home_org}" value="#{userPropertiesBean.idpEntity.orgName}"
-					rendered="#{not empty userPropertiesBean.idpEntity.orgName}"/>
-				<bw:outputText label="#{messages.idp}" value="#{userPropertiesBean.idpEntity.displayName}"
-					rendered="#{not empty userPropertiesBean.idpEntity.displayName}"/>
-				
-				<bw:outputText label="#{messages.last_account_update}" 
-						value="#{of:formatDate(userPropertiesBean.user.lastUpdate, 'dd.MM.yyyy HH:mm')}"/>
-				<bw:outputPanelGroup label="#{messages.roles}">
-					<ui:repeat var="role" value="#{userPropertiesBean.roleList}">
-						<h:outputText value="#{role.name}" styleClass="value_normal" /><br/>
-					</ui:repeat>
-				</bw:outputPanelGroup>
+		<p:tabView id="tabVw" dynamic="true" cache="true">
+			<p:tab id="tab1" title="#{messages.my_data}">
+				<div class="panel">#{messages.my_data_explanation}</div>
+				<div class="panel">#{messages.data_from}: <b>#{userPropertiesBean.idpEntity.orgName}</b></div>
+				<p:panelGrid id="baseData" columns="2">
+					<bw:outputText label="#{messages.name}" value="#{userPropertiesBean.user.surName}, #{userPropertiesBean.user.givenName}"/>
+					<bw:outputText label="#{messages.email}" value="#{userPropertiesBean.user.email}"/>
+					<bw:outputText label="#{messages.eppn}" value="#{userPropertiesBean.user.eppn}"/>
+					<bw:outputText label="#{messages.persistent_id}" value="#{userPropertiesBean.user.persistentId}"/>
+					<bw:outputText label="#{messages.uid_number}" value="#{userPropertiesBean.user.uidNumber}"/>
+					<bw:outputText label="#{messages.primary_group}" value="#{userPropertiesBean.user.primaryGroup.name} (#{userPropertiesBean.user.primaryGroup.gidNumber})"/>
+					
+					<bw:outputText label="#{messages.idp}" value="#{userPropertiesBean.idpEntity.displayName}"
+						rendered="#{not empty userPropertiesBean.idpEntity.displayName}"/>
+					
+				</p:panelGrid>
+			</p:tab>
 
-				<bw:outputPanelGroup label="#{messages.entitlement}" rendered="#{not empty userPropertiesBean.user.attributeStore.get('urn:oid:1.3.6.1.4.1.5923.1.1.1.7')}">
-					<ui:repeat var="ent" value="#{userPropertiesBean.user.attributeStore.get('urn:oid:1.3.6.1.4.1.5923.1.1.1.7').split(';')}">
-						<h:outputText value="#{ent}" styleClass="value_normal" /><br/>
-					</ui:repeat>
-				</bw:outputPanelGroup>
+			<p:tab id="tab2" title="#{messages.shibboleth}">
+				<div class="panel">#{messages.my_data_from_saml} #{of:formatDate(userPropertiesBean.user.lastUpdate, 'dd.MM.yyyy HH:mm')}</div>
+				<p:dataTable id="attrData" style="min-width: 500px;" 
+						value="#{userPropertiesBean.user.attributeStore.keySet().toArray()}" var="key">
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.name}" />
+						</f:facet>
+						<h:outputText value="#{key}" style="font-size: 80%;" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.value}" />
+						</f:facet>
+						<h:outputText value="#{userPropertiesBean.user.attributeStore.get(key)}" />
+					</p:column>						
+				</p:dataTable>
+			</p:tab>
 
-			</p:panelGrid>
-		</p:panel>
+			<p:tab id="tab3" title="#{messages.groups}">
+				<div class="panel">#{messages.my_data_groups}</div>
+				<p:dataTable id="secGroupData" style="min-width: 500px;" 
+						value="#{userPropertiesBean.groupList}" var="group">
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.name}" />
+						</f:facet>
+						<h:outputText value="#{group.class.simpleName}: #{group.name} " />
+						<h:outputText value="(#{group.prefix})" rendered="#{group.class.simpleName == 'HomeOrgGroupEntity'}" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.id}" />
+						</f:facet>
+						<h:outputText value="#{group.gidNumber}" />
+					</p:column>
+				</p:dataTable>
+			</p:tab>
+									
+		</p:tabView>
 	</div>
 	</h:form>
 	</ui:define>
