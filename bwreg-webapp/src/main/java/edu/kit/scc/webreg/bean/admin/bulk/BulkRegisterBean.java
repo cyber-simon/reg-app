@@ -56,7 +56,7 @@ public class BulkRegisterBean implements Serializable {
 	@Inject
 	private RegisterUserService registerUserService;
 	
-	private String eppnField = "ls1947@kit.edu\nugcne@student.kit.edu";
+	private String eppnField = "user1@org2.de\nuser2@org1.edu";
 	
 	private List<RegisterUser> registerUserList;
 

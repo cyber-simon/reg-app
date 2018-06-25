@@ -85,7 +85,7 @@
 			        <h:outputText value="#{messages.access_rule}:"/>
 			        <h:selectOneMenu value="#{editServiceBean.selectedRule}"
 			        	converter="#{businessRuleConverter}">
-			        	<f:selectItem itemLabel="Kein Regel (offener Zugang)" itemValue="#{null}"/>
+			        	<f:selectItem itemLabel="Keine Regel (offener Zugang)" itemValue="#{null}"/>
 		            	<f:selectItems value="#{editServiceBean.ruleList}" 
 		            		var="rule" itemLabel="#{rule.name} (id #{rule.id})" itemValue="#{rule}"/>
 		            </h:selectOneMenu>
@@ -93,7 +93,7 @@
 			        <h:outputText value="#{messages.group_filter_rule}:"/>
 			        <h:selectOneMenu value="#{editServiceBean.selectedRulePackage}"
 			        	converter="#{businessRulePackageConverter}">
-			        	<f:selectItem itemLabel="Kein Filter (alle Gruppen)" itemValue="#{null}"/>
+			        	<f:selectItem itemLabel="Keine Filter (alle Gruppen)" itemValue="#{null}"/>
 		            	<f:selectItems value="#{editServiceBean.rulePackageList}" 
 		            		var="rp" itemLabel="#{rp.knowledgeBaseName} (#{rp.packageName})" itemValue="#{rp}"/>
 		            </h:selectOneMenu>
@@ -101,7 +101,7 @@
 			        <h:outputText value="#{messages.mandatory_values_rule}:"/>
 			        <h:selectOneMenu value="#{editServiceBean.selectedMandatoryValuesRulePackage}"
 			        	converter="#{businessRulePackageConverter}">
-			        	<f:selectItem itemLabel="Kein Pflichtwerte" itemValue="#{null}"/>
+			        	<f:selectItem itemLabel="Keine Pflichtwerte" itemValue="#{null}"/>
 		            	<f:selectItems value="#{editServiceBean.rulePackageList}" 
 		            		var="rp" itemLabel="#{rp.knowledgeBaseName} (#{rp.packageName})" itemValue="#{rp}"/>
 		            </h:selectOneMenu>
