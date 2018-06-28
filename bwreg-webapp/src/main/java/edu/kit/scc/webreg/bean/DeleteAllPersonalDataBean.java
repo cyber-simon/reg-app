@@ -68,7 +68,7 @@ public class DeleteAllPersonalDataBean implements Serializable {
 
 	public String commit() {
 		userDeleteService.deleteUserData(user, "user-" + user.getId());
-		return "/logout/local?redirect=delete";
+		return "/logout/local?redirect=delete&faces-redirect=true";
 	}
 	
 	public UserEntity getUser() {
