@@ -47,4 +47,11 @@ public class PFAccountServiceImpl implements PFAccountService {
 		PFWorker pfWorker = new PFWorker(PropertyReader.newRegisterPropReader(serviceEntity), null);
 		return pfWorker.storeAccount(account);
 	}
+	
+	@Override
+	public void setActivationDate(PFAccount account, ServiceEntity serviceEntity) throws RegisterException {
+		serviceEntity = serviceService.findByIdWithServiceProps(serviceEntity.getId());
+		PFWorker pfWorker = new PFWorker(PropertyReader.newRegisterPropReader(serviceEntity), null);
+		pfWorker.setActivationDate(account);
+	}	
 }

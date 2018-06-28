@@ -19,5 +19,5 @@ public interface PFAccountService {
 	public PFAccount findByUsername(String username, ServiceEntity serviceEntity) throws RegisterException;
 	PFAccount update(PFAccount account, ServiceEntity serviceEntity)
 			throws RegisterException;
-	
+	void setActivationDate(PFAccount account, ServiceEntity serviceEntity) throws RegisterException;
 }

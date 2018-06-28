@@ -125,6 +125,17 @@ public class PFWorker {
 		
 		return accountSerializer.unmarshal(userData);		
 	}
+
+	public void setActivationDate(PFAccount pfAccount) throws RegisterException {
+		
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		
+		parameterMap.put("ID", pfAccount.getId());
+		parameterMap.put("action", "setActivationDate");
+
+		String s = executeGet(parameterMap);
+		logger.info("Set Activation Date for {}: ", pfAccount.getId(), s);
+	}
 	
 	public PFAccount getAccountInfoById(String id) throws RegisterException {
 

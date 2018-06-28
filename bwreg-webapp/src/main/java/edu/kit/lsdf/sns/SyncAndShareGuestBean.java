@@ -212,6 +212,7 @@ public class SyncAndShareGuestBean implements Serializable {
 			pfAccount.setSpaceAllowed("0");
 			pfAccount.setNotes("Accepted TOU in Webreg");
 			pfAccountService.update(pfAccount, serviceEntity);
+			pfAccountService.setActivationDate(pfAccount, serviceEntity);
 		} catch (RegisterException e) {
 			messageGenerator.addErrorMessage(e.toString());
 			return null;
