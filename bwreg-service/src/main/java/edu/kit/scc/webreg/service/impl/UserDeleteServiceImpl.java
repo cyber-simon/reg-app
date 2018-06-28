@@ -24,6 +24,7 @@ import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.RoleDao;
 import edu.kit.scc.webreg.dao.SamlUserDao;
+import edu.kit.scc.webreg.dao.SerialDao;
 import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
@@ -67,6 +68,9 @@ public class UserDeleteServiceImpl implements UserDeleteService {
 	@Inject
 	private RoleDao roleDao;
 
+	@Inject
+	private SerialDao serialDao;
+	
 	@Inject
 	private ApplicationConfig appConfig;
 
@@ -126,6 +130,7 @@ public class UserDeleteServiceImpl implements UserDeleteService {
 		user.setGivenName(null);
 		user.setSurName(null);
 		user.setPersistentId(null);
+		user.setUidNumber(serialDao.next("uid-number-serial").intValue());
 		user.setUserStatus(UserStatus.DEREGISTERED);
 		user.setLastStatusChange(new Date());
 		
