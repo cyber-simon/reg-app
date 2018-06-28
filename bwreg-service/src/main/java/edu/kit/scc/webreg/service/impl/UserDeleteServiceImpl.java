@@ -76,6 +76,9 @@ public class UserDeleteServiceImpl implements UserDeleteService {
 		user = samlUserDao.findById(user.getId());
 		UserDeleteAuditor auditor = new UserDeleteAuditor(auditEntryDao, auditDetailDao, appConfig);
 		auditor.startAuditTrail(executor, true);
+		auditor.setName("UserDelete-Audit");
+		auditor.setDetail("delete all personal data for user " + user.getEppn() + " " + user.getId());
+		auditor.setUser(user);
 		
 		List<RegistryEntity> registryList = registryDao.findByUser(user);
 		for (RegistryEntity registry : registryList) {
