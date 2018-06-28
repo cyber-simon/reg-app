@@ -471,6 +471,11 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 
 	@Override
 	public void deregisterUser(RegistryEntity registry, String executor) throws RegisterException {
+		deregisterUser(registry, executor, null);
+	}
+	
+	@Override
+	public void deregisterUser(RegistryEntity registry, String executor, Auditor parentAuditor) throws RegisterException {
 		
 		if (RegistryStatus.DELETED.equals(registry.getRegistryStatus())) {
 			throw new RegisterException("Registry " + registry.getId() + " is already deregistered!");
@@ -486,6 +491,7 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 			auditor.startAuditTrail(executor);
 			auditor.setName(workflow.getClass().getName() + "-Deregister-Audit");
 			auditor.setDetail("Deregister user " + registry.getUser().getEppn() + " for service " + serviceEntity.getName());
+			auditor.setParent(parentAuditor);
 			auditor.setRegistry(registry);
 			
 			workflow.deregisterUser(userEntity, serviceEntity, registry, auditor);
@@ -523,7 +529,9 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 			eventSubmitter.submit(serviceRegisterEvent, eventList, EventType.SERVICE_DEREGISTER, executor);
 			
 			auditor.finishAuditTrail();
-			auditor.commitAuditTrail();
+			if (parentAuditor == null) {
+				auditor.commitAuditTrail();
+			}
 
 		} catch (RegisterException e) {
 			throw e;

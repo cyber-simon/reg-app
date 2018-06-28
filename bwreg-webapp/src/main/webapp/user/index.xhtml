@@ -42,6 +42,12 @@
 						rendered="#{not empty userPropertiesBean.idpEntity.displayName}"/>
 					
 				</p:panelGrid>
+				<div class="panel">#{messages.my_data_delete_all}
+				</div>
+				<div class="panel">
+					<h:link outcome="/user/delete-all-personal-data.xhtml" value="#{messages.my_data_delete_all_link}">
+					</h:link>
+				</div>
 			</p:tab>
 
 			<p:tab id="tab2" title="#{messages.shibboleth}">

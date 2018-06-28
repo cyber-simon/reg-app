@@ -142,8 +142,10 @@ public class ViewIds {
 	public static final String SERVICE_SET_PASSWORD = "/service/set-password.xhtml";	
 	public static final String INDEX_USER = "/index.xhtml";	
 	public static final String USER_PROPERTIES = "/user/index.xhtml";	
+	public static final String DELETE_ALL_PERSONAL_DATA = "/user/delete-all-personal-data.xhtml";	
 	public static final String REGISTER_USER = "/register.xhtml";	
 	public static final String DISCOVERY_LOGIN = "/welcome/index.xhtml";	
+	public static final String DELETE_ALL_PERSONAL_DATA_DONE = "/welcome/delete-all-personal-data-done.xhtml";	
 	public static final String APPROVE_USER = "/service-approver/approve-user.xhtml";	
 	
 }
