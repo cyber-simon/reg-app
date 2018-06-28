@@ -100,6 +100,7 @@ public class SecurityFilter implements Filter {
 			path.startsWith("/welcome/") ||
 			path.startsWith("/Shibboleth.sso/") ||
 			path.startsWith("/saml/") ||
+			path.startsWith("/logout/") ||
 			path.equals("/favicon.ico")
 				) {
 			chain.doFilter(servletRequest, servletResponse);
