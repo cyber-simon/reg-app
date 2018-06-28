@@ -26,6 +26,7 @@ import edu.kit.scc.webreg.audit.UserCreateAuditor;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.RoleDao;
 import edu.kit.scc.webreg.dao.SamlUserDao;
+import edu.kit.scc.webreg.dao.SerialDao;
 import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
 import edu.kit.scc.webreg.entity.EventType;
@@ -39,7 +40,6 @@ import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.UserEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
-import edu.kit.scc.webreg.service.SerialService;
 import edu.kit.scc.webreg.service.UserCreateService;
 
 @Stateless
@@ -67,7 +67,7 @@ public class UserCreateServiceImpl implements UserCreateService {
 	private RoleDao roleDao;
 
 	@Inject
-	private SerialService serialService;
+	private SerialDao serialDao;
 
 	@Inject
 	private EventSubmitter eventSubmitter;
@@ -120,7 +120,7 @@ public class UserCreateServiceImpl implements UserCreateService {
     	 * if user has no uid number yet, generate one
     	 */
 		if (user.getUidNumber() == null) {
-			user.setUidNumber(serialService.next("uid-number-serial").intValue());
+			user.setUidNumber(serialDao.next("uid-number-serial").intValue());
 			logger.info("Setting UID Number {} for user {}", user.getUidNumber(), user.getEppn());
 		}
 
