@@ -63,6 +63,8 @@ public class PowerFolderRegisterWorkflow implements RegisterUserWorkflow, Infota
 		pfAccount.setValidTil(dateFormat.format(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 365 * 50)));
 		
 		pfAccount = pfWorker.storeAccount(pfAccount);
+		pfWorker.setActivationDate(pfAccount);
+		
 		registry.getRegistryValues().put("powerfolderId", pfAccount.getId());		
 	}
 
