@@ -31,17 +31,21 @@
 		
 				<div class="panel">
 					<h3><h:outputText value="#{messages.my_data}:"/></h3>
-					<p:dataTable var="key" value="#{registerUserBean.printableAttributesList}">
-						<p:column headerText="#{messages.name}">
-							#{resourceBundleHelper.resolveMessage(key)}
-						</p:column>
-						<p:column headerText="#{messages.value}">
-							#{registerUserBean.printableAttributesMap[key]}
-						</p:column>
-					</p:dataTable>
-					<p:dataList var="key" value="#{registerUserBean.unprintableAttributesMap.keySet().toArray()}">
-						#{key}: #{registerUserBean.unprintableAttributesMap[key]}
-					</p:dataList>
+					<div class="panel">
+						<p:dataTable var="key" value="#{registerUserBean.printableAttributesList}">
+							<p:column headerText="#{messages.name}">
+								#{resourceBundleHelper.resolveMessage(key)}
+							</p:column>
+							<p:column headerText="#{messages.value}">
+								#{registerUserBean.printableAttributesMap[key]}
+							</p:column>
+						</p:dataTable>
+					</div>
+					<div class="panel">
+						<p:dataList var="key" value="#{registerUserBean.unprintableAttributesMap.keySet().toArray()}">
+							#{key}: #{registerUserBean.unprintableAttributesMap[key]}
+						</p:dataList>
+					</div>
 					<p:commandButton id="save" action="#{registerUserBean.save}" value="#{messages.confirm}" ajax="false" 
 						disabled="#{registerUserBean.errorState}"/>
 				</div>
