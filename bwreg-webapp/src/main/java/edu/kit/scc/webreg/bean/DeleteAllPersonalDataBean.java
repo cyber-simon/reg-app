@@ -10,13 +10,17 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.bean;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
+import javax.faces.context.FacesContext;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
+
+import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
@@ -37,6 +41,9 @@ public class DeleteAllPersonalDataBean implements Serializable {
 	
 	private List<RegistryEntity> registryList;
 
+	@Inject
+	private Logger logger;
+	
 	@Inject
 	private UserService userService;
 	
@@ -68,7 +75,12 @@ public class DeleteAllPersonalDataBean implements Serializable {
 
 	public String commit() {
 		userDeleteService.deleteUserData(user, "user-" + user.getId());
-		return "/logout/local?redirect=delete&faces-redirect=true";
+		try {
+			FacesContext.getCurrentInstance().getExternalContext().redirect("/logout/local?redirect=delete");
+		} catch (IOException e) {
+			logger.warn("Redirect failed", e);
+		}
+		return "";
 	}
 	
 	public UserEntity getUser() {
