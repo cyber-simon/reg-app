@@ -10,4 +10,6 @@ public interface RegistryDtoService extends BaseDtoService<RegistryEntity, Regis
 
 	List<RegistryEntityDto> findRegistriesForDepro(String serviceShortName) throws RestInterfaceException;
 
+	List<RegistryEntityDto> findByExternalId(String externalId);
+
 }

@@ -81,11 +81,11 @@ public class ExternalUserController {
 	@Path(value = "/find/externalId/{externalId}")
 	@Produces({MediaType.APPLICATION_JSON})
 	@GET
-	public ExternalUserEntityDto updateUser(@PathParam("externalId") String externalId, @Context HttpServletRequest request)
+	public ExternalUserEntityDto find(@PathParam("externalId") String externalId, @Context HttpServletRequest request)
 					throws IOException, RestInterfaceException, ServletException {
 		return externalUserDtoService.findByExternalId(externalId);
 	}
-	
+
 	@Path(value = "/activate/externalId/{externalId}")
 	@Produces({MediaType.APPLICATION_JSON})
 	@GET

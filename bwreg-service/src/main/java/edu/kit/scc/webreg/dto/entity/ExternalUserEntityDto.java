@@ -144,6 +144,4 @@ public class ExternalUserEntityDto extends AbstractBaseEntityDto {
 	public void setUserStatus(UserStatus userStatus) {
 		this.userStatus = userStatus;
 	}
-	
-
 }

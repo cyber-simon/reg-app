@@ -1,6 +1,7 @@
 package edu.kit.scc.webreg.rest;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -48,5 +49,14 @@ public class ExternalRegistryController {
 			return null;
 		}
 	}
+
+	@Path(value = "/find/externalId/{externalId}")
+	@Produces({MediaType.APPLICATION_JSON})
+	@GET
+	public List<RegistryEntityDto> find(@PathParam("externalId") String externalId, @Context HttpServletRequest request)
+					throws IOException, RestInterfaceException, ServletException {
+		return registryDtoService.findByExternalId(externalId);
+	}
+
 
 }

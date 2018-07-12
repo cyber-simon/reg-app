@@ -7,10 +7,12 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import edu.kit.scc.webreg.dao.BaseDao;
+import edu.kit.scc.webreg.dao.ExternalUserDao;
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dto.entity.RegistryEntityDto;
 import edu.kit.scc.webreg.dto.mapper.BaseEntityMapper;
 import edu.kit.scc.webreg.dto.mapper.RegistryEntityMapper;
+import edu.kit.scc.webreg.entity.ExternalUserEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 
 @Stateless
@@ -23,10 +25,26 @@ public class RegistryDtoServiceImpl extends BaseDtoServiceImpl<RegistryEntity, R
 	
 	@Inject
 	private RegistryDao dao;
+	
+	@Inject
+	private ExternalUserDao externalUserDao;
 
 	@Override
 	public List<RegistryEntityDto> findRegistriesForDepro(String serviceShortName) {
 		List<RegistryEntity> regList = dao.findRegistriesForDepro(serviceShortName);
+		List<RegistryEntityDto> dtoList = new ArrayList<RegistryEntityDto>(regList.size());
+		for (RegistryEntity reg : regList) {
+			RegistryEntityDto dto = createNewDto();
+			mapper.copyProperties(reg, dto);
+			dtoList.add(dto);
+		}
+		return dtoList;
+	}
+	
+	@Override
+	public List<RegistryEntityDto> findByExternalId(String externalId) {
+		ExternalUserEntity user = externalUserDao.findByExternalId(externalId);
+		List<RegistryEntity> regList = dao.findByUser(user);
 		List<RegistryEntityDto> dtoList = new ArrayList<RegistryEntityDto>(regList.size());
 		for (RegistryEntity reg : regList) {
 			RegistryEntityDto dto = createNewDto();
