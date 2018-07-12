@@ -15,7 +15,7 @@ public class ExternalUserEntityDto extends AbstractBaseEntityDto {
 
 	@NotNull
     @Pattern(message = "ExternalID Pattern is [a-zA-Z0-9_!#$%&*+=?{|}~.-]+",
-    	regexp = "^[a-zA-Z0-9_!#$%&*+=?{|}~.-]+$")
+    	regexp = "^[a-zA-Z0-9@_!#$%&*+=?{|}~.-]+$")
     @Size(min = 1, max = 1023, message = "The length of externalId should be between 1 to 1023")
 	private String externalId;
 	
