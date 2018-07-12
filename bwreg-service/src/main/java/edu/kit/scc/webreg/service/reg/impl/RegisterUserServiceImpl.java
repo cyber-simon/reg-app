@@ -145,7 +145,13 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	public RegistryEntity registerUser(String externalId, String shortName, String executor, Boolean sendGroupUpdate, Auditor parentAuditor)
 			throws RegisterException {
 		UserEntity user = externalUserDao.findByExternalId(externalId);
+		if (user == null) {
+			throw new RegisterException("no such user");
+		}
 		ServiceEntity service = serviceDao.findByShortName(shortName);
+		if (service == null) {
+			throw new RegisterException("no such service");
+		}
 		return registerUser(user, service, executor, sendGroupUpdate, parentAuditor);
 	}
 	
