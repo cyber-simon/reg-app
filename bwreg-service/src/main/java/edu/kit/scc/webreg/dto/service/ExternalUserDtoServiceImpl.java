@@ -3,6 +3,8 @@ package edu.kit.scc.webreg.dto.service;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.ExternalUserDao;
 import edu.kit.scc.webreg.dao.RoleDao;
@@ -11,9 +13,14 @@ import edu.kit.scc.webreg.dto.entity.ExternalUserEntityDto;
 import edu.kit.scc.webreg.dto.mapper.BaseEntityMapper;
 import edu.kit.scc.webreg.dto.mapper.ExternalUserEntityMapper;
 import edu.kit.scc.webreg.dto.mapper.ExternalUserReverseEntityMapper;
+import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.ExternalUserAdminRoleEntity;
 import edu.kit.scc.webreg.entity.ExternalUserEntity;
+import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
+import edu.kit.scc.webreg.event.EventSubmitter;
+import edu.kit.scc.webreg.event.UserEvent;
+import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.NoUserFoundException;
 import edu.kit.scc.webreg.exc.RestInterfaceException;
 import edu.kit.scc.webreg.exc.UnauthorizedException;
@@ -24,6 +31,9 @@ public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserE
 
 	private static final long serialVersionUID = 1L;
 
+	@Inject
+	private Logger logger;
+	
 	@Inject
 	private ExternalUserEntityMapper mapper;
 
@@ -38,6 +48,9 @@ public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserE
 	
 	@Inject
 	private RoleDao roleDao;
+	
+	@Inject
+	private EventSubmitter eventSubmitter;
 	
 	@Override
 	public ExternalUserEntityDto findByExternalId(String externalId) throws NoUserFoundException {
@@ -73,6 +86,7 @@ public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserE
 		
 		if (role.equals(entity.getAdmin())) {
 			reverseMapper.copyProperties(dto, entity);
+			fireUserChangeEvent(entity, "external");
 		}
 		else {
 			throw new UnauthorizedException("You are not authorized to modify this external user");
@@ -87,6 +101,7 @@ public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserE
 
 		if (role.equals(entity.getAdmin())) {
 			entity.setUserStatus(UserStatus.ACTIVE);
+			fireUserChangeEvent(entity, "external");
 		}
 		else {
 			throw new UnauthorizedException("You are not authorized to modify this external user");
@@ -101,6 +116,7 @@ public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserE
 
 		if (role.equals(entity.getAdmin())) {
 			entity.setUserStatus(UserStatus.ON_HOLD);
+			fireUserChangeEvent(entity, "external");
 		}
 		else {
 			throw new UnauthorizedException("You are not authorized to modify this external user");
@@ -117,4 +133,15 @@ public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserE
 		return dao;
 	}
 
+
+	protected void fireUserChangeEvent(UserEntity user, String executor) {
+		
+		UserEvent userEvent = new UserEvent(user);
+		
+		try {
+			eventSubmitter.submit(userEvent, EventType.USER_UPDATE, executor);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}
+	}
 }
