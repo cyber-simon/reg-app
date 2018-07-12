@@ -1,13 +1,7 @@
-<!--
-  Copyright (c) 2014 Michael Simon.
-  All rights reserved. This program and the accompanying materials
-  are made available under the terms of the GNU Public License v3.0
-  which accompanies this distribution, and is available at
-  http://www.gnu.org/licenses/gpl.html
-  
-  Contributors:
-      Michael Simon - initial
--->
+<!-- Copyright (c) 2014 Michael Simon. All rights reserved. This program 
+	and the accompanying materials are made available under the terms of the 
+	GNU Public License v3.0 which accompanies this distribution, and is available 
+	at http://www.gnu.org/licenses/gpl.html Contributors: Michael Simon - initial -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -57,9 +51,9 @@
 				<version>1.7</version>
 			</dependency>
 			<dependency>
-    			<groupId>commons-beanutils</groupId>
-			    <artifactId>commons-beanutils</artifactId>
-    			<version>1.9.1</version>
+				<groupId>commons-beanutils</groupId>
+				<artifactId>commons-beanutils</artifactId>
+				<version>1.9.1</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>
@@ -106,7 +100,7 @@
 				<artifactId>slf4j-api</artifactId>
 				<version>1.7.2</version>
 			</dependency>
-		
+
 			<dependency>
 				<groupId>org.drools</groupId>
 				<artifactId>drools-bom</artifactId>
@@ -124,7 +118,7 @@
 				<artifactId>dom4j</artifactId>
 				<groupId>dom4j</groupId>
 				<version>1.6.1</version>
-			</dependency> 
+			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
@@ -145,21 +139,21 @@
 				<artifactId>ganymed-ssh2</artifactId>
 				<version>262</version>
 			</dependency>
-	        <dependency>
-	            <groupId>org.jboss.msc</groupId>
-	            <artifactId>jboss-msc</artifactId>
-	            <version>1.0.4.GA</version>
-	        </dependency>
+			<dependency>
+				<groupId>org.jboss.msc</groupId>
+				<artifactId>jboss-msc</artifactId>
+				<version>1.0.4.GA</version>
+			</dependency>
 			<dependency>
 				<groupId>org.wildfly</groupId>
 				<artifactId>wildfly-clustering-common</artifactId>
 				<version>8.2.0.Final</version>
-    			<exclusions>
-        			<exclusion>
-            			<artifactId>jconsole</artifactId>
-            			<groupId>sun.jdk</groupId>
-        			</exclusion>
-    			</exclusions>	            
+				<exclusions>
+					<exclusion>
+						<artifactId>jconsole</artifactId>
+						<groupId>sun.jdk</groupId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>org.wildfly</groupId>
@@ -170,6 +164,16 @@
 				<groupId>org.apache.jclouds.api</groupId>
 				<artifactId>openstack-keystone</artifactId>
 				<version>1.9.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.resteasy</groupId>
+				<artifactId>resteasy-validator-provider-11</artifactId>
+				<version>3.0.3.Final</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.resteasy</groupId>
+				<artifactId>resteasy-jaxrs</artifactId>
+				<version>3.0.3.Final</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -254,8 +258,8 @@
 				<bwreg.template.left-side-bar>left-side-bar.xhtml</bwreg.template.left-side-bar>
 				<bwreg.template.left-side-bar-admin>left-side-bar-admin.xhtml</bwreg.template.left-side-bar-admin>
 				<bwreg.template.footer>footer.xhtml</bwreg.template.footer>
-                <bwreg.jboss-singleton>org.jboss.as.clustering.singleton</bwreg.jboss-singleton>
-                <bwreg.jboss-singleton-activator>edu.kit.scc.webreg.service.timer.ClusterSingletonServiceActivator</bwreg.jboss-singleton-activator>
+				<bwreg.jboss-singleton>org.jboss.as.clustering.singleton</bwreg.jboss-singleton>
+				<bwreg.jboss-singleton-activator>edu.kit.scc.webreg.service.timer.ClusterSingletonServiceActivator</bwreg.jboss-singleton-activator>
 			</properties>
 		</profile>
 		<profile>
@@ -272,8 +276,8 @@
 				<bwreg.template.left-side-bar>left-side-bar.xhtml</bwreg.template.left-side-bar>
 				<bwreg.template.left-side-bar-admin>left-side-bar-admin.xhtml</bwreg.template.left-side-bar-admin>
 				<bwreg.template.footer>footer.xhtml</bwreg.template.footer>
-                <bwreg.jboss-singleton>org.jboss.as.clustering.singleton</bwreg.jboss-singleton>
-                <bwreg.jboss-singleton-activator>edu.kit.scc.webreg.service.timer.ClusterSingletonServiceActivator</bwreg.jboss-singleton-activator>
+				<bwreg.jboss-singleton>org.jboss.as.clustering.singleton</bwreg.jboss-singleton>
+				<bwreg.jboss-singleton-activator>edu.kit.scc.webreg.service.timer.ClusterSingletonServiceActivator</bwreg.jboss-singleton-activator>
 			</properties>
 		</profile>
 
@@ -336,12 +340,12 @@
 						</executions>
 						<dependencies>
 							<dependency>
-					            <groupId>net.sf.docbook</groupId>
-					            <artifactId>docbook-xml</artifactId>
-					            <version>5.0-all</version>
-					            <classifier>resources</classifier>
-					            <type>zip</type>
-					            <scope>runtime</scope>
+								<groupId>net.sf.docbook</groupId>
+								<artifactId>docbook-xml</artifactId>
+								<version>5.0-all</version>
+								<classifier>resources</classifier>
+								<type>zip</type>
+								<scope>runtime</scope>
 							</dependency>
 						</dependencies>
 						<configuration>
@@ -357,10 +361,10 @@
 							<includes>index.xml</includes>
 						</configuration>
 					</plugin>
-				</plugins>			
+				</plugins>
 			</build>
 		</profile>
-		
+
 	</profiles>
 
 </project>
