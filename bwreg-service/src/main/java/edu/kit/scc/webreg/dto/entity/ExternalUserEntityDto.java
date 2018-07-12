@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
 import edu.kit.scc.webreg.entity.UserStatus;
 
@@ -18,9 +19,13 @@ public class ExternalUserEntityDto extends AbstractBaseEntityDto {
 
     private Map<String, String> genericStore;
 
+    @Pattern(message = "Invalid EPPN",
+            regexp = "^[a-zA-Z0-9_!#$%&*+/=?{|}~^.-]+@[a-zA-Z0-9.-]+$")
     private String eppn;
 
-	private String email;
+    @Pattern(message = "Invalid Email Address",
+            regexp = "^[a-zA-Z0-9_!#$%&*+/=?{|}~^.-]+@[a-zA-Z0-9.-]+$")
+    private String email;
 	
 	private String givenName;
 	
