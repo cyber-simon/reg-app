@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 import edu.kit.scc.webreg.entity.UserStatus;
 
@@ -13,6 +14,9 @@ public class ExternalUserEntityDto extends AbstractBaseEntityDto {
 	private static final long serialVersionUID = 1L;
 
 	@NotNull
+    @Pattern(message = "ExternalID Pattern is [a-zA-Z0-9_!#$%&*+=?{|}~.-]+",
+    	regexp = "^[a-zA-Z0-9_!#$%&*+=?{|}~.-]+$")
+    @Size(min = 1, max = 1023, message = "The length of externalId should be between 1 to 1023")
 	private String externalId;
 	
     private Map<String, String> attributeStore; 
@@ -21,14 +25,18 @@ public class ExternalUserEntityDto extends AbstractBaseEntityDto {
 
     @Pattern(message = "Invalid EPPN",
             regexp = "^[a-zA-Z0-9_!#$%&*+/=?{|}~^.-]+@[a-zA-Z0-9.-]+$")
+    @Size(min = 1, max = 1023, message = "The length of EPPN should be between 1 to 1023")
     private String eppn;
 
     @Pattern(message = "Invalid Email Address",
             regexp = "^[a-zA-Z0-9_!#$%&*+/=?{|}~^.-]+@[a-zA-Z0-9.-]+$")
+    @Size(min = 1, max = 1023, message = "The length of email should be between 1 to 1023")
     private String email;
 	
+    @Size(min = 1, max = 255, message = "The length of givenName should be between 1 to 255")
 	private String givenName;
 	
+    @Size(min = 1, max = 255, message = "The length of surName should be between 1 to 255")
 	private String surName;
 	
 	private Integer uidNumber;

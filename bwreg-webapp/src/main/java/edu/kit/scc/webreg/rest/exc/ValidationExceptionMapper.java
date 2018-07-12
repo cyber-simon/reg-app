@@ -21,7 +21,7 @@ public class ValidationExceptionMapper implements ExceptionMapper<ValidationExce
 			StringBuilder strBuilder = new StringBuilder();
 	        for (List<ResteasyConstraintViolation> cvl : e.getViolationLists()) {
 	        	for (ResteasyConstraintViolation cv : cvl) {
-	        		strBuilder.append(cv.getPath().toString() + " " + cv.getMessage());
+	        		strBuilder.append(cv.getPath().toString() + ": " + cv.getMessage() + "\n");
 	        	}
 	        }
 	        return Response
