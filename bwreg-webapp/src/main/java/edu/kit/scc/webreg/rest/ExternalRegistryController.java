@@ -17,19 +17,14 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dto.entity.RegistryEntityDto;
 import edu.kit.scc.webreg.dto.service.RegistryDtoService;
-import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.exc.RestInterfaceException;
-import edu.kit.scc.webreg.service.reg.RegisterUserService;
 
 @Path("/external-reg")
 public class ExternalRegistryController {
 
 	@Inject
 	private Logger logger;
-	
-	@Inject
-	private RegisterUserService registerUserService;
 	
 	@Inject
 	private RegistryDtoService registryDtoService;
@@ -40,13 +35,26 @@ public class ExternalRegistryController {
 	public RegistryEntityDto registerExternalUser(@PathParam("externalId") String externalId,
 			@PathParam("ssn") String ssn, @Context HttpServletRequest request)
 			throws IOException, RestInterfaceException, ServletException {
-		RegistryEntity registry;
+		RegistryEntityDto registryDto;
 		try {
-			registry = registerUserService.registerUser(externalId, ssn, "external", true, null);
-			return registryDtoService.findById(registry.getId());
+			registryDto = registryDtoService.register(externalId, ssn);
+			return registryDto;
 		} catch (RegisterException e) {
 			logger.info("Exception", e);
 			return null;
+		}
+	}
+
+	@Path(value = "/deregister/externalId/{externalId}/ssn/{ssn}")
+	@Produces({MediaType.APPLICATION_JSON})
+	@GET
+	public void deregisterExternalUser(@PathParam("externalId") String externalId,
+			@PathParam("ssn") String ssn, @Context HttpServletRequest request)
+			throws IOException, RestInterfaceException, ServletException {
+		try {
+			registryDtoService.deregister(externalId, ssn);
+		} catch (RegisterException e) {
+			logger.info("Exception", e);
 		}
 	}
 

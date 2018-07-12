@@ -69,8 +69,4 @@ public interface RegisterUserService {
 	RegistryEntity registerUser(UserEntity user, ServiceEntity service, String executor,
 			Boolean sendGroupUpdate, Auditor parentAuditor)
 			throws RegisterException;
-
-	RegistryEntity registerUser(String externalId, String shortName, String executor, Boolean sendGroupUpdate,
-			Auditor parentAuditor) throws RegisterException;
-	
 }

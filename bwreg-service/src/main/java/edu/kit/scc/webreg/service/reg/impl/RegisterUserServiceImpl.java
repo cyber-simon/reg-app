@@ -30,7 +30,6 @@ import edu.kit.scc.webreg.audit.RegistryAuditor;
 import edu.kit.scc.webreg.audit.ServiceAuditor;
 import edu.kit.scc.webreg.audit.ServiceRegisterAuditor;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
-import edu.kit.scc.webreg.dao.ExternalUserDao;
 import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
@@ -95,9 +94,6 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	
 	@Inject
 	private UserDao userDao;
-
-	@Inject
-	private ExternalUserDao externalUserDao;
 	
 	@Inject
 	private GroupDao groupDao;
@@ -141,20 +137,6 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 		return registerUser(user, service, executor, sendGroupUpdate, null);
 	}
 
-	@Override
-	public RegistryEntity registerUser(String externalId, String shortName, String executor, Boolean sendGroupUpdate, Auditor parentAuditor)
-			throws RegisterException {
-		UserEntity user = externalUserDao.findByExternalId(externalId);
-		if (user == null) {
-			throw new RegisterException("no such user");
-		}
-		ServiceEntity service = serviceDao.findByShortName(shortName);
-		if (service == null) {
-			throw new RegisterException("no such service");
-		}
-		return registerUser(user, service, executor, sendGroupUpdate, parentAuditor);
-	}
-	
 	@Override
 	public RegistryEntity registerUser(UserEntity user, ServiceEntity service, String executor, Boolean sendGroupUpdate, Auditor parentAuditor)
 			throws RegisterException {
