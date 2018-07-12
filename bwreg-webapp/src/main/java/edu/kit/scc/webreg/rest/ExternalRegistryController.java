@@ -1,7 +1,9 @@
 package edu.kit.scc.webreg.rest;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -17,6 +19,7 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dto.entity.RegistryEntityDto;
 import edu.kit.scc.webreg.dto.service.RegistryDtoService;
+import edu.kit.scc.webreg.exc.GenericRestInterfaceException;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.exc.RestInterfaceException;
 
@@ -48,13 +51,18 @@ public class ExternalRegistryController {
 	@Path(value = "/deregister/externalId/{externalId}/ssn/{ssn}")
 	@Produces({MediaType.APPLICATION_JSON})
 	@GET
-	public void deregisterExternalUser(@PathParam("externalId") String externalId,
+	public Map<String, String>  deregisterExternalUser(@PathParam("externalId") String externalId,
 			@PathParam("ssn") String ssn, @Context HttpServletRequest request)
 			throws IOException, RestInterfaceException, ServletException {
 		try {
 			registryDtoService.deregister(externalId, ssn);
+			Map<String, String> map = new HashMap<>();
+			map.put("result", "success");
+			return map;
+
 		} catch (RegisterException e) {
 			logger.info("Exception", e);
+			throw new GenericRestInterfaceException("something went wrong: " + e.getMessage());
 		}
 	}
 
