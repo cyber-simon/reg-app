@@ -158,6 +158,10 @@
 					<h:inputTextarea id="desc" rows="12" cols="60" 
 		            		value="#{editServiceBean.entity.description}"/>
 					
+			        <h:outputText value="#{messages.deregister_text}:"/>
+					<h:inputTextarea id="dereg_text" rows="12" cols="60" 
+		            		value="#{editServiceBean.entity.deregisterText}"/>
+					
 				</p:panelGrid>
 
 				<p:commandButton id="cancel" action="#{editServiceBean.cancel}" value="#{messages.cancel}" 

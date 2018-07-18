@@ -38,6 +38,10 @@
 					<h:outputText value="#{messages.deregister_desc_long}"/>
 				</div>
 			
+				<div>
+					<h:outputText value="#{deregisterServiceBean.deregisterTextBB}" escape="false"/>
+				</div>
+			
 				<div style="margin-top: 16px;">
 					<p:commandButton id="save" action="#{deregisterServiceBean.deregisterUser}" 
 						value="#{messages.deregister}" style="color: red;"/>

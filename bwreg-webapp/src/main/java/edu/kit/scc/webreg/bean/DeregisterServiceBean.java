@@ -29,6 +29,7 @@ import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;
 import edu.kit.scc.webreg.session.SessionManager;
+import edu.kit.scc.webreg.util.BBCodeConverter;
 import edu.kit.scc.webreg.util.ViewIds;
 
 @ManagedBean
@@ -56,6 +57,11 @@ public class DeregisterServiceBean implements Serializable {
 
 	@Inject
 	private UserService userService;
+	
+	@Inject
+	private BBCodeConverter bbCodeConverter;
+
+	private String deregisterTextBB;
 
 	public void preRenderView(ComponentSystemEvent ev) {
 	   	if (! initialzed) {
@@ -69,6 +75,8 @@ public class DeregisterServiceBean implements Serializable {
 			if (! registry.getUser().getId().equals(userEntity.getId()))
 				throw new NotAuthorizedException("Not authorized to view this item");
 			
+			deregisterTextBB = bbCodeConverter.convert(registry.getService().getDeregisterText());
+
 			initialzed = true;
 	   	}
 	}
@@ -103,5 +111,9 @@ public class DeregisterServiceBean implements Serializable {
 	
 	public ServiceEntity getService() {
 		return registry.getService();
+	}
+
+	public String getDeregisterTextBB() {
+		return deregisterTextBB;
 	}
 }

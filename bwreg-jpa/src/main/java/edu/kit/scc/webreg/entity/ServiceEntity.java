@@ -103,6 +103,11 @@ public class ServiceEntity extends AbstractBaseEntity {
 	@Column(name = "short_description", length = 2048)
 	private String shortDescription;
 
+	@Column(name = "deregister_text")
+	@Lob 
+	@Type(type = "org.hibernate.type.TextType")	
+	private String deregisterText;
+		
 	@Column(name = "published")
 	private Boolean published;
 	
@@ -278,6 +283,14 @@ public class ServiceEntity extends AbstractBaseEntity {
 
 	public void setHidden(Boolean hidden) {
 		this.hidden = hidden;
+	}
+
+	public String getDeregisterText() {
+		return deregisterText;
+	}
+
+	public void setDeregisterText(String deregisterText) {
+		this.deregisterText = deregisterText;
 	}
 
 }

@@ -49,13 +49,16 @@ public class ShowServiceBean implements Serializable {
 	private ServiceEntity entity;
 	
 	private String serviceDescBB;
-	
+
+	private String deregisterTextBB;
+
 	private Long id;
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
 			entity = serviceService.findByIdWithServiceProps(id);
 			serviceDescBB = bbCodeConverter.convert(entity.getDescription());
+			deregisterTextBB = bbCodeConverter.convert(entity.getDeregisterText());
 		}
 	}
 	
@@ -84,5 +87,9 @@ public class ShowServiceBean implements Serializable {
 
 	public String getServiceDescBB() {
 		return serviceDescBB;
+	}
+
+	public String getDeregisterTextBB() {
+		return deregisterTextBB;
 	}
 }
