@@ -4,6 +4,8 @@ import java.util.List;
 
 import edu.kit.scc.webreg.dto.entity.RegistryEntityDto;
 import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.RegistryStatus;
+import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.exc.RestInterfaceException;
 
@@ -16,5 +18,7 @@ public interface RegistryDtoService extends BaseDtoService<RegistryEntity, Regis
 	RegistryEntityDto register(String externalId, String ssn) throws RegisterException;
 
 	void deregister(String externalId, String ssn) throws RegisterException;
+
+	List<RegistryEntityDto> findRegistriesByStatus(ServiceEntity service, RegistryStatus status);
 
 }

@@ -42,6 +42,18 @@ public class RegistryDtoServiceImpl extends BaseDtoServiceImpl<RegistryEntity, R
 	private RegisterUserService registerUserService;
 
 	@Override
+	public List<RegistryEntityDto> findRegistriesByStatus(ServiceEntity service, RegistryStatus status) {
+		List<RegistryEntity> regList = dao.findByServiceAndStatus(service, status);
+		List<RegistryEntityDto> dtoList = new ArrayList<RegistryEntityDto>(regList.size());
+		for (RegistryEntity reg : regList) {
+			RegistryEntityDto dto = createNewDto();
+			mapper.copyProperties(reg, dto);
+			dtoList.add(dto);
+		}
+		return dtoList;
+	}
+	
+	@Override
 	public List<RegistryEntityDto> findRegistriesForDepro(String serviceShortName) {
 		List<RegistryEntity> regList = dao.findRegistriesForDepro(serviceShortName);
 		List<RegistryEntityDto> dtoList = new ArrayList<RegistryEntityDto>(regList.size());

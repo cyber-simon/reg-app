@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import edu.kit.scc.webreg.dto.entity.RegistryEntityDto;
 import edu.kit.scc.webreg.dto.service.RegistryDtoService;
 import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.exc.NoItemFoundException;
 import edu.kit.scc.webreg.exc.RegisterException;
@@ -59,6 +60,34 @@ public class ServiceAdminController {
 
 	@Inject
 	private ServiceService serviceService;
+
+	@Path(value = "/bystatus/{ssn}/{status}")
+	@Produces({"application/json"})
+	@GET
+	public List<RegistryEntityDto> findByStatus(@PathParam("ssn") String ssn, @PathParam("status") String status, @Context HttpServletRequest request)
+					throws IOException, RestInterfaceException {
+		
+		ServiceEntity serviceEntity = serviceService.findByShortName(ssn);
+		if (serviceEntity == null)
+			throw new NoItemFoundException("No such service");
+
+		if (! checkAccess(request, serviceEntity.getAdminRole().getName()))
+			throw new UnauthorizedException("No access");
+		
+		if (status == null)
+			throw new NoItemFoundException("status must not be null");
+		
+		RegistryStatus registryStatus;
+		try {
+			registryStatus = RegistryStatus.valueOf(status);
+		} catch (IllegalArgumentException e) {
+			throw new NoItemFoundException("No such RegistryStatus. Possible values are: ACTIVE, PENDING, LOST_ACCESS, ON_HOLD, DELETED, DEPROVISIONED");
+		}
+		
+		List<RegistryEntityDto> deproList = registryDtoService.findRegistriesByStatus(serviceEntity, registryStatus);
+
+		return deproList;
+	}	
 	
 	@Path(value = "/depro/{ssn}/list")
 	@Produces({"application/json"})
