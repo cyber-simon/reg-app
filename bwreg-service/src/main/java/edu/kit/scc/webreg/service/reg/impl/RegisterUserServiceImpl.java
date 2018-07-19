@@ -325,6 +325,11 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 					if (ServiceGroupStatus.DIRTY.equals(flag.getStatus())) {
 						logger.info("Group {} at Service {} needs an update", serviceBasedGroup.getName(), flag.getService().getName());
 						groupUpdateList.addGroupToUpdate(flag);
+						
+						//check parent groups (These contain the change groups and their members)
+						for (GroupEntity parent : serviceBasedGroup.getParents()) {
+							updateParentGroup(parent, groupUpdateList, 0, 3);
+						}
 					}
 					else if (ServiceGroupStatus.TO_DELETE.equals(flag.getStatus())) {
 						logger.info("Group {} at Service {} is about to get deleted", serviceBasedGroup.getName(), flag.getService().getName());
@@ -343,6 +348,23 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 		}
 
 		updateGroups(groupUpdateList, executor);
+	}
+	
+	protected void updateParentGroup(GroupEntity group, GroupPerServiceList groupUpdateList, int depth, int maxDepth) {
+		if (depth <= maxDepth) {
+			if (group instanceof ServiceBasedGroupEntity) {
+				ServiceBasedGroupEntity serviceBasedGroup = (ServiceBasedGroupEntity) groupDao.findById(group.getId());
+
+				for (ServiceGroupFlagEntity flag : serviceBasedGroup.getServiceGroupFlags()) {
+					logger.info("Parentgroup {} at Service {} needs an update", serviceBasedGroup.getName(), flag.getService().getName());
+					groupUpdateList.addGroupToUpdate(flag);
+					
+					for (GroupEntity parent : serviceBasedGroup.getParents()) {
+						updateParentGroup(parent, groupUpdateList, 0, 3);
+					}
+				}
+			}			
+		}
 	}
 	
 	@Override
