@@ -18,11 +18,13 @@ import javax.inject.Named;
 import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.MapJoin;
 import javax.persistence.criteria.Root;
 
 import edu.kit.scc.webreg.dao.ExternalUserDao;
 import edu.kit.scc.webreg.entity.ExternalUserAdminRoleEntity;
 import edu.kit.scc.webreg.entity.ExternalUserEntity;
+import edu.kit.scc.webreg.entity.ExternalUserEntity_;
 
 @Named
 @ApplicationScoped
@@ -35,7 +37,7 @@ public class JpaExternalUserDao extends JpaBaseDao<ExternalUserEntity, Long> imp
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<ExternalUserEntity> criteria = builder.createQuery(ExternalUserEntity.class);
 		Root<ExternalUserEntity> user = criteria.from(ExternalUserEntity.class);
-		criteria.where(builder.equal(user.get("externalId"), externalId));
+		criteria.where(builder.equal(user.get(ExternalUserEntity_.externalId), externalId));
 		criteria.select(user);
 		
 		try {
@@ -44,6 +46,38 @@ public class JpaExternalUserDao extends JpaBaseDao<ExternalUserEntity, Long> imp
 		catch (NoResultException e) {
 			return null;
 		}
+	}
+
+	@Override
+	public List<ExternalUserEntity> findByAttribute(String key, String value, ExternalUserAdminRoleEntity adminRole) {
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<ExternalUserEntity> criteria = builder.createQuery(ExternalUserEntity.class);
+		Root<ExternalUserEntity> root = criteria.from(ExternalUserEntity.class);
+		criteria.select(root);
+		MapJoin<ExternalUserEntity, String, String> mapJoin = root.joinMap("attributeStore");
+		criteria.where(builder.and(
+				builder.equal(root.get(ExternalUserEntity_.admin), adminRole),
+				builder.equal(mapJoin.key(), key),
+				builder.equal(mapJoin.value(), value))
+		);
+
+		return em.createQuery(criteria).getResultList();
+	}
+
+	@Override
+	public List<ExternalUserEntity> findByGeneric(String key, String value, ExternalUserAdminRoleEntity adminRole) {
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<ExternalUserEntity> criteria = builder.createQuery(ExternalUserEntity.class);
+		Root<ExternalUserEntity> root = criteria.from(ExternalUserEntity.class);
+		criteria.select(root);
+		MapJoin<ExternalUserEntity, String, String> mapJoin = root.joinMap("genericStore");
+		criteria.where(builder.and(
+				builder.equal(root.get(ExternalUserEntity_.admin), adminRole),
+				builder.equal(mapJoin.key(), key),
+				builder.equal(mapJoin.value() , value))
+		);
+
+		return em.createQuery(criteria).getResultList();
 	}
 
 	@SuppressWarnings("unchecked")

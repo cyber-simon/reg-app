@@ -70,7 +70,7 @@ public class ExternalUserController {
 
 		logger.info("Update external user called for {}", externalUserDto.getExternalId());
 		
-		ExternalUserAdminRoleEntity role = resolveAdminRole(request, null);
+		ExternalUserAdminRoleEntity role = resolveAdminRole(request);
 		externalUserDtoService.updateExternalUser(externalUserDto, role);
 		
 		Map<String, String> map = new HashMap<>();
@@ -91,7 +91,7 @@ public class ExternalUserController {
 	@GET
 	public void activateUser(@PathParam("externalId") String externalId, @Context HttpServletRequest request)
 					throws IOException, RestInterfaceException, ServletException {
-		ExternalUserAdminRoleEntity role = resolveAdminRole(request, null);
+		ExternalUserAdminRoleEntity role = resolveAdminRole(request);
 		externalUserDtoService.activateExternalUser(externalId, role);
 	}
 
@@ -100,8 +100,33 @@ public class ExternalUserController {
 	@GET
 	public void deactivateUser(@PathParam("externalId") String externalId, @Context HttpServletRequest request)
 					throws IOException, RestInterfaceException, ServletException {
-		ExternalUserAdminRoleEntity role = resolveAdminRole(request, null);
+		ExternalUserAdminRoleEntity role = resolveAdminRole(request);
 		externalUserDtoService.deactivateExternalUser(externalId, role);
+	}
+	
+	@Path(value = "/find/attribute/{key}/{value}")
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	@GET
+	public List<ExternalUserEntityDto> findByAttribute(@PathParam("key") String key, @PathParam("value") String value, @Context HttpServletRequest request)
+					throws IOException, RestInterfaceException, ServletException {
+		ExternalUserAdminRoleEntity role = resolveAdminRole(request);
+		return externalUserDtoService.findByAttribute(key, value, role);
+	}
+
+	@Path(value = "/find/generic/{key}/{value}")
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	@GET
+	public List<ExternalUserEntityDto> findByGeneric(@PathParam("key") String key, @PathParam("value") String value, @Context HttpServletRequest request)
+					throws IOException, RestInterfaceException, ServletException {
+		ExternalUserAdminRoleEntity role = resolveAdminRole(request);
+		return externalUserDtoService.findByGeneric(key, value, role);
+	}
+
+	protected ExternalUserAdminRoleEntity resolveAdminRole(HttpServletRequest request)
+			throws UnauthorizedException {
+		return resolveAdminRole(request, null);
 	}
 	
 	protected ExternalUserAdminRoleEntity resolveAdminRole(HttpServletRequest request, String preferredRoleName)
@@ -121,6 +146,10 @@ public class ExternalUserController {
 			throw new UnauthorizedException("No user is set");
 		}
 
+		if (preferredRoleName == null) {
+			preferredRoleName = request.getParameter("role");
+		}
+		
 		for (RoleEntity role : roleList) {
 			if (role instanceof ExternalUserAdminRoleEntity) {
 				if (preferredRoleName == null) {

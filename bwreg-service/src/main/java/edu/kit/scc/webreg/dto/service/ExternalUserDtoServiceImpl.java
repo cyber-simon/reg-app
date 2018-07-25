@@ -1,5 +1,8 @@
 package edu.kit.scc.webreg.dto.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
@@ -60,6 +63,32 @@ public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserE
 		ExternalUserEntityDto dto = createNewDto();
 		mapper.copyProperties(entity, dto);
 		return dto;
+	}
+
+	@Override
+	public List<ExternalUserEntityDto> findByAttribute(String key, String value, ExternalUserAdminRoleEntity adminRole) throws NoUserFoundException {
+		List<ExternalUserEntity> userList = dao.findByAttribute(key, value, adminRole);
+		List<ExternalUserEntityDto> dtoList = new ArrayList<>();
+		
+		for (ExternalUserEntity user : userList) {
+			ExternalUserEntityDto dto = createNewDto();
+			mapper.copyProperties(user, dto);
+			dtoList.add(dto);
+		}
+		return dtoList;
+	}
+	
+	@Override
+	public List<ExternalUserEntityDto> findByGeneric(String key, String value, ExternalUserAdminRoleEntity adminRole) throws NoUserFoundException {
+		List<ExternalUserEntity> userList = dao.findByGeneric(key, value, adminRole);
+		List<ExternalUserEntityDto> dtoList = new ArrayList<>();
+		
+		for (ExternalUserEntity user : userList) {
+			ExternalUserEntityDto dto = createNewDto();
+			mapper.copyProperties(user, dto);
+			dtoList.add(dto);
+		}
+		return dtoList;
 	}
 	
 	@Override
