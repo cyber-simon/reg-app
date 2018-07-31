@@ -66,6 +66,7 @@ public class AccessChecker {
 
 		AccessNode restNode = addAccessNode(root, "rest", false, "MasterAdmin", "RestAdmin");
 		addAccessNode(restNode, "service-admin", true, "RestServiceAdmin");
+		addAccessNode(restNode, "group-admin", true, "RestGroupAdmin");
 		addAccessNode(restNode, "external-user", true, "ExternalUserAdmin");
 		addAccessNode(restNode, "external-group", true, "ExternalUserAdmin");
 		addAccessNode(restNode, "external-reg", true, "ExternalUserAdmin");

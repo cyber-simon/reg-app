@@ -99,6 +99,7 @@ public class ApplicationBootstrap {
     	checkRole("GroupAdmin");
     	checkRole("ServiceAdmin");
     	checkRole("RestServiceAdmin");
+    	checkRole("RestGroupAdmin");
     	checkRole("SamlAdmin");
     	checkRole("BusinessRuleAdmin");
     	checkRole("BulkAdmin");

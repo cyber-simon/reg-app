@@ -25,7 +25,7 @@ public class GroupController {
 	@Path(value = "/find/id/{id}")
 	@Produces({MediaType.APPLICATION_JSON})
 	@GET
-	public GroupEntityDto updateUser(@PathParam("id") Long id, @Context HttpServletRequest request)
+	public GroupEntityDto findById(@PathParam("id") Long id, @Context HttpServletRequest request)
 					throws IOException, RestInterfaceException, ServletException {
 		return groupDtoService.findById(id);
 	}
@@ -33,7 +33,7 @@ public class GroupController {
 	@Path(value = "/find/name/{name}")
 	@Produces({MediaType.APPLICATION_JSON})
 	@GET
-	public GroupEntityDto updateUser(@PathParam("name") String name, @Context HttpServletRequest request)
+	public GroupEntityDto findByName(@PathParam("name") String name, @Context HttpServletRequest request)
 					throws IOException, RestInterfaceException, ServletException {
 		return groupDtoService.findByName(name);
 	}
