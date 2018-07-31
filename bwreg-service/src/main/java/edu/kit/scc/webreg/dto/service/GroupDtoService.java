@@ -6,7 +6,9 @@ import edu.kit.scc.webreg.exc.RestInterfaceException;
 
 public interface GroupDtoService extends BaseDtoService<GroupEntity, GroupEntityDto, Long> {
 
-	GroupEntityDto findByName(String name) throws RestInterfaceException ;
+	GroupEntityDto findByName(String name, Long userId) throws RestInterfaceException ;
+
+	GroupEntityDto findById(Long id, Long userId) throws RestInterfaceException;
 
 
 }

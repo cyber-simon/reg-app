@@ -15,19 +15,21 @@ import javax.ws.rs.core.MediaType;
 import edu.kit.scc.webreg.dto.entity.GroupEntityDto;
 import edu.kit.scc.webreg.dto.service.GroupDtoService;
 import edu.kit.scc.webreg.exc.RestInterfaceException;
+import edu.kit.scc.webreg.exc.UnauthorizedException;
+import edu.kit.scc.webreg.sec.SecurityFilter;
 
 @Path("/group-admin")
 public class GroupController {
 
 	@Inject
-	GroupDtoService groupDtoService;
+	private GroupDtoService groupDtoService;
 	
 	@Path(value = "/find/id/{id}")
 	@Produces({MediaType.APPLICATION_JSON})
 	@GET
 	public GroupEntityDto findById(@PathParam("id") Long id, @Context HttpServletRequest request)
-					throws IOException, RestInterfaceException, ServletException {
-		return groupDtoService.findById(id);
+				throws IOException, RestInterfaceException, ServletException {
+		return groupDtoService.findById(id, resolveUserId(request));
 	}
 
 	@Path(value = "/find/name/{name}")
@@ -35,6 +37,21 @@ public class GroupController {
 	@GET
 	public GroupEntityDto findByName(@PathParam("name") String name, @Context HttpServletRequest request)
 					throws IOException, RestInterfaceException, ServletException {
-		return groupDtoService.findByName(name);
+		return groupDtoService.findByName(name, resolveUserId(request));
+	}
+
+	protected Long resolveUserId(HttpServletRequest request)
+			throws UnauthorizedException {
+		if (request.getAttribute(SecurityFilter.USER_ID) != null &&
+				request.getAttribute(SecurityFilter.USER_ID) instanceof Long) {
+			return (Long) request.getAttribute(SecurityFilter.USER_ID);
+		}
+		else if (request.getAttribute(SecurityFilter.ADMIN_USER_ID) != null &&
+				request.getAttribute(SecurityFilter.ADMIN_USER_ID) instanceof Long) {
+			return (Long) request.getAttribute(SecurityFilter.ADMIN_USER_ID);
+		}
+		else {
+			throw new UnauthorizedException("No user is set");
+		}
 	}
 }
