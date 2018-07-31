@@ -15,6 +15,8 @@ public class GroupEntityDto extends AbstractBaseEntityDto {
 
 	private Set<GroupEntityDto> parents;
 	
+	private Set<UserEntityDto> users;
+	
 	public String getName() {
 		return name;
 	}
@@ -37,5 +39,13 @@ public class GroupEntityDto extends AbstractBaseEntityDto {
 
 	public void setParents(Set<GroupEntityDto> parents) {
 		this.parents = parents;
+	}
+
+	public Set<UserEntityDto> getUsers() {
+		return users;
+	}
+
+	public void setUsers(Set<UserEntityDto> users) {
+		this.users = users;
 	}
 }

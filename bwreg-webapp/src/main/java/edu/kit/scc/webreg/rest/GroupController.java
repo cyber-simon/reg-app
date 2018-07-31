@@ -29,7 +29,7 @@ public class GroupController {
 	@GET
 	public GroupEntityDto findById(@PathParam("id") Long id, @Context HttpServletRequest request)
 				throws IOException, RestInterfaceException, ServletException {
-		return groupDtoService.findById(id, resolveUserId(request));
+		return groupDtoService.findById(id, resolveUserId(request), false);
 	}
 
 	@Path(value = "/find/name/{name}")
@@ -37,7 +37,31 @@ public class GroupController {
 	@GET
 	public GroupEntityDto findByName(@PathParam("name") String name, @Context HttpServletRequest request)
 					throws IOException, RestInterfaceException, ServletException {
-		return groupDtoService.findByName(name, resolveUserId(request));
+		return groupDtoService.findByName(name, resolveUserId(request), false);
+	}
+
+	@Path(value = "/find-detail/id/{id}")
+	@Produces({MediaType.APPLICATION_JSON})
+	@GET
+	public GroupEntityDto findDetailById(@PathParam("id") Long id, @Context HttpServletRequest request)
+				throws IOException, RestInterfaceException, ServletException {
+		return groupDtoService.findById(id, resolveUserId(request), true);
+	}
+
+	@Path(value = "/find-detail/name/{name}")
+	@Produces({MediaType.APPLICATION_JSON})
+	@GET
+	public GroupEntityDto findDetailByName(@PathParam("name") String name, @Context HttpServletRequest request)
+					throws IOException, RestInterfaceException, ServletException {
+		return groupDtoService.findByName(name, resolveUserId(request), true);
+	}
+
+	@Path(value = "/create/{ssn}/{name}")
+	@Produces({MediaType.APPLICATION_JSON})
+	@GET
+	public GroupEntityDto create(@PathParam("ssn") String ssn, @PathParam("name") String name, @Context HttpServletRequest request)
+					throws IOException, RestInterfaceException, ServletException {
+		return groupDtoService.create(ssn, name, resolveUserId(request));
 	}
 
 	protected Long resolveUserId(HttpServletRequest request)

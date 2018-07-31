@@ -9,15 +9,26 @@ import javax.inject.Inject;
 import edu.kit.scc.webreg.dao.AdminUserDao;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.GroupDao;
+import edu.kit.scc.webreg.dao.LocalGroupDao;
 import edu.kit.scc.webreg.dao.RoleDao;
+import edu.kit.scc.webreg.dao.SerialDao;
+import edu.kit.scc.webreg.dao.ServiceDao;
+import edu.kit.scc.webreg.dao.ServiceGroupFlagDao;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dto.entity.GroupEntityDto;
 import edu.kit.scc.webreg.dto.mapper.BaseEntityMapper;
+import edu.kit.scc.webreg.dto.mapper.GroupDetailEntityMapper;
 import edu.kit.scc.webreg.dto.mapper.GroupEntityMapper;
 import edu.kit.scc.webreg.entity.AdminUserEntity;
 import edu.kit.scc.webreg.entity.GroupEntity;
+import edu.kit.scc.webreg.entity.LocalGroupEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
+import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.exc.GenericRestInterfaceException;
+import edu.kit.scc.webreg.exc.NoServiceFoundException;
 import edu.kit.scc.webreg.exc.NoUserFoundException;
 import edu.kit.scc.webreg.exc.RestInterfaceException;
 import edu.kit.scc.webreg.exc.UnauthorizedException;
@@ -34,16 +45,31 @@ public class GroupDtoServiceImpl extends BaseDtoServiceImpl<GroupEntity, GroupEn
 	private UserDao userDao;
 	
 	@Inject
+	private ServiceDao serviceDao;
+	
+	@Inject
 	private AdminUserDao adminUserDao;
 	
 	@Inject
 	private GroupEntityMapper mapper;
 
 	@Inject
+	private GroupDetailEntityMapper detailMapper;
+
+	@Inject
+	private LocalGroupDao localGroupDao;
+
+	@Inject
+	private SerialDao serialDao;
+	
+	@Inject
+	private ServiceGroupFlagDao groupFlagDao;
+	
+	@Inject
 	private GroupDao dao;
 
 	@Override
-	public GroupEntityDto findById(Long id, Long userId) throws RestInterfaceException {
+	public GroupEntityDto findById(Long id, Long userId, Boolean withDetails) throws RestInterfaceException {
 		GroupEntity entity = dao.findById(id);
 		if (entity == null)
 			throw new NoUserFoundException("no such group");
@@ -52,12 +78,49 @@ public class GroupDtoServiceImpl extends BaseDtoServiceImpl<GroupEntity, GroupEn
 			throw new UnauthorizedException("Not authorized");
 		
 		GroupEntityDto dto = createNewDto();
+		if (withDetails)
+			detailMapper.copyProperties(entity, dto);
+		else
+			mapper.copyProperties(entity, dto);
+		return dto;
+	}
+	
+	@Override
+	public GroupEntityDto create(String ssn, String name, Long userId) throws RestInterfaceException {
+		LocalGroupEntity entity = localGroupDao.findByName(name);
+		if (entity != null)
+			throw new GenericRestInterfaceException("group already exists");
+
+		ServiceEntity service = serviceDao.findByShortName(ssn);
+		if (service == null) 
+			throw new NoServiceFoundException("no such service");
+		
+		if (! checkAccess(service, userId))
+			throw new UnauthorizedException("Not authorized");
+		
+		entity = localGroupDao.createNew();
+		entity.setName(name);
+		entity.setAdminRoles(new HashSet<RoleEntity>());
+		entity.setParents(new HashSet<GroupEntity>());
+		entity.setChildren(new HashSet<GroupEntity>());
+		entity.getAdminRoles().add(service.getGroupAdminRole());
+		entity.setGidNumber(serialDao.next("gid-number-serial").intValue());
+		entity = localGroupDao.persist(entity);
+
+		ServiceGroupFlagEntity groupFlag = groupFlagDao.createNew();
+		groupFlag.setService(service);
+		groupFlag.setGroup(entity);
+		groupFlag.setStatus(ServiceGroupStatus.CLEAN);
+		
+		groupFlag = groupFlagDao.persist(groupFlag);
+
+		GroupEntityDto dto = createNewDto();
 		mapper.copyProperties(entity, dto);
 		return dto;
 	}
 	
 	@Override
-	public GroupEntityDto findByName(String name, Long userId) throws RestInterfaceException {
+	public GroupEntityDto findByName(String name, Long userId, Boolean withDetails) throws RestInterfaceException {
 		GroupEntity entity = dao.findByName(name);
 		if (entity == null)
 			throw new NoUserFoundException("no such group");
@@ -66,25 +129,31 @@ public class GroupDtoServiceImpl extends BaseDtoServiceImpl<GroupEntity, GroupEn
 			throw new UnauthorizedException("Not authorized");
 		
 		GroupEntityDto dto = createNewDto();
-		mapper.copyProperties(entity, dto);
+		if (withDetails)
+			detailMapper.copyProperties(entity, dto);
+		else
+			mapper.copyProperties(entity, dto);
 		return dto;
+	}
+
+	protected Boolean checkAccess(ServiceEntity service, Long userId) {
+		Set<RoleEntity> roles = resolveRoles(userId);
+		
+		if (roles != null && roles.contains(service.getGroupAdminRole())) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 	
 	protected Boolean checkAccess(GroupEntity group, Long userId) {
-		AdminUserEntity adminUser = adminUserDao.findById(userId);
-		Set<RoleEntity> userRoles;
-		if (adminUser == null) {
-			UserEntity user = userDao.findById(userId);
-			if (user == null) {
-				return false;
-			}
-			else {
-				userRoles = new HashSet<>(roleDao.findByUser(user));
-			}
+
+		Set<RoleEntity> userRoles = resolveRoles(userId);
+		if (userRoles == null) {
+			return false;
 		}
-		else {
-			userRoles = adminUser.getRoles();
-		}
+
 		Set<RoleEntity> groupAdminRoles = group.getAdminRoles();
 		
 		groupAdminRoles.retainAll(userRoles);
@@ -94,6 +163,21 @@ public class GroupDtoServiceImpl extends BaseDtoServiceImpl<GroupEntity, GroupEn
 		else {
 			return false;
 		}
+	}
+	
+	protected Set<RoleEntity> resolveRoles(Long userId) {
+		AdminUserEntity adminUser = adminUserDao.findById(userId);
+		Set<RoleEntity> userRoles = null;
+		if (adminUser == null) {
+			UserEntity user = userDao.findById(userId);
+			if (user != null) {
+				userRoles = new HashSet<>(roleDao.findByUser(user));
+			}
+		}
+		else {
+			userRoles = adminUser.getRoles();
+		}
+		return userRoles;
 	}
 	
 	@Override
