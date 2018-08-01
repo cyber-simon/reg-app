@@ -1,10 +1,13 @@
 package edu.kit.scc.webreg.dto.service;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
+import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dao.AdminUserDao;
 import edu.kit.scc.webreg.dao.BaseDao;
@@ -20,13 +23,18 @@ import edu.kit.scc.webreg.dto.mapper.BaseEntityMapper;
 import edu.kit.scc.webreg.dto.mapper.GroupDetailEntityMapper;
 import edu.kit.scc.webreg.dto.mapper.GroupEntityMapper;
 import edu.kit.scc.webreg.entity.AdminUserEntity;
+import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.LocalGroupEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
+import edu.kit.scc.webreg.entity.ServiceBasedGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.event.EventSubmitter;
+import edu.kit.scc.webreg.event.MultipleGroupEvent;
+import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.GenericRestInterfaceException;
 import edu.kit.scc.webreg.exc.NoServiceFoundException;
 import edu.kit.scc.webreg.exc.NoUserFoundException;
@@ -38,6 +46,12 @@ public class GroupDtoServiceImpl extends BaseDtoServiceImpl<GroupEntity, GroupEn
 
 	private static final long serialVersionUID = 1L;
 
+	@Inject
+	private Logger logger;
+	
+	@Inject
+	private EventSubmitter eventSubmitter;
+	
 	@Inject
 	private RoleDao roleDao;
 	
@@ -82,6 +96,45 @@ public class GroupDtoServiceImpl extends BaseDtoServiceImpl<GroupEntity, GroupEn
 			detailMapper.copyProperties(entity, dto);
 		else
 			mapper.copyProperties(entity, dto);
+		return dto;
+	}
+	
+	@Override
+	public GroupEntityDto addUserToGroup(Long groupId, Long userId, Long callerId) throws RestInterfaceException {
+		GroupEntity group = dao.findById(groupId);
+		if (group == null)
+			throw new NoUserFoundException("no such group");
+		
+		if (! checkAccess(group, callerId))
+			throw new UnauthorizedException("Not authorized");
+		
+		UserEntity user = userDao.findById(userId);
+		if (user == null)
+			throw new NoUserFoundException("no such user");
+
+		if (dao.findByUser(user).contains(group))
+			throw new NoUserFoundException("user already in group");
+		
+		dao.addUserToGroup(user, group);
+		
+		if (group instanceof ServiceBasedGroupEntity) {
+			List<ServiceGroupFlagEntity> flagList = groupFlagDao.findByGroup((ServiceBasedGroupEntity) group);
+			for (ServiceGroupFlagEntity flag : flagList) {
+				flag.setStatus(ServiceGroupStatus.DIRTY);
+			}
+			
+			HashSet<GroupEntity> gl = new HashSet<GroupEntity>();
+			gl.add(group);
+			MultipleGroupEvent mge = new MultipleGroupEvent(gl);
+			try {
+				eventSubmitter.submit(mge, EventType.GROUP_UPDATE, "user-" + userId);
+			} catch (EventSubmitException e) {
+				logger.warn("Exeption", e);
+			}
+		}
+
+		GroupEntityDto dto = createNewDto();
+		mapper.copyProperties(group, dto);
 		return dto;
 	}
 	

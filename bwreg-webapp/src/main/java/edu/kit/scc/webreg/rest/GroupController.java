@@ -56,6 +56,15 @@ public class GroupController {
 		return groupDtoService.findByName(name, resolveUserId(request), true);
 	}
 
+	@Path(value = "/add/group/{groupId}/user/{userId}")
+	@Produces({MediaType.APPLICATION_JSON})
+	@GET
+	public GroupEntityDto findDetailByName(@PathParam("groupId") Long groupId, @PathParam("userId") Long userId, 
+			@Context HttpServletRequest request)
+					throws IOException, RestInterfaceException, ServletException {
+		return groupDtoService.addUserToGroup(groupId, userId, resolveUserId(request));
+	}
+	
 	@Path(value = "/create/{ssn}/{name}")
 	@Produces({MediaType.APPLICATION_JSON})
 	@GET
