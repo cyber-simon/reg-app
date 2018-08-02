@@ -137,7 +137,46 @@ public class GroupDtoServiceImpl extends BaseDtoServiceImpl<GroupEntity, GroupEn
 		mapper.copyProperties(group, dto);
 		return dto;
 	}
-	
+
+	@Override
+	public GroupEntityDto removeUserToGroup(Long groupId, Long userId, Long callerId) throws RestInterfaceException {
+		GroupEntity group = dao.findById(groupId);
+		if (group == null)
+			throw new NoUserFoundException("no such group");
+		
+		if (! checkAccess(group, callerId))
+			throw new UnauthorizedException("Not authorized");
+		
+		UserEntity user = userDao.findById(userId);
+		if (user == null)
+			throw new NoUserFoundException("no such user");
+
+		if (! dao.findByUser(user).contains(group))
+			throw new NoUserFoundException("user is not in group");
+		
+		dao.removeUserGromGroup(user, group);
+		
+		if (group instanceof ServiceBasedGroupEntity) {
+			List<ServiceGroupFlagEntity> flagList = groupFlagDao.findByGroup((ServiceBasedGroupEntity) group);
+			for (ServiceGroupFlagEntity flag : flagList) {
+				flag.setStatus(ServiceGroupStatus.DIRTY);
+			}
+			
+			HashSet<GroupEntity> gl = new HashSet<GroupEntity>();
+			gl.add(group);
+			MultipleGroupEvent mge = new MultipleGroupEvent(gl);
+			try {
+				eventSubmitter.submit(mge, EventType.GROUP_UPDATE, "user-" + userId);
+			} catch (EventSubmitException e) {
+				logger.warn("Exeption", e);
+			}
+		}
+
+		GroupEntityDto dto = createNewDto();
+		mapper.copyProperties(group, dto);
+		return dto;
+	}
+
 	@Override
 	public GroupEntityDto create(String ssn, String name, Long userId) throws RestInterfaceException {
 		LocalGroupEntity entity = localGroupDao.findByName(name);

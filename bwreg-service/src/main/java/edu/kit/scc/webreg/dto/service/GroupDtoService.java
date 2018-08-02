@@ -14,4 +14,6 @@ public interface GroupDtoService extends BaseDtoService<GroupEntity, GroupEntity
 
 	GroupEntityDto addUserToGroup(Long groupId, Long userId, Long callerId) throws RestInterfaceException;
 
+	GroupEntityDto removeUserToGroup(Long groupId, Long userId, Long callerId) throws RestInterfaceException;
+
 }
