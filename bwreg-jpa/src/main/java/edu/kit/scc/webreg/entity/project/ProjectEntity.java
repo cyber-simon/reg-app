@@ -42,8 +42,8 @@ public class ProjectEntity extends AbstractBaseEntity {
 	private ProjectAdminRoleEntity adminRole;
 	
 	@Column(name = "description")
-	@Lob 
-	@Type(type = "org.hibernate.type.TextType")	
+	@Lob
+	@Type(type = "org.hibernate.type.TextType")
 	private String description;
 	
 	@Column(name = "short_description", length = 2048)
