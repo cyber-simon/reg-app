@@ -279,6 +279,10 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 							service.getShortName(), registry.getId(), registry.getRegistryStatus()});
 				}
 			}
+			else if (RegistryStatus.PENDING.equals(registry.getRegistryStatus())) {
+				logger.debug("{} {} {}: stays in status {}", new Object[] {user.getEppn(), 
+						service.getShortName(), registry.getId(), registry.getRegistryStatus()});
+			}
 			else {
 				if (! hasAccess(objectList)) {
 					logger.debug("{} {} {}: registry status changed from {} to LOST_ACCESS", new Object[] {user.getEppn(), 
