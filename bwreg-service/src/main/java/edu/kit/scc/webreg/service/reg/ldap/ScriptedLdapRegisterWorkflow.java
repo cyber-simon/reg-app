@@ -244,7 +244,7 @@ public class ScriptedLdapRegisterWorkflow
 
 					Object result = invocable.invokeFunction("resolveGroupname", scriptingEnv, reconMap, group, service, auditor, logger);
 					if (result != null) {
-						ldapWorker.reconGroup(group.getName(), "" + group.getGidNumber(), memberUids);
+						ldapWorker.reconGroup(result.toString(), "" + group.getGidNumber(), memberUids);
 					} else {
 						logger.debug("Groupname for group {} did not resolve", group.getName());
 					}
