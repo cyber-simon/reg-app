@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.kit.lsdf.sns.service.PFAccount;
-import edu.kit.lsdf.sns.service.PFWorker;
+import edu.kit.lsdf.sns.service.PFApi14Worker;
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
@@ -30,7 +30,7 @@ public class PFApi14RegisterWorkflow implements RegisterUserWorkflow, Infotainme
 			RegistryEntity registry, Auditor auditor) throws RegisterException {
 
 		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
-		PFWorker pfWorker = new PFWorker(prop, auditor);
+		PFApi14Worker pfWorker = new PFApi14Worker(prop, auditor);
 
 		String spaceAllowed;
 		if (prop.hasProp("space_allowed")) 
@@ -73,7 +73,7 @@ public class PFApi14RegisterWorkflow implements RegisterUserWorkflow, Infotainme
 			RegistryEntity registry, Auditor auditor) throws RegisterException {
 
 		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
-		PFWorker pfWorker = new PFWorker(prop, auditor);
+		PFApi14Worker pfWorker = new PFApi14Worker(prop, auditor);
 
 		String userId = registry.getRegistryValues().get("powerfolderId");
 		
@@ -118,7 +118,7 @@ public class PFApi14RegisterWorkflow implements RegisterUserWorkflow, Infotainme
 	public Infotainment getInfo(RegistryEntity registry, UserEntity user, ServiceEntity service) throws RegisterException {
 		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
 
-		PFWorker pfWorker = new PFWorker(prop, null);
+		PFApi14Worker pfWorker = new PFApi14Worker(prop, null);
 		
 		if (! registry.getRegistryValues().containsKey("powerfolderId"))
 			throw new RegisterException("Registration is incomplete (missing powerfolderId)");

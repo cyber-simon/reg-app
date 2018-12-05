@@ -53,7 +53,7 @@ public class PFApi14Worker {
 	
 	private Auditor auditor;
 	
-	private PFAccountSerializer accountSerializer;
+	private PFApi14AccountSerializer accountSerializer;
 	
 	private String pfApiUrl;
 	private String pfApiUsername;
@@ -84,7 +84,7 @@ public class PFApi14Worker {
 			    .setDefaultRequestConfig(defaultRequestConfig)
 			    .build();
 		
-		accountSerializer = new PFAccountSerializer();
+		accountSerializer = new PFApi14AccountSerializer();
 	}
 
 	@SuppressWarnings("unchecked")
