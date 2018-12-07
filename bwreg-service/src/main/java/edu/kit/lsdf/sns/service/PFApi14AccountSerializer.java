@@ -24,6 +24,8 @@ public class PFApi14AccountSerializer {
 		account.setId(convertValue(result.get("ID")));
 		account.setUsername(convertValue(result.get("username")));
 		account.setSpaceAllowed(convertValue(result.get("spaceAllowed")));
+		account.setSpaceUsed(convertValue(result.get("spaceUsed")));
+		account.setSpaceHistory(convertValue(result.get("spaceHistory")));
 		account.setFirstname(convertValue(result.get("firstname")));
 		account.setSurname(convertValue(result.get("surname")));
 		account.setCustom1(convertValue(result.get("custom1")));
@@ -33,6 +35,9 @@ public class PFApi14AccountSerializer {
 		account.setValidTil(convertValue(result.get("validTill")));
 		account.setNotes(convertValue(result.get("notes")));
 		account.setEmail(convertValue(result.get("emails")));
+		account.setDevicesAllowed(convertValue(result.get("devicesAllowed")));
+		account.setDevicesUsed(convertValue(result.get("devicesUsed")));
+		account.setCreated(convertValue(result.get("created")));
 
 		return account;
 	}

@@ -1,6 +1,7 @@
 package edu.kit.scc.syncshare.reg;
 
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -136,11 +137,16 @@ public class PFApi14RegisterWorkflow implements RegisterUserWorkflow, Infotainme
 		else {
 			info.setMessage("Account geladen");
 			
+			DecimalFormat decimalFormat = new DecimalFormat("0.00");
+			
 			InfotainmentTreeNode userRoot = new InfotainmentTreeNode("User Data", root);
 			new InfotainmentTreeNode("Username", pfAccount.getUsername(), userRoot);
 			new InfotainmentTreeNode("Firstname", pfAccount.getFirstname(), userRoot);
 			new InfotainmentTreeNode("Surname", pfAccount.getSurname(), userRoot);
 			new InfotainmentTreeNode("E-Mail", pfAccount.getEmail(), userRoot);
+			new InfotainmentTreeNode("Allowed Space", decimalFormat.format(Long.parseLong(pfAccount.getSpaceAllowed()) / 1024 / 1024 / 1024) + " Gb", userRoot);
+			new InfotainmentTreeNode("Used Space", decimalFormat.format(Long.parseLong(pfAccount.getSpaceUsed()) / 1024 / 1024 / 1024) + " Gb", userRoot);
+			new InfotainmentTreeNode("Created", pfAccount.getCreated(), userRoot);
 		}
 		info.setRoot(root);
 		return info;

@@ -20,6 +20,8 @@ public class PFAccountSerializer {
 		account.setId(convertValue(userData.get("ID")));
 		account.setUsername(convertValue(userData.get("username")));
 		account.setSpaceAllowed(convertValue(userData.get("spaceAllowed")));
+		account.setSpaceUsed(convertValue(userData.get("spaceUsed")));
+		account.setSpaceHistory(convertValue(userData.get("spaceHistory")));
 		account.setFirstname(convertValue(userData.get("firstname")));
 		account.setSurname(convertValue(userData.get("surname")));
 		account.setCustom1(convertValue(userData.get("custom1")));
@@ -29,6 +31,9 @@ public class PFAccountSerializer {
 		account.setValidTil(convertValue(userData.get("validTill")));
 		account.setNotes(convertValue(userData.get("notes")));
 		account.setEmail(convertValue(userData.get("emails")));
+		account.setDevicesAllowed(convertValue(userData.get("devicesAllowed")));
+		account.setDevicesUsed(convertValue(userData.get("devicesUsed")));
+		account.setCreated(convertValue(userData.get("created")));
 
 		return account;
 	}

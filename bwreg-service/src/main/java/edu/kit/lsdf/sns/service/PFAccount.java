@@ -21,7 +21,10 @@ public class PFAccount implements Serializable {
 	private String notes;
 	private String custom1, custom2, custom3;
 	private String spaceAllowed;
+	private String spaceUsed;
+	private String spaceHistory;
 	private String devicesAllowed;
+	private String devicesUsed;
 	private String validTil;
 	private String serverId;
 	private String firstname;
@@ -31,6 +34,7 @@ public class PFAccount implements Serializable {
 	private String shibbolethPersistentId;
 	private String email;
 	private String password;
+	private String created; 
 	
 	public String getEmail() {
 		return email;
@@ -166,5 +170,37 @@ public class PFAccount implements Serializable {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public String getSpaceUsed() {
+		return spaceUsed;
+	}
+
+	public void setSpaceUsed(String spaceUsed) {
+		this.spaceUsed = spaceUsed;
+	}
+
+	public String getSpaceHistory() {
+		return spaceHistory;
+	}
+
+	public void setSpaceHistory(String spaceHistory) {
+		this.spaceHistory = spaceHistory;
+	}
+
+	public String getDevicesUsed() {
+		return devicesUsed;
+	}
+
+	public void setDevicesUsed(String devicesUsed) {
+		this.devicesUsed = devicesUsed;
+	}
+
+	public String getCreated() {
+		return created;
+	}
+
+	public void setCreated(String created) {
+		this.created = created;
 	}
 }
