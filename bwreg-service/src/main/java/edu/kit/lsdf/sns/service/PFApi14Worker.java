@@ -130,7 +130,7 @@ public class PFApi14Worker {
 		
 		Map<String, String> parameterMap = new HashMap<String, String>();
 		
-		parameterMap.put("ID", pfAccount.getId());
+		parameterMap.put("id", pfAccount.getId());
 		parameterMap.put("action", "setActivationDate");
 
 		String s = executeGet(parameterMap);
