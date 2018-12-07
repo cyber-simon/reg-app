@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 
 import edu.kit.lsdf.sns.service.PFAccount;
 import edu.kit.lsdf.sns.service.PFAccountService;
+import edu.kit.lsdf.sns.service.PFApi14AccountService;
 import edu.kit.scc.webreg.entity.AgreementTextEntity;
 import edu.kit.scc.webreg.entity.PolicyEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
@@ -67,6 +68,9 @@ public class SyncAndShareGuestBean implements Serializable {
 	private PFAccountService pfAccountService;
 	
 	@Inject
+	private PFApi14AccountService pfApi14AccountService;
+	
+	@Inject
 	private UserService userService;
 	
 	@Inject
@@ -81,6 +85,7 @@ public class SyncAndShareGuestBean implements Serializable {
 	private String password1, password2;
 	private String passwordRegex, passwordRegexMessage;
 	private String entitlement;
+	private String apiVersion;
 	
 	private AgreementTextEntity agreementText;
 	
@@ -116,6 +121,13 @@ public class SyncAndShareGuestBean implements Serializable {
 				Long l = Long.parseLong(ga);
 				agreementText = agreementTextService.findById(l);
 			}
+
+			if (serviceEntity.getServiceProps().containsKey("api_version")) {
+				apiVersion = serviceEntity.getServiceProps().get("api_version");
+			}
+			else {
+				apiVersion = "none";
+			}
 			
 			if (serviceEntity.getServiceProps().containsKey("password_regex"))
 				passwordRegex = serviceEntity.getServiceProps().get("password_regex");
@@ -142,7 +154,10 @@ public class SyncAndShareGuestBean implements Serializable {
 			}
 			
 			try {
-				pfAccount = pfAccountService.findById(token, serviceEntity);
+				if (apiVersion.equalsIgnoreCase("api14"))
+					pfAccount = pfApi14AccountService.findById(token, serviceEntity);
+				else
+					pfAccount = pfAccountService.findById(token, serviceEntity);
 				
 				if (pfAccount == null) {
 					messageGenerator.addResolvedErrorMessage("unknown-token");
@@ -211,8 +226,16 @@ public class SyncAndShareGuestBean implements Serializable {
 			pfAccount.setCustom3("guest-active");
 			pfAccount.setSpaceAllowed("0");
 			pfAccount.setNotes("Accepted TOU in Webreg");
-			pfAccountService.update(pfAccount, serviceEntity);
-			pfAccountService.setActivationDate(pfAccount, serviceEntity);
+
+			if (apiVersion.equalsIgnoreCase("api14")) {
+				pfApi14AccountService.update(pfAccount, serviceEntity);
+				pfApi14AccountService.setActivationDate(pfAccount, serviceEntity);
+			}
+			else {
+				pfAccountService.update(pfAccount, serviceEntity);
+				pfAccountService.setActivationDate(pfAccount, serviceEntity);
+			}
+			
 		} catch (RegisterException e) {
 			messageGenerator.addErrorMessage(e.toString());
 			return null;
