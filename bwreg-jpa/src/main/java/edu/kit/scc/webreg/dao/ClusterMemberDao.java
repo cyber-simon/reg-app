@@ -10,10 +10,15 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao;
 
+import java.util.List;
+
 import edu.kit.scc.webreg.entity.ClusterMemberEntity;
+import edu.kit.scc.webreg.entity.ClusterSchedulerStatus;
 
 public interface ClusterMemberDao extends BaseDao<ClusterMemberEntity, Long> {
 
 	ClusterMemberEntity findByNodeName(String nodename);
+
+	List<ClusterMemberEntity> findBySchedulerStatus(ClusterSchedulerStatus status);
 
 }

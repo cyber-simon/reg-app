@@ -10,12 +10,19 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
+import java.util.List;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 import javax.persistence.NoResultException;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 import edu.kit.scc.webreg.dao.ClusterMemberDao;
 import edu.kit.scc.webreg.entity.ClusterMemberEntity;
+import edu.kit.scc.webreg.entity.ClusterMemberEntity_;
+import edu.kit.scc.webreg.entity.ClusterSchedulerStatus;
 
 @Named
 @ApplicationScoped
@@ -33,7 +40,17 @@ public class JpaClusterMemberDao extends JpaBaseDao<ClusterMemberEntity, Long> i
 			return null;
 		}
 	}	
-		
+
+	@Override
+	public List<ClusterMemberEntity> findBySchedulerStatus(ClusterSchedulerStatus status) {
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<ClusterMemberEntity> criteria = builder.createQuery(ClusterMemberEntity.class);
+		Root<ClusterMemberEntity> root = criteria.from(ClusterMemberEntity.class);
+		criteria.where(builder.equal(root.get(ClusterMemberEntity_.clusterSchedulerStatus), status));
+		criteria.select(root);
+		return em.createQuery(criteria).getResultList();
+	}	
+
 	@Override
     public Class<ClusterMemberEntity> getEntityClass() {
 		return ClusterMemberEntity.class;

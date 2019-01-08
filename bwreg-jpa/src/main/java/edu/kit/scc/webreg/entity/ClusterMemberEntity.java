@@ -23,6 +23,9 @@ public class ClusterMemberEntity extends AbstractBaseEntity {
 	@Column(name = "last_status_change")
 	private Date lastStatusChange;
 	
+	@Column(name = "last_status_check")
+	private Date lastStatusCheck;
+	
 	@Enumerated(EnumType.STRING)
 	private ClusterSchedulerStatus clusterSchedulerStatus;
 	
@@ -67,6 +70,14 @@ public class ClusterMemberEntity extends AbstractBaseEntity {
 
 	public void setLastStatusChange(Date lastStatusChange) {
 		this.lastStatusChange = lastStatusChange;
+	}
+
+	public Date getLastStatusCheck() {
+		return lastStatusCheck;
+	}
+
+	public void setLastStatusCheck(Date lastStatusCheck) {
+		this.lastStatusCheck = lastStatusCheck;
 	}
 	
 }
