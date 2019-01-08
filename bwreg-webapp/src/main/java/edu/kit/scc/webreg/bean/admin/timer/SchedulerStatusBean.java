@@ -17,7 +17,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import edu.kit.scc.webreg.bootstrap.NodeConfiguration;
-import edu.kit.scc.webreg.service.timer.ClusterSchedulerStatusService;
 import edu.kit.scc.webreg.service.timer.StandardScheduler;
 
 @Named("schedulerStatusBean")
@@ -27,18 +26,11 @@ public class SchedulerStatusBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Inject
-	private ClusterSchedulerStatusService clusterSchedulerStatusService;
-
-	@Inject
 	private StandardScheduler standardScheduler;
 	
 	@Inject
 	private NodeConfiguration nodeConfiguration;
 	
-	public ClusterSchedulerStatusService getClusterSchedulerStatusService() {
-		return clusterSchedulerStatusService;
-	}
-
 	public NodeConfiguration getNodeConfiguration() {
 		return nodeConfiguration;
 	}
