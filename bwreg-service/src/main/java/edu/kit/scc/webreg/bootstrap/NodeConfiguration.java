@@ -10,13 +10,21 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.bootstrap;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Date;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
 
 @ApplicationScoped
 public class NodeConfiguration {
 
+	@Inject
+	private Logger logger;
+	
 	private Date timerConfigured;
 	
 	private Date rulesConfigured;
@@ -38,6 +46,11 @@ public class NodeConfiguration {
 	}
 
 	public String getNodeName() {
-		return System.getProperty("jboss.node.name");
+		try {
+			return InetAddress.getLocalHost().getHostName();
+		} catch (UnknownHostException e) {
+			logger.warn("Exception while resolving hostname!", e);
+			return System.getProperty("jboss.node.name");
+		}
 	}
 }
