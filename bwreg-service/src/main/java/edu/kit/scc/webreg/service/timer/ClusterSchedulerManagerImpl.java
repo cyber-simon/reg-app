@@ -13,6 +13,7 @@ package edu.kit.scc.webreg.service.timer;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
@@ -57,6 +58,8 @@ public class ClusterSchedulerManagerImpl implements ClusterSchedulerManager, Ser
 	
 	@Override
 	public void initialize() {
+		Random r = new Random(System.currentTimeMillis());
+		
 		String nodename = nodeConfiguration.getNodeName();
 		logger.info("Installing ClusterSchedulerManagerImpl for Node {}", nodename);
 
@@ -66,29 +69,50 @@ public class ClusterSchedulerManagerImpl implements ClusterSchedulerManager, Ser
 		TimerConfig timerConfig = new TimerConfig();
 		timerConfig.setInfo("Check Scheduler Timer");
 		timerConfig.setPersistent(false);
-		timerService.createIntervalTimer(60000, 30000, timerConfig);
+		timerService.createIntervalTimer(55000 + r.nextInt(10000), 28000 + r.nextInt(4000), timerConfig);
+
+		timerConfig = new TimerConfig();
+		timerConfig.setInfo("Check Dead Nodes");
+		timerConfig.setPersistent(false);
+		timerService.createIntervalTimer(5*60*1000 + r.nextInt(10000), 2*60*1000, timerConfig);
 	}
 
 	@Timeout
     public void checkScheduler(Timer timer) {
-		ClusterMemberEntity clusterMemberEntity = statusCheck();
-		
-		List<ClusterMemberEntity> clusterMemberEntityList = clusterMemberDao.findBySchedulerStatus(ClusterSchedulerStatus.MASTER);
-		if (clusterMemberEntityList.size() == 0) {
-			// No master at the moment. Claim master
-	        logger.info("No Master on the cluster found. Claiming Master.");
-	        clusterMemberEntity.setClusterSchedulerStatus(ClusterSchedulerStatus.MASTER);
-	        clusterMemberEntity.setLastSchedulerStatusChange(new Date());
-	        clusterScheduler.startTimers(nodeConfiguration.getNodeName());
+		logger.debug("Running timer: {}", timer.getInfo().toString());
+
+		if (timer.getInfo().toString().equalsIgnoreCase("Check Scheduler Timer")) {
+			ClusterMemberEntity clusterMemberEntity = statusCheck();
+			
+			List<ClusterMemberEntity> clusterMemberEntityList = clusterMemberDao.findBySchedulerStatus(ClusterSchedulerStatus.MASTER);
+			if (clusterMemberEntityList.size() == 0) {
+				// No master at the moment. Claim master
+		        logger.info("No Master on the cluster found. Claiming Master.");
+		        clusterMemberEntity.setClusterSchedulerStatus(ClusterSchedulerStatus.MASTER);
+		        clusterMemberEntity.setLastSchedulerStatusChange(new Date());
+		        clusterScheduler.startTimers(nodeConfiguration.getNodeName());
+			}
+			else if (clusterMemberEntityList.size() > 1) {
+		        logger.info("More than one Master on the cluster found. Resetting all to Passive.");
+		        for (ClusterMemberEntity cme : clusterMemberEntityList) {
+		        	cme.setClusterSchedulerStatus(ClusterSchedulerStatus.PASSIVE);
+		        	cme.setLastSchedulerStatusChange(new Date());
+		        }
+			}		
 		}
-		else if (clusterMemberEntityList.size() > 1) {
-	        logger.info("More than one Master on the cluster found. Resetting all to Passive.");
-	        for (ClusterMemberEntity cme : clusterMemberEntityList) {
-	        	cme.setClusterSchedulerStatus(ClusterSchedulerStatus.PASSIVE);
-	        	cme.setLastSchedulerStatusChange(new Date());
-	        }
-		}		
-    }
+		else if (timer.getInfo().toString().equalsIgnoreCase("Check Dead Nodes")) {
+			List<ClusterMemberEntity> allList = clusterMemberDao.findByMemberStatus(ClusterMemberStatus.ONLINE);
+			for (ClusterMemberEntity cme: allList) {
+				if (System.currentTimeMillis() - cme.getLastStatusCheck().getTime() > 1000 * 60 * 10) {
+					logger.warn("Online Cluster member not checked the last 10 minutes. Setting to Offline");
+		        	cme.setClusterSchedulerStatus(ClusterSchedulerStatus.PASSIVE);
+		        	cme.setLastSchedulerStatusChange(new Date());
+					cme.setClusterMemberStatus(ClusterMemberStatus.DEAD);
+					cme.setLastStatusChange(new Date());
+				}
+			}
+		}
+	}
 	
 	private ClusterMemberEntity statusCheck() {
 		String nodename = nodeConfiguration.getNodeName();

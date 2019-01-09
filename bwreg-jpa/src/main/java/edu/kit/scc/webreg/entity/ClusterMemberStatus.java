@@ -13,6 +13,6 @@ package edu.kit.scc.webreg.entity;
 public enum ClusterMemberStatus {
 
 	ONLINE,
-	OFFLINE
-	
+	OFFLINE,
+	DEAD
 }

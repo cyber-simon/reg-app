@@ -22,6 +22,7 @@ import javax.persistence.criteria.Root;
 import edu.kit.scc.webreg.dao.ClusterMemberDao;
 import edu.kit.scc.webreg.entity.ClusterMemberEntity;
 import edu.kit.scc.webreg.entity.ClusterMemberEntity_;
+import edu.kit.scc.webreg.entity.ClusterMemberStatus;
 import edu.kit.scc.webreg.entity.ClusterSchedulerStatus;
 
 @Named
@@ -47,6 +48,16 @@ public class JpaClusterMemberDao extends JpaBaseDao<ClusterMemberEntity, Long> i
 		CriteriaQuery<ClusterMemberEntity> criteria = builder.createQuery(ClusterMemberEntity.class);
 		Root<ClusterMemberEntity> root = criteria.from(ClusterMemberEntity.class);
 		criteria.where(builder.equal(root.get(ClusterMemberEntity_.clusterSchedulerStatus), status));
+		criteria.select(root);
+		return em.createQuery(criteria).getResultList();
+	}	
+
+	@Override
+	public List<ClusterMemberEntity> findByMemberStatus(ClusterMemberStatus status) {
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<ClusterMemberEntity> criteria = builder.createQuery(ClusterMemberEntity.class);
+		Root<ClusterMemberEntity> root = criteria.from(ClusterMemberEntity.class);
+		criteria.where(builder.equal(root.get(ClusterMemberEntity_.clusterMemberStatus), status));
 		criteria.select(root);
 		return em.createQuery(criteria).getResultList();
 	}	
