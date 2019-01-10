@@ -8,12 +8,10 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.service.timer;
+package edu.kit.scc.webreg.service;
 
-import edu.kit.scc.webreg.dao.ClusterMemberDao;
+import edu.kit.scc.webreg.entity.ClusterMemberEntity;
 
-public interface ClusterSchedulerManager {
-
-	void initialize();
+public interface ClusterMemberService extends BaseService<ClusterMemberEntity, Long> {
 
 }

@@ -12,15 +12,20 @@ package edu.kit.scc.webreg.bean.admin.timer;
 
 import java.io.Serializable;
 
-import javax.enterprise.context.RequestScoped;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ViewScoped;
 import javax.inject.Inject;
-import javax.inject.Named;
+
+import org.primefaces.model.LazyDataModel;
 
 import edu.kit.scc.webreg.bootstrap.NodeConfiguration;
+import edu.kit.scc.webreg.entity.ClusterMemberEntity;
+import edu.kit.scc.webreg.model.GenericLazyDataModelImpl;
+import edu.kit.scc.webreg.service.ClusterMemberService;
 import edu.kit.scc.webreg.service.timer.StandardScheduler;
 
-@Named("schedulerStatusBean")
-@RequestScoped
+@ManagedBean
+@ViewScoped
 public class SchedulerStatusBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -31,6 +36,17 @@ public class SchedulerStatusBean implements Serializable {
 	@Inject
 	private NodeConfiguration nodeConfiguration;
 	
+	@Inject
+	private ClusterMemberService clusterMemberService;
+	
+	private LazyDataModel<ClusterMemberEntity> list;
+	
+    public void preRenderView() {
+		if (list == null) {
+			list = new GenericLazyDataModelImpl<ClusterMemberEntity, ClusterMemberService, Long>(clusterMemberService);
+		}
+	}
+	
 	public NodeConfiguration getNodeConfiguration() {
 		return nodeConfiguration;
 	}
@@ -38,6 +54,13 @@ public class SchedulerStatusBean implements Serializable {
 	public StandardScheduler getStandardScheduler() {
 		return standardScheduler;
 	}
-	
-	
+
+	public LazyDataModel<ClusterMemberEntity> getList() {
+		return list;
+	}
+
+	public void setList(LazyDataModel<ClusterMemberEntity> list) {
+		this.list = list;
+	}
+
 }

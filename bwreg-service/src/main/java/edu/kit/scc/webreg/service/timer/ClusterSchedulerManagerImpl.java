@@ -147,6 +147,5 @@ public class ClusterSchedulerManagerImpl implements ClusterSchedulerManager, Ser
 			clusterMemberEntity.setClusterSchedulerStatus(ClusterSchedulerStatus.PASSIVE);
 			clusterMemberEntity.setLastSchedulerStatusChange(new Date());
 		}		
-	}
-	
+	}	
 }
