@@ -26,7 +26,6 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 
-import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.bootstrap.NodeConfiguration;
 import edu.kit.scc.webreg.dao.ClusterMemberDao;
 import edu.kit.scc.webreg.entity.ClusterMemberEntity;
@@ -47,9 +46,6 @@ public class ClusterSchedulerManagerImpl implements ClusterSchedulerManager, Ser
 	@Inject
 	private NodeConfiguration nodeConfiguration;
 	
-	@Inject
-	private ApplicationConfig appConfig;
-
 	@Inject
 	private ClusterMemberDao clusterMemberDao;
 	
@@ -104,7 +100,7 @@ public class ClusterSchedulerManagerImpl implements ClusterSchedulerManager, Ser
 			List<ClusterMemberEntity> allList = clusterMemberDao.findByMemberStatus(ClusterMemberStatus.ONLINE);
 			for (ClusterMemberEntity cme: allList) {
 				if (System.currentTimeMillis() - cme.getLastStatusCheck().getTime() > 1000 * 60 * 10) {
-					logger.warn("Online Cluster member not checked the last 10 minutes. Setting to Offline");
+					logger.warn("Online Cluster member not checked the last 10 minutes. Setting to DEAD");
 		        	cme.setClusterSchedulerStatus(ClusterSchedulerStatus.PASSIVE);
 		        	cme.setLastSchedulerStatusChange(new Date());
 					cme.setClusterMemberStatus(ClusterMemberStatus.DEAD);
