@@ -140,27 +140,6 @@
 				<version>262</version>
 			</dependency>
 			<dependency>
-				<groupId>org.jboss.msc</groupId>
-				<artifactId>jboss-msc</artifactId>
-				<version>1.0.4.GA</version>
-			</dependency>
-			<dependency>
-				<groupId>org.wildfly</groupId>
-				<artifactId>wildfly-clustering-common</artifactId>
-				<version>8.2.0.Final</version>
-				<exclusions>
-					<exclusion>
-						<artifactId>jconsole</artifactId>
-						<groupId>sun.jdk</groupId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>org.wildfly</groupId>
-				<artifactId>wildfly-clustering-singleton</artifactId>
-				<version>8.2.0.Final</version>
-			</dependency>
-			<dependency>
 				<groupId>org.apache.jclouds.api</groupId>
 				<artifactId>openstack-keystone</artifactId>
 				<version>1.9.0</version>

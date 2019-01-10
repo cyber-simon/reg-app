@@ -37,6 +37,7 @@ import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.impl.HookManager;
 import edu.kit.scc.webreg.service.mail.TemplateRenderer;
+import edu.kit.scc.webreg.service.timer.ClusterSchedulerManager;
 import edu.kit.scc.webreg.service.timer.StandardScheduler;
 
 @Singleton
@@ -69,6 +70,9 @@ public class ApplicationBootstrap {
 	
 	@Inject
 	private StandardScheduler standardScheduler;
+
+	@Inject
+	private ClusterSchedulerManager clusterSchedulerManager;
 
 	@Inject
 	private BpmProcessService bpmProcessService;
@@ -143,6 +147,7 @@ public class ApplicationBootstrap {
         velocityRenderer.init();
         
         standardScheduler.initialize();
+        clusterSchedulerManager.initialize();
 	}
 	
     private void checkGroup(String name, Integer createActual) {

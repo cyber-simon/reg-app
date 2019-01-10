@@ -106,23 +106,6 @@
 			<scope>provided</scope>
 		</dependency>
 
-        <dependency>
-            <groupId>org.jboss.msc</groupId>
-            <artifactId>jboss-msc</artifactId>
-			<scope>provided</scope>
-        </dependency>
-        	
-		<dependency>
-			<groupId>org.wildfly</groupId>
-			<artifactId>wildfly-clustering-common</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.wildfly</groupId>
-			<artifactId>wildfly-clustering-singleton</artifactId>
-			<scope>provided</scope>
-		</dependency>
-
 		<dependency>
    			<groupId>commons-beanutils</groupId>
 		    <artifactId>commons-beanutils</artifactId>
@@ -159,9 +142,7 @@
 					<archive>
 						<addMavenDescriptor>false</addMavenDescriptor>
 						<manifestEntries>
-							<Dependencies>org.jboss.msc,
-								${bwreg.jboss-singleton},
-								org.jboss.as.server</Dependencies>
+							<Dependencies></Dependencies>
 						</manifestEntries>
 					</archive>
 				</configuration>

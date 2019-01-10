@@ -8,12 +8,11 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.service.timer;
+package edu.kit.scc.webreg.entity;
 
-public interface ClusterSchedulerStatusService {
+public enum ClusterMemberStatus {
 
-	String getActiveNode();
-
-	ClusterScheduler getClusterScheduler();
-
+	ONLINE,
+	OFFLINE,
+	DEAD
 }
