@@ -23,16 +23,34 @@
 	<ui:param name="title" value="#{messages.title}"/>
 
 	<ui:define name="content">
-	<h:form>
+	<h:form id="form" prependId="false">
+		<p:panel header="#{messages.ssh_key_management}">
+			<div><p:messages showDetail="true" /></div>
 
-	<div class="panel">
-		<div class="panel">#{messages.my_data_explanation}</div>
-		<div class="panel">#{messages.data_from}: <b>#{userPropertiesBean.idpEntity.orgName}</b></div>
-		<p:panelGrid id="baseData" columns="2">
-			<bw:outputText label="#{messages.name}" value="#{userPropertiesBean.user.surName}, #{userPropertiesBean.user.givenName}"/>
-			<bw:outputText label="#{messages.eppn}" value="#{userPropertiesBean.user.eppn}"/>
-		</p:panelGrid>
-	</div>
+			<p:panelGrid id="baseData" columns="2">
+		        <h:outputText value="#{messages.ssh_key}:"/>
+		        <h:panelGroup>
+		        	<ul>
+		        		<ui:repeat var="key" value="#{userSshKeyManagementBean.keyList.toArray()}">
+			        		<li><h:outputText value="#{key.publicKey}"/></li>
+			        	</ui:repeat>
+			        </ul>
+		        </h:panelGroup>
+			
+		        <h:outputText value="#{messages.add_ssh_key}:"/>
+		        <p:inputTextarea value="#{userSshKeyManagementBean.newKey}" style="width: 600px; height: 100px;" 
+		        	autoResize="false" />
+			</p:panelGrid>
+			<p:commandButton id="add" action="#{userSshKeyManagementBean.deployKey()}" value="#{messages.add}" update="@form" />
+			<p:ajaxStatus id="ajaxStatusPanel" style="display: inline-block; margin-left: 8px; vertical-align: baseline;">
+				<f:facet name="start">  
+					<h:graphicImage value="#{resource['/img/ajax-loader.gif']}" alt="#{messages.loading}"/>
+				</f:facet>  
+				<f:facet name="complete">  
+					<h:outputText value="" />
+				</f:facet>  				
+			</p:ajaxStatus>  
+		</p:panel>
 	</h:form>
 	</ui:define>
 </ui:composition>

@@ -81,8 +81,8 @@ public class OpenSshKeyDecoder implements Serializable {
     private int decodeInt(OpenSshPublicKey key) {
     	byte[] bytes = key.getBytes();
     	int pos = key.getDecoderPos();
-        int header = ((bytes[pos] & 0xFF) << 24) | ((bytes[pos] & 0xFF) << 16)
-                | ((bytes[pos] & 0xFF) << 8) | (bytes[pos] & 0xFF);
+        int header = ((bytes[pos] & 0xFF) << 24) | ((bytes[pos+1] & 0xFF) << 16)
+                | ((bytes[pos+2] & 0xFF) << 8) | (bytes[pos+3] & 0xFF);
         key.increaseDecoderPos(4);
         return header;
     }
