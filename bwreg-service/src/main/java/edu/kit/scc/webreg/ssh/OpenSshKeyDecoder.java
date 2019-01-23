@@ -25,10 +25,10 @@ public class OpenSshKeyDecoder implements Serializable {
     
 	private static final long serialVersionUID = 1L;
 
-	public OpenSshPublicKey decode(String opensshPublicKey) {
+	public OpenSshPublicKey decode(String opensshPublicKey) throws UnsupportedKeyTypeException {
 		OpenSshPublicKey key = new OpenSshPublicKey();
 		
-        key.setBytes(getKeyBytes(opensshPublicKey));
+        getKeyBytes(key, opensshPublicKey);
 
         try {
             String type = decodeType(key);
@@ -54,21 +54,23 @@ public class OpenSshKeyDecoder implements Serializable {
                 ECPublicKeySpec spec = new ECPublicKeySpec(ecPoint, ecParameterSpec);
                 key.setPublicKey(KeyFactory.getInstance("EC").generatePublic(spec));
             } else {
-                throw new IllegalArgumentException("Unsupported key type " + type);
+            	key.setDecoderResult("Unsupported key type");
             }
             return key;
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            throw new IllegalArgumentException("Unable to decode public key", e);
+        	key.setDecoderResult("Unable to decode public key");
+            return key;
         }
     }
     
-    private byte[] getKeyBytes(String opensshPublicKey) {
+    private void getKeyBytes(OpenSshPublicKey key, String opensshPublicKey) throws UnsupportedKeyTypeException {
         for (String part : opensshPublicKey.split(" ")) {
             if (Base64.isBase64(part) && part.startsWith("AAAA")) {
-                return Base64.decodeBase64(part);
+            	key.setBaseDate(part);
+                key.setBytes(Base64.decodeBase64(part));
             }
         }
-        throw new IllegalArgumentException("no Base64 part to decode");
+        throw new UnsupportedKeyTypeException("no Base64 part to decode");
     }
     
     private String decodeType(OpenSshPublicKey key) {
@@ -104,7 +106,7 @@ public class OpenSshKeyDecoder implements Serializable {
         return new ECPoint(x, y);
     }
 
-    ECParameterSpec getECParameterSpec(String identifier) {
+    ECParameterSpec getECParameterSpec(String identifier) throws UnsupportedKeyTypeException {
         try {
             // http://www.bouncycastle.org/wiki/pages/viewpage.action?pageId=362269#SupportedCurves(ECDSAandECGOST)-NIST(aliasesforSECcurves)
             String name = identifier.replace("nist", "sec") + "r1";
@@ -112,7 +114,7 @@ public class OpenSshKeyDecoder implements Serializable {
             parameters.init(new ECGenParameterSpec(name));
             return parameters.getParameterSpec(ECParameterSpec.class);
         } catch (InvalidParameterSpecException | NoSuchAlgorithmException e) {
-            throw new IllegalArgumentException("Unable to get parameter spec for identifier " + identifier, e);
+            throw new UnsupportedKeyTypeException("Unable to get parameter spec for identifier " + identifier, e);
         }
     }    
 }

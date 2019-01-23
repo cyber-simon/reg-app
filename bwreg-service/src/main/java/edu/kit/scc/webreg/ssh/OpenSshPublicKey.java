@@ -7,6 +7,8 @@ public class OpenSshPublicKey {
 	private byte[] bytes;
 	private int decoderPos;
 	private PublicKey publicKey;
+	private String baseDate;
+	private String decoderResult;
 	
 	public OpenSshPublicKey() {
 		super();
@@ -39,5 +41,21 @@ public class OpenSshPublicKey {
 
 	public void setPublicKey(PublicKey publicKey) {
 		this.publicKey = publicKey;
+	}
+
+	public String getBaseDate() {
+		return baseDate;
+	}
+
+	public void setBaseDate(String baseDate) {
+		this.baseDate = baseDate;
+	}
+
+	public String getDecoderResult() {
+		return decoderResult;
+	}
+
+	public void setDecoderResult(String decoderResult) {
+		this.decoderResult = decoderResult;
 	}
 }

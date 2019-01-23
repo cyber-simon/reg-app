@@ -24,6 +24,7 @@ import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.ssh.OpenSshKeyDecoder;
 import edu.kit.scc.webreg.ssh.OpenSshPublicKey;
+import edu.kit.scc.webreg.ssh.UnsupportedKeyTypeException;
 
 @ManagedBean
 @ViewScoped
@@ -53,8 +54,13 @@ public class UserSshKeyManagementBean implements Serializable {
 	}
 	
 	public void deployKey() {
-		OpenSshPublicKey key = keyDecoder.decode(newKey);
-		keyList.add(key);
+		OpenSshPublicKey key;
+		try {
+			key = keyDecoder.decode(newKey);
+			keyList.add(key);
+		} catch (UnsupportedKeyTypeException e) {
+			// happenes when there is not base64 part in key
+		}
 	}
 	
 	public UserEntity getUser() {
