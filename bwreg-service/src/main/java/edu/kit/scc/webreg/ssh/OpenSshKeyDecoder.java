@@ -30,6 +30,11 @@ public class OpenSshKeyDecoder implements Serializable {
 		key.setName(name);
 		key.setValue(opensshPublicKey.trim());
 		
+		return decode(key);
+	}
+	
+	public OpenSshPublicKey decode(OpenSshPublicKey key) throws UnsupportedKeyTypeException {
+
         getKeyBytes(key);
 
         try {

@@ -65,21 +65,44 @@ public class UserSshKeyManagementBean implements Serializable {
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (user == null) {
 	    	user = userService.findByIdWithStore(sessionManager.getUserId());
+    		keyList = new ArrayList<>();
 	    	if (user.getGenericStore().containsKey("ssh_key")) {
 		    	ObjectMapper om = new ObjectMapper();
 		    	try {
-					keyList = om.readValue(user.getGenericStore().get("ssh_key"), 
+					List<OpenSshPublicKey> tempKeyList = om.readValue(user.getGenericStore().get("ssh_key"), 
 							new TypeReference<List<OpenSshPublicKey>>(){});
+					for (OpenSshPublicKey sshKey : tempKeyList) {
+						try {
+							keyList.add(keyDecoder.decode(sshKey));
+						} catch (UnsupportedKeyTypeException e) {
+							logger.warn("Unsupported key exception: ", e.getMessage());
+						}
+					}
 				} catch (IOException e) {
 					logger.warn("Could not read SSH keys from user: " + e.getMessage());
 					messageGenerator.addResolvedErrorMessage("error_msg", "SSH Key not readable. Resetting keys.", false);
-		    		keyList = new ArrayList<>();
 				}
 	    	}
-	    	else {
-	    		keyList = new ArrayList<>();
-	    	}
 		}
+	}
+
+	public void deleteKey(String name) {
+		int removeIndex = -1;
+		
+		for (int i=0; i<keyList.size(); i++) {
+			if (keyList.get(i).getName().equals(name)) {
+				removeIndex = i;
+				break;
+			}
+		}
+		
+		if (removeIndex != -1) {
+			keyList.remove(removeIndex);			
+		}
+		
+		user.getGenericStore().put("ssh_key", buildSshKeyString());
+		user = userService.save(user);
+		messageGenerator.addResolvedInfoMessage("info", "ssh_key_deleted", false);				
 	}
 	
 	public void deployKey() {
@@ -87,19 +110,29 @@ public class UserSshKeyManagementBean implements Serializable {
 		try {
 			key = keyDecoder.decode(newName, newKey);
 			keyList.add(key);
-			ObjectMapper om = new ObjectMapper();
-			ArrayNode array = om.createArrayNode();
-			for (OpenSshPublicKey sshKey : keyList) {
-				array.add(om.convertValue(sshKey, JsonNode.class));
-			}
-			user.getGenericStore().put("ssh_key", array.toString());
+			user.getGenericStore().put("ssh_key", buildSshKeyString());
 			user = userService.save(user);
 			newKey = "";
 			newName = "";
+			if (key.getPublicKey() == null) {
+				messageGenerator.addResolvedWarningMessage("warning", "ssh_key_unknown_format", false);
+			} 
+			else {
+				messageGenerator.addResolvedInfoMessage("info", "ssh_key_deployed", false);				
+			}
 		} catch (UnsupportedKeyTypeException e) {
 			logger.warn("An error occured whilst deploying key: " + e.getMessage());
 			messageGenerator.addResolvedErrorMessage("error_msg", e.toString(), false);
 		}
+	}
+	
+	private String buildSshKeyString() {
+		ObjectMapper om = new ObjectMapper();
+		ArrayNode array = om.createArrayNode();
+		for (OpenSshPublicKey sshKey : keyList) {
+			array.add(om.convertValue(sshKey, JsonNode.class));
+		}
+		return array.toString();
 	}
 	
 	public UserEntity getUser() {

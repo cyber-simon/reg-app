@@ -33,7 +33,7 @@
 		        <h:panelGroup>
 		        	<ul>
 		        		<ui:repeat var="key" value="#{userSshKeyManagementBean.keyList.toArray()}">
-			        		<li><h:outputText value="#{key.name}"/></li>
+			        		<li><h:outputText value="#{key.name}"/> - <p:commandLink id="delete" action="#{userSshKeyManagementBean.deleteKey(key.name)}" value="#{messages.delete}" immediate="true" update="@form" /></li>
 			        	</ui:repeat>
 			        </ul>
 		        </h:panelGroup>
