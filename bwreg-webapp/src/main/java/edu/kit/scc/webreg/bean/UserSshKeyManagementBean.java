@@ -61,6 +61,7 @@ public class UserSshKeyManagementBean implements Serializable {
     private List<OpenSshPublicKey> keyList;
     private String newKey;
     private String newName;
+    private OpenSshPublicKey selectedKey;
     
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (user == null) {
@@ -161,5 +162,13 @@ public class UserSshKeyManagementBean implements Serializable {
 
 	public void setNewName(String newName) {
 		this.newName = newName;
+	}
+
+	public OpenSshPublicKey getSelectedKey() {
+		return selectedKey;
+	}
+
+	public void setSelectedKey(OpenSshPublicKey selectedKey) {
+		this.selectedKey = selectedKey;
 	}
 }
