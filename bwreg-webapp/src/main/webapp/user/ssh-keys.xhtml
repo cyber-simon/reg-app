@@ -25,6 +25,7 @@
 	<ui:define name="content">
 	<h:form id="form" prependId="false">
 		<p:panel header="#{messages.ssh_key_management}">
+			
 			<div><p:messages showDetail="true" /></div>
 
 			<p:panelGrid id="baseData" columns="2">
@@ -32,11 +33,14 @@
 		        <h:panelGroup>
 		        	<ul>
 		        		<ui:repeat var="key" value="#{userSshKeyManagementBean.keyList.toArray()}">
-			        		<li><h:outputText value="#{key.publicKey}"/></li>
+			        		<li><h:outputText value="#{key.name}"/></li>
 			        	</ui:repeat>
 			        </ul>
 		        </h:panelGroup>
-			
+
+		        <bw:inputText id="sshKeyName" label="#{messages.add_ssh_key_name}:" 
+			        	value="#{userSshKeyManagementBean.newName}" required="true"/>			
+
 		        <h:outputText value="#{messages.add_ssh_key}:"/>
 		        <p:inputTextarea value="#{userSshKeyManagementBean.newKey}" style="width: 600px; height: 100px;" 
 		        	autoResize="false" />

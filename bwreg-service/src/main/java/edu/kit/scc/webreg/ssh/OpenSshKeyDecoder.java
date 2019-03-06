@@ -25,10 +25,12 @@ public class OpenSshKeyDecoder implements Serializable {
     
 	private static final long serialVersionUID = 1L;
 
-	public OpenSshPublicKey decode(String opensshPublicKey) throws UnsupportedKeyTypeException {
+	public OpenSshPublicKey decode(String name, String opensshPublicKey) throws UnsupportedKeyTypeException {
 		OpenSshPublicKey key = new OpenSshPublicKey();
+		key.setName(name);
+		key.setValue(opensshPublicKey.trim());
 		
-        getKeyBytes(key, opensshPublicKey);
+        getKeyBytes(key);
 
         try {
             String type = decodeType(key);
@@ -63,11 +65,12 @@ public class OpenSshKeyDecoder implements Serializable {
         }
     }
     
-    private void getKeyBytes(OpenSshPublicKey key, String opensshPublicKey) throws UnsupportedKeyTypeException {
-        for (String part : opensshPublicKey.split(" ")) {
+    private void getKeyBytes(OpenSshPublicKey key) throws UnsupportedKeyTypeException {
+        for (String part : key.getValue().split(" ")) {
             if (Base64.isBase64(part) && part.startsWith("AAAA")) {
             	key.setBaseDate(part);
                 key.setBytes(Base64.decodeBase64(part));
+                return;
             }
         }
         throw new UnsupportedKeyTypeException("no Base64 part to decode");

@@ -2,12 +2,26 @@ package edu.kit.scc.webreg.ssh;
 
 import java.security.PublicKey;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class OpenSshPublicKey {
 
+	private String name;
+	private String value;
+	
+	@JsonIgnore
 	private byte[] bytes;
+
+	@JsonIgnore
 	private int decoderPos;
+
+	@JsonIgnore
 	private PublicKey publicKey;
+
+	@JsonIgnore
 	private String baseDate;
+
+	@JsonIgnore
 	private String decoderResult;
 	
 	public OpenSshPublicKey() {
@@ -57,5 +71,21 @@ public class OpenSshPublicKey {
 
 	public void setDecoderResult(String decoderResult) {
 		this.decoderResult = decoderResult;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getValue() {
+		return value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
 	}
 }
