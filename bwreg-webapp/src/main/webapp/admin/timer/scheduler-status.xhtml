@@ -5,11 +5,19 @@
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
-	xmlns:p="http://primefaces.org/ui">
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
 <head>
 <title></title>
 </head>
 <body>
+
+<f:view>
+
+	<f:metadata>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{schedulerStatusBean.preRenderView}" />
+	</f:metadata>
 
 <ui:composition template="/template/default-admin.xhtml">
 	<ui:param name="title" value="#{messages.title}"/>
@@ -18,74 +26,44 @@
 	
 	<h:form id="form">
 	
-		<div class="panel"> 
-			<p:panel header="#{messages.scheduler_status}">
-				<p:panelGrid id="baseData" columns="2">
-			
-			        <h:outputText value="#{messages.cluster_scheduler_node}:"/>
-			        <h:outputText value="#{schedulerStatusBean.clusterSchedulerStatusService.activeNode}"/>
-
-			        <h:outputText value="#{messages.cluster_scheduler_ejb}:"/>
-			        <h:outputText value="#{schedulerStatusBean.clusterSchedulerStatusService.clusterScheduler}"/>
-
-			        <h:outputText value="#{messages.cluster_scheduler_node}:"/>
-			        <h:outputText value="#{schedulerStatusBean.nodeConfiguration.nodeName}"/>
-
-			        <h:outputText value="#{messages.timer_configured}:"/>
-			        <h:outputText value="#{schedulerStatusBean.nodeConfiguration.timerConfigured}"/>
-
-			        <h:outputText value="#{messages.timer_singleton_configured}:"/>
-			        <h:outputText value="#{schedulerStatusBean.clusterSchedulerStatusService.clusterScheduler.timerConfigured}"/>
-
-			        <h:outputText value="#{messages.rules_configured}:"/>
-			        <h:outputText value="#{schedulerStatusBean.nodeConfiguration.rulesConfigured}"/>
-
-				</p:panelGrid>
-			</p:panel>
-		</div>
-
-		<div class="panel"> 
-			<p:panel header="#{messages.singleton_scheduler_status}">
-				<p:dataTable id="clusterSchedTable" var="t" value="#{schedulerStatusBean.clusterSchedulerStatusService.clusterScheduler.timerService.timers.toArray()}">
-					<p:column>
-						<f:facet name="header">
-							<h:outputText value="#{messages.next_timeout}" />
-						</f:facet>
-						<h:outputText value="#{t.nextTimeout}" />
-					</p:column>
-					<p:column>
-						<f:facet name="header">
-							<h:outputText value="#{messages.timer_info}" />
-						</f:facet>
-						<h:outputText value="#{t.info.name} (#{t.info.jobClass.jobClassName})" rendered="#{t.info.class.simpleName == 'JobScheduleEntity'}" />
-						<h:outputText value="#{t.info}" rendered="#{t.info.class.simpleName != 'JobScheduleEntity'}" />
-					</p:column>			
-				</p:dataTable>					
-			</p:panel>
-		</div>
-
-		<div class="panel"> 
-			<p:panel header="#{messages.standard_scheduler_status}">
-				<p:dataTable id="schedTable" var="t" value="#{schedulerStatusBean.standardScheduler.timerService.timers.toArray()}">
-					<p:column>
-						<f:facet name="header">
-							<h:outputText value="#{messages.next_timeout}" />
-						</f:facet>
-						<h:outputText value="#{t.nextTimeout}" />
-					</p:column>
-					<p:column>
-						<f:facet name="header">
-							<h:outputText value="#{messages.timer_info}" />
-						</f:facet>
-						<h:outputText value="#{t.info.name} (#{t.info.jobClass.jobClassName})" rendered="#{t.info.class.simpleName == 'JobScheduleEntity'}" />
-						<h:outputText value="#{t.info}" rendered="#{t.info.class.simpleName != 'JobScheduleEntity'}" />
-					</p:column>			
-				</p:dataTable>					
-			</p:panel>
-		</div>
+		<p:dataTable id="dataTable" var="node" value="#{schedulerStatusBean.list}" paginator="true"
+					lazy="true" rows="15">
+			<p:column sortBy="#{node.id}" style="width:36px;">
+				<f:facet name="header">
+					<h:outputText value="#{messages.id}" />
+				</f:facet>
+				<h:outputText value="#{node.id}" />
+			</p:column>
+			<p:column sortBy="#{node.nodeName}" filterBy="#{node.nodeName}">
+				<f:facet name="header">
+					<h:outputText value="#{messages.name}" />
+				</f:facet>
+				<h:outputText value="#{node.nodeName}" />
+			</p:column>			
+			<p:column sortBy="#{node.clusterMemberStatus}">
+				<f:facet name="header">
+					<h:outputText value="#{messages.cluster_member_status}" />
+				</f:facet>
+				<h:outputText value="#{node.clusterMemberStatus}" />
+			</p:column>			
+			<p:column sortBy="#{node.clusterSchedulerStatus}">
+				<f:facet name="header">
+					<h:outputText value="#{messages.cluster_scheduler_status}" />
+				</f:facet>
+				<h:outputText value="#{node.clusterSchedulerStatus}" />
+			</p:column>			
+			<p:column sortBy="#{node.lastStatusCheck}">
+				<f:facet name="header">
+					<h:outputText value="#{messages.last_check}" />
+				</f:facet>
+				<h:outputText value="#{of:formatDate(node.lastStatusCheck, 'dd.MM.yyyy HH:mm')}" />
+			</p:column>			
+		</p:dataTable>
+	
 	</h:form>
 
 	</ui:define>
-</ui:composition>		
+</ui:composition>
+</f:view>
 </body>
 </html>
