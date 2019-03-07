@@ -30,6 +30,11 @@
 		    	  <h:link outcome="#{request.contextPath}/user/attribute-sources.xhtml" value="#{messages.my_attribute_sources}" />
 				</li>
 			</h:panelGroup>				
+			<h:panelGroup rendered="#{authorizationBean.appConfig.getConfigValue('show_ssh_keys').equalsIgnoreCase('true')}">
+	            <li><span class="ui-icon ui-icon-suitcase" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="#{request.contextPath}/user/ssh-keys.xhtml" value="#{messages.my_ssh_keys}" />
+				</li>
+			</h:panelGroup>				
           </ul>
         </div>
       </div>
