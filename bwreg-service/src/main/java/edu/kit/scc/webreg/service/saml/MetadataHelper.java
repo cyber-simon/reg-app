@@ -25,11 +25,9 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.xml.namespace.QName;
 
-import net.shibboleth.utilities.java.support.xml.BasicParserPool;
-import net.shibboleth.utilities.java.support.xml.XMLParserException;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -55,8 +53,11 @@ import org.opensaml.saml.saml2.metadata.SingleSignOnService;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 
+import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlIdpScopeEntity;
+import net.shibboleth.utilities.java.support.xml.BasicParserPool;
+import net.shibboleth.utilities.java.support.xml.XMLParserException;
 
 
 @Named("metadataHelper")
@@ -71,8 +72,12 @@ public class MetadataHelper implements Serializable {
 	@Inject
 	private SamlHelper samlHelper;
 	
+	@Inject
+	private ApplicationConfig appConfig;
+	
 	public EntitiesDescriptor fetchMetadata(String url) {
-		CloseableHttpClient httpclient = HttpClients.createDefault();
+		RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(getConnectTimeout()).build();
+		CloseableHttpClient httpclient = HttpClients.custom().setDefaultRequestConfig(requestConfig).build();
 		HttpGet httpGet = new HttpGet(url);
 		
 		try {
@@ -305,5 +310,13 @@ public class MetadataHelper implements Serializable {
 		for (EntitiesDescriptor entitiesInEntities : entities.getEntitiesDescriptors()) {
 			convertEntities(entityList, entitiesInEntities);
 		}		
+	}
+	
+	private int getConnectTimeout() {
+		String aqString = appConfig.getConfigValue("metadata_timeout");
+		if (aqString == null)
+			return 30*1000;
+		else 
+			return Integer.parseInt(aqString);
 	}
 }

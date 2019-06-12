@@ -22,6 +22,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.HttpClients;
 import org.joda.time.DateTime;
 import org.opensaml.core.xml.XMLObject;
@@ -61,6 +62,7 @@ import org.opensaml.xmlsec.criterion.SignatureSigningConfigurationCriterion;
 import org.opensaml.xmlsec.impl.BasicSignatureSigningConfiguration;
 import org.slf4j.Logger;
 
+import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.SamlMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
@@ -85,6 +87,9 @@ public class AttributeQueryHelper implements Serializable {
 	
 	@Inject 
 	private CryptoHelper cryptoHelper;
+	
+	@Inject
+	ApplicationConfig appConfig;
 
 	public Response query(String persistentId, SamlMetadataEntity idpEntity, 
 			EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity spEntity) throws Exception {
@@ -144,7 +149,8 @@ public class AttributeQueryHelper implements Serializable {
 		
 		SAMLMessageSecuritySupport.signMessage(outbound);
 		
-		HttpClient client = HttpClients.custom().build();
+		RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(getConnectTimeout()).build();
+		HttpClient client = HttpClients.custom().setDefaultRequestConfig(requestConfig).build();
 
 		PipelineFactoryHttpSOAPClient<SAMLObject, SAMLObject> pf = new PipelineFactoryHttpSOAPClient<SAMLObject, SAMLObject>();
 		pf.setHttpClient(client);
@@ -206,4 +212,11 @@ public class AttributeQueryHelper implements Serializable {
 		return subject;
 	}
 
+	private int getConnectTimeout() {
+		String aqString = appConfig.getConfigValue("attributequery_timeout");
+		if (aqString == null)
+			return 30*1000;
+		else 
+			return Integer.parseInt(aqString);
+	}
 }
