@@ -82,32 +82,6 @@ public class LdapWorker {
 						new Object[] {uid, ldapUserBase, e.getMessage()});
 				auditor.logAction("", "DELETE LDAP USER", uid, "User deletion failed in " + ldap.getLdapConfig().getLdapUrl(), AuditStatus.FAIL);
 			}
-/*
-			try {
-				Iterator<SearchResult> iterator = ldap.search(new SearchFilter("memberUid=" + uid), new String[] {"cn"});
-				while (iterator.hasNext()) {
-					SearchResult sr = iterator.next();
-					Attribute cnAttr = sr.getAttributes().get("cn");
-					String cn = (String) cnAttr.get();
-	
-					try {
-						ldap.modifyAttributes("cn=" + cn + "," + ldapGroupBase, AttributeModification.REMOVE, 
-							AttributesFactory.createAttributes("memberUid", uid));
-					} catch (NamingException e) {
-						logger.info("FAILED: Delete User {} from group {} ldap {}: {}", 
-								new Object[] {uid, cn, ldapUserBase, e.getMessage()});
-					}
-
-					logger.info("Deleted User {} from group {} in ldap {}", 
-							new Object[] {uid, cn, ldapUserBase});
-					auditor.logAction("", "DELETE LDAP USER FROM GROUPS", uid, "User deletion from groups in " + ldap.getLdapConfig().getLdapUrl(), AuditStatus.SUCCESS);
-				}
-			} catch (NamingException e) {
-				logger.warn("FAILED: Delete User {} from ldap {}: {}", 
-						new Object[] {uid, ldapUserBase, e.getMessage()});
-				auditor.logAction("", "DELETE LDAP USER FROM GROUPS", uid, "User deletion failed from groups in " + ldap.getLdapConfig().getLdapUrl(), AuditStatus.FAIL);
-			}
-*/
 		}
 	}
 	
@@ -308,14 +282,10 @@ public class LdapWorker {
 					String actualCn = (String) cnAttr.get();
 					
 					if (! cn.equals(actualCn)) {
-						logger.warn("Groupname for group {} differs. is {}, should {}. Changing attrs dn, cn, uid (if samba enabled)", gidNumber, actualCn, cn);
+						logger.warn("Groupname for group {} differs. is {}, should {}. Changing attrs dn, cn", gidNumber, actualCn, cn);
 						String dn = sr.getName();
 						String newDn = "cn=" + cn + "," + ldapGroupBase;
 						ldap.rename(dn, newDn);
-						if (sambaEnabled) {
-							ldap.modifyAttributes(newDn, AttributeModification.REPLACE, 
-								AttributesFactory.createAttributes("uid", cn));
-						}
 						logger.info("Rename Group {} ({}) completed", cn, gidNumber);
 						auditor.logAction("", "RENAME LDAP GROUP", cn, "Group renamed in " + ldap.getLdapConfig().getLdapUrl(), AuditStatus.SUCCESS);
 					}
@@ -558,9 +528,9 @@ public class LdapWorker {
 		
 		if (sambaEnabled) {
 			attrs = AttributesFactory.createAttributes("objectClass", new String[] {
-					"top", "posixGroup", "sambaSamAccount"});
+					"top", "posixGroup", "sambaGroupMapping"});
 			attrs.put(AttributesFactory.createAttribute("sambaSID", sidPrefix + (Long.parseLong(gidNumber) * 2L + 1000L)));					
-			attrs.put(AttributesFactory.createAttribute("uid", cn));
+			attrs.put(AttributesFactory.createAttribute("sambaGroupType", 2));
 		}
 		else {
 			attrs = AttributesFactory.createAttributes("objectClass", new String[] {
