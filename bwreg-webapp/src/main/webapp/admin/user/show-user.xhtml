@@ -88,7 +88,8 @@
 									
 					</p:panelGrid>
 				</p:tab>
-				
+
+
 				<p:tab id="tab2" title="#{messages.roles}">
 					<p:pickList var="role" value="#{showUserBean.roleList}" itemLabel="#{role.name}" 
 						itemValue="#{role}" converter="#{roleConverter}"
@@ -96,6 +97,7 @@
 						<p:ajax event="transfer" listener="#{showUserBean.onTransfer}" />
 					</p:pickList>
 				</p:tab>
+
 
 				<p:tab id="tab3" title="#{messages.saml_values}">
 					<p:dataTable id="attrData" style="min-width: 500px;" 
@@ -125,7 +127,7 @@
 						</p:ajaxStatus>  
 					</div>
 				</p:tab>
-
+				
 				<p:tab id="tab4" title="#{messages.registered_services}">
 					<p:dataTable id="registeredTable" var="registry" value="#{showUserBean.registryList}"> 
 						<p:column>
@@ -167,7 +169,7 @@
 						</p:ajaxStatus>  
 					</div>
 				</p:tab>
-				
+
 				<p:tab id="tab5" title="#{messages.more_properties}">
 					<p:dataTable id="storeData" style="min-width: 500px;" 
 							value="#{showUserBean.entity.genericStore.keySet().toArray()}" var="key">
@@ -267,8 +269,10 @@
 						</p:column>	
 					</p:dataTable>				
 				</p:tab>										
+
 			</p:tabView>
 		</div>
+
 
 	    <p:dialog id="dialog" header="Detail" showEffect="fade" widgetVar="documentDialog" 
 	    		modal="true" resizable="true" width="600px">
@@ -300,6 +304,7 @@
 				</p:dataTable>
 	        </p:outputPanel>
 	    </p:dialog>
+
 
 	</h:form>
 

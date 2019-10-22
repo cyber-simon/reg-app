@@ -109,7 +109,7 @@ public class ShowUserBean implements Serializable {
 	}
 
 	public void onTransfer(TransferEvent event) {
-		user = userService.findByIdWithAll(id);
+		user = userService.findByIdWithAll(user.getId());
 		if (event.isAdd()) {
 			for (Object o : event.getItems()) {
 				RoleEntity role = (RoleEntity) o;
@@ -122,11 +122,11 @@ public class ShowUserBean implements Serializable {
 				roleService.removeUserFromRole(user, role.getName());
 			}
 		}
-		user = userService.findByIdWithAll(id);
+		user = userService.findByIdWithAll(user.getId());
 	}
 	
 	public void updateFromIdp() {
-		user = userService.findByIdWithAll(id);
+		user = userService.findByIdWithAll(user.getId());
 		logger.info("Trying user update for {}", user.getEppn());
 
 		if (user instanceof SamlUserEntity) {
@@ -148,7 +148,7 @@ public class ShowUserBean implements Serializable {
 	}
 
 	public void checkAllRegistries() {
-		user = userService.findByIdWithAll(id);
+		user = userService.findByIdWithAll(user.getId());
 		logger.info("Trying to check all registries for user {}", user.getEppn());
 		
 		List<RegistryEntity> tempRegistryList = new ArrayList<RegistryEntity>();
@@ -174,10 +174,6 @@ public class ShowUserBean implements Serializable {
 	}
 
 	public void setId(Long id) {
-		if (id != this.id) {
-			user = null;
-			attributeMap = null;
-		}
 		this.id = id;
 	}
 	
