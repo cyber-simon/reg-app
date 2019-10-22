@@ -32,6 +32,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
+import org.slf4j.MDC;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.AdminUserEntity;
@@ -85,6 +86,8 @@ public class SecurityFilter implements Filter {
 		if (request.getCharacterEncoding() == null) {
 		    request.setCharacterEncoding("UTF-8");
 		}
+		
+		MDC.put("ipAddr", request.getRemoteAddr());
 		
 		String context = request.getServletContext().getContextPath();
 		String path = request.getRequestURI().substring(
