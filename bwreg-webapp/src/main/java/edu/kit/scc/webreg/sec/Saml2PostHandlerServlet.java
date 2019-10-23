@@ -28,6 +28,7 @@ import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.xmlsec.encryption.support.DecryptionException;
 import org.slf4j.Logger;
+import org.slf4j.MDC;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.drools.KnowledgeSessionService;
@@ -118,6 +119,10 @@ public class Saml2PostHandlerServlet {
 			SamlUserEntity user = userService.findByPersistentWithRoles(spConfig.getEntityId(), 
 						idpEntity.getEntityId(), persistentId);
 
+			if (user != null) {
+				MDC.put("userId", "" + user.getId());
+			}
+			
 			String userLoginRule = appConfig.getConfigValue("user_login_rule");
 			
 			if (userLoginRule != null && (! "".equals(userLoginRule))) {
