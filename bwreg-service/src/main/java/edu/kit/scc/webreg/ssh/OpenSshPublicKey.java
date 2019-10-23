@@ -1,10 +1,13 @@
 package edu.kit.scc.webreg.ssh;
 
+import java.io.Serializable;
 import java.security.PublicKey;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class OpenSshPublicKey {
+public class OpenSshPublicKey implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private String name;
 	private String value;
