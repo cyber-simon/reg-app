@@ -23,7 +23,7 @@
 	<ui:define name="content">
 	<h:form id="form">
 
-		<h2><h:outputText value="#{messages.local_group}: #{groupAdminShowLocalGroupBean.entity.name}"/></h2>
+		<h2><h:outputText id="headerText" value="#{messages.local_group}: #{groupAdminShowLocalGroupBean.entity.name}"/></h2>
 
 		<p:messages id="messageBox" showDetail="true" />
 		
@@ -33,7 +33,7 @@
 			
 			        <h:outputText value="#{messages.name}:"/>
 			        <p:inplace id="ajax" editor="true">
-			        	<p:ajax event="save" listener="#{groupAdminShowLocalGroupBean.handleSave}" update=":form:baseData :form:messageBox :form:btn" />
+			        	<p:ajax event="save" listener="#{groupAdminShowLocalGroupBean.handleSave}" update=":form:baseData :form:messageBox :form:btn :form:headerText" />
 			        	<p:inputText value="#{groupAdminShowLocalGroupBean.entity.name}" required="true" label="#{messages.name}" />
 			        </p:inplace>
 						

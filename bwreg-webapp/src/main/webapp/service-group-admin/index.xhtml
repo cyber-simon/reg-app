@@ -33,13 +33,13 @@
 				</f:facet>
 				<h:outputText value="#{groupFlag.group.id}" />
 			</p:column>
-			<p:column>
+			<p:column sortBy="#{groupFlag.group.name}" filterBy="#{groupFlag.group.name}">
 				<f:facet name="header">
 					<h:outputText value="#{messages.name}" />
 				</f:facet>
 				<h:link outcome="show-local-group.xhtml" value="#{groupFlag.group.name}">
 		      		<f:param name="groupId" value="#{groupFlag.group.id}"/>
-      				<f:param name="serviceId" value="#{groupAdminListGroupsBean.serviceId}"/>
+      				<f:param name="serviceId" value="#{groupAdminListGroupsBean.serviceEntity.id}"/>
 				</h:link>
 			</p:column>			
 			<p:column>

@@ -132,12 +132,10 @@ public class GroupAdminShowLocalGroupBean implements Serializable {
 		fireGroupChangeEvent();
 		
 		messageGenerator.addResolvedInfoMessage("item_saved", "item_saved_long", true);
-		
-		init();
 	}
 	
 	public String editGroup() {
-		return ViewIds.GROUP_ADMIN_EDIT_LOCAL_GROUP + "?faces-redirect=true&serviceId=" + serviceId + "&groupId=" + groupId;
+		return ViewIds.GROUP_ADMIN_EDIT_LOCAL_GROUP + "?faces-redirect=true&serviceId=" + serviceEntity.getId() + "&groupId=" + entity.getId();
 	}
 	
 	public String deleteGroup() {
@@ -156,7 +154,7 @@ public class GroupAdminShowLocalGroupBean implements Serializable {
 		
 		fireGroupChangeEvent();
 
-		return ViewIds.GROUP_ADMIN_INDEX + "?faces-redirect=true&serviceId=" + serviceId;
+		return ViewIds.GROUP_ADMIN_INDEX + "?faces-redirect=true&serviceId=" + serviceEntity.getId();
 	}
 	
 	public void fireGroupChangeEvent() {
