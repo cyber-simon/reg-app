@@ -32,6 +32,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
+import org.slf4j.MDC;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.AdminUserEntity;
@@ -86,6 +87,8 @@ public class SecurityFilter implements Filter {
 		    request.setCharacterEncoding("UTF-8");
 		}
 		
+		MDC.put("ipAddr", request.getRemoteAddr());
+		
 		String context = request.getServletContext().getContextPath();
 		String path = request.getRequestURI().substring(
 				context.length());
@@ -122,6 +125,8 @@ public class SecurityFilter implements Filter {
 		}
 		else if (session != null && session.isLoggedIn()) {
 
+			MDC.put("userId", "" + session.getUserId());
+			
 			Set<RoleEntity> roles = new HashSet<RoleEntity>(roleService.findByUserId(session.getUserId()));
 			session.addRoles(roles);
 			

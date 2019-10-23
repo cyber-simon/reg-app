@@ -138,12 +138,12 @@ public class GroupAdminEditLocalGroupBean implements Serializable {
 		
 		savePossible = false;
 		
-		return ViewIds.GROUP_ADMIN_SHOW_LOCAL_GROUP + "?faces-redirect=true&serviceId=" + serviceId + "&groupId=" + groupId;
+		return ViewIds.GROUP_ADMIN_SHOW_LOCAL_GROUP + "?faces-redirect=true&serviceId=" + serviceEntity.getId() + "&groupId=" + entity.getId();
 	}
 	
 	public String cancel() {
 		savePossible = false;
-		return ViewIds.GROUP_ADMIN_SHOW_LOCAL_GROUP + "?faces-redirect=true&serviceId=" + serviceId + "&groupId=" + groupId;
+		return ViewIds.GROUP_ADMIN_SHOW_LOCAL_GROUP + "?faces-redirect=true&serviceId=" + serviceEntity.getId() + "&groupId=" + entity.getId();
 	}
 	
 	public void addUserToGroup(UserEntity user) {

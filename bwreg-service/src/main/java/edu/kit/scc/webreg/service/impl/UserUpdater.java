@@ -21,6 +21,7 @@ import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.soap.common.SOAPException;
 import org.opensaml.xmlsec.encryption.support.DecryptionException;
 import org.slf4j.Logger;
+import org.slf4j.MDC;
 
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.audit.IdpCommunicationAuditor;
@@ -134,6 +135,7 @@ public class UserUpdater implements Serializable {
 	public SamlUserEntity updateUser(SamlUserEntity user, Map<String, List<Object>> attributeMap, String executor, 
 			ServiceEntity service)
 			throws UserUpdateException {
+		MDC.put("userId", "" + user.getId());
 		logger.debug("Updating user {}", user.getEppn());
 
 		user = userDao.merge(user);
