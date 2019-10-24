@@ -32,64 +32,62 @@ import edu.kit.scc.webreg.service.reg.ldap.PropertyReader;
  * 
  * @author Oleg Dulov
  */
-public class OpenStackRegisterWorkflow implements RegisterUserWorkflow,
-		InfotainmentCapable, SetPasswordCapable {
+public class OpenStackRegisterWorkflow implements RegisterUserWorkflow, InfotainmentCapable, SetPasswordCapable {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(OpenStackRegisterWorkflow.class);
+	private static final Logger logger = LoggerFactory.getLogger(OpenStackRegisterWorkflow.class);
 
-        // generate ramdom starting PW
-        private static SecureRandom random = new SecureRandom();
+	// generate ramdom starting PW
+	private static SecureRandom random = new SecureRandom();
 
 	// OpenStack Connection variables
-	String openstack_host 	= "bw-cloud.org";
-	String openstack_user 	= "osweb";
-	String openstack_pass 	= "[REDACTED]";
-	String openstack_path 	= "/var/lib/manageos/manageos.py";
-	String openstack_port 	= "22";
-	String openstack_sudo 	= "";
+	String openstack_host = "bw-cloud.org";
+	String openstack_user = "osweb";
+	String openstack_pass = "[REDACTED]";
+	String openstack_path = "/var/lib/manageos/manageos.py";
+	String openstack_port = "22";
+	String openstack_sudo = "";
 
-        // Dictionaries for password generator
-        private static final String ALPHA_CAPS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        private static final String ALPHA = "abcdefghijklmnopqrstuvwxyz";
-        private static final String NUMERIC = "0123456789";
-        private static final String SPECIAL_CHARS = "!@#$%^&*_=+-/";
+	// Dictionaries for password generator
+	private static final String ALPHA_CAPS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	private static final String ALPHA = "abcdefghijklmnopqrstuvwxyz";
+	private static final String NUMERIC = "0123456789";
+	private static final String SPECIAL_CHARS = "!@#$%^&*_=+-/";
 
-        //Method will generate random string based on the parameters
-        public static String generatePassword(int len, String dic) {
-            String passwd = "";
-            for (int i = 0; i < len; i++) {
-                int index = random.nextInt(dic.length());
-                passwd += dic.charAt(index);
-            }
-            return passwd;
-        }
+	// Method will generate random string based on the parameters
+	public static String generatePassword(int len, String dic) {
+		String passwd = "";
+		for (int i = 0; i < len; i++) {
+			int index = random.nextInt(dic.length());
+			passwd += dic.charAt(index);
+		}
+		return passwd;
+	}
 
 	@Override
-	public void registerUser(UserEntity user, ServiceEntity service,
-			RegistryEntity registry, Auditor auditor) throws RegisterException {
+	public void registerUser(UserEntity user, ServiceEntity service, RegistryEntity registry, Auditor auditor)
+			throws RegisterException {
 
 		// Initialize OpenStack Connection parameters
 		this.initWrapper(service);
 
-                // create random password
-                String password = generatePassword(32, ALPHA + ALPHA_CAPS + NUMERIC + SPECIAL_CHARS);
-                // encode PW
-                byte[] encodedPassword = Base64.getEncoder().encode(password.getBytes());
-                password = new String(encodedPassword);
+		// create random password
+		String password = generatePassword(32, ALPHA + ALPHA_CAPS + NUMERIC + SPECIAL_CHARS);
+		// encode PW
+		byte[] encodedPassword = Base64.getEncoder().encode(password.getBytes());
+		password = new String(encodedPassword);
 
-                // read and encode entitlements
-                // ADD EOS to string != NULL
-                String entitlementStr = user.getAttributeStore().get("urn:oid:1.3.6.1.4.1.5923.1.1.1.7") + ";EOS";
-                logger.debug("User {} has following entitlements: {}", user.getEppn(), entitlementStr);
-                byte[] encodedEntitlements = Base64.getEncoder().encode(entitlementStr.getBytes());
-                String entitlement = new String(encodedEntitlements);
+		// read and encode entitlements
+		// ADD EOS to string != NULL
+		String entitlementStr = user.getAttributeStore().get("urn:oid:1.3.6.1.4.1.5923.1.1.1.7") + ";EOS";
+		logger.debug("User {} has following entitlements: {}", user.getEppn(), entitlementStr);
+		byte[] encodedEntitlements = Base64.getEncoder().encode(entitlementStr.getBytes());
+		String entitlement = new String(encodedEntitlements);
 		logger.debug("Trying to create new user {}", user.getEppn());
 
 		// Create user
 		String osUserId = this.execute("add", user.getEppn(), user.getEmail(), password, entitlement);
 
-		if(osUserId != null && !osUserId.isEmpty()){
+		if (osUserId != null && !osUserId.isEmpty()) {
 			// Register user
 			registry.getRegistryValues().put("osId", osUserId);
 
@@ -102,8 +100,8 @@ public class OpenStackRegisterWorkflow implements RegisterUserWorkflow,
 	}
 
 	@Override
-	public void deregisterUser(UserEntity user, ServiceEntity service,
-			RegistryEntity registry, Auditor auditor) throws RegisterException {
+	public void deregisterUser(UserEntity user, ServiceEntity service, RegistryEntity registry, Auditor auditor)
+			throws RegisterException {
 
 		// Initialize OpenStack Connection parameters
 		this.initWrapper(service);
@@ -117,20 +115,20 @@ public class OpenStackRegisterWorkflow implements RegisterUserWorkflow,
 	}
 
 	@Override
-	public void reconciliation(UserEntity user, ServiceEntity service,
-			RegistryEntity registry, Auditor auditor) throws RegisterException {
+	public void reconciliation(UserEntity user, ServiceEntity service, RegistryEntity registry, Auditor auditor)
+			throws RegisterException {
 
 	}
 
 	@Override
-	public Boolean updateRegistry(UserEntity user, ServiceEntity service,
-			RegistryEntity registry, Auditor auditor) throws RegisterException {
+	public Boolean updateRegistry(UserEntity user, ServiceEntity service, RegistryEntity registry, Auditor auditor)
+			throws RegisterException {
 		return false;
 	}
 
 	@Override
-	public Infotainment getInfo(RegistryEntity registry, UserEntity user,
-			ServiceEntity service) throws RegisterException {
+	public Infotainment getInfo(RegistryEntity registry, UserEntity user, ServiceEntity service)
+			throws RegisterException {
 		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
 
 		if (!registry.getRegistryValues().containsKey("osId"))
@@ -148,34 +146,33 @@ public class OpenStackRegisterWorkflow implements RegisterUserWorkflow,
 	 * SetPasswordCapable methods
 	 */
 	@Override
-	public void setPassword(UserEntity user, ServiceEntity service,
-			RegistryEntity registry, Auditor auditor, String password)
-			throws RegisterException {
-			PropertyReader prop = PropertyReader.newRegisterPropReader(service);
+	public void setPassword(UserEntity user, ServiceEntity service, RegistryEntity registry, Auditor auditor,
+			String password) throws RegisterException {
+		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
 
 		// Initialize OpenStack connection parameters
 		this.initWrapper(service);
 
 		logger.debug("Trying to set service password for user {}", user.getEppn());
 
-                String passwordRegex;
-                if (prop.hasProp("password_regex"))
-                        passwordRegex = prop.readPropOrNull("password_regex");
-                else
-                        passwordRegex = ".{6,}";
+		String passwordRegex;
+		if (prop.hasProp("password_regex"))
+			passwordRegex = prop.readPropOrNull("password_regex");
+		else
+			passwordRegex = ".{6,}";
 
-                String passwordRegexMessage;
-                if (prop.hasProp("password_regex_message"))
-                        passwordRegexMessage = prop.readPropOrNull("password_regex_message");
-                else
-                        passwordRegexMessage = "Das Passwort ist nicht komplex genug";
+		String passwordRegexMessage;
+		if (prop.hasProp("password_regex_message"))
+			passwordRegexMessage = prop.readPropOrNull("password_regex_message");
+		else
+			passwordRegexMessage = "Das Passwort ist nicht komplex genug";
 
-                if (! password.matches(passwordRegex))
-                        throw new RegisterException(passwordRegexMessage);
+		if (!password.matches(passwordRegex))
+			throw new RegisterException(passwordRegexMessage);
 
-                // encode PW
-                byte[] encodedPassword = Base64.getEncoder().encode(password.getBytes());
-                password = new String(encodedPassword);
+		// encode PW
+		byte[] encodedPassword = Base64.getEncoder().encode(password.getBytes());
+		password = new String(encodedPassword);
 
 		// Set password
 		String osUserId = this.execute("upd", user.getEppn(), null, password, null);
@@ -184,8 +181,8 @@ public class OpenStackRegisterWorkflow implements RegisterUserWorkflow,
 	}
 
 	@Override
-	public void deletePassword(UserEntity user, ServiceEntity service,
-			RegistryEntity registry, Auditor auditor) throws RegisterException {
+	public void deletePassword(UserEntity user, ServiceEntity service, RegistryEntity registry, Auditor auditor)
+			throws RegisterException {
 		// Initialize OpenStack connection parameters
 		this.initWrapper(service);
 
@@ -197,39 +194,37 @@ public class OpenStackRegisterWorkflow implements RegisterUserWorkflow,
 	}
 
 	private void initWrapper(ServiceEntity service) throws RegisterException {
-			PropertyReader prop = PropertyReader.newRegisterPropReader(service);
+		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
 
 		// OpenStack Keystone URL, admin credentials
-		if ( prop.hasProp("openstack_host") ){
-			this.openstack_host 	= prop.readPropOrNull("openstack_host");
+		if (prop.hasProp("openstack_host")) {
+			this.openstack_host = prop.readPropOrNull("openstack_host");
 		} else
 			throw new RegisterException("not configured openstack_host");
 
-		if ( prop.hasProp("openstack_user") ){
-			this.openstack_user 	= prop.readPropOrNull("openstack_user");
+		if (prop.hasProp("openstack_user")) {
+			this.openstack_user = prop.readPropOrNull("openstack_user");
 		} else
 			throw new RegisterException("not configured openstack_user");
 
-		if ( prop.hasProp("openstack_pass") ){
-			this.openstack_pass 	= prop.readPropOrNull("openstack_pass");
+		if (prop.hasProp("openstack_pass")) {
+			this.openstack_pass = prop.readPropOrNull("openstack_pass");
 		} else
 			throw new RegisterException("not configured openstack_pass");
 
-		if ( prop.hasProp("openstack_path") ){
-			this.openstack_path 	= prop.readPropOrNull("openstack_path");
-		}
-		else
+		if (prop.hasProp("openstack_path")) {
+			this.openstack_path = prop.readPropOrNull("openstack_path");
+		} else
 			throw new RegisterException("not configured openstack_path");
 
-		if ( prop.hasProp("openstack_port") ){
-			this.openstack_port 	= prop.readPropOrNull("openstack_port");
-		}
-		else
+		if (prop.hasProp("openstack_port")) {
+			this.openstack_port = prop.readPropOrNull("openstack_port");
+		} else
 			throw new RegisterException("not configured openstack_port");
 
-		if ( prop.hasProp("openstack_sudo") ){
+		if (prop.hasProp("openstack_sudo")) {
 			if (prop.readPropOrNull("openstack_sudo").equals("true")) {
-				this.openstack_sudo 	= "sudo ";
+				this.openstack_sudo = "sudo ";
 			}
 		}
 
@@ -237,20 +232,16 @@ public class OpenStackRegisterWorkflow implements RegisterUserWorkflow,
 	}
 
 	private String fmt_arg(String pref, String val) {
-		return val == null ? "": " --" + pref + " " + val;
+		return val == null ? "" : " --" + pref + " " + val;
 	}
 
 	private String execute(String method, String user, String email, String password, String entitlement)
 			throws RegisterException {
 
-		String command 	= openstack_sudo + openstack_path
-				  + this.fmt_arg("method", method)
-				  + this.fmt_arg("user", user)
-				  + this.fmt_arg("passwd", password)
-				  + this.fmt_arg("email", email)
-				  + this.fmt_arg("entitlement", entitlement)
-				  + "\n";
-		String line 	= "";
+		String command = openstack_sudo + openstack_path + this.fmt_arg("method", method) + this.fmt_arg("user", user)
+				+ this.fmt_arg("passwd", password) + this.fmt_arg("email", email)
+				+ this.fmt_arg("entitlement", entitlement) + "\n";
+		String line = "";
 
 		try {
 			/* Create a connection instance */
@@ -259,16 +250,16 @@ public class OpenStackRegisterWorkflow implements RegisterUserWorkflow,
 			/* Now connect */
 			conn.connect();
 
-			/* Authenticate.
-			 * If you get an IOException saying something like
+			/*
+			 * Authenticate. If you get an IOException saying something like
 			 * "Authentication method password not supported by the server at this stage."
 			 * then please check the FAQ.
 			 */
 
 			boolean isAuthenticated = conn.authenticateWithPassword(this.openstack_user, this.openstack_pass);
 
-			if (isAuthenticated == false){
-				//throw new IOException("Authentication failed.");
+			if (isAuthenticated == false) {
+				// throw new IOException("Authentication failed.");
 				throw new RegisterException("Authentication failed.");
 			}
 
@@ -277,9 +268,9 @@ public class OpenStackRegisterWorkflow implements RegisterUserWorkflow,
 
 			sess.execCommand(command);
 
-			/* 
-			 * This basic example does not handle stderr, which is sometimes dangerous
-			 * (please read the FAQ).
+			/*
+			 * This basic example does not handle stderr, which is sometimes
+			 * dangerous (please read the FAQ).
 			 */
 
 			InputStream stdout = new StreamGobbler(sess.getStdout());
@@ -306,4 +297,3 @@ public class OpenStackRegisterWorkflow implements RegisterUserWorkflow,
 	}
 
 }
-
