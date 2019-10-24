@@ -149,6 +149,9 @@ public class SecurityFilter implements Filter {
 			httpSession = request.getSession(false);
 			logger.trace("Postchain Session is: {}", httpSession);
 		}
+		
+		MDC.remove("ipAddr");
+		MDC.remove("userId");
 	}
 
 	@Override
