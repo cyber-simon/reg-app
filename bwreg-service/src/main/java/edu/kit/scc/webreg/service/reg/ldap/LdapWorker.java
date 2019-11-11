@@ -530,7 +530,7 @@ public class LdapWorker {
 			attrs = AttributesFactory.createAttributes("objectClass", new String[] {
 					"top", "posixGroup", "sambaGroupMapping"});
 			attrs.put(AttributesFactory.createAttribute("sambaSID", sidPrefix + (Long.parseLong(gidNumber) * 2L + 1000L)));					
-			attrs.put(AttributesFactory.createAttribute("sambaGroupType", 2));
+			attrs.put(AttributesFactory.createAttribute("sambaGroupType", "2"));
 		}
 		else {
 			attrs = AttributesFactory.createAttributes("objectClass", new String[] {
