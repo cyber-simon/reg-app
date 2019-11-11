@@ -87,7 +87,10 @@ public class NextcloudRegisterWorkflow  implements RegisterUserWorkflow, Infotai
 		
 		if (statusCode == 404) {
 			// user not found, needs to be created
-			
+			answer = worker.createAccount(registry);
+			if (answer.getMeta().getStatusCode() != 100) {
+				throw new RegisterException("Registration failed! " + answer.getMeta().getMessage());
+			}
 		} else if (statusCode == 100) {
 			// user found, ok
 		} else {
@@ -121,6 +124,9 @@ public class NextcloudRegisterWorkflow  implements RegisterUserWorkflow, Infotai
 				logger.warn("Nextcloud User ID for user {} would change from {} to {}!", registry.getRegistryValues().get("id"), id);
 			}
 		}
+		
+		registry.getRegistryValues().put("displayName", user.getGivenName() + " " + user.getSurName());
+		registry.getRegistryValues().put("email", user.getEmail());
 
 		return false;
 	}
