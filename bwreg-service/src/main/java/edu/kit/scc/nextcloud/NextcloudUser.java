@@ -1,5 +1,7 @@
 package edu.kit.scc.nextcloud;
 
+import javax.xml.bind.annotation.XmlElement;
+
 public class NextcloudUser {
 
 	private Boolean enabled;
@@ -7,6 +9,7 @@ public class NextcloudUser {
 	private String email;
 	private String displayName;
 	private NextcloudQuota quota;
+	private NextcloudGroups groups;
 	
 	public Boolean getEnabled() {
 		return enabled;
@@ -32,6 +35,7 @@ public class NextcloudUser {
 		this.email = email;
 	}
 	
+	@XmlElement(name = "displayname")
 	public String getDisplayName() {
 		return displayName;
 	}
@@ -46,6 +50,14 @@ public class NextcloudUser {
 	
 	public void setQuota(NextcloudQuota quota) {
 		this.quota = quota;
+	}
+
+	public NextcloudGroups getGroups() {
+		return groups;
+	}
+
+	public void setGroups(NextcloudGroups groups) {
+		this.groups = groups;
 	}
 	
 	

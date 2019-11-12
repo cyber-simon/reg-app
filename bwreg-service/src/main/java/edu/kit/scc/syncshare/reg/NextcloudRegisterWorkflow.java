@@ -69,6 +69,11 @@ public class NextcloudRegisterWorkflow  implements RegisterUserWorkflow, Infotai
 			if (answer.getUser().getQuota() != null) {
 				new InfotainmentTreeNode("Verbrauchter Platz", "" +  answer.getUser().getQuota().getRelative() + "%", node);
 			}
+			if (answer.getUser().getGroups() != null) {
+				for (String group : answer.getUser().getGroups().getGroupList()) {
+					new InfotainmentTreeNode("Gruppe", group, node);
+				}
+			}
 		}
 
 		return info;
@@ -189,7 +194,7 @@ public class NextcloudRegisterWorkflow  implements RegisterUserWorkflow, Infotai
 				if (entry.getKey().equals("id")) {
 					// this should not happen. It means the primary Id for the user has changed. 
 					// Nextcloud saml does not support this
-					logger.warn("Nextcloud User ID for user {} would change from {} to {}!", 
+					logger.warn("Nextcloud User ID for user {} changes from {} to {}! This will create a new user!", 
 							registry.getRegistryValues().get("id"), entry.getValue());
 				}
 				
