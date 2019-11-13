@@ -50,6 +50,7 @@ import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.saml.Saml2DecoderService;
 import edu.kit.scc.webreg.service.saml.Saml2ResponseValidationService;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
+import edu.kit.scc.webreg.service.saml.SsoHelper;
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 
 @ApplicationScoped
@@ -72,6 +73,9 @@ public class Saml2AttributeQueryHandler {
 
 	@Inject
 	private UserService userService;
+	
+	@Inject
+	private SsoHelper ssoHelper;
 	
 	@Inject
 	private ApplicationConfig appConfig;
@@ -102,7 +106,7 @@ public class Saml2AttributeQueryHandler {
 			saml2ValidationService.validateSpSignature(query, issuer, spEntityDescriptor);
 			
 			Response samlResponse = buildSamlRespone(StatusCode.SUCCESS, null);
-			samlResponse.setIssuer(buildIssuser(aaConfig.getEntityId()));
+			samlResponse.setIssuer(ssoHelper.buildIssuser(aaConfig.getEntityId()));
 			samlResponse.setIssueInstant(new DateTime());
 
 			if (query.getSubject() != null && query.getSubject().getNameID() != null) {
@@ -113,8 +117,8 @@ public class Saml2AttributeQueryHandler {
 				if (user != null) {
 					Assertion assertion = samlHelper.create(Assertion.class, Assertion.DEFAULT_ELEMENT_NAME);
 					assertion.setIssueInstant(new DateTime());
-					assertion.setIssuer(buildIssuser(aaConfig.getEntityId()));
-					assertion.setSubject(buildSubject(nameIdValue, NameID.UNSPECIFIED));
+					assertion.setIssuer(ssoHelper.buildIssuser(aaConfig.getEntityId()));
+					assertion.setSubject(ssoHelper.buildSubject(nameIdValue, NameID.UNSPECIFIED, query.getID()));
 					assertion.getAttributeStatements().add(buildAttributeStatement(user));
 					samlResponse.getAssertions().add(assertion);
 				}
@@ -179,23 +183,7 @@ public class Saml2AttributeQueryHandler {
 		}
 		return samlStatus;
 	}
-	
-	private Issuer buildIssuser(String entityId) {
-		Issuer issuer = samlHelper.create(Issuer.class, Issuer.DEFAULT_ELEMENT_NAME);
-		issuer.setValue(entityId);
-		return issuer;
-	}
-	
-	private Subject buildSubject(String nameIdValue, String nameIdType) {
-		NameID nameId = samlHelper.create(NameID.class, NameID.DEFAULT_ELEMENT_NAME);
-		nameId.setFormat(nameIdType);
-		nameId.setValue(nameIdValue);
-		
-		Subject subject = samlHelper.create(Subject.class, Subject.DEFAULT_ELEMENT_NAME);
-		subject.setNameID(nameId);
-		return subject;
-	}
-	
+			
 	private AttributeStatement buildAttributeStatement(UserEntity user) {
 		AttributeStatement attributeStatement = samlHelper.create(AttributeStatement.class, AttributeStatement.DEFAULT_ELEMENT_NAME);
 		attributeStatement.getAttributes().add(buildAttribute(
