@@ -44,7 +44,7 @@ public class SamlSpDispatcherServlet implements Servlet {
 	private SamlAAConfigurationService aaConfigService;
 
 	@Inject
-	private Saml2AttributeQueryServlet attributeQueryServlet;
+	private Saml2AttributeQueryHandler attributeQueryServlet;
 	
 	@Inject
 	private Saml2PostHandler postHandler;
@@ -72,7 +72,7 @@ public class SamlSpDispatcherServlet implements Servlet {
 		if (spConfig != null && spConfig.getAcs() != null &&
 				spConfig.getAcs().endsWith(context + path)) {
 			logger.debug("Executing POST Handler for entity {}", spConfig.getEntityId());
-			postHandler.service(servletRequest, response, spConfig);
+			postHandler.service(request, response, spConfig);
 			return;
 		}
 
@@ -81,7 +81,7 @@ public class SamlSpDispatcherServlet implements Servlet {
 		if (aaConfig != null && aaConfig.getAq() != null &&
 				aaConfig.getAq().endsWith(context + path)) {
 			logger.debug("Executing AttributeQuery Handler for entity {}", aaConfig.getEntityId());
-			attributeQueryServlet.service(servletRequest, response, aaConfig);
+			attributeQueryServlet.service(request, response, aaConfig);
 			return;
 		}
 

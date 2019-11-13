@@ -17,8 +17,6 @@ import java.util.Map;
 import javax.faces.bean.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -76,11 +74,8 @@ public class Saml2PostHandler {
 	@Inject
 	private ApplicationConfig appConfig;
 	
-	public void service(ServletRequest servletRequest, ServletResponse servletResponse, SamlSpConfigurationEntity spConfig)
+	public void service(HttpServletRequest request, HttpServletResponse response, SamlSpConfigurationEntity spConfig)
 			throws ServletException, IOException {
-
-		HttpServletRequest request = (HttpServletRequest) servletRequest;
-		HttpServletResponse response = (HttpServletResponse) servletResponse;
 
 		if (session == null || session.getIdpId() == null || session.getSpId() == null) {
 			logger.debug("Client session from {} not established. Sending client back to welcome page",

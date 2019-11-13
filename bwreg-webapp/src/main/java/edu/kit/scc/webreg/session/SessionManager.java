@@ -31,6 +31,8 @@ public class SessionManager implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	private Long authnRequestId;
+	
 	private Long userId;
 	
 	private Long idpId;
@@ -238,5 +240,13 @@ public class SessionManager implements Serializable {
 
 	public void setUnregisteredServiceCreated(Long unregisteredServiceCreated) {
 		this.unregisteredServiceCreated = unregisteredServiceCreated;
+	}
+
+	public Long getAuthnRequestId() {
+		return authnRequestId;
+	}
+
+	public void setAuthnRequestId(Long authnRequestId) {
+		this.authnRequestId = authnRequestId;
 	}
 }

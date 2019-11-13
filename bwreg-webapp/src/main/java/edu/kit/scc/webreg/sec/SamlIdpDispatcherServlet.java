@@ -21,6 +21,12 @@ public class SamlIdpDispatcherServlet implements Servlet {
 
 	@Inject
 	private Logger logger;
+	
+	@Inject
+	private Saml2IdpRedirectHandler redirectHandler;
+
+	@Inject
+	private Saml2IdpRedirectResponseHandler redirectResponseHandler;
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
@@ -39,6 +45,17 @@ public class SamlIdpDispatcherServlet implements Servlet {
 				context.length());
 		
 		logger.debug("Dispatching request context '{}' path '{}'", context, path);
+
+		if ("/saml/idp/redirect".equals(path)) {
+			logger.debug("Executing Redirect Handler");
+			redirectHandler.service(request, response);
+			return;
+		}
+		else if ("/saml/idp/redirect/response".equals(path)) {
+			logger.debug("Executing Redirect Response Handler");
+			redirectResponseHandler.service(request, response);
+			return;
+		}
 
 		
 		logger.info("No matching servlet for context '{}' path '{}'", context, path);

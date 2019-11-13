@@ -15,12 +15,8 @@ import java.io.IOException;
 import javax.faces.bean.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 
 import org.joda.time.DateTime;
 import org.opensaml.core.xml.XMLObject;
@@ -54,9 +50,10 @@ import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.saml.Saml2DecoderService;
 import edu.kit.scc.webreg.service.saml.Saml2ResponseValidationService;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
+import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 
 @ApplicationScoped
-public class Saml2AttributeQueryServlet {
+public class Saml2AttributeQueryHandler {
 
 	@Inject
 	private Logger logger;
@@ -79,12 +76,9 @@ public class Saml2AttributeQueryServlet {
 	@Inject
 	private ApplicationConfig appConfig;
 	
-	public void service(ServletRequest servletRequest, ServletResponse servletResponse, SamlAAConfigurationEntity aaConfig)
+	public void service(HttpServletRequest request, HttpServletResponse response, SamlAAConfigurationEntity aaConfig)
 			throws ServletException, IOException {
 
-		HttpServletRequest request = (HttpServletRequest) servletRequest;
-		HttpServletResponse response = (HttpServletResponse) servletResponse;
-		
 		logger.debug("Consuming SAML AttributeQuery");
 		
 		try {

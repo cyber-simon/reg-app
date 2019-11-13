@@ -21,6 +21,7 @@ import org.opensaml.saml.common.SAMLVersion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.NameIDPolicy;
+import org.opensaml.saml.saml2.core.Response;
 
 @Named("ssoHelper")
 @ApplicationScoped
@@ -52,5 +53,18 @@ public class SsoHelper implements Serializable {
 
 		return authnRequest;
 	}
-	
+
+	public Response buildAuthnResponse(AuthnRequest authnRequest, String spEntityId) {
+		Response response = samlHelper.create(Response.class, Response.DEFAULT_ELEMENT_NAME);
+		response.setID(samlHelper.getRandomId());
+		response.setInResponseTo(authnRequest.getID());
+		response.setVersion(SAMLVersion.VERSION_20);
+		response.setIssueInstant(new DateTime());
+		
+		Issuer issuer = samlHelper.create(Issuer.class, Issuer.DEFAULT_ELEMENT_NAME);
+		issuer.setValue(spEntityId);
+		response.setIssuer(issuer);
+		
+		return response;
+	}
 }
