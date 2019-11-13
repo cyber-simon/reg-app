@@ -66,7 +66,7 @@ public class NextcloudRegisterWorkflow  implements RegisterUserWorkflow, Infotai
 			new InfotainmentTreeNode("ID", answer.getUser().getId(), node);
 			new InfotainmentTreeNode("Name", answer.getUser().getDisplayName(), node);
 			new InfotainmentTreeNode("E-Mail", answer.getUser().getEmail(), node);
-			if (answer.getUser().getQuota() != null) {
+			if (answer.getUser().getQuota() != null && answer.getUser().getQuota().getRelative() != null) {
 				new InfotainmentTreeNode("Verbrauchter Platz", "" +  answer.getUser().getQuota().getRelative() + "%", node);
 			}
 			if (answer.getUser().getGroups() != null) {
@@ -113,10 +113,7 @@ public class NextcloudRegisterWorkflow  implements RegisterUserWorkflow, Infotai
 
 			// load the created account
 			answer = worker.loadAccount(registry);
-			if (answer.getMeta().getStatusCode() != 100) {
-				// this should not fail, the account was created with status 100
-				throw new RegisterException("Registration failed! Could not load newly created account: " + answer.getMeta().getMessage());
-			}
+			statusCode = answer.getMeta().getStatusCode();
 		}
 		
 		if (statusCode != 100) {
@@ -129,6 +126,8 @@ public class NextcloudRegisterWorkflow  implements RegisterUserWorkflow, Infotai
 		
 		logger.debug("Account for registry {} successfully loaded", registry.getId());
 
+		worker.updateAccount(registry);
+		
 		if (registry.getRegistryValues().containsKey("primaryGroup")) {
 			logger.debug("Creating group {} for registry {}", 
 					registry.getRegistryValues().containsKey("primaryGroup"), registry.getId());
