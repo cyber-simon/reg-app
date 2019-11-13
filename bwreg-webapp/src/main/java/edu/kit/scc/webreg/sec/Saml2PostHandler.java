@@ -47,7 +47,7 @@ import edu.kit.scc.webreg.session.SessionManager;
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 
 @ApplicationScoped
-public class Saml2PostHandlerServlet {
+public class Saml2PostHandler {
 
 	@Inject
 	private Logger logger;
@@ -151,7 +151,7 @@ public class Saml2PostHandlerServlet {
 	    	logger.debug("Updating user {}", persistentId);
 			
 			try {
-				user = userService.updateUserFromAttribute(user, attributeMap, "web-sso");
+				user = userService.updateUserFromAssertion(user, assertion, "web-sso");
 			} catch (UserUpdateException e) {
 				logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
 				throw new SamlAuthenticationException(e.getMessage());

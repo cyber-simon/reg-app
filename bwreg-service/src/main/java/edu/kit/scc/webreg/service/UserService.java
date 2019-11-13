@@ -12,7 +12,8 @@ package edu.kit.scc.webreg.service;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
+
+import org.opensaml.saml.saml2.core.Assertion;
 
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
@@ -45,11 +46,11 @@ public interface UserService extends BaseService<UserEntity, Long> {
 	SamlUserEntity updateUserFromIdp(SamlUserEntity user, ServiceEntity service, String executor)
 			throws UserUpdateException;
 
-	SamlUserEntity updateUserFromAttribute(SamlUserEntity user,
-			Map<String, List<Object>> attributeMap, String executor)
-			throws UserUpdateException;
-
 	List<UserEntity> findByStatus(UserStatus status);
 
 	void checkOnHoldRegistries(UserEntity user);
+
+	SamlUserEntity updateUserFromAssertion(SamlUserEntity user, Assertion assertion, String executor)
+			throws UserUpdateException;
+
 }

@@ -29,17 +29,13 @@ import edu.kit.scc.webreg.entity.SamlAAConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.service.SamlAAConfigurationService;
 import edu.kit.scc.webreg.service.SamlSpConfigurationService;
-import edu.kit.scc.webreg.session.SessionManager;
 
 @Named
-@WebServlet(urlPatterns = {"/Shibboleth.sso/*", "/saml/*"})
-public class Saml2DispatcherServlet implements Servlet {
+@WebServlet(urlPatterns = {"/Shibboleth.sso/*", "/saml/sp/*"})
+public class SamlSpDispatcherServlet implements Servlet {
 
 	@Inject
 	private Logger logger;
-
-	@Inject
-	private SessionManager session;
 
 	@Inject 
 	private SamlSpConfigurationService spConfigService;
@@ -51,7 +47,7 @@ public class Saml2DispatcherServlet implements Servlet {
 	private Saml2AttributeQueryServlet attributeQueryServlet;
 	
 	@Inject
-	private Saml2PostHandlerServlet postHandlerServlet;
+	private Saml2PostHandler postHandler;
 	
 	@Override
 	public void init(ServletConfig config) throws ServletException {
@@ -76,7 +72,7 @@ public class Saml2DispatcherServlet implements Servlet {
 		if (spConfig != null && spConfig.getAcs() != null &&
 				spConfig.getAcs().endsWith(context + path)) {
 			logger.debug("Executing POST Handler for entity {}", spConfig.getEntityId());
-			postHandlerServlet.service(servletRequest, servletResponse, spConfig);
+			postHandler.service(servletRequest, response, spConfig);
 			return;
 		}
 
@@ -85,7 +81,7 @@ public class Saml2DispatcherServlet implements Servlet {
 		if (aaConfig != null && aaConfig.getAq() != null &&
 				aaConfig.getAq().endsWith(context + path)) {
 			logger.debug("Executing AttributeQuery Handler for entity {}", aaConfig.getEntityId());
-			attributeQueryServlet.service(servletRequest, servletResponse, aaConfig);
+			attributeQueryServlet.service(servletRequest, response, aaConfig);
 			return;
 		}
 
