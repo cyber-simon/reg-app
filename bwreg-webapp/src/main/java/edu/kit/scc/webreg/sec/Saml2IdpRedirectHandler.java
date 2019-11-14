@@ -24,8 +24,10 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.SamlIdpConfigurationEntity;
+import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 import edu.kit.scc.webreg.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.service.SamlIdpConfigurationService;
+import edu.kit.scc.webreg.service.SamlSpMetadataService;
 import edu.kit.scc.webreg.service.saml.Saml2DecoderService;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
 import edu.kit.scc.webreg.service.saml.SamlIdpService;
@@ -54,6 +56,9 @@ public class Saml2IdpRedirectHandler {
 	private Saml2DecoderService saml2DecoderService;
 	
 	@Inject
+	private SamlSpMetadataService spService;
+
+	@Inject
 	private ApplicationConfig appConfig;
 	
 	public void service(HttpServletRequest request, HttpServletResponse response)
@@ -74,6 +79,19 @@ public class Saml2IdpRedirectHandler {
 			logger.warn("An exception occured", e);
 			throw new ServletException(e);
 		}
+		
+		if (authnRequest == null || authnRequest.getIssuer() == null 
+				|| authnRequest.getIssuer().getValue() == null) {
+			throw new ServletException("SAML Authentication Request ist not complete, issuer data is missing");
+		}
+		
+		SamlSpMetadataEntity spMetadata = spService.findByEntityId(authnRequest.getIssuer().getValue());
+		
+		if (spMetadata == null) {
+			throw new ServletException("Issuer is not known here");
+		}
+		
+		logger.debug("Corresponding SP found in Metadata: {}", spMetadata.getEntityId());
 		
 		if (session == null || session.getIdpId() == null || session.getSpId() == null) {
 			logger.debug("Client session from {} not established. In order to serve client must login. Sending to login page.",

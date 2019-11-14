@@ -24,4 +24,8 @@ public class SamlAuthenticationException extends Exception implements Serializab
 		super(msg, t);
 	}
 
+	public SamlAuthenticationException(Throwable t) {
+		super(t);
+	}
+
 }
