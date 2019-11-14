@@ -156,8 +156,10 @@ public class Saml2PostHandler {
 			session.setTheme(user.getTheme());
 			session.setLocale(user.getLocale());
 			
-			if (session.getOriginalRequestPath() != null)
+			if (session.getOriginalRequestPath() != null) {
+				session.setOriginalRequestPath(null);
 				response.sendRedirect(session.getOriginalRequestPath());
+			}
 			else
 				response.sendRedirect("/index.xhtml");
 

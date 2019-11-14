@@ -175,6 +175,8 @@ public class RegisterUserBean implements Serializable {
     	sessionManager.setUserId(entity.getId());
     	
 		if (sessionManager.getOriginalRequestPath() != null) {
+			sessionManager.setOriginalRequestPath(null);
+			
 			ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
 			try {
 				externalContext.redirect(sessionManager.getOriginalRequestPath());
