@@ -46,12 +46,12 @@ public class SamlIdpDispatcherServlet implements Servlet {
 		
 		logger.debug("Dispatching request context '{}' path '{}'", context, path);
 
-		if ("/saml/idp/redirect".equals(path)) {
+		if (path != null && path.endsWith("/redirect")) {
 			logger.debug("Executing Redirect Handler");
 			redirectHandler.service(request, response);
 			return;
 		}
-		else if ("/saml/idp/redirect/response".equals(path)) {
+		else if (path != null && path.endsWith("/redirect/response")) {
 			logger.debug("Executing Redirect Response Handler");
 			redirectResponseHandler.service(request, response);
 			return;

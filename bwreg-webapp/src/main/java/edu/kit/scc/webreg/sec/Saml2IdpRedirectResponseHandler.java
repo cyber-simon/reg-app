@@ -144,7 +144,8 @@ public class Saml2IdpRedirectResponseHandler {
 			return;
 		}
 		
-		SamlIdpConfigurationEntity idpConfig = idpConfigService.findByEntityId("https://bwidm.scc.kit.edu/saml/idp/metadata");
+		SamlIdpConfigurationEntity idpConfig = idpConfigService.findById(session.getAuthnRequestIdpConfigId());
+		logger.debug("IDP Config loaded: {}", idpConfig.getEntityId());
 		
 		UserEntity user = userService.findById(session.getUserId());
 		

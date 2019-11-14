@@ -23,7 +23,9 @@ import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
+import edu.kit.scc.webreg.entity.SamlIdpConfigurationEntity;
 import edu.kit.scc.webreg.exc.SamlAuthenticationException;
+import edu.kit.scc.webreg.service.SamlIdpConfigurationService;
 import edu.kit.scc.webreg.service.saml.Saml2DecoderService;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
 import edu.kit.scc.webreg.service.saml.SamlIdpService;
@@ -43,6 +45,9 @@ public class Saml2IdpRedirectHandler {
 	private SamlIdpService samlIdpService;
 
 	@Inject
+	private SamlIdpConfigurationService idpConfigService;
+	
+	@Inject
 	private SamlHelper samlHelper;
 	
 	@Inject
@@ -54,6 +59,11 @@ public class Saml2IdpRedirectHandler {
 	public void service(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
+		SamlIdpConfigurationEntity idpConfig = idpConfigService.findByHostname(request.getServerName());
+		if (! request.getRequestURI().equals(idpConfig.getRedirect())) {
+			throw new ServletException("Unknown redirect uri");
+		}
+		
 		AuthnRequest authnRequest;
 		
 		try {
@@ -70,13 +80,15 @@ public class Saml2IdpRedirectHandler {
 					request.getRemoteAddr());
 			long id = samlIdpService.registerAuthnRequest(authnRequest);
 			session.setAuthnRequestId(id);
-			session.setOriginalRequestPath(request.getRequestURI() + "/response");
+			session.setAuthnRequestIdpConfigId(idpConfig.getId());
+			session.setOriginalRequestPath(idpConfig.getRedirect() + "/response");
 			response.sendRedirect("/welcome/index.xhtml");
 			return;
 		}
 		
 		long id = samlIdpService.registerAuthnRequest(authnRequest);
 		session.setAuthnRequestId(id);
+		session.setAuthnRequestIdpConfigId(idpConfig.getId());
 		response.sendRedirect(request.getRequestURI() + "/response");
 	}
 }
