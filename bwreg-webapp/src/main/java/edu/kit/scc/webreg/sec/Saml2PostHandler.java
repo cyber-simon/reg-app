@@ -157,8 +157,9 @@ public class Saml2PostHandler {
 			session.setLocale(user.getLocale());
 			
 			if (session.getOriginalRequestPath() != null) {
+				String orig = session.getOriginalRequestPath();
 				session.setOriginalRequestPath(null);
-				response.sendRedirect(session.getOriginalRequestPath());
+				response.sendRedirect(orig);
 			}
 			else
 				response.sendRedirect("/index.xhtml");

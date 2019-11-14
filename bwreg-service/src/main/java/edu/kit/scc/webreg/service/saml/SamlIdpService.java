@@ -10,7 +10,7 @@ public interface SamlIdpService {
 
 	long registerAuthnRequest(AuthnRequest authnRequest);
 
-	void resumeAuthnRequest(Long authnRequestId, Long userId, Long authnRequestIdpConfigId,
+	String resumeAuthnRequest(Long authnRequestId, Long userId, Long authnRequestIdpConfigId,
 			HttpServletResponse resonse) throws SamlAuthenticationException;
 
 }

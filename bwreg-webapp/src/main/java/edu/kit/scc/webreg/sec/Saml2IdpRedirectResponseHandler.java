@@ -50,8 +50,13 @@ public class Saml2IdpRedirectResponseHandler {
 		}
 		
 		try {
-			samlIdpService.resumeAuthnRequest(session.getAuthnRequestId(), session.getUserId(), 
-					session.getAuthnRequestIdpConfigId(), response);
+			String redirect = samlIdpService.resumeAuthnRequest(session.getAuthnRequestId(), session.getUserId(), 
+								session.getAuthnRequestIdpConfigId(), response);
+			
+			if (redirect != null) {
+				session.setOriginalRequestPath(request.getRequestURI());
+				response.sendRedirect(redirect);
+			}
 		} catch (SamlAuthenticationException e) {
 			throw new ServletException(e);
 		}

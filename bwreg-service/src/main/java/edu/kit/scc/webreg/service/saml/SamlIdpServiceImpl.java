@@ -132,7 +132,7 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 	}
 
 	@Override
-	public void resumeAuthnRequest(Long authnRequestId, Long userId, 
+	public String resumeAuthnRequest(Long authnRequestId, Long userId, 
 			Long authnRequestIdpConfigId, HttpServletResponse response) throws SamlAuthenticationException {
 		
 		SamlIdpConfigurationEntity idpConfig = idpConfigDao.findById(authnRequestIdpConfigId);
@@ -155,15 +155,9 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 			logger.debug("Service for SP found: {}", service);
 			RegistryEntity registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.ACTIVE);
 			if (registry == null) {
-				try {
-					logger.info("No active registration for user {} and service {}, redirecting to register page", 
-							user.getEppn(), service.getName());
-					response.sendRedirect("/user/register-service.xhtml?serviceId=" + service.getId());
-					return;
-				} catch (IOException e) {
-					logger.warn("Cannot send to register page", e);
-					throw new SamlAuthenticationException("Cannot send to register page");
-				}
+				logger.info("No active registration for user {} and service {}, redirecting to register page", 
+						user.getEppn(), service.getName());
+				return "/user/register-service.xhtml?serviceId=" + service.getId();
 			}
 		}
 		
@@ -247,6 +241,8 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 		try {
 			postEncoder.initialize();
 			postEncoder.encode();
+			
+			return null;
 		} catch (MessageEncodingException | ComponentInitializationException e) {
 			logger.warn("Exception occured", e);
 			throw new SamlAuthenticationException(e);
