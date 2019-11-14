@@ -10,10 +10,15 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.sec;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +29,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.velocity.app.VelocityEngine;
 import org.joda.time.DateTime;
 import org.opensaml.core.xml.io.MarshallingException;
@@ -31,6 +37,7 @@ import org.opensaml.core.xml.schema.XSString;
 import org.opensaml.messaging.context.MessageContext;
 import org.opensaml.messaging.decoder.MessageDecodingException;
 import org.opensaml.messaging.encoder.MessageEncodingException;
+import org.opensaml.profile.context.ProfileRequestContext;
 import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.common.messaging.SAMLMessageSecuritySupport;
 import org.opensaml.saml.common.messaging.context.SAMLEndpointContext;
@@ -50,28 +57,56 @@ import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.AuthnStatement;
 import org.opensaml.saml.saml2.core.Condition;
 import org.opensaml.saml.saml2.core.Conditions;
+import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.core.impl.RequestedAuthnContextBuilder;
+import org.opensaml.saml.saml2.encryption.Decrypter;
+import org.opensaml.saml.saml2.encryption.Encrypter;
 import org.opensaml.saml.saml2.metadata.AssertionConsumerService;
+import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+import org.opensaml.saml.saml2.metadata.KeyDescriptor;
+import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
+import org.opensaml.saml.saml2.profile.context.EncryptionContext;
+import org.opensaml.saml.security.impl.MetadataCredentialResolver;
+import org.opensaml.saml.security.impl.SAMLMetadataEncryptionParametersResolver;
 import org.opensaml.saml.security.impl.SAMLMetadataSignatureSigningParametersResolver;
 import org.opensaml.security.SecurityException;
+import org.opensaml.security.credential.BasicCredential;
 import org.opensaml.security.credential.Credential;
+import org.opensaml.security.credential.CredentialResolver;
+import org.opensaml.security.credential.UsageType;
 import org.opensaml.security.x509.BasicX509Credential;
+import org.opensaml.xmlsec.EncryptionParameters;
 import org.opensaml.xmlsec.SignatureSigningParameters;
+import org.opensaml.xmlsec.algorithm.AlgorithmSupport;
 import org.opensaml.xmlsec.config.impl.DefaultSecurityConfigurationBootstrap;
 import org.opensaml.xmlsec.context.SecurityParametersContext;
 import org.opensaml.xmlsec.criterion.SignatureSigningConfigurationCriterion;
+import org.opensaml.xmlsec.encryption.support.DataEncryptionParameters;
+import org.opensaml.xmlsec.encryption.support.EncryptionConstants;
+import org.opensaml.xmlsec.encryption.support.EncryptionException;
+import org.opensaml.xmlsec.encryption.support.InlineEncryptedKeyResolver;
+import org.opensaml.xmlsec.encryption.support.KeyEncryptionParameters;
+import org.opensaml.xmlsec.impl.BasicEncryptionConfiguration;
 import org.opensaml.xmlsec.impl.BasicSignatureSigningConfiguration;
+import org.opensaml.xmlsec.keyinfo.KeyInfoCredentialResolver;
+import org.opensaml.xmlsec.keyinfo.impl.BasicKeyInfoGeneratorFactory;
+import org.opensaml.xmlsec.keyinfo.impl.StaticKeyInfoCredentialResolver;
+import org.opensaml.xmlsec.signature.KeyInfo;
+import org.opensaml.xmlsec.signature.X509Data;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.entity.SamlAAConfigurationEntity;
+import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.service.SamlAAConfigurationService;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
+import edu.kit.scc.webreg.service.SamlSpMetadataService;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.saml.CryptoHelper;
 import edu.kit.scc.webreg.service.saml.Saml2AssertionService;
@@ -112,6 +147,9 @@ public class Saml2IdpRedirectResponseHandler {
 	private SamlAAConfigurationService aaConfigService;
 	
 	@Inject
+	private SamlSpMetadataService spService;
+	
+	@Inject
 	private ApplicationConfig appConfig;
 	
 	public void service(HttpServletRequest request, HttpServletResponse response)
@@ -132,8 +170,10 @@ public class Saml2IdpRedirectResponseHandler {
 		UserEntity user = userService.findById(session.getUserId());
 		
 		AuthnRequest authnRequest = samlIdpService.resumeAuthnRequest(session.getAuthnRequestId());
-		
 		logger.debug("Authn request reloaded: {}", samlHelper.prettyPrint(authnRequest));
+
+		SamlSpMetadataEntity spMetadata = spService.findByEntityId(authnRequest.getIssuer().getValue());
+		logger.debug("Corresponding SP found in Metadata: {}", spMetadata.getEntityId());
 		
 		Response samlResponse = ssoHelper.buildAuthnResponse(authnRequest, "https://bwidm.scc.kit.edu/saml/idp/metadata");
 
@@ -164,42 +204,24 @@ public class Saml2IdpRedirectResponseHandler {
 		assertion.setConditions(conditions);
 		assertion.getAttributeStatements().add(buildAttributeStatement(user));
 		assertion.getAuthnStatements().add(as);
-		samlResponse.getAssertions().add(assertion);
-
-		PrivateKey privateKey;
-		X509Certificate publicKey;
-		try {
-			privateKey = cryptoHelper.getPrivateKey(aaConfig.getPrivateKey());
-			publicKey = cryptoHelper.getCertificate(aaConfig.getCertificate());
-		} catch (IOException e) {
-			throw new ServletException("Private key is not set up properly", e);
-		}
-
-		BasicX509Credential credential = new BasicX509Credential(publicKey, privateKey);
-		List<Credential> credentialList = new ArrayList<Credential>();
-		credentialList.add(credential);
 		
-		BasicSignatureSigningConfiguration ssConfig = DefaultSecurityConfigurationBootstrap.buildDefaultSignatureSigningConfiguration();
-		ssConfig.setSigningCredentials(credentialList);
-		CriteriaSet criteriaSet = new CriteriaSet();
-		criteriaSet.add(new SignatureSigningConfigurationCriterion(ssConfig));
-		SAMLMetadataSignatureSigningParametersResolver smsspr = new SAMLMetadataSignatureSigningParametersResolver();
-
-		SignatureSigningParameters ssp;
-		try {
-			ssp = smsspr.resolveSingle(criteriaSet);
-		} catch (ResolverException e) {
-			throw new ServletException(e);
-		}
-		logger.debug("Resolved algo {} for signing", ssp.getSignatureAlgorithm());
-		SecurityParametersContext securityContext = new SecurityParametersContext();
-		securityContext.setSignatureSigningParameters(ssp);
-		
+		SecurityParametersContext securityContext = buildSecurityContext(aaConfig);
 		HTTPPostEncoder postEncoder = new HTTPPostEncoder();
 		postEncoder.setHttpServletResponse(response);
 		MessageContext<SAMLObject> messageContext = new MessageContext<SAMLObject>();
+
+		try {
+			samlResponse.getEncryptedAssertions().add(encryptAssertion(assertion, spMetadata, messageContext));
+		} catch (SamlAuthenticationException e) {
+			throw new ServletException(e);
+		}
+//		samlResponse.getAssertions().add(assertion);
+		
 		messageContext.setMessage(samlResponse);
 
+		/*
+		 * signing response
+		 */
 		messageContext.addSubcontext(securityContext);
 
 		SAMLPeerEntityContext entityContext = new SAMLPeerEntityContext();
@@ -210,7 +232,7 @@ public class Saml2IdpRedirectResponseHandler {
 		endpointContext.setEndpoint(acs);
 		entityContext.addSubcontext(endpointContext);
 		messageContext.addSubcontext(entityContext);
-
+		
 		try {
 			SAMLMessageSecuritySupport.signMessage(messageContext);
 		} catch (SecurityException | MarshallingException | SignatureException e) {
@@ -262,4 +284,97 @@ public class Saml2IdpRedirectResponseHandler {
 		return attribute;
 	}	
 	
+	private SecurityParametersContext buildSecurityContext(SamlAAConfigurationEntity aaConfig) throws ServletException {
+		PrivateKey privateKey;
+		X509Certificate publicKey;
+		try {
+			privateKey = cryptoHelper.getPrivateKey(aaConfig.getPrivateKey());
+			publicKey = cryptoHelper.getCertificate(aaConfig.getCertificate());
+		} catch (IOException e) {
+			throw new ServletException("Private key is not set up properly", e);
+		}
+
+		BasicX509Credential credential = new BasicX509Credential(publicKey, privateKey);
+		List<Credential> credentialList = new ArrayList<Credential>();
+		credentialList.add(credential);
+		
+		BasicSignatureSigningConfiguration ssConfig = DefaultSecurityConfigurationBootstrap.buildDefaultSignatureSigningConfiguration();
+		ssConfig.setSigningCredentials(credentialList);
+		CriteriaSet criteriaSet = new CriteriaSet();
+		criteriaSet.add(new SignatureSigningConfigurationCriterion(ssConfig));
+		SAMLMetadataSignatureSigningParametersResolver smsspr = new SAMLMetadataSignatureSigningParametersResolver();
+
+		SignatureSigningParameters ssp;
+		try {
+			ssp = smsspr.resolveSingle(criteriaSet);
+		} catch (ResolverException e) {
+			throw new ServletException(e);
+		}
+		logger.debug("Resolved algo {} for signing", ssp.getSignatureAlgorithm());
+		SecurityParametersContext securityContext = new SecurityParametersContext();
+		securityContext.setSignatureSigningParameters(ssp);
+		
+		return securityContext;
+	}
+	
+	private EncryptedAssertion encryptAssertion(Assertion assertion, SamlSpMetadataEntity spMetadata, MessageContext<?> messageContext) throws SamlAuthenticationException {
+
+		EntityDescriptor ed = samlHelper.unmarshal(spMetadata.getEntityDescriptor(), EntityDescriptor.class);
+		
+		KeyDescriptor keyDescriptor = null;
+		SPSSODescriptor spsso = ed.getSPSSODescriptor(SAMLConstants.SAML20P_NS);
+		for (KeyDescriptor kd : spsso.getKeyDescriptors()) {
+			if (kd.getUse() == null || kd.getUse().equals(UsageType.ENCRYPTION)) {
+				keyDescriptor = kd;
+				break;
+			}
+		}
+		
+		if (keyDescriptor == null) {
+			return null;
+		}
+		
+		KeyInfo keyInfo = keyDescriptor.getKeyInfo();
+		X509Data x509Data = keyInfo.getX509Datas().get(0);
+		org.opensaml.xmlsec.signature.X509Certificate x509cert = x509Data.getX509Certificates().get(0);
+		String cert = x509cert.getValue();
+		Encrypter enc = buildEncrypter(cert, messageContext, spMetadata.getEntityId());
+		try {
+			return enc.encrypt(assertion);
+		} catch (EncryptionException e) {
+			throw new SamlAuthenticationException("exception", e);
+		}
+	}
+	
+	private Encrypter buildEncrypter(String cert, MessageContext<?> messageContext, String spEntityId) 
+			throws SamlAuthenticationException {
+		try {
+			byte[] decodedCert = Base64.decodeBase64(cert);
+			CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+		    InputStream in = new ByteArrayInputStream(decodedCert);
+		    X509Certificate certificate = (X509Certificate)certFactory.generateCertificate(in);
+
+		    BasicCredential encryptCredential = new BasicCredential(certificate.getPublicKey());
+
+		    final BasicKeyInfoGeneratorFactory generator = new BasicKeyInfoGeneratorFactory();
+			generator.setEmitPublicKeyValue(true);
+
+		    EncryptionParameters encParams = new EncryptionParameters();
+			encParams.setDataEncryptionAlgorithm(EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES128);
+			encParams.setDataKeyInfoGenerator(generator.newInstance());
+			encParams.setKeyTransportEncryptionAlgorithm(EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSAOAEP);
+			encParams.setKeyTransportEncryptionCredential(encryptCredential);
+			encParams.setKeyTransportKeyInfoGenerator(generator.newInstance());
+
+			messageContext.getSubcontext(EncryptionContext.class, true)
+				.setAssertionEncryptionParameters(encParams);
+
+			Encrypter encrypter = new Encrypter(new DataEncryptionParameters(encParams), 
+					new KeyEncryptionParameters(encParams, spEntityId));
+			return encrypter;
+		} catch (CertificateException e) {
+			throw new SamlAuthenticationException("Certificate cannot be read", e);
+		}
+		
+	}
 }
