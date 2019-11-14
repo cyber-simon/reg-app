@@ -70,13 +70,19 @@ import org.opensaml.xmlsec.signature.X509Data;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.slf4j.Logger;
 
+import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.SamlAuthnRequestDao;
 import edu.kit.scc.webreg.dao.SamlIdpConfigurationDao;
 import edu.kit.scc.webreg.dao.SamlSpMetadataDao;
+import edu.kit.scc.webreg.dao.ServiceSamlSpDao;
 import edu.kit.scc.webreg.dao.UserDao;
+import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.SamlAuthnRequestEntity;
 import edu.kit.scc.webreg.entity.SamlIdpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.ServiceSamlSpEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.SamlAuthenticationException;
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
@@ -91,6 +97,9 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 
 	@Inject
 	private UserDao userDao;
+
+	@Inject
+	private RegistryDao registryDao;
 	
 	@Inject
 	private SamlIdpConfigurationDao idpConfigDao;
@@ -100,6 +109,9 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 
 	@Inject
 	private SamlSpMetadataDao spDao;
+	
+	@Inject
+	private ServiceSamlSpDao serviceSamlSpDao;
 	
 	@Inject
 	private SamlHelper samlHelper;
@@ -136,6 +148,24 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 
 		SamlSpMetadataEntity spMetadata = spDao.findByEntityId(authnRequest.getIssuer().getValue());
 		logger.debug("Corresponding SP found in Metadata: {}", spMetadata.getEntityId());
+
+		List<ServiceSamlSpEntity> serviceSamlSpEntityList = serviceSamlSpDao.findBySamlSp(spMetadata);
+		for (ServiceSamlSpEntity serviceSamlSpEntity : serviceSamlSpEntityList) {
+			ServiceEntity service = serviceSamlSpEntity.getService();
+			logger.debug("Service for SP found: {}", service);
+			RegistryEntity registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.ACTIVE);
+			if (registry == null) {
+				try {
+					logger.info("No active registration for user {} and service {}, redirecting to register page", 
+							user.getEppn(), service.getName());
+					response.sendRedirect("/user/register-service.xhtml?serviceId=" + service.getId());
+					return;
+				} catch (IOException e) {
+					logger.warn("Cannot send to register page", e);
+					throw new SamlAuthenticationException("Cannot send to register page");
+				}
+			}
+		}
 		
 		Response samlResponse = ssoHelper.buildAuthnResponse(authnRequest, idpConfig.getEntityId());
 
