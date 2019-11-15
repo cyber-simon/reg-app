@@ -22,6 +22,7 @@ import org.opensaml.saml.common.SAMLVersion;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
 
+import edu.kit.scc.webreg.entity.SamlIdpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 
 import org.opensaml.saml.saml2.core.Attribute;
@@ -98,12 +99,13 @@ public class SsoHelper implements Serializable {
 		return issuer;
 	}
 	
-	public Subject buildSubject(String nameIdValue, String nameIdType, String inResponseTo) {
+	public Subject buildSubject(SamlIdpConfigurationEntity idpConfig, SamlSpMetadataEntity spMetadata, 
+			String nameIdValue, String nameIdType, String inResponseTo) {
 		NameID nameId = samlHelper.create(NameID.class, NameID.DEFAULT_ELEMENT_NAME);
 		nameId.setFormat(nameIdType);
 		nameId.setValue(nameIdValue);
-		nameId.setNameQualifier("https://bwidm.scc.kit.edu/saml/idp/metadata");
-		nameId.setSPNameQualifier("https://bwidm-dev.scc.kit.edu/nextcloud/index.php/apps/user_saml/saml/metadata");
+		nameId.setNameQualifier(idpConfig.getEntityId());
+		nameId.setSPNameQualifier(spMetadata.getEntityId());
 		
 		SubjectConfirmationData scd = samlHelper.create(SubjectConfirmationData.class, SubjectConfirmationData.DEFAULT_ELEMENT_NAME);
 		scd.setNotOnOrAfter(new DateTime(System.currentTimeMillis() + (5L * 60L * 1000L)));

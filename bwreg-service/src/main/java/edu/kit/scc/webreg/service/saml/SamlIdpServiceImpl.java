@@ -169,7 +169,7 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 		assertion.setID(samlHelper.getRandomId());
 		assertion.setIssueInstant(new DateTime());
 		assertion.setIssuer(ssoHelper.buildIssuser(idpConfig.getEntityId()));
-		assertion.setSubject(ssoHelper.buildSubject(samlHelper.getRandomId(), NameID.TRANSIENT, authnRequest.getID()));
+		assertion.setSubject(ssoHelper.buildSubject(idpConfig, spMetadata, samlHelper.getRandomId(), NameID.TRANSIENT, authnRequest.getID()));
 		assertion.setConditions(ssoHelper.buildConditions(spMetadata));
 		assertion.getAttributeStatements().add(buildAttributeStatement(user, serviceSamlSpEntityList, registry));
 		assertion.getAuthnStatements().add(ssoHelper.buildAuthnStatement((5L * 60L * 1000L)));
