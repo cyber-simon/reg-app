@@ -13,13 +13,16 @@ import java.util.List;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.velocity.app.VelocityEngine;
 import org.joda.time.DateTime;
 import org.opensaml.core.xml.io.MarshallingException;
-import org.opensaml.core.xml.schema.XSString;
 import org.opensaml.messaging.context.MessageContext;
 import org.opensaml.messaging.encoder.MessageEncodingException;
 import org.opensaml.saml.common.SAMLObject;
@@ -31,14 +34,7 @@ import org.opensaml.saml.saml2.binding.encoding.impl.HTTPPostEncoder;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
-import org.opensaml.saml.saml2.core.AttributeValue;
-import org.opensaml.saml.saml2.core.Audience;
-import org.opensaml.saml.saml2.core.AudienceRestriction;
-import org.opensaml.saml.saml2.core.AuthnContext;
-import org.opensaml.saml.saml2.core.AuthnContextClassRef;
 import org.opensaml.saml.saml2.core.AuthnRequest;
-import org.opensaml.saml.saml2.core.AuthnStatement;
-import org.opensaml.saml.saml2.core.Conditions;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.Response;
@@ -81,10 +77,12 @@ import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.SamlAuthnRequestEntity;
 import edu.kit.scc.webreg.entity.SamlIdpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
+import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceSamlSpEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.SamlAuthenticationException;
+import edu.kit.scc.webreg.script.ScriptingEnv;
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 import net.shibboleth.utilities.java.support.resolver.ResolverException;
@@ -122,6 +120,9 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 	@Inject
 	private CryptoHelper cryptoHelper;
 	
+	@Inject
+	private ScriptingEnv scriptingEnv;
+	
 	@Override
 	public long registerAuthnRequest(AuthnRequest authnRequest) {
 		SamlAuthnRequestEntity authnRequestEntity = samlAuthnRequestDao.createNew();
@@ -150,10 +151,11 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 		logger.debug("Corresponding SP found in Metadata: {}", spMetadata.getEntityId());
 
 		List<ServiceSamlSpEntity> serviceSamlSpEntityList = serviceSamlSpDao.findBySamlSp(spMetadata);
+		RegistryEntity registry = null;
 		for (ServiceSamlSpEntity serviceSamlSpEntity : serviceSamlSpEntityList) {
 			ServiceEntity service = serviceSamlSpEntity.getService();
 			logger.debug("Service for SP found: {}", service);
-			RegistryEntity registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.ACTIVE);
+			registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.ACTIVE);
 			if (registry == null) {
 				logger.info("No active registration for user {} and service {}, redirecting to register page", 
 						user.getEppn(), service.getName());
@@ -162,39 +164,22 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 		}
 		
 		Response samlResponse = ssoHelper.buildAuthnResponse(authnRequest, idpConfig.getEntityId());
-
-		Audience audience = samlHelper.create(Audience.class, Audience.DEFAULT_ELEMENT_NAME);
-		audience.setAudienceURI(spMetadata.getEntityId());
-		AudienceRestriction ar = samlHelper.create(AudienceRestriction.class, AudienceRestriction.DEFAULT_ELEMENT_NAME);
-		ar.getAudiences().add(audience);
-		
-		Conditions conditions = samlHelper.create(Conditions.class, Conditions.DEFAULT_ELEMENT_NAME);
-		conditions.setNotBefore(new DateTime());
-		conditions.setNotOnOrAfter(new DateTime(System.currentTimeMillis() + (5L * 60L * 1000L)));
-		conditions.getAudienceRestrictions().add(ar);
-		
-		AuthnContextClassRef accr = samlHelper.create(AuthnContextClassRef.class, AuthnContextClassRef.DEFAULT_ELEMENT_NAME);
-		AuthnContext ac = samlHelper.create(AuthnContext.class, AuthnContext.DEFAULT_ELEMENT_NAME);
-		ac.setAuthnContextClassRef(accr);
-		AuthnStatement as = samlHelper.create(AuthnStatement.class, AuthnStatement.DEFAULT_ELEMENT_NAME);
-		as.setAuthnContext(ac);
-		as.setAuthnInstant(new DateTime());
-		as.setSessionNotOnOrAfter(new DateTime(System.currentTimeMillis() + (5L * 60L * 1000L)));
-		as.setSessionIndex(samlHelper.getRandomId());
 		
 		Assertion assertion = samlHelper.create(Assertion.class, Assertion.DEFAULT_ELEMENT_NAME);
 		assertion.setID(samlHelper.getRandomId());
 		assertion.setIssueInstant(new DateTime());
 		assertion.setIssuer(ssoHelper.buildIssuser(idpConfig.getEntityId()));
 		assertion.setSubject(ssoHelper.buildSubject(samlHelper.getRandomId(), NameID.TRANSIENT, authnRequest.getID()));
-		assertion.setConditions(conditions);
-		assertion.getAttributeStatements().add(buildAttributeStatement(user));
-		assertion.getAuthnStatements().add(as);
+		assertion.setConditions(ssoHelper.buildConditions(spMetadata));
+		assertion.getAttributeStatements().add(buildAttributeStatement(user, serviceSamlSpEntityList, registry));
+		assertion.getAuthnStatements().add(ssoHelper.buildAuthnStatement((5L * 60L * 1000L)));
 		
 		SecurityParametersContext securityContext = buildSecurityContext(idpConfig);
 		HTTPPostEncoder postEncoder = new HTTPPostEncoder();
 		postEncoder.setHttpServletResponse(response);
 		MessageContext<SAMLObject> messageContext = new MessageContext<SAMLObject>();
+
+		logger.debug("Assertion before encryption: {}", samlHelper.prettyPrint(assertion));
 
 		/*
 		 * encrypt assertion
@@ -343,28 +328,46 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 	}	
 
 	
-	private AttributeStatement buildAttributeStatement(UserEntity user) {
+	private AttributeStatement buildAttributeStatement(UserEntity user, 
+			List<ServiceSamlSpEntity> serviceSamlSpEntityList, RegistryEntity registry) 
+				throws SamlAuthenticationException {
+		
+		List<Attribute> attributeList = new ArrayList<>();
+		
+		for (ServiceSamlSpEntity serviceSamlSp : serviceSamlSpEntityList) {
+			ScriptEntity scriptEntity = serviceSamlSp.getScript();
+			if (scriptEntity.getScriptType().equalsIgnoreCase("javascript")) {
+				ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
+
+				if (engine == null)
+					throw new SamlAuthenticationException("service not configured properly. engine not found: " + scriptEntity.getScriptEngine());
+				
+				try {
+					engine.eval(scriptEntity.getScript());
+
+					Invocable invocable = (Invocable) engine;
+					
+					invocable.invokeFunction("buildAttributeStatement", scriptingEnv, user, registry, 
+							serviceSamlSp.getService(), attributeList, logger);
+				} catch (NoSuchMethodException | ScriptException e) {
+					logger.warn("Script execution failed. Continue with other scripts.", e);
+				}
+			}
+			else {
+				throw new SamlAuthenticationException("unkown script type: " + scriptEntity.getScriptType());
+			}
+			
+		}
 		AttributeStatement attributeStatement = samlHelper.create(AttributeStatement.class, AttributeStatement.DEFAULT_ELEMENT_NAME);
-		attributeStatement.getAttributes().add(buildAttribute(
-				"urn:oid:1.3.6.1.4.1.5923.1.1.1.6", "eduPersonPrincipalName", Attribute.URI_REFERENCE, user.getEppn()));
-		attributeStatement.getAttributes().add(buildAttribute(
-				"urn:oid:0.9.2342.19200300.100.1.3", "mail", Attribute.URI_REFERENCE, user.getEmail()));
+		for (Attribute attribute : attributeList) {
+			attributeStatement.getAttributes().add(attribute);
+		}
+		
+//		attributeStatement.getAttributes().add(ssoHelper.buildAttribute(
+//				"urn:oid:1.3.6.1.4.1.5923.1.1.1.6", "eduPersonPrincipalName", Attribute.URI_REFERENCE, user.getEppn()));
+//		attributeStatement.getAttributes().add(ssoHelper.buildAttribute(
+//				"urn:oid:0.9.2342.19200300.100.1.3", "mail", Attribute.URI_REFERENCE, user.getEmail()));
 		
 		return attributeStatement;
 	}
-	
-	private Attribute buildAttribute(String name, String friendlyName, String nameFormat, String... values) {
-		Attribute attribute = samlHelper.create(Attribute.class, Attribute.DEFAULT_ELEMENT_NAME);
-		attribute.setName(name);
-		attribute.setFriendlyName(friendlyName);
-		attribute.setNameFormat(nameFormat);
-		
-		for (String value : values) {
-			XSString xsany = samlHelper.create(XSString.class, XSString.TYPE_NAME, AttributeValue.DEFAULT_ELEMENT_NAME);
-			xsany.setValue(value);
-			attribute.getAttributeValues().add(xsany);
-		}
-		
-		return attribute;
-	}	
 }
