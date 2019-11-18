@@ -55,6 +55,26 @@ public class JpaSamlUserDao extends JpaBaseDao<SamlUserEntity, Long> implements 
 	}	
 
 	@Override
+	public SamlUserEntity findByPersistent(String spId, String idpId, String persistentId) {
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<SamlUserEntity> criteria = builder.createQuery(SamlUserEntity.class);
+		Root<SamlUserEntity> user = criteria.from(SamlUserEntity.class);
+		criteria.where(builder.and(
+				builder.equal(user.get("persistentSpId"), spId),
+				builder.equal(user.get("persistentIdpId"), idpId),
+				builder.equal(user.get("persistentId"), persistentId)
+				));
+		criteria.select(user);
+		
+		try {
+			return em.createQuery(criteria).getSingleResult();
+		}
+		catch (NoResultException e) {
+			return null;
+		}			
+	}	
+	
+	@Override
 	public SamlUserEntity findByEppn(String eppn) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<SamlUserEntity> criteria = builder.createQuery(SamlUserEntity.class);
