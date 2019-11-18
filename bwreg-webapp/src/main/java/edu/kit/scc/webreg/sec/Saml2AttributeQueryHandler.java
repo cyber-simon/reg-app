@@ -34,7 +34,6 @@ import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.core.StatusMessage;
-import org.opensaml.saml.saml2.core.Subject;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.soap.soap11.Body;
 import org.opensaml.soap.soap11.Envelope;
@@ -118,7 +117,7 @@ public class Saml2AttributeQueryHandler {
 					Assertion assertion = samlHelper.create(Assertion.class, Assertion.DEFAULT_ELEMENT_NAME);
 					assertion.setIssueInstant(new DateTime());
 					assertion.setIssuer(ssoHelper.buildIssuser(aaConfig.getEntityId()));
-					assertion.setSubject(ssoHelper.buildSubject(nameIdValue, NameID.UNSPECIFIED, query.getID()));
+					assertion.setSubject(ssoHelper.buildAQSubject(aaConfig, spEntity, nameIdValue, NameID.UNSPECIFIED, query.getID()));
 					assertion.getAttributeStatements().add(buildAttributeStatement(user));
 					samlResponse.getAssertions().add(assertion);
 				}

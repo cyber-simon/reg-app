@@ -22,6 +22,7 @@ import org.opensaml.saml.common.SAMLVersion;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
 
+import edu.kit.scc.webreg.entity.SamlAAConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlIdpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 
@@ -109,7 +110,28 @@ public class SsoHelper implements Serializable {
 		
 		SubjectConfirmationData scd = samlHelper.create(SubjectConfirmationData.class, SubjectConfirmationData.DEFAULT_ELEMENT_NAME);
 		scd.setNotOnOrAfter(new DateTime(System.currentTimeMillis() + (5L * 60L * 1000L)));
-		//scd.setRecipient("https://bwidm-dev.scc.kit.edu/nextcloud/index.php/apps/user_saml/saml/metadata");
+		scd.setInResponseTo(inResponseTo);
+		
+		SubjectConfirmation sc = samlHelper.create(SubjectConfirmation.class, SubjectConfirmation.DEFAULT_ELEMENT_NAME);
+		sc.setMethod(SubjectConfirmation.METHOD_BEARER);
+		sc.setSubjectConfirmationData(scd);
+		
+		Subject subject = samlHelper.create(Subject.class, Subject.DEFAULT_ELEMENT_NAME);
+		subject.setNameID(nameId);
+		subject.getSubjectConfirmations().add(sc);
+		return subject;
+	}
+	
+	public Subject buildAQSubject(SamlAAConfigurationEntity idpConfig, SamlSpMetadataEntity spMetadata, 
+			String nameIdValue, String nameIdType, String inResponseTo) {
+		NameID nameId = samlHelper.create(NameID.class, NameID.DEFAULT_ELEMENT_NAME);
+		nameId.setFormat(nameIdType);
+		nameId.setValue(nameIdValue);
+		nameId.setNameQualifier(idpConfig.getEntityId());
+		nameId.setSPNameQualifier(spMetadata.getEntityId());
+		
+		SubjectConfirmationData scd = samlHelper.create(SubjectConfirmationData.class, SubjectConfirmationData.DEFAULT_ELEMENT_NAME);
+		scd.setNotOnOrAfter(new DateTime(System.currentTimeMillis() + (5L * 60L * 1000L)));
 		scd.setInResponseTo(inResponseTo);
 		
 		SubjectConfirmation sc = samlHelper.create(SubjectConfirmation.class, SubjectConfirmation.DEFAULT_ELEMENT_NAME);
