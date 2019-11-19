@@ -8,24 +8,20 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.exc;
+package edu.kit.scc.webreg.service.saml.exc;
 
 import java.io.Serializable;
 
-public class SamlAuthenticationException extends Exception implements Serializable {
+public class SamlUnknownPrincipalException extends SamlAuthenticationException implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public SamlAuthenticationException(String msg) {
+	public SamlUnknownPrincipalException(String msg) {
 		super(msg);
 	}
 
-	public SamlAuthenticationException(String msg, Throwable t) {
+	public SamlUnknownPrincipalException(String msg, Throwable t) {
 		super(msg, t);
-	}
-
-	public SamlAuthenticationException(Throwable t) {
-		super(t);
 	}
 
 }

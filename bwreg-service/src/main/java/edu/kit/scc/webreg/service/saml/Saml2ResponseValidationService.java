@@ -41,8 +41,8 @@ import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngin
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.SamlMetadataEntity;
-import edu.kit.scc.webreg.exc.SamlAuthenticationException;
-import edu.kit.scc.webreg.exc.SamlUnknownPrincipalException;
+import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
+import edu.kit.scc.webreg.service.saml.exc.SamlUnknownPrincipalException;
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 

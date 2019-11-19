@@ -29,6 +29,7 @@ import edu.kit.scc.webreg.entity.SamlAAConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.service.SamlAAConfigurationService;
 import edu.kit.scc.webreg.service.SamlSpConfigurationService;
+import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 
 @Named
 @WebServlet(urlPatterns = {"/Shibboleth.sso/*", "/saml/sp/*"})
@@ -58,34 +59,36 @@ public class SamlSpDispatcherServlet implements Servlet {
 	public void service(ServletRequest servletRequest, ServletResponse servletResponse)
 			throws ServletException, IOException {
 
-		HttpServletRequest request = (HttpServletRequest) servletRequest;
-		HttpServletResponse response = (HttpServletResponse) servletResponse;
-
-		String context = request.getServletContext().getContextPath();
-		String path = request.getRequestURI().substring(
-				context.length());
+		throw new ServletException(new SamlAuthenticationException("persistent id missing"));
 		
-		logger.debug("Dispatching request context '{}' path '{}'", context, path);
-		
-		SamlSpConfigurationEntity spConfig = spConfigService.findByHostname(request.getServerName());
-		
-		if (spConfig != null && spConfig.getAcs() != null &&
-				spConfig.getAcs().endsWith(context + path)) {
-			logger.debug("Executing POST Handler for entity {}", spConfig.getEntityId());
-			postHandler.service(request, response, spConfig);
-			return;
-		}
-
-		SamlAAConfigurationEntity aaConfig = aaConfigService.findByHostname(request.getServerName());
-		
-		if (aaConfig != null && aaConfig.getAq() != null &&
-				aaConfig.getAq().endsWith(context + path)) {
-			logger.debug("Executing AttributeQuery Handler for entity {}", aaConfig.getEntityId());
-			attributeQueryServlet.service(request, response, aaConfig);
-			return;
-		}
-
-		logger.info("No matching servlet for context '{}' path '{}'", context, path);
+//		HttpServletRequest request = (HttpServletRequest) servletRequest;
+//		HttpServletResponse response = (HttpServletResponse) servletResponse;
+//
+//		String context = request.getServletContext().getContextPath();
+//		String path = request.getRequestURI().substring(
+//				context.length());
+//		
+//		logger.debug("Dispatching request context '{}' path '{}'", context, path);
+//		
+//		SamlSpConfigurationEntity spConfig = spConfigService.findByHostname(request.getServerName());
+//		
+//		if (spConfig != null && spConfig.getAcs() != null &&
+//				spConfig.getAcs().endsWith(context + path)) {
+//			logger.debug("Executing POST Handler for entity {}", spConfig.getEntityId());
+//			postHandler.service(request, response, spConfig);
+//			return;
+//		}
+//
+//		SamlAAConfigurationEntity aaConfig = aaConfigService.findByHostname(request.getServerName());
+//		
+//		if (aaConfig != null && aaConfig.getAq() != null &&
+//				aaConfig.getAq().endsWith(context + path)) {
+//			logger.debug("Executing AttributeQuery Handler for entity {}", aaConfig.getEntityId());
+//			attributeQueryServlet.service(request, response, aaConfig);
+//			return;
+//		}
+//
+//		logger.info("No matching servlet for context '{}' path '{}'", context, path);
 		
 	}
 	

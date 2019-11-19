@@ -24,7 +24,7 @@ import org.opensaml.saml.saml2.core.AttributeQuery;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
 
-import edu.kit.scc.webreg.exc.SamlAuthenticationException;
+import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 
 @ApplicationScoped
 public class Saml2DecoderService {

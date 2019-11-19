@@ -55,9 +55,6 @@ import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.UserEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.MetadataException;
-import edu.kit.scc.webreg.exc.NoAssertionException;
-import edu.kit.scc.webreg.exc.SamlAuthenticationException;
-import edu.kit.scc.webreg.exc.SamlUnknownPrincipalException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.SerialService;
 import edu.kit.scc.webreg.service.ServiceService;
@@ -66,6 +63,9 @@ import edu.kit.scc.webreg.service.reg.AttributeSourceQueryService;
 import edu.kit.scc.webreg.service.saml.AttributeQueryHelper;
 import edu.kit.scc.webreg.service.saml.Saml2AssertionService;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
+import edu.kit.scc.webreg.service.saml.exc.NoAssertionException;
+import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
+import edu.kit.scc.webreg.service.saml.exc.SamlUnknownPrincipalException;
 
 @ApplicationScoped
 public class UserUpdater implements Serializable {

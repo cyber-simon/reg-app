@@ -75,7 +75,6 @@ import edu.kit.scc.webreg.exc.NoScopedUsernameException;
 import edu.kit.scc.webreg.exc.NoServiceFoundException;
 import edu.kit.scc.webreg.exc.NoUserFoundException;
 import edu.kit.scc.webreg.exc.RestInterfaceException;
-import edu.kit.scc.webreg.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.exc.UnauthorizedException;
 import edu.kit.scc.webreg.exc.UserNotRegisteredException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
@@ -88,6 +87,7 @@ import edu.kit.scc.webreg.service.saml.Saml2AssertionService;
 import edu.kit.scc.webreg.service.saml.Saml2ResponseValidationService;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
 import edu.kit.scc.webreg.service.saml.SsoHelper;
+import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 
 @Stateless
 public class UserLoginServiceImpl implements UserLoginService, Serializable {
