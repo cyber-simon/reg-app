@@ -47,20 +47,20 @@ public class GroupAdminListGroupsBean implements Serializable {
     private Long serviceId;
     
 	public void preRenderView(ComponentSystemEvent ev) {
-		if (serviceEntity == null) 
+		if (serviceEntity == null) {
 			serviceEntity = serviceService.findById(serviceId);
+		}
 	
 		if (! authBean.isUserServiceGroupAdmin(serviceEntity))
 			throw new NotAuthorizedException("Nicht autorisiert");
-		
-		if (groupFlagList == null)
-			groupFlagList = groupFlagService.findLocalGroupsForService(serviceEntity);
 	}
 
 	public List<ServiceGroupFlagEntity> getGroupFlagList() {
+		if (groupFlagList == null)
+			groupFlagList = groupFlagService.findLocalGroupsForService(serviceEntity);
 		return groupFlagList;
 	}
-
+	
 	public ServiceEntity getServiceEntity() {
 		return serviceEntity;
 	}

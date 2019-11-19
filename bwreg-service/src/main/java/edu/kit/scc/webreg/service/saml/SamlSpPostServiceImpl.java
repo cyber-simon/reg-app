@@ -1,24 +1,12 @@
-/*******************************************************************************
- * Copyright (c) 2014 Michael Simon.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the GNU Public License v3.0
- * which accompanies this distribution, and is available at
- * http://www.gnu.org/licenses/gpl.html
- * 
- * Contributors:
- *     Michael Simon - initial
- ******************************************************************************/
-package edu.kit.scc.webreg.sec;
+package edu.kit.scc.webreg.service.saml;
 
-import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import javax.faces.bean.ApplicationScoped;
+import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -31,68 +19,57 @@ import org.slf4j.Logger;
 import org.slf4j.MDC;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
+import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
+import edu.kit.scc.webreg.dao.SamlUserDao;
 import edu.kit.scc.webreg.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntityStatus;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
-import edu.kit.scc.webreg.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
-import edu.kit.scc.webreg.service.SamlIdpMetadataService;
-import edu.kit.scc.webreg.service.UserService;
-import edu.kit.scc.webreg.service.saml.Saml2AssertionService;
-import edu.kit.scc.webreg.service.saml.Saml2DecoderService;
-import edu.kit.scc.webreg.service.saml.SamlHelper;
+import edu.kit.scc.webreg.service.impl.UserUpdater;
+import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.session.SessionManager;
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 
-@ApplicationScoped
-public class Saml2PostHandlerServlet {
+@Stateless
+public class SamlSpPostServiceImpl implements SamlSpPostService {
 
 	@Inject
 	private Logger logger;
 
+	@Inject 
+	private SamlIdpMetadataDao idpDao;
+	
 	@Inject
-	private SessionManager session;
-
+	private SamlUserDao userDao;
+	
 	@Inject
-	private UserService userService;
+	private UserUpdater userUpdater;
+	
+	@Inject
+	private SamlHelper samlHelper;
 	
 	@Inject
 	private Saml2DecoderService saml2DecoderService;
 	
 	@Inject
-	private Saml2AssertionService saml2AssertionService;
-	
-	@Inject
-	private SamlHelper samlHelper;
-		
-	@Inject 
-	private SamlIdpMetadataService idpService;
-	
+	private Saml2AssertionService saml2AssertionService;	
+
 	@Inject
 	private KnowledgeSessionService knowledgeSessionService;
 	
 	@Inject
 	private ApplicationConfig appConfig;
 	
-	public void service(ServletRequest servletRequest, ServletResponse servletResponse, SamlSpConfigurationEntity spConfig)
-			throws ServletException, IOException {
-
-		HttpServletRequest request = (HttpServletRequest) servletRequest;
-		HttpServletResponse response = (HttpServletResponse) servletResponse;
-
-		if (session == null || session.getIdpId() == null || session.getSpId() == null) {
-			logger.debug("Client session from {} not established. Sending client back to welcome page",
-					request.getRemoteAddr());
-			response.sendRedirect("/welcome/index.xhtml");
-			return;
-		}
-		
-		logger.debug("attempAuthentication, Consuming SAML Assertion");
-		
+	@Inject
+	private SessionManager session;
+	
+	@Override
+	public void consumePost(HttpServletRequest request, HttpServletResponse response, 
+			SamlSpConfigurationEntity spConfig) throws Exception {
 		try {
-			SamlIdpMetadataEntity idpEntity = idpService.findById(session.getIdpId());
+			SamlIdpMetadataEntity idpEntity = idpDao.findById(session.getIdpId());
 			EntityDescriptor idpEntityDescriptor = samlHelper.unmarshal(
 					idpEntity.getEntityDescriptor(), EntityDescriptor.class);
 		
@@ -108,15 +85,21 @@ public class Saml2PostHandlerServlet {
 				/*
 				 * Catch Exception here for a probably faulty IDP. Register Exception and rethrow.
 				 */
-				idpService.updateIdpStatus(SamlIdpMetadataEntityStatus.FAULTY, idpEntity);
+				if (! SamlIdpMetadataEntityStatus.FAULTY.equals(idpEntity.getIdIdpStatus())) {
+					idpEntity.setIdIdpStatus(SamlIdpMetadataEntityStatus.FAULTY);
+					idpEntity.setLastIdStatusChange(new Date());
+				}
 				throw e1;
 			}
 			
-			idpService.updateIdpStatus(SamlIdpMetadataEntityStatus.GOOD, idpEntity);
+			if (! SamlIdpMetadataEntityStatus.GOOD.equals(idpEntity.getIdIdpStatus())) {
+				idpEntity.setIdIdpStatus(SamlIdpMetadataEntityStatus.GOOD);
+				idpEntity.setLastIdStatusChange(new Date());
+			}
 
 			Map<String, List<Object>> attributeMap = saml2AssertionService.extractAttributes(assertion);
 
-			SamlUserEntity user = userService.findByPersistentWithRoles(spConfig.getEntityId(), 
+			SamlUserEntity user = userDao.findByPersistent(spConfig.getEntityId(), 
 						idpEntity.getEntityId(), persistentId);
 
 			if (user != null) {
@@ -151,7 +134,7 @@ public class Saml2PostHandlerServlet {
 	    	logger.debug("Updating user {}", persistentId);
 			
 			try {
-				user = userService.updateUserFromAttribute(user, attributeMap, "web-sso");
+				user = userUpdater.updateUser(user, assertion, "web-sso");
 			} catch (UserUpdateException e) {
 				logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
 				throw new SamlAuthenticationException(e.getMessage());
@@ -161,8 +144,11 @@ public class Saml2PostHandlerServlet {
 			session.setTheme(user.getTheme());
 			session.setLocale(user.getLocale());
 			
-			if (session.getOriginalRequestPath() != null)
-				response.sendRedirect(session.getOriginalRequestPath());
+			if (session.getOriginalRequestPath() != null) {
+				String orig = session.getOriginalRequestPath();
+				session.setOriginalRequestPath(null);
+				response.sendRedirect(orig);
+			}
 			else
 				response.sendRedirect("/index.xhtml");
 
@@ -178,6 +164,6 @@ public class Saml2PostHandlerServlet {
 			throw new ServletException("Authentication problem", e);
 		} catch (ComponentInitializationException e) {
 			throw new ServletException("Authentication problem", e);
-		}
+		}		
 	}
 }

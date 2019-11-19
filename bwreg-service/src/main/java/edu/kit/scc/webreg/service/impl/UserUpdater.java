@@ -29,6 +29,7 @@ import edu.kit.scc.webreg.audit.RegistryAuditor;
 import edu.kit.scc.webreg.audit.UserUpdateAuditor;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.RegistryDao;
+import edu.kit.scc.webreg.dao.SamlAssertionDao;
 import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
 import edu.kit.scc.webreg.dao.SamlSpConfigurationDao;
 import edu.kit.scc.webreg.dao.SamlUserDao;
@@ -39,6 +40,7 @@ import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
+import edu.kit.scc.webreg.entity.SamlAssertionEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntityStatus;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
@@ -53,9 +55,6 @@ import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.UserEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.MetadataException;
-import edu.kit.scc.webreg.exc.NoAssertionException;
-import edu.kit.scc.webreg.exc.SamlAuthenticationException;
-import edu.kit.scc.webreg.exc.SamlUnknownPrincipalException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.SerialService;
 import edu.kit.scc.webreg.service.ServiceService;
@@ -64,6 +63,9 @@ import edu.kit.scc.webreg.service.reg.AttributeSourceQueryService;
 import edu.kit.scc.webreg.service.saml.AttributeQueryHelper;
 import edu.kit.scc.webreg.service.saml.Saml2AssertionService;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
+import edu.kit.scc.webreg.service.saml.exc.NoAssertionException;
+import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
+import edu.kit.scc.webreg.service.saml.exc.SamlUnknownPrincipalException;
 
 @ApplicationScoped
 public class UserUpdater implements Serializable {
@@ -114,6 +116,9 @@ public class UserUpdater implements Serializable {
 	
 	@Inject
 	private ASUserAttrDao asUserAttrDao;
+	
+	@Inject
+	private SamlAssertionDao samlAsserionDao;
 	
 	@Inject
 	private AttributeSourceQueryService attributeSourceQueryService;
@@ -252,11 +257,27 @@ public class UserUpdater implements Serializable {
 	
 	public SamlUserEntity updateUser(SamlUserEntity user, Assertion assertion, String executor, ServiceEntity service)
 			throws UserUpdateException {
+		
+		SamlAssertionEntity samlAssertionEntity = samlAsserionDao.createNew();
+		samlAssertionEntity.setUser(user);
+		samlAssertionEntity.setAssertionData(samlHelper.prettyPrint(assertion));
+		samlAssertionEntity.setValidUntil(new Date(System.currentTimeMillis() + (4L * 60L * 60L * 1000L)));
+		samlAssertionEntity = samlAsserionDao.persist(samlAssertionEntity);
+		
 		Map<String, List<Object>> attributeMap = saml2AssertionService.extractAttributes(assertion);
 
-		return updateUser(user, attributeMap, executor, service);
+		if (service != null)
+			return updateUser(user, attributeMap, executor, service);
+		else
+			return updateUser(user, attributeMap, executor);
 	}
 
+	public SamlUserEntity updateUser(SamlUserEntity user, Assertion assertion, String executor)
+			throws UserUpdateException {
+		
+		return updateUser(user, assertion, executor, null);
+	}
+	
 	public SamlUserEntity updateUserFromIdp(SamlUserEntity user, String executor) 
 			throws UserUpdateException {
 		return updateUserFromIdp(user, null, executor);

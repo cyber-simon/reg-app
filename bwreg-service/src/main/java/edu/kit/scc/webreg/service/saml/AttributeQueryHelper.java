@@ -67,7 +67,7 @@ import edu.kit.scc.webreg.entity.SamlMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.exc.MetadataException;
-import edu.kit.scc.webreg.exc.SamlAuthenticationException;
+import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 
 @Named("attributeQueryHelper")

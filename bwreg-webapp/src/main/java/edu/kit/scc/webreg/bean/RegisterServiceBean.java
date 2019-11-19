@@ -241,15 +241,22 @@ public class RegisterServiceBean implements Serializable {
 			return null;
 		}
   	
-    	if (service.getServiceProps().containsKey("redirect_after_register")) {
-    		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-    		try {
+		try {
+	    	if (service.getServiceProps().containsKey("redirect_after_register")) {
+	    		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
 				context.redirect(service.getServiceProps().get("redirect_after_register"));
+				sessionManager.setOriginalRequestPath(null);
 				return null;
-			} catch (IOException e) {
-				logger.info("Could not redirect client", e);
-			}
-    	}
+	    	}
+	    	else if (sessionManager.getOriginalRequestPath() != null) {
+	    		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+				context.redirect(sessionManager.getOriginalRequestPath());
+				sessionManager.setOriginalRequestPath(null);
+				return null;
+	    	}
+		} catch (IOException e) {
+			logger.info("Could not redirect client", e);
+		}
     	
     	return ViewIds.INDEX_USER + "?faces-redirect=true";
     }

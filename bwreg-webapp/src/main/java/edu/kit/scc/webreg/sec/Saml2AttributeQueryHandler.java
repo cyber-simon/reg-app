@@ -15,12 +15,8 @@ import java.io.IOException;
 import javax.faces.bean.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 
 import org.joda.time.DateTime;
 import org.opensaml.core.xml.XMLObject;
@@ -38,7 +34,6 @@ import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.core.StatusMessage;
-import org.opensaml.saml.saml2.core.Subject;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.soap.soap11.Body;
 import org.opensaml.soap.soap11.Envelope;
@@ -48,15 +43,17 @@ import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.SamlAAConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.service.SamlSpMetadataService;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.saml.Saml2DecoderService;
 import edu.kit.scc.webreg.service.saml.Saml2ResponseValidationService;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
+import edu.kit.scc.webreg.service.saml.SsoHelper;
+import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
+import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 
 @ApplicationScoped
-public class Saml2AttributeQueryServlet {
+public class Saml2AttributeQueryHandler {
 
 	@Inject
 	private Logger logger;
@@ -77,14 +74,14 @@ public class Saml2AttributeQueryServlet {
 	private UserService userService;
 	
 	@Inject
+	private SsoHelper ssoHelper;
+	
+	@Inject
 	private ApplicationConfig appConfig;
 	
-	public void service(ServletRequest servletRequest, ServletResponse servletResponse, SamlAAConfigurationEntity aaConfig)
+	public void service(HttpServletRequest request, HttpServletResponse response, SamlAAConfigurationEntity aaConfig)
 			throws ServletException, IOException {
 
-		HttpServletRequest request = (HttpServletRequest) servletRequest;
-		HttpServletResponse response = (HttpServletResponse) servletResponse;
-		
 		logger.debug("Consuming SAML AttributeQuery");
 		
 		try {
@@ -108,7 +105,7 @@ public class Saml2AttributeQueryServlet {
 			saml2ValidationService.validateSpSignature(query, issuer, spEntityDescriptor);
 			
 			Response samlResponse = buildSamlRespone(StatusCode.SUCCESS, null);
-			samlResponse.setIssuer(buildIssuser(aaConfig.getEntityId()));
+			samlResponse.setIssuer(ssoHelper.buildIssuser(aaConfig.getEntityId()));
 			samlResponse.setIssueInstant(new DateTime());
 
 			if (query.getSubject() != null && query.getSubject().getNameID() != null) {
@@ -119,8 +116,8 @@ public class Saml2AttributeQueryServlet {
 				if (user != null) {
 					Assertion assertion = samlHelper.create(Assertion.class, Assertion.DEFAULT_ELEMENT_NAME);
 					assertion.setIssueInstant(new DateTime());
-					assertion.setIssuer(buildIssuser(aaConfig.getEntityId()));
-					assertion.setSubject(buildSubject(nameIdValue, NameID.UNSPECIFIED));
+					assertion.setIssuer(ssoHelper.buildIssuser(aaConfig.getEntityId()));
+					assertion.setSubject(ssoHelper.buildAQSubject(aaConfig, spEntity, nameIdValue, NameID.UNSPECIFIED, query.getID()));
 					assertion.getAttributeStatements().add(buildAttributeStatement(user));
 					samlResponse.getAssertions().add(assertion);
 				}
@@ -185,23 +182,7 @@ public class Saml2AttributeQueryServlet {
 		}
 		return samlStatus;
 	}
-	
-	private Issuer buildIssuser(String entityId) {
-		Issuer issuer = samlHelper.create(Issuer.class, Issuer.DEFAULT_ELEMENT_NAME);
-		issuer.setValue(entityId);
-		return issuer;
-	}
-	
-	private Subject buildSubject(String nameIdValue, String nameIdType) {
-		NameID nameId = samlHelper.create(NameID.class, NameID.DEFAULT_ELEMENT_NAME);
-		nameId.setFormat(nameIdType);
-		nameId.setValue(nameIdValue);
-		
-		Subject subject = samlHelper.create(Subject.class, Subject.DEFAULT_ELEMENT_NAME);
-		subject.setNameID(nameId);
-		return subject;
-	}
-	
+			
 	private AttributeStatement buildAttributeStatement(UserEntity user) {
 		AttributeStatement attributeStatement = samlHelper.create(AttributeStatement.class, AttributeStatement.DEFAULT_ELEMENT_NAME);
 		attributeStatement.getAttributes().add(buildAttribute(

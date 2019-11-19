@@ -1,0 +1,94 @@
+package edu.kit.scc.syncshare.reg;
+
+import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import edu.kit.scc.nextcloud.NextcloudAnswer;
+import edu.kit.scc.nextcloud.NextcloudWorker;
+import edu.kit.scc.webreg.audit.Auditor;
+import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.script.ScriptingEnv;
+import edu.kit.scc.webreg.service.reg.Infotainment;
+import edu.kit.scc.webreg.service.reg.InfotainmentCapable;
+import edu.kit.scc.webreg.service.reg.InfotainmentTreeNode;
+import edu.kit.scc.webreg.service.reg.RegisterUserWorkflow;
+import edu.kit.scc.webreg.service.reg.ldap.PropertyReader;
+
+public class NextcloudProxyIdpRegisterWorkflow  implements RegisterUserWorkflow, InfotainmentCapable {
+
+	private static final Logger logger = LoggerFactory.getLogger(NextcloudProxyIdpRegisterWorkflow.class);
+
+	protected ScriptingEnv scriptingEnv;
+
+	@Override
+	public Infotainment getInfo(RegistryEntity registry, UserEntity user, ServiceEntity service)
+			throws RegisterException {
+
+		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
+		NextcloudWorker worker = new NextcloudWorker(prop);
+		
+		NextcloudAnswer answer = worker.loadAccount(registry);
+
+		Infotainment info = new Infotainment();
+		InfotainmentTreeNode root = new InfotainmentTreeNode("root", null);
+
+		info.setMessage("Account geladen");
+		info.setRoot(root);
+		InfotainmentTreeNode node = new InfotainmentTreeNode("Status", root);
+		new InfotainmentTreeNode("StatusCode", "" + answer.getMeta().getStatusCode(), node);
+		new InfotainmentTreeNode("Status", answer.getMeta().getStatus(), node);
+		new InfotainmentTreeNode("Message", answer.getMeta().getMessage(), node);
+
+		node = new InfotainmentTreeNode("User Info", root);
+		if (answer.getUser() != null) {
+			new InfotainmentTreeNode("ID", answer.getUser().getId(), node);
+			new InfotainmentTreeNode("Name", answer.getUser().getDisplayName(), node);
+			new InfotainmentTreeNode("E-Mail", answer.getUser().getEmail(), node);
+			if (answer.getUser().getQuota() != null && answer.getUser().getQuota().getRelative() != null) {
+				new InfotainmentTreeNode("Verbrauchter Platz", "" +  answer.getUser().getQuota().getRelative() + "%", node);
+			}
+			if (answer.getUser().getGroups() != null) {
+				for (String group : answer.getUser().getGroups().getGroupList()) {
+					new InfotainmentTreeNode("Gruppe", group, node);
+				}
+			}
+		}
+
+		return info;
+	}
+
+	@Override
+	public void registerUser(UserEntity user, ServiceEntity service, RegistryEntity registry, Auditor auditor)
+			throws RegisterException {
+		
+		updateRegistry(user, service, registry, auditor);
+		reconciliation(user, service, registry, auditor);
+	}
+
+	@Override
+	public void deregisterUser(UserEntity user, ServiceEntity service, RegistryEntity registry, Auditor auditor)
+			throws RegisterException {
+		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
+
+	}
+
+	@Override
+	public void reconciliation(UserEntity user, ServiceEntity service, RegistryEntity registry, Auditor auditor)
+			throws RegisterException {
+
+	}
+
+	@Override
+	public Boolean updateRegistry(UserEntity user, ServiceEntity service, RegistryEntity registry, Auditor auditor)
+			throws RegisterException {
+
+		registry.getRegistryValues().put("id", UUID.randomUUID().toString() + "@bwidm.de");
+		
+		return false;
+	}
+}

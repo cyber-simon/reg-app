@@ -104,6 +104,7 @@ public class SecurityFilter implements Filter {
 			path.startsWith("/Shibboleth.sso/") ||
 			path.startsWith("/saml/") ||
 			path.startsWith("/logout/") ||
+			path.startsWith("/error/") ||
 			path.equals("/favicon.ico")
 				) {
 			chain.doFilter(servletRequest, servletResponse);
@@ -149,6 +150,9 @@ public class SecurityFilter implements Filter {
 			httpSession = request.getSession(false);
 			logger.trace("Postchain Session is: {}", httpSession);
 		}
+		
+		MDC.remove("ipAddr");
+		MDC.remove("userId");
 	}
 
 	@Override

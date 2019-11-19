@@ -156,6 +156,10 @@ public class RegisterUserBean implements Serializable {
     			printableAttributesList.add("affiliation");
     			printableAttributesMap.put("affiliation", attrHelper.attributeListToString(entry.getValue(), ", "));
     		}
+    		else if (entry.getKey().equals("urn:oid:1.3.6.1.4.1.5923.1.1.1.13")){
+    			printableAttributesList.add("epuid");
+    			printableAttributesMap.put("epuid", attrHelper.attributeListToString(entry.getValue(), ", "));
+    		}
     		else {
     			unprintableAttributesMap.put(entry.getKey(), attrHelper.attributeListToString(entry.getValue(), ", "));
     		}
@@ -175,9 +179,12 @@ public class RegisterUserBean implements Serializable {
     	sessionManager.setUserId(entity.getId());
     	
 		if (sessionManager.getOriginalRequestPath() != null) {
+			String orig = sessionManager.getOriginalRequestPath();
+			sessionManager.setOriginalRequestPath(null);
+			
 			ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
 			try {
-				externalContext.redirect(sessionManager.getOriginalRequestPath());
+				externalContext.redirect(orig);
 			} catch (IOException e) {
 				messageGenerator.addResolvedErrorMessage("error_msg", e.toString(), false);
 			}

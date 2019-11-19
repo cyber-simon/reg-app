@@ -12,6 +12,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
+import org.slf4j.MDC;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.RegistryDao;
@@ -158,6 +159,8 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 	private Map<String, String> update(UserEntity user, ServiceEntity service, RegistryEntity registry, String localHostName, String executor)
 			throws RestInterfaceException {
 
+		MDC.put("userId", "" + user.getId());
+		
 		// Default expiry Time after which an attrq is issued to IDP in millis
 		Long expireTime = 10000L;
 		

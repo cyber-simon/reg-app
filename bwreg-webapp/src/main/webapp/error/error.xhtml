@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+
+		<h3><h:outputText value="#{messages.error_msg}"/></h3>
+
+		<div id="panelInline">
+			<p:panel header="#{messages.error_detail}">
+				<div style="font-weight: bold;">
+					#{requestScope['javax.servlet.error.message']}
+				</div>
+				<ul>
+				    <li>HTTP user agent: #{header['user-agent']}</li>
+				    <li>Request URI: #{requestScope['javax.servlet.error.request_uri']}</li>
+				    <li>Status code: #{requestScope['javax.servlet.error.status_code']}</li>
+				    <li>Exception type: #{requestScope['javax.servlet.error.exception_type']}</li>
+				</ul>
+				<div>#{errorPageBean.exception}</div>
+			</p:panel>
+		</div>
+
+	</ui:define>
+</ui:composition>
+</body>
+</html>

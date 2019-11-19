@@ -13,11 +13,11 @@ package edu.kit.scc.webreg.service.impl;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+import org.opensaml.saml.saml2.core.Assertion;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dao.BaseDao;
@@ -112,9 +112,9 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity, Long> implement
 	}
 
 	@Override
-	public SamlUserEntity updateUserFromAttribute(SamlUserEntity user, Map<String, List<Object>> attributeMap, String executor) 
+	public SamlUserEntity updateUserFromAssertion(SamlUserEntity user, Assertion assertion, String executor) 
 				throws UserUpdateException {
-		return userUpdater.updateUser(user, attributeMap, executor);
+		return userUpdater.updateUser(user, assertion, executor);
 	}
 
 	@Override

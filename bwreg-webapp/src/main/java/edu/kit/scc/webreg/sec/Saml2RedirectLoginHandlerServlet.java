@@ -36,7 +36,7 @@ import edu.kit.scc.webreg.service.saml.Saml2RedirectService;
 import edu.kit.scc.webreg.session.SessionManager;
 
 @Named
-@WebServlet(urlPatterns = {"/Shibboleth.sso/Login", "/saml/login"})
+@WebServlet(urlPatterns = {"/Shibboleth.sso/Login", "/saml/sp/login"})
 public class Saml2RedirectLoginHandlerServlet implements Servlet {
 
 	@Inject

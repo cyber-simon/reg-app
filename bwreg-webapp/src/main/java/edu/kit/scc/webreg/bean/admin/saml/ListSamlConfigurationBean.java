@@ -19,8 +19,10 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import edu.kit.scc.webreg.entity.SamlAAConfigurationEntity;
+import edu.kit.scc.webreg.entity.SamlIdpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.service.SamlAAConfigurationService;
+import edu.kit.scc.webreg.service.SamlIdpConfigurationService;
 import edu.kit.scc.webreg.service.SamlSpConfigurationService;
 
 @Named("listSamlConfigurationBean")
@@ -31,6 +33,7 @@ public class ListSamlConfigurationBean implements Serializable {
 
 	private List<SamlSpConfigurationEntity> spList;
 	private List<SamlAAConfigurationEntity> aaList;
+	private List<SamlIdpConfigurationEntity> idpList;
     
     @Inject
     private SamlSpConfigurationService spService;
@@ -38,10 +41,14 @@ public class ListSamlConfigurationBean implements Serializable {
     @Inject
     private SamlAAConfigurationService aaService;
 
+    @Inject
+    private SamlIdpConfigurationService idpService;
+
     @PostConstruct
     public void init() {
 		spList = spService.findAll();
 		aaList = aaService.findAll();
+		idpList = idpService.findAll();
 	}
 
 	public List<SamlSpConfigurationEntity> getSpList() {
@@ -50,6 +57,10 @@ public class ListSamlConfigurationBean implements Serializable {
 
 	public List<SamlAAConfigurationEntity> getAaList() {
 		return aaList;
+	}
+
+	public List<SamlIdpConfigurationEntity> getIdpList() {
+		return idpList;
 	}
 
 }

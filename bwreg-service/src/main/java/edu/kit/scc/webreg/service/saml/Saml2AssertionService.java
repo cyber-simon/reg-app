@@ -41,8 +41,8 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.SamlMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
-import edu.kit.scc.webreg.exc.NoAssertionException;
-import edu.kit.scc.webreg.exc.SamlAuthenticationException;
+import edu.kit.scc.webreg.service.saml.exc.NoAssertionException;
+import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 
 @ApplicationScoped
 public class Saml2AssertionService {

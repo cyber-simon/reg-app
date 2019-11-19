@@ -20,8 +20,8 @@ import org.opensaml.core.criterion.EntityIdCriterion;
 import org.opensaml.saml.common.SignableSAMLObject;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.criterion.EntityRoleCriterion;
-import org.opensaml.saml.metadata.resolver.impl.BasicRoleDescriptorResolver;
 import org.opensaml.saml.metadata.resolver.impl.DOMMetadataResolver;
+import org.opensaml.saml.metadata.resolver.impl.PredicateRoleDescriptorResolver;
 import org.opensaml.saml.saml2.core.AttributeQuery;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.Response;
@@ -41,8 +41,13 @@ import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngin
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.SamlMetadataEntity;
-import edu.kit.scc.webreg.exc.SamlAuthenticationException;
-import edu.kit.scc.webreg.exc.SamlUnknownPrincipalException;
+import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
+import edu.kit.scc.webreg.service.saml.exc.SamlInvalidIssuerException;
+import edu.kit.scc.webreg.service.saml.exc.SamlMissingIssuerException;
+import edu.kit.scc.webreg.service.saml.exc.SamlMissingStatusException;
+import edu.kit.scc.webreg.service.saml.exc.SamlResponseExpiredException;
+import edu.kit.scc.webreg.service.saml.exc.SamlUnknownPrincipalException;
+import edu.kit.scc.webreg.service.saml.exc.SamlUnsuccessfulStatusException;
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 
@@ -69,11 +74,11 @@ public class Saml2ResponseValidationService {
 			Issuer issuer) throws SamlAuthenticationException {
 
 		if (issuer == null)
-			throw new SamlAuthenticationException("Response issuer is not set");
+			throw new SamlMissingIssuerException("Response issuer is not set");
 
 		String issuerString = issuer.getValue();
 		if (! issuerString.equals(metadataEntity.getEntityId())) 
-			throw new SamlAuthenticationException("Response issuer " + issuerString + 
+			throw new SamlInvalidIssuerException("Response issuer " + issuerString + 
 					" differs from excpected " + metadataEntity.getEntityId());
 
 	}
@@ -83,14 +88,14 @@ public class Saml2ResponseValidationService {
 
 		Duration duration = new Duration(samlResponse.getIssueInstant(), new Instant());
 		if (duration.isLongerThan(new Duration(expiryMillis))) 
-			throw new SamlAuthenticationException("Response is already expired after " + duration.getStandardSeconds() + " seconds");
+			throw new SamlResponseExpiredException("Response is already expired after " + duration.getStandardSeconds() + " seconds");
 	}	
 
 	public void verifyStatus(Response samlResponse) 
 			throws SamlAuthenticationException {
 
 		if (samlResponse.getStatus() == null || samlResponse.getStatus().getStatusCode() == null)
-			throw new SamlAuthenticationException("SAML Response does not contain a status code");
+			throw new SamlMissingStatusException("SAML Response does not contain a status code");
 			
 		Status status = samlResponse.getStatus();
 		if (status.getStatusCode().getStatusCode() != null &&
@@ -102,7 +107,7 @@ public class Saml2ResponseValidationService {
 		else if (! status.getStatusCode().getValue().equals(StatusCode.SUCCESS)) {
 			String s = samlHelper.prettyPrint(status);
 			logger.info("SAML Response Status: {}", s);
-			throw new SamlAuthenticationException("SAML Response: Login was not successful " + status.getStatusCode().getValue());
+			throw new SamlUnsuccessfulStatusException("SAML Response: Login was not successful " + status.getStatusCode().getValue());
 		}
 	}
 
@@ -130,7 +135,9 @@ public class Saml2ResponseValidationService {
 		DOMMetadataResolver mp = new DOMMetadataResolver(entityDescriptor.getDOM());
 		mp.setId(entityDescriptor.getEntityID() + "-resolver");
 		
-		BasicRoleDescriptorResolver roleResolver = new BasicRoleDescriptorResolver(mp);
+		PredicateRoleDescriptorResolver roleResolver = new PredicateRoleDescriptorResolver(mp);
+		// deprecated
+		//BasicRoleDescriptorResolver roleResolver = new BasicRoleDescriptorResolver(mp);
 		KeyInfoCredentialResolver keyInfoCredResolver = DefaultSecurityConfigurationBootstrap.buildBasicInlineKeyInfoCredentialResolver();
 
 		MetadataCredentialResolver mdCredResolver = new MetadataCredentialResolver();
@@ -145,23 +152,14 @@ public class Saml2ResponseValidationService {
 			throw new SamlAuthenticationException("Cannot init MDCredResolver", e);
 		}
 		
-//		DecryptionConfiguration dc = ConfigurationService.get(DecryptionConfiguration.class);
-//		KeyInfoCredentialResolver keyInfoCredResolver = dc.getDataKeyInfoCredentialResolver();
-		
-//		KeyInfoCredentialResolver keyInfoCredResolver =
-//			    ConfigurationService.getGlobalSecurityConfiguration().getDefaultKeyInfoCredentialResolver();
 		ExplicitKeySignatureTrustEngine trustEngine = new ExplicitKeySignatureTrustEngine(mdCredResolver, keyInfoCredResolver);
 		
 		SAMLSignatureProfileValidator sigValidator = new SAMLSignatureProfileValidator();
-//		try {
 		try {
 			sigValidator.validate(signableSamlObject.getSignature());
 		} catch (SignatureException e) {
 			throw new SamlAuthenticationException("SAMLSignableObject signature is not valid");
 		}
-//		} catch (ValidationException e) {
-//			throw new SamlAuthenticationException("SAMLSignableObject signature is not valid");
-//		}
 		
 		CriteriaSet criteriaSet = new CriteriaSet();
 		criteriaSet.add(new EntityIdCriterion(issuer.getValue()));

@@ -1,8 +1,11 @@
 package edu.kit.scc.webreg.entity;
 
+import java.util.Set;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 @Entity(name = "SamlUserEntity")
 public class SamlUserEntity extends UserEntity {
@@ -21,6 +24,9 @@ public class SamlUserEntity extends UserEntity {
 	@ManyToOne(targetEntity = SamlIdpMetadataEntity.class)
 	private SamlIdpMetadataEntity idp;
 	
+	@OneToMany(targetEntity = SamlAssertionEntity.class, mappedBy="user")
+	private Set<SamlAssertionEntity> assertions;
+
 	public String getPersistentId() {
 		return persistentId;
 	}

@@ -87,11 +87,11 @@ public class GroupAdminAddLocalGroupBean implements Serializable {
 		
 		groupFlag = groupFlagService.save(groupFlag);
 		
-		return ViewIds.GROUP_ADMIN_INDEX + "?serviceId=" + serviceId + "&faces-redirect=true";
+		return ViewIds.GROUP_ADMIN_INDEX + "?serviceId=" + serviceEntity.getId() + "&faces-redirect=true";
 	}
 
 	public String cancel() {
-		return ViewIds.GROUP_ADMIN_INDEX + "?serviceId=" + serviceId + "&faces-redirect=true";
+		return ViewIds.GROUP_ADMIN_INDEX + "?serviceId=" + serviceEntity.getId() + "&faces-redirect=true";
 	}
 
 	public LocalGroupEntity getEntity() {

@@ -18,11 +18,14 @@ import net.shibboleth.utilities.java.support.component.ComponentInitializationEx
 import org.opensaml.messaging.decoder.MessageDecodingException;
 import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.saml2.binding.decoding.impl.HTTPPostDecoder;
+import org.opensaml.saml.saml2.binding.decoding.impl.HTTPRedirectDeflateDecoder;
 import org.opensaml.saml.saml2.binding.decoding.impl.HTTPSOAP11Decoder;
 import org.opensaml.saml.saml2.core.AttributeQuery;
+import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
 
-import edu.kit.scc.webreg.exc.SamlAuthenticationException;
+import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
+import edu.kit.scc.webreg.service.saml.exc.SamlInvalidPostException;
 
 @ApplicationScoped
 public class Saml2DecoderService {
@@ -40,7 +43,7 @@ public class Saml2DecoderService {
 		if (obj instanceof Response) 
 			return (Response) obj;
 		else
-			throw new SamlAuthenticationException("Not a valid SAML2 Post Response");			
+			throw new SamlInvalidPostException("Not a valid SAML2 Post Response");			
 	}
 
 	public AttributeQuery decodeAttributeQuery(HttpServletRequest request)
@@ -59,4 +62,19 @@ public class Saml2DecoderService {
 			throw new SamlAuthenticationException("Not a valid SAML2 Attribute Query");			
 	}
 
+	public AuthnRequest decodeRedirectMessage(HttpServletRequest request)
+			throws MessageDecodingException, SecurityException, SamlAuthenticationException, ComponentInitializationException {
+
+		HTTPRedirectDeflateDecoder decoder = new HTTPRedirectDeflateDecoder();
+		decoder.setHttpServletRequest(request);
+
+		decoder.initialize();
+		decoder.decode();
+
+		SAMLObject obj = decoder.getMessageContext().getMessage();
+		if (obj instanceof AuthnRequest) 
+			return (AuthnRequest) obj;
+		else
+			throw new SamlAuthenticationException("Not a valid SAML2 Authnrequest: " + obj.getClass());			
+	}
 }

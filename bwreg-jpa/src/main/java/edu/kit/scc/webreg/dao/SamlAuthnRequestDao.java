@@ -8,20 +8,10 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.exc;
+package edu.kit.scc.webreg.dao;
 
-import java.io.Serializable;
+import edu.kit.scc.webreg.entity.SamlAuthnRequestEntity;
 
-public class NoAssertionException extends SamlAuthenticationException implements Serializable {
-
-	private static final long serialVersionUID = 1L;
-
-	public NoAssertionException(String msg) {
-		super(msg);
-	}
-
-	public NoAssertionException(String msg, Throwable t) {
-		super(msg, t);
-	}
+public interface SamlAuthnRequestDao extends BaseDao<SamlAuthnRequestEntity, Long> {
 
 }

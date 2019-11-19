@@ -11,6 +11,7 @@ import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.ScriptDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
 import edu.kit.scc.webreg.dao.UserDao;
+import edu.kit.scc.webreg.service.saml.SsoHelper;
 
 @Named
 @ApplicationScoped
@@ -32,6 +33,9 @@ public class ScriptingEnv implements Serializable {
 	
 	@Inject
 	private RegistryDao registryDao;
+	
+	@Inject
+	private SsoHelper ssoHelper;
 
 	public UserDao getUserDao() {
 		return userDao;
@@ -71,6 +75,14 @@ public class ScriptingEnv implements Serializable {
 
 	public void setScriptDao(ScriptDao scriptDao) {
 		this.scriptDao = scriptDao;
+	}
+
+	public SsoHelper getSsoHelper() {
+		return ssoHelper;
+	}
+
+	public void setSsoHelper(SsoHelper ssoHelper) {
+		this.ssoHelper = ssoHelper;
 	}
 	
 }
