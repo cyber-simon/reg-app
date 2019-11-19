@@ -25,6 +25,7 @@ import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
 
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
+import edu.kit.scc.webreg.service.saml.exc.SamlInvalidPostException;
 
 @ApplicationScoped
 public class Saml2DecoderService {
@@ -42,7 +43,7 @@ public class Saml2DecoderService {
 		if (obj instanceof Response) 
 			return (Response) obj;
 		else
-			throw new SamlAuthenticationException("Not a valid SAML2 Post Response");			
+			throw new SamlInvalidPostException("Not a valid SAML2 Post Response");			
 	}
 
 	public AttributeQuery decodeAttributeQuery(HttpServletRequest request)
