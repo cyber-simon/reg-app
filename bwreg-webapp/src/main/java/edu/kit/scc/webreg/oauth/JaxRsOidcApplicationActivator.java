@@ -8,7 +8,7 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.rest;
+package edu.kit.scc.webreg.oauth;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -16,21 +16,13 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
-@ApplicationPath("/rest")
-public class JaxRsApplicationActivator extends Application {
+@ApplicationPath("/oidc")
+public class JaxRsOidcApplicationActivator extends Application {
 
 	   @Override
 	    public Set<Class<?>> getClasses() {
 	        Set<Class<?>> resources = new HashSet<>();
-	        resources.add(AttributeQueryController.class);
-	        resources.add(DirectAuthController.class);
-	        resources.add(EcpController.class);
-	        resources.add(ExternalRegistryController.class);
-	        resources.add(ExternalUserController.class);
-	        resources.add(GroupController.class);
-	        resources.add(ImageController.class);
-	        resources.add(ServiceAdminController.class);
-	        resources.add(UserController.class);
+	        resources.add(OidcWellknownController.class);
 	        return resources;
 	    }
 }
