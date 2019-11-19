@@ -68,7 +68,7 @@
 	</context-param>
 
     <error-page>
-        <exception-type>edu.kit.scc.webreg.exc.SamlAuthenticationException</exception-type>
+        <exception-type>edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException</exception-type>
         <location>/error/error-saml.xhtml</location>
     </error-page>
     <error-page>
