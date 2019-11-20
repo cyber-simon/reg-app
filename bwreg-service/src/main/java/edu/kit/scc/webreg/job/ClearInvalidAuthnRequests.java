@@ -32,7 +32,7 @@ public class ClearInvalidAuthnRequests extends AbstractExecutableJob {
 
 			InitialContext ic = new InitialContext();
 			
-			SamlAuthnRequestService service = (SamlAuthnRequestService) ic.lookup("global/bwreg/bwreg-service/SamlAuthnRequestServiceImpl!edu.kit.scc.webreg.service.SamlAuthnRequest");
+			SamlAuthnRequestService service = (SamlAuthnRequestService) ic.lookup("global/bwreg/bwreg-service/SamlAuthnRequestServiceImpl!edu.kit.scc.webreg.service.SamlAuthnRequestService");
 			
 			service.deleteInvalid();
 			
