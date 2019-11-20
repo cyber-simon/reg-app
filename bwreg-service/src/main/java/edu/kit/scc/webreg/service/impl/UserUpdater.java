@@ -257,14 +257,16 @@ public class UserUpdater implements Serializable {
 	
 	public SamlUserEntity updateUser(SamlUserEntity user, Assertion assertion, String executor, ServiceEntity service)
 			throws UserUpdateException {
-		
-		samlAsserionDao.deleteAssertionForUser(user);
-		
-		SamlAssertionEntity samlAssertionEntity = samlAsserionDao.createNew();
-		samlAssertionEntity.setUser(user);
-		samlAssertionEntity.setAssertionData(samlHelper.prettyPrint(assertion));
-		samlAssertionEntity.setValidUntil(new Date(System.currentTimeMillis() + (4L * 60L * 60L * 1000L)));
-		samlAssertionEntity = samlAsserionDao.persist(samlAssertionEntity);
+	
+		if (assertion != null) {
+			samlAsserionDao.deleteAssertionForUser(user);
+			
+			SamlAssertionEntity samlAssertionEntity = samlAsserionDao.createNew();
+			samlAssertionEntity.setUser(user);
+			samlAssertionEntity.setAssertionData(samlHelper.prettyPrint(assertion));
+			samlAssertionEntity.setValidUntil(new Date(System.currentTimeMillis() + (4L * 60L * 60L * 1000L)));
+			samlAssertionEntity = samlAsserionDao.persist(samlAssertionEntity);
+		}
 		
 		Map<String, List<Object>> attributeMap = saml2AssertionService.extractAttributes(assertion);
 
