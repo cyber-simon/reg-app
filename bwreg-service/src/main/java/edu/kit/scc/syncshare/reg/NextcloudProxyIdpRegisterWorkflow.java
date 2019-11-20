@@ -73,7 +73,6 @@ public class NextcloudProxyIdpRegisterWorkflow  implements RegisterUserWorkflow,
 	@Override
 	public void deregisterUser(UserEntity user, ServiceEntity service, RegistryEntity registry, Auditor auditor)
 			throws RegisterException {
-		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
 
 	}
 
@@ -87,8 +86,20 @@ public class NextcloudProxyIdpRegisterWorkflow  implements RegisterUserWorkflow,
 	public Boolean updateRegistry(UserEntity user, ServiceEntity service, RegistryEntity registry, Auditor auditor)
 			throws RegisterException {
 
-		registry.getRegistryValues().put("id", UUID.randomUUID().toString() + "@bwidm.de");
-		
+		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
+		String idKey = "nextcloud_user_id";
+		if (prop.readPropOrNull("id_key") != null) {
+			idKey = prop.readPropOrNull("id_key");
+		}
+
+		if (! user.getGenericStore().containsKey(idKey)) {
+			user.getGenericStore().put(idKey, UUID.randomUUID().toString() + "@bwidm.de");
+		}
+
+		if (! registry.getRegistryValues().containsKey("id")) {
+			registry.getRegistryValues().put("id", user.getGenericStore().get(idKey));
+		}
+
 		return false;
 	}
 }
