@@ -258,6 +258,8 @@ public class UserUpdater implements Serializable {
 	public SamlUserEntity updateUser(SamlUserEntity user, Assertion assertion, String executor, ServiceEntity service)
 			throws UserUpdateException {
 		
+		samlAsserionDao.deleteAssertionForUser(user);
+		
 		SamlAssertionEntity samlAssertionEntity = samlAsserionDao.createNew();
 		samlAssertionEntity.setUser(user);
 		samlAssertionEntity.setAssertionData(samlHelper.prettyPrint(assertion));

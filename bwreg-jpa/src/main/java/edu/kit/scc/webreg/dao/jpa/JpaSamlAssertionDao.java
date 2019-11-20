@@ -14,10 +14,11 @@ import java.io.Serializable;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
+import javax.persistence.Query;
 
 import edu.kit.scc.webreg.dao.SamlAssertionDao;
 import edu.kit.scc.webreg.entity.SamlAssertionEntity;
-import edu.kit.scc.webreg.entity.SamlUserEntity;
+import edu.kit.scc.webreg.entity.UserEntity;
 
 @Named
 @ApplicationScoped
@@ -28,5 +29,12 @@ public class JpaSamlAssertionDao extends JpaBaseDao<SamlAssertionEntity, Long> i
 	@Override
 	public Class<SamlAssertionEntity> getEntityClass() {
 		return SamlAssertionEntity.class;
+	}
+	
+	@Override
+	public void deleteAssertionForUser(UserEntity user) {
+		Query query = em.createQuery("delete from SamlAssertionEntity where user=:user");
+		query.setParameter("user", user);
+		query.executeUpdate();
 	}
 }
