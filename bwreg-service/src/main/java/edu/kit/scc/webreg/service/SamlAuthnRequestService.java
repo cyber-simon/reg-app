@@ -8,11 +8,11 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.dao;
+package edu.kit.scc.webreg.service;
 
 import edu.kit.scc.webreg.entity.SamlAuthnRequestEntity;
 
-public interface SamlAuthnRequestDao extends BaseDao<SamlAuthnRequestEntity, Long> {
+public interface SamlAuthnRequestService extends BaseService<SamlAuthnRequestEntity, Long> {
 
 	void deleteInvalid();
 

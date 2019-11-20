@@ -8,33 +8,32 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.dao.jpa;
+package edu.kit.scc.webreg.service.impl;
 
-import java.io.Serializable;
-import java.util.Date;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Named;
-import javax.persistence.Query;
-
+import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.SamlAuthnRequestDao;
 import edu.kit.scc.webreg.entity.SamlAuthnRequestEntity;
+import edu.kit.scc.webreg.service.SamlAuthnRequestService;
 
-@Named
-@ApplicationScoped
-public class JpaSamlAuthnRequestDao extends JpaBaseDao<SamlAuthnRequestEntity, Long> implements SamlAuthnRequestDao, Serializable {
+@Stateless
+public class SamlAuthnRequestServiceImpl extends BaseServiceImpl<SamlAuthnRequestEntity, Long> implements SamlAuthnRequestService {
 
 	private static final long serialVersionUID = 1L;
-    
+
+	@Inject
+	private SamlAuthnRequestDao dao;
+	
 	@Override
 	public void deleteInvalid() {
-		Query query = em.createQuery("delete from SamlAuthnRequestEntity where validUntil <= :validUntil");
-		query.setParameter("validUntil", new Date());
-		query.executeUpdate();
+		dao.deleteInvalid();
 	}
 	
 	@Override
-	public Class<SamlAuthnRequestEntity> getEntityClass() {
-		return SamlAuthnRequestEntity.class;
+	protected BaseDao<SamlAuthnRequestEntity, Long> getDao() {
+		return dao;
 	}
+
 }
