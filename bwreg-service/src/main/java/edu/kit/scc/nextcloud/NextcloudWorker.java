@@ -65,9 +65,9 @@ public class NextcloudWorker {
 		this.auditor = auditor;
 		
 		try {
-			apiUrl = prop.readProp("api_url");
-			apiUsername = prop.readProp("api_username");
-			apiPassword = prop.readProp("api_password");
+			apiUrl = prop.readProp("nc_api_url");
+			apiUsername = prop.readProp("nc_api_username");
+			apiPassword = prop.readProp("nc_api_password");
 		} catch (PropertyReaderException e) {
 			throw new RegisterException(e);
 		}

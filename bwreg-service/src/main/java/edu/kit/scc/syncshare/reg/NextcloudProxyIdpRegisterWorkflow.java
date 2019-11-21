@@ -66,8 +66,25 @@ public class NextcloudProxyIdpRegisterWorkflow  implements RegisterUserWorkflow,
 	public void registerUser(UserEntity user, ServiceEntity service, RegistryEntity registry, Auditor auditor)
 			throws RegisterException {
 		
-		updateRegistry(user, service, registry, auditor);
-		reconciliation(user, service, registry, auditor);
+		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
+		String idKey = "nextcloud_user_id";
+		if (prop.readPropOrNull("id_key") != null) {
+			idKey = prop.readPropOrNull("id_key");
+		}
+
+		String scope = "bwidm.scc.kit.edu";
+		if (prop.readPropOrNull("id_scope") != null) {
+			idKey = prop.readPropOrNull("id_scope");
+		}
+
+		if (! user.getGenericStore().containsKey(idKey)) {
+			user.getGenericStore().put(idKey, UUID.randomUUID().toString() + "@" + scope);
+			logger.debug("Generating new {} for user {}: {}", idKey, user.getId(), user.getGenericStore().get(idKey));
+		}
+
+		if (! registry.getRegistryValues().containsKey("id")) {
+			registry.getRegistryValues().put("id", user.getGenericStore().get(idKey));
+		}
 	}
 
 	@Override
@@ -85,21 +102,6 @@ public class NextcloudProxyIdpRegisterWorkflow  implements RegisterUserWorkflow,
 	@Override
 	public Boolean updateRegistry(UserEntity user, ServiceEntity service, RegistryEntity registry, Auditor auditor)
 			throws RegisterException {
-
-		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
-		String idKey = "nextcloud_user_id";
-		if (prop.readPropOrNull("id_key") != null) {
-			idKey = prop.readPropOrNull("id_key");
-		}
-
-		if (! user.getGenericStore().containsKey(idKey)) {
-			user.getGenericStore().put(idKey, UUID.randomUUID().toString() + "@bwidm.de");
-		}
-
-		if (! registry.getRegistryValues().containsKey("id")) {
-			registry.getRegistryValues().put("id", user.getGenericStore().get(idKey));
-		}
-
 		return false;
 	}
 }
