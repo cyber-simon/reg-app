@@ -62,11 +62,11 @@ public class ShowServiceBean implements Serializable {
 		}
 	}
 	
-	public String startRecon(Boolean fullRecon, Boolean withGroups) {
-		registerUserService.completeReconciliation(entity, fullRecon, withGroups, "user-" + sessionManager.getUserId());
+	public String startRecon(Boolean fullRecon, Boolean withGroups, Boolean onlyActive) {
+		registerUserService.completeReconciliation(entity, fullRecon, withGroups, onlyActive, "user-" + sessionManager.getUserId());
 		messageGenerator.addInfoMessage("Job gestartet", "Bitte Log output beachten!");
 		
-		return ViewIds.SHOW_SERVICE + "?faces-redirect=true&id=" + id;
+		return ViewIds.SHOW_SERVICE + "?faces-redirect=true&id=" + entity.getId();
 	}
 	
 	public ServiceEntity getEntity() {

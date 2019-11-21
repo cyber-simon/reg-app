@@ -687,8 +687,17 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	
 	@Override
 	@Asynchronous
-	public void completeReconciliation(ServiceEntity service, Boolean fullRecon, Boolean withGroups, String executor) {
-		List<RegistryEntity> registryList = registryDao.findByServiceAndStatus(service, RegistryStatus.ACTIVE);
+	public void completeReconciliation(ServiceEntity service, Boolean fullRecon, Boolean withGroups, 
+			Boolean onlyActive, String executor) {
+		
+		List<RegistryEntity> registryList;
+		
+		if (onlyActive) {
+			registryList = registryDao.findByServiceAndStatus(service, RegistryStatus.ACTIVE);
+		}
+		else {
+			registryList = registryDao.findByService(service);			
+		}
 		
 		logger.info("Found {} registries for service {}", registryList.size(), service.getName());
 		

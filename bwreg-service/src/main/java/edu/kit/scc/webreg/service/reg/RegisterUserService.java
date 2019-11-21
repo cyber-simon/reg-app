@@ -48,9 +48,6 @@ public interface RegisterUserService {
 	void deleteGroup(GroupEntity group, ServiceEntity service, String executor)
 			throws RegisterException;
 
-	void completeReconciliation(ServiceEntity service, Boolean fullRecon,
-			Boolean withGroups, String executor);
-
 	void updateGroups(Set<GroupEntity> groupUpdateSet, String executor)
 			throws RegisterException;
 
@@ -69,4 +66,7 @@ public interface RegisterUserService {
 	RegistryEntity registerUser(UserEntity user, ServiceEntity service, String executor,
 			Boolean sendGroupUpdate, Auditor parentAuditor)
 			throws RegisterException;
+
+	void completeReconciliation(ServiceEntity service, Boolean fullRecon, Boolean withGroups, Boolean onlyActive,
+			String executor);
 }

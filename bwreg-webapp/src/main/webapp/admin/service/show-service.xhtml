@@ -178,17 +178,22 @@
 		
  		<div id="panelInline">
 			<p:panel header="#{messages.tools}">
-		        <p:commandButton id="recon1" action="#{showServiceBean.startRecon(false, false)}" value="#{messages.reconsiliation}"
-		        	ajax="false"/>					
-		        <p:commandButton id="recon2" action="#{showServiceBean.startRecon(true, false)}" value="#{messages.full_reconsiliation}"
-		        	ajax="false"/>					
-		        <p:commandButton id="recon3" action="#{showServiceBean.startRecon(true, true)}" value="#{messages.full_reconsiliation_with_groups}"
-		        	ajax="false"/>	
-
-				<h:link outcome="compare-child-registries.xhtml" value="#{messages.compare_child_registries}">
-					<f:param name="id" value="#{showServiceBean.entity.id}" />
-				</h:link>
-		        					
+				<div>
+			        <p:commandButton id="recon1" action="#{showServiceBean.startRecon(false, false, true)}" value="#{messages.reconsiliation}"
+			        	ajax="false"/>					
+			        <p:commandButton id="recon2" action="#{showServiceBean.startRecon(true, false, true)}" value="#{messages.full_reconsiliation}"
+			        	ajax="false"/>					
+			        <p:commandButton id="recon3" action="#{showServiceBean.startRecon(true, true, true)}" value="#{messages.full_reconsiliation_with_groups}"
+			        	ajax="false"/>	
+				</div>
+				<div>
+					<p:commandButton id="recon4" action="#{showServiceBean.startRecon(true, false, false)}" value="#{messages.full_reconsiliation_all_status}"
+			        	ajax="false"/>					
+					
+					<h:link outcome="compare-child-registries.xhtml" value="#{messages.compare_child_registries}">
+						<f:param name="id" value="#{showServiceBean.entity.id}" />
+					</h:link>
+		        </div>				
 			</p:panel>
 		</div>		
 	</h:form>
