@@ -115,6 +115,9 @@ public class PfNcMigrationRegisterWorkflow extends PowerFolderRegisterWorkflow
 		
 		InfotainmentTreeNode node = new InfotainmentTreeNode("Migration User Info", root);
 		if ((answer.getUser() != null) && (answer.getUser().getId() != null)) {
+			if (answer.getUser().getEnabled() == null || answer.getUser().getEnabled() == false) {
+				new InfotainmentTreeNode("Message", "Account is disabled!", node);
+			}
 			new InfotainmentTreeNode("ID", answer.getUser().getId(), node);
 			new InfotainmentTreeNode("Name", answer.getUser().getDisplayName(), node);
 			new InfotainmentTreeNode("E-Mail", answer.getUser().getEmail(), node);
