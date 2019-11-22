@@ -464,4 +464,137 @@ public class NextcloudWorker {
 			throw new RegisterException(e);
 		}		
 	}	
+
+	public NextcloudAnswer disableAccount(RegistryEntity registry) throws RegisterException {
+
+		String id = registry.getRegistryValues().get("id");
+		
+		URI uri;
+		try {
+			URIBuilder uriBuilder = new URIBuilder(apiUrl + "users/" + id + "/disable");
+			uri = uriBuilder.build();
+		} catch (URISyntaxException e) {
+			throw new RegisterException(e);
+		}
+
+		HttpClientContext context = buildHttpContext(uri);
+		
+		CloseableHttpResponse response;
+
+		try {
+			HttpPut http = buildHttpPut(uri);
+			
+			response = httpClient.execute(http, context);
+		} catch (ClientProtocolException e) {
+			logger.warn("Client protocol problem", e);
+			throw new RegisterException(e);
+		} catch (SSLException e) {
+			logger.error("SSL Certificate problem with SNS Server: {}", e.toString());
+			throw new RegisterException(e);
+		} catch (IOException e) {
+			logger.warn("Connection", e);
+			throw new RegisterException(e);
+		}
+
+		logger.debug("Status line of response: {}", response.getStatusLine());
+
+		if (response.getStatusLine() != null && response.getStatusLine().getStatusCode() == 404) {
+			logger.warn("Status answer is 404, Account not found.");
+			return null;
+		} else if (response.getStatusLine() == null || response.getStatusLine().getStatusCode() != 200) {
+			logger.warn("Status answer was not HTTP OK 200");
+			throw new RegisterException("Nexcloud: " + response.getStatusLine());
+		}
+
+		HttpEntity entity = response.getEntity();
+
+		try {
+			JAXBContext jaxbContext = JAXBContext.newInstance(NextcloudAnswer.class);
+			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+			NextcloudAnswer answer = (NextcloudAnswer) unmarshaller.unmarshal(entity.getContent());
+
+			logger.debug("{} {}", answer.getMeta().getStatusCode(), answer.getMeta().getStatus());
+			
+			return answer;
+		} catch (ParseException e) {
+			logger.warn("Parse problem", e);
+			throw new RegisterException(e);
+		} catch (IOException e) {
+			logger.warn("Connection", e);
+			throw new RegisterException(e);
+		} catch (IllegalStateException e) {
+			logger.warn("Parse problem", e);
+			throw new RegisterException(e);
+		} catch (JAXBException e) {
+			logger.warn("Parse problem", e);
+			throw new RegisterException(e);
+		}		
+	}
+
+	public NextcloudAnswer enableAccount(RegistryEntity registry) throws RegisterException {
+
+		String id = registry.getRegistryValues().get("id");
+		
+		URI uri;
+		try {
+			URIBuilder uriBuilder = new URIBuilder(apiUrl + "users/" + id + "/enable");
+			uri = uriBuilder.build();
+		} catch (URISyntaxException e) {
+			throw new RegisterException(e);
+		}
+
+		HttpClientContext context = buildHttpContext(uri);
+		
+		CloseableHttpResponse response;
+
+		try {
+			HttpPut http = buildHttpPut(uri);
+			
+			response = httpClient.execute(http, context);
+		} catch (ClientProtocolException e) {
+			logger.warn("Client protocol problem", e);
+			throw new RegisterException(e);
+		} catch (SSLException e) {
+			logger.error("SSL Certificate problem with SNS Server: {}", e.toString());
+			throw new RegisterException(e);
+		} catch (IOException e) {
+			logger.warn("Connection", e);
+			throw new RegisterException(e);
+		}
+
+		logger.debug("Status line of response: {}", response.getStatusLine());
+
+		if (response.getStatusLine() != null && response.getStatusLine().getStatusCode() == 404) {
+			logger.warn("Status answer is 404, Account not found.");
+			return null;
+		} else if (response.getStatusLine() == null || response.getStatusLine().getStatusCode() != 200) {
+			logger.warn("Status answer was not HTTP OK 200");
+			throw new RegisterException("Nexcloud: " + response.getStatusLine());
+		}
+
+		HttpEntity entity = response.getEntity();
+
+		try {
+			JAXBContext jaxbContext = JAXBContext.newInstance(NextcloudAnswer.class);
+			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+			NextcloudAnswer answer = (NextcloudAnswer) unmarshaller.unmarshal(entity.getContent());
+
+			logger.debug("{} {}", answer.getMeta().getStatusCode(), answer.getMeta().getStatus());
+			
+			return answer;
+		} catch (ParseException e) {
+			logger.warn("Parse problem", e);
+			throw new RegisterException(e);
+		} catch (IOException e) {
+			logger.warn("Connection", e);
+			throw new RegisterException(e);
+		} catch (IllegalStateException e) {
+			logger.warn("Parse problem", e);
+			throw new RegisterException(e);
+		} catch (JAXBException e) {
+			logger.warn("Parse problem", e);
+			throw new RegisterException(e);
+		}		
+	}
+
 }

@@ -85,12 +85,35 @@ public class NextcloudProxyIdpRegisterWorkflow  implements RegisterUserWorkflow,
 		if (! registry.getRegistryValues().containsKey("id")) {
 			registry.getRegistryValues().put("id", user.getGenericStore().get(idKey));
 		}
+		
+		NextcloudWorker worker = new NextcloudWorker(prop);
+		
+		NextcloudAnswer answer = worker.loadAccount(registry);
+		
+		if (answer.getMeta().getStatusCode() == 100) {
+			if ((answer.getUser() != null) && 
+					((answer.getUser().getEnabled() == null) || (answer.getUser().getEnabled() == false))) {
+				// user exists and is disabled, enable him
+				NextcloudAnswer enableAnswer = worker.enableAccount(registry);
+				if (enableAnswer.getMeta().getStatusCode() != 100) {
+					logger.warn("Enabling of registry {} for user {} failed", registry.getId(), user.getEppn());
+					throw new RegisterException("Failed to enable account");
+				}
+			}
+		}		
 	}
 
 	@Override
 	public void deregisterUser(UserEntity user, ServiceEntity service, RegistryEntity registry, Auditor auditor)
 			throws RegisterException {
 
+		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
+		NextcloudWorker worker = new NextcloudWorker(prop);
+		NextcloudAnswer answer = worker.disableAccount(registry);
+		if (answer.getMeta().getStatusCode() != 100) {
+			logger.warn("Enabling of registry {} for user {} failed", registry.getId(), user.getEppn());
+			throw new RegisterException("Failed to enable account");
+		}
 	}
 
 	@Override
