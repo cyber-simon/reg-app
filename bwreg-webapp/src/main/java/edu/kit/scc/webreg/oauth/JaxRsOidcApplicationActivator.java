@@ -23,6 +23,10 @@ public class JaxRsOidcApplicationActivator extends Application {
 	    public Set<Class<?>> getClasses() {
 	        Set<Class<?>> resources = new HashSet<>();
 	        resources.add(OidcWellknownController.class);
+	        resources.add(OidcAuthorizationController.class);
+	        resources.add(OidcCertsController.class);
+	        resources.add(OidcTokenController.class);
+	        resources.add(OidcUserinfoController.class);
 	        return resources;
 	    }
 }
