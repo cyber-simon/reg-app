@@ -11,6 +11,10 @@ import javax.ws.rs.core.MediaType;
 
 import org.slf4j.Logger;
 
+import com.nimbusds.jose.jwk.JWKSet;
+
+import net.minidev.json.JSONObject;
+
 @Path("/realms")
 public class OidcCertsController {
 
@@ -20,9 +24,12 @@ public class OidcCertsController {
 	@GET
 	@Path("/{realm}/protocol/openid-connect/certs")
 	@Produces(MediaType.APPLICATION_JSON)
-	public void auth(@PathParam("realm") String realm)
+	public JSONObject auth(@PathParam("realm") String realm)
 			throws IOException {
 		
 		logger.debug("certs called for {}", realm);
+		
+		JWKSet jwk = new JWKSet();
+		return jwk.toJSONObject(true);
 	}
 }
