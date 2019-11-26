@@ -118,6 +118,12 @@
 			<scope>provided</scope>
 		</dependency>
 
+		<dependency>
+		    <groupId>com.nimbusds</groupId>
+		    <artifactId>oauth2-oidc-sdk</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>

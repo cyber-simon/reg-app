@@ -65,6 +65,8 @@ public class OidcWellknownController {
 			
 			metadata.setScopes(new Scope("openid", "profile", "email"));
 			
+			metadata.setClaims(Arrays.asList(new String[] { "sub", "iss", "aud", "mail", "name" }));
+			
 			if (logger.isTraceEnabled())
 				logger.trace(metadata.toJSONObject().toString());
 			

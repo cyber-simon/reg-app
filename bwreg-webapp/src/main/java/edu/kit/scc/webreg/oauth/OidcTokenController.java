@@ -19,12 +19,14 @@ import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 
+import edu.kit.scc.webreg.service.oidc.OidcOpLogin;
 import net.minidev.json.JSONObject;
 
 @Path("/realms")
@@ -32,6 +34,9 @@ public class OidcTokenController {
 
 	@Inject
 	private Logger logger;
+	
+	@Inject
+	private OidcOpLogin opLogin;
 	
 	@POST
 	@Path("/{realm}/protocol/openid-connect/token")
@@ -43,24 +48,7 @@ public class OidcTokenController {
 
 		logger.debug("Post token called for {} with code {} and grant_type {}", realm, code, grantType);
 
-		JWTClaimsSet claims =  new JWTClaimsSet.Builder()
-			      .subject("ls1947@kit.edu")
-			      .expirationTime(new Date(System.currentTimeMillis() + (60L * 60L * 1000L)))
-			      .claim("http://bwidm.scc.kit.edu/is_shibboleth", true)
-			      .build();
-
-		MACSigner macSigner = new MACSigner("qwertzuiopasdfghjklyxcvbnm12345678901234567890");
-
-		SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claims);
-		jwt.sign(macSigner);
-		
-		BearerAccessToken bat = new BearerAccessToken(3600, new Scope("bwidm.scc.kit.edu"));
-		OIDCTokens tokens = new OIDCTokens(jwt, bat, null);
-		OIDCTokenResponse tokenResponse = new OIDCTokenResponse(tokens);
-		
-		logger.debug("tokenResponse: " + tokenResponse.toJSONObject());
-		
-		return tokenResponse.toJSONObject();
+		return opLogin.serveToken(realm, grantType, code, redirectUri, request, response);
 	}
 	
 }

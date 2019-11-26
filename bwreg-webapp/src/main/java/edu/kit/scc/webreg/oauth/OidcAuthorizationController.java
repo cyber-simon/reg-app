@@ -1,8 +1,6 @@
 package edu.kit.scc.webreg.oauth;
 
 import java.io.IOException;
-import java.util.Map.Entry;
-import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -13,13 +11,14 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 
-import org.slf4j.Logger;
+import edu.kit.scc.webreg.service.oidc.OidcOpLogin;
+import edu.kit.scc.webreg.service.saml.exc.OidcAuthenticationException;
 
 @Path("/realms")
 public class OidcAuthorizationController {
 
 	@Inject
-	private Logger logger;
+	private OidcOpLogin opLogin;
 	
 	@GET
 	@Path("/{realm}/protocol/openid-connect/auth")
@@ -27,18 +26,8 @@ public class OidcAuthorizationController {
 			@QueryParam("redirect_uri") String redirectUri, @QueryParam("scope") String scope,
 			@QueryParam("state") String state, @QueryParam("nonce") String nonce, @QueryParam("client_id") String clientId,
 			@Context HttpServletRequest request, @Context HttpServletResponse response)
-			throws IOException {
+			throws IOException, OidcAuthenticationException {
 		
-		logger.debug("processing {} with redirect to {}", responseType, redirectUri);
-		
-		logger.debug("red: {}", request.getParameter("redirect_uri"));
-		for (Entry<String, String[]> e : request.getParameterMap().entrySet()) {
-			for (String s : e.getValue())
-				logger.debug("param: {} value: {}", e.getKey(), s);
-		}
-		
-		String red = redirectUri + "?code=" + UUID.randomUUID().toString() + "&state=" + state;
-		logger.debug("Sending client to {}", red);
-		response.sendRedirect(red);
+		opLogin.registerAuthRequest(realm, responseType, redirectUri, scope, state, nonce, clientId, request, response);
 	}
 }
