@@ -52,10 +52,28 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			String state, String nonce, String clientId,
 			HttpServletRequest request, HttpServletResponse response) throws IOException, OidcAuthenticationException {
 
-		if (session == null || session.getIdpId() == null || session.getSpId() == null) {
-			logger.debug("Client session from {} not established. In order to serve client must login. Sending to login page.",
-					request.getRemoteAddr());
+		UserEntity user = null;
+		if (session.getUserId() != null) {
+			user = userDao.findById(session.getUserId());
+		}
 
+		if (session.getAuthnRequestId() != null) {
+			if (user == null) {
+				throw new OidcAuthenticationException("User ID missing.");
+			}
+
+			OidcFlowStateEntity flowState = flowStateDao.findById(session.getAuthnRequestId());
+			if (flowState == null) {
+				throw new OidcAuthenticationException("Corresponding flow state not found.");
+			}
+			flowState.setValidUntil(new Date(System.currentTimeMillis() + (10L * 60L * 1000L)));
+			flowState.setUser(user);
+			
+			String red = flowState.getRedirectUri() + "?code=" + flowState.getCode() + "&state=" + flowState.getState();
+			logger.debug("Sending client to {}", red);
+			response.sendRedirect(red);			
+		}
+		else {
 			OidcFlowStateEntity flowState = flowStateDao.createNew();
 			flowState.setNonce(nonce);
 			flowState.setState(state);
@@ -65,24 +83,24 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			flowState.setRedirectUri(redirectUri);
 			flowState.setValidUntil(new Date(System.currentTimeMillis() + (30L * 60L * 1000L)));
 			flowState = flowStateDao.persist(flowState);
-			
-			session.setAuthnRequestId(flowState.getId());
-			session.setOriginalRequestPath("/oidc/realms/" + realm + "/protocol/openid-connect/auth");
-			response.sendRedirect("/welcome/index.xhtml");
-			return;
-		}
-		else {
-			if (session.getAuthnRequestId() == null) {
-				throw new OidcAuthenticationException("Authentication request id missing.");
+
+			if (user != null) {
+				flowState.setValidUntil(new Date(System.currentTimeMillis() + (10L * 60L * 1000L)));
+				flowState.setUser(user);
+				
+				String red = flowState.getRedirectUri() + "?code=" + flowState.getCode() + "&state=" + flowState.getState();
+				logger.debug("Sending client to {}", red);
+				response.sendRedirect(red);			
 			}
-			OidcFlowStateEntity flowState = flowStateDao.findById(session.getAuthnRequestId());
-			if (flowState == null) {
-				throw new OidcAuthenticationException("Corresponding flow state not found.");
+			else {
+				logger.debug("Client session from {} not established. In order to serve client must login. Sending to login page.",
+						request.getRemoteAddr());
+				
+				session.setAuthnRequestId(flowState.getId());
+				session.setOriginalRequestPath("/oidc/realms/" + realm + "/protocol/openid-connect/auth");
+				response.sendRedirect("/welcome/index.xhtml");
+				
 			}
-			flowState.setValidUntil(new Date(System.currentTimeMillis() + (10L * 60L * 1000L)));
-			String red = flowState.getRedirectUri() + "?code=" + flowState.getCode() + "&state=" + flowState.getState();
-			logger.debug("Sending client to {}", red);
-			response.sendRedirect(red);
 		}
 	}
 	
@@ -127,17 +145,18 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	public JSONObject serveUserInfo(String realm, String tokeType, String tokenId, 
 			HttpServletRequest request, HttpServletResponse response) throws OidcAuthenticationException {
 		
-		if (session.getUserId() == null) {
-			throw new OidcAuthenticationException("No UserId set in session. Cannot continue");
-		}
-				
-		UserEntity user = userDao.findById(session.getUserId());
 		OidcFlowStateEntity flowState = flowStateDao.findByAccessToken(tokenId, tokeType);
 
 		if (flowState == null) {
 			throw new OidcAuthenticationException("No flow state found for token.");
 		}
 
+		UserEntity user = flowState.getUser();
+
+		if (user == null) {
+			throw new OidcAuthenticationException("No user attached to flow state.");
+		}
+		
 		JWTClaimsSet claims =  new JWTClaimsSet.Builder()
 			      .subject(user.getEppn())
 			      .claim("mail", user.getEmail())
