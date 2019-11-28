@@ -145,8 +145,8 @@ public class PfNcMigrationRegisterWorkflow extends PowerFolderRegisterWorkflow
 		NextcloudWorker worker = new NextcloudWorker(prop);
 		NextcloudAnswer answer = worker.disableAccount(registry);
 		if (answer.getMeta().getStatusCode() != 100) {
-			logger.warn("Enabling of registry {} for user {} failed", registry.getId(), user.getEppn());
-			throw new RegisterException("Failed to enable account");
+			logger.warn("Disabling of registry {} for user {} failed", registry.getId(), user.getEppn());
+			throw new RegisterException("Failed to disable account");
 		}
 
 	}
