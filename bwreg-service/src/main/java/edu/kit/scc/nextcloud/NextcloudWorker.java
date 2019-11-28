@@ -142,7 +142,7 @@ public class NextcloudWorker {
 		    params.add(new BasicNameValuePair("userid", id));
 		    params.add(new BasicNameValuePair("displayname", displayName));
 		    params.add(new BasicNameValuePair("email", email));
-		    http.setEntity(new UrlEncodedFormEntity(params));
+		    http.setEntity(new UrlEncodedFormEntity(params, "utf-8"));
 			
 			response = httpClient.execute(http, context);
 		} catch (ClientProtocolException e) {
@@ -220,7 +220,7 @@ public class NextcloudWorker {
 			List<NameValuePair> params = new ArrayList<NameValuePair>();
 		    params.add(new BasicNameValuePair("key", key));
 		    params.add(new BasicNameValuePair("value", value));
-		    http.setEntity(new UrlEncodedFormEntity(params));
+		    http.setEntity(new UrlEncodedFormEntity(params, "utf-8"));
 			
 			response = httpClient.execute(http, context);
 		} catch (ClientProtocolException e) {
