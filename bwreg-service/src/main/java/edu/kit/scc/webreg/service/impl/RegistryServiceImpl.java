@@ -65,6 +65,11 @@ public class RegistryServiceImpl extends BaseServiceImpl<RegistryEntity, Long> i
 	}
 
 	@Override
+	public List<RegistryEntity> findByServiceAndStatusOrderByRecon(ServiceEntity service, RegistryStatus status, int limit) {
+		return dao.findByServiceAndStatusOrderByRecon(service, status, limit);
+	}
+
+	@Override
 	public List<RegistryEntity> findByServiceAndNotStatus(ServiceEntity service, RegistryStatus... status) {
 		return dao.findByServiceAndNotStatus(service, status);
 	}
@@ -100,6 +105,11 @@ public class RegistryServiceImpl extends BaseServiceImpl<RegistryEntity, Long> i
 	@Override
 	public List<RegistryEntity> findByService(ServiceEntity service) {
 		return dao.findByService(service);
+	}
+
+	@Override
+	public List<RegistryEntity> findByServiceOrderByRecon(ServiceEntity service, int limit) {
+		return dao.findByServiceOrderByRecon(service, limit);
 	}
 
 	@Override

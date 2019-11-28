@@ -83,6 +83,32 @@ public class JpaRegistryDao extends JpaBaseDao<RegistryEntity, Long> implements 
 		return em.createQuery(criteria).getResultList();
 	}	
 
+	@Override
+	public List<RegistryEntity> findByServiceOrderByRecon(ServiceEntity service, int limit) {
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<RegistryEntity> criteria = builder.createQuery(RegistryEntity.class);
+		Root<RegistryEntity> root = criteria.from(RegistryEntity.class);
+		criteria.where(builder.equal(root.get(RegistryEntity_.service), service));
+		criteria.orderBy(builder.asc(root.get(RegistryEntity_.lastReconcile)));
+		criteria.select(root);
+
+		return em.createQuery(criteria).setMaxResults(limit).getResultList();
+	}
+
+	@Override
+	public List<RegistryEntity> findByServiceAndStatusOrderByRecon(ServiceEntity service, RegistryStatus status, int limit) {
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<RegistryEntity> criteria = builder.createQuery(RegistryEntity.class);
+		Root<RegistryEntity> root = criteria.from(RegistryEntity.class);
+		criteria.where(builder.and(
+				builder.equal(root.get("service"), service),
+				builder.equal(root.get("registryStatus"), status)));
+		criteria.orderBy(builder.asc(root.get(RegistryEntity_.lastReconcile)));
+		criteria.select(root);
+
+		return em.createQuery(criteria).setMaxResults(limit).getResultList();
+	}		
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<RegistryEntity> findByServiceAndStatus(String serviceShortName, RegistryStatus status, Date date, int limit) {

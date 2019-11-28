@@ -186,10 +186,7 @@
 			        <p:commandButton id="recon3" action="#{showServiceBean.startRecon(true, true, true)}" value="#{messages.full_reconsiliation_with_groups}"
 			        	ajax="false"/>	
 				</div>
-				<div>
-					<p:commandButton id="recon4" action="#{showServiceBean.startRecon(true, false, false)}" value="#{messages.full_reconsiliation_all_status}"
-			        	ajax="false"/>					
-					
+				<div>				
 					<h:link outcome="compare-child-registries.xhtml" value="#{messages.compare_child_registries}">
 						<f:param name="id" value="#{showServiceBean.entity.id}" />
 					</h:link>

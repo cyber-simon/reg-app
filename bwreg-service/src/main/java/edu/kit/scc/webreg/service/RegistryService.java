@@ -64,4 +64,8 @@ public interface RegistryService extends BaseService<RegistryEntity, Long> {
 
 	List<RegistryEntity> findByServiceAndStatusAndIDPGood(String serviceShortName, RegistryStatus status, Date date,
 			int limit);
+
+	List<RegistryEntity> findByServiceOrderByRecon(ServiceEntity service, int limit);
+
+	List<RegistryEntity> findByServiceAndStatusOrderByRecon(ServiceEntity service, RegistryStatus status, int limit);
 }
