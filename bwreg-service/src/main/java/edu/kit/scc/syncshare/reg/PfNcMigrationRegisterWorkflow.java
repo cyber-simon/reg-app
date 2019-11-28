@@ -181,7 +181,7 @@ public class PfNcMigrationRegisterWorkflow extends PowerFolderRegisterWorkflow
 		
 		if (registry.getRegistryValues().containsKey("primaryGroup")) {
 			logger.debug("Creating group {} for registry {}", 
-					registry.getRegistryValues().containsKey("primaryGroup"), registry.getId());
+					registry.getRegistryValues().get("primaryGroup"), registry.getId());
 			NextcloudAnswer groupAnswer = worker.createGroup(registry.getRegistryValues().get("primaryGroup"));
 			if (groupAnswer.getMeta().getStatusCode() == 100 || groupAnswer.getMeta().getStatusCode() == 102) {
 				worker.addUserToGroup(registry, registry.getRegistryValues().get("primaryGroup"));
