@@ -196,7 +196,13 @@ public class NextcloudWorker {
 		String id = registry.getRegistryValues().get("id");
 		String displayName = registry.getRegistryValues().get("displayName");
 		String email = registry.getRegistryValues().get("email");
-		
+
+		NextcloudAnswer answer = updateAccountField(id, "email", email);
+		answer = updateAccountField(id, "displayname", displayName);
+		return answer;
+	}
+	
+	private NextcloudAnswer updateAccountField(String id, String key, String value) throws RegisterException {
 		URI uri;
 		try {
 			URIBuilder uriBuilder = new URIBuilder(apiUrl + "users/" + id);
@@ -212,9 +218,8 @@ public class NextcloudWorker {
 		try {
 			HttpPut http = buildHttpPut(uri);
 			List<NameValuePair> params = new ArrayList<NameValuePair>();
-		    params.add(new BasicNameValuePair("userid", id));
-		    params.add(new BasicNameValuePair("displayname", displayName));
-		    params.add(new BasicNameValuePair("email", email));
+		    params.add(new BasicNameValuePair("key", key));
+		    params.add(new BasicNameValuePair("value", value));
 		    http.setEntity(new UrlEncodedFormEntity(params));
 			
 			response = httpClient.execute(http, context);
@@ -261,9 +266,9 @@ public class NextcloudWorker {
 		} catch (JAXBException e) {
 			logger.warn("Parse problem", e);
 			throw new RegisterException(e);
-		}		
+		}			
 	}
-		
+	
 	public NextcloudAnswer loadAccount(RegistryEntity registry) throws RegisterException {
 
 		String id = registry.getRegistryValues().get("id");
