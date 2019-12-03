@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	
+	<h:form id="form">
+	
+		<p:dataTable id="opDataTable" var="entity" value="#{listOidcConfigurationBean.opList}">
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.id}" />
+				</f:facet>
+				<h:outputText value="#{entity.id}" />
+			</p:column>
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.entity_id}" />
+				</f:facet>
+				<h:link outcome="show-op-config.xhtml" value="#{entity.name}">
+      				<f:param name="id" value="#{entity.id}"/>
+    			</h:link>
+			</p:column>		
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.realm}" />
+				</f:facet>
+				<h:outputText value="#{entity.realm}" />
+			</p:column>
+		</p:dataTable>
+
+		<p:dataTable id="rpDataTable" var="entity" value="#{listOidcConfigurationBean.rpList}">
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.id}" />
+				</f:facet>
+				<h:outputText value="#{entity.id}" />
+			</p:column>
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.entity_id}" />
+				</f:facet>
+				<h:link outcome="show-rp-config.xhtml" value="#{entity.name}">
+      				<f:param name="id" value="#{entity.id}"/>
+    			</h:link>
+			</p:column>		
+		</p:dataTable>
+
+        <h:link outcome="add-op-config.xhtml" value="#{messages.add_op_config}"/><br/>
+        <h:link outcome="add-rp-config.xhtml" value="#{messages.add_rp_config}"/><br/>
+	
+	</h:form>
+
+	</ui:define>
+</ui:composition>		
+</body>
+</html>

@@ -105,13 +105,14 @@ public class ApplicationBootstrap {
     	checkRole("RestServiceAdmin");
     	checkRole("RestGroupAdmin");
     	checkRole("SamlAdmin");
+    	checkRole("OidcAdmin");
     	checkRole("BusinessRuleAdmin");
     	checkRole("BulkAdmin");
     	checkRole("TimerAdmin");
     	checkRole("AuditAdmin");
     	checkRole("User");
     	checkRole("AttributeSourceAdmin");
-    	checkRole("ExternalUserAdmin");
+    	checkRole("ExternalUserAdmin");	
     	
     	logger.info("Initializing admin Account");
     	if (adminUserService.findByUsername("admin") == null) {

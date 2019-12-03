@@ -24,6 +24,8 @@ import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.openid.connect.sdk.SubjectType;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
+import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
+import edu.kit.scc.webreg.service.oidc.OidcOpConfigurationService;
 import net.minidev.json.JSONObject;
 
 @Path("/realms")
@@ -31,6 +33,9 @@ public class OidcWellknownController {
 
 	@Inject
 	private Logger logger;
+	
+	@Inject
+	private OidcOpConfigurationService opService;
 	
 	@GET
 	@Path("/{realm}/.well-known/openid-configuration")
@@ -40,15 +45,20 @@ public class OidcWellknownController {
 		/*
 		 * TODO: Realm from configuration (database)
 		 */
+		OidcOpConfigurationEntity opConfig = opService.findByRealm(realm);
+		
+		if (opConfig == null) {
+			throw new ServletException("No such realm");
+		}
 		
 		try {
 			List<SubjectType> subjectTypeList = Arrays.asList(new SubjectType[] { SubjectType.PAIRWISE, SubjectType.PUBLIC });
-			OIDCProviderMetadata metadata = new OIDCProviderMetadata(new Issuer("https://bwidm.scc.kit.edu/oidc/realms/" + realm), 
-					subjectTypeList, new URI("https://bwidm.scc.kit.edu/oidc/realms/" + realm + "/protocol/openid-connect/certs"));
+			OIDCProviderMetadata metadata = new OIDCProviderMetadata(new Issuer("https://bwidm.scc.kit.edu/oidc/realms/" + opConfig.getRealm()), 
+					subjectTypeList, new URI("https://bwidm.scc.kit.edu/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/certs"));
 
-			metadata.setAuthorizationEndpointURI(new URI("https://bwidm.scc.kit.edu/oidc/realms/" + realm + "/protocol/openid-connect/auth"));
-			metadata.setTokenEndpointURI(new URI("https://bwidm.scc.kit.edu/oidc/realms/" + realm + "/protocol/openid-connect/token"));
-			metadata.setUserInfoEndpointURI(new URI("https://bwidm.scc.kit.edu/oidc/realms/" + realm + "/protocol/openid-connect/userinfo"));
+			metadata.setAuthorizationEndpointURI(new URI("https://bwidm.scc.kit.edu/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/auth"));
+			metadata.setTokenEndpointURI(new URI("https://bwidm.scc.kit.edu/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/token"));
+			metadata.setUserInfoEndpointURI(new URI("https://bwidm.scc.kit.edu/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/userinfo"));
 			List<ResponseMode> rms = Arrays.asList(new ResponseMode[] { ResponseMode.QUERY, ResponseMode.FRAGMENT });
 			metadata.setResponseModes(rms);
 
