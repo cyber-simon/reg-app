@@ -24,9 +24,13 @@ import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 
 import edu.kit.scc.webreg.dao.UserDao;
+import edu.kit.scc.webreg.dao.oidc.OidcClientConfigurationDao;
 import edu.kit.scc.webreg.dao.oidc.OidcFlowStateDao;
+import edu.kit.scc.webreg.dao.oidc.OidcOpConfigurationDao;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcFlowStateEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
 import edu.kit.scc.webreg.service.saml.exc.OidcAuthenticationException;
 import edu.kit.scc.webreg.session.SessionManager;
 import net.minidev.json.JSONObject;
@@ -41,6 +45,12 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	private OidcFlowStateDao flowStateDao;
 	
 	@Inject
+	private OidcOpConfigurationDao opDao;
+	
+	@Inject
+	private OidcClientConfigurationDao clientDao;
+	
+	@Inject
 	private UserDao userDao;
 	
 	@Inject
@@ -52,6 +62,12 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			String state, String nonce, String clientId,
 			HttpServletRequest request, HttpServletResponse response) throws IOException, OidcAuthenticationException {
 
+		OidcOpConfigurationEntity opConfig = opDao.findByRealm(realm);
+		
+		if (opConfig == null) {
+			throw new OidcAuthenticationException("unknown realm");
+		}
+		
 		UserEntity user = null;
 		if (session.getUserId() != null) {
 			user = userDao.findById(session.getUserId());
@@ -74,10 +90,17 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			response.sendRedirect(red);			
 		}
 		else {
+			OidcClientConfigurationEntity clientConfig = clientDao.findByNameAndOp(clientId, opConfig);
+
+			if (clientConfig == null) {
+				throw new OidcAuthenticationException("unknown client");
+			}
+			
 			OidcFlowStateEntity flowState = flowStateDao.createNew();
+			flowState.setOpConfiguration(opConfig);
 			flowState.setNonce(nonce);
 			flowState.setState(state);
-			flowState.setClientId(clientId);
+			flowState.setClientConfiguration(clientConfig);
 			flowState.setResponseType(responseType);
 			flowState.setCode(UUID.randomUUID().toString());
 			flowState.setRedirectUri(redirectUri);
@@ -97,7 +120,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 						request.getRemoteAddr());
 				
 				session.setAuthnRequestId(flowState.getId());
-				session.setOriginalRequestPath("/oidc/realms/" + realm + "/protocol/openid-connect/auth");
+				session.setOriginalRequestPath("/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/auth");
 				response.sendRedirect("/welcome/index.xhtml");
 				
 			}
@@ -110,17 +133,34 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			HttpServletRequest request, HttpServletResponse response) throws OidcAuthenticationException {
 		
 		OidcFlowStateEntity flowState = flowStateDao.findByCode(code);
+
+		if (flowState == null) {
+			throw new OidcAuthenticationException("unknown flow state");
+		}
+
+		OidcOpConfigurationEntity opConfig = flowState.getOpConfiguration();
+		
+		if (opConfig == null) {
+			throw new OidcAuthenticationException("unknown realm");
+		}
+		
+		OidcClientConfigurationEntity clientConfig = flowState.getClientConfiguration();
+
+		if (clientConfig == null) {
+			throw new OidcAuthenticationException("unknown client");
+		}
+				
 		
 		JWTClaimsSet claims =  new JWTClaimsSet.Builder()
 			      .expirationTime(new Date(System.currentTimeMillis() + (60L * 60L * 1000L)))
-			      .issuer("https://bwidm.scc.kit.edu/oidc/realms/bwidm")
+			      .issuer("https://bwidm.scc.kit.edu/oidc/realms/" + opConfig.getRealm())
 			      .claim("nonce", flowState.getNonce())
-			      .audience(flowState.getClientId())
+			      .audience(flowState.getClientConfiguration().getName())
 			      .build();
 
 		SignedJWT jwt;
 		try {
-			MACSigner macSigner = new MACSigner("qwertzuiopasdfghjklyxcvbnm12345678901234567890");
+			MACSigner macSigner = new MACSigner(clientConfig.getSecret());
 
 			jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claims);
 			jwt.sign(macSigner);
@@ -151,6 +191,18 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			throw new OidcAuthenticationException("No flow state found for token.");
 		}
 
+		OidcOpConfigurationEntity opConfig = flowState.getOpConfiguration();
+		
+		if (opConfig == null) {
+			throw new OidcAuthenticationException("unknown realm");
+		}
+		
+		OidcClientConfigurationEntity clientConfig = flowState.getClientConfiguration();
+
+		if (clientConfig == null) {
+			throw new OidcAuthenticationException("unknown client");
+		}				
+		
 		UserEntity user = flowState.getUser();
 
 		if (user == null) {

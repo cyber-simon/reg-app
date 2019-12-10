@@ -12,6 +12,7 @@ package edu.kit.scc.webreg.dao.jpa.oidc;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
+import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
@@ -32,7 +33,11 @@ public class JpaOidcFlowStateDao extends JpaBaseDao<OidcFlowStateEntity, Long> i
 		Root<OidcFlowStateEntity> root = criteria.from(OidcFlowStateEntity.class);
 		criteria.where(builder.equal(root.get(OidcFlowStateEntity_.code), code));
 		criteria.select(root);
-		return em.createQuery(criteria).getSingleResult();
+		try {
+			return em.createQuery(criteria).getSingleResult();
+		} catch (NoResultException nre) {
+			return null;
+		}
 	}	
 
 	@Override

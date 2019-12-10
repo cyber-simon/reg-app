@@ -53,12 +53,12 @@ public class OidcWellknownController {
 		
 		try {
 			List<SubjectType> subjectTypeList = Arrays.asList(new SubjectType[] { SubjectType.PAIRWISE, SubjectType.PUBLIC });
-			OIDCProviderMetadata metadata = new OIDCProviderMetadata(new Issuer("https://bwidm.scc.kit.edu/oidc/realms/" + opConfig.getRealm()), 
-					subjectTypeList, new URI("https://bwidm.scc.kit.edu/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/certs"));
+			OIDCProviderMetadata metadata = new OIDCProviderMetadata(new Issuer("https://" + opConfig.getHost() + "/oidc/realms/" + opConfig.getRealm()), 
+					subjectTypeList, new URI("https://" + opConfig.getHost() + "/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/certs"));
 
-			metadata.setAuthorizationEndpointURI(new URI("https://bwidm.scc.kit.edu/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/auth"));
-			metadata.setTokenEndpointURI(new URI("https://bwidm.scc.kit.edu/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/token"));
-			metadata.setUserInfoEndpointURI(new URI("https://bwidm.scc.kit.edu/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/userinfo"));
+			metadata.setAuthorizationEndpointURI(new URI("https://" + opConfig.getHost() + "/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/auth"));
+			metadata.setTokenEndpointURI(new URI("https://" + opConfig.getHost() + "/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/token"));
+			metadata.setUserInfoEndpointURI(new URI("https://" + opConfig.getHost() + "/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/userinfo"));
 			List<ResponseMode> rms = Arrays.asList(new ResponseMode[] { ResponseMode.QUERY, ResponseMode.FRAGMENT });
 			metadata.setResponseModes(rms);
 

@@ -18,6 +18,9 @@ public class OidcOpConfigurationEntity extends AbstractBaseEntity {
 	@Column(name = "realm", length = 64)
 	private String realm;
 
+	@Column(name = "host", length = 256)
+	private String host;
+	
 	public String getRealm() {
 		return realm;
 	}
@@ -32,6 +35,14 @@ public class OidcOpConfigurationEntity extends AbstractBaseEntity {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getHost() {
+		return host;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
 	}
 	
 }
