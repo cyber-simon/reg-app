@@ -153,7 +153,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		
 		JWTClaimsSet claims =  new JWTClaimsSet.Builder()
 			      .expirationTime(new Date(System.currentTimeMillis() + (60L * 60L * 1000L)))
-			      .issuer("https://bwidm.scc.kit.edu/oidc/realms/" + opConfig.getRealm())
+			      .issuer("https://" + opConfig.getHost() + "/oidc/realms/" + opConfig.getRealm())
 			      .claim("nonce", flowState.getNonce())
 			      .audience(flowState.getClientConfiguration().getName())
 			      .build();
@@ -168,7 +168,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			throw new OidcAuthenticationException(e);
 		}
 		
-		BearerAccessToken bat = new BearerAccessToken(3600, new Scope("bwidm.scc.kit.edu"));
+		BearerAccessToken bat = new BearerAccessToken(3600, new Scope(opConfig.getHost()));
 		OIDCTokens tokens = new OIDCTokens(jwt, bat, null);
 		OIDCTokenResponse tokenResponse = new OIDCTokenResponse(tokens);
 

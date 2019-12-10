@@ -34,8 +34,11 @@
 					<bw:inputText id="entityIdField" label="#{messages.name}"
 						value="#{editOidcOpConfigurationBean.entity.name}" required="true" />
 		
-					<bw:inputText id="acsField" label="#{messages.realm}"
+					<bw:inputText id="realmField" label="#{messages.realm}"
 						value="#{editOidcOpConfigurationBean.entity.realm}" required="true" />
+		
+					<bw:inputText id="hostField" label="#{messages.host}"
+						value="#{editOidcOpConfigurationBean.entity.host}" required="true" />
 		
 				</p:panelGrid>
 			<h:commandButton id="save" action="#{editOidcOpConfigurationBean.save}" value="#{messages.save}"/>
