@@ -32,4 +32,15 @@ public class OidcAuthorizationController {
 		
 		response.sendRedirect(red);
 	}
+	
+	@GET
+	@Path("/{realm}/protocol/openid-connect/auth/return")
+	public void authReturn(@PathParam("realm") String realm, @Context HttpServletRequest request, @Context HttpServletResponse response)
+			throws IOException, OidcAuthenticationException {
+		
+		String red = opLogin.registerAuthRequestReturn(realm, request, response);
+		
+		response.sendRedirect(red);
+	}
+	
 }

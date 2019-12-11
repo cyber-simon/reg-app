@@ -77,7 +77,54 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		if (session.getUserId() != null) {
 			user = userDao.findById(session.getUserId());
 		}
+		
+		OidcClientConfigurationEntity clientConfig = clientDao.findByNameAndOp(clientId, opConfig);
 
+		if (clientConfig == null) {
+			throw new OidcAuthenticationException("unknown client");
+		}
+		
+		OidcFlowStateEntity flowState = flowStateDao.createNew();
+		flowState.setOpConfiguration(opConfig);
+		flowState.setNonce(nonce);
+		flowState.setState(state);
+		flowState.setClientConfiguration(clientConfig);
+		flowState.setResponseType(responseType);
+		flowState.setCode(UUID.randomUUID().toString());
+		flowState.setRedirectUri(redirectUri);
+		flowState.setValidUntil(new Date(System.currentTimeMillis() + (30L * 60L * 1000L)));
+		flowState = flowStateDao.persist(flowState);
+
+		if (user != null) {
+			logger.debug("Client already logged in, sending to return page.");
+			session.setAuthnRequestId(flowState.getId());
+			return "/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/auth/return";		
+		}
+		else {
+			logger.debug("Client session from {} not established. In order to serve client must login. Sending to login page.",
+					request.getRemoteAddr());
+			
+			session.setAuthnRequestId(flowState.getId());
+			session.setOriginalRequestPath("/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/auth/return");
+			return "/welcome/index.xhtml";
+		}
+	}
+
+	@Override
+	public String registerAuthRequestReturn(String realm, HttpServletRequest request, HttpServletResponse response)
+			throws IOException, OidcAuthenticationException {
+		
+		OidcOpConfigurationEntity opConfig = opDao.findByRealm(realm);
+		
+		if (opConfig == null) {
+			throw new OidcAuthenticationException("unknown realm");
+		}
+
+		UserEntity user = null;
+		if (session.getUserId() != null) {
+			user = userDao.findById(session.getUserId());
+		}
+		
 		if (session.getAuthnRequestId() != null) {
 			if (user == null) {
 				throw new OidcAuthenticationException("User ID missing.");
@@ -87,48 +134,16 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			if (flowState == null) {
 				throw new OidcAuthenticationException("Corresponding flow state not found.");
 			}
+
 			flowState.setValidUntil(new Date(System.currentTimeMillis() + (10L * 60L * 1000L)));
 			flowState.setUser(user);
 			
 			String red = flowState.getRedirectUri() + "?code=" + flowState.getCode() + "&state=" + flowState.getState();
 			logger.debug("Sending client to {}", red);
-			return red;		
+			return red;
 		}
-		else {
-			OidcClientConfigurationEntity clientConfig = clientDao.findByNameAndOp(clientId, opConfig);
 
-			if (clientConfig == null) {
-				throw new OidcAuthenticationException("unknown client");
-			}
-			
-			OidcFlowStateEntity flowState = flowStateDao.createNew();
-			flowState.setOpConfiguration(opConfig);
-			flowState.setNonce(nonce);
-			flowState.setState(state);
-			flowState.setClientConfiguration(clientConfig);
-			flowState.setResponseType(responseType);
-			flowState.setCode(UUID.randomUUID().toString());
-			flowState.setRedirectUri(redirectUri);
-			flowState.setValidUntil(new Date(System.currentTimeMillis() + (30L * 60L * 1000L)));
-			flowState = flowStateDao.persist(flowState);
-
-			if (user != null) {
-				flowState.setValidUntil(new Date(System.currentTimeMillis() + (10L * 60L * 1000L)));
-				flowState.setUser(user);
-				
-				String red = flowState.getRedirectUri() + "?code=" + flowState.getCode() + "&state=" + flowState.getState();
-				logger.debug("Sending client to {}", red);
-				return red;		
-			}
-			else {
-				logger.debug("Client session from {} not established. In order to serve client must login. Sending to login page.",
-						request.getRemoteAddr());
-				
-				session.setAuthnRequestId(flowState.getId());
-				session.setOriginalRequestPath("/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/auth");
-				return "/welcome/index.xhtml";
-			}
-		}
+		throw new OidcAuthenticationException("something went horribly wrong...");
 	}
 	
 	@Override
