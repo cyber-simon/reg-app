@@ -2,7 +2,10 @@ package edu.kit.scc.webreg.entity.oidc;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Lob;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.Type;
 
 import edu.kit.scc.webreg.entity.AbstractBaseEntity;
 
@@ -20,6 +23,26 @@ public class OidcOpConfigurationEntity extends AbstractBaseEntity {
 
 	@Column(name = "host", length = 256)
 	private String host;
+
+	@Column(name = "private_key")
+	@Lob
+	@Type(type = "org.hibernate.type.TextType")		
+	private String privateKey;
+	
+	@Column(name = "certificate")
+	@Lob
+	@Type(type = "org.hibernate.type.TextType")		
+	private String certificate;
+	
+	@Column(name = "standby_private_key")
+	@Lob
+	@Type(type = "org.hibernate.type.TextType")		
+	private String standbyPrivateKey;
+	
+	@Column(name = "standby_certificate")
+	@Lob
+	@Type(type = "org.hibernate.type.TextType")		
+	private String standbyCertificate;
 	
 	public String getRealm() {
 		return realm;
@@ -43,6 +66,38 @@ public class OidcOpConfigurationEntity extends AbstractBaseEntity {
 
 	public void setHost(String host) {
 		this.host = host;
+	}
+
+	public String getPrivateKey() {
+		return privateKey;
+	}
+
+	public void setPrivateKey(String privateKey) {
+		this.privateKey = privateKey;
+	}
+
+	public String getCertificate() {
+		return certificate;
+	}
+
+	public void setCertificate(String certificate) {
+		this.certificate = certificate;
+	}
+
+	public String getStandbyPrivateKey() {
+		return standbyPrivateKey;
+	}
+
+	public void setStandbyPrivateKey(String standbyPrivateKey) {
+		this.standbyPrivateKey = standbyPrivateKey;
+	}
+
+	public String getStandbyCertificate() {
+		return standbyCertificate;
+	}
+
+	public void setStandbyCertificate(String standbyCertificate) {
+		this.standbyCertificate = standbyCertificate;
 	}
 	
 }

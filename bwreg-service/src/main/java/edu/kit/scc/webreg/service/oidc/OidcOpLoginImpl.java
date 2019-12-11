@@ -1,6 +1,7 @@
 package edu.kit.scc.webreg.service.oidc;
 
 import java.io.IOException;
+import java.security.PrivateKey;
 import java.util.Date;
 import java.util.UUID;
 
@@ -15,6 +16,7 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.Scope;
@@ -31,6 +33,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcFlowStateEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
+import edu.kit.scc.webreg.service.saml.CryptoHelper;
 import edu.kit.scc.webreg.service.saml.exc.OidcAuthenticationException;
 import edu.kit.scc.webreg.session.SessionManager;
 import net.minidev.json.JSONObject;
@@ -55,6 +58,9 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	
 	@Inject
 	private SessionManager session;
+	
+	@Inject
+	private CryptoHelper cryptoHelper;
 	
 	@Override
 	public void registerAuthRequest(String realm, String responseType,
@@ -160,11 +166,13 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 
 		SignedJWT jwt;
 		try {
-			MACSigner macSigner = new MACSigner(clientConfig.getSecret());
-
-			jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claims);
-			jwt.sign(macSigner);
-		} catch (JOSEException e) {
+			//MACSigner macSigner = new MACSigner(clientConfig.getSecret());
+			
+			PrivateKey privateKey = cryptoHelper.getPrivateKey(opConfig.getPrivateKey());
+			RSASSASigner rsaSigner = new RSASSASigner(privateKey);
+			jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claims);
+			jwt.sign(rsaSigner);
+		} catch (JOSEException | IOException e) {
 			throw new OidcAuthenticationException(e);
 		}
 		
