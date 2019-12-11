@@ -28,6 +28,8 @@ public class OidcAuthorizationController {
 			@Context HttpServletRequest request, @Context HttpServletResponse response)
 			throws IOException, OidcAuthenticationException {
 		
-		opLogin.registerAuthRequest(realm, responseType, redirectUri, scope, state, nonce, clientId, request, response);
+		String red = opLogin.registerAuthRequest(realm, responseType, redirectUri, scope, state, nonce, clientId, request, response);
+		
+		response.sendRedirect(red);
 	}
 }

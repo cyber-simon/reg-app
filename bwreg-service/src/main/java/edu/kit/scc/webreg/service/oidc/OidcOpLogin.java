@@ -10,7 +10,7 @@ import net.minidev.json.JSONObject;
 
 public interface OidcOpLogin {
 
-	void registerAuthRequest(String realm, String responseType, String redirectUri, String scope, String state,
+	String registerAuthRequest(String realm, String responseType, String redirectUri, String scope, String state,
 			String nonce, String clientId, HttpServletRequest request, HttpServletResponse response)
 					 throws IOException, OidcAuthenticationException ;
 

@@ -62,7 +62,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	private CryptoHelper cryptoHelper;
 	
 	@Override
-	public void registerAuthRequest(String realm, String responseType,
+	public String registerAuthRequest(String realm, String responseType,
 			String redirectUri, String scope,
 			String state, String nonce, String clientId,
 			HttpServletRequest request, HttpServletResponse response) throws IOException, OidcAuthenticationException {
@@ -92,7 +92,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			
 			String red = flowState.getRedirectUri() + "?code=" + flowState.getCode() + "&state=" + flowState.getState();
 			logger.debug("Sending client to {}", red);
-			response.sendRedirect(red);			
+			return red;		
 		}
 		else {
 			OidcClientConfigurationEntity clientConfig = clientDao.findByNameAndOp(clientId, opConfig);
@@ -118,7 +118,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 				
 				String red = flowState.getRedirectUri() + "?code=" + flowState.getCode() + "&state=" + flowState.getState();
 				logger.debug("Sending client to {}", red);
-				response.sendRedirect(red);			
+				return red;		
 			}
 			else {
 				logger.debug("Client session from {} not established. In order to serve client must login. Sending to login page.",
@@ -126,8 +126,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 				
 				session.setAuthnRequestId(flowState.getId());
 				session.setOriginalRequestPath("/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/auth");
-				response.sendRedirect("/welcome/index.xhtml");
-				
+				return "/welcome/index.xhtml";
 			}
 		}
 	}
