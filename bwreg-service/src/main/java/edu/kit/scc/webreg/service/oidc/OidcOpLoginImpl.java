@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
@@ -163,6 +162,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			      .claim("nonce", flowState.getNonce())
 			      .audience(flowState.getClientConfiguration().getName())
 			      .issueTime(new Date())
+			      .subject(flowState.getUser().getEppn())
 			      .build();
 
 		logger.debug("claims before signing: " + claims.toJSONObject());
