@@ -162,8 +162,11 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			      .issuer("https://" + opConfig.getHost() + "/oidc/realms/" + opConfig.getRealm())
 			      .claim("nonce", flowState.getNonce())
 			      .audience(flowState.getClientConfiguration().getName())
+			      .issueTime(new Date())
 			      .build();
 
+		logger.debug("claims before signing: " + claims.toJSONObject());
+		
 		SignedJWT jwt;
 		try {
 			//MACSigner macSigner = new MACSigner(clientConfig.getSecret());
