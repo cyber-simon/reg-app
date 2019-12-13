@@ -3,10 +3,15 @@ package edu.kit.scc.webreg.service.oidc;
 import java.io.IOException;
 import java.security.PrivateKey;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -24,14 +29,22 @@ import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 
+import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.oidc.OidcClientConfigurationDao;
 import edu.kit.scc.webreg.dao.oidc.OidcFlowStateDao;
 import edu.kit.scc.webreg.dao.oidc.OidcOpConfigurationDao;
+import edu.kit.scc.webreg.dao.oidc.ServiceOidcClientDao;
+import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.RegistryStatus;
+import edu.kit.scc.webreg.entity.ScriptEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcFlowStateEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
+import edu.kit.scc.webreg.entity.oidc.ServiceOidcClientEntity;
+import edu.kit.scc.webreg.script.ScriptingEnv;
 import edu.kit.scc.webreg.service.saml.CryptoHelper;
 import edu.kit.scc.webreg.service.saml.exc.OidcAuthenticationException;
 import edu.kit.scc.webreg.session.SessionManager;
@@ -53,13 +66,22 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	private OidcClientConfigurationDao clientDao;
 	
 	@Inject
+	private ServiceOidcClientDao serviceOidcClientDao;
+	
+	@Inject
 	private UserDao userDao;
+
+	@Inject
+	private RegistryDao registryDao;
 	
 	@Inject
 	private SessionManager session;
 	
 	@Inject
 	private CryptoHelper cryptoHelper;
+	
+	@Inject
+	private ScriptingEnv scriptingEnv;
 	
 	@Override
 	public String registerAuthRequest(String realm, String responseType,
@@ -135,8 +157,28 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 				throw new OidcAuthenticationException("Corresponding flow state not found.");
 			}
 
+			OidcClientConfigurationEntity clientConfig = flowState.getClientConfiguration();
+			List<ServiceOidcClientEntity> serviceOidcClientList = serviceOidcClientDao.findByClientConfig(clientConfig);
+			
+			if (serviceOidcClientList.size() == 0) {
+				throw new OidcAuthenticationException("no service is connected to client configuration");
+			}
+			
+			RegistryEntity registry = null;
+			for (ServiceOidcClientEntity serviceOidcClient : serviceOidcClientList) {
+				ServiceEntity service = serviceOidcClient.getService();
+				logger.debug("Service for RP found: {}", service);
+				registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.ACTIVE);
+				if (registry == null) {
+					logger.info("No active registration for user {} and service {}, redirecting to register page", 
+							user.getEppn(), service.getName());
+					return "/user/register-service.xhtml?serviceId=" + service.getId();
+				}
+			}
+			
 			flowState.setValidUntil(new Date(System.currentTimeMillis() + (10L * 60L * 1000L)));
 			flowState.setUser(user);
+			flowState.setRegistry(registry);
 			
 			String red = flowState.getRedirectUri() + "?code=" + flowState.getCode() + "&state=" + flowState.getState();
 			logger.debug("Sending client to {}", red);
@@ -227,19 +269,46 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		if (clientConfig == null) {
 			throw new OidcAuthenticationException("unknown client");
 		}				
-		
+	
+		List<ServiceOidcClientEntity> serviceOidcClientList = serviceOidcClientDao.findByClientConfig(clientConfig);
 		UserEntity user = flowState.getUser();
 
 		if (user == null) {
 			throw new OidcAuthenticationException("No user attached to flow state.");
 		}
-		
-		JWTClaimsSet claims =  new JWTClaimsSet.Builder()
-			      .subject(user.getEppn())
-			      .claim("mail", user.getEmail())
-			      .build();
 
-		UserInfo userInfo = new UserInfo(claims);
+		RegistryEntity registry = flowState.getRegistry();
+
+		if (registry == null) {
+			throw new OidcAuthenticationException("No registry attached to flow state.");
+		}
+
+		JWTClaimsSet.Builder claimsBuilder = new JWTClaimsSet.Builder();
+		
+		for (ServiceOidcClientEntity serviceOidcClient : serviceOidcClientList) {
+			ScriptEntity scriptEntity = serviceOidcClient.getScript();
+			if (scriptEntity.getScriptType().equalsIgnoreCase("javascript")) {
+				ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
+
+				if (engine == null)
+					throw new OidcAuthenticationException("service not configured properly. engine not found: " + scriptEntity.getScriptEngine());
+				
+				try {
+					engine.eval(scriptEntity.getScript());
+
+					Invocable invocable = (Invocable) engine;
+					
+					invocable.invokeFunction("buildClaimsStatement", scriptingEnv, claimsBuilder, user, registry, 
+							serviceOidcClient.getService(), logger);
+				} catch (NoSuchMethodException | ScriptException e) {
+					logger.warn("Script execution failed. Continue with other scripts.", e);
+				}
+			}
+			else {
+				throw new OidcAuthenticationException("unkown script type: " + scriptEntity.getScriptType());
+			}
+		}
+		UserInfo userInfo = new UserInfo(claimsBuilder.build());
 		logger.debug("userInfo Response: " + userInfo.toJSONObject());
 		return userInfo.toJSONObject();
 	}	

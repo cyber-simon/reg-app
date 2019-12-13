@@ -8,6 +8,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import edu.kit.scc.webreg.entity.AbstractBaseEntity;
+import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 
 @Entity(name = "OidcFlowStateEntity")
@@ -24,6 +25,9 @@ public class OidcFlowStateEntity extends AbstractBaseEntity {
 
 	@ManyToOne(targetEntity = OidcClientConfigurationEntity.class)
 	private OidcClientConfigurationEntity clientConfiguration;
+
+	@ManyToOne(targetEntity = RegistryEntity.class)
+	private RegistryEntity registry;
 
 	@Column(name = "nonce", length = 256)
 	private String nonce;
@@ -135,5 +139,13 @@ public class OidcFlowStateEntity extends AbstractBaseEntity {
 
 	public void setClientConfiguration(OidcClientConfigurationEntity clientConfiguration) {
 		this.clientConfiguration = clientConfiguration;
+	}
+
+	public RegistryEntity getRegistry() {
+		return registry;
+	}
+
+	public void setRegistry(RegistryEntity registry) {
+		this.registry = registry;
 	}
 }
