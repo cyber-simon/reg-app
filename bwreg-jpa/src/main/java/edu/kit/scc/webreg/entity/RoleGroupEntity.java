@@ -25,12 +25,12 @@ public class RoleGroupEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
     @Id
-	@ManyToOne
+	@ManyToOne(targetEntity = RoleEntity.class)
     @JoinColumn(name = "role_id", nullable = false)
 	private RoleEntity role;
 	
     @Id
-    @ManyToOne
+	@ManyToOne(targetEntity = GroupEntity.class)
     @JoinColumn(name = "group_id", nullable = false)
 	private GroupEntity group;
 

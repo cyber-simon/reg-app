@@ -33,11 +33,11 @@ public class ASUserAttrEntity extends AbstractBaseEntity {
 
 	private static final long serialVersionUID = 1L;
 
-	@ManyToOne
+	@ManyToOne(targetEntity = UserEntity.class)
     @JoinColumn(name = "user_id", nullable = false)
 	private UserEntity user;
 	
-    @ManyToOne
+    @ManyToOne(targetEntity = AttributeSourceEntity.class)
     @JoinColumn(name = "attribute_src_id", nullable = false)
 	private AttributeSourceEntity attributeSource;
 

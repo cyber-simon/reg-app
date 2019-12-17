@@ -25,12 +25,12 @@ public class UserGroupEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
     @Id
-	@ManyToOne
+	@ManyToOne(targetEntity = UserEntity.class)
     @JoinColumn(name = "user_id", nullable = false)
 	private UserEntity user;
 	
     @Id
-    @ManyToOne
+	@ManyToOne(targetEntity = GroupEntity.class)
     @JoinColumn(name = "group_id", nullable = false)
 	private GroupEntity group;
 

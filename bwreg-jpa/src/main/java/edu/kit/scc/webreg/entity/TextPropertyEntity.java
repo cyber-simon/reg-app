@@ -15,7 +15,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-@Entity
+@Entity(name = "TextPropertyEntity")
 @Table(name = "text_property", 
 	uniqueConstraints = @UniqueConstraint(columnNames = {"text_key", "text_lang"}))
 public class TextPropertyEntity extends AbstractBaseEntity {
