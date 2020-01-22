@@ -210,16 +210,55 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		if (clientConfig == null) {
 			throw new OidcAuthenticationException("unknown client");
 		}
-				
+	
+		UserEntity user = flowState.getUser();
+
+		if (user == null) {
+			throw new OidcAuthenticationException("No user attached to flow state.");
+		}
+
+		RegistryEntity registry = flowState.getRegistry();
+
+		if (registry == null) {
+			throw new OidcAuthenticationException("No registry attached to flow state.");
+		}
 		
-		JWTClaimsSet claims =  new JWTClaimsSet.Builder()
-			      .expirationTime(new Date(System.currentTimeMillis() + (60L * 60L * 1000L)))
-			      .issuer("https://" + opConfig.getHost() + "/oidc/realms/" + opConfig.getRealm())
-			      .claim("nonce", flowState.getNonce())
-			      .audience(flowState.getClientConfiguration().getName())
-			      .issueTime(new Date())
-			      .subject(flowState.getUser().getEppn())
-			      .build();
+		List<ServiceOidcClientEntity> serviceOidcClientList = serviceOidcClientDao.findByClientConfig(clientConfig);
+
+		JWTClaimsSet.Builder claimsBuilder = new JWTClaimsSet.Builder();
+		claimsBuilder.expirationTime(new Date(System.currentTimeMillis() + (60L * 60L * 1000L)))
+	      .issuer("https://" + opConfig.getHost() + "/oidc/realms/" + opConfig.getRealm())
+	      .claim("nonce", flowState.getNonce())
+	      .audience(flowState.getClientConfiguration().getName())
+	      .issueTime(new Date())
+	      .subject(flowState.getUser().getEppn())
+	      .build();
+		
+		for (ServiceOidcClientEntity serviceOidcClient : serviceOidcClientList) {
+			ScriptEntity scriptEntity = serviceOidcClient.getScript();
+			if (scriptEntity.getScriptType().equalsIgnoreCase("javascript")) {
+				ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
+
+				if (engine == null)
+					throw new OidcAuthenticationException("service not configured properly. engine not found: " + scriptEntity.getScriptEngine());
+				
+				try {
+					engine.eval(scriptEntity.getScript());
+
+					Invocable invocable = (Invocable) engine;
+					
+					invocable.invokeFunction("buildTokenStatement", scriptingEnv, claimsBuilder, user, registry, 
+							serviceOidcClient.getService(), logger);
+				} catch (NoSuchMethodException | ScriptException e) {
+					logger.warn("Script execution failed. Continue with other scripts.", e);
+				}
+			}
+			else {
+				throw new OidcAuthenticationException("unkown script type: " + scriptEntity.getScriptType());
+			}
+		}
+		
+		JWTClaimsSet claims =  claimsBuilder.build();
 
 		logger.debug("claims before signing: " + claims.toJSONObject());
 		
