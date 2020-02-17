@@ -16,6 +16,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.slf4j.Logger;
 
+import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.oauth2.sdk.ResponseMode;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
@@ -72,6 +73,10 @@ public class OidcWellknownController {
 			rts.add(new ResponseType("id_token"));
 			rts.add(new ResponseType("code", "id_token"));
 			metadata.setResponseTypes(rts);
+			
+			List<JWSAlgorithm> idTokenJWSAlgs = new ArrayList<JWSAlgorithm>();
+			idTokenJWSAlgs.add(JWSAlgorithm.RS256);
+			metadata.setIDTokenJWSAlgs(idTokenJWSAlgs);
 			
 			metadata.setScopes(new Scope("openid", "profile", "email"));
 			
