@@ -172,6 +172,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 				if (registry == null) {
 					logger.info("No active registration for user {} and service {}, redirecting to register page", 
 							user.getEppn(), service.getName());
+					session.setOriginalRequestPath("/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/auth/return");
 					return "/user/register-service.xhtml?serviceId=" + service.getId();
 				}
 			}
