@@ -156,8 +156,8 @@ public class AuthorizationBean implements Serializable {
 	    				sessionManager.getServiceGroupAdminList().add(s.getId());
 	    		}
 	    		else if (role instanceof ProjectAdminRoleEntity) {
-	    			for (ServiceEntity s : serviceService.findByGroupAdminRole(role))
-	    				sessionManager.getServiceGroupAdminList().add(s.getId());
+	    			for (ServiceEntity s : serviceService.findByProjectAdminRole(role))
+	    				sessionManager.getServiceProjectAdminList().add(s.getId());
 	    		}
 	    	}
 	    	end = System.currentTimeMillis();

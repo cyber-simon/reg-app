@@ -42,4 +42,6 @@ public interface ServiceService extends BaseService<ServiceEntity, Long> {
 
 	List<ServiceEntity> findByParentService(ServiceEntity service);
 
+	List<ServiceEntity> findByProjectAdminRole(RoleEntity role);
+
 }

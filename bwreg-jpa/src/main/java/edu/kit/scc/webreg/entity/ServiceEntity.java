@@ -30,6 +30,7 @@ import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Type;
 
 import edu.kit.scc.webreg.entity.as.AttributeSourceServiceEntity;
+import edu.kit.scc.webreg.entity.project.ProjectAdminRoleEntity;
 
 @Entity(name = "ServiceEntity")
 @Table(name = "service")
@@ -59,6 +60,9 @@ public class ServiceEntity extends AbstractBaseEntity {
 	
 	@ManyToOne(targetEntity = GroupAdminRoleEntity.class)
 	private GroupAdminRoleEntity groupAdminRole;
+	
+	@ManyToOne(targetEntity = ProjectAdminRoleEntity.class)
+	private ProjectAdminRoleEntity projectAdminRole;
 	
 	@ManyToOne(targetEntity = ImageEntity.class)
 	private ImageEntity image;
@@ -291,6 +295,14 @@ public class ServiceEntity extends AbstractBaseEntity {
 
 	public void setDeregisterText(String deregisterText) {
 		this.deregisterText = deregisterText;
+	}
+
+	public ProjectAdminRoleEntity getProjectAdminRole() {
+		return projectAdminRole;
+	}
+
+	public void setProjectAdminRole(ProjectAdminRoleEntity projectAdminRole) {
+		this.projectAdminRole = projectAdminRole;
 	}
 
 }

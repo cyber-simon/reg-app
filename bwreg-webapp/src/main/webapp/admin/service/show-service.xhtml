@@ -69,6 +69,12 @@
 					<h:outputText value="#{messages.undefined}"
 						rendered="#{showServiceBean.entity.groupAdminRole == null}"/>
 
+					<h:outputText value="#{messages.project_admin_role}:" />
+					<h:outputText value="#{showServiceBean.entity.projectAdminRole.name}"
+						rendered="#{showServiceBean.entity.projectAdminRole != null}"/>
+					<h:outputText value="#{messages.undefined}"
+						rendered="#{showServiceBean.entity.projectAdminRole == null}"/>
+
 					<h:outputText value="#{messages.register_bean}:" />
 					<h:outputText value="#{showServiceBean.entity.registerBean}" />
 

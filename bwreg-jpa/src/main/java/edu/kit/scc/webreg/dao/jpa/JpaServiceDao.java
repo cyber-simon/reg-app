@@ -87,6 +87,13 @@ public class JpaServiceDao extends JpaBaseDao<ServiceEntity, Long> implements Se
 		return em.createQuery("select e from ServiceEntity e where e.groupAdminRole = :role")
 				.setParameter("role", role).getResultList();
 	}
+
+	@Override
+    @SuppressWarnings({"unchecked"})
+	public List<ServiceEntity> findByProjectAdminRole(RoleEntity role) {
+		return em.createQuery("select e from ServiceEntity e where e.projectAdminRole = :role")
+				.setParameter("role", role).getResultList();
+	}
 	
 	@Override
     @SuppressWarnings({"unchecked"})

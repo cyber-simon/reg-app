@@ -27,6 +27,7 @@ import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.GroupAdminRoleEntity;
 import edu.kit.scc.webreg.entity.ImageEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.project.ProjectAdminRoleEntity;
 import edu.kit.scc.webreg.service.AdminRoleService;
 import edu.kit.scc.webreg.service.ApproverRoleService;
 import edu.kit.scc.webreg.service.BusinessRulePackageService;
@@ -34,6 +35,7 @@ import edu.kit.scc.webreg.service.BusinessRuleService;
 import edu.kit.scc.webreg.service.GroupAdminRoleService;
 import edu.kit.scc.webreg.service.ImageService;
 import edu.kit.scc.webreg.service.ServiceService;
+import edu.kit.scc.webreg.service.project.ProjectAdminRoleService;
 
 @ManagedBean
 @ViewScoped
@@ -52,6 +54,9 @@ public class EditServiceBean implements Serializable {
 	
 	@Inject
 	private GroupAdminRoleService groupAdminRoleService;
+
+	@Inject
+	private ProjectAdminRoleService projectAdminRoleService;
 	
 	@Inject
 	private ImageService imageService;
@@ -69,6 +74,7 @@ public class EditServiceBean implements Serializable {
 	private List<AdminRoleEntity> adminRoleList;
 	private List<AdminRoleEntity> hotlineRoleList;
 	private List<GroupAdminRoleEntity> groupAdminRoleList;
+	private List<ProjectAdminRoleEntity> projectAdminRoleList;
 	private List<ImageEntity> imageList;
 	private List<BusinessRuleEntity> ruleList;
 	private List<BusinessRulePackageEntity> rulePackageList;
@@ -78,6 +84,7 @@ public class EditServiceBean implements Serializable {
 	private AdminRoleEntity selectedAdminRole;
 	private AdminRoleEntity selectedHotlineRole;
 	private GroupAdminRoleEntity selectedGroupAdminRole;
+	private ProjectAdminRoleEntity selectedProjectAdminRole;
 	private ImageEntity selectedImage;
 	private BusinessRuleEntity selectedRule;
 	private BusinessRulePackageEntity selectedRulePackage;
@@ -98,6 +105,7 @@ public class EditServiceBean implements Serializable {
 			adminRoleList = adminRoleService.findAll();
 			hotlineRoleList = adminRoleService.findAll();
 			groupAdminRoleList = groupAdminRoleService.findAll();
+			projectAdminRoleList = projectAdminRoleService.findAll();
 			imageList = imageService.findAll();
 			ruleList = ruleService.findAll();
 			rulePackageList = rulePackageService.findAll();
@@ -107,6 +115,7 @@ public class EditServiceBean implements Serializable {
 			selectedAdminRole = entity.getAdminRole();
 			selectedHotlineRole = entity.getHotlineRole();
 			selectedGroupAdminRole = entity.getGroupAdminRole();
+			selectedProjectAdminRole = entity.getProjectAdminRole();
 			selectedImage = entity.getImage();
 			selectedRule = entity.getAccessRule();
 			selectedRulePackage = entity.getGroupFilterRulePackage();
@@ -123,6 +132,7 @@ public class EditServiceBean implements Serializable {
 		entity.setAdminRole(selectedAdminRole);
 		entity.setHotlineRole(selectedHotlineRole);
 		entity.setGroupAdminRole(selectedGroupAdminRole);
+		entity.setProjectAdminRole(selectedProjectAdminRole);
 		entity.setImage(selectedImage);
 		entity.setAccessRule(selectedRule);
 		entity.setServiceProps(propertyMap);
@@ -319,5 +329,21 @@ public class EditServiceBean implements Serializable {
 
 	public void setSelectedParentService(ServiceEntity selectedParentService) {
 		this.selectedParentService = selectedParentService;
+	}
+
+	public List<ProjectAdminRoleEntity> getProjectAdminRoleList() {
+		return projectAdminRoleList;
+	}
+
+	public void setProjectAdminRoleList(List<ProjectAdminRoleEntity> projectAdminRoleList) {
+		this.projectAdminRoleList = projectAdminRoleList;
+	}
+
+	public ProjectAdminRoleEntity getSelectedProjectAdminRole() {
+		return selectedProjectAdminRole;
+	}
+
+	public void setSelectedProjectAdminRole(ProjectAdminRoleEntity selectedProjectAdminRole) {
+		this.selectedProjectAdminRole = selectedProjectAdminRole;
 	}
 }
