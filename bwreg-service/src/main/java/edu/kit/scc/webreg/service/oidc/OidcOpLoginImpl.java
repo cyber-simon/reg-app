@@ -172,6 +172,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 				if (registry == null) {
 					logger.info("No active registration for user {} and service {}, redirecting to register page", 
 							user.getEppn(), service.getName());
+					session.setOriginalRequestPath("/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/auth/return");
 					return "/user/register-service.xhtml?serviceId=" + service.getId();
 				}
 			}
@@ -350,5 +351,46 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		UserInfo userInfo = new UserInfo(claimsBuilder.build());
 		logger.debug("userInfo Response: " + userInfo.toJSONObject());
 		return userInfo.toJSONObject();
+	}
+
+	@Override
+	public JSONObject serveUserJwt(String realm) throws OidcAuthenticationException {
+		
+		OidcOpConfigurationEntity opConfig = opDao.findByRealm(realm);
+		
+		if (opConfig == null) {
+			throw new OidcAuthenticationException("unknown realm");
+		}
+
+		if (session.isLoggedIn()) {
+			JWTClaimsSet.Builder claimsBuilder = new JWTClaimsSet.Builder();
+			claimsBuilder.expirationTime(new Date(System.currentTimeMillis() + (60L * 60L * 1000L)))
+		      .issuer("https://bwidm.scc.kit.edu/oidc/realms/intern")
+		      .issueTime(new Date())
+		      .subject("" + session.getUserId())
+		      .build();
+			
+			JWTClaimsSet claims =  claimsBuilder.build();
+
+			logger.debug("claims before signing: " + claims.toJSONObject());
+			
+			SignedJWT jwt;
+			try {
+				//MACSigner macSigner = new MACSigner(clientConfig.getSecret());
+				
+				PrivateKey privateKey = cryptoHelper.getPrivateKey(opConfig.getPrivateKey());
+				RSASSASigner rsaSigner = new RSASSASigner(privateKey);
+				jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claims);
+				jwt.sign(rsaSigner);
+			} catch (JOSEException | IOException e) {
+				throw new OidcAuthenticationException(e);
+			}
+			
+			BearerAccessToken bat = new BearerAccessToken(3600, new Scope(opConfig.getHost()));
+			OIDCTokens tokens = new OIDCTokens(jwt, bat, null);
+			return tokens.toJSONObject();
+		}
+		else
+			return null;
 	}	
 }
