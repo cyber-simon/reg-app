@@ -50,10 +50,11 @@ public class SessionManager implements Serializable {
 	private Set<RoleEntity> roles;
 	private Long roleSetCreated;
 
-	private List<ServiceEntity> serviceApproverList;
-	private List<ServiceEntity> serviceAdminList;
-	private List<ServiceEntity> serviceHotlineList;
-	private List<ServiceEntity> serviceGroupAdminList;
+	private List<Long> serviceApproverList;
+	private List<Long> serviceAdminList;
+	private List<Long> serviceHotlineList;
+	private List<Long> serviceGroupAdminList;
+	private List<Long> serviceProjectAdminList;
 
 	private List<ServiceEntity> unregisteredServiceList;
 	private Long unregisteredServiceCreated;
@@ -68,10 +69,11 @@ public class SessionManager implements Serializable {
 	
 	@PostConstruct
 	public void init() {
-		serviceApproverList = new ArrayList<ServiceEntity>();
-		serviceAdminList = new ArrayList<ServiceEntity>();
-		serviceHotlineList = new ArrayList<ServiceEntity>();
-		serviceGroupAdminList = new ArrayList<ServiceEntity>();
+		serviceApproverList = new ArrayList<Long>();
+		serviceAdminList = new ArrayList<Long>();
+		serviceHotlineList = new ArrayList<Long>();
+		serviceGroupAdminList = new ArrayList<Long>();
+		serviceProjectAdminList = new ArrayList<Long>();
 		groups = new HashSet<GroupEntity>();
 		groupNames = new HashSet<String>();
 		roles = new HashSet<RoleEntity>();
@@ -206,19 +208,19 @@ public class SessionManager implements Serializable {
 		return groupNames;
 	}
 
-	public List<ServiceEntity> getServiceApproverList() {
+	public List<Long> getServiceApproverList() {
 		return serviceApproverList;
 	}
 
-	public List<ServiceEntity> getServiceAdminList() {
+	public List<Long> getServiceAdminList() {
 		return serviceAdminList;
 	}
 
-	public List<ServiceEntity> getServiceHotlineList() {
+	public List<Long> getServiceHotlineList() {
 		return serviceHotlineList;
 	}
 
-	public List<ServiceEntity> getServiceGroupAdminList() {
+	public List<Long> getServiceGroupAdminList() {
 		return serviceGroupAdminList;
 	}
 
@@ -257,5 +259,9 @@ public class SessionManager implements Serializable {
 
 	public void setAuthnRequestIdpConfigId(Long authnRequestIdpConfigId) {
 		this.authnRequestIdpConfigId = authnRequestIdpConfigId;
+	}
+
+	public List<Long> getServiceProjectAdminList() {
+		return serviceProjectAdminList;
 	}
 }

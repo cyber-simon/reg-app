@@ -30,13 +30,13 @@ import edu.kit.scc.webreg.entity.AdminRoleEntity;
 import edu.kit.scc.webreg.entity.ApproverRoleEntity;
 import edu.kit.scc.webreg.entity.GroupAdminRoleEntity;
 import edu.kit.scc.webreg.entity.GroupEntity;
-import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.project.ProjectAdminRoleEntity;
 import edu.kit.scc.webreg.service.GroupService;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.RoleService;
@@ -143,17 +143,21 @@ public class AuthorizationBean implements Serializable {
 	    		sessionManager.addRole(role);
 	    		if (role instanceof AdminRoleEntity) {
 	    			for (ServiceEntity s : serviceService.findByAdminRole(role))
-	    				sessionManager.getServiceAdminList().add(s);
+	    				sessionManager.getServiceAdminList().add(s.getId());
 	    			for (ServiceEntity s : serviceService.findByHotlineRole(role))
-	    				sessionManager.getServiceHotlineList().add(s);
+	    				sessionManager.getServiceHotlineList().add(s.getId());
 	    		}
 	    		else if (role instanceof ApproverRoleEntity) {
 	    			for (ServiceEntity s : serviceService.findByApproverRole(role))
-	    				sessionManager.getServiceApproverList().add(s);
+	    				sessionManager.getServiceApproverList().add(s.getId());
 	    		}
 	    		else if (role instanceof GroupAdminRoleEntity) {
 	    			for (ServiceEntity s : serviceService.findByGroupAdminRole(role))
-	    				sessionManager.getServiceGroupAdminList().add(s);
+	    				sessionManager.getServiceGroupAdminList().add(s.getId());
+	    		}
+	    		else if (role instanceof ProjectAdminRoleEntity) {
+	    			for (ServiceEntity s : serviceService.findByGroupAdminRole(role))
+	    				sessionManager.getServiceGroupAdminList().add(s.getId());
 	    		}
 	    	}
 	    	end = System.currentTimeMillis();
@@ -266,25 +270,25 @@ public class AuthorizationBean implements Serializable {
     public boolean isUserServiceAdmin(ServiceEntity id) {
     	if (id == null)
     		return false;
-    	return sessionManager.getServiceAdminList().contains(id);
+    	return sessionManager.getServiceAdminList().contains(id.getId());
     }
 
     public boolean isUserServiceApprover(ServiceEntity id) {
     	if (id == null)
     		return false;    	
-    	return sessionManager.getServiceApproverList().contains(id);
+    	return sessionManager.getServiceApproverList().contains(id.getId());
     }
 
     public boolean isUserServiceHotline(ServiceEntity id) {
     	if (id == null)
     		return false;
-    	return sessionManager.getServiceHotlineList().contains(id);
+    	return sessionManager.getServiceHotlineList().contains(id.getId());
     }
 
     public boolean isUserServiceGroupAdmin(ServiceEntity id) {
     	if (id == null)
     		return false;
-    	return sessionManager.getServiceGroupAdminList().contains(id);
+    	return sessionManager.getServiceGroupAdminList().contains(id.getId());
     }
     
     public List<RegistryEntity> getUserRegistryList() {
@@ -293,19 +297,23 @@ public class AuthorizationBean implements Serializable {
     }
 
 	public List<ServiceEntity> getServiceApproverList() {
-		return sessionManager.getServiceApproverList();
+		return serviceService.findByMultipleId(sessionManager.getServiceApproverList());
 	}
 
 	public List<ServiceEntity> getServiceAdminList() {
-		return sessionManager.getServiceAdminList();
+		return serviceService.findByMultipleId(sessionManager.getServiceAdminList());
 	}
 
 	public List<ServiceEntity> getServiceHotlineList() {
-		return sessionManager.getServiceHotlineList();
+		return serviceService.findByMultipleId(sessionManager.getServiceHotlineList());
 	}
 
 	public List<ServiceEntity> getServiceGroupAdminList() {
-		return sessionManager.getServiceGroupAdminList();
+		return serviceService.findByMultipleId(sessionManager.getServiceGroupAdminList());
+	}
+
+	public List<ServiceEntity> getServiceProjectAdminList() {
+		return serviceService.findByMultipleId(sessionManager.getServiceProjectAdminList());
 	}
 
 	public boolean isPasswordCapable(ServiceEntity serviceEntity) {
