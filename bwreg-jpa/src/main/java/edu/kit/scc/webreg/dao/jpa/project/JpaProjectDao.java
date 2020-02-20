@@ -10,16 +10,26 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa.project;
 
+import java.util.List;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 
 import edu.kit.scc.webreg.dao.jpa.JpaBaseDao;
 import edu.kit.scc.webreg.dao.project.ProjectDao;
+import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
 
 @Named
 @ApplicationScoped
 public class JpaProjectDao extends JpaBaseDao<ProjectEntity, Long> implements ProjectDao {
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ProjectEntity> findByService(ServiceEntity service) {
+		return em.createQuery("select r.project from ProjectServiceEntity r where r.service = :service order by r.project.name")
+			.setParameter("service", service).getResultList();
+	}
 
 	@Override
 	public Class<ProjectEntity> getEntityClass() {

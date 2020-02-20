@@ -10,11 +10,14 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.project;
 
+import java.util.List;
+
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.project.ProjectDao;
+import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
 
@@ -25,6 +28,11 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity, Long> imp
 
 	@Inject
 	private ProjectDao dao;
+	
+	@Override
+	public List<ProjectEntity> findByService(ServiceEntity service) {
+		return dao.findByService(service);
+	}
 	
 	@Override
 	protected BaseDao<ProjectEntity, Long> getDao() {

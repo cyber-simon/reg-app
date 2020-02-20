@@ -10,9 +10,14 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.project;
 
+import java.util.List;
+
 import edu.kit.scc.webreg.dao.BaseDao;
+import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
 
 public interface ProjectDao extends BaseDao<ProjectEntity, Long> {
+
+	List<ProjectEntity> findByService(ServiceEntity service);
 
 }

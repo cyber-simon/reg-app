@@ -290,7 +290,13 @@ public class AuthorizationBean implements Serializable {
     		return false;
     	return sessionManager.getServiceGroupAdminList().contains(id.getId());
     }
-    
+
+    public boolean isUserServiceProjectAdmin(ServiceEntity id) {
+    	if (id == null)
+    		return false;
+    	return sessionManager.getServiceProjectAdminList().contains(id.getId());
+    }
+
     public List<RegistryEntity> getUserRegistryList() {
     	if (userRegistryList == null) init();
    		return userRegistryList;
