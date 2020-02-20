@@ -8,7 +8,7 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.bean.admin.group;
+package edu.kit.scc.webreg.bean.sadm.group;
 
 import java.io.Serializable;
 import java.util.HashSet;
