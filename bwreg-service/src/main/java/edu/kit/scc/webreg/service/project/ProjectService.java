@@ -20,4 +20,6 @@ public interface ProjectService extends BaseService<ProjectEntity, Long> {
 
 	List<ProjectEntity> findByService(ServiceEntity service);
 
+	ProjectEntity save(ProjectEntity project, ServiceEntity... services);
+
 }

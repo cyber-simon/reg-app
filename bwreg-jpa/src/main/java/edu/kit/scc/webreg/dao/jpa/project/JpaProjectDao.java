@@ -19,6 +19,8 @@ import edu.kit.scc.webreg.dao.jpa.JpaBaseDao;
 import edu.kit.scc.webreg.dao.project.ProjectDao;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
+import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
+import edu.kit.scc.webreg.entity.project.ProjectServiceType;
 
 @Named
 @ApplicationScoped
@@ -31,6 +33,16 @@ public class JpaProjectDao extends JpaBaseDao<ProjectEntity, Long> implements Pr
 			.setParameter("service", service).getResultList();
 	}
 
+	@Override
+	public ProjectServiceEntity addServiceToProject(ProjectEntity project, ServiceEntity service, ProjectServiceType type) {
+		ProjectServiceEntity entity = new ProjectServiceEntity();
+		entity.setProject(project);
+		entity.setService(service);
+		entity.setType(type);
+		em.persist(entity);
+		return entity;
+	}
+	
 	@Override
 	public Class<ProjectEntity> getEntityClass() {
 		return ProjectEntity.class;

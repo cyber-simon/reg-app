@@ -19,6 +19,7 @@ import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.project.ProjectDao;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
+import edu.kit.scc.webreg.entity.project.ProjectServiceType;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
 
 @Stateless
@@ -34,6 +35,15 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity, Long> imp
 		return dao.findByService(service);
 	}
 	
+	@Override 
+	public ProjectEntity save(ProjectEntity project, ServiceEntity... services) {
+		project = dao.persist(project);
+		for (ServiceEntity service : services) {
+			dao.addServiceToProject(project, service, ProjectServiceType.ADMIN);
+		}
+		return project;
+	}
+		
 	@Override
 	protected BaseDao<ProjectEntity, Long> getDao() {
 		return dao;
