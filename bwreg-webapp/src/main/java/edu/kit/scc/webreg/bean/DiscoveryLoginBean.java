@@ -25,11 +25,10 @@ import javax.inject.Inject;
 
 import edu.kit.scc.webreg.entity.FederationEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
-import edu.kit.scc.webreg.entity.SamlMetadataEntityStatus;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
-import edu.kit.scc.webreg.service.FederationService;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.SamlSpConfigurationService;
+import edu.kit.scc.webreg.service.saml.FederationSingletonBean;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
@@ -40,11 +39,11 @@ public class DiscoveryLoginBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Inject
-	private FederationService service;
- 
+	private FederationSingletonBean federationBean;
+
 	@Inject
 	private SamlIdpMetadataService idpService;
-
+	
 	@Inject
 	private SamlSpConfigurationService spService;
 	
@@ -55,9 +54,8 @@ public class DiscoveryLoginBean implements Serializable {
 	private FacesMessageGenerator messageGenerator;
 	
 	private List<FederationEntity> federationList;
-	private FederationEntity selectedFederation;
-	
 	private List<SamlIdpMetadataEntity> idpList;
+	private FederationEntity selectedFederation;
 	private SamlIdpMetadataEntity selectedIdp;
 
 	private String filter;
@@ -70,11 +68,12 @@ public class DiscoveryLoginBean implements Serializable {
 			if (idp != null) {
 				selectedIdp = idp;
 				login();
+				return;
 			}
 		}
 		
 		if (! initialized) {
-			federationList = service.findAll();
+			federationList = federationBean.getFederationList();
 			if (federationList == null || federationList.size() == 0) {
 				messageGenerator.addErrorMessage("Das SAML Subsystem ist noch nicht konfiguriert");
 				return;
@@ -115,10 +114,10 @@ public class DiscoveryLoginBean implements Serializable {
 	
 	public void updateIdpList() {
 		if (selectedFederation == null) {
-			idpList = idpService.findAllByStatusOrderedByOrgname(SamlMetadataEntityStatus.ACTIVE);
+			idpList = federationBean.getAllIdpList();
 		}
 		else {
-			idpList = idpService.findAllByFederationOrderByOrgname(selectedFederation);
+			idpList = federationBean.getIdpList(selectedFederation);
 		}
 	}
 	
@@ -126,10 +125,6 @@ public class DiscoveryLoginBean implements Serializable {
 		return federationList;
 	}
 
-	public void setFederationList(List<FederationEntity> federationList) {
-		this.federationList = federationList;
-	}
-	
 	public FederationEntity getSelectedFederation() {
 		return selectedFederation;
 	}
