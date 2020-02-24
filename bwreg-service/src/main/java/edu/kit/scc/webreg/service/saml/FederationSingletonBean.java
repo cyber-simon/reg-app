@@ -34,6 +34,8 @@ public class FederationSingletonBean {
 	private List<FederationEntity> sortedFederationList;
 	private Map<String, SamlIdpMetadataEntity> idpMap;
 	
+	private Long lastRefresh;
+	
 	@PostConstruct
 	public void init() {
 		logger.info("Constructing federation cache");
@@ -56,6 +58,8 @@ public class FederationSingletonBean {
 				idpMap.put(idp.getEntityId(), idp);
 			}
 		}
+		
+		lastRefresh = System.currentTimeMillis();
 	}
 	
 	public List<FederationEntity> getFederationList() {
@@ -67,6 +71,10 @@ public class FederationSingletonBean {
 	}
 	
 	public List<SamlIdpMetadataEntity> getAllIdpList() {
+		if (System.currentTimeMillis() - lastRefresh > 1000L * 60L * 60L) {
+			refreshCache();
+		}
+		
 		List<SamlIdpMetadataEntity> tempList = new ArrayList<SamlIdpMetadataEntity>(idpMap.values());
 		Collections.sort(tempList, new Comparator<SamlIdpMetadataEntity>() {
 
