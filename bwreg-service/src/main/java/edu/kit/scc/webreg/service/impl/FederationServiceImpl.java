@@ -39,6 +39,7 @@ import edu.kit.scc.webreg.entity.SamlIdpScopeEntity;
 import edu.kit.scc.webreg.entity.SamlMetadataEntityStatus;
 import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 import edu.kit.scc.webreg.service.FederationService;
+import edu.kit.scc.webreg.service.saml.FederationSingletonBean;
 import edu.kit.scc.webreg.service.saml.MetadataHelper;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
 
@@ -49,6 +50,9 @@ public class FederationServiceImpl extends BaseServiceImpl<FederationEntity, Lon
 
 	@Inject
 	private Logger logger;
+	
+	@Inject
+	private FederationSingletonBean federationSingletonBean;
 	
 	@Inject
 	private FederationDao dao;
@@ -146,6 +150,9 @@ public class FederationServiceImpl extends BaseServiceImpl<FederationEntity, Lon
 		entity.setPolledAt(new Date());
 		dao.persist(entity);
 		logger.debug("Updated SAML Entities for Federation {}", entity.getName());
+		
+		logger.debug("Refreshing Federation Singleton Bean Cache");
+		federationSingletonBean.refreshCache();
 	}
 
 	private void updateAAEntities(FederationEntity entity, List<EntityDescriptor> entityList) {
