@@ -20,7 +20,7 @@ import javax.persistence.Lob;
 
 import org.hibernate.annotations.Type;
 
-@Entity
+@Entity(name="SamlConfigurationEntity")
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class SamlConfigurationEntity extends AbstractBaseEntity {
 

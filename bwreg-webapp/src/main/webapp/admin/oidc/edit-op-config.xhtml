@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="id" value="#{editOidcOpConfigurationBean.id}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{editOidcOpConfigurationBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+		<h2><h:outputText value="#{messages.op_config}: #{editOidcOpConfigurationBean.entity.name}"/></h2>
+	
+		<div id="panelInline">
+			<p:panel header="#{messages.op_config}">
+				<p:panelGrid id="baseData" columns="2">
+		
+			        <h:outputText value="#{messages.id}:"/>
+			        <h:outputText value="#{editOidcOpConfigurationBean.entity.id}"/>
+			
+					<bw:inputText id="entityIdField" label="#{messages.name}"
+						value="#{editOidcOpConfigurationBean.entity.name}" required="true" />
+		
+					<bw:inputText id="realmField" label="#{messages.realm}"
+						value="#{editOidcOpConfigurationBean.entity.realm}" required="true" />
+		
+					<bw:inputText id="hostField" label="#{messages.host}"
+						value="#{editOidcOpConfigurationBean.entity.host}" required="true" />
+		
+					<h:outputLabel for="private_key" value="#{messages.private_key}:"/>
+					<p:inputTextarea id="private_key" rows="12" cols="80" autoResize="false"
+		            		value="#{editOidcOpConfigurationBean.entity.privateKey}"/>
+		
+					<h:outputLabel for="certificate" value="#{messages.certificate}:"/>
+					<p:inputTextarea id="certificate" rows="12" cols="80" autoResize="false"
+		       	    		value="#{editOidcOpConfigurationBean.entity.certificate}"/>
+
+					<h:outputLabel for="sprivate_key" value="#{messages.private_key} (#{messages.standby}):"/>
+					<p:inputTextarea id="sprivate_key" rows="12" cols="80" autoResize="false"
+		            		value="#{editOidcOpConfigurationBean.entity.standbyPrivateKey}"/>
+		
+					<h:outputLabel for="scertificate" value="#{messages.certificate} (#{messages.standby}):"/>
+					<p:inputTextarea id="scertificate" rows="12" cols="80" autoResize="false"
+		       	    		value="#{editOidcOpConfigurationBean.entity.standbyCertificate}"/>
+
+		
+				</p:panelGrid>
+			<h:commandButton id="save" action="#{editOidcOpConfigurationBean.save}" value="#{messages.save}"/>
+			</p:panel>
+		</div>
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>

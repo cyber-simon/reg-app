@@ -8,7 +8,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import edu.kit.scc.webreg.entity.AbstractBaseEntity;
-import edu.kit.scc.webreg.entity.SamlUserEntity;
+import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 
 @Entity(name = "OidcFlowStateEntity")
@@ -19,6 +19,15 @@ public class OidcFlowStateEntity extends AbstractBaseEntity {
 	
 	@ManyToOne(targetEntity = UserEntity.class)
 	private UserEntity user;
+
+	@ManyToOne(targetEntity = OidcOpConfigurationEntity.class)
+	private OidcOpConfigurationEntity opConfiguration;
+
+	@ManyToOne(targetEntity = OidcClientConfigurationEntity.class)
+	private OidcClientConfigurationEntity clientConfiguration;
+
+	@ManyToOne(targetEntity = RegistryEntity.class)
+	private RegistryEntity registry;
 
 	@Column(name = "nonce", length = 256)
 	private String nonce;
@@ -31,9 +40,6 @@ public class OidcFlowStateEntity extends AbstractBaseEntity {
 
 	@Column(name = "response_type", length = 256)
 	private String responseType;
-
-	@Column(name = "client_id", length = 256)
-	private String clientId;
 
 	@Column(name = "redirect_uri", length = 1024)
 	private String redirectUri;
@@ -87,14 +93,6 @@ public class OidcFlowStateEntity extends AbstractBaseEntity {
 		this.responseType = responseType;
 	}
 
-	public String getClientId() {
-		return clientId;
-	}
-
-	public void setClientId(String clientId) {
-		this.clientId = clientId;
-	}
-
 	public String getRedirectUri() {
 		return redirectUri;
 	}
@@ -125,5 +123,29 @@ public class OidcFlowStateEntity extends AbstractBaseEntity {
 
 	public void setUser(UserEntity user) {
 		this.user = user;
+	}
+
+	public OidcOpConfigurationEntity getOpConfiguration() {
+		return opConfiguration;
+	}
+
+	public void setOpConfiguration(OidcOpConfigurationEntity opConfiguration) {
+		this.opConfiguration = opConfiguration;
+	}
+
+	public OidcClientConfigurationEntity getClientConfiguration() {
+		return clientConfiguration;
+	}
+
+	public void setClientConfiguration(OidcClientConfigurationEntity clientConfiguration) {
+		this.clientConfiguration = clientConfiguration;
+	}
+
+	public RegistryEntity getRegistry() {
+		return registry;
+	}
+
+	public void setRegistry(RegistryEntity registry) {
+		this.registry = registry;
 	}
 }

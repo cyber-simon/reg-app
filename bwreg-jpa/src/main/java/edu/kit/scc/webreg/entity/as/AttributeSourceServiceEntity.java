@@ -24,11 +24,11 @@ public class AttributeSourceServiceEntity extends AbstractBaseEntity {
 
 	private static final long serialVersionUID = 1L;
 
-	@ManyToOne
+	@ManyToOne(targetEntity = ServiceEntity.class)
     @JoinColumn(name = "service_id", nullable = false)
 	private ServiceEntity service;
 	
-    @ManyToOne
+    @ManyToOne(targetEntity = AttributeSourceEntity.class)
     @JoinColumn(name = "attribute_src_id", nullable = false)
 	private AttributeSourceEntity attributeSource;
 

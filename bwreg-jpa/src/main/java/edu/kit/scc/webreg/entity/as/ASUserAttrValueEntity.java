@@ -27,7 +27,7 @@ public class ASUserAttrValueEntity extends AbstractBaseEntity {
 
 	private static final long serialVersionUID = 1L;
 
-    @ManyToOne
+    @ManyToOne(targetEntity = ASUserAttrEntity.class)
     @JoinColumn(name = "attribute_src_id", nullable = false)
 	private ASUserAttrEntity asUserAttr;
 

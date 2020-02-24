@@ -10,7 +10,7 @@ public class ServiceBasedGroupEntity extends GroupEntity {
 
 	private static final long serialVersionUID = 1L;
 
-	@OneToMany(mappedBy = "group")
+	@OneToMany(mappedBy = "group", targetEntity = ServiceGroupFlagEntity.class)
 	private Set<ServiceGroupFlagEntity> serviceGroupFlags;
 
 	public Set<ServiceGroupFlagEntity> getServiceGroupFlags() {

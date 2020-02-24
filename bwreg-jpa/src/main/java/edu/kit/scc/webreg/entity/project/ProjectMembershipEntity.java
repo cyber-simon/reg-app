@@ -29,12 +29,12 @@ public class ProjectMembershipEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
     @Id
-	@ManyToOne
+	@ManyToOne(targetEntity = UserEntity.class)
     @JoinColumn(name = "user_id", nullable = false)
 	private UserEntity user;
 	
     @Id
-    @ManyToOne
+    @ManyToOne(targetEntity = ProjectEntity.class)
     @JoinColumn(name = "project_id", nullable = false)
 	private ProjectEntity project;
 

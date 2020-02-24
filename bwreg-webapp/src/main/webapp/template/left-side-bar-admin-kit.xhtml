@@ -104,6 +104,21 @@
 	    </div>
 	  </h:panelGroup>
 
+	  <h:panelGroup rendered="#{authorizationBean.isUserInRole('ROLE_OidcAdmin') or authorizationBean.isUserInRole('ROLE_MasterAdmin')}">
+        <div class="submenu">
+	      <div class="submenu-title">#{messages.oidc_props}</div>
+	      <div class="submenu-content">
+			<div>
+			  <ul>
+	            <li><span class="ui-icon ui-icon-gear" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="#{request.contextPath}/admin/oidc/list-oidc-configs.xhtml" value="#{messages.list_oidc_configs}" />
+				</li>
+	           </ul>
+	        </div>
+	      </div>
+	    </div>
+	  </h:panelGroup>
+
 	  <h:panelGroup rendered="#{authorizationBean.isUserInRole('ROLE_AttributeSourceAdmin') or authorizationBean.isUserInRole('ROLE_MasterAdmin')}">
         <div class="submenu">
 	      <div class="submenu-title">#{messages.attribute_sources}</div>

@@ -89,6 +89,13 @@ public class RegistryDtoServiceImpl extends BaseDtoServiceImpl<RegistryEntity, R
 		if (service == null) {
 			throw new RegisterException("no such service");
 		}
+		
+		List<RegistryEntity> registryList = dao.findByServiceAndUserAndNotStatus(service, user, 
+				RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
+		if (registryList.size() > 0) {
+			throw new RegisterException("user already registered for service");
+		}
+
 		RegistryEntity registry = registerUserService.registerUser(user, service, "external", true, null);
 		RegistryEntityDto dto = createNewDto();
 		mapper.copyProperties(registry, dto);
