@@ -43,15 +43,19 @@ public class JpaUserDao extends JpaBaseDao<UserEntity, Long> implements UserDao,
     @Override
     @SuppressWarnings({"unchecked"})
 	public List<UserEntity> findOrderByUpdatedWithLimit(Date date, Integer limit) {
-		return em.createQuery("select e from UserEntity e where lastUpdate < :date and lastFailedUpdate is null order by lastUpdate asc")
-				.setParameter("date", date).setMaxResults(limit).getResultList();
+		return em.createQuery("select e from UserEntity e where e.userStatus != :status and e.lastUpdate < :date and e.lastFailedUpdate is null order by e.lastUpdate asc")
+				.setParameter("date", date)
+				.setParameter("status", UserStatus.DEREGISTERED)
+				.setMaxResults(limit).getResultList();
 	}
 
     @Override
     @SuppressWarnings({"unchecked"})
 	public List<UserEntity> findOrderByFailedUpdateWithLimit(Date date, Integer limit) {
-		return em.createQuery("select e from UserEntity e where lastFailedUpdate < :date order by lastFailedUpdate asc")
-				.setParameter("date", date).setMaxResults(limit).getResultList();
+		return em.createQuery("select e from UserEntity e where e.userStatus != :status and e.lastFailedUpdate < :date order by e.lastFailedUpdate asc")
+				.setParameter("date", date)
+				.setParameter("status", UserStatus.DEREGISTERED)
+				.setMaxResults(limit).getResultList();
 	}
 
     @Override
