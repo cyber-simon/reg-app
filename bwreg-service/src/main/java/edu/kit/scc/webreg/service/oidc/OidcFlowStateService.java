@@ -8,17 +8,14 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.dao.oidc;
+package edu.kit.scc.webreg.service.oidc;
 
-import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.entity.oidc.OidcFlowStateEntity;
+import edu.kit.scc.webreg.service.BaseService;
 
-public interface OidcFlowStateDao extends BaseDao<OidcFlowStateEntity, Long> {
-
-	OidcFlowStateEntity findByCode(String code);
-
-	OidcFlowStateEntity findByAccessToken(String accessToken, String accessTokenType);
+public interface OidcFlowStateService extends BaseService<OidcFlowStateEntity, Long> {
 
 	void deleteExpiredTokens();
+
 
 }
