@@ -29,6 +29,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 
 @Entity(name = "UserEntity")
 @Table(name = "usertable")
@@ -94,6 +95,9 @@ public class UserEntity extends AbstractBaseEntity {
 	
 	@ManyToOne(targetEntity = GroupEntity.class)
 	private GroupEntity primaryGroup;
+
+	@ManyToOne(targetEntity = IdentityEntity.class)
+	private IdentityEntity identity;
 
 	@Column(name = "last_status_change")
 	private Date lastStatusChange;
@@ -240,5 +244,13 @@ public class UserEntity extends AbstractBaseEntity {
 
 	public void setUserAttrs(Set<ASUserAttrEntity> userAttrs) {
 		this.userAttrs = userAttrs;
+	}
+
+	public IdentityEntity getIdentity() {
+		return identity;
+	}
+
+	public void setIdentity(IdentityEntity identity) {
+		this.identity = identity;
 	}
 }
