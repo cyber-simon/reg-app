@@ -16,9 +16,9 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 
 import edu.kit.scc.webreg.entity.AbstractBaseEntity;
+import edu.kit.scc.webreg.entity.UserEntity;
 
 @Entity(name = "IdentityEntity")
 @Table(name = "idty")
@@ -26,20 +26,11 @@ public class IdentityEntity extends AbstractBaseEntity {
 
 	private static final long serialVersionUID = 1L;
 
-	@NotNull
-	@Column(name="name", length=128, nullable=false, unique=true)
-	private String name;
+	@Column(name="user_pref_name", length=128, unique = true)
+	private String userPreferredName;
 	
-	@OneToMany(targetEntity=IdentityEntity.class, mappedBy = "identity")
+	@OneToMany(targetEntity=UserEntity.class, mappedBy = "identity")
 	private Set<IdentityEntity> identities;
-	
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
 
 	public Set<IdentityEntity> getIdentities() {
 		return identities;
@@ -47,5 +38,13 @@ public class IdentityEntity extends AbstractBaseEntity {
 
 	public void setIdentities(Set<IdentityEntity> identities) {
 		this.identities = identities;
+	}
+
+	public String getUserPreferredName() {
+		return userPreferredName;
+	}
+
+	public void setUserPreferredName(String userPreferredName) {
+		this.userPreferredName = userPreferredName;
 	}
 }

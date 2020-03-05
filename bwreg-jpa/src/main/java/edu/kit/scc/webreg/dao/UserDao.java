@@ -29,4 +29,5 @@ public interface UserDao extends BaseDao<UserEntity, Long> {
 	List<UserEntity> findGenericStoreKeyWithLimit(String key, Integer limit);
 	List<UserEntity> findOrderByFailedUpdateWithLimit(Date date, Integer limit);
 	List<UserEntity> findByStatus(UserStatus status);
+	List<UserEntity> findMissingIdentity();
 }
