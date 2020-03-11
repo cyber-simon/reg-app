@@ -14,9 +14,6 @@ public interface OidcOpLogin {
 			String nonce, String clientId, HttpServletRequest request, HttpServletResponse response)
 					 throws IOException, OidcAuthenticationException ;
 
-	JSONObject serveToken(String realm, String grantType, String code, String redirectUri, HttpServletRequest request,
-			HttpServletResponse response) throws OidcAuthenticationException;
-
 	JSONObject serveUserInfo(String realm, String tokeType, String tokenId, HttpServletRequest request,
 			HttpServletResponse response) throws OidcAuthenticationException;
 
@@ -24,5 +21,8 @@ public interface OidcOpLogin {
 			throws IOException, OidcAuthenticationException;
 
 	JSONObject serveUserJwt(String realm) throws OidcAuthenticationException;
+
+	JSONObject serveToken(String realm, String grantType, String code, String redirectUri, HttpServletRequest request,
+			HttpServletResponse response, String clientId, String clientSecret) throws OidcAuthenticationException;
 
 }

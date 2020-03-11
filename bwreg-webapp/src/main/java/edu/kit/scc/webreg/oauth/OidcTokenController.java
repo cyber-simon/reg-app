@@ -1,7 +1,5 @@
 package edu.kit.scc.webreg.oauth;
 
-import java.util.Date;
-
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,18 +11,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
-
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.crypto.MACSigner;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.PlainJWT;
-import com.nimbusds.jwt.SignedJWT;
-import com.nimbusds.oauth2.sdk.Scope;
-import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
-import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
-import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 
 import edu.kit.scc.webreg.service.oidc.OidcOpLogin;
 import net.minidev.json.JSONObject;
@@ -47,8 +36,22 @@ public class OidcTokenController {
 			throws Exception {
 
 		logger.debug("Post token called for {} with code {} and grant_type {}", realm, code, grantType);
+		
+	    String auth = request.getHeader("Authorization");
+	    if (auth != null) {
+	    	int index = auth.indexOf(' ');
+	        if (index > 0) {
+	        	String[] credentials = StringUtils.split(
+	        			new String(Base64.decodeBase64(auth.substring(index).getBytes())), ":", 2);
+	        	
+	        	if (credentials.length == 2) {
+	        		return opLogin.serveToken(realm, grantType, code, redirectUri, request, response, credentials[0], credentials[1]);
+	        	}
+	        }
+	    }
 
-		return opLogin.serveToken(realm, grantType, code, redirectUri, request, response);
+		response.sendError(HttpServletResponse.SC_FORBIDDEN, "Not allowed");
+		return null;
 	}
 	
 }

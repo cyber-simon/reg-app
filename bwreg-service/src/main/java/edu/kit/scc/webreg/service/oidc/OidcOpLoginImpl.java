@@ -192,7 +192,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	@Override
 	public JSONObject serveToken(String realm, String grantType,
 			String code, String redirectUri,
-			HttpServletRequest request, HttpServletResponse response) throws OidcAuthenticationException {
+			HttpServletRequest request, HttpServletResponse response, String clientId, String clientSecret) throws OidcAuthenticationException {
 		
 		OidcFlowStateEntity flowState = flowStateDao.findByCode(code);
 
@@ -210,6 +210,10 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 
 		if (clientConfig == null) {
 			throw new OidcAuthenticationException("unknown client");
+		}
+		
+		if ((! clientConfig.getName().equals(clientId)) || (! clientConfig.getSecret().equals(clientSecret))) {
+			throw new OidcAuthenticationException("unauthorized");
 		}
 	
 		UserEntity user = flowState.getUser();
