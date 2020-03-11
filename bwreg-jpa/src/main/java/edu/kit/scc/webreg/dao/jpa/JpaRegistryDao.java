@@ -332,7 +332,14 @@ public class JpaRegistryDao extends JpaBaseDao<RegistryEntity, Long> implements 
 
 		return em.createQuery(criteria).getResultList();
 	}	
-		
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<RegistryEntity> findMissingIdentity() {
+		return em.createQuery("select r from RegistryEntity r where r.identity is null")
+				.getResultList();
+	}	
+	
 	@Override
 	public Class<RegistryEntity> getEntityClass() {
 		return RegistryEntity.class;

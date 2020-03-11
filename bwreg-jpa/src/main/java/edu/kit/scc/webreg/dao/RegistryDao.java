@@ -71,4 +71,6 @@ public interface RegistryDao extends BaseDao<RegistryEntity, Long> {
 
 	List<RegistryEntity> findByServiceAndStatusOrderByRecon(ServiceEntity service, RegistryStatus status, int limit);
 
+	List<RegistryEntity> findMissingIdentity();
+
 }

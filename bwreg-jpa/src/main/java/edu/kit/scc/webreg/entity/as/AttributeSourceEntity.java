@@ -52,8 +52,14 @@ public class AttributeSourceEntity extends AbstractBaseEntity {
 	@Column(name = "user_source")
 	private Boolean userSource;
 	
+	@Column(name = "identity_source")
+	private Boolean identitySource;
+	
 	@Column(name = "service_source")
 	private Boolean serviceSource;
+
+	@Column(name = "project_source")
+	private Boolean projectSource;
 	
 	@OneToMany(targetEntity = AttributeSourceServiceEntity.class, mappedBy="attributeSource")
 	private Set<AttributeSourceServiceEntity> attributeSourceServices;
@@ -105,5 +111,21 @@ public class AttributeSourceEntity extends AbstractBaseEntity {
 	public void setAttributeSourceServices(
 			Set<AttributeSourceServiceEntity> attributeSourceServices) {
 		this.attributeSourceServices = attributeSourceServices;
+	}
+
+	public Boolean getIdentitySource() {
+		return identitySource;
+	}
+
+	public void setIdentitySource(Boolean identitySource) {
+		this.identitySource = identitySource;
+	}
+
+	public Boolean getProjectSource() {
+		return projectSource;
+	}
+
+	public void setProjectSource(Boolean projectSource) {
+		this.projectSource = projectSource;
 	}
 }

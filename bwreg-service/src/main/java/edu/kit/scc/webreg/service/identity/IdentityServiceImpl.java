@@ -18,8 +18,10 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dao.BaseDao;
+import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.identity.IdentityDao;
+import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
@@ -38,6 +40,9 @@ public class IdentityServiceImpl extends BaseServiceImpl<IdentityEntity, Long> i
 	@Inject
 	private UserDao userDao;
 	
+	@Inject
+	private RegistryDao registryDao;
+	
 	@Override
 	public void createMissingIdentities() {
 		logger.info("Creating missing identities...");
@@ -50,6 +55,15 @@ public class IdentityServiceImpl extends BaseServiceImpl<IdentityEntity, Long> i
 			user.setIdentity(id);
 		}
 		logger.info("Creating missing identities done.");
+		
+		logger.info("Migrate registries from users to identities...");
+
+		List<RegistryEntity> registryList = registryDao.findMissingIdentity();
+		for (RegistryEntity registry : registryList) {
+			logger.info("Migrate regsitry for user {}", registry.getUser().getId());
+			registry.setIdentity(registry.getUser().getIdentity());
+		}
+		logger.info("Migrate registries from users to identities done.");
 	}
 
 	@Override
