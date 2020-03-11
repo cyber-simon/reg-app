@@ -1,5 +1,8 @@
 package edu.kit.scc.webreg.oauth;
 
+import java.util.Enumeration;
+import java.util.stream.Collectors;
+
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -32,12 +35,18 @@ public class OidcTokenController {
 	@Produces(MediaType.APPLICATION_JSON)
 	public JSONObject auth(@PathParam("realm") String realm, @FormParam("grant_type") String grantType,
 			@FormParam("code") String code, @FormParam("redirect_uri") String redirectUri,
+			@FormParam("client_id") String clientId, @FormParam("client_secret") String clientSecret,
 			@Context HttpServletRequest request, @Context HttpServletResponse response)
 			throws Exception {
 
 		logger.debug("Post token called for {} with code {} and grant_type {}", realm, code, grantType);
+
+		if (clientId != null && clientSecret != null) {
+    		return opLogin.serveToken(realm, grantType, code, redirectUri, request, response, clientId, clientSecret);			
+		}
 		
 	    String auth = request.getHeader("Authorization");
+
 	    if (auth != null) {
 	    	int index = auth.indexOf(' ');
 	        if (index > 0) {
