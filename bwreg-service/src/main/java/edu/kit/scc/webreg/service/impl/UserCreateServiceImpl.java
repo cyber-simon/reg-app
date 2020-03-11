@@ -29,6 +29,7 @@ import edu.kit.scc.webreg.dao.SamlUserDao;
 import edu.kit.scc.webreg.dao.SerialDao;
 import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
+import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
@@ -36,6 +37,7 @@ import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserRoleEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.UserEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
@@ -65,6 +67,9 @@ public class UserCreateServiceImpl implements UserCreateService {
 
 	@Inject
 	private RoleDao roleDao;
+
+	@Inject
+	private IdentityDao identityDao;
 
 	@Inject
 	private SerialDao serialDao;
@@ -135,6 +140,14 @@ public class UserCreateServiceImpl implements UserCreateService {
     		user.setUserStatus(UserStatus.ACTIVE);
     		user.setLastStatusChange(new Date());
     	}
+
+    	/**
+    	 * TODO: Apply mapping rules at this point. At the moment every account gets one
+    	 * identity. Should possibly be mapped to existing identity in some cases.
+    	 */
+		IdentityEntity id = identityDao.createNew();
+		id = identityDao.persist(id);
+		user.setIdentity(id);
 
     	user = samlUserDao.persist(user);
 
