@@ -180,6 +180,7 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 			registry.setAgreedTime(new Date());
 			registry.setService(service);
 			registry.setUser(user);
+			registry.setIdentity(user.getIdentity());
 			registry.setRegisterBean(service.getRegisterBean());
 			
 			if (approverRole != null)
