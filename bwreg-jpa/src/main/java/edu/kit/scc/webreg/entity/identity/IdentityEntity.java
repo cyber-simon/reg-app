@@ -30,15 +30,7 @@ public class IdentityEntity extends AbstractBaseEntity {
 	private String userPreferredName;
 	
 	@OneToMany(targetEntity=UserEntity.class, mappedBy = "identity")
-	private Set<IdentityEntity> identities;
-
-	public Set<IdentityEntity> getIdentities() {
-		return identities;
-	}
-
-	public void setIdentities(Set<IdentityEntity> identities) {
-		this.identities = identities;
-	}
+	private Set<UserEntity> users;
 
 	public String getUserPreferredName() {
 		return userPreferredName;
@@ -46,5 +38,13 @@ public class IdentityEntity extends AbstractBaseEntity {
 
 	public void setUserPreferredName(String userPreferredName) {
 		this.userPreferredName = userPreferredName;
+	}
+
+	public Set<UserEntity> getUsers() {
+		return users;
+	}
+
+	public void setUsers(Set<UserEntity> users) {
+		this.users = users;
 	}
 }
