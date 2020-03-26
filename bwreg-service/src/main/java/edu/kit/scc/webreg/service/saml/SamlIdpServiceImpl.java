@@ -151,15 +151,25 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 		logger.debug("Corresponding SP found in Metadata: {}", spMetadata.getEntityId());
 
 		List<ServiceSamlSpEntity> serviceSamlSpEntityList = serviceSamlSpDao.findBySamlSp(spMetadata);
+		List<ServiceSamlSpEntity> filteredServiceSamlSpEntityList = new ArrayList<ServiceSamlSpEntity>();
 		RegistryEntity registry = null;
 		for (ServiceSamlSpEntity serviceSamlSpEntity : serviceSamlSpEntityList) {
 			ServiceEntity service = serviceSamlSpEntity.getService();
-			logger.debug("Service for SP found: {}", service);
-			registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.ACTIVE);
-			if (registry == null) {
-				logger.info("No active registration for user {} and service {}, redirecting to register page", 
-						user.getEppn(), service.getName());
-				return "/user/register-service.xhtml?serviceId=" + service.getId();
+			logger.debug("Service for SP found: {}", service.getId());
+			if (matchService(serviceSamlSpEntity.getScript(), user, serviceSamlSpEntity)) {
+				logger.debug("SP matches: {}", service.getId());
+				
+				registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.ACTIVE);
+				if (registry == null) {
+					logger.info("No active registration for user {} and service {}, redirecting to register page", 
+							user.getEppn(), service.getName());
+					return "/user/register-service.xhtml?serviceId=" + service.getId();
+				}		
+				
+				filteredServiceSamlSpEntityList.add(serviceSamlSpEntity);
+			}
+			else {
+				logger.debug("SP no match: {}", service.getId());				
 			}
 		}
 		
@@ -171,7 +181,7 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 		assertion.setIssuer(ssoHelper.buildIssuser(idpConfig.getEntityId()));
 		assertion.setSubject(ssoHelper.buildSubject(idpConfig, spMetadata, samlHelper.getRandomId(), NameID.TRANSIENT, authnRequest.getID()));
 		assertion.setConditions(ssoHelper.buildConditions(spMetadata));
-		assertion.getAttributeStatements().add(buildAttributeStatement(user, serviceSamlSpEntityList, registry));
+		assertion.getAttributeStatements().add(buildAttributeStatement(user, filteredServiceSamlSpEntityList, registry));
 		assertion.getAuthnStatements().add(ssoHelper.buildAuthnStatement((5L * 60L * 1000L)));
 		
 		SecurityParametersContext securityContext = buildSecurityContext(idpConfig);
@@ -327,6 +337,33 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 		}
 	}	
 
+	private Boolean matchService(ScriptEntity scriptEntity, UserEntity user, ServiceSamlSpEntity serviceSamlSp) 
+			throws SamlAuthenticationException {
+		ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
+
+		if (engine == null)
+			throw new SamlAuthenticationException("service not configured properly. engine not found: " + scriptEntity.getScriptEngine());
+
+		try {
+			engine.eval(scriptEntity.getScript());
+
+			Invocable invocable = (Invocable) engine;
+			
+			Object object = invocable.invokeFunction("matchService", scriptingEnv, user, 
+					serviceSamlSp.getService(), logger);
+			
+			if (object instanceof Boolean)
+				return (Boolean) object;
+			else
+				return false;
+		} catch (ScriptException e) {
+			logger.warn("Script execution failed. Continue with other scripts.", e);
+			return false;
+		} catch (NoSuchMethodException e) {
+			logger.info("No matchService method in script. Assuming match true");
+			return true;
+		}
+	}
 	
 	private AttributeStatement buildAttributeStatement(UserEntity user, 
 			List<ServiceSamlSpEntity> serviceSamlSpEntityList, RegistryEntity registry) 
