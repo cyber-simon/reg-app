@@ -18,9 +18,9 @@ import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
 import edu.kit.scc.webreg.dao.UserDao;
-import edu.kit.scc.webreg.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.drools.OverrideAccess;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;
+import edu.kit.scc.webreg.drools.impl.KnowledgeSessionSingleton;
 import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
@@ -51,7 +51,7 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 	private UserUpdater userUpdater;
 
 	@Inject
-	private KnowledgeSessionService knowledgeSessionService;
+	private KnowledgeSessionSingleton knowledgeSessionService;
 	
 	@Inject
 	private RegistryDao registryDao;

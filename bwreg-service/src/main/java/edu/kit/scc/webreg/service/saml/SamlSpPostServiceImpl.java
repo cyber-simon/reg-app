@@ -21,7 +21,7 @@ import org.slf4j.MDC;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
 import edu.kit.scc.webreg.dao.SamlUserDao;
-import edu.kit.scc.webreg.drools.KnowledgeSessionService;
+import edu.kit.scc.webreg.drools.impl.KnowledgeSessionSingleton;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntityStatus;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
@@ -57,7 +57,7 @@ public class SamlSpPostServiceImpl implements SamlSpPostService {
 	private Saml2AssertionService saml2AssertionService;	
 
 	@Inject
-	private KnowledgeSessionService knowledgeSessionService;
+	private KnowledgeSessionSingleton knowledgeSessionService;
 	
 	@Inject
 	private ApplicationConfig appConfig;

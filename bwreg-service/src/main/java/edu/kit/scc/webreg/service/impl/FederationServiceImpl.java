@@ -30,7 +30,7 @@ import edu.kit.scc.webreg.dao.SamlAAMetadataDao;
 import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
 import edu.kit.scc.webreg.dao.SamlIdpScopeDao;
 import edu.kit.scc.webreg.dao.SamlSpMetadataDao;
-import edu.kit.scc.webreg.drools.KnowledgeSessionService;
+import edu.kit.scc.webreg.drools.impl.KnowledgeSessionSingleton;
 import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.FederationEntity;
 import edu.kit.scc.webreg.entity.SamlAAMetadataEntity;
@@ -70,7 +70,7 @@ public class FederationServiceImpl extends BaseServiceImpl<FederationEntity, Lon
 	private SamlAAMetadataDao aaDao;
 	
 	@Inject
-	private KnowledgeSessionService knowledgeSessionService;
+	private KnowledgeSessionSingleton knowledgeSessionService;
 	
 	@Inject 
 	private SamlHelper samlHelper;

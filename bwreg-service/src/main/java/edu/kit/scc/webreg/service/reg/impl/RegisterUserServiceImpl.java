@@ -38,8 +38,8 @@ import edu.kit.scc.webreg.dao.ServiceGroupFlagDao;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
-import edu.kit.scc.webreg.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.drools.MissingMandatoryValues;
+import edu.kit.scc.webreg.drools.impl.KnowledgeSessionSingleton;
 import edu.kit.scc.webreg.entity.AgreementTextEntity;
 import edu.kit.scc.webreg.entity.ApproverRoleEntity;
 import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
@@ -114,7 +114,7 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	private AuditDetailDao auditDetailDao;
 
 	@Inject
-	private KnowledgeSessionService knowledgeSessionService;
+	private KnowledgeSessionSingleton knowledgeSessionService;
 	
 	@Inject
 	private EventSubmitter eventSubmitter;
