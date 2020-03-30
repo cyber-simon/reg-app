@@ -2,6 +2,7 @@ package edu.kit.scc.webreg.service.oidc;
 
 import java.io.IOException;
 import java.security.PrivateKey;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -35,6 +36,10 @@ import edu.kit.scc.webreg.dao.oidc.OidcClientConfigurationDao;
 import edu.kit.scc.webreg.dao.oidc.OidcFlowStateDao;
 import edu.kit.scc.webreg.dao.oidc.OidcOpConfigurationDao;
 import edu.kit.scc.webreg.dao.oidc.ServiceOidcClientDao;
+import edu.kit.scc.webreg.drools.OverrideAccess;
+import edu.kit.scc.webreg.drools.UnauthorizedUser;
+import edu.kit.scc.webreg.drools.impl.KnowledgeSessionSingleton;
+import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ScriptEntity;
@@ -82,6 +87,9 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	
 	@Inject
 	private ScriptingEnv scriptingEnv;
+	
+	@Inject
+	private KnowledgeSessionSingleton knowledgeSessionService;
 	
 	@Override
 	public String registerAuthRequest(String realm, String responseType,
@@ -168,12 +176,40 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			for (ServiceOidcClientEntity serviceOidcClient : serviceOidcClientList) {
 				ServiceEntity service = serviceOidcClient.getService();
 				logger.debug("Service for RP found: {}", service);
+				
 				registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.ACTIVE);
-				if (registry == null) {
-					logger.info("No active registration for user {} and service {}, redirecting to register page", 
-							user.getEppn(), service.getName());
-					session.setOriginalRequestPath("/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/auth/return");
-					return "/user/register-service.xhtml?serviceId=" + service.getId();
+				
+				if (registry != null) {
+					List<Object> objectList = checkRules(user, service, registry);
+					List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
+					List<UnauthorizedUser> unauthorizedUserList = extractUnauthorizedUser(objectList);
+					
+					if (overrideAccessList.size() == 0 && unauthorizedUserList.size() > 0) {
+						return "/user/check-access.xhtml?regId=" + registry.getId();
+					}
+				}
+				else {
+					registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.LOST_ACCESS);
+					
+					if (registry != null) {
+						logger.info("Registration for user {} and service {} in state LOST_ACCESS, checking again", 
+								user.getEppn(), service.getName());
+						List<Object> objectList = checkRules(user, service, registry);
+						List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
+						List<UnauthorizedUser> unauthorizedUserList = extractUnauthorizedUser(objectList);
+						
+						if (overrideAccessList.size() == 0 && unauthorizedUserList.size() > 0) {
+							logger.info("Registration for user {} and service {} in state LOST_ACCESS stays, redirecting to check page", 
+									user.getEppn(), service.getName());
+							return "/user/check-access.xhtml?regId=" + registry.getId();
+						}
+					}
+					else {
+						logger.info("No active registration for user {} and service {}, redirecting to register page", 
+								user.getEppn(), service.getName());
+						session.setOriginalRequestPath("/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/auth/return");
+						return "/user/register-service.xhtml?serviceId=" + service.getId();
+					}
 				}
 			}
 			
@@ -396,5 +432,51 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		}
 		else
 			return null;
-	}	
+	}
+	
+	
+	private List<Object> checkRules(UserEntity user, ServiceEntity service, RegistryEntity registry) {
+		List<Object> objectList;
+		
+		if (service.getAccessRule() == null) {
+			objectList = knowledgeSessionService.checkRule("default", "permitAllRule", "1.0.0", user, service, registry, "user-self", false);
+		}
+		else {
+			BusinessRulePackageEntity rulePackage = service.getAccessRule().getRulePackage();
+			if (rulePackage != null) {
+				objectList = knowledgeSessionService.checkRule(rulePackage.getPackageName(), rulePackage.getKnowledgeBaseName(), 
+					rulePackage.getKnowledgeBaseVersion(), user, service, registry, "user-self", false);
+			}
+			else {
+				throw new IllegalStateException("checkServiceAccess called with a rule (" +
+							service.getAccessRule().getName() + ") that has no rulePackage");
+			}
+		}
+
+		return objectList;
+	}
+	
+	private List<OverrideAccess> extractOverideAccess(List<Object> objectList) {
+		List<OverrideAccess> returnList = new ArrayList<OverrideAccess>();
+		
+		for (Object o : objectList) {
+			if (o instanceof OverrideAccess) {
+				returnList.add((OverrideAccess) o);
+			}
+		}
+		
+		return returnList;
+	}
+
+	private List<UnauthorizedUser> extractUnauthorizedUser(List<Object> objectList) {
+		List<UnauthorizedUser> returnList = new ArrayList<UnauthorizedUser>();
+		
+		for (Object o : objectList) {
+			if (o instanceof UnauthorizedUser) {
+				returnList.add((UnauthorizedUser) o);
+			}
+		}
+
+		return returnList;
+	}		
 }
