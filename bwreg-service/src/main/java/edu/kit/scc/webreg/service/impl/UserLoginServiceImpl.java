@@ -478,8 +478,8 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 		Assertion assertion = saml2AssertionService.processSamlResponse(samlResponse, idp, idpEntityDescriptor, spEntity);
 
 		String persistentId = saml2AssertionService.extractPersistentId(assertion, spEntity);
-		
-		SamlUserEntity user = samlUserDao.findByPersistentWithRoles(spEntity.getEntityId(), 
+
+		SamlUserEntity user = samlUserDao.findByPersistent(spEntity.getEntityId(), 
 				idp.getEntityId(), persistentId);
 	
 		if (user == null) {
