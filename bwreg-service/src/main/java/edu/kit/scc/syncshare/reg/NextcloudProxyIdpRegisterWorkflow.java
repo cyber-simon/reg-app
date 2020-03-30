@@ -52,7 +52,7 @@ public class NextcloudProxyIdpRegisterWorkflow  implements RegisterUserWorkflow,
 			if (answer.getUser().getQuota() != null && answer.getUser().getQuota().getRelative() != null) {
 				new InfotainmentTreeNode("Verbrauchter Platz", "" +  answer.getUser().getQuota().getRelative() + "%", node);
 			}
-			if (answer.getUser().getGroups() != null) {
+			if (answer.getUser().getGroups() != null && answer.getUser().getGroups().getGroupList() != null) {
 				for (String group : answer.getUser().getGroups().getGroupList()) {
 					new InfotainmentTreeNode("Gruppe", group, node);
 				}
