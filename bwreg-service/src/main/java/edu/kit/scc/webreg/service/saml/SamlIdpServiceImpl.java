@@ -72,6 +72,10 @@ import edu.kit.scc.webreg.dao.SamlIdpConfigurationDao;
 import edu.kit.scc.webreg.dao.SamlSpMetadataDao;
 import edu.kit.scc.webreg.dao.ServiceSamlSpDao;
 import edu.kit.scc.webreg.dao.UserDao;
+import edu.kit.scc.webreg.drools.OverrideAccess;
+import edu.kit.scc.webreg.drools.UnauthorizedUser;
+import edu.kit.scc.webreg.drools.impl.KnowledgeSessionSingleton;
+import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.SamlAuthnRequestEntity;
@@ -123,6 +127,9 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 	@Inject
 	private ScriptingEnv scriptingEnv;
 	
+	@Inject
+	private KnowledgeSessionSingleton knowledgeSessionService;
+	
 	@Override
 	public long registerAuthnRequest(AuthnRequest authnRequest) {
 		SamlAuthnRequestEntity authnRequestEntity = samlAuthnRequestDao.createNew();
@@ -160,13 +167,41 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 				logger.debug("SP matches: {}", service.getId());
 				
 				registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.ACTIVE);
-				if (registry == null) {
-					logger.info("No active registration for user {} and service {}, redirecting to register page", 
-							user.getEppn(), service.getName());
-					return "/user/register-service.xhtml?serviceId=" + service.getId();
-				}		
-				
-				filteredServiceSamlSpEntityList.add(serviceSamlSpEntity);
+				if (registry != null) {
+					List<Object> objectList = checkRules(user, service, registry);
+					List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
+					List<UnauthorizedUser> unauthorizedUserList = extractUnauthorizedUser(objectList);
+					
+					if (overrideAccessList.size() == 0 && unauthorizedUserList.size() > 0) {
+						return "/user/check-access.xhtml?regId=" + registry.getId();
+					}
+
+					filteredServiceSamlSpEntityList.add(serviceSamlSpEntity);
+				}
+				else {
+					registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.LOST_ACCESS);
+					
+					if (registry != null) {
+						logger.info("Registration for user {} and service {} in state LOST_ACCESS, checking again", 
+								user.getEppn(), service.getName());
+						List<Object> objectList = checkRules(user, service, registry);
+						List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
+						List<UnauthorizedUser> unauthorizedUserList = extractUnauthorizedUser(objectList);
+						
+						if (overrideAccessList.size() == 0 && unauthorizedUserList.size() > 0) {
+							logger.info("Registration for user {} and service {} in state LOST_ACCESS stays, redirecting to check page", 
+									user.getEppn(), service.getName());
+							return "/user/check-access.xhtml?regId=" + registry.getId();
+						}
+
+						filteredServiceSamlSpEntityList.add(serviceSamlSpEntity);
+					}
+					else {
+						logger.info("No active registration for user {} and service {}, redirecting to register page", 
+								user.getEppn(), service.getName());
+						return "/user/register-service.xhtml?serviceId=" + service.getId();
+					}
+				}
 			}
 			else {
 				logger.debug("SP no match: {}", service.getId());				
@@ -399,12 +434,52 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 		for (Attribute attribute : attributeList) {
 			attributeStatement.getAttributes().add(attribute);
 		}
-		
-//		attributeStatement.getAttributes().add(ssoHelper.buildAttribute(
-//				"urn:oid:1.3.6.1.4.1.5923.1.1.1.6", "eduPersonPrincipalName", Attribute.URI_REFERENCE, user.getEppn()));
-//		attributeStatement.getAttributes().add(ssoHelper.buildAttribute(
-//				"urn:oid:0.9.2342.19200300.100.1.3", "mail", Attribute.URI_REFERENCE, user.getEmail()));
-		
+				
 		return attributeStatement;
 	}
+	
+	private List<Object> checkRules(UserEntity user, ServiceEntity service, RegistryEntity registry) {
+		List<Object> objectList;
+		
+		if (service.getAccessRule() == null) {
+			objectList = knowledgeSessionService.checkRule("default", "permitAllRule", "1.0.0", user, service, registry, "user-self", false);
+		}
+		else {
+			BusinessRulePackageEntity rulePackage = service.getAccessRule().getRulePackage();
+			if (rulePackage != null) {
+				objectList = knowledgeSessionService.checkRule(rulePackage.getPackageName(), rulePackage.getKnowledgeBaseName(), 
+					rulePackage.getKnowledgeBaseVersion(), user, service, registry, "user-self", false);
+			}
+			else {
+				throw new IllegalStateException("checkServiceAccess called with a rule (" +
+							service.getAccessRule().getName() + ") that has no rulePackage");
+			}
+		}
+
+		return objectList;
+	}
+	
+	private List<OverrideAccess> extractOverideAccess(List<Object> objectList) {
+		List<OverrideAccess> returnList = new ArrayList<OverrideAccess>();
+		
+		for (Object o : objectList) {
+			if (o instanceof OverrideAccess) {
+				returnList.add((OverrideAccess) o);
+			}
+		}
+		
+		return returnList;
+	}
+
+	private List<UnauthorizedUser> extractUnauthorizedUser(List<Object> objectList) {
+		List<UnauthorizedUser> returnList = new ArrayList<UnauthorizedUser>();
+		
+		for (Object o : objectList) {
+			if (o instanceof UnauthorizedUser) {
+				returnList.add((UnauthorizedUser) o);
+			}
+		}
+
+		return returnList;
+	}		
 }
