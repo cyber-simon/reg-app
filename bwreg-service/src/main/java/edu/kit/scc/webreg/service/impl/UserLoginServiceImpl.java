@@ -20,6 +20,7 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.opensaml.messaging.context.InOutOperationContext;
 import org.opensaml.messaging.context.MessageContext;
@@ -288,7 +289,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			credentialsProvider.setCredentials(new AuthScope(bindingHost, 443),
 	                new UsernamePasswordCredentials(username, password));
 			
-			HttpClient client = HttpClients.custom().setDefaultCredentialsProvider(credentialsProvider).build();
+			CloseableHttpClient client = HttpClients.custom().setDefaultCredentialsProvider(credentialsProvider).build();
 			
 			PipelineFactoryHttpSOAPClient<SAMLObject, SAMLObject> pf = new PipelineFactoryHttpSOAPClient<SAMLObject, SAMLObject>();
 			pf.setHttpClient(client);
@@ -313,9 +314,12 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 				logger.debug("SoapException: {}", se.getMessage());
 				if (se.getCause() != null)
 					logger.debug("Inner Exception: {}", se.getCause().getMessage());
+				client.close();
 				throw new LoginFailedException(se.getMessage());
 			}
 			Response response = (Response) inOutContext.getInboundMessageContext().getMessage();
+
+			client.close();
 
 			return processResponse(response, idpEntityDesc, service, idp, sp, "ecp");
 

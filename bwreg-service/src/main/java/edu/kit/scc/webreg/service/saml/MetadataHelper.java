@@ -26,7 +26,6 @@ import javax.inject.Named;
 import javax.xml.namespace.QName;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -88,15 +87,15 @@ public class MetadataHelper implements Serializable {
 				return parseMetadata(entity.getContent());
 			} finally {
 				response.close();
+				httpclient.close();
 			}
-		} catch (ClientProtocolException e) {
+		} catch (IllegalStateException | IOException e) {
 			logger.warn("No Metadata available", e);
-			return null;
-		} catch (IllegalStateException e) {
-			logger.warn("No Metadata available", e);
-			return null;
-		} catch (IOException e) {
-			logger.warn("No Metadata available", e);
+			try {
+				httpclient.close();
+			} catch (IOException inner) {
+				logger.info("IO Exception while closing http client: {}", inner);
+			}
 			return null;
 		}
 	}
