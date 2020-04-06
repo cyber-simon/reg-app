@@ -20,6 +20,7 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.opensaml.messaging.context.InOutOperationContext;
 import org.opensaml.messaging.context.MessageContext;
@@ -48,9 +49,9 @@ import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
 import edu.kit.scc.webreg.dao.SamlSpConfigurationDao;
 import edu.kit.scc.webreg.dao.SamlUserDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
-import edu.kit.scc.webreg.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.drools.OverrideAccess;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;
+import edu.kit.scc.webreg.drools.impl.KnowledgeSessionSingleton;
 import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
@@ -107,7 +108,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 	private UserUpdater userUpdater;
 
 	@Inject
-	private KnowledgeSessionService knowledgeSessionService;
+	private KnowledgeSessionSingleton knowledgeSessionService;
 	
 	@Inject
 	private RegistryDao registryDao;
@@ -288,7 +289,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			credentialsProvider.setCredentials(new AuthScope(bindingHost, 443),
 	                new UsernamePasswordCredentials(username, password));
 			
-			HttpClient client = HttpClients.custom().setDefaultCredentialsProvider(credentialsProvider).build();
+			CloseableHttpClient client = HttpClients.custom().setDefaultCredentialsProvider(credentialsProvider).build();
 			
 			PipelineFactoryHttpSOAPClient<SAMLObject, SAMLObject> pf = new PipelineFactoryHttpSOAPClient<SAMLObject, SAMLObject>();
 			pf.setHttpClient(client);
@@ -313,9 +314,12 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 				logger.debug("SoapException: {}", se.getMessage());
 				if (se.getCause() != null)
 					logger.debug("Inner Exception: {}", se.getCause().getMessage());
+				client.close();
 				throw new LoginFailedException(se.getMessage());
 			}
 			Response response = (Response) inOutContext.getInboundMessageContext().getMessage();
+
+			client.close();
 
 			return processResponse(response, idpEntityDesc, service, idp, sp, "ecp");
 
@@ -478,8 +482,8 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 		Assertion assertion = saml2AssertionService.processSamlResponse(samlResponse, idp, idpEntityDescriptor, spEntity);
 
 		String persistentId = saml2AssertionService.extractPersistentId(assertion, spEntity);
-		
-		SamlUserEntity user = samlUserDao.findByPersistentWithRoles(spEntity.getEntityId(), 
+
+		SamlUserEntity user = samlUserDao.findByPersistent(spEntity.getEntityId(), 
 				idp.getEntityId(), persistentId);
 	
 		if (user == null) {
