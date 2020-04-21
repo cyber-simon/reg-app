@@ -21,8 +21,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.joda.time.DateTime;
 import org.opensaml.core.xml.XMLObject;
@@ -150,7 +150,7 @@ public class AttributeQueryHelper implements Serializable {
 		SAMLMessageSecuritySupport.signMessage(outbound);
 		
 		RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(getConnectTimeout()).build();
-		CloseableHttpClient client = HttpClients.custom().setDefaultRequestConfig(requestConfig).build();
+		HttpClient client = HttpClients.custom().setDefaultRequestConfig(requestConfig).build();
 
 		PipelineFactoryHttpSOAPClient<SAMLObject, SAMLObject> pf = new PipelineFactoryHttpSOAPClient<SAMLObject, SAMLObject>();
 		pf.setHttpClient(client);
@@ -171,8 +171,6 @@ public class AttributeQueryHelper implements Serializable {
 		
 		Response returnResponse = (Response) inOutContext.getInboundMessageContext().getMessage();
 
-		client.close();
-		
 		return returnResponse;
 	}
 		

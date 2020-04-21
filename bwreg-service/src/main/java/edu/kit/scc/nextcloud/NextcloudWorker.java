@@ -147,49 +147,22 @@ public class NextcloudWorker {
 			response = httpClient.execute(http, context);
 		} catch (ClientProtocolException e) {
 			logger.warn("Client protocol problem", e);
-			try {
-				httpClient.close();
-			} catch (IOException inner) {
-				logger.info("IO Exception while closing http client: {}", inner);
-			}		
 			throw new RegisterException(e);
 		} catch (SSLException e) {
 			logger.error("SSL Certificate problem with SNS Server: {}", e.toString());
-			try {
-				httpClient.close();
-			} catch (IOException inner) {
-				logger.info("IO Exception while closing http client: {}", inner);
-			}		
 			throw new RegisterException(e);
 		} catch (IOException e) {
 			logger.warn("Connection", e);
-			try {
-				httpClient.close();
-			} catch (IOException inner) {
-				logger.info("IO Exception while closing http client: {}", inner);
-			}		
 			throw new RegisterException(e);
 		}
-		
+
 		logger.debug("Status line of response: {}", response.getStatusLine());
 
 		if (response.getStatusLine() != null && response.getStatusLine().getStatusCode() == 404) {
 			logger.warn("Status answer is 404, Account not found.");
-			try {
-				response.close();
-				httpClient.close();
-			} catch (IOException inner) {
-				logger.info("IO Exception while closing http client: {}", inner);
-			}		
 			return null;
 		} else if (response.getStatusLine() == null || response.getStatusLine().getStatusCode() != 200) {
 			logger.warn("Status answer was not HTTP OK 200");
-			try {
-				response.close();
-				httpClient.close();
-			} catch (IOException inner) {
-				logger.info("IO Exception while closing http client: {}", inner);
-			}		
 			throw new RegisterException("Nexcloud: " + response.getStatusLine());
 		}
 
@@ -215,14 +188,7 @@ public class NextcloudWorker {
 		} catch (JAXBException e) {
 			logger.warn("Parse problem", e);
 			throw new RegisterException(e);
-		} finally {
-			try {
-				response.close();
-				httpClient.close();
-			} catch (IOException inner) {
-				logger.info("IO Exception while closing http client: {}", inner);
-			}					
-		}
+		}		
 	}
 	
 	public NextcloudAnswer updateAccount(RegistryEntity registry) throws RegisterException {
@@ -300,14 +266,7 @@ public class NextcloudWorker {
 		} catch (JAXBException e) {
 			logger.warn("Parse problem", e);
 			throw new RegisterException(e);
-		} finally {
-			try {
-				response.close();
-				httpClient.close();
-			} catch (IOException inner) {
-				logger.info("IO Exception while closing http client: {}", inner);
-			}					
-		}
+		}			
 	}
 	
 	public NextcloudAnswer loadAccount(RegistryEntity registry) throws RegisterException {
@@ -372,13 +331,6 @@ public class NextcloudWorker {
 		} catch (JAXBException e) {
 			logger.warn("Parse problem", e);
 			throw new RegisterException(e);
-		} finally {
-			try {
-				response.close();
-				httpClient.close();
-			} catch (IOException inner) {
-				logger.info("IO Exception while closing http client: {}", inner);
-			}					
 		}
 	}
 	
@@ -446,14 +398,7 @@ public class NextcloudWorker {
 		} catch (JAXBException e) {
 			logger.warn("Parse problem", e);
 			throw new RegisterException(e);
-		} finally {
-			try {
-				response.close();
-				httpClient.close();
-			} catch (IOException inner) {
-				logger.info("IO Exception while closing http client: {}", inner);
-			}					
-		}
+		}		
 	}
 	
 	public NextcloudAnswer addUserToGroup(RegistryEntity registry, String groupName) throws RegisterException {
@@ -522,14 +467,7 @@ public class NextcloudWorker {
 		} catch (JAXBException e) {
 			logger.warn("Parse problem", e);
 			throw new RegisterException(e);
-		} finally {
-			try {
-				response.close();
-				httpClient.close();
-			} catch (IOException inner) {
-				logger.info("IO Exception while closing http client: {}", inner);
-			}					
-		}
+		}		
 	}	
 
 	public NextcloudAnswer disableAccount(RegistryEntity registry) throws RegisterException {
@@ -595,14 +533,7 @@ public class NextcloudWorker {
 		} catch (JAXBException e) {
 			logger.warn("Parse problem", e);
 			throw new RegisterException(e);
-		} finally {
-			try {
-				response.close();
-				httpClient.close();
-			} catch (IOException inner) {
-				logger.info("IO Exception while closing http client: {}", inner);
-			}					
-		}
+		}		
 	}
 
 	public NextcloudAnswer enableAccount(RegistryEntity registry) throws RegisterException {
@@ -668,13 +599,7 @@ public class NextcloudWorker {
 		} catch (JAXBException e) {
 			logger.warn("Parse problem", e);
 			throw new RegisterException(e);
-		} finally {
-			try {
-				response.close();
-				httpClient.close();
-			} catch (IOException inner) {
-				logger.info("IO Exception while closing http client: {}", inner);
-			}					
-		}
+		}		
 	}
+
 }

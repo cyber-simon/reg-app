@@ -156,15 +156,13 @@ public class HttpCallbackHook implements UserServiceHook {
 					logger.warn("Exception", e);
 				} catch (IOException e) {
 					logger.warn("Exception", e);				
+				} finally {
+					response.close();
 				}
 			}
 			else {
 				logger.warn("Status not ok!");
 			}
-			
-			response.close();
-			httpclient.close();
-			
 		} catch (ClientProtocolException e) {
 			logger.warn("Exception", e);
 		} catch (IOException e) {
