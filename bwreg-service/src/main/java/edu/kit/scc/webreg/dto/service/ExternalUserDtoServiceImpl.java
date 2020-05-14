@@ -90,7 +90,20 @@ public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserE
 		}
 		return dtoList;
 	}
-	
+
+	@Override
+	public List<ExternalUserEntityDto> findAll(ExternalUserAdminRoleEntity adminRole) throws NoUserFoundException {
+		List<ExternalUserEntity> userList = dao.findAll(adminRole);
+		List<ExternalUserEntityDto> dtoList = new ArrayList<>();
+		
+		for (ExternalUserEntity user : userList) {
+			ExternalUserEntityDto dto = createNewDto();
+			mapper.copyProperties(user, dto);
+			dtoList.add(dto);
+		}
+		return dtoList;
+	}
+
 	@Override
 	public void createExternalUser(ExternalUserEntityDto dto, ExternalUserAdminRoleEntity role) throws RestInterfaceException {
 		ExternalUserEntity entity = dao.findByExternalId(dto.getExternalId());

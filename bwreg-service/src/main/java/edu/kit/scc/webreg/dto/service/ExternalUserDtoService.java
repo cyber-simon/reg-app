@@ -26,4 +26,6 @@ public interface ExternalUserDtoService extends BaseDtoService<ExternalUserEntit
 	List<ExternalUserEntityDto> findByGeneric(String key, String value, ExternalUserAdminRoleEntity adminRole)
 			throws NoUserFoundException;
 
+	List<ExternalUserEntityDto> findAll(ExternalUserAdminRoleEntity adminRole) throws NoUserFoundException;
+
 }

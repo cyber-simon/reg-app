@@ -80,6 +80,20 @@ public class JpaExternalUserDao extends JpaBaseDao<ExternalUserEntity, Long> imp
 		return em.createQuery(criteria).getResultList();
 	}
 
+	@Override
+	public List<ExternalUserEntity> findAll(ExternalUserAdminRoleEntity adminRole) {
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<ExternalUserEntity> criteria = builder.createQuery(ExternalUserEntity.class);
+		Root<ExternalUserEntity> root = criteria.from(ExternalUserEntity.class);
+		criteria.select(root);
+		criteria.where(builder.and(
+				builder.equal(root.get(ExternalUserEntity_.admin), adminRole)
+		));
+
+		return em.createQuery(criteria).getResultList();
+	}
+
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<ExternalUserEntity> findByAdmin(ExternalUserAdminRoleEntity adminRole) {
