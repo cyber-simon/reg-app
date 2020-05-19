@@ -106,6 +106,7 @@ public class SecurityFilter implements Filter {
 			path.startsWith("/logout/") ||
 			path.startsWith("/error/") ||
 			path.startsWith("/oidc/") ||
+			path.startsWith("/ferest/") ||
 			path.equals("/favicon.ico")
 				) {
 			chain.doFilter(servletRequest, servletResponse);
