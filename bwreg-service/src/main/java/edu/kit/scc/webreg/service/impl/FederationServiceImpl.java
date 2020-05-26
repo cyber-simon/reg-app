@@ -83,6 +83,11 @@ public class FederationServiceImpl extends BaseServiceImpl<FederationEntity, Lon
 		logger.info("Starting updateFederation for federation {}", entity.getName());
 		
 		EntitiesDescriptor entities = metadataHelper.fetchMetadata(entity.getFederationMetadataUrl());
+		if (entities == null) {
+			logger.info("Empty entities list, nothing to do.");
+			return;
+		}
+		
 		List<EntityDescriptor> entityList = metadataHelper.convertEntitiesDescriptor(entities);
 		logger.debug("Got entity List size {}", entityList.size());
 
