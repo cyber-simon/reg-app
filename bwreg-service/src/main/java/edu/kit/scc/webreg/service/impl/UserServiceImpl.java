@@ -80,6 +80,11 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity, Long> implement
 	}
 	
 	@Override
+	public UserEntity findByUidNumber(Long uidNumber) {
+		return dao.findByUidNumber(uidNumber);
+	}
+
+	@Override
 	public UserEntity findByEppn(String eppn) {
 		return dao.findByEppn(eppn);
 	}
