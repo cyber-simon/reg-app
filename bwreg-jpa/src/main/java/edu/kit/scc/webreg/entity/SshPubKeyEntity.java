@@ -25,7 +25,7 @@ public class SshPubKeyEntity extends AbstractBaseEntity {
 	@Column(name = "command", length = 1024)
 	private String command;
 	
-	@Column(name = "from", length = 1024)
+	@Column(name = "ssh_from", length = 1024)
 	private String from;
 
 	@Column(name = "key_type", length = 32)
@@ -43,14 +43,6 @@ public class SshPubKeyEntity extends AbstractBaseEntity {
 
 	public void setUser(UserEntity user) {
 		this.user = user;
-	}
-
-	public SshPubKeyUsageType getKeyType() {
-		return usageType;
-	}
-
-	public void setKeyType(SshPubKeyUsageType usageType) {
-		this.usageType = usageType;
 	}
 
 	public String getName() {
@@ -77,14 +69,6 @@ public class SshPubKeyEntity extends AbstractBaseEntity {
 		this.from = from;
 	}
 
-	public SshPubKeyUsageType getUsageType() {
-		return usageType;
-	}
-
-	public void setUsageType(SshPubKeyUsageType usageType) {
-		this.usageType = usageType;
-	}
-
 	public String getEncodedKey() {
 		return encodedKey;
 	}
@@ -99,6 +83,18 @@ public class SshPubKeyEntity extends AbstractBaseEntity {
 
 	public void setComment(String comment) {
 		this.comment = comment;
+	}
+
+	public SshPubKeyUsageType getUsageType() {
+		return usageType;
+	}
+
+	public void setUsageType(SshPubKeyUsageType usageType) {
+		this.usageType = usageType;
+	}
+
+	public String getKeyType() {
+		return keyType;
 	}
 
 	public void setKeyType(String keyType) {

@@ -10,8 +10,12 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao;
 
+import java.util.List;
+
 import edu.kit.scc.webreg.entity.SshPubKeyEntity;
 
 public interface SshPubKeyDao extends BaseDao<SshPubKeyEntity, Long> {
+
+	List<SshPubKeyEntity> findByUser(Long userId);
 
 }

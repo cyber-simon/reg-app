@@ -10,9 +10,13 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.ssh;
 
+import java.util.List;
+
 import edu.kit.scc.webreg.entity.SshPubKeyEntity;
 import edu.kit.scc.webreg.service.BaseService;
 
 public interface SshPubKeyService extends BaseService<SshPubKeyEntity, Long> {
+
+	List<SshPubKeyEntity> findByUser(Long userId);
 
 }

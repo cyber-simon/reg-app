@@ -20,27 +20,25 @@ import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 
-import edu.kit.scc.webreg.entity.SshPubKeyEntity;
-
 @ApplicationScoped
-public class OpenSshKeyDecoder implements Serializable {
+public class OpenSshKeyDecoderOld implements Serializable {
     
 	private static final long serialVersionUID = 1L;
 
-	public OpenSshPublicKey decode(SshPubKeyEntity pubKeyEntity) throws UnsupportedKeyTypeException {
-		OpenSshPublicKey key = new OpenSshPublicKey();
-		key.setPubKeyEntity(pubKeyEntity);
+	public OpenSshPublicKeyOld decode(String name, String opensshPublicKey) throws UnsupportedKeyTypeException {
+		OpenSshPublicKeyOld key = new OpenSshPublicKeyOld();
+		key.setName(name);
+		key.setValue(opensshPublicKey.trim());
+		
 		return decode(key);
 	}
 	
-	public OpenSshPublicKey decode(OpenSshPublicKey key) throws UnsupportedKeyTypeException {
+	public OpenSshPublicKeyOld decode(OpenSshPublicKeyOld key) throws UnsupportedKeyTypeException {
 
         getKeyBytes(key);
 
         try {
             String type = decodeType(key);
-            key.getPubKeyEntity().setKeyType(type);
-            
             if (type.equals("ssh-rsa")) {
                 BigInteger e = decodeBigInt(key);
                 BigInteger m = decodeBigInt(key);
@@ -72,8 +70,8 @@ public class OpenSshKeyDecoder implements Serializable {
         }
     }
     
-    private void getKeyBytes(OpenSshPublicKey key) throws UnsupportedKeyTypeException {
-        for (String part : key.getPubKeyEntity().getEncodedKey().split(" ")) {
+    private void getKeyBytes(OpenSshPublicKeyOld key) throws UnsupportedKeyTypeException {
+        for (String part : key.getValue().split(" ")) {
             if (Base64.isBase64(part) && part.startsWith("AAAA")) {
             	key.setBaseDate(part);
                 key.setBytes(Base64.decodeBase64(part));
@@ -83,14 +81,14 @@ public class OpenSshKeyDecoder implements Serializable {
         throw new UnsupportedKeyTypeException("no Base64 part to decode");
     }
     
-    private String decodeType(OpenSshPublicKey key) {
+    private String decodeType(OpenSshPublicKeyOld key) {
         int len = decodeInt(key);
         String type = new String(key.getBytes(), key.getDecoderPos(), len);
         key.increaseDecoderPos(len);
         return type;
     }
     
-    private int decodeInt(OpenSshPublicKey key) {
+    private int decodeInt(OpenSshPublicKeyOld key) {
     	byte[] bytes = key.getBytes();
     	int pos = key.getDecoderPos();
         int header = ((bytes[pos] & 0xFF) << 24) | ((bytes[pos+1] & 0xFF) << 16)
@@ -99,7 +97,7 @@ public class OpenSshKeyDecoder implements Serializable {
         return header;
     }
 
-    private BigInteger decodeBigInt(OpenSshPublicKey key) {
+    private BigInteger decodeBigInt(OpenSshPublicKeyOld key) {
         int len = decodeInt(key);
         byte[] bigIntBytes = new byte[len];
         System.arraycopy(key.getBytes(), key.getDecoderPos(), bigIntBytes, 0, len);

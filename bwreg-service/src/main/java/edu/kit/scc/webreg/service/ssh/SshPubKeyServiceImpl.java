@@ -10,6 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.ssh;
 
+import java.util.List;
+
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
@@ -26,6 +28,11 @@ public class SshPubKeyServiceImpl extends BaseServiceImpl<SshPubKeyEntity, Long>
 	@Inject
 	private SshPubKeyDao dao;
 
+	@Override
+	public List<SshPubKeyEntity> findByUser(Long userId) {
+		return dao.findByUser(userId);
+	}
+	
 	@Override
 	protected BaseDao<SshPubKeyEntity, Long> getDao() {
 		return dao;

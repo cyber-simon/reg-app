@@ -10,6 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.bean;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,19 +22,23 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 
-import edu.kit.scc.webreg.entity.SshPubKeyEntity;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.ssh.SshPubKeyService;
 import edu.kit.scc.webreg.session.SessionManager;
-import edu.kit.scc.webreg.ssh.OpenSshKeyDecoder;
-import edu.kit.scc.webreg.ssh.OpenSshPublicKey;
+import edu.kit.scc.webreg.ssh.OpenSshKeyDecoderOld;
+import edu.kit.scc.webreg.ssh.OpenSshPublicKeyOld;
 import edu.kit.scc.webreg.ssh.UnsupportedKeyTypeException;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
 @ManagedBean
 @ViewScoped
-public class UserSshKeyManagementBean implements Serializable {
+public class UserSshKeyManagementOldBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -49,30 +54,34 @@ public class UserSshKeyManagementBean implements Serializable {
     private SessionManager sessionManager;
 
     @Inject
-    private OpenSshKeyDecoder keyDecoder;
+    private OpenSshKeyDecoderOld keyDecoder;
 
 	@Inject
 	private FacesMessageGenerator messageGenerator;
 
-	@Inject
-	private SshPubKeyService sshPubKeyService;
-	
-    private List<OpenSshPublicKey> keyList;
+    private List<OpenSshPublicKeyOld> keyList;
     private String newKey;
     private String newName;
-    private OpenSshPublicKey selectedKey;
+    private OpenSshPublicKeyOld selectedKey;
     
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (user == null) {
-	    	user = userService.findById(sessionManager.getUserId());
-	    	List<SshPubKeyEntity> sshPubKeyList = sshPubKeyService.findByUser(user.getId());
-	    	
-	    	keyList = new ArrayList<>();
-	    	for (SshPubKeyEntity sshKey : sshPubKeyList) {
-				try {
-					keyList.add(keyDecoder.decode(sshKey));
-				} catch (UnsupportedKeyTypeException e) {
-					logger.warn("Unsupported key exception: ", e.getMessage());
+	    	user = userService.findByIdWithStore(sessionManager.getUserId());
+    		keyList = new ArrayList<>();
+	    	if (user.getGenericStore().containsKey("ssh_key")) {
+		    	ObjectMapper om = new ObjectMapper();
+		    	try {
+					List<OpenSshPublicKeyOld> tempKeyList = om.readValue(user.getGenericStore().get("ssh_key"), 
+							new TypeReference<List<OpenSshPublicKeyOld>>(){});
+					for (OpenSshPublicKeyOld sshKey : tempKeyList) {
+						try {
+							keyList.add(keyDecoder.decode(sshKey));
+						} catch (UnsupportedKeyTypeException e) {
+							logger.warn("Unsupported key exception: ", e.getMessage());
+						}
+					}
+				} catch (IOException e) {
+					logger.warn("Could not read SSH keys from user: " + e.getMessage());
 					messageGenerator.addResolvedErrorMessage("error_msg", "SSH Key not readable. Resetting keys.", false);
 				}
 	    	}
@@ -81,36 +90,30 @@ public class UserSshKeyManagementBean implements Serializable {
 
 	public void deleteKey(String name) {
 		int removeIndex = -1;
-		SshPubKeyEntity removeEntity = null;
 		
 		for (int i=0; i<keyList.size(); i++) {
-			if (keyList.get(i).getPubKeyEntity().getName().equals(name)) {
+			if (keyList.get(i).getName().equals(name)) {
 				removeIndex = i;
-				removeEntity = keyList.get(i).getPubKeyEntity();
 				break;
 			}
 		}
 		
 		if (removeIndex != -1) {
-			keyList.remove(removeIndex);
-			sshPubKeyService.delete(removeEntity);
+			keyList.remove(removeIndex);			
 		}
 		
+		user.getGenericStore().put("ssh_key", buildSshKeyString());
+		user = userService.save(user);
 		messageGenerator.addResolvedInfoMessage("info", "ssh_key_deleted", false);				
 	}
 	
 	public void deployKey() {
-		OpenSshPublicKey key;
-
-		SshPubKeyEntity sshPubKeyEntity = sshPubKeyService.createNew();
-		sshPubKeyEntity.setName(newName);
-		sshPubKeyEntity.setEncodedKey(newKey);
-		sshPubKeyEntity.setUser(user);
-		
+		OpenSshPublicKeyOld key;
 		try {
-			key = keyDecoder.decode(sshPubKeyEntity);
+			key = keyDecoder.decode(newName, newKey);
 			keyList.add(key);
-			sshPubKeyEntity = sshPubKeyService.save(sshPubKeyEntity);
+			user.getGenericStore().put("ssh_key", buildSshKeyString());
+			user = userService.save(user);
 			newKey = "";
 			newName = "";
 			if (key.getPublicKey() == null) {
@@ -124,7 +127,7 @@ public class UserSshKeyManagementBean implements Serializable {
 			messageGenerator.addResolvedErrorMessage("error_msg", e.toString(), false);
 		}
 	}
-/*	
+	
 	private String buildSshKeyString() {
 		ObjectMapper om = new ObjectMapper();
 		ArrayNode array = om.createArrayNode();
@@ -133,7 +136,7 @@ public class UserSshKeyManagementBean implements Serializable {
 		}
 		return array.toString();
 	}
-*/
+	
 	public UserEntity getUser() {
 		return user;
 	}
@@ -146,11 +149,11 @@ public class UserSshKeyManagementBean implements Serializable {
 		this.newKey = newKey;
 	}
 
-	public List<OpenSshPublicKey> getKeyList() {
+	public List<OpenSshPublicKeyOld> getKeyList() {
 		return keyList;
 	}
 
-	public void setKeyList(List<OpenSshPublicKey> keyList) {
+	public void setKeyList(List<OpenSshPublicKeyOld> keyList) {
 		this.keyList = keyList;
 	}
 
@@ -162,11 +165,11 @@ public class UserSshKeyManagementBean implements Serializable {
 		this.newName = newName;
 	}
 
-	public OpenSshPublicKey getSelectedKey() {
+	public OpenSshPublicKeyOld getSelectedKey() {
 		return selectedKey;
 	}
 
-	public void setSelectedKey(OpenSshPublicKey selectedKey) {
+	public void setSelectedKey(OpenSshPublicKeyOld selectedKey) {
 		this.selectedKey = selectedKey;
 	}
 }
