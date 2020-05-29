@@ -33,6 +33,10 @@
        				<f:facet name="header"><h:outputText value="#{messages.ssh_key_name}:"/></f:facet>
         			<h:outputText value="#{key.pubKeyEntity.name}"/>
         		</p:column>
+				<p:column>
+       				<f:facet name="header"><h:outputText value="#{messages.ssh_key_type}:"/></f:facet>
+        			<h:outputText value="#{key.pubKeyEntity.keyType}"/>
+        		</p:column>
         		<p:column>
         			<h:outputText value="#{key.publicKey}" rendered="#{not empty key.publicKey}" />
         			<h:outputText value="#{messages.ssh_key_type_unknown}" rendered="#{empty key.publicKey}" />

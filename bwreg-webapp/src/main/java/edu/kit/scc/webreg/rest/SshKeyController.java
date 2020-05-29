@@ -14,7 +14,8 @@ import javax.ws.rs.core.MediaType;
 
 import org.slf4j.Logger;
 
-import edu.kit.scc.webreg.dto.entity.RegistryEntityDto;
+import edu.kit.scc.webreg.dto.entity.SshPubKeyEntityDto;
+import edu.kit.scc.webreg.dto.service.SshPubKeyDtoService;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
@@ -48,6 +49,17 @@ public class SshKeyController {
 	@Inject
 	private UserService userService;
 	
+	@Inject
+	private SshPubKeyDtoService dtoService;
+
+	@Path(value = "/list/uidnumber/{uidNumber}")
+	@Produces({MediaType.APPLICATION_JSON})
+	@GET
+	public List<SshPubKeyEntityDto> listKeysForUser(@PathParam("uidNumber") Long uidNumber, @Context HttpServletRequest request)
+					throws IOException, RestInterfaceException {
+		return dtoService.findByUidNumber(uidNumber);
+	}
+	
 	@Path(value = "/auth/{ssn}/uidnumber/{uidNumber}")
 	@Produces({MediaType.TEXT_PLAIN})
 	@GET
@@ -71,8 +83,6 @@ public class SshKeyController {
 		
 		if (registry == null)
 			throw new NoRegistryFoundException("No active registry for user");
-		
-		
 		
 		return "";
 	}

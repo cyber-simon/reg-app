@@ -52,6 +52,7 @@ public class JaxRsApplicationActivator extends Application {
 	        resources.add(ImageController.class);
 	        resources.add(ServiceAdminController.class);
 	        resources.add(UserController.class);
+	        resources.add(SshKeyController.class);
 
 	        // Exceptions
 	        resources.add(AssertionExceptionMapper.class);
