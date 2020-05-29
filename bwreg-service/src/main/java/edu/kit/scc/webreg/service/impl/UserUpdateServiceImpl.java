@@ -169,7 +169,8 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 		}
 		
 		try {
-			if ((System.currentTimeMillis() - user.getLastUpdate().getTime()) < expireTime) {
+			if ((user.getLastUpdate() != null) &&
+					((System.currentTimeMillis() - user.getLastUpdate().getTime()) < expireTime)) {
 				logger.info("Skipping user update for {} with id {}", new Object[] {user.getEppn(), user.getId()});
 			}
 			else {
