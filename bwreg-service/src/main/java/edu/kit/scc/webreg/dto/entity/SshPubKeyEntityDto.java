@@ -1,5 +1,8 @@
 package edu.kit.scc.webreg.dto.entity;
 
+import java.util.Date;
+
+import edu.kit.scc.webreg.entity.SshPubKeyStatus;
 import edu.kit.scc.webreg.entity.SshPubKeyUsageType;
 
 public class SshPubKeyEntityDto extends AbstractBaseEntityDto {
@@ -18,7 +21,11 @@ public class SshPubKeyEntityDto extends AbstractBaseEntityDto {
 	
 	private String comment;
 	
+	private Date expiresAt;
+	
 	private SshPubKeyUsageType usageType;
+	
+	private SshPubKeyStatus keyStatus;
 
 	public String getCommand() {
 		return command;
@@ -74,6 +81,22 @@ public class SshPubKeyEntityDto extends AbstractBaseEntityDto {
 
 	public void setUsageType(SshPubKeyUsageType usageType) {
 		this.usageType = usageType;
+	}
+
+	public Date getExpiresAt() {
+		return expiresAt;
+	}
+
+	public void setExpiresAt(Date expiresAt) {
+		this.expiresAt = expiresAt;
+	}
+
+	public SshPubKeyStatus getKeyStatus() {
+		return keyStatus;
+	}
+
+	public void setKeyStatus(SshPubKeyStatus keyStatus) {
+		this.keyStatus = keyStatus;
 	}
 
 }

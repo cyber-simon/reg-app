@@ -17,6 +17,7 @@ import javax.inject.Named;
 
 import edu.kit.scc.webreg.dao.SshPubKeyDao;
 import edu.kit.scc.webreg.entity.SshPubKeyEntity;
+import edu.kit.scc.webreg.entity.SshPubKeyStatus;
 
 @Named
 @ApplicationScoped
@@ -27,6 +28,15 @@ public class JpaSshPubKeyDao extends JpaBaseDao<SshPubKeyEntity, Long> implement
 	public List<SshPubKeyEntity> findByUser(Long userId) {
 		return em.createQuery("select e from SshPubKeyEntity e where e.user.id = :userId")
 				.setParameter("userId", userId).getResultList();	
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<SshPubKeyEntity> findByUserAndStatus(Long userId, SshPubKeyStatus keyStatus) {
+		return em.createQuery("select e from SshPubKeyEntity e where e.user.id = :userId and e.keyStatus = :keyStatus")
+				.setParameter("userId", userId)
+				.setParameter("keyStatus", keyStatus)
+				.getResultList();	
 	}
 	
 	@Override

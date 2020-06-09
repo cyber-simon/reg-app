@@ -8,18 +8,11 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.service.ssh;
+package edu.kit.scc.webreg.entity;
 
-import java.util.List;
+public enum SshPubKeyStatus {
 
-import edu.kit.scc.webreg.entity.SshPubKeyEntity;
-import edu.kit.scc.webreg.entity.SshPubKeyStatus;
-import edu.kit.scc.webreg.service.BaseService;
-
-public interface SshPubKeyService extends BaseService<SshPubKeyEntity, Long> {
-
-	List<SshPubKeyEntity> findByUser(Long userId);
-
-	List<SshPubKeyEntity> findByUserAndStatus(Long userId, SshPubKeyStatus keyStatus);
+	ACTIVE,
+	DELETED,
 
 }

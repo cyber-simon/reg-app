@@ -24,7 +24,7 @@ public class SshPubKeyEntityMapper extends AbstractBaseEntityMapper<SshPubKeyEnt
 	@Override
 	protected String[] getPropertiesToCopy() {
 		return new String[] { "name", "command", 
-				"from", "comment", "encodedKey", "keyType"};
+				"from", "comment", "encodedKey", "keyType", "expiresAt", "keyStatus"};
 	}
 
 }

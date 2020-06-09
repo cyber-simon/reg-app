@@ -15,6 +15,7 @@ import edu.kit.scc.webreg.dto.entity.SshPubKeyEntityDto;
 import edu.kit.scc.webreg.dto.mapper.BaseEntityMapper;
 import edu.kit.scc.webreg.dto.mapper.SshPubKeyEntityMapper;
 import edu.kit.scc.webreg.entity.SshPubKeyEntity;
+import edu.kit.scc.webreg.entity.SshPubKeyStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.RestInterfaceException;
 
@@ -40,6 +41,20 @@ public class SshPubKeyDtoServiceImpl extends BaseDtoServiceImpl<SshPubKeyEntity,
 		UserEntity user = userDao.findByUidNumber(uidNumber);
 		
 		List<SshPubKeyEntity> list = dao.findByUser(user.getId());
+		
+		return convertList(list);
+	}	
+	
+	@Override
+	public List<SshPubKeyEntityDto> findByUidNumberAndStatus(Long uidNumber, SshPubKeyStatus keyStatus) throws RestInterfaceException {
+		UserEntity user = userDao.findByUidNumber(uidNumber);
+		
+		List<SshPubKeyEntity> list = dao.findByUserAndStatus(user.getId(), keyStatus);
+		
+		return convertList(list);
+	}	
+	
+	protected List<SshPubKeyEntityDto> convertList(List<SshPubKeyEntity> list) {
 		List<SshPubKeyEntityDto> dtoList = new ArrayList<SshPubKeyEntityDto>(list.size());
 		
 		for (SshPubKeyEntity key : list) {
@@ -49,7 +64,7 @@ public class SshPubKeyDtoServiceImpl extends BaseDtoServiceImpl<SshPubKeyEntity,
 		}
 
 		return dtoList;
-	}	
+	}
 	
 	@Override
 	protected BaseEntityMapper<SshPubKeyEntity, SshPubKeyEntityDto, Long> getMapper() {

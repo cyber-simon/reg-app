@@ -19,6 +19,7 @@ import edu.kit.scc.webreg.dto.service.SshPubKeyDtoService;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.SshPubKeyStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.NoItemFoundException;
 import edu.kit.scc.webreg.exc.NoRegistryFoundException;
@@ -52,12 +53,21 @@ public class SshKeyController {
 	@Inject
 	private SshPubKeyDtoService dtoService;
 
-	@Path(value = "/list/uidnumber/{uidNumber}")
+	@Path(value = "/list/uidnumber/{uidNumber}/all")
 	@Produces({MediaType.APPLICATION_JSON})
 	@GET
 	public List<SshPubKeyEntityDto> listKeysForUser(@PathParam("uidNumber") Long uidNumber, @Context HttpServletRequest request)
 					throws IOException, RestInterfaceException {
 		return dtoService.findByUidNumber(uidNumber);
+	}
+	
+	@Path(value = "/list/uidnumber/{uidNumber}/key-status/{status}")
+	@Produces({MediaType.APPLICATION_JSON})
+	@GET
+	public List<SshPubKeyEntityDto> listKeysForUserAndStatus(@PathParam("uidNumber") Long uidNumber,
+			@PathParam("status") SshPubKeyStatus keyStatus, @Context HttpServletRequest request)
+					throws IOException, RestInterfaceException {
+		return dtoService.findByUidNumberAndStatus(uidNumber, keyStatus);
 	}
 	
 	@Path(value = "/auth/{ssn}/uidnumber/{uidNumber}")

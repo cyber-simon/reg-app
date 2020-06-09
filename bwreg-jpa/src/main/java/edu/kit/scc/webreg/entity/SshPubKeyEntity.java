@@ -1,5 +1,7 @@
 package edu.kit.scc.webreg.entity;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -19,6 +21,9 @@ public class SshPubKeyEntity extends AbstractBaseEntity {
 	@Enumerated(EnumType.STRING)
 	private SshPubKeyUsageType usageType;
 
+	@Enumerated(EnumType.STRING)
+	private SshPubKeyStatus keyStatus;
+
 	@Column(name = "name", length = 128)
 	private String name;
 	
@@ -36,6 +41,9 @@ public class SshPubKeyEntity extends AbstractBaseEntity {
 
 	@Column(name = "comment", length = 1024)
 	private String comment;	
+
+	@Column(name = "expires_at")
+	private Date expiresAt;
 
 	public UserEntity getUser() {
 		return user;
@@ -99,5 +107,21 @@ public class SshPubKeyEntity extends AbstractBaseEntity {
 
 	public void setKeyType(String keyType) {
 		this.keyType = keyType;
+	}
+
+	public SshPubKeyStatus getKeyStatus() {
+		return keyStatus;
+	}
+
+	public void setKeyStatus(SshPubKeyStatus keyStatus) {
+		this.keyStatus = keyStatus;
+	}
+
+	public Date getExpiresAt() {
+		return expiresAt;
+	}
+
+	public void setExpiresAt(Date expiresAt) {
+		this.expiresAt = expiresAt;
 	}
 }

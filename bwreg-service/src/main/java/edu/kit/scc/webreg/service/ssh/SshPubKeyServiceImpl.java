@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.SshPubKeyDao;
 import edu.kit.scc.webreg.entity.SshPubKeyEntity;
+import edu.kit.scc.webreg.entity.SshPubKeyStatus;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
 
 @Stateless
@@ -31,6 +32,11 @@ public class SshPubKeyServiceImpl extends BaseServiceImpl<SshPubKeyEntity, Long>
 	@Override
 	public List<SshPubKeyEntity> findByUser(Long userId) {
 		return dao.findByUser(userId);
+	}
+	
+	@Override
+	public List<SshPubKeyEntity> findByUserAndStatus(Long userId, SshPubKeyStatus keyStatus) {
+		return dao.findByUserAndStatus(userId, keyStatus);
 	}
 	
 	@Override

@@ -41,6 +41,10 @@
         			<h:outputText value="#{key.publicKey}" rendered="#{not empty key.publicKey}" />
         			<h:outputText value="#{messages.ssh_key_type_unknown}" rendered="#{empty key.publicKey}" />
         		</p:column>
+				<p:column>
+       				<f:facet name="header"><h:outputText value="#{messages.expires}:"/></f:facet>
+        			<h:outputText value="#{of:formatDate(key.pubKeyEntity.expiresAt, 'dd.MM.yyyy HH:mm')}"/>
+        		</p:column>
         		<p:column> 
 					<p:commandLink id="delete" action="#{userSshKeyManagementBean.deleteKey(key.pubKeyEntity.name)}" value="#{messages.delete}" immediate="true" update="@form">
 						<p:confirm header="#{messages.confirm_header}" message="#{messages.confirm}" />
