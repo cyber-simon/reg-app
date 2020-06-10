@@ -31,6 +31,7 @@ import edu.kit.scc.webreg.service.ssh.SshPubKeyService;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.ssh.OpenSshKeyDecoder;
 import edu.kit.scc.webreg.ssh.OpenSshPublicKey;
+import edu.kit.scc.webreg.ssh.SshPubKeyBlacklistedException;
 import edu.kit.scc.webreg.ssh.UnsupportedKeyTypeException;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
@@ -126,8 +127,8 @@ public class UserSshKeyManagementBean implements Serializable {
 		
 		try {
 			key = keyDecoder.decode(sshPubKeyEntity);
+			sshPubKeyEntity = sshPubKeyService.deployKey(user.getId(), sshPubKeyEntity);
 			keyList.add(key);
-			sshPubKeyEntity = sshPubKeyService.save(sshPubKeyEntity);
 			newKey = "";
 			newName = "";
 			if (key.getPublicKey() == null) {
@@ -139,6 +140,9 @@ public class UserSshKeyManagementBean implements Serializable {
 		} catch (UnsupportedKeyTypeException e) {
 			logger.warn("An error occured whilst deploying key: " + e.getMessage());
 			messageGenerator.addResolvedErrorMessage("error_msg", e.toString(), false);
+		} catch (SshPubKeyBlacklistedException e) {
+			logger.warn("User {} tried to deploy blacklisted key", user.getId());
+			messageGenerator.addResolvedErrorMessage("error", "key_blacklisted", false);
 		}
 	}
 /*	

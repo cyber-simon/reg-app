@@ -20,6 +20,7 @@ import edu.kit.scc.webreg.dao.SshPubKeyDao;
 import edu.kit.scc.webreg.entity.SshPubKeyEntity;
 import edu.kit.scc.webreg.entity.SshPubKeyStatus;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
+import edu.kit.scc.webreg.ssh.SshPubKeyBlacklistedException;
 
 @Stateless
 public class SshPubKeyServiceImpl extends BaseServiceImpl<SshPubKeyEntity, Long> implements SshPubKeyService {
@@ -37,6 +38,16 @@ public class SshPubKeyServiceImpl extends BaseServiceImpl<SshPubKeyEntity, Long>
 	@Override
 	public List<SshPubKeyEntity> findByUserAndStatus(Long userId, SshPubKeyStatus keyStatus) {
 		return dao.findByUserAndStatus(userId, keyStatus);
+	}
+	
+	@Override
+	public SshPubKeyEntity deployKey(Long userId, SshPubKeyEntity entity) 
+			throws SshPubKeyBlacklistedException {
+		List<SshPubKeyEntity> keyList = dao.findByUserAndKey(userId, entity.getEncodedKey());
+		if (keyList != null && keyList.size() > 0) {
+			throw new SshPubKeyBlacklistedException("Key already used by user");
+		}
+		return dao.persist(entity);
 	}
 	
 	@Override

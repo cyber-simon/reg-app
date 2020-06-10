@@ -1,6 +1,11 @@
 package edu.kit.scc.webreg.entity;
 
+import java.util.Date;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
@@ -16,6 +21,24 @@ public class SshPubKeyRegistryEntity extends AbstractBaseEntity {
 	@ManyToOne(targetEntity = SshPubKeyEntity.class)
 	private SshPubKeyEntity sshPubKey;
 
+	@Enumerated(EnumType.STRING)
+	private SshPubKeyRegistryStatus keyStatus;
+
+	@Enumerated(EnumType.STRING)
+	private SshPubKeyUsageType usageType;
+
+	@Column(name = "command", length = 1024)
+	private String command;
+	
+	@Column(name = "ssh_from", length = 1024)
+	private String from;
+
+	@Column(name = "comment", length = 1024)
+	private String comment;	
+
+	@Column(name = "expires_at")
+	private Date expiresAt;
+
 	public RegistryEntity getRegistry() {
 		return registry;
 	}
@@ -30,6 +53,54 @@ public class SshPubKeyRegistryEntity extends AbstractBaseEntity {
 
 	public void setSshPubKey(SshPubKeyEntity sshPubKey) {
 		this.sshPubKey = sshPubKey;
+	}
+
+	public SshPubKeyRegistryStatus getKeyStatus() {
+		return keyStatus;
+	}
+
+	public void setKeyStatus(SshPubKeyRegistryStatus keyStatus) {
+		this.keyStatus = keyStatus;
+	}
+
+	public SshPubKeyUsageType getUsageType() {
+		return usageType;
+	}
+
+	public void setUsageType(SshPubKeyUsageType usageType) {
+		this.usageType = usageType;
+	}
+
+	public String getCommand() {
+		return command;
+	}
+
+	public void setCommand(String command) {
+		this.command = command;
+	}
+
+	public String getFrom() {
+		return from;
+	}
+
+	public void setFrom(String from) {
+		this.from = from;
+	}
+
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+
+	public Date getExpiresAt() {
+		return expiresAt;
+	}
+
+	public void setExpiresAt(Date expiresAt) {
+		this.expiresAt = expiresAt;
 	}
 	
 }
