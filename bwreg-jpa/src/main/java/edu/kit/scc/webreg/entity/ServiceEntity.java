@@ -79,6 +79,9 @@ public class ServiceEntity extends AbstractBaseEntity {
 	@Column(name="group_capable")
 	private Boolean groupCapable;
 	
+	@Column(name="ssh_pub_key_capable")
+	private Boolean sshPubKeyCapable;
+	
 	@ManyToOne(targetEntity = BusinessRuleEntity.class)
 	private BusinessRuleEntity accessRule;
 	
@@ -291,6 +294,14 @@ public class ServiceEntity extends AbstractBaseEntity {
 
 	public void setDeregisterText(String deregisterText) {
 		this.deregisterText = deregisterText;
+	}
+
+	public Boolean getSshPubKeyCapable() {
+		return sshPubKeyCapable;
+	}
+
+	public void setSshPubKeyCapable(Boolean sshPubKeyCapable) {
+		this.sshPubKeyCapable = sshPubKeyCapable;
 	}
 
 }

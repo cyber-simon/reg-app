@@ -25,7 +25,7 @@ public class JpaSshPubKeyRegistryDao extends JpaBaseDao<SshPubKeyRegistryEntity,
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<SshPubKeyRegistryEntity> findByUserAndService(Long userId, Long serviceId) {
-		return em.createQuery("select e from SshPubKeyRegistryEntity e where e.user.id = :userId and e.service.id = :serviceId")
+		return em.createQuery("select e from SshPubKeyRegistryEntity e where e.registry.user.id = :userId and e.registry.service.id = :serviceId")
 				.setParameter("userId", userId)
 				.setParameter("serviceId", serviceId)
 				.getResultList();	

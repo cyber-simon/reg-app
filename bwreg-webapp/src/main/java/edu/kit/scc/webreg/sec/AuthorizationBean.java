@@ -315,6 +315,13 @@ public class AuthorizationBean implements Serializable {
 			return false;
 	}
 
+	public boolean isSshPubKeyCapable(ServiceEntity serviceEntity) {
+		if (serviceEntity.getSshPubKeyCapable() != null)
+			return serviceEntity.getSshPubKeyCapable();
+		else
+			return false;
+	}
+
 	public List<ServiceEntity> getUnregisteredServiceList() {
 		return sessionManager.getUnregisteredServiceList();
 	}

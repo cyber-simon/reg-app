@@ -64,6 +64,14 @@
     	          </h:link>
 	            </li>
    	          </h:panelGroup>
+	          <h:panelGroup rendered="#{registry.registryStatus == 'ACTIVE' and authorizationBean.isSshPubKeyCapable(registry.service)}">
+	            <li>
+	              <span class="ui-icon ui-icon-locked" style="display:inline-block; vertical-align: bottom;" />
+    	          <h:link outcome="/service/set-sshkey.xhtml" value="#{messages.set_ssh_pub_key}">
+    	        	<f:param name="registryId" value="#{registry.id}" />
+    	          </h:link>
+	            </li>
+   	          </h:panelGroup>
             </ul>
           </div>
         </div>
