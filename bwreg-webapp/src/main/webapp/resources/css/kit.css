@@ -343,3 +343,7 @@ div.serviceBlockLink {
 .ui-button {
 	margin: 0px 0px 0px 8px;
 }
+
+.ui-panel, .ui-panelgrid {
+	margin-bottom: 16px;
+}
