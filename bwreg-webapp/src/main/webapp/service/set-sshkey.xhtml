@@ -38,9 +38,25 @@
 				</p:panelGrid>			
 
       			<p:dataTable var="regKey" value="#{setServiceSshPubKeyBean.sshPubKeyRegistryList.toArray()}">
+	      			<p:column width="5%">
+	       				<f:facet name="header"><h:outputText value="#{messages.status}"/></f:facet>
+        				<h:panelGroup id="pendingKey" rendered="#{regKey.keyStatus == 'PENDING'}">
+        					<i class="fa fa-fw fa-exclamation-triangle"></i>
+        				</h:panelGroup>
+        				<p:tooltip id="toolTipPendingKey" for="pendingKey" value="#{messages.ssh_pub_key_pending}" position="top"/>
+        				<h:panelGroup id="activeKey" rendered="#{regKey.keyStatus == 'ACTIVE'}">
+        					<i class="fa fa-fw fa-check"></i>
+       					</h:panelGroup>
+        				<p:tooltip id="toolTipActiveKey" for="activeKey" value="#{messages.ssh_pub_key_active}" position="top"/>
+	        		</p:column>
 	      			<p:column>
 	       				<f:facet name="header"><h:outputText value="#{messages.ssh_key_name}:"/></f:facet>
 	        			<h:outputText value="#{regKey.sshPubKey.name}"/>
+	        		</p:column>
+					<p:column>
+	        			<p:commandLink action="#{setServiceSshPubKeyBean.delete(regKey)}" update="@form">
+	        				<h:panelGroup styleClass="ui-icon ui-icon-trash" />
+	        			</p:commandLink>
 	        		</p:column>
       			</p:dataTable>
 			</p:panel>
