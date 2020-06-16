@@ -80,7 +80,7 @@ public class UserSshKeyManagementBean implements Serializable {
 					keyList.add(keyDecoder.decode(sshKey));
 				} catch (UnsupportedKeyTypeException e) {
 					logger.warn("Unsupported key exception: ", e.getMessage());
-					messageGenerator.addResolvedErrorMessage("error_msg", "SSH Key not readable. Resetting keys.", false);
+					messageGenerator.addResolvedErrorMessage("error_msg", "SSH Key not readable.", false);
 				}
 	    	}
 		}
@@ -145,16 +145,7 @@ public class UserSshKeyManagementBean implements Serializable {
 			messageGenerator.addResolvedErrorMessage("error", "key_blacklisted", false);
 		}
 	}
-/*	
-	private String buildSshKeyString() {
-		ObjectMapper om = new ObjectMapper();
-		ArrayNode array = om.createArrayNode();
-		for (OpenSshPublicKeyOld sshKey : keyList) {
-			array.add(om.convertValue(sshKey, JsonNode.class));
-		}
-		return array.toString();
-	}
-*/
+
 	public UserEntity getUser() {
 		return user;
 	}
