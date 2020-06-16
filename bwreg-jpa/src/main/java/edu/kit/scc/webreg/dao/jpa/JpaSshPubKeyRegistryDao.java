@@ -32,6 +32,14 @@ public class JpaSshPubKeyRegistryDao extends JpaBaseDao<SshPubKeyRegistryEntity,
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
+	public List<SshPubKeyRegistryEntity> findByRegistry(Long registryId) {
+		return em.createQuery("select e from SshPubKeyRegistryEntity e where e.registry.id = :registryId")
+				.setParameter("registryId", registryId)
+				.getResultList();	
+	}
+
+	@Override
     public Class<SshPubKeyRegistryEntity> getEntityClass() {
 		return SshPubKeyRegistryEntity.class;
 	}

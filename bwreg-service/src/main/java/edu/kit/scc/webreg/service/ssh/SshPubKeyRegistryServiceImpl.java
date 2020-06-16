@@ -34,6 +34,11 @@ public class SshPubKeyRegistryServiceImpl extends BaseServiceImpl<SshPubKeyRegis
 	}
 	
 	@Override
+	public List<SshPubKeyRegistryEntity> findByRegistry(Long registryId) {
+		return dao.findByRegistry(registryId);
+	}
+	
+	@Override
 	protected BaseDao<SshPubKeyRegistryEntity, Long> getDao() {
 		return dao;
 	}

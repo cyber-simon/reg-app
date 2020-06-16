@@ -19,4 +19,6 @@ public interface SshPubKeyRegistryService extends BaseService<SshPubKeyRegistryE
 
 	List<SshPubKeyRegistryEntity> findByUserAndService(Long userId, Long serviceId);
 
+	List<SshPubKeyRegistryEntity> findByRegistry(Long registryId);
+
 }

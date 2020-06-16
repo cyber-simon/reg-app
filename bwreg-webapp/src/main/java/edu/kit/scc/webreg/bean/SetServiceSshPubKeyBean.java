@@ -118,7 +118,7 @@ public class SetServiceSshPubKeyBean implements Serializable {
 				throw new IllegalArgumentException("Not authorized for this service");
 
 			sshPubKeyList = sshPubKeyService.findByUserAndStatus(userEntity.getId(), SshPubKeyStatus.ACTIVE);
-			sshPubKeyRegistryList = sshPubKeyRegistryService.findByUserAndService(userEntity.getId(), serviceEntity.getId());
+			sshPubKeyRegistryList = sshPubKeyRegistryService.findByRegistry(registryEntity.getId());
 
 			initialized = true;
 		}

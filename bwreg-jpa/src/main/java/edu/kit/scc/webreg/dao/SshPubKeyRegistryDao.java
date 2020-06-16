@@ -18,4 +18,6 @@ public interface SshPubKeyRegistryDao extends BaseDao<SshPubKeyRegistryEntity, L
 
 	List<SshPubKeyRegistryEntity> findByUserAndService(Long userId, Long serviceId);
 
+	List<SshPubKeyRegistryEntity> findByRegistry(Long registryId);
+
 }

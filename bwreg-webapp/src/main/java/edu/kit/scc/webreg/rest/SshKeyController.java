@@ -19,7 +19,10 @@ import edu.kit.scc.webreg.dto.service.SshPubKeyDtoService;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.SshPubKeyRegistryEntity;
+import edu.kit.scc.webreg.entity.SshPubKeyRegistryStatus;
 import edu.kit.scc.webreg.entity.SshPubKeyStatus;
+import edu.kit.scc.webreg.entity.SshPubKeyUsageType;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.NoItemFoundException;
 import edu.kit.scc.webreg.exc.NoRegistryFoundException;
@@ -31,6 +34,7 @@ import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.RoleService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.service.ssh.SshPubKeyRegistryService;
 
 @Path("/ssh-key")
 public class SshKeyController {
@@ -52,6 +56,9 @@ public class SshKeyController {
 	
 	@Inject
 	private SshPubKeyDtoService dtoService;
+	
+	@Inject
+	private SshPubKeyRegistryService sshPubKeyRegistryService;
 
 	@Path(value = "/list/uidnumber/{uidNumber}/all")
 	@Produces({MediaType.APPLICATION_JSON})
@@ -70,7 +77,7 @@ public class SshKeyController {
 		return dtoService.findByUidNumberAndStatus(uidNumber, keyStatus);
 	}
 	
-	@Path(value = "/auth/{ssn}/uidnumber/{uidNumber}")
+	@Path(value = "/auth/all/{ssn}/uidnumber/{uidNumber}")
 	@Produces({MediaType.TEXT_PLAIN})
 	@GET
 	public String authByUidNumber(@PathParam("ssn") String ssn, 
@@ -94,9 +101,136 @@ public class SshKeyController {
 		if (registry == null)
 			throw new NoRegistryFoundException("No active registry for user");
 		
-		return "";
+		List<SshPubKeyRegistryEntity> regKeyList = sshPubKeyRegistryService.findByRegistry(registry.getId());
+		
+		StringBuffer sb = new StringBuffer();
+		for (SshPubKeyRegistryEntity regKey : regKeyList) {
+			if (regKey.getSshPubKey().getKeyStatus().equals(SshPubKeyStatus.ACTIVE) &&
+					regKey.getKeyStatus().equals(SshPubKeyRegistryStatus.ACTIVE) &&
+					(regKey.getExpiresAt() == null || (System.currentTimeMillis() - regKey.getExpiresAt().getTime()) < 0) &&
+					(regKey.getSshPubKey().getExpiresAt() == null || (System.currentTimeMillis() - regKey.getSshPubKey().getExpiresAt().getTime()) < 0)
+					) {
+				if (regKey.getUsageType().equals(SshPubKeyUsageType.COMMAND)) {
+					sb.append("command=\"");
+					sb.append(regKey.getCommand());
+					sb.append("\" from=\"");
+					sb.append(regKey.getFrom());
+					sb.append("\" ");
+				}
+				sb.append(regKey.getSshPubKey().getKeyType());
+				sb.append(" ");
+				sb.append(regKey.getSshPubKey().getEncodedKey());
+				sb.append(" ");
+				if (regKey.getComment() != null)
+					sb.append(regKey.getComment());
+				else if (regKey.getSshPubKey().getComment() != null)
+					sb.append(regKey.getSshPubKey().getComment());
+				sb.append("\n");
+			}
+		}
+		return sb.toString();
 	}
 
+	@Path(value = "/auth/interactive/{ssn}/uidnumber/{uidNumber}")
+	@Produces({MediaType.TEXT_PLAIN})
+	@GET
+	public String authByUidNumberInteractive(@PathParam("ssn") String ssn, 
+			@PathParam("uidNumber") Long uidNumber, @Context HttpServletRequest request)
+					throws IOException, RestInterfaceException {
+		
+		ServiceEntity service = serviceService.findByShortName(ssn);
+		if (service == null)
+			throw new NoItemFoundException("No such service");
+
+		if (! checkAccess(request, service.getAdminRole().getName()))
+			throw new UnauthorizedException("No access");
+
+		UserEntity user = userService.findByUidNumber(uidNumber);
+		if (user == null)
+			throw new NoUserFoundException("No such user");
+		
+		logger.debug("Searching for active registry for user {} and service {}", user.getId(), service.getShortName());
+		RegistryEntity registry = registryService.findByServiceAndUserAndStatus(service, user, RegistryStatus.ACTIVE);
+		
+		if (registry == null)
+			throw new NoRegistryFoundException("No active registry for user");
+		
+		List<SshPubKeyRegistryEntity> regKeyList = sshPubKeyRegistryService.findByRegistry(registry.getId());
+		
+		StringBuffer sb = new StringBuffer();
+		for (SshPubKeyRegistryEntity regKey : regKeyList) {
+			if (regKey.getSshPubKey().getKeyStatus().equals(SshPubKeyStatus.ACTIVE) &&
+					regKey.getUsageType().equals(SshPubKeyUsageType.INTERACTIVE) &&
+					regKey.getKeyStatus().equals(SshPubKeyRegistryStatus.ACTIVE) &&
+					(regKey.getExpiresAt() == null || (System.currentTimeMillis() - regKey.getExpiresAt().getTime()) < 0) &&
+					(regKey.getSshPubKey().getExpiresAt() == null || (System.currentTimeMillis() - regKey.getSshPubKey().getExpiresAt().getTime()) < 0)
+					) {
+				sb.append(regKey.getSshPubKey().getKeyType());
+				sb.append(" ");
+				sb.append(regKey.getSshPubKey().getEncodedKey());
+				sb.append(" ");
+				if (regKey.getComment() != null)
+					sb.append(regKey.getComment());
+				else if (regKey.getSshPubKey().getComment() != null)
+					sb.append(regKey.getSshPubKey().getComment());
+				sb.append("\n");
+			}
+		}
+		return sb.toString();
+	}
+
+	@Path(value = "/auth/command/{ssn}/uidnumber/{uidNumber}")
+	@Produces({MediaType.TEXT_PLAIN})
+	@GET
+	public String authByUidNumberCommand(@PathParam("ssn") String ssn, 
+			@PathParam("uidNumber") Long uidNumber, @Context HttpServletRequest request)
+					throws IOException, RestInterfaceException {
+		
+		ServiceEntity service = serviceService.findByShortName(ssn);
+		if (service == null)
+			throw new NoItemFoundException("No such service");
+
+		if (! checkAccess(request, service.getAdminRole().getName()))
+			throw new UnauthorizedException("No access");
+
+		UserEntity user = userService.findByUidNumber(uidNumber);
+		if (user == null)
+			throw new NoUserFoundException("No such user");
+		
+		logger.debug("Searching for active registry for user {} and service {}", user.getId(), service.getShortName());
+		RegistryEntity registry = registryService.findByServiceAndUserAndStatus(service, user, RegistryStatus.ACTIVE);
+		
+		if (registry == null)
+			throw new NoRegistryFoundException("No active registry for user");
+		
+		List<SshPubKeyRegistryEntity> regKeyList = sshPubKeyRegistryService.findByRegistry(registry.getId());
+		
+		StringBuffer sb = new StringBuffer();
+		for (SshPubKeyRegistryEntity regKey : regKeyList) {
+			if (regKey.getSshPubKey().getKeyStatus().equals(SshPubKeyStatus.ACTIVE) &&
+					regKey.getUsageType().equals(SshPubKeyUsageType.COMMAND) &&
+					regKey.getKeyStatus().equals(SshPubKeyRegistryStatus.ACTIVE) &&
+					(regKey.getExpiresAt() == null || (System.currentTimeMillis() - regKey.getExpiresAt().getTime()) < 0) &&
+					(regKey.getSshPubKey().getExpiresAt() == null || (System.currentTimeMillis() - regKey.getSshPubKey().getExpiresAt().getTime()) < 0)
+					) {
+				sb.append("command=\"");
+				sb.append(regKey.getCommand());
+				sb.append("\" from=\"");
+				sb.append(regKey.getFrom());
+				sb.append("\" ");
+				sb.append(regKey.getSshPubKey().getKeyType());
+				sb.append(" ");
+				sb.append(regKey.getSshPubKey().getEncodedKey());
+				sb.append(" ");
+				if (regKey.getComment() != null)
+					sb.append(regKey.getComment());
+				else if (regKey.getSshPubKey().getComment() != null)
+					sb.append(regKey.getSshPubKey().getComment());
+				sb.append("\n");
+			}
+		}
+		return sb.toString();
+	}
 	
 	protected Boolean checkAccess(HttpServletRequest request, String roleName) {
 		Boolean check;
