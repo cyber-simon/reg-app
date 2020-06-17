@@ -21,6 +21,7 @@ import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.SshPubKeyRegistryDao;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.SshPubKeyRegistryEntity;
+import edu.kit.scc.webreg.entity.SshPubKeyRegistryStatus;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.SshPubKeyRegistryEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
@@ -56,7 +57,12 @@ public class SshPubKeyRegistryServiceImpl extends BaseServiceImpl<SshPubKeyRegis
 		
 		SshPubKeyRegistryEvent event = new SshPubKeyRegistryEvent(entity);
 		try {
-			eventSubmitter.submit(event, EventType.SSH_KEY_REGISTRY_DEPLOYED, executor);
+			if (entity.getKeyStatus().equals(SshPubKeyRegistryStatus.PENDING)) {
+				eventSubmitter.submit(event, EventType.SSH_KEY_REGISTRY_APPROVAL, executor);
+			}
+			else {
+				eventSubmitter.submit(event, EventType.SSH_KEY_REGISTRY_DEPLOYED, executor);
+			}
 		} catch (EventSubmitException e) {
 			logger.warn("Could not submit event", e);
 		}
