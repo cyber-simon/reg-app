@@ -54,8 +54,9 @@
 	        			<h:outputText value="#{regKey.sshPubKey.name}"/>
 	        		</p:column>
 					<p:column>
-	        			<p:commandLink action="#{setServiceSshPubKeyBean.delete(regKey)}" update="@form">
+	        			<p:commandLink action="#{setServiceSshPubKeyBean.delete(regKey)}" immediate="true" update="@form">
 	        				<h:panelGroup styleClass="ui-icon ui-icon-trash" />
+	        				<p:confirm header="#{messages.confirm_header}" message="#{messages.confirm}" />
 	        			</p:commandLink>
 	        		</p:column>
       			</p:dataTable>
@@ -80,7 +81,8 @@
       			</p:dataTable>
 				
 				<p:dialog header="#{messages.set_ssh_pub_key_for} #{setServiceSshPubKeyBean.serviceEntity.name}" 
-					widgetVar="addKeyDlg" id="addKeyDlgId" modal="true">
+					widgetVar="addKeyDlg" id="addKeyDlgId" modal="true" closable="false" closeOnEscape="true"
+					showEffect="fade" hideEffect="fade">
 				    
 				    <div class="panel">
 					    <h:outputText value="#{messages.service_ssh_pub_key_help_modal}" />
@@ -131,6 +133,11 @@
 			        </h:panelGroup>				    
 				</p:dialog>   				
 
+			    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" closable="false" closeOnEscape="true">
+			        <p:commandButton value="#{messages.yes}" type="button" styleClass="ui-confirmdialog-yes" />
+			        <p:commandButton value="#{messages.no}" type="button" styleClass="ui-confirmdialog-no" />
+			    </p:confirmDialog>    
+	    
 			</p:panel>
 		</div>
 		

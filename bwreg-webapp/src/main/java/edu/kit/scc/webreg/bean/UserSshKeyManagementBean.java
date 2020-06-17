@@ -72,9 +72,9 @@ public class UserSshKeyManagementBean implements Serializable {
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (user == null) {
 	    	user = userService.findById(sessionManager.getUserId());
-	    	List<SshPubKeyEntity> sshPubKeyList = sshPubKeyService.findByUserAndStatus(user.getId(), SshPubKeyStatus.ACTIVE);
+	    	List<SshPubKeyEntity> sshPubKeyList = sshPubKeyService.findByUserAndStatusWithRegs(user.getId(), SshPubKeyStatus.ACTIVE);
 	    	
-	    	keyList = new ArrayList<>();
+	    	keyList = new ArrayList<OpenSshPublicKey>();
 	    	for (SshPubKeyEntity sshKey : sshPubKeyList) {
 				try {
 					keyList.add(keyDecoder.decode(sshKey));

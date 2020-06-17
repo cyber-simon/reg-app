@@ -38,15 +38,23 @@
         			<h:outputText value="#{key.pubKeyEntity.keyType}"/>
         		</p:column>
         		<p:column>
-        			<h:outputText value="#{key.publicKey}" rendered="#{not empty key.publicKey}" />
+        			<h:outputText value="#{key.fingerprint}" rendered="#{not empty key.publicKey}" />
         			<h:outputText value="#{messages.ssh_key_type_unknown}" rendered="#{empty key.publicKey}" />
         		</p:column>
 				<p:column>
        				<f:facet name="header"><h:outputText value="#{messages.expires}:"/></f:facet>
         			<h:outputText value="#{of:formatDate(key.pubKeyEntity.expiresAt, 'dd.MM.yyyy HH:mm')}"/>
+        		</p:column> 
+				<p:column>
+       				<f:facet name="header"><h:outputText value="#{messages.services}:"/></f:facet>
+					<p:repeat var="reg" value="#{key.pubKeyEntity.sshPubKeyRegistries}">
+	        			<h:outputText value="#{reg.registry.service.name}"/>
+					</p:repeat>
         		</p:column>
-        		<p:column> 
-					<p:commandLink id="delete" action="#{userSshKeyManagementBean.deleteKey(key.pubKeyEntity.name)}" value="#{messages.delete}" immediate="true" update="@form">
+        		
+        		<p:column width="5%"> 
+					<p:commandLink id="delete" action="#{userSshKeyManagementBean.deleteKey(key.pubKeyEntity.name)}" immediate="true" update="@form">
+						<h:panelGroup styleClass="ui-icon ui-icon-trash" />
 						<p:confirm header="#{messages.confirm_header}" message="#{messages.confirm}" />
 					</p:commandLink>
 				</p:column>
@@ -71,7 +79,7 @@
 			</p:ajaxStatus>  
 		</p:panel>
 
-	    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+	    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" closable="false" closeOnEscape="true">
 	        <p:commandButton value="#{messages.yes}" type="button" styleClass="ui-confirmdialog-yes" />
 	        <p:commandButton value="#{messages.no}" type="button" styleClass="ui-confirmdialog-no" />
 	    </p:confirmDialog>    

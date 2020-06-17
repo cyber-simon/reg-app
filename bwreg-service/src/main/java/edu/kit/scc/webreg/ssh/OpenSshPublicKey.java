@@ -21,6 +21,8 @@ public class OpenSshPublicKey implements Serializable {
 
 	private String decoderResult;
 	
+	private String fingerprint;
+	
 	public OpenSshPublicKey() {
 		super();
 		decoderPos = 0;
@@ -76,5 +78,13 @@ public class OpenSshPublicKey implements Serializable {
 
 	public void setPubKeyEntity(SshPubKeyEntity pubKeyEntity) {
 		this.pubKeyEntity = pubKeyEntity;
+	}
+
+	public String getFingerprint() {
+		return fingerprint;
+	}
+
+	public void setFingerprint(String fingerprint) {
+		this.fingerprint = fingerprint;
 	}
 }

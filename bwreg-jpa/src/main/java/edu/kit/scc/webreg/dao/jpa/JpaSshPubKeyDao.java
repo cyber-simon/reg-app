@@ -41,6 +41,19 @@ public class JpaSshPubKeyDao extends JpaBaseDao<SshPubKeyEntity, Long> implement
 
 	@Override
 	@SuppressWarnings("unchecked")
+	public List<SshPubKeyEntity> findByUserAndStatusWithRegs(Long userId, SshPubKeyStatus keyStatus) {
+		return em.createQuery("select e from SshPubKeyEntity e "
+				+ "left join fetch e.sshPubKeyRegistries "
+//				+ "left join fetch e.sshPubKeyRegistries.registry "
+//				+ "left join fetch e.sshPubKeyRegistries.registry.service "
+				+ "where e.user.id = :userId and e.keyStatus = :keyStatus")
+				.setParameter("userId", userId)
+				.setParameter("keyStatus", keyStatus)
+				.getResultList();	
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
 	public List<SshPubKeyEntity> findByUserAndKey(Long userId, String encodedKey) {
 		return em.createQuery("select e from SshPubKeyEntity e where e.user.id = :userId and e.encodedKey = :encodedKey")
 				.setParameter("userId", userId)

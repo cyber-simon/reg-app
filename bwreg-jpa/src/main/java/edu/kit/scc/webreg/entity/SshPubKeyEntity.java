@@ -1,12 +1,14 @@
 package edu.kit.scc.webreg.entity;
 
 import java.util.Date;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity(name = "SshPubKeyEntity")
@@ -17,6 +19,9 @@ public class SshPubKeyEntity extends AbstractBaseEntity {
 
 	@ManyToOne(targetEntity = UserEntity.class)
 	private UserEntity user;
+
+	@OneToMany(targetEntity = SshPubKeyRegistryEntity.class, mappedBy = "sshPubKey")
+	private Set<SshPubKeyRegistryEntity> sshPubKeyRegistries;
 
 	@Enumerated(EnumType.STRING)
 	private SshPubKeyStatus keyStatus;
@@ -90,5 +95,13 @@ public class SshPubKeyEntity extends AbstractBaseEntity {
 
 	public void setExpiresAt(Date expiresAt) {
 		this.expiresAt = expiresAt;
+	}
+
+	public Set<SshPubKeyRegistryEntity> getSshPubKeyRegistries() {
+		return sshPubKeyRegistries;
+	}
+
+	public void setSshPubKeyRegistries(Set<SshPubKeyRegistryEntity> sshPubKeyRegistries) {
+		this.sshPubKeyRegistries = sshPubKeyRegistries;
 	}
 }

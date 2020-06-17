@@ -39,7 +39,12 @@ public class SshPubKeyServiceImpl extends BaseServiceImpl<SshPubKeyEntity, Long>
 	public List<SshPubKeyEntity> findByUserAndStatus(Long userId, SshPubKeyStatus keyStatus) {
 		return dao.findByUserAndStatus(userId, keyStatus);
 	}
-	
+
+	@Override
+	public List<SshPubKeyEntity> findByUserAndStatusWithRegs(Long userId, SshPubKeyStatus keyStatus) {
+		return dao.findByUserAndStatusWithRegs(userId, keyStatus);
+	}
+
 	@Override
 	public SshPubKeyEntity deployKey(Long userId, SshPubKeyEntity entity) 
 			throws SshPubKeyBlacklistedException {

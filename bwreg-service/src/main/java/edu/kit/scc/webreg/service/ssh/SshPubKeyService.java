@@ -25,4 +25,6 @@ public interface SshPubKeyService extends BaseService<SshPubKeyEntity, Long> {
 
 	SshPubKeyEntity deployKey(Long userId, SshPubKeyEntity entity) throws SshPubKeyBlacklistedException;
 
+	List<SshPubKeyEntity> findByUserAndStatusWithRegs(Long userId, SshPubKeyStatus keyStatus);
+
 }

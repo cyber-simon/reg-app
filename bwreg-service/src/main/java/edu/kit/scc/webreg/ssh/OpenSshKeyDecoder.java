@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
 import java.security.KeyFactory;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.DSAPublicKeySpec;
 import java.security.spec.ECGenParameterSpec;
@@ -46,6 +47,11 @@ public class OpenSshKeyDecoder implements Serializable {
                 BigInteger m = decodeBigInt(key);
                 RSAPublicKeySpec spec = new RSAPublicKeySpec(m, e);
                 key.setPublicKey(KeyFactory.getInstance("RSA").generatePublic(spec));
+                
+                MessageDigest digest = MessageDigest.getInstance("SHA256");
+                byte[] result = digest.digest(key.getBytes());
+                key.setFingerprint(java.util.Base64.getEncoder().encodeToString(result));
+                
             } else if (type.equals("ssh-dss")) {
                 BigInteger p = decodeBigInt(key);
                 BigInteger q = decodeBigInt(key);

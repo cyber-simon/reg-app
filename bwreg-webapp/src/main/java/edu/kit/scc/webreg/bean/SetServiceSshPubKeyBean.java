@@ -155,6 +155,12 @@ public class SetServiceSshPubKeyBean implements Serializable {
 		
 		return null;
 	}
+
+	public String delete(SshPubKeyRegistryEntity reg) {
+		sshPubKeyRegistryService.delete(reg);
+		sshPubKeyRegistryList.remove(reg);
+		return null;
+	}
 	
 	public Long getId() {
 		return id;
