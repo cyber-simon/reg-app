@@ -8,39 +8,20 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.entity;
+package edu.kit.scc.webreg.event;
 
-public enum EventType {
+import edu.kit.scc.webreg.entity.SshPubKeyEntity;
+import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
 
-	/*
-	 * User Events
-	 */
-	USER_CREATE,
-	USER_UPDATE,
+public class SshPubKeyEvent extends AbstractEvent<SshPubKeyEntity> {
 
-	/*
-	 * Service Events
-	 */
-	SERVICE_REGISTER,
-	REGISTRY_UPDATE,
-	SERVICE_DEREGISTER,
-	USER_LOST_ACCESS,
-	USER_GAINED_ACCESS,
-	APPROVAL_START,
-	APPROVAL_DENIED,
-	
-	
-	/*
-	 * Group Events
-	 */
-	GROUP_UPDATE,
-	
-	/*
-	 * SSH Key Events
-	 */
-	SSH_KEY_DEPLOYED,
-	SSH_KEY_DELETED,
-	SSH_KEY_REGISTRY_DEPLOYED,
-	SSH_KEY_REGISTRY_DELETED,
-	
+	private static final long serialVersionUID = 1L;
+
+	public SshPubKeyEvent(SshPubKeyEntity entity) {
+		super(entity);
+	}
+
+	public SshPubKeyEvent(SshPubKeyEntity entity, AuditEntryEntity audit) {
+		super(entity, audit);
+	}
 }

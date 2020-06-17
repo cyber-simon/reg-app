@@ -23,8 +23,11 @@ public interface SshPubKeyService extends BaseService<SshPubKeyEntity, Long> {
 
 	List<SshPubKeyEntity> findByUserAndStatus(Long userId, SshPubKeyStatus keyStatus);
 
-	SshPubKeyEntity deployKey(Long userId, SshPubKeyEntity entity) throws SshPubKeyBlacklistedException;
-
 	List<SshPubKeyEntity> findByUserAndStatusWithRegs(Long userId, SshPubKeyStatus keyStatus);
+
+	SshPubKeyEntity deployKey(Long userId, SshPubKeyEntity entity, String executor)
+			throws SshPubKeyBlacklistedException;
+
+	SshPubKeyEntity deleteKey(SshPubKeyEntity entity, String executor);
 
 }

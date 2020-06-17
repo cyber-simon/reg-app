@@ -15,9 +15,15 @@ import java.util.List;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.SshPubKeyRegistryDao;
+import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.SshPubKeyRegistryEntity;
+import edu.kit.scc.webreg.event.EventSubmitter;
+import edu.kit.scc.webreg.event.SshPubKeyRegistryEvent;
+import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
 
 @Stateless
@@ -26,7 +32,13 @@ public class SshPubKeyRegistryServiceImpl extends BaseServiceImpl<SshPubKeyRegis
 	private static final long serialVersionUID = 1L;
 
 	@Inject
+	private Logger logger;
+	
+	@Inject
 	private SshPubKeyRegistryDao dao;
+	
+	@Inject
+	private EventSubmitter eventSubmitter;
 
 	@Override
 	public List<SshPubKeyRegistryEntity> findByUserAndService(Long userId, Long serviceId) {
@@ -38,6 +50,32 @@ public class SshPubKeyRegistryServiceImpl extends BaseServiceImpl<SshPubKeyRegis
 		return dao.findByRegistry(registryId);
 	}
 	
+	@Override
+	public SshPubKeyRegistryEntity deployRegistry(SshPubKeyRegistryEntity entity, String executor) {
+		entity = dao.persist(entity);
+		
+		SshPubKeyRegistryEvent event = new SshPubKeyRegistryEvent(entity);
+		try {
+			eventSubmitter.submit(event, EventType.SSH_KEY_REGISTRY_DEPLOYED, executor);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}
+		return entity;
+	}
+	
+	@Override
+	public void deleteRegistry(SshPubKeyRegistryEntity entity, String executor) {
+		
+		dao.delete(entity);
+		
+		SshPubKeyRegistryEvent event = new SshPubKeyRegistryEvent(entity);
+		try {
+			eventSubmitter.submit(event, EventType.SSH_KEY_REGISTRY_DELETED, executor);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}
+	}
+
 	@Override
 	protected BaseDao<SshPubKeyRegistryEntity, Long> getDao() {
 		return dao;

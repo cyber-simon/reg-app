@@ -8,21 +8,20 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.service.ssh;
-
-import java.util.List;
+package edu.kit.scc.webreg.event;
 
 import edu.kit.scc.webreg.entity.SshPubKeyRegistryEntity;
-import edu.kit.scc.webreg.service.BaseService;
+import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
 
-public interface SshPubKeyRegistryService extends BaseService<SshPubKeyRegistryEntity, Long> {
+public class SshPubKeyRegistryEvent extends AbstractEvent<SshPubKeyRegistryEntity> {
 
-	List<SshPubKeyRegistryEntity> findByUserAndService(Long userId, Long serviceId);
+	private static final long serialVersionUID = 1L;
 
-	List<SshPubKeyRegistryEntity> findByRegistry(Long registryId);
+	public SshPubKeyRegistryEvent(SshPubKeyRegistryEntity entity) {
+		super(entity);
+	}
 
-	SshPubKeyRegistryEntity deployRegistry(SshPubKeyRegistryEntity entity, String executor);
-
-	void deleteRegistry(SshPubKeyRegistryEntity entity, String executor);
-
+	public SshPubKeyRegistryEvent(SshPubKeyRegistryEntity entity, AuditEntryEntity audit) {
+		super(entity, audit);
+	}
 }

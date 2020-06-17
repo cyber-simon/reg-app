@@ -100,8 +100,7 @@ public class UserSshKeyManagementBean implements Serializable {
 		
 		if (removeIndex != -1) {
 			keyList.remove(removeIndex);
-			removeEntity.setKeyStatus(SshPubKeyStatus.DELETED);
-			removeEntity = sshPubKeyService.save(removeEntity);
+			sshPubKeyService.deleteKey(removeEntity, "user-" + user.getId());
 		}
 		
 		messageGenerator.addResolvedInfoMessage("info", "ssh_key_deleted", false);				
@@ -127,7 +126,7 @@ public class UserSshKeyManagementBean implements Serializable {
 		
 		try {
 			key = keyDecoder.decode(sshPubKeyEntity);
-			sshPubKeyEntity = sshPubKeyService.deployKey(user.getId(), sshPubKeyEntity);
+			sshPubKeyEntity = sshPubKeyService.deployKey(user.getId(), sshPubKeyEntity, "user-" + user.getId());
 			keyList.add(key);
 			newKey = "";
 			newName = "";

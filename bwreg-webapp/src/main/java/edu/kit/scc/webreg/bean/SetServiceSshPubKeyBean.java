@@ -150,14 +150,14 @@ public class SetServiceSshPubKeyBean implements Serializable {
 			return null;
 		}
 		
-		sshPubKeyRegistry = sshPubKeyRegistryService.save(sshPubKeyRegistry);
+		sshPubKeyRegistry = sshPubKeyRegistryService.deployRegistry(sshPubKeyRegistry, "user-" + userEntity.getId());
 		sshPubKeyRegistryList.add(sshPubKeyRegistry);
 		
 		return null;
 	}
 
 	public String delete(SshPubKeyRegistryEntity reg) {
-		sshPubKeyRegistryService.delete(reg);
+		sshPubKeyRegistryService.deleteRegistry(reg, "user-" + userEntity.getId());
 		sshPubKeyRegistryList.remove(reg);
 		return null;
 	}
