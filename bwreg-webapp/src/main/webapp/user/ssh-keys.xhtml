@@ -46,6 +46,20 @@
 			        		<h:outputText value="#{messages.unknown}" rendered="#{empty key.publicKey}"/>
 		        		</h:panelGroup>
 		        		
+		        		<h:outputText value="#{messages.expires}:"/>
+		        		<h:outputText value="#{of:formatDate(key.pubKeyEntity.expiresAt, 'dd.MM.yyyy HH:mm')}"/>
+		        		
+		        		<h:outputText value="#{messages.services}:"/>
+						<p:repeat var="reg" value="#{key.pubKeyEntity.sshPubKeyRegistries}">
+		        			<div>
+			        			<h:outputText value="#{reg.registry.service.name}"/> 
+			        			<h:panelGroup id="interactiveId" rendered="#{reg.usageType == 'INTERACTIVE'}"><i class="fa fa-fw fa-user"></i></h:panelGroup>
+			        			<p:tooltip for="interactiveId" value="#{messages.ssh_pub_key_interactiv}" position="top"/>
+			        			<h:panelGroup id="commandId" rendered="#{reg.usageType == 'COMMAND'}"><i class="fa fa-fw fa-database"></i></h:panelGroup>
+			        			<p:tooltip for="commandId" value="#{messages.ssh_pub_key_command}" position="top"/>
+		        			</div>
+						</p:repeat>
+		        		
 		        	</h:panelGrid>
 
 					<p:commandLink id="delete" action="#{userSshKeyManagementBean.deleteKey(key.pubKeyEntity.name)}" immediate="true" update="@form">
@@ -55,42 +69,7 @@
 		        	
        			</p:panel>
 			</p:dataGrid>
-<!-- 
-       		<p:dataTable var="key" value="#{userSshKeyManagementBean.keyList.toArray()}">
-				<p:column>
-       				<f:facet name="header"><h:outputText value="#{messages.ssh_key_name}:"/></f:facet>
-        			<b><h:outputText value="#{key.pubKeyEntity.name}"/></b> (<h:outputText value="#{key.pubKeyEntity.keyType}"/>)
-        		</p:column>
-        		<p:column>
-       				<f:facet name="header"><h:outputText value="#{messages.fingerprint}:"/></f:facet>
-        			<h:outputText value="#{key.fingerprint}" rendered="#{not empty key.publicKey}" />
-        			<h:outputText value="#{messages.ssh_key_type_unknown}" rendered="#{empty key.publicKey}" />
-        		</p:column>
-				<p:column>
-       				<f:facet name="header"><h:outputText value="#{messages.expires}:"/></f:facet>
-        			<h:outputText value="#{of:formatDate(key.pubKeyEntity.expiresAt, 'dd.MM.yyyy HH:mm')}"/>
-        		</p:column> 
-				<p:column>
-       				<f:facet name="header"><h:outputText value="#{messages.services}:"/></f:facet>
-					<p:repeat var="reg" value="#{key.pubKeyEntity.sshPubKeyRegistries}">
-	        			<div>
-		        			<h:outputText value="#{reg.registry.service.name}"/> 
-		        			<h:panelGroup id="interactiveId" rendered="#{reg.usageType == 'INTERACTIVE'}"><i class="fa fa-fw fa-user"></i></h:panelGroup>
-		        			<p:tooltip for="interactiveId" value="#{messages.ssh_pub_key_interactiv}" position="top"/>
-		        			<h:panelGroup id="commandId" rendered="#{reg.usageType == 'COMMAND'}"><i class="fa fa-fw fa-database"></i></h:panelGroup>
-		        			<p:tooltip for="commandId" value="#{messages.ssh_pub_key_command}" position="top"/>
-	        			</div>
-					</p:repeat>
-        		</p:column>
-        		
-        		<p:column width="5%"> 
-					<p:commandLink id="delete" action="#{userSshKeyManagementBean.deleteKey(key.pubKeyEntity.name)}" immediate="true" update="@form">
-						<h:panelGroup styleClass="ui-icon ui-icon-trash" />
-						<p:confirm header="#{messages.confirm_header}" message="#{messages.confirm}" />
-					</p:commandLink>
-				</p:column>
-        	</p:dataTable>
- -->
+
 		<p:panel id="panel" header="#{messages.add_ssh_pub_key}">
 			<p:panelGrid id="baseData" columns="2">
 		        <bw:inputText id="sshKeyName" label="#{messages.ssh_key_name}:" 
