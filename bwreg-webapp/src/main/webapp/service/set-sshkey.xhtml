@@ -54,7 +54,7 @@
         				<p:tooltip id="toolTipActiveKey" for="activeKey" value="#{messages.ssh_pub_key_active}" position="top"/>
 	        		</p:column>
 					<p:column width="5%">
-	       				<f:facet name="header"><h:outputText value="#{messages.type}:"/></f:facet>
+	       				<f:facet name="header"><h:outputText value="#{messages.ssh_pub_key_usage_type}"/></f:facet>
 	        			<h:panelGroup id="interactiveId" rendered="#{regKey.usageType == 'INTERACTIVE'}"><i class="fa fa-fw fa-user"></i></h:panelGroup>
 	        			<p:tooltip for="interactiveId" value="#{messages.ssh_pub_key_interactiv}" position="top"/>
 	        			<h:panelGroup id="commandId" rendered="#{regKey.usageType == 'COMMAND'}"><i class="fa fa-fw fa-database"></i></h:panelGroup>
@@ -95,7 +95,7 @@
 					widgetVar="addKeyDlg" id="addKeyDlgId" modal="true" closable="false" closeOnEscape="true"
 					showEffect="fade" hideEffect="fade">
 				    
-				    <div class="panel">
+				    <div class="panel" style="width:360px;">
 					    <h:outputText value="#{messages.service_ssh_pub_key_help_modal}" />
 				    </div>
 			        <p:panelGrid columns="2">
@@ -113,13 +113,13 @@
 			        </p:panelGrid>
 					<p:panel id="sshUsageTypeId">
 						<h:panelGroup rendered="#{setServiceSshPubKeyBean.selectedUsageType == 'Interactive'}">
-							<div class="panel">
+							<div class="panel" style="width:360px;">
 								<h:outputText value="#{messages.ssh_pub_key_usage_interactive_help}" />
 							</div>
 						</h:panelGroup>
 	
 						<h:panelGroup rendered="#{setServiceSshPubKeyBean.selectedUsageType == 'Command'}">
-							<div class="panel">
+							<div class="panel" style="width:360px;">
 								<h:outputText value="#{messages.ssh_pub_key_usage_command_help}" />
 							</div>
 							<p:panelGrid columns="2">
