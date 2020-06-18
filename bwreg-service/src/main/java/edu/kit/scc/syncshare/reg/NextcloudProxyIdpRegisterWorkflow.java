@@ -109,10 +109,25 @@ public class NextcloudProxyIdpRegisterWorkflow  implements RegisterUserWorkflow,
 
 		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
 		NextcloudWorker worker = new NextcloudWorker(prop);
-		NextcloudAnswer answer = worker.disableAccount(registry);
-		if (answer.getMeta().getStatusCode() != 100) {
-			logger.warn("Disabling of registry {} for user {} failed", registry.getId(), user.getEppn());
-			throw new RegisterException("Failed to disable account");
+		NextcloudAnswer answer = worker.loadAccount(registry);
+		
+		if (answer.getMeta().getStatusCode() == 100) {
+			if (answer.getUser() != null) {
+				answer = worker.disableAccount(registry);
+				if (answer.getMeta().getStatusCode() != 100) {
+					logger.warn("Disabling of registry {} for user {} failed", registry.getId(), user.getEppn());
+					throw new RegisterException("Failed to disable account");
+				}
+				else {
+					logger.info("Account for registry {} and user {} disabled", registry.getId(), user.getEppn());
+				}
+			}
+			else {
+				logger.info("Account for registry {} and user {} does not exist in nextcloud. Deregister anyway.", registry.getId(), user.getEppn());
+			}
+		}
+		else {
+			logger.info("Account for registry {} and user {} does not exist in nextcloud. Deregister anyway.", registry.getId(), user.getEppn());
 		}
 	}
 
