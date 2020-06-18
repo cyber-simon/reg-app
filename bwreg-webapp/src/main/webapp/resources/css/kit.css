@@ -347,3 +347,8 @@ div.serviceBlockLink {
 .ui-panel, .ui-panelgrid {
 	margin-bottom: 16px;
 }
+
+.ui-panel.grayback .ui-panel-titlebar {
+	color: #000000;
+	background: #dddddd;
+}

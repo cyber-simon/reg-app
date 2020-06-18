@@ -24,10 +24,38 @@
 
 	<ui:define name="content">
 	<h:form id="form">
-		<p:panel id="panel" header="#{messages.my_ssh_keys}">
-			
 			<div><p:messages showDetail="true" /></div>
 
+			<p:dataGrid var="key" value="#{userSshKeyManagementBean.keyList.toArray()}" columns="1" 
+					layout="grid" style="margin-bottom: 16px;">
+		        <f:facet name="header">#{messages.my_ssh_keys}</f:facet>
+		        <p:panel styleClass="grayback" style="margin-bottom: 0px;">
+		        	<f:facet name="header">
+		        		<i class="fa fa-fw fa-key"></i>
+		        		<b><h:outputText value="#{key.pubKeyEntity.name}"/></b>
+		        	</f:facet>
+		        	
+		        	<h:panelGrid columns="2">
+
+		        		<p:outputLabel for="@next" value="#{messages.ssh_key_type}:"/>
+		        		<h:outputText value="#{key.pubKeyEntity.keyType}"/>
+		        		
+		        		<p:outputLabel for="@next" value="#{messages.fingerprint} (SHA256):"/>
+		        		<h:panelGroup>
+			        		<h:outputText value="#{key.fingerprint}" rendered="#{not empty key.publicKey}"/>
+			        		<h:outputText value="#{messages.unknown}" rendered="#{empty key.publicKey}"/>
+		        		</h:panelGroup>
+		        		
+		        	</h:panelGrid>
+
+					<p:commandLink id="delete" action="#{userSshKeyManagementBean.deleteKey(key.pubKeyEntity.name)}" immediate="true" update="@form">
+						<h:panelGroup styleClass="ui-icon ui-icon-trash" />
+						<p:confirm header="#{messages.confirm_header}" message="#{messages.confirm}" />
+					</p:commandLink>
+		        	
+       			</p:panel>
+			</p:dataGrid>
+<!-- 
        		<p:dataTable var="key" value="#{userSshKeyManagementBean.keyList.toArray()}">
 				<p:column>
        				<f:facet name="header"><h:outputText value="#{messages.ssh_key_name}:"/></f:facet>
@@ -62,7 +90,8 @@
 					</p:commandLink>
 				</p:column>
         	</p:dataTable>
-
+ -->
+		<p:panel id="panel" header="#{messages.add_ssh_pub_key}">
 			<p:panelGrid id="baseData" columns="2">
 		        <bw:inputText id="sshKeyName" label="#{messages.ssh_key_name}:" 
 			        	value="#{userSshKeyManagementBean.newName}" required="true"/>			
