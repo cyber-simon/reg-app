@@ -30,12 +30,12 @@ import edu.kit.scc.webreg.entity.AdminRoleEntity;
 import edu.kit.scc.webreg.entity.ApproverRoleEntity;
 import edu.kit.scc.webreg.entity.GroupAdminRoleEntity;
 import edu.kit.scc.webreg.entity.GroupEntity;
-import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.SshPubKeyApproverRoleEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.service.GroupService;
 import edu.kit.scc.webreg.service.RegistryService;
@@ -150,6 +150,10 @@ public class AuthorizationBean implements Serializable {
 	    		else if (role instanceof ApproverRoleEntity) {
 	    			for (ServiceEntity s : serviceService.findByApproverRole(role))
 	    				sessionManager.getServiceApproverList().add(s);
+	    		}
+	    		else if (role instanceof SshPubKeyApproverRoleEntity) {
+	    			for (ServiceEntity s : serviceService.findBySshPubKeyApproverRole(role))
+	    				sessionManager.getServiceSshPubKeyApproverList().add(s);
 	    		}
 	    		else if (role instanceof GroupAdminRoleEntity) {
 	    			for (ServiceEntity s : serviceService.findByGroupAdminRole(role))
@@ -275,6 +279,12 @@ public class AuthorizationBean implements Serializable {
     	return sessionManager.getServiceApproverList().contains(id);
     }
 
+    public boolean isUserServiceSshPubKeyApprover(ServiceEntity id) {
+    	if (id == null)
+    		return false;    	
+    	return sessionManager.getServiceSshPubKeyApproverList().contains(id);
+    }
+
     public boolean isUserServiceHotline(ServiceEntity id) {
     	if (id == null)
     		return false;
@@ -294,6 +304,10 @@ public class AuthorizationBean implements Serializable {
 
 	public List<ServiceEntity> getServiceApproverList() {
 		return sessionManager.getServiceApproverList();
+	}
+
+	public List<ServiceEntity> getServiceSshPubKeyApproverList() {
+		return sessionManager.getServiceSshPubKeyApproverList();
 	}
 
 	public List<ServiceEntity> getServiceAdminList() {

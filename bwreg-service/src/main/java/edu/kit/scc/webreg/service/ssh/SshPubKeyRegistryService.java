@@ -25,4 +25,10 @@ public interface SshPubKeyRegistryService extends BaseService<SshPubKeyRegistryE
 
 	void deleteRegistry(SshPubKeyRegistryEntity entity, String executor);
 
+	List<SshPubKeyRegistryEntity> findForApproval(Long serviceId);
+
+	SshPubKeyRegistryEntity approveRegistry(SshPubKeyRegistryEntity entity, Long approverId);
+
+	SshPubKeyRegistryEntity denyRegistry(SshPubKeyRegistryEntity entity, Long approverId);
+
 }

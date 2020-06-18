@@ -160,6 +160,23 @@
         </div>
        </div>
 	  </ui:repeat>
+	  	
+      <ui:repeat var="service" value="#{authorizationBean.serviceSshPubKeyApproverList}">
+       <div class="submenu">
+        <div class="submenu-title">#{service.name} Key Approver</div>
+        <div class="submenu-content">
+		  <div>
+		    <ul>
+	          <li><span class="ui-icon ui-icon-carat-1-e" style="display:inline-block; vertical-align: bottom;" />
+    	        <h:link outcome="/service-approver/list-sshkey-approvals.xhtml" value="#{messages.new_approvals}">
+    	        	<f:param name="serviceId" value="#{service.id}" />
+    	        </h:link>
+			  </li>
+            </ul>
+          </div>
+        </div>
+       </div>
+	  </ui:repeat>
 
       <ui:repeat var="service" value="#{authorizationBean.serviceGroupAdminList}">
        <div class="submenu">

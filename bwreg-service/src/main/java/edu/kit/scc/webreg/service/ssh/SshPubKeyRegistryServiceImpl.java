@@ -10,6 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.ssh;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.ejb.Stateless;
@@ -19,6 +20,7 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.SshPubKeyRegistryDao;
+import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.SshPubKeyRegistryEntity;
 import edu.kit.scc.webreg.entity.SshPubKeyRegistryStatus;
@@ -39,6 +41,9 @@ public class SshPubKeyRegistryServiceImpl extends BaseServiceImpl<SshPubKeyRegis
 	private SshPubKeyRegistryDao dao;
 	
 	@Inject
+	private UserDao userDao;
+	
+	@Inject
 	private EventSubmitter eventSubmitter;
 
 	@Override
@@ -49,6 +54,11 @@ public class SshPubKeyRegistryServiceImpl extends BaseServiceImpl<SshPubKeyRegis
 	@Override
 	public List<SshPubKeyRegistryEntity> findByRegistry(Long registryId) {
 		return dao.findByRegistry(registryId);
+	}
+	
+	@Override
+	public List<SshPubKeyRegistryEntity> findForApproval(Long serviceId) {
+		return dao.findForApproval(serviceId);
 	}
 	
 	@Override
@@ -69,6 +79,38 @@ public class SshPubKeyRegistryServiceImpl extends BaseServiceImpl<SshPubKeyRegis
 		return entity;
 	}
 	
+	@Override
+	public SshPubKeyRegistryEntity approveRegistry(SshPubKeyRegistryEntity entity, Long approverId) {
+		entity = dao.merge(entity);
+		entity.setKeyStatus(SshPubKeyRegistryStatus.ACTIVE);
+		entity.setApprovedBy(userDao.findById(approverId));
+		entity.setApprovedAt(new Date());
+		
+		SshPubKeyRegistryEvent event = new SshPubKeyRegistryEvent(entity);
+		try {
+			eventSubmitter.submit(event, EventType.SSH_KEY_REGISTRY_DEPLOYED, "user-" + approverId);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}
+		return entity;
+	}
+
+	@Override
+	public SshPubKeyRegistryEntity denyRegistry(SshPubKeyRegistryEntity entity, Long approverId) {
+		entity = dao.merge(entity);
+		entity.setKeyStatus(SshPubKeyRegistryStatus.DENIED);
+		entity.setApprovedBy(userDao.findById(approverId));
+		entity.setApprovedAt(new Date());
+		
+		SshPubKeyRegistryEvent event = new SshPubKeyRegistryEvent(entity);
+		try {
+			eventSubmitter.submit(event, EventType.SSH_KEY_REGISTRY_DENIED, "user-" + approverId);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}
+		return entity;
+	}
+
 	@Override
 	public void deleteRegistry(SshPubKeyRegistryEntity entity, String executor) {
 		

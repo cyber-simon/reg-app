@@ -8,12 +8,10 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.entity;
+package edu.kit.scc.webreg.dao;
 
-public enum SshPubKeyRegistryStatus {
+import edu.kit.scc.webreg.entity.SshPubKeyApproverRoleEntity;
 
-	ACTIVE,
-	PENDING,
-	DENIED,
+public interface SshPubKeyApproverRoleDao extends BaseDao<SshPubKeyApproverRoleEntity, Long> {
 
 }

@@ -40,6 +40,10 @@
       			<p:dataTable var="regKey" value="#{setServiceSshPubKeyBean.sshPubKeyRegistryList.toArray()}">
 	      			<p:column width="5%">
 	       				<f:facet name="header"><h:outputText value="#{messages.status}"/></f:facet>
+        				<h:panelGroup id="deniedKey" rendered="#{regKey.keyStatus == 'DENIED'}">
+        					<i class="fa fa-fw fa-close"></i>
+        				</h:panelGroup>
+        				<p:tooltip id="toolTipDeniedKey" for="deniedKey" value="#{messages.ssh_pub_key_denied}" position="top"/>
         				<h:panelGroup id="pendingKey" rendered="#{regKey.keyStatus == 'PENDING'}">
         					<i class="fa fa-fw fa-exclamation-triangle"></i>
         				</h:panelGroup>

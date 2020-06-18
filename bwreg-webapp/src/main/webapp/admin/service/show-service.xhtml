@@ -51,6 +51,12 @@
 					<h:outputText value="#{messages.undefined} / #{messages.no_approval}"
 						rendered="#{showServiceBean.entity.approverRole == null}"/>
 
+					<h:outputText value="#{messages.sshkey_approver_role}:" />
+					<h:outputText value="#{showServiceBean.entity.sshPubKeyApproverRole.name}"
+						rendered="#{showServiceBean.entity.sshPubKeyApproverRole != null}"/>
+					<h:outputText value="#{messages.undefined} / #{messages.no_approval}"
+						rendered="#{showServiceBean.entity.sshPubKeyApproverRole == null}"/>
+
 					<h:outputText value="#{messages.admin_role}:" />
 					<h:outputText value="#{showServiceBean.entity.adminRole.name}"
 						rendered="#{showServiceBean.entity.adminRole != null}"/>

@@ -17,6 +17,7 @@ import javax.inject.Named;
 
 import edu.kit.scc.webreg.dao.SshPubKeyRegistryDao;
 import edu.kit.scc.webreg.entity.SshPubKeyRegistryEntity;
+import edu.kit.scc.webreg.entity.SshPubKeyRegistryStatus;
 
 @Named
 @ApplicationScoped
@@ -36,6 +37,16 @@ public class JpaSshPubKeyRegistryDao extends JpaBaseDao<SshPubKeyRegistryEntity,
 	public List<SshPubKeyRegistryEntity> findByRegistry(Long registryId) {
 		return em.createQuery("select e from SshPubKeyRegistryEntity e where e.registry.id = :registryId")
 				.setParameter("registryId", registryId)
+				.getResultList();	
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<SshPubKeyRegistryEntity> findForApproval(Long serviceId) {
+		return em.createQuery("select e from SshPubKeyRegistryEntity e where e.registry.service.id = :serviceId "
+				+ "and e.keyStatus = :keyStatus")
+				.setParameter("serviceId", serviceId)
+				.setParameter("keyStatus", SshPubKeyRegistryStatus.PENDING)
 				.getResultList();	
 	}
 

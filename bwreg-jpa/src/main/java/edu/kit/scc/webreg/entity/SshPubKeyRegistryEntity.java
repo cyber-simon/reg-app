@@ -36,6 +36,15 @@ public class SshPubKeyRegistryEntity extends AbstractBaseEntity {
 	@Column(name = "comment", length = 1024)
 	private String comment;	
 
+	@Column(name = "approver_comment", length = 2048)
+	private String approverComment;	
+
+	@Column(name = "approved_at")
+	private Date approvedAt;	
+
+	@ManyToOne(targetEntity = UserEntity.class)
+	private UserEntity approvedBy;
+
 	@Column(name = "expires_at")
 	private Date expiresAt;
 
@@ -101,6 +110,30 @@ public class SshPubKeyRegistryEntity extends AbstractBaseEntity {
 
 	public void setExpiresAt(Date expiresAt) {
 		this.expiresAt = expiresAt;
+	}
+
+	public String getApproverComment() {
+		return approverComment;
+	}
+
+	public void setApproverComment(String approverComment) {
+		this.approverComment = approverComment;
+	}
+
+	public Date getApprovedAt() {
+		return approvedAt;
+	}
+
+	public void setApprovedAt(Date approvedAt) {
+		this.approvedAt = approvedAt;
+	}
+
+	public UserEntity getApprovedBy() {
+		return approvedBy;
+	}
+
+	public void setApprovedBy(UserEntity approvedBy) {
+		this.approvedBy = approvedBy;
 	}
 	
 }
