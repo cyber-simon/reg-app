@@ -26,34 +26,11 @@
 
 		<h2><h:outputText value="#{messages.registered}: #{serviceAdminUserDetailBean.entity.service.name}/ #{serviceAdminUserDetailBean.entity.user.eppn}"/></h2>
 		
-		<div class="panel">
-			<p:panel header="#{messages.user}">
-				<p:panelGrid id="baseDataUser" columns="2">
-			
-			        <h:outputText value="#{messages.user} #{messages.id}:"/>
-			        <h:outputText value="#{serviceAdminUserDetailBean.entity.user.id}"/>
-			
-			        <h:outputText value="#{messages.user}:"/>
-			        <h:panelGroup>
-				        <h:outputText value="#{serviceAdminUserDetailBean.entity.user.surName}, "/>
-				        <h:outputText value="#{serviceAdminUserDetailBean.entity.user.givenName} ("/>
-				        <h:outputText value="#{serviceAdminUserDetailBean.entity.user.eppn})"/>
-					</h:panelGroup>
-											
-			        <h:outputText value="#{messages.email}:"/>
-			        <h:outputText value="#{serviceAdminUserDetailBean.entity.user.email}"/>
+		<p:messages id="messageBox" showDetail="true" />
+		
+		<p:tabView id="tabVw" dynamic="true" cache="true">
 
-			        <h:outputText value="#{messages.last_account_update}:"/>
-			        <h:outputText value="#{of:formatDate(serviceAdminUserDetailBean.entity.user.lastUpdate, 'dd.MM.yyyy HH:mm')}"/>
-
-			        <h:outputText value="#{messages.user} #{messages.status}:"/>
-			        <h:outputText value="#{serviceAdminUserDetailBean.entity.user.userStatus}"/>
-
-				</p:panelGrid>
-			</p:panel>
-		</div>
-		<div class="panel">
-			<p:panel header="#{messages.properties}">
+			<p:tab id="tab1" title="#{messages.registry_details}">
 				<p:panelGrid id="baseData" columns="2">
 			
 			        <h:outputText value="#{messages.id}:"/>
@@ -80,7 +57,7 @@
 						rendered="#{serviceAdminUserDetailBean.entity.approvalBean == null}"/>
 						
 				</p:panelGrid>
-				<p:dataTable id="attrData" style="min-width: 500px;" 
+				<p:dataTable id="attrData" style="min-width: 500px; margin-bottom: 16px;" 
 						value="#{serviceAdminUserDetailBean.entity.registryValues.keySet().toArray()}" var="key">
 					<p:column>
 						<f:facet name="header">
@@ -95,25 +72,153 @@
 						<h:outputText value="#{serviceAdminUserDetailBean.entity.registryValues.get(key)}" />
 					</p:column>						
 				</p:dataTable>				
-			</p:panel>
-		</div>
+
+				<p:panel id="toolsPanel" header="#{messages.tools}">
+					<h:panelGroup rendered="#{serviceAdminUserDetailBean.entity.registryStatus == 'ACTIVE'}">
+						<p:commandButton id="fullReconId" action="#{serviceAdminUserDetailBean.fullReconsiliation()}" 
+							value="#{messages.full_reconsiliation}" update="@form" />			
+					</h:panelGroup>	
+					<h:panelGroup rendered="#{(serviceAdminUserDetailBean.entity.registryStatus == 'ACTIVE' || serviceAdminUserDetailBean.entity.registryStatus == 'LOST_ACCESS')}">
+				        <p:commandButton id="delUsr" action="#{serviceAdminUserDetailBean.deregister()}" value="#{messages.deregister}"
+				        	style="color: red;" update="@form">
+							<p:confirm header="#{messages.confirm}" message="#{messages.are_you_sure}" icon="ui-icon-alert" />			        	
+				        </p:commandButton>					
+					</h:panelGroup>	
+				</p:panel>
+				<p:blockUI block="toolsPanel" trigger="delUsr,fullReconId">  
+      				<p:graphicImage value="#{resource['/img/ajax-loader.gif']}" alt="#{messages.loading}" />  
+				</p:blockUI>
+			
+			</p:tab>		
+
+			<p:tab id="tab2" title="#{messages.user_properties}">
+				<p:panelGrid id="baseDataUser" columns="2">
+			
+			        <h:outputText value="#{messages.id}:"/>
+			        <h:outputText value="#{serviceAdminUserDetailBean.user.id}"/>
+			
+			        <h:outputText value="#{messages.given_name}:"/>
+			        <h:outputText value="#{serviceAdminUserDetailBean.user.givenName}"/>
+						
+			        <h:outputText value="#{messages.sur_name}:"/>
+			        <h:outputText value="#{serviceAdminUserDetailBean.user.surName}"/>
+						
+			        <h:outputText value="#{messages.eppn}:"/>
+			        <h:outputText value="#{serviceAdminUserDetailBean.user.eppn}"/>
+						
+			        <h:outputText value="#{messages.email}:"/>
+			        <h:outputText value="#{serviceAdminUserDetailBean.user.email}"/>
+						
+			        <h:outputText value="#{messages.email_more}:"/>
+			        <h:panelGroup>
+			        	<ul>
+			        		<ui:repeat var="emailAddress" value="#{serviceAdminUserDetailBean.user.emailAddresses.toArray()}">
+				        		<li><h:outputText value="#{emailAddress}"/></li>
+				        	</ui:repeat>
+				        </ul>
+			        </h:panelGroup>
+
+			        <h:outputText value="#{messages.uid_number}:"/>
+			        <h:outputText value="#{serviceAdminUserDetailBean.user.uidNumber}"/>
+						
+			        <h:outputText value="#{messages.primary_group}:"/>
+			        <h:panelGroup>
+				        <h:outputText value="#{serviceAdminUserDetailBean.user.primaryGroup.name} ("/>
+				        <h:outputText value="Prefix: #{serviceAdminUserDetailBean.user.primaryGroup.prefix}" rendered="#{serviceAdminUserDetailBean.user.primaryGroup.class.simpleName == 'HomeOrgGroupEntity'}"/>
+				        <h:outputText value=", GID: #{serviceAdminUserDetailBean.user.primaryGroup.gidNumber})"/>
+					</h:panelGroup>
+					
+			        <h:outputText value="#{messages.persistent_id}:"/>
+			        <h:panelGroup>
+			        	<h:outputText value="#{serviceAdminUserDetailBean.user.persistentId} (#{serviceAdminUserDetailBean.user.persistentSpId}, #{serviceAdminUserDetailBean.user.persistentIdpId})" rendered="#{serviceAdminUserDetailBean.user.class.simpleName == 'SamlUserEntity'}"/>
+			        	<h:outputText value="#{serviceAdminUserDetailBean.user.externalId} (externalId)" rendered="#{serviceAdminUserDetailBean.user.class.simpleName == 'ExternalUserEntity'}"/>
+					</h:panelGroup>
+					
+			        <h:outputText value="#{messages.status}:"/>
+			        <h:outputText value="#{serviceAdminUserDetailBean.user.userStatus}"/>
+
+			        <h:outputText value="#{messages.last_status_change}:"/>
+					<h:outputText value="#{of:formatDate(serviceAdminUserDetailBean.user.lastStatusChange, 'dd.MM.yyyy HH:mm')}" />
+								
+			        <h:outputText value="#{messages.last_update}:"/>
+					<h:outputText value="#{of:formatDate(serviceAdminUserDetailBean.user.lastUpdate, 'dd.MM.yyyy HH:mm')}" />
+								
+			        <h:outputText value="#{messages.last_failed_update}:"/>
+					<h:outputText value="#{of:formatDate(serviceAdminUserDetailBean.user.lastFailedUpdate, 'dd.MM.yyyy HH:mm')}" />
+
+				</p:panelGrid>
+			</p:tab>
+
+			<p:tab id="tab3" title="#{messages.saml_values}">
+				<p:dataTable id="attrSamlData" style="min-width: 500px;" 
+						value="#{serviceAdminUserDetailBean.user.attributeStore.keySet().toArray()}" var="key">
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.name}" />
+						</f:facet>
+						<h:outputText value="#{key}" style="font-size: 80%;" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.value}" />
+						</f:facet>
+						<h:outputText value="#{serviceAdminUserDetailBean.user.attributeStore.get(key)}" />
+					</p:column>						
+				</p:dataTable>
+				<div style="margin-top: 12px;">
+					<p:commandButton value="#{messages.attr_query}" action="#{serviceAdminUserDetailBean.updateFromIdp()}" update="@form" />
+					<p:ajaxStatus id="ajaxStatusPanel" style="display: inline-block; margin-left: 8px; vertical-align: baseline;">
+						<f:facet name="start">  
+							<h:graphicImage value="#{resource['/img/ajax-loader.gif']}" alt="#{messages.loading}"/>
+						</f:facet>  
+						<f:facet name="complete">  
+							<h:outputText value="" />
+						</f:facet>  				
+					</p:ajaxStatus>  
+				</div>
+			</p:tab>
+
+			<p:tab id="tab5" title="#{messages.more_properties}">
+				<p:dataTable id="storeData" style="min-width: 500px;" 
+						value="#{serviceAdminUserDetailBean.user.genericStore.keySet().toArray()}" var="key">
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.name}" />
+						</f:facet>
+						<h:outputText value="#{key}" style="font-size: 80%;" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.value}" />
+						</f:facet>
+						<h:outputText value="#{serviceAdminUserDetailBean.user.genericStore.get(key)}" />
+					</p:column>
+				</p:dataTable>				
+			</p:tab>		
+
+			<p:tab id="tab6" title="#{messages.secondary_groups}">
+				<p:dataTable id="secGroupData" style="min-width: 500px;" 
+						value="#{serviceAdminUserDetailBean.groupList}" var="group">
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.name}" />
+						</f:facet>
+						<h:outputText value="#{group.class.simpleName}: #{group.name} " />
+						<h:outputText value="(#{group.prefix})" rendered="#{group.class.simpleName == 'HomeOrgGroupEntity'}" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.id}" />
+						</f:facet>
+						<h:outputText value="#{group.gidNumber}" />
+					</p:column>
+				</p:dataTable>
+			</p:tab>
+									
+		</p:tabView>
 
 		<br/>
 		<div id="panelInline">
-			<p:panel id="toolsPanel" header="#{messages.tools}">
-				<h:panelGroup rendered="#{serviceAdminUserDetailBean.entity.registryStatus == 'ACTIVE'}">
-					<p:commandButton action="#{serviceAdminUserDetailBean.reconsiliation()}" 
-						value="#{messages.reconsiliation}" update="@form" />				
-					<p:commandButton action="#{serviceAdminUserDetailBean.fullReconsiliation()}" 
-						value="#{messages.full_reconsiliation}" update="@form" />			
-				</h:panelGroup>	
-				<h:panelGroup rendered="#{(serviceAdminUserDetailBean.entity.registryStatus == 'ACTIVE' || serviceAdminUserDetailBean.entity.registryStatus == 'LOST_ACCESS')}">
-			        <p:commandButton id="delUsr" action="#{serviceAdminUserDetailBean.deregister()}" value="#{messages.deregister}"
-			        	style="color: red;" update="@form">
-						<p:confirm header="#{messages.confirm}" message="#{messages.are_you_sure}" icon="ui-icon-alert" />			        	
-			        </p:commandButton>					
-				</h:panelGroup>	
-			</p:panel>
 		</div>
 
 		<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
@@ -121,9 +226,6 @@
         	<p:commandButton value="#{messages.no}" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
     	</p:confirmDialog>
 
-		<p:blockUI block="toolsPanel" trigger="delUsr">  
-      			<p:graphicImage value="#{resource['/img/ajax-loader.gif']}" alt="#{messages.loading}" />  
-		</p:blockUI>
 
 	</h:form>
 
