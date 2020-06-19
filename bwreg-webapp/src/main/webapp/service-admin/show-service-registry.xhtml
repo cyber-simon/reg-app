@@ -26,8 +26,6 @@
 
 		<h2><h:outputText value="#{messages.registered}: #{serviceAdminUserDetailBean.entity.service.name}/ #{serviceAdminUserDetailBean.entity.user.eppn}"/></h2>
 		
-		<p:messages id="messageBox" showDetail="true" />
-		
 		<p:tabView id="tabVw" dynamic="true" cache="true">
 
 			<p:tab id="tab1" title="#{messages.registry_details}">
@@ -165,7 +163,7 @@
 						<h:outputText value="#{serviceAdminUserDetailBean.user.attributeStore.get(key)}" />
 					</p:column>						
 				</p:dataTable>
-				<div style="margin-top: 12px;">
+				<div style="margin-top: 16px; margin-bottom: 16px;">
 					<p:commandButton value="#{messages.attr_query}" action="#{serviceAdminUserDetailBean.updateFromIdp()}" update="@form" />
 					<p:ajaxStatus id="ajaxStatusPanel" style="display: inline-block; margin-left: 8px; vertical-align: baseline;">
 						<f:facet name="start">  
@@ -174,8 +172,15 @@
 						<f:facet name="complete">  
 							<h:outputText value="" />
 						</f:facet>  				
-					</p:ajaxStatus>  
+					</p:ajaxStatus>	 
 				</div>
+				<p:panel id="showAssertionId" toggleable="true" collapsed="true" header="Last Assertion">
+					<div>Last assertion from: <h:outputText value="#{serviceAdminUserDetailBean.samlAssertion.createdAt}" /></div>
+					<div>Valid until: <h:outputText value="#{serviceAdminUserDetailBean.samlAssertion.validUntil}" /></div>
+		        	<div style="font-family: 'Courier New', monospace; white-space: pre; font-size: 100%;">
+						<h:outputText value="#{serviceAdminUserDetailBean.samlAssertion.assertionData}" />
+					</div>
+				</p:panel>
 			</p:tab>
 
 			<p:tab id="tab5" title="#{messages.more_properties}">
@@ -217,10 +222,8 @@
 									
 		</p:tabView>
 
-		<br/>
-		<div id="panelInline">
-		</div>
-
+		<p:messages id="messageBox" showDetail="true" />
+		
 		<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
         	<p:commandButton value="#{messages.yes}" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
         	<p:commandButton value="#{messages.no}" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />

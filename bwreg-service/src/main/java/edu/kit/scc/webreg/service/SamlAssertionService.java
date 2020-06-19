@@ -8,14 +8,11 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.dao;
+package edu.kit.scc.webreg.service;
 
 import edu.kit.scc.webreg.entity.SamlAssertionEntity;
-import edu.kit.scc.webreg.entity.UserEntity;
 
-public interface SamlAssertionDao extends BaseDao<SamlAssertionEntity, Long> {
-
-	void deleteAssertionForUser(UserEntity user);
+public interface SamlAssertionService extends BaseService<SamlAssertionEntity, Long> {
 
 	SamlAssertionEntity findByUserId(Long userId);
 

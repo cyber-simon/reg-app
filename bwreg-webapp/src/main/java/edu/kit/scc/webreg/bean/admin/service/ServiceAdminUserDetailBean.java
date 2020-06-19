@@ -25,6 +25,7 @@ import edu.kit.scc.webreg.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
+import edu.kit.scc.webreg.entity.SamlAssertionEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
@@ -37,6 +38,7 @@ import edu.kit.scc.webreg.service.ASUserAttrService;
 import edu.kit.scc.webreg.service.AttributeSourceService;
 import edu.kit.scc.webreg.service.GroupService;
 import edu.kit.scc.webreg.service.RegistryService;
+import edu.kit.scc.webreg.service.SamlAssertionService;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;
 import edu.kit.scc.webreg.session.SessionManager;
@@ -77,6 +79,9 @@ public class ServiceAdminUserDetailBean implements Serializable {
 	
 	@Inject
 	private AttributeSourceService attributeSourceService;
+	
+	@Inject
+	private SamlAssertionService samlAssertionService;
 
     @Inject
     private SessionManager sessionManager;
@@ -91,6 +96,8 @@ public class ServiceAdminUserDetailBean implements Serializable {
 	private AttributeSourceEntity selectedAttributeSource;
 	private ASUserAttrEntity selectedUserAttr;
 
+	private SamlAssertionEntity samlAssertion;
+	
     private Long id;
 
 	public void preRenderView(ComponentSystemEvent ev) {
@@ -143,17 +150,20 @@ public class ServiceAdminUserDetailBean implements Serializable {
 
 		if (getUser() instanceof SamlUserEntity) {
 			try {
-				userService.updateUserFromIdp((SamlUserEntity) getUser(), "user-" + sessionManager.getUserId());
-				messageGenerator.addInfoMessage("Info", "Info Detail");
+				user = userService.updateUserFromIdp((SamlUserEntity) getUser(), "user-" + sessionManager.getUserId());
+				messageGenerator.addInfoMessage("Info", "SAML AttributeQuery went through without errors");
 			} catch (UserUpdateException e) {
 				logger.info("Exception while Querying IDP: {}", e.getMessage());
+				String extendedInfo = "";
 				if (e.getCause() != null) {
-					logger.info("Cause is: {}", e.getCause().getMessage());
+					logger.info("<br/>Cause is: {}", e.getCause().getMessage());
+					extendedInfo = "Cause: " + e.getCause().getMessage();
 					if (e.getCause().getCause() != null) {
 						logger.info("Inner Cause is: {}", e.getCause().getCause().getMessage());
+						extendedInfo = "<br/>Inner Cause: " + e.getCause().getCause().getMessage();
 					}
 				}
-				messageGenerator.addErrorMessage("Problem", "Problem Detail");
+				messageGenerator.addErrorMessage("Problem", "Exception while Querying IDP: " + e.getMessage() + extendedInfo);
 			}
 		}
 		else {
@@ -210,5 +220,12 @@ public class ServiceAdminUserDetailBean implements Serializable {
 
 	public AttributeSourceEntity getSelectedAttributeSource() {
 		return selectedAttributeSource;
+	}
+
+	public SamlAssertionEntity getSamlAssertion() {
+		if (samlAssertion == null) {
+			samlAssertion = samlAssertionService.findByUserId(getUser().getId());
+		}
+		return samlAssertion;
 	}
 }
