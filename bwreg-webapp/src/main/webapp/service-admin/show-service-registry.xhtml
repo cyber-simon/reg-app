@@ -262,7 +262,40 @@
 					</p:column>
 				</p:dataTable>
 			</p:tab>
-									
+
+			<p:tab id="tab8" title="#{messages.ssh_key}">
+     			<p:dataTable var="regKey" value="#{serviceAdminUserDetailBean.sshKeyRegistryList.toArray()}">
+	      			<p:column width="5%">
+	       				<f:facet name="header"><h:outputText value="#{messages.status}"/></f:facet>
+        				<h:panelGroup id="deniedKey" rendered="#{regKey.keyStatus == 'DENIED'}">
+        					<i class="fa fa-fw fa-close"></i>
+        				</h:panelGroup>
+        				<p:tooltip id="toolTipDeniedKey" for="deniedKey" value="#{messages.ssh_pub_key_denied}" position="top"/>
+        				<h:panelGroup id="pendingKey" rendered="#{regKey.keyStatus == 'PENDING'}">
+        					<i class="fa fa-fw fa-exclamation-triangle"></i>
+        				</h:panelGroup>
+        				<p:tooltip id="toolTipPendingKey" for="pendingKey" value="#{messages.ssh_pub_key_pending}" position="top"/>
+        				<h:panelGroup id="activeKey" rendered="#{regKey.keyStatus == 'ACTIVE'}">
+        					<i class="fa fa-fw fa-check"></i>
+       					</h:panelGroup>
+        				<p:tooltip id="toolTipActiveKey" for="activeKey" value="#{messages.ssh_pub_key_active}" position="top"/>
+	        		</p:column>
+	      			<p:column>
+	       				<f:facet name="header"><h:outputText value="#{messages.ssh_key_name}:"/></f:facet>
+	        			<h:outputText value="#{regKey.sshPubKey.name}"/>
+	        		</p:column>
+					<p:column>
+	       				<f:facet name="header"><h:outputText value="#{messages.ssh_pub_key_usage_type}"/></f:facet>
+	        			<h:panelGroup id="interactiveId" rendered="#{regKey.usageType == 'INTERACTIVE'}"><i class="fa fa-fw fa-user"></i><br/> 
+	        			 interactive
+	        			</h:panelGroup>
+	        			<h:panelGroup id="commandId" rendered="#{regKey.usageType == 'COMMAND'}"><i class="fa fa-fw fa-database"></i><br/> 
+	        			 command: <h:outputText value="#{regKey.command}" /><br/>
+	        			 from: <h:outputText value="#{regKey.from}" />
+	        			</h:panelGroup>
+	        		</p:column>
+      			</p:dataTable>				
+			</p:tab>		
 		</p:tabView>
 
 		<p:messages id="messageBox" showDetail="true" escape="false" />

@@ -26,6 +26,7 @@ import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.SamlAssertionEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
+import edu.kit.scc.webreg.entity.SshPubKeyRegistryEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
@@ -38,6 +39,7 @@ import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.SamlAssertionService;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;
+import edu.kit.scc.webreg.service.ssh.SshPubKeyRegistryService;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
@@ -78,6 +80,9 @@ public class ServiceAdminUserDetailBean implements Serializable {
 	private SamlAssertionService samlAssertionService;
 
     @Inject
+    private SshPubKeyRegistryService sshPubKeyRegistryService;
+
+    @Inject
     private SessionManager sessionManager;
     
     private RegistryEntity entity;
@@ -89,6 +94,8 @@ public class ServiceAdminUserDetailBean implements Serializable {
 	private List<ASUserAttrEntity> asUserAttrList;
 
 	private SamlAssertionEntity samlAssertion;
+	
+	private List<SshPubKeyRegistryEntity> sshKeyRegistryList;
 	
     private Long id;
 
@@ -204,5 +211,12 @@ public class ServiceAdminUserDetailBean implements Serializable {
 			samlAssertion = samlAssertionService.findByUserId(getUser().getId());
 		}
 		return samlAssertion;
+	}
+
+	public List<SshPubKeyRegistryEntity> getSshKeyRegistryList() {
+		if (sshKeyRegistryList == null) {
+			sshKeyRegistryList = sshPubKeyRegistryService.findByRegistry(entity.getId());
+		}
+		return sshKeyRegistryList;
 	}
 }
