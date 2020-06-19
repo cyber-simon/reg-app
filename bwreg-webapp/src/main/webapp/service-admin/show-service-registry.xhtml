@@ -77,6 +77,8 @@
 							value="#{messages.full_reconsiliation}" update="@form" />			
 					</h:panelGroup>	
 					<h:panelGroup rendered="#{(serviceAdminUserDetailBean.entity.registryStatus == 'ACTIVE' || serviceAdminUserDetailBean.entity.registryStatus == 'LOST_ACCESS' || serviceAdminUserDetailBean.entity.registryStatus == 'ON_HOLD')}">
+						<p:commandButton id="checkRegId" action="#{serviceAdminUserDetailBean.checkRegistry()}" 
+							value="Check Access" update="@form" />			
 				        <p:commandButton id="delUsr" action="#{serviceAdminUserDetailBean.deregister()}" value="#{messages.deregister}"
 				        	style="color: red;" update="@form">
 							<p:confirm header="#{messages.confirm}" message="#{messages.are_you_sure}" icon="ui-icon-alert" />			        	

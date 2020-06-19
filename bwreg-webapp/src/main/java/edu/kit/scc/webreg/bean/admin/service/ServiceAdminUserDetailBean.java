@@ -22,10 +22,14 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.drools.KnowledgeSessionService;
+import edu.kit.scc.webreg.drools.OverrideAccess;
+import edu.kit.scc.webreg.drools.UnauthorizedUser;
+import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.SamlAssertionEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.SshPubKeyRegistryEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
@@ -130,9 +134,45 @@ public class ServiceAdminUserDetailBean implements Serializable {
 	public void checkRegistry() {
 		logger.info("Trying to check registry {} for user {}", entity.getId(), getUser().getEppn());
 		
-		List<RegistryEntity> tempRegistryList = new ArrayList<RegistryEntity>();
-		tempRegistryList.add(entity);
-		knowledgeSessionService.checkRules(tempRegistryList, user, "user-" + sessionManager.getUserId(), false);
+		List<Object> objectList;
+		ServiceEntity service = entity.getService();
+		List<String> requirementsList;
+		
+		if (service.getAccessRule() == null) {
+			objectList = knowledgeSessionService.checkRule("default", "permitAllRule", "1.0.0", user, service, null, "user-self", false);
+		}
+		else {
+			BusinessRulePackageEntity rulePackage = service.getAccessRule().getRulePackage();
+			if (rulePackage != null) {
+				objectList = knowledgeSessionService.checkRule(rulePackage.getPackageName(), rulePackage.getKnowledgeBaseName(), 
+					rulePackage.getKnowledgeBaseVersion(), user, service, null, "user-self", false);
+			}
+			else {
+				throw new IllegalStateException("checkServiceAccess called with a rule (" +
+							service.getAccessRule().getName() + ") that has no rulePackage");
+			}
+		}
+
+		requirementsList = new ArrayList<String>();
+		for (Object o : objectList) {
+			if (o instanceof OverrideAccess) {
+				requirementsList.clear();
+				logger.debug("Removing requirements due to OverrideAccess");
+				break;
+			}
+			else if (o instanceof UnauthorizedUser) {
+				String s = ((UnauthorizedUser) o).getMessage();
+				requirementsList.add(s);
+			}
+		}
+
+		if (requirementsList.size() == 0) {
+			messageGenerator.addInfoMessage("OK", "Access okay");
+		}
+		
+		for (String s : requirementsList) {
+    		messageGenerator.addResolvedErrorMessage("reqs", "error", s, true);
+		}
 	}
 	
 	public void deregister() {
