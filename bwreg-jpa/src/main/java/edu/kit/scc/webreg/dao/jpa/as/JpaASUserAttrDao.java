@@ -45,6 +45,15 @@ public class JpaASUserAttrDao extends JpaBaseDao<ASUserAttrEntity, Long> impleme
 					+ "a.user = :user")
 					.setParameter("user", user).getResultList();
 	}
+
+	@SuppressWarnings("unchecked")
+	@Override 
+	public List<ASUserAttrEntity> findForUserWithValues(UserEntity user) {
+		return (List<ASUserAttrEntity>) em.createQuery("select distinct a from ASUserAttrEntity a "
+				+ "join fetch a.values "
+				+ "where a.user = :user")
+			.setParameter("user", user).getResultList();
+	}
 	
 	@Override
 	public Class<ASUserAttrEntity> getEntityClass() {

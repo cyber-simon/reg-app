@@ -19,4 +19,6 @@ public interface ASUserAttrService extends BaseService<ASUserAttrEntity, Long> {
 
 	List<ASUserAttrEntity> findForUser(UserEntity user);
 
+	List<ASUserAttrEntity> findForUserWithValues(UserEntity user);
+
 }

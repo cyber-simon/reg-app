@@ -24,18 +24,15 @@ import org.slf4j.Logger;
 import edu.kit.scc.webreg.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
-import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.SamlAssertionEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
-import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.sec.AuthorizationBean;
 import edu.kit.scc.webreg.service.ASUserAttrService;
-import edu.kit.scc.webreg.service.AttributeSourceService;
 import edu.kit.scc.webreg.service.GroupService;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.SamlAssertionService;
@@ -78,9 +75,6 @@ public class ServiceAdminUserDetailBean implements Serializable {
 	private ASUserAttrService asUserAttrService;
 	
 	@Inject
-	private AttributeSourceService attributeSourceService;
-	
-	@Inject
 	private SamlAssertionService samlAssertionService;
 
     @Inject
@@ -93,8 +87,6 @@ public class ServiceAdminUserDetailBean implements Serializable {
 	private List<GroupEntity> groupList;
 	
 	private List<ASUserAttrEntity> asUserAttrList;
-	private AttributeSourceEntity selectedAttributeSource;
-	private ASUserAttrEntity selectedUserAttr;
 
 	private SamlAssertionEntity samlAssertion;
 	
@@ -203,23 +195,8 @@ public class ServiceAdminUserDetailBean implements Serializable {
 
 	public List<ASUserAttrEntity> getAsUserAttrList() {
 		if (asUserAttrList == null)
-			asUserAttrList = asUserAttrService.findForUser(user);
+			asUserAttrList = asUserAttrService.findForUserWithValues(getUser());
 		return asUserAttrList;
-	}
-
-	public ASUserAttrEntity getSelectedUserAttr() {
-		return selectedUserAttr;
-	}
-
-	public void setSelectedUserAttr(ASUserAttrEntity selectedUserAttr) {
-		selectedUserAttr = asUserAttrService.findByIdWithAttrs(selectedUserAttr.getId(), "values");
-		selectedAttributeSource = attributeSourceService.findByIdWithAttrs(
-				selectedUserAttr.getAttributeSource().getId(), "attributeSourceServices");
-		this.selectedUserAttr = selectedUserAttr;
-	}
-
-	public AttributeSourceEntity getSelectedAttributeSource() {
-		return selectedAttributeSource;
 	}
 
 	public SamlAssertionEntity getSamlAssertion() {

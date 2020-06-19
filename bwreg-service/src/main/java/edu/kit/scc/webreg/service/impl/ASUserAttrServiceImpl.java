@@ -35,6 +35,11 @@ public class ASUserAttrServiceImpl extends BaseServiceImpl<ASUserAttrEntity, Lon
 	}
 	
 	@Override
+	public List<ASUserAttrEntity> findForUserWithValues(UserEntity user) {
+		return dao.findForUserWithValues(user);
+	}
+	
+	@Override
 	protected BaseDao<ASUserAttrEntity, Long> getDao() {
 		return dao;
 	}

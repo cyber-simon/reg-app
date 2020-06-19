@@ -219,6 +219,49 @@
 					</p:column>
 				</p:dataTable>
 			</p:tab>
+
+			<p:tab id="tab7" title="#{messages.attribute_sources}">
+				<p:dataTable id="asData" style="min-width: 500px;" 
+						value="#{serviceAdminUserDetailBean.asUserAttrList}" var="ua">
+					<p:column sortBy="#{ua.attributeSource.name}">
+						<f:facet name="header">
+							<h:outputText value="#{messages.name}" />
+						</f:facet>
+						<h:outputText value="#{ua.attributeSource.name}" />
+					</p:column>
+					<p:column sortBy="#{ua.lastSuccessfulQuery}">
+						<f:facet name="header">
+							<h:outputText value="#{messages.last_update}" />
+						</f:facet>
+						<h:outputText value="#{of:formatDate(ua.lastQuery, 'dd.MM.yyyy HH:mm')}" />
+					</p:column>
+					<p:column sortBy="#{ua.lastSuccessfulQuery}">
+						<f:facet name="header">
+							<h:outputText value="#{messages.last_successful_update}" />
+						</f:facet>
+						<h:outputText value="#{of:formatDate(ua.lastSuccessfulQuery, 'dd.MM.yyyy HH:mm')}" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.message}" />
+						</f:facet>
+						<h:outputText value="#{ua.queryMessage}" rendered="#{ua.queryStatus != 'SUCCESS'}"/>
+						<p:repeat var="uaValue" value="#{ua.values}" rendered="#{ua.queryStatus == 'SUCCESS'}">
+							<div><h:outputText value="#{uaValue.key}"/>: 
+							<h:outputText value="#{uaValue.valueString}" rendered="#{uaValue.class.simpleName == 'ASUserAttrValueStringEntity'}"/>
+							<h:outputText value="#{uaValue.valueLong}" rendered="#{uaValue.class.simpleName == 'ASUserAttrValueLongEntity'}"/>
+							<h:outputText value="#{uaValue.valueDate}" rendered="#{uaValue.class.simpleName == 'ASUserAttrValueDateEntity'}"/>
+							</div>
+						</p:repeat>
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.status}" />
+						</f:facet>
+						<h:outputText value="#{ua.queryStatus}" />
+					</p:column>
+				</p:dataTable>
+			</p:tab>
 									
 		</p:tabView>
 
