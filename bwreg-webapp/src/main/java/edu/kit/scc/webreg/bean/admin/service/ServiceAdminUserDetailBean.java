@@ -156,8 +156,8 @@ public class ServiceAdminUserDetailBean implements Serializable {
 				logger.info("Exception while Querying IDP: {}", e.getMessage());
 				String extendedInfo = "";
 				if (e.getCause() != null) {
-					logger.info("<br/>Cause is: {}", e.getCause().getMessage());
-					extendedInfo = "Cause: " + e.getCause().getMessage();
+					logger.info("Cause is: {}", e.getCause().getMessage());
+					extendedInfo = "<br/>Cause: " + e.getCause().getMessage();
 					if (e.getCause().getCause() != null) {
 						logger.info("Inner Cause is: {}", e.getCause().getCause().getMessage());
 						extendedInfo = "<br/>Inner Cause: " + e.getCause().getCause().getMessage();
