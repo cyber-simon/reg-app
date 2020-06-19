@@ -120,11 +120,10 @@ public class SshKeyController {
 				sb.append(regKey.getSshPubKey().getKeyType());
 				sb.append(" ");
 				sb.append(regKey.getSshPubKey().getEncodedKey());
-				sb.append(" ");
-				if (regKey.getComment() != null)
-					sb.append(regKey.getComment());
-				else if (regKey.getSshPubKey().getComment() != null)
-					sb.append(regKey.getSshPubKey().getComment());
+				if (user.getEmail() != null) {
+					sb.append(" ");
+					sb.append(user.getEmail());
+				}
 				sb.append("\n");
 			}
 		}
@@ -168,11 +167,10 @@ public class SshKeyController {
 				sb.append(regKey.getSshPubKey().getKeyType());
 				sb.append(" ");
 				sb.append(regKey.getSshPubKey().getEncodedKey());
-				sb.append(" ");
-				if (regKey.getComment() != null)
-					sb.append(regKey.getComment());
-				else if (regKey.getSshPubKey().getComment() != null)
-					sb.append(regKey.getSshPubKey().getComment());
+				if (user.getEmail() != null) {
+					sb.append(" ");
+					sb.append(user.getEmail());
+				}
 				sb.append("\n");
 			}
 		}
@@ -221,11 +219,10 @@ public class SshKeyController {
 				sb.append(regKey.getSshPubKey().getKeyType());
 				sb.append(" ");
 				sb.append(regKey.getSshPubKey().getEncodedKey());
-				sb.append(" ");
-				if (regKey.getComment() != null)
-					sb.append(regKey.getComment());
-				else if (regKey.getSshPubKey().getComment() != null)
-					sb.append(regKey.getSshPubKey().getComment());
+				if (user.getEmail() != null) {
+					sb.append(" ");
+					sb.append(user.getEmail());
+				}
 				sb.append("\n");
 			}
 		}
