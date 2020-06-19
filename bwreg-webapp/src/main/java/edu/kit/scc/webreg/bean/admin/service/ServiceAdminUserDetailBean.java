@@ -145,7 +145,7 @@ public class ServiceAdminUserDetailBean implements Serializable {
 			BusinessRulePackageEntity rulePackage = service.getAccessRule().getRulePackage();
 			if (rulePackage != null) {
 				objectList = knowledgeSessionService.checkRule(rulePackage.getPackageName(), rulePackage.getKnowledgeBaseName(), 
-					rulePackage.getKnowledgeBaseVersion(), user, service, null, "user-self", false);
+					rulePackage.getKnowledgeBaseVersion(), user, service, entity, "user-self", false);
 			}
 			else {
 				throw new IllegalStateException("checkServiceAccess called with a rule (" +
