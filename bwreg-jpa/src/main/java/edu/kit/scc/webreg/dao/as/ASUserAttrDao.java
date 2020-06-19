@@ -23,5 +23,7 @@ public interface ASUserAttrDao extends BaseDao<ASUserAttrEntity, Long> {
 			AttributeSourceEntity attributeSource);
 
 	List<ASUserAttrEntity> findForUser(UserEntity user);
+
+	List<ASUserAttrEntity> findForUserWithValues(UserEntity user);
 	
 }

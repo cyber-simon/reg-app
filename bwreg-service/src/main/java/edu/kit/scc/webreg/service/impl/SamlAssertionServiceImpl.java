@@ -10,37 +10,30 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.impl;
 
-import java.util.List;
-
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import edu.kit.scc.webreg.dao.BaseDao;
-import edu.kit.scc.webreg.dao.as.ASUserAttrDao;
-import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
-import edu.kit.scc.webreg.service.ASUserAttrService;
+import edu.kit.scc.webreg.dao.SamlAssertionDao;
+import edu.kit.scc.webreg.entity.SamlAssertionEntity;
+import edu.kit.scc.webreg.service.SamlAssertionService;
 
 @Stateless
-public class ASUserAttrServiceImpl extends BaseServiceImpl<ASUserAttrEntity, Long> implements ASUserAttrService {
+public class SamlAssertionServiceImpl extends BaseServiceImpl<SamlAssertionEntity, Long> implements SamlAssertionService {
 
 	private static final long serialVersionUID = 1L;
 
 	@Inject
-	private ASUserAttrDao dao;
-
+	private SamlAssertionDao dao;
+	
 	@Override
-	public List<ASUserAttrEntity> findForUser(UserEntity user) {
-		return dao.findForUser(user);
+	public SamlAssertionEntity findByUserId(Long userId) {
+		return dao.findByUserId(userId);
 	}
 	
 	@Override
-	public List<ASUserAttrEntity> findForUserWithValues(UserEntity user) {
-		return dao.findForUserWithValues(user);
-	}
-	
-	@Override
-	protected BaseDao<ASUserAttrEntity, Long> getDao() {
+	protected BaseDao<SamlAssertionEntity, Long> getDao() {
 		return dao;
 	}
+
 }

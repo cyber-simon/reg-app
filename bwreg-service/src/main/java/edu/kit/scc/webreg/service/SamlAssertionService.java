@@ -10,15 +10,10 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service;
 
-import java.util.List;
+import edu.kit.scc.webreg.entity.SamlAssertionEntity;
 
-import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
+public interface SamlAssertionService extends BaseService<SamlAssertionEntity, Long> {
 
-public interface ASUserAttrService extends BaseService<ASUserAttrEntity, Long> {
-
-	List<ASUserAttrEntity> findForUser(UserEntity user);
-
-	List<ASUserAttrEntity> findForUserWithValues(UserEntity user);
+	SamlAssertionEntity findByUserId(Long userId);
 
 }
