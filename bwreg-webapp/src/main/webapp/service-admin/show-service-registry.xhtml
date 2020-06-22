@@ -88,7 +88,34 @@
 				<p:blockUI block="toolsPanel" trigger="delUsr,fullReconId">  
       				<p:graphicImage value="#{resource['/img/ajax-loader.gif']}" alt="#{messages.loading}" />  
 				</p:blockUI>
-			
+					
+			</p:tab>		
+
+			<p:tab id="tab1-5" title="Backend">
+				<h:panelGroup rendered="#{not empty serviceAdminUserDetailBean.infotainment}">
+					<div style="margin: 16px;">
+						<h:outputText value="#{serviceAdminUserDetailBean.infotainment.message}" />
+					</div>
+					<p:treeTable rendered="#{not empty serviceAdminUserDetailBean.infotainmentRoot}"
+								value="#{serviceAdminUserDetailBean.infotainmentRoot}" var="node">
+								
+						<p:column width="30%">  
+            				<f:facet name="header">Name</f:facet>  
+            				<h:outputText value="#{node.nodeName}" />  
+        				</p:column>  
+  					
+						<p:column>  
+            				<f:facet name="header">Message</f:facet>  
+            				<h:outputText value="#{node.message}" />  
+        				</p:column>  
+  					
+					</p:treeTable>
+				</h:panelGroup>
+				<h:panelGroup rendered="#{empty serviceAdminUserDetailBean.infotainment}">
+					<div style="margin: 16px;">
+						<h:outputText value="No Infotainment for Registerworkflow available." />
+					</div>
+				</h:panelGroup>				
 			</p:tab>		
 
 			<p:tab id="tab2" title="#{messages.user_properties}">

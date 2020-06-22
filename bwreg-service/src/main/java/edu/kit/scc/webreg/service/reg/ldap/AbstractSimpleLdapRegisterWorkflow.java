@@ -204,9 +204,8 @@ public abstract class AbstractSimpleLdapRegisterWorkflow
 		ldapWorker.closeConnections();
 	}
 
-	@Override
-	public Infotainment getInfo(RegistryEntity registry, UserEntity user,
-			ServiceEntity service) throws RegisterException {
+	protected Infotainment getInfo(RegistryEntity registry, UserEntity user,
+			ServiceEntity service, Boolean forAdmin) throws RegisterException {
 		Infotainment info = new Infotainment();
 		
 		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
@@ -214,17 +213,29 @@ public abstract class AbstractSimpleLdapRegisterWorkflow
 		String localUid = regMap.get("localUid");
 		LdapWorker ldapWorker = new LdapWorker(prop, null, isSambaEnabled());
 
-		ldapWorker.getInfo(info, localUid);
+		if (forAdmin) {
+			ldapWorker.getInfoForAdmin(info, localUid);
+		}
+		else {
+			ldapWorker.getInfo(info, localUid);
+		}
 		
 		ldapWorker.closeConnections();		
 
 		return info;
+	
+	}
+	
+	@Override
+	public Infotainment getInfo(RegistryEntity registry, UserEntity user,
+			ServiceEntity service) throws RegisterException {
+		return getInfo(registry, user, service, false);
 	}		
 
 	@Override
 	public Infotainment getInfoForAdmin(RegistryEntity registry, UserEntity user,
 			ServiceEntity service) throws RegisterException {
-		return getInfo(registry, user, service);
+		return getInfo(registry, user, service, true);
 	}
 	
 	protected String evalTemplate(String template, UserEntity user, Map<String, String> reconMap, String homeId, String homeUid) 

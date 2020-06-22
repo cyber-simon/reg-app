@@ -19,6 +19,8 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
+import org.primefaces.model.DefaultTreeNode;
+import org.primefaces.model.TreeNode;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.drools.KnowledgeSessionService;
@@ -27,6 +29,7 @@ import edu.kit.scc.webreg.drools.UnauthorizedUser;
 import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.SamlAssertionEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
@@ -41,8 +44,13 @@ import edu.kit.scc.webreg.service.ASUserAttrService;
 import edu.kit.scc.webreg.service.GroupService;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.SamlAssertionService;
+import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.service.reg.Infotainment;
+import edu.kit.scc.webreg.service.reg.InfotainmentCapable;
+import edu.kit.scc.webreg.service.reg.InfotainmentTreeNode;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;
+import edu.kit.scc.webreg.service.reg.RegisterUserWorkflow;
 import edu.kit.scc.webreg.service.ssh.SshPubKeyRegistryService;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
@@ -75,6 +83,9 @@ public class ServiceAdminUserDetailBean implements Serializable {
 	private GroupService groupService;
 	
 	@Inject
+	private ServiceService serviceService;
+	
+	@Inject
 	private KnowledgeSessionService knowledgeSessionService;
 	
 	@Inject
@@ -101,6 +112,9 @@ public class ServiceAdminUserDetailBean implements Serializable {
 	
 	private List<SshPubKeyRegistryEntity> sshKeyRegistryList;
 	
+	private Infotainment infotainment;
+	private TreeNode infotainmentRoot;
+	
     private Long id;
 
 	public void preRenderView(ComponentSystemEvent ev) {
@@ -111,6 +125,13 @@ public class ServiceAdminUserDetailBean implements Serializable {
 		if (! (authBean.isUserServiceAdmin(entity.getService()) || 
 				authBean.isUserServiceHotline(entity.getService())))
 			throw new NotAuthorizedException("Nicht autorisiert");
+	}
+
+	private void fillChildren(TreeNode node, InfotainmentTreeNode infoNode) {
+		for (InfotainmentTreeNode subInfoNode : infoNode.getChildren()) {
+			TreeNode subNode = new DefaultTreeNode(subInfoNode, node);
+			fillChildren(subNode, subInfoNode);
+		}
 	}
 
 	public void reconsiliation() {
@@ -258,5 +279,30 @@ public class ServiceAdminUserDetailBean implements Serializable {
 			sshKeyRegistryList = sshPubKeyRegistryService.findByRegistry(entity.getId());
 		}
 		return sshKeyRegistryList;
+	}
+
+	public Infotainment getInfotainment() {
+		if (infotainment == null) {
+			RegisterUserWorkflow registerWorkflow = registerUserService.getWorkflowInstance(entity.getService().getRegisterBean());
+			if (registerWorkflow instanceof InfotainmentCapable) {
+				try {
+					ServiceEntity serviceEntity = serviceService.findByIdWithServiceProps(entity.getService().getId());
+					infotainment = ((InfotainmentCapable) registerWorkflow).getInfoForAdmin(entity, entity.getUser(), serviceEntity);
+					
+					if (infotainment.getRoot() != null) {
+						infotainmentRoot = new DefaultTreeNode("root", null);
+						fillChildren(infotainmentRoot, infotainment.getRoot());
+					}
+						
+				} catch (RegisterException e) {
+					logger.warn("Getting Infotainment failed: {}", e.toString());
+				}
+			}
+		}		
+		return infotainment;
+	}
+
+	public TreeNode getInfotainmentRoot() {
+		return infotainmentRoot;
 	}
 }
