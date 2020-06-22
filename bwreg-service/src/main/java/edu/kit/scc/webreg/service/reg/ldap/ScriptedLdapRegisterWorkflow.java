@@ -199,6 +199,12 @@ public class ScriptedLdapRegisterWorkflow
 	}
 
 	@Override
+	public Infotainment getInfoForAdmin(RegistryEntity registry, UserEntity user,
+			ServiceEntity service) throws RegisterException {
+		return getInfo(registry, user, service);
+	}
+
+	@Override
 	public void updateGroups(ServiceEntity service, GroupUpdateStructure updateStruct, Auditor auditor)
 			throws RegisterException {
 

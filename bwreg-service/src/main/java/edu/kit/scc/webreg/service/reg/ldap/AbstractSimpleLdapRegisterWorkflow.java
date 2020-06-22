@@ -221,6 +221,12 @@ public abstract class AbstractSimpleLdapRegisterWorkflow
 		return info;
 	}		
 
+	@Override
+	public Infotainment getInfoForAdmin(RegistryEntity registry, UserEntity user,
+			ServiceEntity service) throws RegisterException {
+		return getInfo(registry, user, service);
+	}
+	
 	protected String evalTemplate(String template, UserEntity user, Map<String, String> reconMap, String homeId, String homeUid) 
 			throws RegisterException {
 		VelocityEngine engine = new VelocityEngine();

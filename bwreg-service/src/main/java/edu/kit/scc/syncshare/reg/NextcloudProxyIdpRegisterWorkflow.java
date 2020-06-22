@@ -63,6 +63,12 @@ public class NextcloudProxyIdpRegisterWorkflow  implements RegisterUserWorkflow,
 	}
 
 	@Override
+	public Infotainment getInfoForAdmin(RegistryEntity registry, UserEntity user,
+			ServiceEntity service) throws RegisterException {
+		return getInfo(registry, user, service);
+	}
+	
+	@Override
 	public void registerUser(UserEntity user, ServiceEntity service, RegistryEntity registry, Auditor auditor)
 			throws RegisterException {
 		
