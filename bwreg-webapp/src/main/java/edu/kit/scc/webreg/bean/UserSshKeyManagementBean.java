@@ -108,24 +108,27 @@ public class UserSshKeyManagementBean implements Serializable {
 	
 	public void deployKey() {
 		OpenSshPublicKey key;
-
-		Long expireTime = 90 * 24 * 60 * 60 * 1000L; // 90 days standard expiry time for ssh keys. -1 for never expire
-		if (appConfig.getConfigValue("sshpubkey_expire_time") != null) {
-			expireTime = Long.parseLong(appConfig.getConfigValue("sshpubkey_expire_time"));
-		}
-
 		SshPubKeyEntity sshPubKeyEntity = sshPubKeyService.createNew();
-		sshPubKeyEntity.setName(newName);
-		sshPubKeyEntity.setEncodedKey(newKey);
-		sshPubKeyEntity.setUser(user);
-		sshPubKeyEntity.setKeyStatus(SshPubKeyStatus.ACTIVE);
 
-		if (expireTime != -1) {
-			sshPubKeyEntity.setExpiresAt(new Date(System.currentTimeMillis() + expireTime));			
-		}
-		
 		try {
+			sshPubKeyEntity.setName(newName);
+			sshPubKeyEntity.setEncodedKey(newKey);
+			sshPubKeyEntity.setUser(user);
+			sshPubKeyEntity.setKeyStatus(SshPubKeyStatus.ACTIVE);
+	
 			key = keyDecoder.decode(sshPubKeyEntity);
+
+			sshPubKeyEntity.setEncodedKey(key.getBaseDate());
+			
+			Long expireTime = 90 * 24 * 60 * 60 * 1000L; // 90 days standard expiry time for ssh keys. -1 for never expire
+			if (appConfig.getConfigValue("sshpubkey_expire_time") != null) {
+				expireTime = Long.parseLong(appConfig.getConfigValue("sshpubkey_expire_time"));
+			}
+	
+			if (expireTime != -1) {
+				sshPubKeyEntity.setExpiresAt(new Date(System.currentTimeMillis() + expireTime));			
+			}
+			
 			sshPubKeyEntity = sshPubKeyService.deployKey(user.getId(), sshPubKeyEntity, "user-" + user.getId());
 			keyList.add(key);
 			newKey = "";
