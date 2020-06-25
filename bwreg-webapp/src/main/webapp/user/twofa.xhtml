@@ -28,6 +28,11 @@
 	
 			<p:messages id="messageBox" for="key_error" showDetail="true" />
 	
+			<p:repeat var="token" value="#{twoFaUserBean.tokenList}">
+				<div>
+					<h:outputText value="#{token.get('LinOtp.TokenSerialnumber')}" />
+				</div>
+			</p:repeat>
 		</p:panel>
 	</h:form>
 	</ui:define>

@@ -51,7 +51,7 @@ public class TwoFaServiceImpl implements TwoFaService {
 	private UserDao userDao;
 	
 	@Override
-	public void findByUserId(Long userId) throws TwoFaException {
+	public List<?> findByUserId(Long userId) throws TwoFaException {
 		UserEntity user = userDao.findById(userId);
 		
 		Map<String, String> configMap = configResolver.resolveConfig(user);
@@ -119,24 +119,27 @@ public class TwoFaServiceImpl implements TwoFaService {
 			        HttpEntity entity = response.getEntity();
 		            String responseString = EntityUtils.toString(entity);
 		            logger.debug(responseString);
+		            
 		            ObjectMapper om = new ObjectMapper();
 					@SuppressWarnings("unchecked")
 					Map<String, Object> map = om.readValue(responseString, Map.class);
 					if (map.get("result") instanceof Map<?, ?>) {
 						Map<?, ?> resultMap = (Map<?, ?>) map.get("result");
+						
 			            logger.debug("value: " + resultMap.get("value").getClass().toString());
 						if (resultMap.get("value") instanceof Map<?, ?>) {
 							Map<?, ?> valueMap = (Map<?, ?>) resultMap.get("value");
 				            logger.debug("data: " + valueMap.get("data").getClass().toString());
-				            if (valueMap.get("data") instanceof List<?>) {
-				            	List<?> dataList = (List<?>) valueMap.get("data");
-				            	for (Object data : dataList) {
-				            		if (data instanceof Map<?, ?>) {
-				            			Map<?, ?> dataMap = (Map<?, ?>) data;
-					            		logger.debug("ID: " + dataMap.get("LinOtp.TokenId"));
-				            		}
-				            	}
-				            }
+				            List<?> dataList = getDataList(valueMap);
+			            
+			            	for (Object data : dataList) {
+			            		if (data instanceof Map<?, ?>) {
+			            			Map<?, ?> dataMap = (Map<?, ?>) data;
+				            		logger.debug("ID: " + dataMap.get("LinOtp.TokenId"));
+			            		}
+			            	}
+			            	
+			            	return dataList;
 						}
 					}
 				} finally {
@@ -145,9 +148,22 @@ public class TwoFaServiceImpl implements TwoFaService {
 			} finally {
 				httpClient.close();
 			}
+			
+			return null;
+			
 		} catch (IOException | URISyntaxException e) {
 			throw new TwoFaException(e);
 		}
 	}
 	
+	protected List<?> getDataList(Map<?, ?> valueMap) {
+        logger.debug("data: " + valueMap.get("data").getClass().toString());
+        if (valueMap.get("data") instanceof List<?>) {
+        	List<?> dataList = (List<?>) valueMap.get("data");
+        	return dataList;
+        }
+        else {
+        	return null;
+        }
+	}
 }

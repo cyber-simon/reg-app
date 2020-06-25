@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.bean;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
@@ -32,7 +33,6 @@ public class TwoFaUserBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private UserEntity user;
 	
 	@Inject
 	private Logger logger;
@@ -49,11 +49,14 @@ public class TwoFaUserBean implements Serializable {
 	@Inject
 	private FacesMessageGenerator messageGenerator;
 	    
+	private UserEntity user;
+	private List<?> tokenList;
+	
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (user == null) {
 	    	user = userService.findById(sessionManager.getUserId());
 	    	try {
-				twoFaService.findByUserId(sessionManager.getUserId());
+				tokenList = twoFaService.findByUserId(sessionManager.getUserId());
 			} catch (TwoFaException e) {
 				messageGenerator.addErrorMessage("Error", e.toString());
 				logger.debug("Exception happened", e);
@@ -61,6 +64,10 @@ public class TwoFaUserBean implements Serializable {
 		}
 	}
 	
+	public List<?> getTokenList() {
+		return tokenList;
+	}
+
 	public UserEntity getUser() {
 		return user;
 	}
