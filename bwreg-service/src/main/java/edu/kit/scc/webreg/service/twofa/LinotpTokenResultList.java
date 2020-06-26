@@ -2,11 +2,13 @@ package edu.kit.scc.webreg.service.twofa;
 
 import java.util.ArrayList;
 
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpToken;
+
 public class LinotpTokenResultList extends ArrayList<LinotpToken> {
 
 	private static final long serialVersionUID = 1L;
 
-	private String status;
+	private boolean status;
 	private String statusMessage;
 	
 	private boolean readOnly;
@@ -32,11 +34,11 @@ public class LinotpTokenResultList extends ArrayList<LinotpToken> {
 	public void setManagementUrl(String managementUrl) {
 		this.managementUrl = managementUrl;
 	}
-	public String getStatus() {
+	public boolean getStatus() {
 		return status;
 	}
 
-	public void setStatus(String status) {
+	public void setStatus(boolean status) {
 		this.status = status;
 	}
 

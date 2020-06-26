@@ -32,9 +32,8 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpResponse;
 
 public class LinotpConnection {
 
@@ -42,6 +41,8 @@ public class LinotpConnection {
 	
 	private Map<String, String> configMap;
 
+	private LinotpResultParser resultParser;
+	
 	private URI uri;
 	private HttpHost targetHost;
 	private AuthCache authCache;
@@ -55,6 +56,7 @@ public class LinotpConnection {
 	public LinotpConnection(Map<String, String> configMap) throws TwoFaException {
 		super();
 		this.configMap = configMap;
+		resultParser = new LinotpResultParser();
 		init();
 	}
 	
@@ -90,9 +92,7 @@ public class LinotpConnection {
 		httpClient = HttpClients.custom().setDefaultRequestConfig(config).build();
 	}
 	
-	public LinotpTokenResultList getTokenList(UserEntity user) throws TwoFaException {
-
-		LinotpTokenResultList resultList = new LinotpTokenResultList();
+	public LinotpResponse getTokenList(UserEntity user) throws TwoFaException {
 
 		try {
 			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/show");
@@ -112,46 +112,15 @@ public class LinotpConnection {
 			    String responseString = EntityUtils.toString(entity);
 			    logger.debug(responseString);
 			    
-			    ObjectMapper om = new ObjectMapper();
-				@SuppressWarnings("unchecked")
-				Map<String, Object> map = om.readValue(responseString, Map.class);
-				if (map.get("result") instanceof Map<?, ?>) {
-					Map<?, ?> resultMap = (Map<?, ?>) map.get("result");
-					
-			        logger.debug("value: " + resultMap.get("value").getClass().toString());
-					if (resultMap.get("value") instanceof Map<?, ?>) {
-						Map<?, ?> valueMap = (Map<?, ?>) resultMap.get("value");
-			            logger.debug("data: " + valueMap.get("data").getClass().toString());
-			            List<?> dataList = getDataList(valueMap);
-			        
-			        	for (Object data : dataList) {
-			        		if (data instanceof Map<?, ?>) {
-			        			Map<?, ?> dataMap = (Map<?, ?>) data;
-			            		logger.debug("ID: " + dataMap.get("LinOtp.TokenId"));
-			            		LinotpToken lt = new LinotpToken();
-			            		lt.setSerial(dataMap.get("LinOtp.TokenSerialnumber").toString());
-			            		for (Object key : dataMap.keySet()) {
-			            			if (key instanceof String) {
-			            				Object value = dataMap.get(key);
-			            				lt.getValueMap().put((String) key, value); 
-			            			}
-			            			else {
-			            				logger.warn("linotp key is not string type: {} ({})", key, key.getClass());
-			            			}
-			            		}
-			            		resultList.add(lt);
-			        		}
-			        	}			            	
-					}
-				}
+			    resultParser.parseResult(responseString);
+			    return resultParser.getResponse();			    
+
 			} finally {
 				response.close();
 			}
 		} catch (ParseException | IOException e) {
 			throw new TwoFaException(e);
-		}
-		
-		return resultList;
+		}		
 	}
 	
 	public void requestAdminSession() throws TwoFaException {

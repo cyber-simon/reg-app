@@ -1,34 +1,31 @@
 package edu.kit.scc.webreg.service.twofa;
 
 import java.io.IOException;
-import java.util.Map;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpResponse;
 
 public class LinotpResultParser {
 
 	private ObjectMapper om;
-	private Map<String, Object> resultMap;
+	private LinotpResponse response;
 	
 	public LinotpResultParser() {
 		om = new ObjectMapper();
+		om.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 	}
 	
 	public void parseResult(String responseString) throws TwoFaException {
 		try {
-			resultMap = om.readValue(responseString, new TypeReference<Map<String, Object>>() {});
+			response = om.readValue(responseString, LinotpResponse.class);
 		} catch (IOException e) {
 			throw new TwoFaException(e);
 		}		
 	}
-	
-	public Boolean getResultStatus() {
-		if (resultMap.containsKey("result") && (resultMap.get("result") instanceof Boolean)) {
-			return (Boolean) resultMap.get("result");
-		}
-		else {
-			return false;
-		}
+
+	public LinotpResponse getResponse() {
+		return response;
 	}
 }
