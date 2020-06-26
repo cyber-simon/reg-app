@@ -1,10 +1,11 @@
 package edu.kit.scc.webreg.service.twofa.linotp;
 
-public class LinotpResult {
+public class LinotpValueResult {
 
 	private boolean status;
-	private boolean value;
 
+	private LinotpValue value;
+	
 	public boolean isStatus() {
 		return status;
 	}
@@ -13,12 +14,13 @@ public class LinotpResult {
 		this.status = status;
 	}
 
-	public boolean isValue() {
+	public LinotpValue getValue() {
 		return value;
 	}
 
-	public void setValue(boolean value) {
+	public void setValue(LinotpValue value) {
 		this.value = value;
 	}
-
+	
+	
 }

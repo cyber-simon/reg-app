@@ -37,9 +37,17 @@
 		</p:panel>
 
 		<p:panel header="#{messages.twofa_list}" rendered="#{! twoFaUserBean.readOnly}">
-			<p:repeat var="token" value="#{twoFaUserBean.tokenList}">
-				<div><h:outputText value="#{token.serial}" /></div>
-			</p:repeat>
+			<p:panelGrid columns="2">
+				<p:repeat var="token" value="#{twoFaUserBean.tokenList}">
+					<p:panel>
+						<div><h:outputText value="#{token.serial}" /></div>
+						<div><h:outputText value="#{token.tokenType}" /></div>
+						<div><h:outputText value="#{token.isactive}" /></div>
+					</p:panel>
+				</p:repeat>
+			</p:panelGrid>
+			
+			<p:commandButton action="#{twoFaUserBean.createAuthenticatorToken()}" value="Create"></p:commandButton>
 		</p:panel>
 	</h:form>
 	</ui:define>

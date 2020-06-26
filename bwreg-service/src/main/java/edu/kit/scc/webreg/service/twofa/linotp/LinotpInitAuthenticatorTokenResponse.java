@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class LinotpResponse implements Serializable {
+public class LinotpInitAuthenticatorTokenResponse implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -14,6 +14,8 @@ public class LinotpResponse implements Serializable {
 	private String jsonRpc;
 	
 	private LinotpResult result;
+	
+	private LinotpInitAuthenticatorTokenDetail detail;
 	
 	private Integer id;
 
@@ -33,20 +35,28 @@ public class LinotpResponse implements Serializable {
 		this.jsonRpc = jsonRpc;
 	}
 
-	public LinotpResult getResult() {
-		return result;
-	}
-	
-	public void setResult(LinotpResult result) {
-		this.result = result;
-	}
-
 	public Integer getId() {
 		return id;
 	}
 
 	public void setId(Integer id) {
 		this.id = id;
+	}
+
+	public LinotpResult getResult() {
+		return result;
+	}
+
+	public void setResult(LinotpResult result) {
+		this.result = result;
+	}
+
+	public LinotpInitAuthenticatorTokenDetail getDetail() {
+		return detail;
+	}
+
+	public void setDetail(LinotpInitAuthenticatorTokenDetail detail) {
+		this.detail = detail;
 	}
 	
 }

@@ -9,7 +9,8 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpResponse;
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpInitAuthenticatorTokenResponse;
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpShowUserResponse;
 
 @Stateless
 public class TwoFaServiceImpl implements TwoFaService {
@@ -32,7 +33,7 @@ public class TwoFaServiceImpl implements TwoFaService {
 		LinotpConnection linotpConnection = new LinotpConnection(configMap);
 		linotpConnection.requestAdminSession();
 		
-		LinotpResponse response = linotpConnection.getTokenList(user);
+		LinotpShowUserResponse response = linotpConnection.getTokenList(user);
 		LinotpTokenResultList resultList = new LinotpTokenResultList();
 		if (response.getResult() != null && response.getResult().getValue() != null &&
 				response.getResult().getValue().getData() !=null) {
@@ -53,6 +54,18 @@ public class TwoFaServiceImpl implements TwoFaService {
 		return resultList;
 	}
 	
+	@Override
+	public LinotpInitAuthenticatorTokenResponse createAuthenticatorToken(Long userId) throws TwoFaException {
+		UserEntity user = userDao.findById(userId);
+		
+		Map<String, String> configMap = configResolver.resolveConfig(user);
 
+		LinotpConnection linotpConnection = new LinotpConnection(configMap);
+		linotpConnection.requestAdminSession();
+		
+		LinotpInitAuthenticatorTokenResponse response = linotpConnection.createAuthenticatorToken(user);
+
+		return response;
+	}
 	
 }

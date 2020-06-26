@@ -33,7 +33,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpResponse;
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpInitAuthenticatorTokenResponse;
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpShowUserResponse;
 
 public class LinotpConnection {
 
@@ -92,7 +93,45 @@ public class LinotpConnection {
 		httpClient = HttpClients.custom().setDefaultRequestConfig(config).build();
 	}
 	
-	public LinotpResponse getTokenList(UserEntity user) throws TwoFaException {
+	public LinotpInitAuthenticatorTokenResponse createAuthenticatorToken(UserEntity user) throws TwoFaException {
+		try {
+			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/init");
+			
+			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
+			nvps.add(new BasicNameValuePair("session", adminSession));
+			nvps.add(new BasicNameValuePair("type", "totp"));
+			nvps.add(new BasicNameValuePair("otplen", "6"));
+			nvps.add(new BasicNameValuePair("genkey", "1"));
+			nvps.add(new BasicNameValuePair("hashlib", "sha256"));
+			nvps.add(new BasicNameValuePair("timeStep", "30"));
+			nvps.add(new BasicNameValuePair("description", "This is a description"));
+
+			if (configMap.containsKey("userId"))
+			    nvps.add(new BasicNameValuePair("user", configMap.get("userId")));
+			else
+				nvps.add(new BasicNameValuePair("user", user.getEppn()));
+			if (configMap.containsKey("realm"))
+				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
+			
+			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
+			
+			CloseableHttpResponse response = httpClient.execute(targetHost, httpPost, context);
+			try {
+			    HttpEntity entity = response.getEntity();
+			    String responseString = EntityUtils.toString(entity);
+			    logger.debug(responseString);
+			    
+			    return resultParser.parseInitAuthenticatorTokenResponse(responseString);
+
+			} finally {
+				response.close();
+			}
+		} catch (ParseException | IOException e) {
+			throw new TwoFaException(e);
+		}		
+	}
+	
+	public LinotpShowUserResponse getTokenList(UserEntity user) throws TwoFaException {
 
 		try {
 			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/show");
@@ -112,8 +151,7 @@ public class LinotpConnection {
 			    String responseString = EntityUtils.toString(entity);
 			    logger.debug(responseString);
 			    
-			    resultParser.parseResult(responseString);
-			    return resultParser.getResponse();			    
+			    return resultParser.parseShowUserResponse(responseString);
 
 			} finally {
 				response.close();

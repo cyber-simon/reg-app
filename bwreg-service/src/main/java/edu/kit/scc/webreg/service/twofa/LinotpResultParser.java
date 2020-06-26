@@ -5,27 +5,35 @@ import java.io.IOException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpResponse;
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpInitAuthenticatorTokenResponse;
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpShowUserResponse;
 
 public class LinotpResultParser {
 
 	private ObjectMapper om;
-	private LinotpResponse response;
 	
 	public LinotpResultParser() {
 		om = new ObjectMapper();
 		om.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 	}
 	
-	public void parseResult(String responseString) throws TwoFaException {
+	public LinotpShowUserResponse parseShowUserResponse(String responseString) throws TwoFaException {
 		try {
-			response = om.readValue(responseString, LinotpResponse.class);
+			LinotpShowUserResponse response = om.readValue(responseString, LinotpShowUserResponse.class);
+			return response;
 		} catch (IOException e) {
 			throw new TwoFaException(e);
 		}		
 	}
 
-	public LinotpResponse getResponse() {
-		return response;
+	public LinotpInitAuthenticatorTokenResponse parseInitAuthenticatorTokenResponse(String responseString) throws TwoFaException {
+		try {
+			LinotpInitAuthenticatorTokenResponse response = 
+					om.readValue(responseString, LinotpInitAuthenticatorTokenResponse.class);
+			return response;
+		} catch (IOException e) {
+			throw new TwoFaException(e);
+		}		
 	}
+
 }

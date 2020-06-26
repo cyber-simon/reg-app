@@ -24,6 +24,7 @@ import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.twofa.LinotpTokenResultList;
 import edu.kit.scc.webreg.service.twofa.TwoFaException;
 import edu.kit.scc.webreg.service.twofa.TwoFaService;
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpInitAuthenticatorTokenResponse;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
@@ -33,7 +34,6 @@ public class TwoFaUserBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	
 	@Inject
 	private Logger logger;
 	
@@ -51,6 +51,7 @@ public class TwoFaUserBean implements Serializable {
 	    
 	private UserEntity user;
 	private LinotpTokenResultList tokenList;
+	private LinotpInitAuthenticatorTokenResponse createTokenResponse;
 	
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (user == null) {
@@ -61,6 +62,14 @@ public class TwoFaUserBean implements Serializable {
 				messageGenerator.addErrorMessage("Error", e.toString());
 				logger.debug("Exception happened", e);
 			}
+		}
+	}
+	
+	public void createAuthenticatorToken() {
+		try {
+			createTokenResponse = twoFaService.createAuthenticatorToken(user.getId());
+		} catch (TwoFaException e) {
+			logger.warn("TwoFaException", e);
 		}
 	}
 	
@@ -78,6 +87,10 @@ public class TwoFaUserBean implements Serializable {
 
 	public UserEntity getUser() {
 		return user;
+	}
+
+	public LinotpInitAuthenticatorTokenResponse getCreateTokenResponse() {
+		return createTokenResponse;
 	}
 
 }
