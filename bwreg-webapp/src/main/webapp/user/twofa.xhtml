@@ -24,14 +24,21 @@
 
 	<ui:define name="content">
 	<h:form id="form">
-		<p:panel header="#{messages.twofa}">
-	
-			<p:messages id="messageBox" for="key_error" showDetail="true" />
-	
+		<p:messages id="messageBox" for="key_error" showDetail="true" />
+
+		<p:panel header="#{messages.twofa_list}" rendered="#{twoFaUserBean.readOnly}">
+			
+			<div><h:outputText value="#{messages.twofa_list_readonly}"/></div>
+			<div><a href="#{twoFaUserBean.managementUrl}" target="_blank">#{twoFaUserBean.managementUrl}</a></div>
+			
 			<p:repeat var="token" value="#{twoFaUserBean.tokenList}">
-				<div>
-					<h:outputText value="#{token.get('LinOtp.TokenSerialnumber')}" />
-				</div>
+				<div><h:outputText value="#{token.serial}" /></div>
+			</p:repeat>
+		</p:panel>
+
+		<p:panel header="#{messages.twofa_list}" rendered="#{! twoFaUserBean.readOnly}">
+			<p:repeat var="token" value="#{twoFaUserBean.tokenList}">
+				<div><h:outputText value="#{token.serial}" /></div>
 			</p:repeat>
 		</p:panel>
 	</h:form>

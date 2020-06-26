@@ -11,7 +11,6 @@
 package edu.kit.scc.webreg.bean;
 
 import java.io.Serializable;
-import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
@@ -22,6 +21,7 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.service.twofa.LinotpTokenResultList;
 import edu.kit.scc.webreg.service.twofa.TwoFaException;
 import edu.kit.scc.webreg.service.twofa.TwoFaService;
 import edu.kit.scc.webreg.session.SessionManager;
@@ -50,7 +50,7 @@ public class TwoFaUserBean implements Serializable {
 	private FacesMessageGenerator messageGenerator;
 	    
 	private UserEntity user;
-	private List<?> tokenList;
+	private LinotpTokenResultList tokenList;
 	
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (user == null) {
@@ -64,7 +64,15 @@ public class TwoFaUserBean implements Serializable {
 		}
 	}
 	
-	public List<?> getTokenList() {
+	public Boolean getReadOnly() {
+		return tokenList.getReadOnly();
+	}
+	
+	public String getManagementUrl() {
+		return tokenList.getManagementUrl();
+	}
+	
+	public LinotpTokenResultList getTokenList() {
 		return tokenList;
 	}
 
