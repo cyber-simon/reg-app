@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpInitAuthenticatorTokenResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpShowUserResponse;
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
 
 public class LinotpConnection {
 
@@ -131,6 +132,58 @@ public class LinotpConnection {
 		}		
 	}
 	
+	public LinotpSimpleResponse disableToken(String serial) throws TwoFaException {
+		try {
+			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/disable");
+			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
+			if (configMap.containsKey("realm"))
+				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
+			nvps.add(new BasicNameValuePair("session", adminSession));
+			nvps.add(new BasicNameValuePair("serial", serial));
+			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
+			
+			CloseableHttpResponse response = httpClient.execute(targetHost, httpPost, context);
+			try {
+			    HttpEntity entity = response.getEntity();
+			    String responseString = EntityUtils.toString(entity);
+			    logger.debug(responseString);
+
+			    return resultParser.parseSimpleResponse(responseString);
+
+			} finally {
+				response.close();
+			}
+		} catch (ParseException | IOException e) {
+			throw new TwoFaException(e);
+		}		
+	}
+	
+	public LinotpSimpleResponse enableToken(String serial) throws TwoFaException {
+		try {
+			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/enable");
+			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
+			if (configMap.containsKey("realm"))
+				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
+			nvps.add(new BasicNameValuePair("session", adminSession));
+			nvps.add(new BasicNameValuePair("serial", serial));
+			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
+			
+			CloseableHttpResponse response = httpClient.execute(targetHost, httpPost, context);
+			try {
+			    HttpEntity entity = response.getEntity();
+			    String responseString = EntityUtils.toString(entity);
+			    logger.debug(responseString);
+
+			    return resultParser.parseSimpleResponse(responseString);
+
+			} finally {
+				response.close();
+			}
+		} catch (ParseException | IOException e) {
+			throw new TwoFaException(e);
+		}		
+	}
+	
 	public LinotpShowUserResponse getTokenList(UserEntity user) throws TwoFaException {
 
 		try {
@@ -161,7 +214,7 @@ public class LinotpConnection {
 		}		
 	}
 	
-	public void requestAdminSession() throws TwoFaException {
+	public LinotpSimpleResponse requestAdminSession() throws TwoFaException {
 		
 		HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/getsession");
 
@@ -182,15 +235,17 @@ public class LinotpConnection {
 			    		adminSession = cookie.getValue();
 			    	}
 			    }
+
+				if (adminSession == null) {
+					throw new TwoFaException("LinOTP issued no admin session. Cannot continue.");
+				}
+
+			    return resultParser.parseSimpleResponse(responseString);
 			} finally {
 				response.close();
 			}
 		} catch (ParseException | IOException e) {
 			throw new TwoFaException(e);
-		}
-		
-		if (adminSession == null) {
-			throw new TwoFaException("LinOTP issued no admin session. Cannot continue.");
 		}
 	}
 

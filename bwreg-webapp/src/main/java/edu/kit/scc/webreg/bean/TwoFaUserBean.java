@@ -25,6 +25,7 @@ import edu.kit.scc.webreg.service.twofa.LinotpTokenResultList;
 import edu.kit.scc.webreg.service.twofa.TwoFaException;
 import edu.kit.scc.webreg.service.twofa.TwoFaService;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpInitAuthenticatorTokenResponse;
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
@@ -68,11 +69,46 @@ public class TwoFaUserBean implements Serializable {
 	public void createAuthenticatorToken() {
 		try {
 			createTokenResponse = twoFaService.createAuthenticatorToken(user.getId());
+			tokenList = twoFaService.findByUserId(sessionManager.getUserId());
 		} catch (TwoFaException e) {
 			logger.warn("TwoFaException", e);
 		}
 	}
 	
+	public void enableToken(String serial) {
+		try {
+			LinotpSimpleResponse response = twoFaService.enableToken(user.getId(), serial);
+			tokenList = twoFaService.findByUserId(sessionManager.getUserId());
+			if ((response.getResult() != null) && response.getResult().isStatus() &&
+					response.getResult().isValue()) {
+				messageGenerator.addInfoMessage("Info", "Token " + serial + " enabled");
+			}
+			else {
+				messageGenerator.addWarningMessage("Warn", "Token " + serial + " could not be enabled");
+			}
+		} catch (TwoFaException e) {
+			logger.warn("TwoFaException", e);
+			messageGenerator.addErrorMessage("Error", e.toString());
+		}		
+	}
+
+	public void disableToken(String serial) {
+		try {
+			LinotpSimpleResponse response = twoFaService.disableToken(user.getId(), serial);
+			tokenList = twoFaService.findByUserId(sessionManager.getUserId());
+			if ((response.getResult() != null) && response.getResult().isStatus() &&
+					response.getResult().isValue()) {
+				messageGenerator.addInfoMessage("Info", "Token " + serial + " disable");
+			}
+			else {
+				messageGenerator.addWarningMessage("Warn", "Token " + serial + " could not be disable");
+			}
+		} catch (TwoFaException e) {
+			logger.warn("TwoFaException", e);
+			messageGenerator.addErrorMessage("Error", e.toString());
+		}		
+	}
+
 	public Boolean getReadOnly() {
 		return tokenList.getReadOnly();
 	}

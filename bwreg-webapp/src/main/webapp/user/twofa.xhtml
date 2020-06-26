@@ -24,7 +24,7 @@
 
 	<ui:define name="content">
 	<h:form id="form">
-		<p:messages id="messageBox" for="key_error" showDetail="true" />
+			<div><p:messages showDetail="true" /></div>
 
 		<p:panel header="#{messages.twofa_list}" rendered="#{twoFaUserBean.readOnly}">
 			
@@ -43,11 +43,21 @@
 						<div><h:outputText value="#{token.serial}" /></div>
 						<div><h:outputText value="#{token.tokenType}" /></div>
 						<div><h:outputText value="#{token.isactive}" /></div>
+						<p:commandButton action="#{twoFaUserBean.disableToken(token.serial)}" value="Disable" 
+							update="@form" rendered="#{token.isactive}"/>
+						<p:commandButton action="#{twoFaUserBean.enableToken(token.serial)}" value="Enable" 
+							update="@form" rendered="#{! token.isactive}"/>
+						
 					</p:panel>
 				</p:repeat>
 			</p:panelGrid>
 			
-			<p:commandButton action="#{twoFaUserBean.createAuthenticatorToken()}" value="Create"></p:commandButton>
+			<p:commandButton action="#{twoFaUserBean.createAuthenticatorToken()}" value="Create" update="@form"></p:commandButton>
+		</p:panel>
+		
+		<p:panel rendered="#{! twoFaUserBean.readOnly}">
+			<h:outputText value="#{twoFaUserBean.createTokenResponse.detail.googleurl.img}" escape="false" />
+			<h:outputText value="#{twoFaUserBean.createTokenResponse.detail.serial}"/>
 		</p:panel>
 	</h:form>
 	</ui:define>

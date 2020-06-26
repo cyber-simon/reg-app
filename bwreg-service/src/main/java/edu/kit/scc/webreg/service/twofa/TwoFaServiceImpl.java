@@ -11,6 +11,7 @@ import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpInitAuthenticatorTokenResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpShowUserResponse;
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
 
 @Stateless
 public class TwoFaServiceImpl implements TwoFaService {
@@ -64,8 +65,39 @@ public class TwoFaServiceImpl implements TwoFaService {
 		linotpConnection.requestAdminSession();
 		
 		LinotpInitAuthenticatorTokenResponse response = linotpConnection.createAuthenticatorToken(user);
-
-		return response;
+		
+		if (response.getResult().isStatus() && response.getResult().isValue()) {
+			// Token succeful created
+			// Disable it for once
+			linotpConnection.disableToken(response.getDetail().getSerial());
+			return response;
+		}
+		else {
+			throw new TwoFaException("Token generation did not succeed!");
+		}
 	}
 	
+	@Override
+	public LinotpSimpleResponse disableToken(Long userId, String serial) throws TwoFaException {
+		UserEntity user = userDao.findById(userId);
+		
+		Map<String, String> configMap = configResolver.resolveConfig(user);
+
+		LinotpConnection linotpConnection = new LinotpConnection(configMap);
+		linotpConnection.requestAdminSession();
+		
+		return linotpConnection.disableToken(serial);
+	}
+	
+	@Override
+	public LinotpSimpleResponse enableToken(Long userId, String serial) throws TwoFaException {
+		UserEntity user = userDao.findById(userId);
+		
+		Map<String, String> configMap = configResolver.resolveConfig(user);
+
+		LinotpConnection linotpConnection = new LinotpConnection(configMap);
+		linotpConnection.requestAdminSession();
+		
+		return linotpConnection.enableToken(serial);
+	}
 }

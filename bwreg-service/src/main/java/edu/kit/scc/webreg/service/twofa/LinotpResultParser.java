@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpInitAuthenticatorTokenResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpShowUserResponse;
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
 
 public class LinotpResultParser {
 
@@ -17,6 +18,15 @@ public class LinotpResultParser {
 		om.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 	}
 	
+	public LinotpSimpleResponse parseSimpleResponse(String responseString) throws TwoFaException {
+		try {
+			LinotpSimpleResponse response = om.readValue(responseString, LinotpSimpleResponse.class);
+			return response;
+		} catch (IOException e) {
+			throw new TwoFaException(e);
+		}		
+	}
+
 	public LinotpShowUserResponse parseShowUserResponse(String responseString) throws TwoFaException {
 		try {
 			LinotpShowUserResponse response = om.readValue(responseString, LinotpShowUserResponse.class);
