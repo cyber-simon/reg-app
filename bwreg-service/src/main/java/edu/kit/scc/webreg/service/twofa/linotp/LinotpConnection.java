@@ -1,4 +1,4 @@
-package edu.kit.scc.webreg.service.twofa;
+package edu.kit.scc.webreg.service.twofa.linotp;
 
 import java.io.IOException;
 import java.net.URI;
@@ -33,9 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpInitAuthenticatorTokenResponse;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpShowUserResponse;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
+import edu.kit.scc.webreg.service.twofa.TwoFaException;
 
 public class LinotpConnection {
 

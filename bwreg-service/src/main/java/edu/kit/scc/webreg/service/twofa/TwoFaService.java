@@ -2,6 +2,7 @@ package edu.kit.scc.webreg.service.twofa;
 
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpInitAuthenticatorTokenResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpTokenResultList;
 
 public interface TwoFaService {
 

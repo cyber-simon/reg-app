@@ -1,13 +1,11 @@
-package edu.kit.scc.webreg.service.twofa;
+package edu.kit.scc.webreg.service.twofa.linotp;
 
 import java.io.IOException;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpInitAuthenticatorTokenResponse;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpShowUserResponse;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
+import edu.kit.scc.webreg.service.twofa.TwoFaException;
 
 public class LinotpResultParser {
 

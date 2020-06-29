@@ -9,9 +9,11 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpConnection;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpInitAuthenticatorTokenResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpShowUserResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpTokenResultList;
 
 @Stateless
 public class TwoFaServiceImpl implements TwoFaService {

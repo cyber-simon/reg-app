@@ -1,8 +1,6 @@
-package edu.kit.scc.webreg.service.twofa;
+package edu.kit.scc.webreg.service.twofa.linotp;
 
 import java.util.ArrayList;
-
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpToken;
 
 public class LinotpTokenResultList extends ArrayList<LinotpToken> {
 
