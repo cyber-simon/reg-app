@@ -36,24 +36,24 @@
 			</p:repeat>
 		</p:panel>
 
-		<p:panel header="#{messages.twofa_list}" rendered="#{! twoFaUserBean.readOnly}">
-			<p:panelGrid columns="2">
-				<p:repeat var="token" value="#{twoFaUserBean.tokenList}">
-					<p:panel>
-						<div><h:outputText value="#{token.serial}" /></div>
-						<div><h:outputText value="#{token.tokenType}" /></div>
-						<div><h:outputText value="#{token.isactive}" /></div>
-						<p:commandButton action="#{twoFaUserBean.disableToken(token.serial)}" value="Disable" 
-							update="@form" rendered="#{token.isactive}"/>
-						<p:commandButton action="#{twoFaUserBean.enableToken(token.serial)}" value="Enable" 
-							update="@form" rendered="#{! token.isactive}"/>
-						
-					</p:panel>
-				</p:repeat>
-			</p:panelGrid>
-			
-			<p:commandButton action="#{twoFaUserBean.createAuthenticatorToken()}" value="Create" update="@form"></p:commandButton>
-		</p:panel>
+		<p:dataGrid var="token" value="#{twoFaUserBean.tokenList}" columns="1" styleClass="whitefoot"
+				layout="grid" style="margin-bottom: 16px;" rendered="#{! twoFaUserBean.readOnly}">
+	        <f:facet name="header">#{messages.twofa_list}</f:facet>
+	        <p:panel styleClass="grayback" style="margin-bottom: 0px;">
+	        	<f:facet name="header">
+					<div><h:outputText value="#{token.serial}" /></div>
+				</f:facet>
+				<div><h:outputText value="#{token.tokenType}" /></div>
+				<div><h:outputText value="#{token.isactive}" /></div>
+				<p:commandButton action="#{twoFaUserBean.disableToken(token.serial)}" value="Disable" 
+					update="@form" rendered="#{token.isactive}"/>
+				<p:commandButton action="#{twoFaUserBean.enableToken(token.serial)}" value="Enable" 
+					update="@form" rendered="#{! token.isactive}"/>
+			</p:panel>
+			<f:facet name="footer">
+				<p:commandButton action="#{twoFaUserBean.createAuthenticatorToken()}" value="Create" update="@form"></p:commandButton>
+			</f:facet>
+		</p:dataGrid>
 		
 		<p:panel rendered="#{! twoFaUserBean.readOnly}">
 			<h:outputText value="#{twoFaUserBean.createTokenResponse.detail.googleurl.img}" escape="false" />

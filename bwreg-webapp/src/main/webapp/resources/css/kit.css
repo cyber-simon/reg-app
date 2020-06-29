@@ -352,3 +352,8 @@ div.serviceBlockLink {
 	color: #000000;
 	background: #dddddd;
 }
+
+.ui-datagrid.whitefoot .ui-datagrid-footer {
+	color: #000000;
+	background: #ffffff;
+}
