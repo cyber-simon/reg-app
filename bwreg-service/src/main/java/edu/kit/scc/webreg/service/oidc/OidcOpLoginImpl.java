@@ -2,6 +2,7 @@ package edu.kit.scc.webreg.service.oidc;
 
 import java.io.IOException;
 import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -22,6 +23,7 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.Scope;
@@ -308,8 +310,11 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			//MACSigner macSigner = new MACSigner(clientConfig.getSecret());
 			
 			PrivateKey privateKey = cryptoHelper.getPrivateKey(opConfig.getPrivateKey());
+			X509Certificate certificate = cryptoHelper.getCertificate(opConfig.getCertificate());
+			JWK jwk = JWK.parse(certificate);
 			RSASSASigner rsaSigner = new RSASSASigner(privateKey);
-			jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claims);
+			JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.RS256).jwk(jwk).keyID(jwk.getKeyID()).build();
+			jwt = new SignedJWT(header, claims);
 			jwt.sign(rsaSigner);
 		} catch (JOSEException | IOException e) {
 			throw new OidcAuthenticationException(e);
@@ -417,10 +422,13 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			SignedJWT jwt;
 			try {
 				//MACSigner macSigner = new MACSigner(clientConfig.getSecret());
-				
+
 				PrivateKey privateKey = cryptoHelper.getPrivateKey(opConfig.getPrivateKey());
+				X509Certificate certificate = cryptoHelper.getCertificate(opConfig.getCertificate());
+				JWK jwk = JWK.parse(certificate);
 				RSASSASigner rsaSigner = new RSASSASigner(privateKey);
-				jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claims);
+				JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.RS256).jwk(jwk).keyID(jwk.getKeyID()).build();
+				jwt = new SignedJWT(header, claims);
 				jwt.sign(rsaSigner);
 			} catch (JOSEException | IOException e) {
 				throw new OidcAuthenticationException(e);
