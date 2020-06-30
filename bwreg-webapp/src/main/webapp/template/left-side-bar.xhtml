@@ -35,6 +35,11 @@
 		    	  <h:link outcome="#{request.contextPath}/user/ssh-keys.xhtml" value="#{messages.my_ssh_keys}" />
 				</li>
 			</h:panelGroup>				
+			<h:panelGroup rendered="#{authorizationBean.appConfig.getConfigValue('show_twofa').equalsIgnoreCase('true')}">
+	            <li><span class="ui-icon ui-icon-suitcase" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="#{request.contextPath}/user/twofa.xhtml" value="#{messages.my_twofa}" />
+				</li>
+			</h:panelGroup>				
           </ul>
         </div>
       </div>
