@@ -14,4 +14,6 @@ public interface TwoFaService {
 
 	LinotpSimpleResponse enableToken(Long userId, String serial) throws TwoFaException;
 
+	LinotpSimpleResponse checkToken(Long userId, String token) throws TwoFaException;
+
 }

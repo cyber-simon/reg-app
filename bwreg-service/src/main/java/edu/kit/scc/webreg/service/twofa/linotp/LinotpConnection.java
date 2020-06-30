@@ -91,6 +91,39 @@ public class LinotpConnection {
 			    .build();
 		httpClient = HttpClients.custom().setDefaultRequestConfig(config).build();
 	}
+
+	public LinotpSimpleResponse checkToken(UserEntity user, String token) throws TwoFaException {
+		try {
+			HttpPost httpPost = new HttpPost(configMap.get("url") + "/validate/check");
+			
+			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
+
+			if (configMap.containsKey("userId"))
+			    nvps.add(new BasicNameValuePair("user", configMap.get("userId")));
+			else
+				nvps.add(new BasicNameValuePair("user", user.getEppn()));
+			if (configMap.containsKey("realm"))
+				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
+			
+			nvps.add(new BasicNameValuePair("pass", token));
+			
+			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
+			
+			CloseableHttpResponse response = httpClient.execute(targetHost, httpPost, context);
+			try {
+			    HttpEntity entity = response.getEntity();
+			    String responseString = EntityUtils.toString(entity);
+			    logger.debug(responseString);
+			    
+			    return resultParser.parseSimpleResponse(responseString);
+
+			} finally {
+				response.close();
+			}
+		} catch (ParseException | IOException e) {
+			throw new TwoFaException(e);
+		}
+	}
 	
 	public LinotpInitAuthenticatorTokenResponse createAuthenticatorToken(UserEntity user) throws TwoFaException {
 		try {
@@ -101,7 +134,7 @@ public class LinotpConnection {
 			nvps.add(new BasicNameValuePair("type", "totp"));
 			nvps.add(new BasicNameValuePair("otplen", "6"));
 			nvps.add(new BasicNameValuePair("genkey", "1"));
-			nvps.add(new BasicNameValuePair("hashlib", "sha256"));
+			nvps.add(new BasicNameValuePair("hashlib", "sha1"));
 			nvps.add(new BasicNameValuePair("timeStep", "30"));
 			nvps.add(new BasicNameValuePair("description", "This is a description"));
 

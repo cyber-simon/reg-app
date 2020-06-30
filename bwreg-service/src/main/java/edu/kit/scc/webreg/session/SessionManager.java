@@ -12,6 +12,7 @@ package edu.kit.scc.webreg.session;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -66,6 +67,8 @@ public class SessionManager implements Serializable {
 	private String theme;
 	
 	private String locale;
+	
+	private Date twoFaElevation;
 	
 	@PostConstruct
 	public void init() {
@@ -264,5 +267,13 @@ public class SessionManager implements Serializable {
 
 	public List<ServiceEntity> getServiceSshPubKeyApproverList() {
 		return serviceSshPubKeyApproverList;
+	}
+
+	public Date getTwoFaElevation() {
+		return twoFaElevation;
+	}
+
+	public void setTwoFaElevation(Date twoFaElevation) {
+		this.twoFaElevation = twoFaElevation;
 	}
 }

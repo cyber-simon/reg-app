@@ -10,21 +10,26 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.bean;
 
+import java.io.IOException;
 import java.io.Serializable;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
 
+import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.twofa.TwoFaException;
 import edu.kit.scc.webreg.service.twofa.TwoFaService;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpInitAuthenticatorTokenResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpToken;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpTokenResultList;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
@@ -49,20 +54,41 @@ public class TwoFaUserBean implements Serializable {
     
 	@Inject
 	private FacesMessageGenerator messageGenerator;
+	
+	@Inject
+	private ApplicationConfig appConfig;
 	    
 	private UserEntity user;
 	private LinotpTokenResultList tokenList;
 	private LinotpInitAuthenticatorTokenResponse createTokenResponse;
 	
 	public void preRenderView(ComponentSystemEvent ev) {
+		long elevationTime = 5L * 60L * 1000L;
+		if (appConfig.getConfigValue("elevation_time") != null) {
+			elevationTime = Long.parseLong(appConfig.getConfigValue("elevation_time"));
+		}
+		
 		if (user == null) {
-	    	user = userService.findById(sessionManager.getUserId());
 	    	try {
 				tokenList = twoFaService.findByUserId(sessionManager.getUserId());
+				
+				for (LinotpToken token : tokenList) {
+					if (token.getIsactive() && (sessionManager.getTwoFaElevation() == null ||
+							(System.currentTimeMillis() - sessionManager.getTwoFaElevation().getTime()) > elevationTime)) {
+			    		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+						context.redirect("/user/twofa-login.xhtml");
+						sessionManager.setOriginalRequestPath("/user/twofa.xhtml");
+					}
+				}
 			} catch (TwoFaException e) {
 				messageGenerator.addErrorMessage("Error", e.toString());
 				logger.debug("Exception happened", e);
+			} catch (IOException e) {
+				logger.warn("Could not redirect client", e);
+				throw new IllegalArgumentException("redirect failed");
 			}
+
+	    	user = userService.findById(sessionManager.getUserId());
 		}
 	}
 	

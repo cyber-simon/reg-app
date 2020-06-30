@@ -56,6 +56,16 @@ public class TwoFaServiceImpl implements TwoFaService {
 
 		return resultList;
 	}
+
+	@Override
+	public LinotpSimpleResponse checkToken(Long userId, String token) throws TwoFaException {
+		UserEntity user = userDao.findById(userId);
+		
+		Map<String, String> configMap = configResolver.resolveConfig(user);
+
+		LinotpConnection linotpConnection = new LinotpConnection(configMap);
+		return linotpConnection.checkToken(user, token);
+	}
 	
 	@Override
 	public LinotpInitAuthenticatorTokenResponse createAuthenticatorToken(Long userId) throws TwoFaException {

@@ -41,7 +41,8 @@
 	        <f:facet name="header">#{messages.twofa_list}</f:facet>
 	        <p:panel styleClass="grayback" style="margin-bottom: 0px;">
 	        	<f:facet name="header">
-					<div><h:outputText value="#{token.serial}" /></div>
+	        		<i class="fa fa-fw fa-key"></i>
+					<b><h:outputText value="#{token.serial}" /></b>
 				</f:facet>
 				<div><h:outputText value="#{token.tokenType}" /></div>
 				<div><h:outputText value="#{token.isactive}" /></div>

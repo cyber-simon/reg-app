@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+	<f:metadata>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{twoFaLoginBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+
+	<h:form id="form" prependId="false">
+		<p:panel header="#{messages.twofa_login}">
+			<div style="margin-top: 8px; margin-bottom: 16px;"><h:outputText value="#{messages.twofa_login_text}"/></div>
+			<div><p:messages showDetail="true" /></div>
+
+			<p:focus conext="baseData" for="tokenText" />
+
+ 			<h:panelGrid id="baseData" columns="2" style="margin-bottom: 16px;">
+				<p:outputLabel for="@next" value="#{messages.twofa_code}"/>
+				<p:inputText id="tokenText" value="#{twoFaLoginBean.tokenInput}"/>
+ 			</h:panelGrid>
+			
+			<p:commandButton id="check" action="#{twoFaLoginBean.check}" value="#{messages.check}"
+				update=":form" />
+
+		</p:panel>
+		<p:dataGrid var="token" value="#{twoFaLoginBean.tokenList}" columns="3" styleClass="whitefoot"
+				layout="grid" style="margin-top: 16px; margin-bottom: 16px;">
+	        <p:panel styleClass="grayback" style="margin-bottom: 0px;">
+	        	<f:facet name="header">
+	        		<i class="fa fa-fw fa-key"></i>
+					<b><h:outputText value="#{token.serial}" /></b>
+				</f:facet>
+				<div><h:outputText value="#{token.tokenType}" /></div>
+				<div><h:outputText value="#{token.isactive}" /></div>
+			</p:panel>
+		</p:dataGrid>
+
+	</h:form>
+	
+	</ui:define>
+</ui:composition>
+</body>
+</html>
