@@ -1,5 +1,6 @@
 package edu.kit.scc.webreg.service.twofa;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.ejb.Stateless;
@@ -13,6 +14,7 @@ import edu.kit.scc.webreg.service.twofa.linotp.LinotpConnection;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpInitAuthenticatorTokenResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpShowUserResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpToken;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpTokenResultList;
 
 @Stateless
@@ -57,6 +59,19 @@ public class TwoFaServiceImpl implements TwoFaService {
 		return resultList;
 	}
 
+	@Override
+	public Boolean hasActiveToken(Long userId) throws TwoFaException {
+		List<LinotpToken> tokenList = findByUserId(userId);
+		
+		for (LinotpToken token : tokenList) {
+			if (token.getIsactive()) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
 	@Override
 	public LinotpSimpleResponse checkToken(Long userId, String token) throws TwoFaException {
 		UserEntity user = userDao.findById(userId);

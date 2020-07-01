@@ -16,4 +16,6 @@ public interface TwoFaService {
 
 	LinotpSimpleResponse checkToken(Long userId, String token) throws TwoFaException;
 
+	Boolean hasActiveToken(Long userId) throws TwoFaException;
+
 }

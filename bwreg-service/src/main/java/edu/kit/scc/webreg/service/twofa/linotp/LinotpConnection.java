@@ -113,7 +113,7 @@ public class LinotpConnection {
 			try {
 			    HttpEntity entity = response.getEntity();
 			    String responseString = EntityUtils.toString(entity);
-			    logger.debug(responseString);
+			    logger.trace(responseString);
 			    
 			    return resultParser.parseSimpleResponse(responseString);
 
@@ -151,7 +151,7 @@ public class LinotpConnection {
 			try {
 			    HttpEntity entity = response.getEntity();
 			    String responseString = EntityUtils.toString(entity);
-			    logger.debug(responseString);
+			    logger.trace(responseString);
 			    
 			    return resultParser.parseInitAuthenticatorTokenResponse(responseString);
 
@@ -177,7 +177,7 @@ public class LinotpConnection {
 			try {
 			    HttpEntity entity = response.getEntity();
 			    String responseString = EntityUtils.toString(entity);
-			    logger.debug(responseString);
+			    logger.trace(responseString);
 
 			    return resultParser.parseSimpleResponse(responseString);
 
@@ -203,7 +203,7 @@ public class LinotpConnection {
 			try {
 			    HttpEntity entity = response.getEntity();
 			    String responseString = EntityUtils.toString(entity);
-			    logger.debug(responseString);
+			    logger.trace(responseString);
 
 			    return resultParser.parseSimpleResponse(responseString);
 
@@ -233,7 +233,7 @@ public class LinotpConnection {
 			try {
 			    HttpEntity entity = response.getEntity();
 			    String responseString = EntityUtils.toString(entity);
-			    logger.debug(responseString);
+			    logger.trace(responseString);
 			    
 			    return resultParser.parseShowUserResponse(responseString);
 
@@ -256,12 +256,12 @@ public class LinotpConnection {
 			try {
 			    HttpEntity entity = response.getEntity();
 			    String responseString = EntityUtils.toString(entity);
-			    logger.debug(responseString);
+			    logger.trace(responseString);
 			    
 			    CookieStore cookieStore = context.getCookieStore();
 			    List<Cookie> cookies = cookieStore.getCookies();
 			    for (Cookie cookie : cookies) {
-			    	logger.debug("Cookie {}: {}", cookie.getName(), cookie.getValue());
+			    	logger.trace("Cookie {}: {}", cookie.getName(), cookie.getValue());
 			    	if (cookie.getName().equalsIgnoreCase("admin_session")) {
 			    		adminSession = cookie.getValue();
 			    	}
