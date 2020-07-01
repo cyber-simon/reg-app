@@ -24,7 +24,7 @@ public class UserLoginInfoEntity extends AbstractBaseEntity {
 	@Column(name = "login_date")
 	private Date loginDate;
 
-	@Column(name = "from", length = 256)
+	@Column(name = "login_from", length = 256)
 	private String from;
 
 	@Enumerated(EnumType.STRING)

@@ -20,10 +20,13 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserLoginInfoStatus;
+import edu.kit.scc.webreg.entity.UserLoginMethod;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.twofa.TwoFaException;
 import edu.kit.scc.webreg.service.twofa.TwoFaService;
@@ -72,16 +75,22 @@ public class TwoFaLoginBean implements Serializable {
 	
 	public void check() {
 		try {
+			HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
 			LinotpSimpleResponse response = twoFaService.checkToken(sessionManager.getUserId(), tokenInput);
 
 			if (response.getResult() != null && response.getResult().isStatus() && response.getResult().isValue()) {
 				// Succesfull check
 				sessionManager.setTwoFaElevation(new Date());
+				userService.addLoginInfo(user.getId(), UserLoginMethod.TWOFA, UserLoginInfoStatus.SUCCESS, 
+						request.getRemoteAddr());
+				
 	    		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
 				context.redirect(sessionManager.getOriginalRequestPath());
 				sessionManager.setOriginalRequestPath(null);
 			}
 			else {
+				userService.addLoginInfo(user.getId(), UserLoginMethod.TWOFA, UserLoginInfoStatus.FAILED, 
+						request.getRemoteAddr());
 				messageGenerator.addResolvedWarningMessage("twofa_login_failed", "twofa_login_failed_detail", true);
 				tokenInput = "";
 			}

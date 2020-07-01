@@ -19,6 +19,9 @@ import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
+import edu.kit.scc.webreg.entity.UserLoginInfoStatus;
+import edu.kit.scc.webreg.entity.UserLoginMethod;
 import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 
@@ -54,5 +57,7 @@ public interface UserService extends BaseService<UserEntity, Long> {
 			throws UserUpdateException;
 
 	UserEntity findByUidNumber(Long uidNumber);
+
+	UserLoginInfoEntity addLoginInfo(Long userId, UserLoginMethod method, UserLoginInfoStatus status, String from);
 
 }
