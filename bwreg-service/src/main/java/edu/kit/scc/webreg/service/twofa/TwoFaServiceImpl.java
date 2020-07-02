@@ -81,7 +81,17 @@ public class TwoFaServiceImpl implements TwoFaService {
 		LinotpConnection linotpConnection = new LinotpConnection(configMap);
 		return linotpConnection.checkToken(user, token);
 	}
-	
+
+	@Override
+	public LinotpSimpleResponse checkSpecificToken(Long userId, String serial, String token) throws TwoFaException {
+		UserEntity user = userDao.findById(userId);
+		
+		Map<String, String> configMap = configResolver.resolveConfig(user);
+
+		LinotpConnection linotpConnection = new LinotpConnection(configMap);
+		return linotpConnection.checkSpecificToken(serial, token);
+	}
+
 	@Override
 	public LinotpInitAuthenticatorTokenResponse createAuthenticatorToken(Long userId) throws TwoFaException {
 		UserEntity user = userDao.findById(userId);
@@ -103,7 +113,25 @@ public class TwoFaServiceImpl implements TwoFaService {
 			throw new TwoFaException("Token generation did not succeed!");
 		}
 	}
-	
+
+	@Override
+	public LinotpInitAuthenticatorTokenResponse createYubicoToken(Long userId, String yubi) throws TwoFaException {
+		UserEntity user = userDao.findById(userId);
+		
+		Map<String, String> configMap = configResolver.resolveConfig(user);
+
+		LinotpConnection linotpConnection = new LinotpConnection(configMap);
+		linotpConnection.requestAdminSession();
+		
+		LinotpInitAuthenticatorTokenResponse response = linotpConnection.createYubicoToken(user, yubi);
+		
+		if (response == null) {
+			throw new TwoFaException("Token generation did not succeed!");
+		}
+
+		return response;
+	}
+
 	@Override
 	public LinotpSimpleResponse disableToken(Long userId, String serial) throws TwoFaException {
 		UserEntity user = userDao.findById(userId);
@@ -127,4 +155,17 @@ public class TwoFaServiceImpl implements TwoFaService {
 		
 		return linotpConnection.enableToken(serial);
 	}
+	
+	@Override
+	public LinotpSimpleResponse deleteToken(Long userId, String serial) throws TwoFaException {
+		UserEntity user = userDao.findById(userId);
+		
+		Map<String, String> configMap = configResolver.resolveConfig(user);
+
+		LinotpConnection linotpConnection = new LinotpConnection(configMap);
+		linotpConnection.requestAdminSession();
+		
+		return linotpConnection.deleteToken(serial);
+	}
+	
 }

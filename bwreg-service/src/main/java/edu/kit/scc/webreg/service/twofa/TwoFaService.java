@@ -18,4 +18,10 @@ public interface TwoFaService {
 
 	Boolean hasActiveToken(Long userId) throws TwoFaException;
 
+	LinotpSimpleResponse deleteToken(Long userId, String serial) throws TwoFaException;
+
+	LinotpSimpleResponse checkSpecificToken(Long userId, String serial, String token) throws TwoFaException;
+
+	LinotpInitAuthenticatorTokenResponse createYubicoToken(Long userId, String yubi) throws TwoFaException;
+
 }

@@ -86,8 +86,8 @@ public class LinotpConnection {
 		context.setAuthCache(authCache);
 
 		config = RequestConfig.custom()
-			    .setSocketTimeout(5000)
-			    .setConnectTimeout(5000)
+			    .setSocketTimeout(30000)
+			    .setConnectTimeout(30000)
 			    .build();
 		httpClient = HttpClients.custom().setDefaultRequestConfig(config).build();
 	}
@@ -105,6 +105,36 @@ public class LinotpConnection {
 			if (configMap.containsKey("realm"))
 				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
 			
+			nvps.add(new BasicNameValuePair("pass", token));
+			
+			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
+			
+			CloseableHttpResponse response = httpClient.execute(targetHost, httpPost, context);
+			try {
+			    HttpEntity entity = response.getEntity();
+			    String responseString = EntityUtils.toString(entity);
+			    logger.trace(responseString);
+			    
+			    return resultParser.parseSimpleResponse(responseString);
+
+			} finally {
+				response.close();
+			}
+		} catch (ParseException | IOException e) {
+			throw new TwoFaException(e);
+		}
+	}
+	
+	public LinotpSimpleResponse checkSpecificToken(String serial, String token) throws TwoFaException {
+		try {
+			HttpPost httpPost = new HttpPost(configMap.get("url") + "/validate/check_s");
+			
+			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
+
+		    if (configMap.containsKey("realm"))
+				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
+			
+		    nvps.add(new BasicNameValuePair("serial", serial));
 			nvps.add(new BasicNameValuePair("pass", token));
 			
 			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
@@ -163,6 +193,41 @@ public class LinotpConnection {
 		}		
 	}
 	
+	public LinotpInitAuthenticatorTokenResponse createYubicoToken(UserEntity user, String yubi) throws TwoFaException {
+		try {
+			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/init");
+			
+			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
+			nvps.add(new BasicNameValuePair("session", adminSession));
+			nvps.add(new BasicNameValuePair("type", "yubico"));
+			nvps.add(new BasicNameValuePair("yubico.tokenid", yubi));
+			nvps.add(new BasicNameValuePair("description", "This is a description"));
+
+			if (configMap.containsKey("userId"))
+			    nvps.add(new BasicNameValuePair("user", configMap.get("userId")));
+			else
+				nvps.add(new BasicNameValuePair("user", user.getEppn()));
+			if (configMap.containsKey("realm"))
+				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
+			
+			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
+			
+			CloseableHttpResponse response = httpClient.execute(targetHost, httpPost, context);
+			try {
+			    HttpEntity entity = response.getEntity();
+			    String responseString = EntityUtils.toString(entity);
+			    logger.trace(responseString);
+			    
+			    return resultParser.parseInitAuthenticatorTokenResponse(responseString);
+
+			} finally {
+				response.close();
+			}
+		} catch (ParseException | IOException e) {
+			throw new TwoFaException(e);
+		}		
+	}
+	
 	public LinotpSimpleResponse disableToken(String serial) throws TwoFaException {
 		try {
 			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/disable");
@@ -192,6 +257,32 @@ public class LinotpConnection {
 	public LinotpSimpleResponse enableToken(String serial) throws TwoFaException {
 		try {
 			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/enable");
+			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
+			if (configMap.containsKey("realm"))
+				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
+			nvps.add(new BasicNameValuePair("session", adminSession));
+			nvps.add(new BasicNameValuePair("serial", serial));
+			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
+			
+			CloseableHttpResponse response = httpClient.execute(targetHost, httpPost, context);
+			try {
+			    HttpEntity entity = response.getEntity();
+			    String responseString = EntityUtils.toString(entity);
+			    logger.trace(responseString);
+
+			    return resultParser.parseSimpleResponse(responseString);
+
+			} finally {
+				response.close();
+			}
+		} catch (ParseException | IOException e) {
+			throw new TwoFaException(e);
+		}		
+	}
+	
+	public LinotpSimpleResponse deleteToken(String serial) throws TwoFaException {
+		try {
+			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/remove");
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
 			if (configMap.containsKey("realm"))
 				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));

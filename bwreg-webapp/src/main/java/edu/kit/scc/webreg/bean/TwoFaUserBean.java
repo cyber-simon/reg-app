@@ -17,6 +17,7 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
+import org.primefaces.PrimeFaces;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.UserEntity;
@@ -54,8 +55,13 @@ public class TwoFaUserBean implements Serializable {
 	private LinotpTokenResultList tokenList;
 	private LinotpInitAuthenticatorTokenResponse createTokenResponse;
 	
+	private String totpCode, yubicoCode;
+	private String defaultButton;
+	
 	public void preRenderView(ComponentSystemEvent ev) {
 
+		defaultButton = "yubicoStartButton";
+		
 		if (user == null) {
 	    	try {
 				tokenList = twoFaService.findByUserId(sessionManager.getUserId());
@@ -76,7 +82,55 @@ public class TwoFaUserBean implements Serializable {
 			logger.warn("TwoFaException", e);
 		}
 	}
+
+	public void createYubicoToken() {
+		try {
+			LinotpInitAuthenticatorTokenResponse response = twoFaService.createYubicoToken(user.getId(), yubicoCode);
+
+			if (response.getResult().isStatus() && response.getResult().isValue()) {
+				tokenList = twoFaService.findByUserId(sessionManager.getUserId());
+			}
+			else {
+				messageGenerator.addResolvedWarningMessage("warn", "twofa_token_failed", true);
+			}
+
+			PrimeFaces.current().executeScript("PF('addYubicoDlg').hide();");
+			createTokenResponse = null;
+			yubicoCode = "";
+			
+		} catch (TwoFaException e) {
+			logger.warn("TwoFaException", e);
+		}		
+	}
 	
+	public void checkAuthenticatorToken() {
+		try {
+			if (createTokenResponse != null && createTokenResponse.getDetail() != null) {
+				String serial = createTokenResponse.getDetail().getSerial();
+				LinotpSimpleResponse response = twoFaService.enableToken(user.getId(), serial);
+
+				if (response.getResult() != null && response.getResult().isStatus() && response.getResult().isValue()) {
+				
+					response = twoFaService.checkSpecificToken(user.getId(), serial, totpCode);
+					if (response.getResult() != null && response.getResult().isStatus() && response.getResult().isValue()) {
+						// success, Token stays active
+						tokenList = twoFaService.findByUserId(sessionManager.getUserId());
+						PrimeFaces.current().executeScript("PF('addTotpDlg').hide();");
+						createTokenResponse = null;
+						totpCode = "";
+					} 
+					else {
+						// wrong code, disable token
+						response = twoFaService.disableToken(user.getId(), serial);
+						totpCode = "";
+					}
+				}
+			}
+		} catch (TwoFaException e) {
+			logger.warn("TwoFaException", e);
+		}
+	}
+
 	public void enableToken(String serial) {
 		try {
 			LinotpSimpleResponse response = twoFaService.enableToken(user.getId(), serial);
@@ -111,6 +165,23 @@ public class TwoFaUserBean implements Serializable {
 		}		
 	}
 
+	public void deleteToken(String serial) {
+		try {
+			LinotpSimpleResponse response = twoFaService.deleteToken(user.getId(), serial);
+			tokenList = twoFaService.findByUserId(sessionManager.getUserId());
+			if ((response.getResult() != null) && response.getResult().isStatus() &&
+					response.getResult().isValue()) {
+				messageGenerator.addInfoMessage("Info", "Token " + serial + " deleted");
+			}
+			else {
+				messageGenerator.addWarningMessage("Warn", "Token " + serial + " could not be deleted");
+			}
+		} catch (TwoFaException e) {
+			logger.warn("TwoFaException", e);
+			messageGenerator.addErrorMessage("Error", e.toString());
+		}		
+	}
+
 	public Boolean getReadOnly() {
 		return tokenList.getReadOnly();
 	}
@@ -129,6 +200,30 @@ public class TwoFaUserBean implements Serializable {
 
 	public LinotpInitAuthenticatorTokenResponse getCreateTokenResponse() {
 		return createTokenResponse;
+	}
+
+	public String getTotpCode() {
+		return totpCode;
+	}
+
+	public void setTotpCode(String totpCode) {
+		this.totpCode = totpCode;
+	}
+
+	public String getDefaultButton() {
+		return defaultButton;
+	}
+
+	public void setDefaultButton(String defaultButton) {
+		this.defaultButton = defaultButton;
+	}
+
+	public String getYubicoCode() {
+		return yubicoCode;
+	}
+
+	public void setYubicoCode(String yubicoCode) {
+		this.yubicoCode = yubicoCode;
 	}
 
 }
