@@ -63,6 +63,7 @@ public class AccessChecker {
 		addAccessNode(adminNode, "audit", true, "AuditAdmin");
 		addAccessNode(adminNode, "group", true, "GroupAdmin");
 		addAccessNode(adminNode, "as", true, "AttributeSourceAdmin");
+		addAccessNode(adminNode, "mail", true, "MailAdmin");
 
 		AccessNode restNode = addAccessNode(root, "rest", false, "MasterAdmin", "RestAdmin");
 		addAccessNode(restNode, "service-admin", true, "RestServiceAdmin");
