@@ -29,7 +29,7 @@
 		      	#{messages.logged_in_since_not_set} 
 		      </div>
 	      	</h:panelGroup>
-	      	<h:panelGroup rendered="#{not empty authorizationBean.loggedInSince and (authorizationBean.loggedInSince.toMinutes() gt 2)}">
+	      	<h:panelGroup rendered="#{not empty authorizationBean.loggedInSince and (authorizationBean.loggedInSince.toMinutes() ge 2)}">
 	      	  <div>
 		      	#{messages.logged_in_since} #{authorizationBean.loggedInSince.toMinutes()} #{messages.minutes}
 		      </div>
@@ -39,7 +39,7 @@
 		      	#{messages.logged_in_since_recently}
 		      </div>
 	      	</h:panelGroup>
-	      	<h:panelGroup rendered="#{authorizationBean.isTwoFaElevated() and (authorizationBean.twoFaElevatedSince.toMinutes() gt 2)}">
+	      	<h:panelGroup rendered="#{authorizationBean.isTwoFaElevated() and (authorizationBean.twoFaElevatedSince.toMinutes() ge 2)}">
 	      	  <div>
 		      	#{messages.twofa_elevated_since} #{authorizationBean.twoFaElevatedSince.toMinutes()} #{messages.minutes}
 		      </div>
