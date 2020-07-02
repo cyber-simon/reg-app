@@ -12,7 +12,7 @@ package edu.kit.scc.webreg.bean;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.Instant;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
@@ -80,7 +80,7 @@ public class TwoFaLoginBean implements Serializable {
 
 			if (response.getResult() != null && response.getResult().isStatus() && response.getResult().isValue()) {
 				// Succesfull check
-				sessionManager.setTwoFaElevation(new Date());
+				sessionManager.setTwoFaElevation(Instant.now());
 				userService.addLoginInfo(user.getId(), UserLoginMethod.TWOFA, UserLoginInfoStatus.SUCCESS, 
 						request.getRemoteAddr());
 				

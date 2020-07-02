@@ -6,7 +6,8 @@
 		xmlns:f="http://java.sun.com/jsf/core"
 		xmlns:h="http://java.sun.com/jsf/html"
 		xmlns:ui="http://java.sun.com/jsf/facelets"
-		xmlns:p="http://primefaces.org/ui">
+		xmlns:p="http://primefaces.org/ui"
+		xmlns:of="http://omnifaces.org/functions">
 <head>
 	<title>Left side bar</title>
 </head>
@@ -17,9 +18,40 @@
 	</h:panelGroup>
       
     <h:panelGroup rendered="#{sessionManager.isLoggedIn()}">
+    
       <div class="submenu">
 	    <div class="submenu-title">#{messages.user}</div>
 		<div class="submenu-content">
+          <div style="padding: 8px;">
+	      	#{messages.login_status}:<br/> 
+	      	<h:panelGroup rendered="#{empty authorizationBean.loggedInSince}">
+	      	  <div>
+		      	#{messages.logged_in_since_not_set} 
+		      </div>
+	      	</h:panelGroup>
+	      	<h:panelGroup rendered="#{not empty authorizationBean.loggedInSince and (authorizationBean.loggedInSince.toMinutes() gt 2)}">
+	      	  <div>
+		      	#{messages.logged_in_since} #{authorizationBean.loggedInSince.toMinutes()} #{messages.minutes}
+		      </div>
+	      	</h:panelGroup>
+	      	<h:panelGroup rendered="#{not empty authorizationBean.loggedInSince and (authorizationBean.loggedInSince.toMinutes() lt 2)}">
+	      	  <div>
+		      	#{messages.logged_in_since_recently}
+		      </div>
+	      	</h:panelGroup>
+	      	<h:panelGroup rendered="#{authorizationBean.isTwoFaElevated() and (authorizationBean.twoFaElevatedSince.toMinutes() gt 2)}">
+	      	  <div>
+		      	#{messages.twofa_elevated_since} #{authorizationBean.twoFaElevatedSince.toMinutes()} #{messages.minutes}
+		      </div>
+	      	</h:panelGroup>
+	      	<h:panelGroup rendered="#{authorizationBean.isTwoFaElevated() and (authorizationBean.twoFaElevatedSince.toMinutes() lt 2)}">
+	      	  <div>
+		      	#{messages.twofa_elevated_since_recently}
+		      </div>
+	      	</h:panelGroup>
+	      	
+		  </div>
+		  <hr style="border: 1px solid white;"/>
 		  <ul>
 	        <li><span class="ui-icon ui-icon-home" style="display:inline-block; vertical-align: bottom;" /><a href="#{request.contextPath}/index.xhtml">#{messages.index}</a></li>
             <li><span class="ui-icon ui-icon-star" style="display:inline-block; vertical-align: bottom;" />

@@ -11,6 +11,8 @@
 package edu.kit.scc.webreg.sec;
 
 import java.io.Serializable;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -229,6 +231,39 @@ public class AuthorizationBean implements Serializable {
 	    }
 	}
 
+    public Duration getLoggedInSince() {
+    	if (sessionManager.getLoginTime() != null) {
+    		return Duration.between(sessionManager.getLoginTime(), Instant.now());
+    	}
+    	else {
+    		return null;
+    	}
+    }
+    
+    public Duration getTwoFaElevatedSince() {
+    	if (sessionManager.getTwoFaElevation() != null) {
+    		return Duration.between(sessionManager.getTwoFaElevation(), Instant.now());
+    	}
+    	else {
+    		return null;
+    	}
+    }
+
+    public Boolean isTwoFaElevated() {
+		long elevationTime = 5L * 60L * 1000L;
+		if (appConfig.getConfigValue("elevation_time") != null) {
+			elevationTime = Long.parseLong(appConfig.getConfigValue("elevation_time"));
+		}
+
+		if (sessionManager.getTwoFaElevation() != null &&
+				(System.currentTimeMillis() - sessionManager.getTwoFaElevation().toEpochMilli()) < elevationTime) {
+			return true;
+		}
+		else {
+			return false;
+		}
+    }
+    
     public boolean isUserInRole(String roleName) {
     	if (roleName.startsWith("ROLE_"))
     		roleName = roleName.substring(5);

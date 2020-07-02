@@ -151,7 +151,7 @@ public class SecurityFilter implements Filter {
     				}
     				
     				if (session.getTwoFaElevation() != null &&
-							(System.currentTimeMillis() - session.getTwoFaElevation().getTime()) < elevationTime) {
+							(System.currentTimeMillis() - session.getTwoFaElevation().toEpochMilli()) < elevationTime) {
     					// user already elevated
         				chain.doFilter(servletRequest, servletResponse);
 					}
@@ -182,7 +182,7 @@ public class SecurityFilter implements Filter {
     				}
 
     				if (session.getTwoFaElevation() != null &&
-							(System.currentTimeMillis() - session.getTwoFaElevation().getTime()) < elevationTime) {
+							(System.currentTimeMillis() - session.getTwoFaElevation().toEpochMilli()) < elevationTime) {
     					// user already elevated
         				chain.doFilter(servletRequest, servletResponse);
 					}
