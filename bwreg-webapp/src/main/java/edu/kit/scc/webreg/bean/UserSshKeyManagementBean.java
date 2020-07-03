@@ -76,8 +76,11 @@ public class UserSshKeyManagementBean implements Serializable {
 	    	
 	    	keyList = new ArrayList<OpenSshPublicKey>();
 	    	for (SshPubKeyEntity sshKey : sshPubKeyList) {
+	    		OpenSshPublicKey key = new OpenSshPublicKey();
+	    		key.setPubKeyEntity(sshKey);
+	    		keyList.add(key);
 				try {
-					keyList.add(keyDecoder.decode(sshKey));
+		    		keyDecoder.decode(key);
 				} catch (UnsupportedKeyTypeException e) {
 					logger.warn("Unsupported key exception: ", e.getMessage());
 					messageGenerator.addResolvedErrorMessage("error_msg", "SSH Key not readable.", false);
@@ -107,8 +110,9 @@ public class UserSshKeyManagementBean implements Serializable {
 	}
 	
 	public void deployKey() {
-		OpenSshPublicKey key;
+		OpenSshPublicKey key = new OpenSshPublicKey();
 		SshPubKeyEntity sshPubKeyEntity = sshPubKeyService.createNew();
+		key.setPubKeyEntity(sshPubKeyEntity);
 
 		try {
 			sshPubKeyEntity.setName(newName);
@@ -116,7 +120,7 @@ public class UserSshKeyManagementBean implements Serializable {
 			sshPubKeyEntity.setUser(user);
 			sshPubKeyEntity.setKeyStatus(SshPubKeyStatus.ACTIVE);
 	
-			key = keyDecoder.decode(sshPubKeyEntity);
+			keyDecoder.decode(key);
 
 			sshPubKeyEntity.setEncodedKey(key.getBaseDate());
 			

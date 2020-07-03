@@ -42,8 +42,8 @@
 		        		
 		        		<p:outputLabel for="@next" value="#{messages.fingerprint} (SHA256):"/>
 		        		<h:panelGroup>
-			        		<h:outputText value="#{key.fingerprint}" rendered="#{not empty key.publicKey}"/>
-			        		<h:outputText value="#{messages.unknown}" rendered="#{empty key.publicKey}"/>
+			        		<h:outputText value="#{key.fingerprint}" rendered="#{not empty key.fingerprint}"/>
+			        		<h:outputText value="#{messages.unknown}" rendered="#{empty key.fingerprint}"/>
 		        		</h:panelGroup>
 		        		
 		        		<h:outputText value="#{messages.expires}:"/>
