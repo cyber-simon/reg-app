@@ -25,4 +25,6 @@ public interface SshPubKeyDao extends BaseDao<SshPubKeyEntity, Long> {
 
 	List<SshPubKeyEntity> findByUserAndStatusWithRegs(Long userId, SshPubKeyStatus keyStatus);
 
+	List<SshPubKeyEntity> findByKey(String encodedKey);
+
 }

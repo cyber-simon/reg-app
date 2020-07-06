@@ -52,6 +52,11 @@ public class SshPubKeyServiceImpl extends BaseServiceImpl<SshPubKeyEntity, Long>
 	public List<SshPubKeyEntity> findByUser(Long userId) {
 		return dao.findByUser(userId);
 	}
+
+	@Override
+	public List<SshPubKeyEntity> findByKey(String encodedKey) {
+		return dao.findByKey(encodedKey);
+	}
 	
 	@Override
 	public List<SshPubKeyEntity> findByUserAndStatus(Long userId, SshPubKeyStatus keyStatus) {
@@ -91,7 +96,7 @@ public class SshPubKeyServiceImpl extends BaseServiceImpl<SshPubKeyEntity, Long>
 	@Override
 	public SshPubKeyEntity deployKey(Long userId, SshPubKeyEntity entity, String executor) 
 			throws SshPubKeyBlacklistedException {
-		List<SshPubKeyEntity> keyList = dao.findByUserAndKey(userId, entity.getEncodedKey());
+		List<SshPubKeyEntity> keyList = dao.findByKey(entity.getEncodedKey());
 		if (keyList != null && keyList.size() > 0) {
 			logger.warn("User {} tried to re-add blacklisted key", userId);
 			throw new SshPubKeyBlacklistedException("Key already used by user");

@@ -60,6 +60,14 @@ public class JpaSshPubKeyDao extends JpaBaseDao<SshPubKeyEntity, Long> implement
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
+	public List<SshPubKeyEntity> findByKey(String encodedKey) {
+		return em.createQuery("select e from SshPubKeyEntity e where e.encodedKey = :encodedKey")
+				.setParameter("encodedKey", encodedKey)
+				.getResultList();	
+	}
+
+	@Override
     public Class<SshPubKeyEntity> getEntityClass() {
 		return SshPubKeyEntity.class;
 	}

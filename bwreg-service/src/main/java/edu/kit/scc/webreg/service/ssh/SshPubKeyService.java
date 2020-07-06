@@ -30,4 +30,6 @@ public interface SshPubKeyService extends BaseService<SshPubKeyEntity, Long> {
 
 	SshPubKeyEntity deleteKey(SshPubKeyEntity entity, String executor);
 
+	List<SshPubKeyEntity> findByKey(String encodedKey);
+
 }
