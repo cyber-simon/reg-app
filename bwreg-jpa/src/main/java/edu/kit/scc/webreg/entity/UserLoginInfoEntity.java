@@ -18,6 +18,9 @@ public class UserLoginInfoEntity extends AbstractBaseEntity {
 	@ManyToOne(targetEntity = UserEntity.class)
 	private UserEntity user;
 
+	@ManyToOne(targetEntity = RegistryEntity.class)
+	private RegistryEntity registry;
+
 	@Enumerated(EnumType.STRING)
 	private UserLoginInfoStatus loginStatus;
 
@@ -68,5 +71,13 @@ public class UserLoginInfoEntity extends AbstractBaseEntity {
 
 	public void setLoginMethod(UserLoginMethod loginMethod) {
 		this.loginMethod = loginMethod;
+	}
+
+	public RegistryEntity getRegistry() {
+		return registry;
+	}
+
+	public void setRegistry(RegistryEntity registry) {
+		this.registry = registry;
 	}
 }
