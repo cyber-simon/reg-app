@@ -29,7 +29,7 @@ public class EmailTemplateEntity extends AbstractBaseEntity {
 	@Column(name = "tpl_subject", length=512)
 	private String subject;
 	
-	@Column(name = "tpl_body", length=2048)
+	@Column(name = "tpl_body", length=4096)
 	private String body;
 	
 	@Column(name = "tpl_to", length=512)
