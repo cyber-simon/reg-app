@@ -75,32 +75,36 @@ public class TwoFaUserBean implements Serializable {
 	}
 	
 	public void createAuthenticatorToken() {
-		try {
-			createTokenResponse = twoFaService.createAuthenticatorToken(user.getId());
-			tokenList = twoFaService.findByUserId(sessionManager.getUserId());
-		} catch (TwoFaException e) {
-			logger.warn("TwoFaException", e);
+		if (! getReadOnly()) {
+			try {
+				createTokenResponse = twoFaService.createAuthenticatorToken(user.getId());
+				tokenList = twoFaService.findByUserId(sessionManager.getUserId());
+			} catch (TwoFaException e) {
+				logger.warn("TwoFaException", e);
+			}
 		}
 	}
 
 	public void createYubicoToken() {
-		try {
-			LinotpInitAuthenticatorTokenResponse response = twoFaService.createYubicoToken(user.getId(), yubicoCode);
-
-			if (response.getResult().isStatus() && response.getResult().isValue()) {
-				tokenList = twoFaService.findByUserId(sessionManager.getUserId());
+		if (! getReadOnly()) {
+			try {
+				LinotpInitAuthenticatorTokenResponse response = twoFaService.createYubicoToken(user.getId(), yubicoCode);
+	
+				if (response.getResult().isStatus() && response.getResult().isValue()) {
+					tokenList = twoFaService.findByUserId(sessionManager.getUserId());
+				}
+				else {
+					messageGenerator.addResolvedWarningMessage("warn", "twofa_token_failed", true);
+				}
+	
+				PrimeFaces.current().executeScript("PF('addYubicoDlg').hide();");
+				createTokenResponse = null;
+				yubicoCode = "";
+				
+			} catch (TwoFaException e) {
+				logger.warn("TwoFaException", e);
 			}
-			else {
-				messageGenerator.addResolvedWarningMessage("warn", "twofa_token_failed", true);
-			}
-
-			PrimeFaces.current().executeScript("PF('addYubicoDlg').hide();");
-			createTokenResponse = null;
-			yubicoCode = "";
-			
-		} catch (TwoFaException e) {
-			logger.warn("TwoFaException", e);
-		}		
+		}
 	}
 	
 	public void checkAuthenticatorToken() {
@@ -132,54 +136,60 @@ public class TwoFaUserBean implements Serializable {
 	}
 
 	public void enableToken(String serial) {
-		try {
-			LinotpSimpleResponse response = twoFaService.enableToken(user.getId(), serial);
-			tokenList = twoFaService.findByUserId(sessionManager.getUserId());
-			if ((response.getResult() != null) && response.getResult().isStatus() &&
-					response.getResult().isValue()) {
-				messageGenerator.addInfoMessage("Info", "Token " + serial + " enabled");
+		if (! getReadOnly()) {
+			try {
+				LinotpSimpleResponse response = twoFaService.enableToken(user.getId(), serial);
+				tokenList = twoFaService.findByUserId(sessionManager.getUserId());
+				if ((response.getResult() != null) && response.getResult().isStatus() &&
+						response.getResult().isValue()) {
+					messageGenerator.addInfoMessage("Info", "Token " + serial + " enabled");
+				}
+				else {
+					messageGenerator.addWarningMessage("Warn", "Token " + serial + " could not be enabled");
+				}
+			} catch (TwoFaException e) {
+				logger.warn("TwoFaException", e);
+				messageGenerator.addErrorMessage("Error", e.toString());
 			}
-			else {
-				messageGenerator.addWarningMessage("Warn", "Token " + serial + " could not be enabled");
-			}
-		} catch (TwoFaException e) {
-			logger.warn("TwoFaException", e);
-			messageGenerator.addErrorMessage("Error", e.toString());
-		}		
+		}
 	}
 
 	public void disableToken(String serial) {
-		try {
-			LinotpSimpleResponse response = twoFaService.disableToken(user.getId(), serial);
-			tokenList = twoFaService.findByUserId(sessionManager.getUserId());
-			if ((response.getResult() != null) && response.getResult().isStatus() &&
-					response.getResult().isValue()) {
-				messageGenerator.addInfoMessage("Info", "Token " + serial + " disable");
+		if (! getReadOnly()) {
+			try {
+				LinotpSimpleResponse response = twoFaService.disableToken(user.getId(), serial);
+				tokenList = twoFaService.findByUserId(sessionManager.getUserId());
+				if ((response.getResult() != null) && response.getResult().isStatus() &&
+						response.getResult().isValue()) {
+					messageGenerator.addInfoMessage("Info", "Token " + serial + " disable");
+				}
+				else {
+					messageGenerator.addWarningMessage("Warn", "Token " + serial + " could not be disable");
+				}
+			} catch (TwoFaException e) {
+				logger.warn("TwoFaException", e);
+				messageGenerator.addErrorMessage("Error", e.toString());
 			}
-			else {
-				messageGenerator.addWarningMessage("Warn", "Token " + serial + " could not be disable");
-			}
-		} catch (TwoFaException e) {
-			logger.warn("TwoFaException", e);
-			messageGenerator.addErrorMessage("Error", e.toString());
-		}		
+		}
 	}
 
 	public void deleteToken(String serial) {
-		try {
-			LinotpSimpleResponse response = twoFaService.deleteToken(user.getId(), serial);
-			tokenList = twoFaService.findByUserId(sessionManager.getUserId());
-			if ((response.getResult() != null) && response.getResult().isStatus() &&
-					response.getResult().isValue()) {
-				messageGenerator.addInfoMessage("Info", "Token " + serial + " deleted");
+		if (! getReadOnly()) {
+			try {
+				LinotpSimpleResponse response = twoFaService.deleteToken(user.getId(), serial);
+				tokenList = twoFaService.findByUserId(sessionManager.getUserId());
+				if ((response.getResult() != null) && response.getResult().isStatus() &&
+						response.getResult().isValue()) {
+					messageGenerator.addInfoMessage("Info", "Token " + serial + " deleted");
+				}
+				else {
+					messageGenerator.addWarningMessage("Warn", "Token " + serial + " could not be deleted");
+				}
+			} catch (TwoFaException e) {
+				logger.warn("TwoFaException", e);
+				messageGenerator.addErrorMessage("Error", e.toString());
 			}
-			else {
-				messageGenerator.addWarningMessage("Warn", "Token " + serial + " could not be deleted");
-			}
-		} catch (TwoFaException e) {
-			logger.warn("TwoFaException", e);
-			messageGenerator.addErrorMessage("Error", e.toString());
-		}		
+		}
 	}
 
 	public Boolean getReadOnly() {
