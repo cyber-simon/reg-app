@@ -44,27 +44,35 @@
 	        		<i class="fa fa-fw fa-key"></i>
 					<b><h:outputText value="#{token.serial}" /></b>
 				</f:facet>
-				<h:panelGrid columns="2">
-					<p:outputLabel for="@next" value="#{messages.twofa_tokentype}:" />
-					<h:panelGroup>
-						<h:outputText value="#{messages.twofa_tokentype_totp}" rendered="#{token.tokenType == 'TOTP' and token.serial.startsWith('TOTP')}"/>
-						<h:outputText value="#{messages.twofa_tokentype_totp_hardware}" rendered="#{token.tokenType == 'TOTP' and not token.serial.startsWith('TOTP')}"/>
-						<h:outputText value="#{messages.twofa_tokentype_tanlist}" rendered="#{token.tokenType == 'HOTP'}"/>
-						<h:outputText value="#{messages.twofa_tokentype_yubikey}" rendered="#{token.tokenType == 'yubico'}"/>
-					</h:panelGroup>
-
-					<p:outputLabel for="@next" value="#{messages.twofa_active}:" />
-					<h:outputText value="#{token.isactive ? messages.yes : messages.no}" />
-				</h:panelGrid>
-
-				<p:commandButton action="#{twoFaUserBean.disableToken(token.serial)}" value="Disable" 
-					update="@form" rendered="#{token.isactive}"/>
-				<p:commandButton action="#{twoFaUserBean.enableToken(token.serial)}" value="Enable" 
-					update="@form" rendered="#{! token.isactive}"/>
-				<p:commandButton action="#{twoFaUserBean.deleteToken(token.serial)}" value="Delete" 
-					update="@form" rendered="#{! token.isactive}">
-					<p:confirm header="#{messages.confirm_header}" message="#{messages.confirm}" />
-				</p:commandButton>
+				<p:panelGrid columns="2">
+					<p:outputPanel>
+						<h:graphicImage width="60px" value="#{resource['img/smartphone.svg']}" alt="Smartphone" rendered="#{token.tokenType == 'TOTP' and token.serial.startsWith('TOTP')}"/>
+						<h:graphicImage width="60px" value="#{resource['img/kittoken_small.png']}" alt="Hardware Token" rendered="#{token.tokenType == 'TOTP' and not token.serial.startsWith('TOTP')}"/>
+						<h:graphicImage width="60px" value="#{resource['img/yubikey_small.png']}" alt="Yubikey" rendered="#{token.tokenType == 'yubico'}"/>
+					</p:outputPanel>
+					<p:outputPanel>
+					<h:panelGrid columns="2">
+						<p:outputLabel for="@next" value="#{messages.twofa_tokentype}:" />
+						<h:panelGroup>
+							<h:outputText value="#{messages.twofa_tokentype_totp}" rendered="#{token.tokenType == 'TOTP' and token.serial.startsWith('TOTP')}"/>
+							<h:outputText value="#{messages.twofa_tokentype_totp_hardware}" rendered="#{token.tokenType == 'TOTP' and not token.serial.startsWith('TOTP')}"/>
+							<h:outputText value="#{messages.twofa_tokentype_tanlist}" rendered="#{token.tokenType == 'HOTP'}"/>
+							<h:outputText value="#{messages.twofa_tokentype_yubikey}" rendered="#{token.tokenType == 'yubico'}"/>
+						</h:panelGroup>
+	
+						<p:outputLabel for="@next" value="#{messages.twofa_active}:" />
+						<h:outputText value="#{token.isactive ? messages.yes : messages.no}" />
+					</h:panelGrid>
+					<p:commandButton action="#{twoFaUserBean.disableToken(token.serial)}" value="Disable" 
+						update="@form" rendered="#{token.isactive}"/>
+					<p:commandButton action="#{twoFaUserBean.enableToken(token.serial)}" value="Enable" 
+						update="@form" rendered="#{! token.isactive}"/>
+					<p:commandButton action="#{twoFaUserBean.deleteToken(token.serial)}" value="Delete" 
+						update="@form" rendered="#{! token.isactive}">
+						<p:confirm header="#{messages.confirm_header}" message="#{messages.confirm}" />
+					</p:commandButton>
+					</p:outputPanel>
+				</p:panelGrid>
 			</p:panel>
 		</p:dataGrid>
 
@@ -77,12 +85,12 @@
 		</p:panel>
 	
 		<p:dialog header="#{messages.twofa_create_totp_token}" 
-					widgetVar="addTotpDlg" id="addTotpDlgId" modal="true" closable="false" closeOnEscape="true"
+					widgetVar="addTotpDlg" id="addTotpDlgId" modal="true" closable="true" closeOnEscape="true"
 					showEffect="fade" hideEffect="fade">
 			<p:ajax event="close" update="@form" />
 
 			<div class="panel" style="width:360px;">
-			    <h:outputText value="#{messages.twofa_create_totp_token_desc}" />
+			    <h:outputText value="#{messages.twofa_create_totp_token_desc}" escape="false" />
 		    </div>
 
 			<p:panel id="totpResponsePanel">
@@ -106,11 +114,11 @@
 		</p:dialog>
 
 		<p:dialog header="#{messages.twofa_create_yubico_token}" 
-					widgetVar="addYubicoDlg" id="addYubicoDlgId" modal="true" closable="false" closeOnEscape="true"
+					widgetVar="addYubicoDlg" id="addYubicoDlgId" modal="true" closable="true" closeOnEscape="true"
 					showEffect="fade" hideEffect="fade">
 			<p:ajax event="close" update="@form" />
 			<div class="panel" style="width:360px;">
-			    <h:outputText value="#{messages.twofa_create_yubico_token_desc}" />
+			    <h:outputText value="#{messages.twofa_create_yubico_token_desc}" escape="false" />
 		    </div>
 		
 			<p:panel id="yubicoResponsePanel">
@@ -125,7 +133,7 @@
 		</p:dialog>
 		
 		<p:dialog header="#{messages.twofa_create_backuptan_token}" 
-					widgetVar="addBackuptanDlg" id="addBackuptanDlgId" modal="true" closable="false" closeOnEscape="true"
+					widgetVar="addBackuptanDlg" id="addBackuptanDlgId" modal="true" closable="true" closeOnEscape="true"
 					showEffect="fade" hideEffect="fade">
 					
 		</p:dialog>

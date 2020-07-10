@@ -42,8 +42,17 @@
 	        		<i class="fa fa-fw fa-key"></i>
 					<b><h:outputText value="#{token.serial}" /></b>
 				</f:facet>
-				<div><h:outputText value="#{token.tokenType}" /></div>
-				<div><h:outputText value="#{token.isactive}" /></div>
+				<p:panelGrid columns="2">
+					<p:outputPanel>
+						<h:graphicImage width="60px" value="#{resource['img/smartphone.svg']}" alt="Smartphone" rendered="#{token.tokenType == 'TOTP' and token.serial.startsWith('TOTP')}"/>
+						<h:graphicImage width="60px" value="#{resource['img/kittoken_small.png']}" alt="Hardware Token" rendered="#{token.tokenType == 'TOTP' and not token.serial.startsWith('TOTP')}"/>
+						<h:graphicImage width="60px" value="#{resource['img/yubikey_small.png']}" alt="Yubikey" rendered="#{token.tokenType == 'yubico'}"/>
+					</p:outputPanel>
+					<p:outputPanel>
+						<div><h:outputText value="#{token.tokenType}" /></div>
+						<div><h:outputText value="#{token.isactive}" /></div>
+					</p:outputPanel>
+				</p:panelGrid>
 			</p:panel>
 		</p:dataGrid>
 
