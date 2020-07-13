@@ -46,6 +46,9 @@ import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.reg.AttributeSourceQueryService;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;
+import edu.kit.scc.webreg.service.twofa.TwoFaException;
+import edu.kit.scc.webreg.service.twofa.TwoFaService;
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpTokenResultList;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 import edu.kit.scc.webreg.util.ViewIds;
@@ -97,6 +100,9 @@ public class RegisterServiceBean implements Serializable {
 	
 	@Inject
 	private FacesMessageGenerator messageGenerator;
+	
+	@Inject
+	private TwoFaService twoFaService;
 	
     private List<RegisterServiceBean.PolicyHolder> policyHolderList;
     
@@ -195,6 +201,26 @@ public class RegisterServiceBean implements Serializable {
 		for (String s : requirementsList) {
     		messageGenerator.addResolvedErrorMessage("reqs", "error", s, true);
 		}
+		
+		
+		if (service.getServiceProps().containsKey("twofa") &&
+				service.getServiceProps().get("twofa").equalsIgnoreCase("enabled")) {
+			/*
+			 * second factor for service is enabled. Check if user has registered second factor
+			 */
+			try {
+				LinotpTokenResultList tokenList = twoFaService.findByUserId(user.getId());
+				if (tokenList.size() == 0) {
+					accessAllowed = false;
+		    		messageGenerator.addResolvedErrorMessage("reqs", "error", "twofa_mandatory", true);
+				}
+			} catch (TwoFaException e) {
+				logger.warn("There is a problem communicating with twofa server" + e.getMessage());
+				errorState = true;
+	    		messageGenerator.addResolvedErrorMessage("errorState", "error", "twofa_problem", true);
+				return;
+			}
+		}		
 	}
 	
     public String registerUser() {
