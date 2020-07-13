@@ -35,6 +35,7 @@ import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
 import edu.kit.scc.webreg.dao.ServiceEventDao;
 import edu.kit.scc.webreg.dao.ServiceGroupFlagDao;
+import edu.kit.scc.webreg.dao.SshPubKeyRegistryDao;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
@@ -53,6 +54,7 @@ import edu.kit.scc.webreg.entity.ServiceBasedGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupStatus;
+import edu.kit.scc.webreg.entity.SshPubKeyRegistryEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserGroupEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
@@ -62,6 +64,7 @@ import edu.kit.scc.webreg.entity.audit.AuditStatus;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.MultipleGroupEvent;
 import edu.kit.scc.webreg.event.ServiceRegisterEvent;
+import edu.kit.scc.webreg.event.SshPubKeyRegistryEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.script.ScriptingEnv;
@@ -112,6 +115,9 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 
 	@Inject
 	private AuditDetailDao auditDetailDao;
+
+	@Inject
+	private SshPubKeyRegistryDao sshPubKeyRegistryDao;
 
 	@Inject
 	private KnowledgeSessionSingleton knowledgeSessionService;
@@ -495,7 +501,7 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 
 		try {
 			ServiceEntity serviceEntity = serviceDao.findByIdWithServiceProps(registry.getService().getId());
-			UserEntity userEntity = userDao.findByIdWithAll(registry.getUser().getId());
+			UserEntity userEntity = userDao.findById(registry.getUser().getId());
 
 			ServiceRegisterAuditor auditor = new ServiceRegisterAuditor(auditDao, auditDetailDao, appConfig);
 			auditor.startAuditTrail(executor);
@@ -537,6 +543,19 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 			ServiceRegisterEvent serviceRegisterEvent = new ServiceRegisterEvent(registry);
 			List<EventEntity> eventList = new ArrayList<EventEntity>(serviceEventDao.findAllByService(serviceEntity));
 			eventSubmitter.submit(serviceRegisterEvent, eventList, EventType.SERVICE_DEREGISTER, executor);
+			
+			List<SshPubKeyRegistryEntity> pubKeyRegistryList = sshPubKeyRegistryDao.findByRegistry(registry.getId());
+
+			for (SshPubKeyRegistryEntity sshPubKeyRegistryEntity : pubKeyRegistryList) {
+				sshPubKeyRegistryDao.delete(sshPubKeyRegistryEntity);
+				
+				SshPubKeyRegistryEvent event = new SshPubKeyRegistryEvent(sshPubKeyRegistryEntity);
+				try {
+					eventSubmitter.submit(event, EventType.SSH_KEY_REGISTRY_DELETED, executor);
+				} catch (EventSubmitException e) {
+					logger.warn("Could not submit event", e);
+				}
+			}
 			
 			auditor.finishAuditTrail();
 			if (parentAuditor == null) {
