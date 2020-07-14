@@ -15,7 +15,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -212,7 +214,10 @@ public class RegisterServiceBean implements Serializable {
 				LinotpTokenResultList tokenList = twoFaService.findByUserId(user.getId());
 				if (tokenList.size() == 0) {
 					accessAllowed = false;
-		    		messageGenerator.addResolvedErrorMessage("reqs", "error", "twofa_mandatory", true);
+					Map<String, Object> rendererContext = new HashMap<String, Object>();
+					rendererContext.put("service", service);
+		    		messageGenerator.addResolvedMessage("reqs", FacesMessage.SEVERITY_ERROR, "error", 
+		    				"twofa_mandatory", true, rendererContext);
 				}
 			} catch (TwoFaException e) {
 				logger.warn("There is a problem communicating with twofa server" + e.getMessage());

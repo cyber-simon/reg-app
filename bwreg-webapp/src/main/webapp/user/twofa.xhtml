@@ -15,6 +15,7 @@
 
 <f:view>
 <f:metadata>
+	<f:viewParam name="retsid" value="#{twoFaUserBean.returnServiceId}"/>
 	<f:event type="javax.faces.event.PreRenderViewEvent"
            listener="#{twoFaUserBean.preRenderView}" />
 </f:metadata>
@@ -77,11 +78,18 @@
 		</p:dataGrid>
 
 		<p:panel rendered="#{! twoFaUserBean.readOnly}">
-			<div>
+			<div style="margin-bottom: 16px;">
 				<h:outputText value="#{messages.twofa_create_new_token}" />
 			</div>
-			<p:commandButton id="openAddTotpDialog" oncomplete="PF('addTotpDlg').show();" value="#{messages.twofa_create_new_totp}"></p:commandButton>
-			<p:commandButton id="openAddYubicoDialog" oncomplete="PF('addYubicoDlg').show();" value="#{messages.twofa_create_new_yubico}"></p:commandButton>
+			<p:outputPanel style="margin-bottom: 16px;">
+				<p:commandButton id="openAddTotpDialog" oncomplete="PF('addTotpDlg').show();" value="#{messages.twofa_create_new_totp}"></p:commandButton>
+				<p:commandButton id="openAddYubicoDialog" oncomplete="PF('addYubicoDlg').show();" value="#{messages.twofa_create_new_yubico}"></p:commandButton>
+			</p:outputPanel>
+			<p:outputPanel rendered="#{not empty twoFaUserBean.returnServiceId}">
+				<p:link href="../user/register-service.xhtml" value="#{messages.twofa_back_to_register}">
+					<f:param name="serviceId" value="#{twoFaUserBean.returnServiceId}"/>
+				</p:link>
+			</p:outputPanel>
 		</p:panel>
 	
 		<p:dialog header="#{messages.twofa_create_totp_token}" 

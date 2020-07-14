@@ -58,6 +58,8 @@ public class TwoFaUserBean implements Serializable {
 	private String totpCode, yubicoCode;
 	private String defaultButton;
 	
+	private Long returnServiceId;
+	
 	public void preRenderView(ComponentSystemEvent ev) {
 
 		defaultButton = "yubicoStartButton";
@@ -234,6 +236,17 @@ public class TwoFaUserBean implements Serializable {
 
 	public void setYubicoCode(String yubicoCode) {
 		this.yubicoCode = yubicoCode;
+	}
+
+	public Long getReturnServiceId() {
+		return returnServiceId;
+	}
+
+	public void setReturnServiceId(Long returnServiceId) {
+		// make this not overwriteable. Ajax requests would overwrite this parameter
+		if (returnServiceId != null) {
+			this.returnServiceId = returnServiceId;
+		}
 	}
 
 }
