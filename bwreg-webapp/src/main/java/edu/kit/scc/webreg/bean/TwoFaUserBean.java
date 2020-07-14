@@ -120,7 +120,8 @@ public class TwoFaUserBean implements Serializable {
 				
 					response = twoFaService.checkSpecificToken(user.getId(), serial, totpCode);
 					if (response.getResult() != null && response.getResult().isStatus() && response.getResult().isValue()) {
-						// success, Token stays active
+						// success, Token stays active, set correct description
+						twoFaService.initToken(user.getId(), serial);
 						tokenList = twoFaService.findByUserId(sessionManager.getUserId());
 						if (tokenList.size() == 1) {
 							// this was the first token. We have to set 2fa elevation

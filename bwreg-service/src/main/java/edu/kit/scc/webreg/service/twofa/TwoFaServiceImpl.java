@@ -12,6 +12,7 @@ import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpConnection;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpInitAuthenticatorTokenResponse;
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpSetFieldResult;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpShowUserResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpToken;
@@ -92,6 +93,17 @@ public class TwoFaServiceImpl implements TwoFaService {
 		return linotpConnection.checkSpecificToken(serial, token);
 	}
 
+	@Override
+	public LinotpSetFieldResult initToken(Long userId, String serial) throws TwoFaException {
+		UserEntity user = userDao.findById(userId);
+		
+		Map<String, String> configMap = configResolver.resolveConfig(user);
+
+		LinotpConnection linotpConnection = new LinotpConnection(configMap);
+		linotpConnection.requestAdminSession();
+		return linotpConnection.initToken(serial);
+	}
+	
 	@Override
 	public LinotpInitAuthenticatorTokenResponse createAuthenticatorToken(Long userId) throws TwoFaException {
 		UserEntity user = userDao.findById(userId);

@@ -3,7 +3,9 @@ package edu.kit.scc.webreg.service.twofa.linotp;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -166,7 +168,7 @@ public class LinotpConnection {
 			nvps.add(new BasicNameValuePair("genkey", "1"));
 			nvps.add(new BasicNameValuePair("hashlib", "sha1"));
 			nvps.add(new BasicNameValuePair("timeStep", "30"));
-			nvps.add(new BasicNameValuePair("description", "This is a description"));
+			nvps.add(new BasicNameValuePair("description", "INIT,DELABLE,BWIDM,TS " + formatDate() + ","));
 
 			if (configMap.containsKey("userId"))
 			    nvps.add(new BasicNameValuePair("user", configMap.get("userId")));
@@ -219,6 +221,37 @@ public class LinotpConnection {
 			    logger.trace(responseString);
 			    
 			    return resultParser.parseInitAuthenticatorTokenResponse(responseString);
+
+			} finally {
+				response.close();
+			}
+		} catch (ParseException | IOException e) {
+			throw new TwoFaException(e);
+		}		
+	}
+
+	public LinotpSetFieldResult initToken(String serial) throws TwoFaException {
+		return setTokenField(serial, "description", "ACTIVE,DELABLE,TS " + formatDate() + ",");
+	}
+	
+	public LinotpSetFieldResult setTokenField(String serial, String key, String value) throws TwoFaException {
+		try {
+			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/set");
+			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
+			if (configMap.containsKey("realm"))
+				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
+			nvps.add(new BasicNameValuePair("session", adminSession));
+			nvps.add(new BasicNameValuePair("serial", serial));
+			nvps.add(new BasicNameValuePair(key, value));
+			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
+			
+			CloseableHttpResponse response = httpClient.execute(targetHost, httpPost, context);
+			try {
+			    HttpEntity entity = response.getEntity();
+			    String responseString = EntityUtils.toString(entity);
+			    logger.trace(responseString);
+
+			    return resultParser.parseSetFieldResponse(responseString);
 
 			} finally {
 				response.close();
@@ -380,5 +413,10 @@ public class LinotpConnection {
         else {
         	return null;
         }
+	}
+	
+	protected String formatDate() {
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm");
+		return formatter.format(new Date());
 	}
 }

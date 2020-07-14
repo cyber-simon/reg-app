@@ -44,4 +44,14 @@ public class LinotpResultParser {
 		}		
 	}
 
+	public LinotpSetFieldResult parseSetFieldResponse(String responseString) throws TwoFaException {
+		try {
+			LinotpSetFieldResult response = 
+					om.readValue(responseString, LinotpSetFieldResult.class);
+			return response;
+		} catch (IOException e) {
+			throw new TwoFaException(e);
+		}		
+	}
+
 }

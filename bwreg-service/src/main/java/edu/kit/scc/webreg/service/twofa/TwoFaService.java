@@ -1,6 +1,7 @@
 package edu.kit.scc.webreg.service.twofa;
 
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpInitAuthenticatorTokenResponse;
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpSetFieldResult;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpTokenResultList;
 
@@ -23,5 +24,7 @@ public interface TwoFaService {
 	LinotpSimpleResponse checkSpecificToken(Long userId, String serial, String token) throws TwoFaException;
 
 	LinotpInitAuthenticatorTokenResponse createYubicoToken(Long userId, String yubi) throws TwoFaException;
+
+	LinotpSetFieldResult initToken(Long userId, String serial) throws TwoFaException;
 
 }
