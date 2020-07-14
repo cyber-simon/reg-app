@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.bean;
 
 import java.io.Serializable;
+import java.time.Instant;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
@@ -121,6 +122,10 @@ public class TwoFaUserBean implements Serializable {
 					if (response.getResult() != null && response.getResult().isStatus() && response.getResult().isValue()) {
 						// success, Token stays active
 						tokenList = twoFaService.findByUserId(sessionManager.getUserId());
+						if (tokenList.size() == 1) {
+							// this was the first token. We have to set 2fa elevation
+							sessionManager.setTwoFaElevation(Instant.now());
+						}
 						PrimeFaces.current().executeScript("PF('addTotpDlg').hide();");
 						createTokenResponse = null;
 						totpCode = "";

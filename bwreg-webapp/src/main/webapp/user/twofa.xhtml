@@ -103,7 +103,7 @@
 
 			<p:panel id="totpResponsePanel">
 			    <p:commandButton id="totpStartButton" action="#{twoFaUserBean.createAuthenticatorToken()}" value="#{messages.start}"
-		    		update="totpResponsePanel" rendered="#{empty twoFaUserBean.createTokenResponse}"/>
+		    		update="totpResponsePanel" oncomplete="PF('addTotpDlg').initPosition()" rendered="#{empty twoFaUserBean.createTokenResponse}"/>
 				<h:panelGroup rendered="#{not empty twoFaUserBean.createTokenResponse}">
 					<div>
 						<h:outputText value="#{twoFaUserBean.createTokenResponse.detail.googleurl.img}" escape="false" />
