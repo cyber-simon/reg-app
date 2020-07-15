@@ -7,9 +7,12 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.Type;
 
 @Entity(name = "SshPubKeyEntity")
 @Table(name = "ssh_pub_key")
@@ -32,7 +35,9 @@ public class SshPubKeyEntity extends AbstractBaseEntity {
 	@Column(name = "key_type", length = 32)
 	private String keyType;
 
-	@Column(name = "encoded_key", length = 8192)
+	@Column(name = "encoded_key")
+	@Lob 
+	@Type(type = "org.hibernate.type.TextType")	
 	private String encodedKey;
 
 	@Column(name = "comment", length = 1024)
