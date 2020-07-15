@@ -10,6 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.reg.impl;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -213,7 +214,7 @@ public class ApprovalServiceImpl implements ApprovalService {
 
 	private RegisterUserWorkflow getRegisterWorkflowInstance(String className) {
 		try {
-			Object o = Class.forName(className).newInstance();
+			Object o = Class.forName(className).getConstructor().newInstance();
 			if (o instanceof RegisterUserWorkflow) {
 				if (o instanceof ScriptingWorkflow)
 					((ScriptingWorkflow) o).setScriptingEnv(scriptingEnv);
@@ -224,13 +225,8 @@ public class ApprovalServiceImpl implements ApprovalService {
 				logger.warn("Service Register bean misconfigured, Object not Type RegisterUserWorkflow but: {}", o.getClass());
 				return null;
 			}
-		} catch (InstantiationException e) {
-			logger.warn("Service Register bean misconfigured: {}", e.getMessage());
-			return null;
-		} catch (IllegalAccessException e) {
-			logger.warn("Service Register bean misconfigured: {}", e.getMessage());
-			return null;
-		} catch (ClassNotFoundException e) {
+		} catch (InstantiationException | NoSuchMethodException | IllegalAccessException | 
+				ClassNotFoundException | InvocationTargetException e) {
 			logger.warn("Service Register bean misconfigured: {}", e.getMessage());
 			return null;
 		}
@@ -238,20 +234,15 @@ public class ApprovalServiceImpl implements ApprovalService {
 
 	private ApprovalWorkflow getApprovalWorkflowInstance(String className) {
 		try {
-			Object o = Class.forName(className).newInstance();
+			Object o = Class.forName(className).getConstructor().newInstance();
 			if (o instanceof ApprovalWorkflow)
 				return (ApprovalWorkflow) o;
 			else {
 				logger.warn("Service Register bean misconfigured, Object not Type ApprovalWorkflow but: {}", o.getClass());
 				return null;
 			}
-		} catch (InstantiationException e) {
-			logger.warn("Service Register bean misconfigured: {}", e.getMessage());
-			return null;
-		} catch (IllegalAccessException e) {
-			logger.warn("Service Register bean misconfigured: {}", e.getMessage());
-			return null;
-		} catch (ClassNotFoundException e) {
+		} catch (InstantiationException | NoSuchMethodException | IllegalAccessException | 
+				ClassNotFoundException | InvocationTargetException e) {
 			logger.warn("Service Register bean misconfigured: {}", e.getMessage());
 			return null;
 		}
