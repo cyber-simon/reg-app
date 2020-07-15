@@ -95,7 +95,7 @@
 		        <h:outputText for="@next" value="#{messages.ssh_key}:"/>
 		        <p:outputPanel>
 			        <p:inputTextarea id="keyInputArea" value="#{userSshKeyManagementBean.newKey}" 
-			        	style="width: 400px; height: 100px;" autoResize="false">
+			        	style="width: 400px; height: 100px;" autoResize="false" maxlength="8128">
 			        	<f:validator validatorId="edu.kit.SshKeyValidator"/>
 			        	<p:ajax update="keyInputMessage" event="keyup" />
 			        </p:inputTextarea>
