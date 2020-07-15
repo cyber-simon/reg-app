@@ -148,8 +148,12 @@ public class ApprovalServiceImpl implements ApprovalService {
 		
 		try {
 
+			/**
+			 * TODO findByIdWithAll is slow. Is it really necessary here?
+			 */
 			ServiceEntity serviceEntity = serviceDao.findByIdWithServiceProps(registry.getService().getId());
-			UserEntity userEntity = userDao.findByIdWithAll(registry.getUser().getId());
+			//UserEntity userEntity = userDao.findByIdWithAll(registry.getUser().getId());
+			UserEntity userEntity = userDao.findById(registry.getUser().getId());
 
 			ApprovalAuditor auditor = new ApprovalAuditor(auditDao, auditDetailDao, appConfig);
 			auditor.startAuditTrail(executor, true);
