@@ -215,7 +215,7 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 				auditor.finishAuditTrail();
 				if (parentAuditor == null)
 					auditor.commitAuditTrail();
-				approvalService.approve(registry, executor, auditor);
+				approvalService.approve(registry, executor, sendGroupUpdate, auditor);
 			}
 			
 			return registry;
