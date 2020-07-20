@@ -110,7 +110,8 @@ public class SshLoginServiceImpl implements SshLoginService {
 		
 		if (registry == null)
 			throw new NoRegistryFoundException("No active registry for user");
-		
+
+		// twofa doesn't play a role with command keys
 		List<SshPubKeyRegistryEntity> regKeyList = sshPubKeyRegistryDao.findByRegistryForCommandLogin(registry.getId());
 		return buildKeyList(regKeyList, user);
 	}
@@ -130,9 +131,41 @@ public class SshLoginServiceImpl implements SshLoginService {
 		
 		if (registry == null)
 			throw new NoRegistryFoundException("No active registry for user");
-		
-		List<SshPubKeyRegistryEntity> regKeyList = sshPubKeyRegistryDao.findByRegistryForLogin(registry.getId());
-		return buildKeyList(regKeyList, user);
+
+		if (service.getServiceProps().containsKey("twofa") && 
+				service.getServiceProps().get("twofa").equalsIgnoreCase("enabled")) {
+			
+			UserLoginInfoEntity loginInfo = userLoginInfoDao.findByRegistryTwofaSuccess(registry.getId());
+			
+			if (loginInfo != null && loginInfo.getLoginStatus().equals(UserLoginInfoStatus.SUCCESS)) {
+				
+				// check expiry for twofa
+				Long expiry = 60L * 60L * 1000L;
+				if (service.getServiceProps().containsKey("twofa_expiry")) {
+					expiry = Long.parseLong(service.getServiceProps().get("twofa_expiry"));
+				}
+				
+				if ((System.currentTimeMillis() - loginInfo.getLoginDate().getTime()) < expiry) {
+					List<SshPubKeyRegistryEntity> regKeyList = sshPubKeyRegistryDao.findByRegistryForLogin(registry.getId());
+					return buildKeyList(regKeyList, user);
+				}
+				else {
+					// always return command keys
+					List<SshPubKeyRegistryEntity> regKeyList = sshPubKeyRegistryDao.findByRegistryForCommandLogin(registry.getId());
+					return buildKeyList(regKeyList, user);
+				}
+			}
+			else {
+				// always return command keys
+				List<SshPubKeyRegistryEntity> regKeyList = sshPubKeyRegistryDao.findByRegistryForCommandLogin(registry.getId());
+				return buildKeyList(regKeyList, user);
+			}
+		}
+		else {
+			// return all keys if twofa is disabled for service
+			List<SshPubKeyRegistryEntity> regKeyList = sshPubKeyRegistryDao.findByRegistryForLogin(registry.getId());
+			return buildKeyList(regKeyList, user);
+		}
 	}
 
 	protected String buildKeyList(List<SshPubKeyRegistryEntity> regKeyList, UserEntity user) {
