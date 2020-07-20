@@ -22,4 +22,10 @@ public interface SshPubKeyRegistryDao extends BaseDao<SshPubKeyRegistryEntity, L
 
 	List<SshPubKeyRegistryEntity> findForApproval(Long serviceId);
 
+	List<SshPubKeyRegistryEntity> findByRegistryForInteractiveLogin(Long registryId);
+
+	List<SshPubKeyRegistryEntity> findByRegistryForCommandLogin(Long registryId);
+
+	List<SshPubKeyRegistryEntity> findByRegistryForLogin(Long registryId);
+
 }
