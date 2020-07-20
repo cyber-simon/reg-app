@@ -32,9 +32,41 @@
 			<div><h:outputText value="#{messages.twofa_list_readonly}"/></div>
 			<div><a href="#{twoFaUserBean.managementUrl}" target="_blank">#{twoFaUserBean.managementUrl}</a></div>
 			
-			<p:repeat var="token" value="#{twoFaUserBean.tokenList}">
-				<div><h:outputText value="#{token.serial}" /></div>
-			</p:repeat>
+			<p:dataGrid var="token" value="#{twoFaUserBean.tokenList}" columns="2" styleClass="whitefoot"
+					layout="grid" style="margin-bottom: 16px; opacity: 0.5;">
+		        <p:panel styleClass="grayback" style="margin-bottom: 0px;">
+		        	<f:facet name="header">
+		        		<i class="fa fa-fw fa-key"></i>
+						<b><h:outputText value="#{token.serial}" /></b>
+					</f:facet>
+					<p:panelGrid columns="2">
+						<p:outputPanel>
+							<h:graphicImage width="60px" value="#{resource['img/smartphone.svg']}" alt="Smartphone" rendered="#{token.tokenType == 'TOTP' and token.serial.startsWith('TOTP')}"/>
+							<h:graphicImage width="60px" value="#{resource['img/kittoken_small.png']}" alt="Hardware Token" rendered="#{token.tokenType == 'TOTP' and not token.serial.startsWith('TOTP')}"/>
+							<h:graphicImage width="60px" value="#{resource['img/yubikey_small.png']}" alt="Yubikey" rendered="#{token.tokenType == 'yubico'}"/>
+						</p:outputPanel>
+						<p:outputPanel>
+							<h:panelGrid columns="2">
+								<p:outputLabel for="@next" value="#{messages.twofa_tokentype}:" />
+								<h:panelGroup>
+									<h:outputText value="#{messages.twofa_tokentype_tanlist}" rendered="#{token.tokenType == 'HMAC' and token.serial.startsWith('OATH')}"/>
+									<h:outputText value="#{messages.twofa_tokentype_totp}" rendered="#{token.tokenType == 'TOTP' and token.serial.startsWith('TOTP')}"/>
+									<h:outputText value="#{messages.twofa_tokentype_totp_hardware}" rendered="#{token.tokenType == 'TOTP' and not token.serial.startsWith('TOTP')}"/>
+									<h:outputText value="#{messages.twofa_tokentype_tanlist}" rendered="#{token.tokenType == 'HOTP'}"/>
+									<h:outputText value="#{messages.twofa_tokentype_yubikey}" rendered="#{token.tokenType == 'yubico'}"/>
+								</h:panelGroup>
+								
+								<p:outputLabel for="@next" value="#{messages.twofa_active}:" />
+								<h:outputText value="#{token.isactive ? messages.yes : messages.no}" />
+							</h:panelGrid>
+
+							<p:panel style="margin: 8px;" rendered="#{! token.isactive and (token.tokenDesc.contains('INIT'))}">
+								<h:outputText value="#{messages.twofa_token_not_init}" style="color:red;"/>
+							</p:panel>
+							</p:outputPanel>
+					</p:panelGrid>
+				</p:panel>
+			</p:dataGrid>
 		</p:panel>
 
 		<p:dataGrid var="token" value="#{twoFaUserBean.tokenList}" columns="2" styleClass="whitefoot"
@@ -52,7 +84,7 @@
 						<h:graphicImage width="60px" value="#{resource['img/yubikey_small.png']}" alt="Yubikey" rendered="#{token.tokenType == 'yubico'}"/>
 					</p:outputPanel>
 					<p:outputPanel>
-						<h:panelGrid columns="2">
+						<h:panelGrid columns="2" style="margin-bottom: 16px;">
 							<p:outputLabel for="@next" value="#{messages.twofa_tokentype}:" />
 							<h:panelGroup>
 								<h:outputText value="#{messages.twofa_tokentype_totp}" rendered="#{token.tokenType == 'TOTP' and token.serial.startsWith('TOTP')}"/>
@@ -64,19 +96,18 @@
 							<p:outputLabel for="@next" value="#{messages.twofa_active}:" />
 							<h:outputText value="#{token.isactive ? messages.yes : messages.no}" />
 						</h:panelGrid>
-						<p:panel style="margin: 8px;">
-							<h:outputText value="#{messages.twofa_token_not_init}" style="color:red;" 
-									rendered="#{! token.isactive and (token.tokenDesc.contains('INIT'))}" />
+						<p:panel style="margin: 8px;" rendered="#{! token.isactive and (token.tokenDesc.contains('INIT'))}">
+							<h:outputText value="#{messages.twofa_token_not_init}" style="color:red;" />
 						</p:panel>
 						<p:commandButton action="#{twoFaUserBean.disableToken(token.serial)}" value="#{messages.disable}" 
 							update="@form" rendered="#{token.isactive}"/>
-						<p:commandButton action="#{twoFaUserBean.enableToken(token.serial)}" value="#{messages.disable}" 
+						<p:commandButton action="#{twoFaUserBean.enableToken(token.serial)}" value="#{messages.enable}" 
 							update="@form" rendered="#{! token.isactive and (! token.tokenDesc.contains('INIT'))}"/>
 						<p:commandButton action="#{twoFaUserBean.deleteToken(token.serial)}" value="#{messages.delete}" 
 							update="@form" rendered="#{! token.isactive}" style="color:red;">
 							<p:confirm header="#{messages.confirm_header}" message="#{messages.confirm}" />
 						</p:commandButton>
-						</p:outputPanel>
+					</p:outputPanel>
 				</p:panelGrid>
 			</p:panel>
 		</p:dataGrid>
@@ -119,7 +150,7 @@
 								<h:outputText value="#{twoFaUserBean.createTokenResponse.detail.serial}"/>
 								
 								<p:outputLabel for="@next" value="#{messages.twofa_code}:" />
-								<p:inputText id="totpText" value="#{twoFaUserBean.totpCode}"/>
+								<p:inputText id="totpText" autocomplete="false" value="#{twoFaUserBean.totpCode}"/>
 							</h:panelGrid>
 							<p:commandButton id="checkTotpButton" action="#{twoFaUserBean.checkAuthenticatorToken()}" value="#{messages.check}"
 								update="totpResponsePanel" />
@@ -140,7 +171,7 @@
 			<p:panel id="yubicoResponsePanel">
 				<h:panelGrid columns="2">
 					<p:outputLabel for="@next" value="#{messages.twofa_code}:" />
-					<p:inputText id="yubicoText" value="#{twoFaUserBean.yubicoCode}"/>
+					<p:inputText id="yubicoText" autocomplete="false" value="#{twoFaUserBean.yubicoCode}"/>
 				</h:panelGrid>
 			    <p:commandButton id="yubicoStartButton" action="#{twoFaUserBean.createYubicoToken()}" value="#{messages.start}"
 		    		update="yubicoResponsePanel"/>

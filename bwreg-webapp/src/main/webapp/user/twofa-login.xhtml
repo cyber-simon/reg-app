@@ -28,7 +28,7 @@
 
  			<h:panelGrid id="baseData" columns="2" style="margin-bottom: 16px;">
 				<p:outputLabel for="@next" value="#{messages.twofa_code}"/>
-				<p:inputText id="tokenText" value="#{twoFaLoginBean.tokenInput}"/>
+				<p:inputText id="tokenText" autocomplete="false" value="#{twoFaLoginBean.tokenInput}"/>
  			</h:panelGrid>
 			
 			<p:commandButton id="check" action="#{twoFaLoginBean.check}" value="#{messages.check}"
