@@ -13,11 +13,14 @@ import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
 import edu.kit.scc.webreg.dao.SshPubKeyRegistryDao;
 import edu.kit.scc.webreg.dao.UserDao;
+import edu.kit.scc.webreg.dao.UserLoginInfoDao;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.SshPubKeyRegistryEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
+import edu.kit.scc.webreg.entity.UserLoginInfoStatus;
 import edu.kit.scc.webreg.exc.NoRegistryFoundException;
 import edu.kit.scc.webreg.exc.NoUserFoundException;
 import edu.kit.scc.webreg.exc.RestInterfaceException;
@@ -42,6 +45,9 @@ public class SshLoginServiceImpl implements SshLoginService {
 	@Inject
 	private SshPubKeyRegistryDao sshPubKeyRegistryDao;
 	
+	@Inject
+	private UserLoginInfoDao userLoginInfoDao;
+	
 	@Override
 	public String authByUidNumberInteractive(ServiceEntity service, Long uidNumber, HttpServletRequest request)
 			throws IOException, RestInterfaceException {
@@ -58,8 +64,26 @@ public class SshLoginServiceImpl implements SshLoginService {
 		if (registry == null)
 			throw new NoRegistryFoundException("No active registry for user");
 		
-		List<SshPubKeyRegistryEntity> regKeyList = sshPubKeyRegistryDao.findByRegistryForInteractiveLogin(registry.getId());
-		return buildKeyList(regKeyList, user);
+		if (service.getServiceProps().containsKey("twofa") && 
+				service.getServiceProps().get("twofa").equalsIgnoreCase("enabled")) {
+			
+			UserLoginInfoEntity loginInfo = userLoginInfoDao.findByRegistryTwofaSuccess(registry.getId());
+			
+			if (loginInfo != null && loginInfo.getLoginStatus().equals(UserLoginInfoStatus.SUCCESS)) {
+				
+				// check expiry for twofa
+				
+				List<SshPubKeyRegistryEntity> regKeyList = sshPubKeyRegistryDao.findByRegistryForInteractiveLogin(registry.getId());
+				return buildKeyList(regKeyList, user);
+			}
+			else {
+				return "";
+			}
+		}
+		else {
+			List<SshPubKeyRegistryEntity> regKeyList = sshPubKeyRegistryDao.findByRegistryForInteractiveLogin(registry.getId());
+			return buildKeyList(regKeyList, user);
+		}
 	}
 
 	@Override

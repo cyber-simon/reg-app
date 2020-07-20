@@ -18,4 +18,8 @@ public interface UserLoginInfoDao extends BaseDao<UserLoginInfoEntity, Long> {
 
 	List<UserLoginInfoEntity> findByUser(Long userId);
 
+	List<UserLoginInfoEntity> findByRegistry(Long registryId);
+
+	UserLoginInfoEntity findByRegistryTwofaSuccess(Long registryId);
+
 }
