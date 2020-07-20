@@ -72,9 +72,18 @@ public class SshLoginServiceImpl implements SshLoginService {
 			if (loginInfo != null && loginInfo.getLoginStatus().equals(UserLoginInfoStatus.SUCCESS)) {
 				
 				// check expiry for twofa
+				Long expiry = 60L * 60L * 1000L;
+				if (service.getServiceProps().containsKey("twofa_expiry")) {
+					expiry = Long.parseLong(service.getServiceProps().get("twofa_expiry"));
+				}
 				
-				List<SshPubKeyRegistryEntity> regKeyList = sshPubKeyRegistryDao.findByRegistryForInteractiveLogin(registry.getId());
-				return buildKeyList(regKeyList, user);
+				if ((System.currentTimeMillis() - loginInfo.getLoginDate().getTime()) < expiry) {
+					List<SshPubKeyRegistryEntity> regKeyList = sshPubKeyRegistryDao.findByRegistryForInteractiveLogin(registry.getId());
+					return buildKeyList(regKeyList, user);
+				}
+				else {
+					return "";
+				}
 			}
 			else {
 				return "";
