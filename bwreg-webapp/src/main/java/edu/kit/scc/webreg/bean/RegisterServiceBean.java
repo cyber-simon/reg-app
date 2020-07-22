@@ -257,8 +257,10 @@ public class RegisterServiceBean implements Serializable {
     			user.getEppn(), service.getName(), service.getRegisterBean()
     	});
     	
+    	RegistryEntity registry;
+    	
     	try {
-    		registerUserService.registerUser(user, service, "user-self");
+    		registry = registerUserService.registerUser(user, service, "user-self");
     		sessionManager.setUnregisteredServiceCreated(null);
     	} catch (RegisterException e) {
 			FacesContext.getCurrentInstance().addMessage("need_check", 
@@ -277,6 +279,12 @@ public class RegisterServiceBean implements Serializable {
 	    		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
 				context.redirect(service.getServiceProps().get("redirect_after_register"));
 				sessionManager.setOriginalRequestPath(null);
+				return null;
+	    	}
+	    	else if (service.getServiceProps().containsKey("ecp") &&
+	    			service.getServiceProps().get("ecp").equalsIgnoreCase("disabled")) {
+	    		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+				context.redirect("../service/set-password.xhtml?registryId=" + registry.getId());
 				return null;
 	    	}
 	    	else if (sessionManager.getOriginalRequestPath() != null) {

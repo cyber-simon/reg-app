@@ -98,6 +98,8 @@ public class SetServicePasswordBean implements Serializable {
 			if (! authBean.isUserInService(serviceEntity)) 
 				throw new IllegalArgumentException("Not authorized for this service");
 
+			serviceEntity = serviceService.findByIdWithServiceProps(serviceEntity.getId());
+			
 			password1 = null;
 			password2 = null;
 			
