@@ -38,37 +38,51 @@
 				</p:panelGrid>			
 
       			<p:dataTable var="regKey" value="#{setServiceSshPubKeyBean.sshPubKeyRegistryList.toArray()}">
-	      			<p:column width="5%">
+	      			<p:column width="12%">
 	       				<f:facet name="header"><h:outputText value="#{messages.status}"/></f:facet>
         				<h:panelGroup id="deniedKey" rendered="#{regKey.keyStatus == 'DENIED'}">
-        					<i class="fa fa-fw fa-close"></i>
+        					<i class="fa fa-fw fa-close"></i><span><h:outputText value="#{messages.ssh_pub_key_denied}" /></span>
         				</h:panelGroup>
         				<p:tooltip id="toolTipDeniedKey" for="deniedKey" value="#{messages.ssh_pub_key_denied}" position="top"/>
         				<h:panelGroup id="pendingKey" rendered="#{regKey.keyStatus == 'PENDING'}">
-        					<i class="fa fa-fw fa-exclamation-triangle"></i>
+        					<i class="fa fa-fw fa-exclamation-triangle"></i><span><h:outputText value="#{messages.ssh_pub_key_pending}" /></span>
         				</h:panelGroup>
         				<p:tooltip id="toolTipPendingKey" for="pendingKey" value="#{messages.ssh_pub_key_pending}" position="top"/>
         				<h:panelGroup id="activeKey" rendered="#{regKey.keyStatus == 'ACTIVE'}">
-        					<i class="fa fa-fw fa-check"></i>
+        					<i class="fa fa-fw fa-check"></i><span><h:outputText value="#{messages.ssh_pub_key_active}" /></span>
        					</h:panelGroup>
         				<p:tooltip id="toolTipActiveKey" for="activeKey" value="#{messages.ssh_pub_key_active}" position="top"/>
 	        		</p:column>
-					<p:column width="5%">
+					<p:column width="12%">
 	       				<f:facet name="header"><h:outputText value="#{messages.ssh_pub_key_usage_type}"/></f:facet>
-	        			<h:panelGroup id="interactiveId" rendered="#{regKey.usageType == 'INTERACTIVE'}"><i class="fa fa-fw fa-user"></i></h:panelGroup>
-	        			<p:tooltip for="interactiveId" value="#{messages.ssh_pub_key_interactiv}" position="top"/>
-	        			<h:panelGroup id="commandId" rendered="#{regKey.usageType == 'COMMAND'}"><i class="fa fa-fw fa-database"></i></h:panelGroup>
-	        			<p:tooltip for="commandId" value="#{messages.ssh_pub_key_command}" position="top"/>
+	        			<h:panelGroup id="interactiveId" rendered="#{regKey.usageType == 'INTERACTIVE'}">
+	        				<i class="fa fa-fw fa-user"></i><span><h:outputText value="#{messages.interactive}" /></span>
+	        			</h:panelGroup>
+	        			<p:tooltip for="interactiveId" value="#{messages.interactive}" position="top"/>
+	        			<h:panelGroup id="commandId" rendered="#{regKey.usageType == 'COMMAND'}">
+	        				<i class="fa fa-fw fa-database"></i><span><h:outputText value="#{messages.command}" /></span>
+	        			</h:panelGroup>
+	        			<p:tooltip for="commandId" value="#{messages.command}" position="top"/>
 	        		</p:column>
 	      			<p:column>
 	       				<f:facet name="header"><h:outputText value="#{messages.ssh_key_name}:"/></f:facet>
-	        			<h:outputText value="#{regKey.sshPubKey.name}"/>
+	        			<p:panelGrid columns="2" style="margin-bottom: 0px;">
+		        			<h:outputText value="#{regKey.sshPubKey.name}"/>
+		        			<p:outputPanel>
+			        			<h:outputText value="#{messages.comment}: #{regKey.comment}" rendered="#{not empty regKey.comment}" />
+			        			<p:outputPanel rendered="#{regKey.usageType == 'COMMAND'}">
+			        				<div><h:outputText value="#{messages.command}: #{regKey.command}" /></div>
+			        				<div><h:outputText value="#{messages.from}: #{regKey.from}" /></div>
+			        			</p:outputPanel>
+		        			</p:outputPanel> 
+	        			</p:panelGrid>
 	        		</p:column>
-					<p:column>
-	        			<p:commandLink action="#{setServiceSshPubKeyBean.delete(regKey)}" immediate="true" update="@form">
-	        				<h:panelGroup styleClass="ui-icon ui-icon-trash" />
-	        				<p:confirm header="#{messages.confirm_header}" message="#{messages.confirm}" />
-	        			</p:commandLink>
+					<p:column width="12%">
+	        			<p:commandButton action="#{setServiceSshPubKeyBean.delete(regKey)}" immediate="true" update="@form"
+	        				value="#{messages.delete}">
+	        				<p:confirm header="#{messages.confirm_header}" escape="false"
+	        					message="#{messages.ssh_pub_key_registry_confirm}" />
+	        			</p:commandButton>
 	        		</p:column>
       			</p:dataTable>
 			</p:panel>
@@ -84,10 +98,10 @@
 	        			<h:outputText value="#{of:formatDate(key.expiresAt, 'dd.MM.yyyy HH:mm')}"/>
 	        		</p:column>
 					<p:column>
-	        			<p:commandLink oncomplete="PF('addKeyDlg').show();" update=":form:addKeyDlgId">
-	        				<h:panelGroup styleClass="ui-icon ui-icon-plus" />
+	        			<p:commandButton oncomplete="PF('addKeyDlg').show();" update=":form:addKeyDlgId"
+	        				value="#{messages.add}">
 	        				<f:setPropertyActionListener value="#{key}" target="#{setServiceSshPubKeyBean.selectedKey}" />
-	        			</p:commandLink>
+	        			</p:commandButton>
 	        		</p:column>
       			</p:dataTable>
 				
@@ -123,7 +137,7 @@
 								<h:outputText value="#{messages.ssh_pub_key_usage_command_help}" />
 							</div>
 							<p:panelGrid columns="2">
-								<p:outputLabel for="@next" value="#{messages.ssh_pub_key_command}" />
+								<p:outputLabel for="@next" value="#{messages.command}" />
 								<p:inputText value="#{setServiceSshPubKeyBean.newCommand}" />
 							
 								<p:outputLabel for="@next" value="#{messages.ssh_pub_key_from}" />
@@ -144,9 +158,10 @@
 			        </h:panelGroup>				    
 				</p:dialog>   				
 
-			    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" closable="false" closeOnEscape="true">
-			        <p:commandButton value="#{messages.yes}" type="button" styleClass="ui-confirmdialog-yes" />
-			        <p:commandButton value="#{messages.no}" type="button" styleClass="ui-confirmdialog-no" />
+			    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" closable="false" 
+			    	closeOnEscape="true" width="250">
+			        <p:commandButton value="#{messages.yes}" type="button" styleClass="ui-confirmdialog-yes"/>
+			        <p:commandButton value="#{messages.no}" type="button" styleClass="ui-confirmdialog-no"/>
 			    </p:confirmDialog>    
 	    
 			</p:panel>
