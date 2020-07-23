@@ -80,7 +80,7 @@ public class TwoFaUserBean implements Serializable {
 	public void createAuthenticatorToken() {
 		if (! getReadOnly()) {
 			try {
-				createTokenResponse = twoFaService.createAuthenticatorToken(user.getId());
+				createTokenResponse = twoFaService.createAuthenticatorToken(user.getId(), "user-" + user.getId());
 				tokenList = twoFaService.findByUserId(sessionManager.getUserId());
 			} catch (TwoFaException e) {
 				logger.warn("TwoFaException", e);
@@ -91,10 +91,20 @@ public class TwoFaUserBean implements Serializable {
 	public void createYubicoToken() {
 		if (! getReadOnly()) {
 			try {
-				LinotpInitAuthenticatorTokenResponse response = twoFaService.createYubicoToken(user.getId(), yubicoCode);
-	
+				LinotpInitAuthenticatorTokenResponse response = twoFaService.createYubicoToken(user.getId(), yubicoCode, "user-" + user.getId());
+
 				if (response.getResult().isStatus() && response.getResult().isValue()) {
+					if (response != null && response.getDetail() != null) {
+						String serial = response.getDetail().getSerial();
+						twoFaService.initToken(user.getId(), serial, "user-" + user.getId());
+						
+					}
+					
 					tokenList = twoFaService.findByUserId(sessionManager.getUserId());
+					if (tokenList.size() == 1) {
+						// this was the first token. We have to set 2fa elevation
+						sessionManager.setTwoFaElevation(Instant.now());
+					}					
 				}
 				else {
 					messageGenerator.addResolvedWarningMessage("warn", "twofa_token_failed", true);
@@ -114,14 +124,14 @@ public class TwoFaUserBean implements Serializable {
 		try {
 			if (createTokenResponse != null && createTokenResponse.getDetail() != null) {
 				String serial = createTokenResponse.getDetail().getSerial();
-				LinotpSimpleResponse response = twoFaService.enableToken(user.getId(), serial);
+				LinotpSimpleResponse response = twoFaService.enableToken(user.getId(), serial, "user-" + user.getId());
 
 				if (response.getResult() != null && response.getResult().isStatus() && response.getResult().isValue()) {
 				
 					response = twoFaService.checkSpecificToken(user.getId(), serial, totpCode);
 					if (response.getResult() != null && response.getResult().isStatus() && response.getResult().isValue()) {
 						// success, Token stays active, set correct description
-						twoFaService.initToken(user.getId(), serial);
+						twoFaService.initToken(user.getId(), serial, "user-" + user.getId());
 						tokenList = twoFaService.findByUserId(sessionManager.getUserId());
 						if (tokenList.size() == 1) {
 							// this was the first token. We have to set 2fa elevation
@@ -133,7 +143,7 @@ public class TwoFaUserBean implements Serializable {
 					} 
 					else {
 						// wrong code, disable token
-						response = twoFaService.disableToken(user.getId(), serial);
+						response = twoFaService.disableToken(user.getId(), serial, "user-" + user.getId());
 						totpCode = "";
 					}
 				}
@@ -146,7 +156,7 @@ public class TwoFaUserBean implements Serializable {
 	public void enableToken(String serial) {
 		if (! getReadOnly()) {
 			try {
-				LinotpSimpleResponse response = twoFaService.enableToken(user.getId(), serial);
+				LinotpSimpleResponse response = twoFaService.enableToken(user.getId(), serial, "user-" + user.getId());
 				tokenList = twoFaService.findByUserId(sessionManager.getUserId());
 				if ((response.getResult() != null) && response.getResult().isStatus() &&
 						response.getResult().isValue()) {
@@ -165,7 +175,7 @@ public class TwoFaUserBean implements Serializable {
 	public void disableToken(String serial) {
 		if (! getReadOnly()) {
 			try {
-				LinotpSimpleResponse response = twoFaService.disableToken(user.getId(), serial);
+				LinotpSimpleResponse response = twoFaService.disableToken(user.getId(), serial, "user-" + user.getId());
 				tokenList = twoFaService.findByUserId(sessionManager.getUserId());
 				if ((response.getResult() != null) && response.getResult().isStatus() &&
 						response.getResult().isValue()) {
@@ -184,7 +194,7 @@ public class TwoFaUserBean implements Serializable {
 	public void deleteToken(String serial) {
 		if (! getReadOnly()) {
 			try {
-				LinotpSimpleResponse response = twoFaService.deleteToken(user.getId(), serial);
+				LinotpSimpleResponse response = twoFaService.deleteToken(user.getId(), serial, "user-" + user.getId());
 				tokenList = twoFaService.findByUserId(sessionManager.getUserId());
 				if ((response.getResult() != null) && response.getResult().isStatus() &&
 						response.getResult().isValue()) {

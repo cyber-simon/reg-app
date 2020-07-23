@@ -1,5 +1,6 @@
 package edu.kit.scc.webreg.service.twofa;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -9,7 +10,11 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dao.UserDao;
+import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.event.EventSubmitter;
+import edu.kit.scc.webreg.event.TokenEvent;
+import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpConnection;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpInitAuthenticatorTokenResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpSetFieldResult;
@@ -29,6 +34,9 @@ public class TwoFaServiceImpl implements TwoFaService {
 	
 	@Inject
 	private UserDao userDao;
+	
+	@Inject
+	private EventSubmitter eventSubmitter;
 	
 	@Override
 	public LinotpTokenResultList findByUserId(Long userId) throws TwoFaException {
@@ -94,18 +102,31 @@ public class TwoFaServiceImpl implements TwoFaService {
 	}
 
 	@Override
-	public LinotpSetFieldResult initToken(Long userId, String serial) throws TwoFaException {
+	public LinotpSetFieldResult initToken(Long userId, String serial, String executor) throws TwoFaException {
 		UserEntity user = userDao.findById(userId);
 		
 		Map<String, String> configMap = configResolver.resolveConfig(user);
 
 		LinotpConnection linotpConnection = new LinotpConnection(configMap);
 		linotpConnection.requestAdminSession();
-		return linotpConnection.initToken(serial);
+		LinotpSetFieldResult response = linotpConnection.initToken(serial);
+		
+		HashMap<String, Object> eventMap = new HashMap<String, Object>();
+		eventMap.put("user", user);
+		eventMap.put("respone", response);
+		eventMap.put("serial", serial);
+		TokenEvent event = new TokenEvent(eventMap);
+		try {
+			eventSubmitter.submit(event, EventType.TWOFA_INIT, executor);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}
+
+		return response;
 	}
 	
 	@Override
-	public LinotpInitAuthenticatorTokenResponse createAuthenticatorToken(Long userId) throws TwoFaException {
+	public LinotpInitAuthenticatorTokenResponse createAuthenticatorToken(Long userId, String executor) throws TwoFaException {
 		UserEntity user = userDao.findById(userId);
 		
 		Map<String, String> configMap = configResolver.resolveConfig(user);
@@ -117,6 +138,19 @@ public class TwoFaServiceImpl implements TwoFaService {
 		
 		if (response.getResult().isStatus() && response.getResult().isValue()) {
 			// Token succeful created
+			
+			HashMap<String, Object> eventMap = new HashMap<String, Object>();
+			eventMap.put("user", user);
+			eventMap.put("respone", response);
+			if (response.getDetail() != null)
+				eventMap.put("serial", response.getDetail().getSerial());
+			TokenEvent event = new TokenEvent(eventMap);
+			try {
+				eventSubmitter.submit(event, EventType.TWOFA_CREATED, executor);
+			} catch (EventSubmitException e) {
+				logger.warn("Could not submit event", e);
+			}
+			
 			// Disable it for once
 			linotpConnection.disableToken(response.getDetail().getSerial());
 			return response;
@@ -127,7 +161,7 @@ public class TwoFaServiceImpl implements TwoFaService {
 	}
 
 	@Override
-	public LinotpInitAuthenticatorTokenResponse createYubicoToken(Long userId, String yubi) throws TwoFaException {
+	public LinotpInitAuthenticatorTokenResponse createYubicoToken(Long userId, String yubi, String executor) throws TwoFaException {
 		UserEntity user = userDao.findById(userId);
 		
 		Map<String, String> configMap = configResolver.resolveConfig(user);
@@ -141,43 +175,91 @@ public class TwoFaServiceImpl implements TwoFaService {
 			throw new TwoFaException("Token generation did not succeed!");
 		}
 
+		HashMap<String, Object> eventMap = new HashMap<String, Object>();
+		eventMap.put("user", user);
+		eventMap.put("respone", response);
+		if (response.getDetail() != null)
+			eventMap.put("serial", response.getDetail().getSerial());
+		TokenEvent event = new TokenEvent(eventMap);
+		try {
+			eventSubmitter.submit(event, EventType.TWOFA_CREATED, executor);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}
+
 		return response;
 	}
 
 	@Override
-	public LinotpSimpleResponse disableToken(Long userId, String serial) throws TwoFaException {
+	public LinotpSimpleResponse disableToken(Long userId, String serial, String executor) throws TwoFaException {
 		UserEntity user = userDao.findById(userId);
 		
 		Map<String, String> configMap = configResolver.resolveConfig(user);
 
 		LinotpConnection linotpConnection = new LinotpConnection(configMap);
 		linotpConnection.requestAdminSession();
+		LinotpSimpleResponse response = linotpConnection.disableToken(serial);
 		
-		return linotpConnection.disableToken(serial);
+		HashMap<String, Object> eventMap = new HashMap<String, Object>();
+		eventMap.put("user", user);
+		eventMap.put("respone", response);
+		eventMap.put("serial", serial);
+		TokenEvent event = new TokenEvent(eventMap);
+		try {
+			eventSubmitter.submit(event, EventType.TWOFA_DISABLED, executor);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}
+		
+		return response;
 	}
 	
 	@Override
-	public LinotpSimpleResponse enableToken(Long userId, String serial) throws TwoFaException {
+	public LinotpSimpleResponse enableToken(Long userId, String serial, String executor) throws TwoFaException {
 		UserEntity user = userDao.findById(userId);
 		
 		Map<String, String> configMap = configResolver.resolveConfig(user);
 
 		LinotpConnection linotpConnection = new LinotpConnection(configMap);
 		linotpConnection.requestAdminSession();
+		LinotpSimpleResponse response = linotpConnection.enableToken(serial);
 		
-		return linotpConnection.enableToken(serial);
+		HashMap<String, Object> eventMap = new HashMap<String, Object>();
+		eventMap.put("user", user);
+		eventMap.put("respone", response);
+		eventMap.put("serial", serial);
+		TokenEvent event = new TokenEvent(eventMap);
+		try {
+			eventSubmitter.submit(event, EventType.TWOFA_ENABLED, executor);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}
+
+		return response;
 	}
 	
 	@Override
-	public LinotpSimpleResponse deleteToken(Long userId, String serial) throws TwoFaException {
+	public LinotpSimpleResponse deleteToken(Long userId, String serial, String executor) throws TwoFaException {
 		UserEntity user = userDao.findById(userId);
 		
 		Map<String, String> configMap = configResolver.resolveConfig(user);
 
 		LinotpConnection linotpConnection = new LinotpConnection(configMap);
 		linotpConnection.requestAdminSession();
-		
-		return linotpConnection.deleteToken(serial);
+		LinotpSimpleResponse response = linotpConnection.deleteToken(serial);
+
+		HashMap<String, Object> eventMap = new HashMap<String, Object>();
+		eventMap.put("user", user);
+		eventMap.put("respone", response);
+		eventMap.put("serial", serial);
+		TokenEvent event = new TokenEvent(eventMap);
+		try {
+			eventSubmitter.submit(event, EventType.TWOFA_DELETED, executor);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}
+
+		return response;
 	}
 	
 }
