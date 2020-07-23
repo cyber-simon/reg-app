@@ -53,6 +53,8 @@ public class BulkSshKeyBlacklistImportBean implements Serializable {
 		
 		String[] lines = keyField.split(System.getProperty("line.separator"));
 		for (String line : lines) {
+			line = line.trim();
+			
 			importCount++;
 			
 			OpenSshPublicKey key = new OpenSshPublicKey();
