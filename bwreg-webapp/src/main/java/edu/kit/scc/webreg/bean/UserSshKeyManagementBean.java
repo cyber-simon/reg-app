@@ -137,7 +137,7 @@ public class UserSshKeyManagementBean implements Serializable {
 			keyList.add(key);
 			newKey = "";
 			newName = "";
-			messageGenerator.addResolvedInfoMessage("info", "ssh_key_deployed", false);				
+			messageGenerator.addResolvedInfoMessage("info", "ssh_key_deployed", true);				
 		} catch (UnsupportedKeyTypeException e) {
 			logger.warn("An error occured whilst deploying key: " + e.getMessage());
 			messageGenerator.addResolvedErrorMessage("sshKeyMessage", "error_msg", e.toString(), false);
