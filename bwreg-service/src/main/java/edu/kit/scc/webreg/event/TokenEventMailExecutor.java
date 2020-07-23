@@ -11,7 +11,6 @@
 package edu.kit.scc.webreg.event;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -48,11 +47,8 @@ public class TokenEventMailExecutor extends
 			TemplateMailService templateMailService = (TemplateMailService) ic.lookup("global/bwreg/bwreg-service/TemplateMailServiceImpl!edu.kit.scc.webreg.service.mail.TemplateMailService");
 			
 			HashMap<String, Object> eventMap = getEvent().getEntity();
-			Map<String, Object> context = new HashMap<String, Object>();
-			context.put("serial", eventMap.get("serial"));
-			context.put("user", eventMap.get("user"));
 			
-			templateMailService.sendMail(templateName, context, true);
+			templateMailService.sendMail(templateName, eventMap, true);
 			
 		} catch (NamingException e) {
 			logger.warn("Could not send email: {}", e);
