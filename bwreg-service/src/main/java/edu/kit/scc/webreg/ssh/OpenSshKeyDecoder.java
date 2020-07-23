@@ -44,6 +44,7 @@ public class OpenSshKeyDecoder implements Serializable {
     private void getKeyBytes(OpenSshPublicKey key) throws UnsupportedKeyTypeException {
         for (String part : key.getPubKeyEntity().getEncodedKey().split(" ")) {
             if (Base64.isBase64(part) && part.startsWith("AAAA")) {
+            	part = part.trim();
             	key.setBaseDate(part);
                 key.setBytes(Base64.decodeBase64(part));
                 return;
