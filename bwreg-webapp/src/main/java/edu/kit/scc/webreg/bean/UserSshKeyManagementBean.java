@@ -143,7 +143,7 @@ public class UserSshKeyManagementBean implements Serializable {
 			messageGenerator.addResolvedErrorMessage("sshKeyMessage", "error_msg", e.toString(), false);
 		} catch (SshPubKeyBlacklistedException e) {
 			logger.warn("User {} tried to deploy blacklisted key", user.getId());
-			messageGenerator.addResolvedErrorMessage("sshKeyMessage", "error", "key_blacklisted", false);
+			messageGenerator.addResolvedErrorMessage("sshKeyMessage", "error", "key_blacklisted", true);
 		}
 	}
 
