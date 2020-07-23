@@ -104,7 +104,7 @@
 						<p:commandButton action="#{twoFaUserBean.enableToken(token.serial)}" value="#{messages.enable}" 
 							update="@form" rendered="#{! token.isactive and (! token.tokenDesc.contains('INIT'))}"/>
 						<p:commandButton action="#{twoFaUserBean.deleteToken(token.serial)}" value="#{messages.delete}" 
-							update="@form" rendered="#{! token.isactive}" style="color:red;">
+							update="@form" rendered="#{! token.isactive and (token.tokenDesc.contains('DELABLE'))}" style="color:red;">
 							<p:confirm header="#{messages.confirm_header}" message="#{messages.confirm}" />
 						</p:commandButton>
 					</p:outputPanel>
