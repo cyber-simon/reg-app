@@ -21,6 +21,7 @@ import edu.kit.scc.webreg.entity.SshPubKeyRegistryEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
 import edu.kit.scc.webreg.entity.UserLoginInfoStatus;
+import edu.kit.scc.webreg.entity.UserLoginMethod;
 import edu.kit.scc.webreg.exc.NoRegistryFoundException;
 import edu.kit.scc.webreg.exc.NoUserFoundException;
 import edu.kit.scc.webreg.exc.RestInterfaceException;
@@ -67,9 +68,11 @@ public class SshLoginServiceImpl implements SshLoginService {
 		if (service.getServiceProps().containsKey("twofa") && 
 				service.getServiceProps().get("twofa").equalsIgnoreCase("enabled")) {
 			
-			UserLoginInfoEntity loginInfo = userLoginInfoDao.findByRegistryTwofaSuccess(registry.getId());
+			UserLoginInfoEntity twofaLoginInfo = userLoginInfoDao.findLastByRegistryAndMethod(registry.getId(), UserLoginMethod.TWOFA);
+			UserLoginInfoEntity localLoginInfo = userLoginInfoDao.findLastByRegistryAndMethod(registry.getId(), UserLoginMethod.LOCAL);
 			
-			if (loginInfo != null && loginInfo.getLoginStatus().equals(UserLoginInfoStatus.SUCCESS)) {
+			if (twofaLoginInfo != null && twofaLoginInfo.getLoginStatus().equals(UserLoginInfoStatus.SUCCESS) &&
+					localLoginInfo != null && localLoginInfo.getLoginStatus().equals(UserLoginInfoStatus.SUCCESS)) {
 				
 				// check expiry for twofa
 				Long expiry = 60L * 60L * 1000L;
@@ -77,7 +80,8 @@ public class SshLoginServiceImpl implements SshLoginService {
 					expiry = Long.parseLong(service.getServiceProps().get("twofa_expiry"));
 				}
 				
-				if ((System.currentTimeMillis() - loginInfo.getLoginDate().getTime()) < expiry) {
+				if ((System.currentTimeMillis() - twofaLoginInfo.getLoginDate().getTime()) < expiry &&
+						(System.currentTimeMillis() - localLoginInfo.getLoginDate().getTime()) < expiry) {
 					List<SshPubKeyRegistryEntity> regKeyList = sshPubKeyRegistryDao.findByRegistryForInteractiveLogin(registry.getId());
 					return buildKeyList(regKeyList, user);
 				}
@@ -135,9 +139,11 @@ public class SshLoginServiceImpl implements SshLoginService {
 		if (service.getServiceProps().containsKey("twofa") && 
 				service.getServiceProps().get("twofa").equalsIgnoreCase("enabled")) {
 			
-			UserLoginInfoEntity loginInfo = userLoginInfoDao.findByRegistryTwofaSuccess(registry.getId());
+			UserLoginInfoEntity twofaLoginInfo = userLoginInfoDao.findLastByRegistryAndMethod(registry.getId(), UserLoginMethod.TWOFA);
+			UserLoginInfoEntity localLoginInfo = userLoginInfoDao.findLastByRegistryAndMethod(registry.getId(), UserLoginMethod.LOCAL);
 			
-			if (loginInfo != null && loginInfo.getLoginStatus().equals(UserLoginInfoStatus.SUCCESS)) {
+			if (twofaLoginInfo != null && twofaLoginInfo.getLoginStatus().equals(UserLoginInfoStatus.SUCCESS) &&
+					localLoginInfo != null && localLoginInfo.getLoginStatus().equals(UserLoginInfoStatus.SUCCESS)) {
 				
 				// check expiry for twofa
 				Long expiry = 60L * 60L * 1000L;
@@ -145,7 +151,8 @@ public class SshLoginServiceImpl implements SshLoginService {
 					expiry = Long.parseLong(service.getServiceProps().get("twofa_expiry"));
 				}
 				
-				if ((System.currentTimeMillis() - loginInfo.getLoginDate().getTime()) < expiry) {
+				if ((System.currentTimeMillis() - twofaLoginInfo.getLoginDate().getTime()) < expiry &&
+						(System.currentTimeMillis() - localLoginInfo.getLoginDate().getTime()) < expiry) {
 					List<SshPubKeyRegistryEntity> regKeyList = sshPubKeyRegistryDao.findByRegistryForLogin(registry.getId());
 					return buildKeyList(regKeyList, user);
 				}

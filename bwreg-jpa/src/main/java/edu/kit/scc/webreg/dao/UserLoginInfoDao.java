@@ -13,6 +13,7 @@ package edu.kit.scc.webreg.dao;
 import java.util.List;
 
 import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
+import edu.kit.scc.webreg.entity.UserLoginMethod;
 
 public interface UserLoginInfoDao extends BaseDao<UserLoginInfoEntity, Long> {
 
@@ -20,6 +21,6 @@ public interface UserLoginInfoDao extends BaseDao<UserLoginInfoEntity, Long> {
 
 	List<UserLoginInfoEntity> findByRegistry(Long registryId);
 
-	UserLoginInfoEntity findByRegistryTwofaSuccess(Long registryId);
+	UserLoginInfoEntity findLastByRegistryAndMethod(Long registryId, UserLoginMethod method);
 
 }

@@ -14,7 +14,6 @@ import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
-import javax.persistence.NoResultException;
 
 import edu.kit.scc.webreg.dao.UserLoginInfoDao;
 import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
@@ -40,12 +39,12 @@ public class JpaUserLoginInfoDao extends JpaBaseDao<UserLoginInfoEntity, Long> i
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public UserLoginInfoEntity findByRegistryTwofaSuccess(Long registryId) {
+	public UserLoginInfoEntity findLastByRegistryAndMethod(Long registryId, UserLoginMethod method) {
 		List<UserLoginInfoEntity> list = em.createQuery(
 				"select e from UserLoginInfoEntity e where e.registry.id = :registryId "
 				+ "and e.loginMethod = :loginMethod order by e.loginDate desc")
 				.setParameter("registryId", registryId)
-				.setParameter("loginMethod", UserLoginMethod.TWOFA)
+				.setParameter("loginMethod", method)
 				.setMaxResults(1)
 				.getResultList();
 		if (list.size() == 0) {
