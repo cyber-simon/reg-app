@@ -223,10 +223,6 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 	private Map<String, String> ecp(SamlUserEntity user, ServiceEntity service, RegistryEntity registry,
 			String password, String localHostName) throws RestInterfaceException {
 
-		/**
-		 * TODO Check for second factor here. Configurable per service. Then the ldap-facade doesn't
-		 * have to be changed
-		 */
 		if (password == null || password.equals("")) {
 			createLoginInfo(user, registry, UserLoginMethod.LOCAL, UserLoginInfoStatus.FAILED);
 			throw new LoginFailedException("Password blank");

@@ -204,9 +204,10 @@ public class RegisterServiceBean implements Serializable {
     		messageGenerator.addResolvedErrorMessage("reqs", "error", s, true);
 		}
 		
-		
-		if (service.getServiceProps().containsKey("twofa") &&
-				service.getServiceProps().get("twofa").equalsIgnoreCase("enabled")) {
+
+		if (service.getServiceProps().containsKey("twofa") && 
+				(service.getServiceProps().get("twofa").equalsIgnoreCase("enabled") 
+					|| service.getServiceProps().get("twofa").equalsIgnoreCase("enabled_twostep"))) {
 			/*
 			 * second factor for service is enabled. Check if user has registered second factor
 			 */

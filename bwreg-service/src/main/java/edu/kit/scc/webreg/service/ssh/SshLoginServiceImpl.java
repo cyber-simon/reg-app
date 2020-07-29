@@ -66,7 +66,8 @@ public class SshLoginServiceImpl implements SshLoginService {
 			throw new NoRegistryFoundException("No active registry for user");
 		
 		if (service.getServiceProps().containsKey("twofa") && 
-				service.getServiceProps().get("twofa").equalsIgnoreCase("enabled")) {
+				(service.getServiceProps().get("twofa").equalsIgnoreCase("enabled") 
+					|| service.getServiceProps().get("twofa").equalsIgnoreCase("enabled_twostep"))) {
 			
 			UserLoginInfoEntity twofaLoginInfo = userLoginInfoDao.findLastByRegistryAndMethod(registry.getId(), UserLoginMethod.TWOFA);
 			UserLoginInfoEntity localLoginInfo = userLoginInfoDao.findLastByRegistryAndMethod(registry.getId(), UserLoginMethod.LOCAL);
@@ -137,7 +138,8 @@ public class SshLoginServiceImpl implements SshLoginService {
 			throw new NoRegistryFoundException("No active registry for user");
 
 		if (service.getServiceProps().containsKey("twofa") && 
-				service.getServiceProps().get("twofa").equalsIgnoreCase("enabled")) {
+				(service.getServiceProps().get("twofa").equalsIgnoreCase("enabled") 
+					|| service.getServiceProps().get("twofa").equalsIgnoreCase("enabled_twostep"))) {
 			
 			UserLoginInfoEntity twofaLoginInfo = userLoginInfoDao.findLastByRegistryAndMethod(registry.getId(), UserLoginMethod.TWOFA);
 			UserLoginInfoEntity localLoginInfo = userLoginInfoDao.findLastByRegistryAndMethod(registry.getId(), UserLoginMethod.LOCAL);

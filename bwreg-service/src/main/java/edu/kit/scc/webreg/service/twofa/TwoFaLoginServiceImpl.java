@@ -1,0 +1,131 @@
+package edu.kit.scc.webreg.service.twofa;
+
+import java.util.Date;
+
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+
+import edu.kit.scc.webreg.dao.RegistryDao;
+import edu.kit.scc.webreg.dao.ServiceDao;
+import edu.kit.scc.webreg.dao.UserDao;
+import edu.kit.scc.webreg.dao.UserLoginInfoDao;
+import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.RegistryStatus;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
+import edu.kit.scc.webreg.entity.UserLoginInfoStatus;
+import edu.kit.scc.webreg.entity.UserLoginMethod;
+import edu.kit.scc.webreg.event.EventSubmitter;
+import edu.kit.scc.webreg.exc.LoginFailedException;
+import edu.kit.scc.webreg.exc.NoRegistryFoundException;
+import edu.kit.scc.webreg.exc.NoServiceFoundException;
+import edu.kit.scc.webreg.exc.NoUserFoundException;
+import edu.kit.scc.webreg.exc.RestInterfaceException;
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
+
+@Stateless
+public class TwoFaLoginServiceImpl implements TwoFaLoginService {
+
+	@Inject
+	private Logger logger;
+
+	@Inject
+	private TwoFaService twoFaService;
+	
+	@Inject
+	private UserDao userDao;
+
+	@Inject
+	private ServiceDao serviceDao;
+	
+	@Inject
+	private RegistryDao registryDao;
+	
+	@Inject
+	private UserLoginInfoDao userLoginInfoDao;
+
+	@Inject
+	private EventSubmitter eventSubmitter;
+
+	@Override
+	public String otpLogin(String eppn, String serviceShortName, String otp, String secret, HttpServletRequest request) 
+		throws TwoFaException, RestInterfaceException {
+	
+		logger.debug("New otpLogin for {} and {}", eppn, serviceShortName);
+		
+		UserEntity user = userDao.findByEppn(eppn);
+		if (user == null)
+			throw new NoUserFoundException("no such user");
+		
+		ServiceEntity service = serviceDao.findByShortName(serviceShortName);
+		if (service == null)
+			throw new NoServiceFoundException("no such service");
+		
+		RegistryEntity registry = findRegistry(user, service);
+		if (registry == null)
+			throw new NoRegistryFoundException("user not registered for service");
+		
+		if (! service.getServiceProps().containsKey("twofa_validate_secret")) {
+			logger.warn("No validation secret configured for service {}. Please configure service property twofa_validate_secret", service.getShortName());
+			return ":-(";
+		}
+		else if ((secret == null) || (! secret.equals(service.getServiceProps().get("twofa_validate_secret")))) {
+			logger.warn("validation secret mismatch for service {}, {}", service.getShortName(), request.getRemoteAddr());
+			return ":-(";
+		}
+		
+		if (otp == null || otp.equals("")) {
+			createLoginInfo(user, registry, UserLoginMethod.TWOFA, UserLoginInfoStatus.FAILED);
+			throw new LoginFailedException("Password blank");
+		}
+
+		LinotpSimpleResponse response = twoFaService.checkToken(user.getId(), otp);
+
+		if (!(response.getResult() != null && response.getResult().isStatus() && 
+				response.getResult().isValue())) {
+			logger.info("User {} ({}) failed 2fa authentication", user.getEppn(), user.getId()); 
+			createLoginInfo(user, registry, UserLoginMethod.TWOFA, UserLoginInfoStatus.FAILED);
+			return ":-(";
+		}
+		else {
+			logger.info("User {} ({}) 2fa authentication success", user.getEppn(), user.getId()); 
+			createLoginInfo(user, registry, UserLoginMethod.TWOFA, UserLoginInfoStatus.SUCCESS);
+			return ":-)";
+		}
+	}	
+	
+	private RegistryEntity findRegistry(UserEntity user, ServiceEntity service) {
+		RegistryEntity registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.ACTIVE);
+		
+		if (registry == null) {
+			/*
+			 * Also check for Lost_access registries. They should also be allowed to be rechecked.
+			 */
+			registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.LOST_ACCESS);
+		}
+
+		if (registry == null) {
+			/*
+			 * Also check for On_hold registries. They should also be allowed to be rechecked.
+			 */
+			registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.ON_HOLD);
+		}
+		
+		return registry;
+	}
+	
+	private void createLoginInfo(UserEntity user, RegistryEntity registry, UserLoginMethod method, UserLoginInfoStatus status) {
+		UserLoginInfoEntity loginInfo = userLoginInfoDao.createNew();
+		loginInfo.setUser(user);
+		loginInfo.setRegistry(registry);
+		loginInfo.setLoginDate(new Date());
+		loginInfo.setLoginMethod(method);
+		loginInfo.setLoginStatus(status);
+		userLoginInfoDao.persist(loginInfo);
+	}
+}
