@@ -1,42 +1,53 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
 		xmlns:f="http://java.sun.com/jsf/core"
 		xmlns:h="http://java.sun.com/jsf/html"
 		xmlns:ui="http://java.sun.com/jsf/facelets"
 		xmlns:p="http://primefaces.org/ui">
 <head>
-	<title>Left side bar</title>
+	<title>Head bar</title>
 </head>
 <body>
 	<ui:composition> 
-			<div id="metanavigation" class="ui-widget">
-				<a href="/">Home</a>
-				&nbsp;|&nbsp;
-				<a href="https://www.scc.kit.edu/impressum.php">Impressum</a>
-				&nbsp;|&nbsp;
-				<a href="http://www.scc.kit.edu/datenschutz.php">Datenschutz</a>
-				&nbsp;|&nbsp;
-				<a href="https://www.kit.edu">KIT</a>
-			</div>
-			<div id="header">
-				<div id="header-logo">
-					<a href="https://www.kit.edu">
-						<h:graphicImage value="#{resource['img/kit_logo_V2_de.png']}" alt="KIT Logo" />
-					</a>
-				</div>
-				<div id="header-image">
-					<div id="header-right">
-						<a href="https://www.scc.kit.edu">
-							<h:graphicImage value="#{resource['img/header-r.jpg']}" alt="SCC Logo" />
-						</a>
-					</div>
-					<div id="header-text" class="ui-widget">
-						<a href="https://bwidm.scc.kit.edu">F&ouml;derierte Dienste am KIT</a>
-					</div>
-				</div>
-			</div>
+
+        <header class="page-header">
+            <div class="content-wrap">
+            
+<div class="logo">
+<a href="http://www.kit.edu" title="KIT-Logo - Link zur KIT-Startseite">
+<img src="#{resource['img/kitlogo.svg']}" />
+</a>
+</div>
+            
+                <div class="navigation">
+                    <button class="burger"><img src="#{resource['img/burger-icon.svg']}" /></button>
+                    <div class="navigation-meta">
+                        <ul class="navigation-meta-links">
+
+							<li><a accesskey="8" href="https://www.scc.kit.edu/impressum.php" target="_blank">Impressum</a></li>
+							<li><a href="https://www.scc.kit.edu/datenschutz.php" target="_blank">Datenschutz</a></li>
+
+                            
+                            <li><a href="http://www.kit.edu" target="_blank"><span class="svg-icon"><img src="#{resource['img/kitlogo_nano.svg']}" width="10px"/></span><span>KIT</span></a></li>
+                        </ul>
+                        
+						<div class="navigation-language" style="display: none;"><ul><li></li></ul></div>
+                        
+                      </div>
+                    <nav class="navigation-main">
+<ui:insert name="left_sidebar">Default left side bar</ui:insert>                    
+	</nav>
+                    <ul class="side-widgets">
+                        <li class="meta"><a accesskey="1" href="/scc.php">Home</a></li>
+						<li class="meta"><a accesskey="3" href="/3249.php">Sitemap</a></li>
+						<li class="meta"><a accesskey="8" href="/impressum.php">Impressum</a></li>
+						<li class="meta"><a href="/datenschutz.php">Datenschutz</a></li>
+
+                   </ul>
+                </div>
+            </div>
+        </header>
+
 	</ui:composition>
 </body>
 </html>

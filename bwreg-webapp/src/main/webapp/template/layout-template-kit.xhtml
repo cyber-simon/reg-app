@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
 		xmlns:f="http://java.sun.com/jsf/core"
 		xmlns:h="http://java.sun.com/jsf/html"
-		xmlns:ui="http://java.sun.com/jsf/facelets">
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		class="no-js" lang="de-de">
 
 <f:view contentType="text/html" locale="#{sessionManager.locale != null ? sessionManager.locale : ''}">
 
@@ -13,35 +13,53 @@
   <ui:insert name="metadata"/>
   
   <f:facet name="first">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="theme-color" content="#009682" />
+	<meta http-equiv="cleartype" content="on" />
     <title>#{title}</title>
   </f:facet>
 
+  <link rel="stylesheet" href="https://static.scc.kit.edu/fancybox/dist/jquery.fancybox.min.css" />
+  <link rel="stylesheet" href="https://static.scc.kit.edu/kit-2020/fontawesome/css/all.min.css" />
+  
   <h:outputStylesheet name="css/${bwreg.css}"/>
   <h:outputScript library="javax.faces" name="jsf.js" target="head"/>
   
 </h:head>
-<h:body>
-	<div id="wrapper">
+<h:body class="oe-page" vocab="http://schema.org/" typeof="WebPage">
 
-		<ui:insert name="header">Default header</ui:insert>
-		
-		<div class="spacer"></div>
-		
-		<div id="container">
-			<div id="sidebar">
-				<ui:insert name="left_sidebar">Default left side bar</ui:insert>
+	<ui:insert name="header">Default header</ui:insert>
+	
+    <main>
+	    <section class="stage stage-small"><img src="#{resource['img/regapp.jpg']}" alt="Föderierte Dienste am KIT" loading="lazy"/>
+    	    <div class="content-wrap"><a href="https://bwidm.scc.kit.edu">Föderierte Dienste am KIT</a></div>
+        </section>
+    
+        <section class="content-wrap">
+    	    <div class="content">
+    	    	<div class="ui-widget text form full fancy">
+					<ui:insert name="content">Default content</ui:insert>
+				</div>
 			</div>
-			<div id="content" class="ui-widget">
-				<ui:insert name="content">Default content</ui:insert>
-			</div>
-			<div class="clear"></div>
-			<div id="footer-container">
-				<div class="spacer"></div>
-				<ui:insert name="footer">Default footer</ui:insert>
-			</div>
+		</section>
+	</main>
+    
+    <!-- 	    	
+	<div id="container">
+		<div id="sidebar">
+			<ui:insert name="left_sidebar">Default left side bar</ui:insert>
+		</div>
+		<div id="content" class="ui-widget text form full fancy">
+		</div>
+		<div class="clear"></div>
+		<div id="footer-container">
+			<div class="spacer"></div>
+			<ui:insert name="footer">Default footer</ui:insert>
 		</div>
 	</div>
+ 	-->
 </h:body>
 
 </f:view>
