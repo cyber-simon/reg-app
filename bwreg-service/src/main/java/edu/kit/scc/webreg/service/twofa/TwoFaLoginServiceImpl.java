@@ -1,6 +1,7 @@
 package edu.kit.scc.webreg.service.twofa;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -58,17 +59,42 @@ public class TwoFaLoginServiceImpl implements TwoFaLoginService {
 	
 		logger.debug("New otpLogin for {} and {}", eppn, serviceShortName);
 		
-		UserEntity user = userDao.findByEppn(eppn);
-		if (user == null)
-			throw new NoUserFoundException("no such user");
-		
 		ServiceEntity service = serviceDao.findByShortName(serviceShortName);
 		if (service == null)
 			throw new NoServiceFoundException("no such service");
+
+		RegistryEntity registry = null;
+		UserEntity user = null;
 		
-		RegistryEntity registry = findRegistry(user, service);
-		if (registry == null)
-			throw new NoRegistryFoundException("user not registered for service");
+		if (eppn != null) {
+			if (eppn.contains("@")) {
+				user = userDao.findByEppn(eppn);
+				if (user == null)
+					throw new NoUserFoundException("no such user");
+				
+				registry = findRegistry(user, service);
+				if (registry == null)
+					throw new NoRegistryFoundException("user not registered for service");
+			}
+			else {
+				/*
+				 * eppn is not an eppn, but a localUid
+				 */
+				List<RegistryEntity> registryList = registryDao.findAllByRegValueAndStatus(service, "localUid", eppn, RegistryStatus.ACTIVE);
+				if (registryList.size() == 0) {
+					registryList.addAll(registryDao.findAllByRegValueAndStatus(service, "localUid", eppn, RegistryStatus.LOST_ACCESS));
+				}
+				if (registryList.size() == 0) {
+					registryList.addAll(registryDao.findAllByRegValueAndStatus(service, "localUid", eppn, RegistryStatus.ON_HOLD));
+				}
+				registry = registryList.get(0);
+				user = registry.getUser();
+			}
+		}
+		else {
+			// username is not set
+			return ":-(";
+		}
 		
 		if (! service.getServiceProps().containsKey("twofa_validate_secret")) {
 			logger.warn("No validation secret configured for service {}. Please configure service property twofa_validate_secret", service.getShortName());
