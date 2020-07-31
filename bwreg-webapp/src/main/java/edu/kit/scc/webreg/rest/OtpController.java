@@ -41,7 +41,7 @@ public class OtpController {
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.TEXT_PLAIN)
 	public String otpLoginPost(@PathParam("secret") String secret,
-			@QueryParam("user") String eppn,
+			@FormParam("user") String eppn,
 			@PathParam("service") String serviceShortName,
 			@FormParam("pass") String otp, @Context HttpServletRequest request)
 			throws IOException, ServletException, RestInterfaceException {
