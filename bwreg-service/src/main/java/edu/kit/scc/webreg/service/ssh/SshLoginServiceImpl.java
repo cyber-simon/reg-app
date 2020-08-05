@@ -182,11 +182,11 @@ public class SshLoginServiceImpl implements SshLoginService {
 		StringBuffer sb = new StringBuffer();
 		for (SshPubKeyRegistryEntity regKey : regKeyList) {
 			if (regKey.getUsageType().equals(SshPubKeyUsageType.COMMAND)) {
-				sb.append("command=");
+				sb.append("command=\"");
 				sb.append(regKey.getCommand());
-				sb.append(" from=");
+				sb.append("\" from=\"");
 				sb.append(regKey.getFrom());
-				sb.append(" ");
+				sb.append("\" ");
 			}
 			sb.append(regKey.getSshPubKey().getKeyType());
 			sb.append(" ");
