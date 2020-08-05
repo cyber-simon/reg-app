@@ -230,6 +230,73 @@ public class LinotpConnection {
 		}		
 	}
 
+	public LinotpInitAuthenticatorTokenResponse createBackupTanList(UserEntity user) throws TwoFaException {
+		try {
+			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/init");
+			
+			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
+			nvps.add(new BasicNameValuePair("session", adminSession));
+			nvps.add(new BasicNameValuePair("type", "hmac"));
+			nvps.add(new BasicNameValuePair("otplen", "8"));
+			nvps.add(new BasicNameValuePair("genkey", "1"));
+			nvps.add(new BasicNameValuePair("hashlib", "sha1"));
+			nvps.add(new BasicNameValuePair("description", "INIT,DELABLE,BWIDM,TS " + formatDate() + ","));
+
+			if (configMap.containsKey("userId"))
+			    nvps.add(new BasicNameValuePair("user", configMap.get("userId")));
+			else
+				nvps.add(new BasicNameValuePair("user", user.getEppn()));
+			if (configMap.containsKey("realm"))
+				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
+			
+			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
+			
+			CloseableHttpResponse response = httpClient.execute(targetHost, httpPost, context);
+			try {
+			    HttpEntity entity = response.getEntity();
+			    String responseString = EntityUtils.toString(entity);
+			    logger.trace(responseString);
+			    
+			    return resultParser.parseInitAuthenticatorTokenResponse(responseString);
+
+			} finally {
+				response.close();
+			}
+		} catch (ParseException | IOException e) {
+			throw new TwoFaException(e);
+		}		
+	}
+
+	public LinotpGetBackupTanListResponse getBackupTanList(String serial, int count) throws TwoFaException {
+		try {
+			HttpPost httpPost = new HttpPost(configMap.get("url") + "/gettoken/getmultiotp");
+			
+			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
+			nvps.add(new BasicNameValuePair("serial", serial));
+			nvps.add(new BasicNameValuePair("session", adminSession));
+			nvps.add(new BasicNameValuePair("count", "" + count));
+
+			if (configMap.containsKey("realm"))
+				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
+			
+			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
+			
+			CloseableHttpResponse response = httpClient.execute(targetHost, httpPost, context);
+			try {
+			    HttpEntity entity = response.getEntity();
+			    String responseString = EntityUtils.toString(entity);
+			    logger.trace(responseString);
+			    
+			    return resultParser.parseGetBackupTanListResponse(responseString);
+
+			} finally {
+				response.close();
+			}
+		} catch (ParseException | IOException e) {
+			throw new TwoFaException(e);
+		}		
+	}
+	
 	public LinotpSetFieldResult initToken(String serial) throws TwoFaException {
 		return setTokenField(serial, "description", "ACTIVE,DELABLE,TS " + formatDate() + ",");
 	}
