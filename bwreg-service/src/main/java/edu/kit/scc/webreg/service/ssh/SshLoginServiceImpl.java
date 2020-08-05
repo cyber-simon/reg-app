@@ -184,7 +184,7 @@ public class SshLoginServiceImpl implements SshLoginService {
 			if (regKey.getUsageType().equals(SshPubKeyUsageType.COMMAND)) {
 				sb.append("command=\"");
 				sb.append(regKey.getCommand());
-				sb.append("\" from=\"");
+				sb.append("\",from=\"");
 				sb.append(regKey.getFrom());
 				sb.append("\" ");
 			}
