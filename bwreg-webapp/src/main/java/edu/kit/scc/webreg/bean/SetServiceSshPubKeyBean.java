@@ -120,6 +120,10 @@ public class SetServiceSshPubKeyBean implements Serializable {
 			sshPubKeyList = sshPubKeyService.findByUserAndStatus(userEntity.getId(), SshPubKeyStatus.ACTIVE);
 			sshPubKeyRegistryList = sshPubKeyRegistryService.findByRegistry(registryEntity.getId());
 
+			for (SshPubKeyRegistryEntity s : sshPubKeyRegistryList) {
+				sshPubKeyList.remove(s.getSshPubKey());
+			}
+			
 			initialized = true;
 		}
 	}
@@ -152,6 +156,7 @@ public class SetServiceSshPubKeyBean implements Serializable {
 		
 		sshPubKeyRegistry = sshPubKeyRegistryService.deployRegistry(sshPubKeyRegistry, "user-" + userEntity.getId());
 		sshPubKeyRegistryList.add(sshPubKeyRegistry);
+		sshPubKeyList.remove(selectedKey);
 		
 		return null;
 	}
@@ -159,6 +164,7 @@ public class SetServiceSshPubKeyBean implements Serializable {
 	public String delete(SshPubKeyRegistryEntity reg) {
 		sshPubKeyRegistryService.deleteRegistry(reg, "user-" + userEntity.getId());
 		sshPubKeyRegistryList.remove(reg);
+		sshPubKeyList.add(reg.getSshPubKey());
 		return null;
 	}
 	
