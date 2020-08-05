@@ -108,7 +108,8 @@
 							<p:confirm header="#{messages.confirm_header}" message="#{messages.confirm}" />
 						</p:commandButton>
 						<p:commandButton action="#{twoFaUserBean.getBackupTanList(token.serial)}" value="#{messages.token_get_tanlist_values}" 
-							update="@form" rendered="#{token.isactive and token.tokenType == 'HMAC'}"/>
+							update="@form" rendered="#{token.isactive and token.tokenType == 'HMAC'}"
+							oncomplete="PF('showBackupTanDlg').show();"/>
 					</p:outputPanel>
 				</p:panelGrid>
 			</p:panel>
@@ -129,7 +130,13 @@
 				</p:link>
 			</p:outputPanel>
 		</p:panel>
-	
+
+		<p:dialog header="#{messages.twofa_backup_tan_list_values}" 
+					widgetVar="showBackupTanDlg" id="showBackupTanId" modal="true" closable="true" closeOnEscape="true"
+					showEffect="fade" hideEffect="fade">
+			<h:outputText value="#{twoFaUserBean.backupTanList.result.value.otp}" />
+		</p:dialog>
+			
 		<p:dialog header="#{messages.twofa_create_totp_token}" 
 					widgetVar="addTotpDlg" id="addTotpDlgId" modal="true" closable="true" closeOnEscape="true"
 					showEffect="fade" hideEffect="fade">

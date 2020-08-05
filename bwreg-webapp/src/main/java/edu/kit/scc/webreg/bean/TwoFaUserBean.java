@@ -60,6 +60,8 @@ public class TwoFaUserBean implements Serializable {
 	private String totpCode, yubicoCode;
 	private String defaultButton;
 	
+	private LinotpGetBackupTanListResponse backupTanList;
+	
 	private Long returnServiceId;
 	
 	public void preRenderView(ComponentSystemEvent ev) {
@@ -156,7 +158,7 @@ public class TwoFaUserBean implements Serializable {
 	public void getBackupTanList(String serial) {
 		if (! getReadOnly()) {
 			try {
-				LinotpGetBackupTanListResponse response = twoFaService.getBackupTanList(user.getId(), serial, "user-" + user.getId());
+				backupTanList = twoFaService.getBackupTanList(user.getId(), serial, "user-" + user.getId());
 				
 			} catch (TwoFaException e) {
 				logger.warn("TwoFaException", e);
@@ -307,6 +309,10 @@ public class TwoFaUserBean implements Serializable {
 		if (returnServiceId != null) {
 			this.returnServiceId = returnServiceId;
 		}
+	}
+
+	public LinotpGetBackupTanListResponse getBackupTanList() {
+		return backupTanList;
 	}
 
 }
