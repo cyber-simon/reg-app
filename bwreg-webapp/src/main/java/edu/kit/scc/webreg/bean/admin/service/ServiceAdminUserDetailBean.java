@@ -29,7 +29,6 @@ import edu.kit.scc.webreg.drools.UnauthorizedUser;
 import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
-import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.SamlAssertionEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;

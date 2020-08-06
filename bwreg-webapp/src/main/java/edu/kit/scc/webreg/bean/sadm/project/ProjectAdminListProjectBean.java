@@ -8,7 +8,7 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.bean.admin.group;
+package edu.kit.scc.webreg.bean.sadm.project;
 
 import java.io.Serializable;
 import java.util.List;
@@ -19,46 +19,46 @@ import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
 import edu.kit.scc.webreg.entity.ServiceEntity;
-import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
+import edu.kit.scc.webreg.entity.project.ProjectEntity;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
 import edu.kit.scc.webreg.sec.AuthorizationBean;
-import edu.kit.scc.webreg.service.ServiceGroupFlagService;
 import edu.kit.scc.webreg.service.ServiceService;
+import edu.kit.scc.webreg.service.project.ProjectService;
 
 @ManagedBean
 @ViewScoped
-public class GroupAdminListGroupsBean implements Serializable {
+public class ProjectAdminListProjectBean implements Serializable {
 
  	private static final long serialVersionUID = 1L;
 
 	@Inject
-    private ServiceGroupFlagService groupFlagService;
-    
-	@Inject
 	private ServiceService serviceService;
+	
+	@Inject
+	private ProjectService projectService;
 	
     @Inject
     private AuthorizationBean authBean;
 
     private ServiceEntity serviceEntity;
     
-    private List<ServiceGroupFlagEntity> groupFlagList;
-    
     private Long serviceId;
+    
+    private List<ProjectEntity> projectList;
     
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (serviceEntity == null) {
 			serviceEntity = serviceService.findById(serviceId);
 		}
 	
-		if (! authBean.isUserServiceGroupAdmin(serviceEntity))
+		if (! authBean.isUserServiceProjectAdmin(serviceEntity))
 			throw new NotAuthorizedException("Nicht autorisiert");
 	}
 
-	public List<ServiceGroupFlagEntity> getGroupFlagList() {
-		if (groupFlagList == null)
-			groupFlagList = groupFlagService.findLocalGroupsForService(serviceEntity);
-		return groupFlagList;
+	public List<ProjectEntity> getProjectList() {
+		if (projectList == null)
+			projectList = projectService.findByService(serviceEntity);
+		return projectList;
 	}
 	
 	public ServiceEntity getServiceEntity() {
@@ -76,6 +76,4 @@ public class GroupAdminListGroupsBean implements Serializable {
 	public void setServiceId(Long serviceId) {
 		this.serviceId = serviceId;
 	}
-
-
 }

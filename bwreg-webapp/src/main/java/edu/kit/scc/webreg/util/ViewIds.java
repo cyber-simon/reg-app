@@ -39,6 +39,11 @@ public class ViewIds {
 	public static final String GROUP_ADMIN_SHOW_LOCAL_GROUP = "/service-group-admin/show-local-group.xhtml";	
 	
 	/*
+	 * Projects
+	 */
+	public static final String PROJECT_ADMIN_INDEX = "/service-project-admin/index.xhtml";	
+	
+	/*
 	 * Services
 	 */
 	public static final String EDIT_AGREEMENT = "/admin/service/edit-agreement.xhtml";

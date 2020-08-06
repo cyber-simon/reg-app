@@ -38,4 +38,5 @@ public interface BaseService<T extends BaseEntity<PK>, PK extends Serializable> 
 
 	Number countAll(Map<String, Object> filterMap);
 
+	List<T> findByMultipleId(List<PK> ids);
 }

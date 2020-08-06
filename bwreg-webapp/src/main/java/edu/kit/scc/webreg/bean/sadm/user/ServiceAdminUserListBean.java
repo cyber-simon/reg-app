@@ -8,7 +8,7 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.bean.admin.service;
+package edu.kit.scc.webreg.bean.sadm.user;
 
 import java.io.Serializable;
 import java.util.HashMap;

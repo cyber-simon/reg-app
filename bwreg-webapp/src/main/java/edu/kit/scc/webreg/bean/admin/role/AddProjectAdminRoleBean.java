@@ -8,7 +8,7 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.bean.admin.group;
+package edu.kit.scc.webreg.bean.admin.role;
 
 import java.io.Serializable;
 
@@ -17,40 +17,36 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import edu.kit.scc.webreg.entity.LocalGroupEntity;
-import edu.kit.scc.webreg.service.LocalGroupService;
+import edu.kit.scc.webreg.entity.project.ProjectAdminRoleEntity;
+import edu.kit.scc.webreg.service.project.ProjectAdminRoleService;
 import edu.kit.scc.webreg.util.ViewIds;
 
-@Named("addLocalGroupBean")
+@Named("addProjectAdminRoleBean")
 @RequestScoped
-public class AddLocalGroupBean implements Serializable {
+public class AddProjectAdminRoleBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	@Inject
-	private LocalGroupService service;
+	private ProjectAdminRoleService roleService;
 	
-	private LocalGroupEntity entity;
+	private ProjectAdminRoleEntity entity;
 	
 	@PostConstruct
 	public void init() {
-		entity = service.createNew();
+		entity = roleService.createNew();
 	}
 	
 	public String save() {
-		service.save(entity);
-		return ViewIds.LIST_LOCAL_GROUPS + "?faces-redirect=true";
+		roleService.save(entity);
+		return ViewIds.LIST_ROLES;
 	}
 
-	public String cancel() {
-		return ViewIds.LIST_LOCAL_GROUPS + "?faces-redirect=true";
-	}
-
-	public LocalGroupEntity getEntity() {
+	public ProjectAdminRoleEntity getEntity() {
 		return entity;
 	}
 
-	public void setEntity(LocalGroupEntity entity) {
+	public void setEntity(ProjectAdminRoleEntity entity) {
 		this.entity = entity;
 	}
 }

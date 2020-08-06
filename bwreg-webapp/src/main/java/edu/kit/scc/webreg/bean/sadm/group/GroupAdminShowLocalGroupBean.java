@@ -8,7 +8,7 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.bean.admin.group;
+package edu.kit.scc.webreg.bean.sadm.group;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -20,34 +20,33 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
-import org.primefaces.model.LazyDataModel;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.GroupEntity;
+import edu.kit.scc.webreg.entity.GroupStatus;
 import edu.kit.scc.webreg.entity.LocalGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserGroupEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.MultipleGroupEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
-import edu.kit.scc.webreg.model.GenericLazyDataModelImpl;
 import edu.kit.scc.webreg.sec.AuthorizationBean;
 import edu.kit.scc.webreg.service.GroupService;
 import edu.kit.scc.webreg.service.LocalGroupService;
 import edu.kit.scc.webreg.service.ServiceGroupFlagService;
 import edu.kit.scc.webreg.service.ServiceService;
-import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 import edu.kit.scc.webreg.util.ViewIds;
 
 @ManagedBean
 @ViewScoped
-public class GroupAdminEditLocalGroupBean implements Serializable {
+public class GroupAdminShowLocalGroupBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -70,61 +69,95 @@ public class GroupAdminEditLocalGroupBean implements Serializable {
     private AuthorizationBean authBean;
 	
 	@Inject
+	private FacesMessageGenerator messageGenerator;
+	
+	@Inject
 	private SessionManager sessionManager;
 	
 	@Inject
-	private FacesMessageGenerator messageGenerator;
-
-	@Inject
-	private UserService userService;
-	
-	@Inject
 	private EventSubmitter eventSubmitter;
-	
+
 	private LocalGroupEntity entity;
 
 	private ServiceEntity serviceEntity;
 	
 	private List<ServiceGroupFlagEntity> groupFlagList;
 
-	private LazyDataModel<UserEntity> userList;
-	private LazyDataModel<GroupEntity> groupList;
-	
-	private List<UserEntity> usersInGroup;
-	
+	private List<UserEntity> effectiveMemberList;
+	private List<UserEntity> memberList;
+
 	private Long serviceId;
 	private Long groupId;
 	
-	private Boolean savePossible = false;
+	private Boolean editable = true;
 	
 	public void preRenderView(ComponentSystemEvent ev) {
-		if (entity == null) {
-			serviceEntity = serviceService.findById(serviceId);
-			entity = service.findWithUsersAndChildren(groupId);
-			userList = new GenericLazyDataModelImpl<UserEntity, UserService, Long>(userService);
-			groupList = new GenericLazyDataModelImpl<GroupEntity, GroupService, Long>(allGroupService);
-			groupFlagList = groupFlagService.findByGroup(entity);
-			if (groupFlagList.size() == 0)
-				throw new NotAuthorizedException("Gruppe ist diesem Service nicht zugeordnet");
-			usersInGroup = new ArrayList<UserEntity>(userService.findByGroup(entity));
-		}
+		if (entity == null)
+			init();
 
 		if (! authBean.isUserServiceGroupAdmin(serviceEntity))
 			throw new NotAuthorizedException("Nicht autorisiert");
 
 		if (! authBean.isUserInRoles(entity.getAdminRoles())) {
-			throw new NotAuthorizedException("Nicht autorisiert");
+			messageGenerator.addInfoMessage("Nicht editierbar", "Die Gruppe ist nicht editierbar");
+			editable = false;
 		}
 	}
 	
-	public String save() {
-		allGroupService.updateGroupMembers(entity, new HashSet<UserEntity>(usersInGroup));
+	protected void init() {
+		entity = service.findWithUsersAndChildren(groupId);
+		serviceEntity = serviceService.findById(serviceId);
+		groupFlagList = groupFlagService.findByGroup(entity);
+		if (groupFlagList.size() == 0)
+			throw new NotAuthorizedException("Gruppe ist diesem Service nicht zugeordnet");
+		effectiveMemberList = new ArrayList<UserEntity>(allGroupService.getEffectiveMembers(entity));
+		memberList = new ArrayList<UserEntity>();
+		for (UserGroupEntity ug : entity.getUsers()) {
+			memberList.add(ug.getUser());
+		}
+	}
+	
+	public void handleSave() {
+		if (editable == false) {
+			return;
+		}
+
+		entity = service.save(entity);
 		
 		for (ServiceGroupFlagEntity flag : groupFlagList) {
 			flag.setStatus(ServiceGroupStatus.DIRTY);
 			flag = groupFlagService.save(flag);
 		}
 		
+		fireGroupChangeEvent();
+		
+		messageGenerator.addResolvedInfoMessage("item_saved", "item_saved_long", true);
+	}
+	
+	public String editGroup() {
+		return ViewIds.GROUP_ADMIN_EDIT_LOCAL_GROUP + "?faces-redirect=true&serviceId=" + serviceEntity.getId() + "&groupId=" + entity.getId();
+	}
+	
+	public String deleteGroup() {
+		if (editable == false) {
+			return "";
+		}
+
+		entity.setGroupStatus(GroupStatus.DELETED);
+
+		for (ServiceGroupFlagEntity flag : groupFlagList) {
+			flag.setStatus(ServiceGroupStatus.TO_DELETE);
+			groupFlagService.save(flag);
+		}
+
+		entity = service.save(entity);
+		
+		fireGroupChangeEvent();
+
+		return ViewIds.GROUP_ADMIN_INDEX + "?faces-redirect=true&serviceId=" + serviceEntity.getId();
+	}
+	
+	public void fireGroupChangeEvent() {
 		HashSet<GroupEntity> gl = new HashSet<GroupEntity>();
 		gl.add(entity);
 		MultipleGroupEvent mge = new MultipleGroupEvent(gl);
@@ -133,27 +166,6 @@ public class GroupAdminEditLocalGroupBean implements Serializable {
 		} catch (EventSubmitException e) {
 			logger.warn("Exeption", e);
 		}
-		
-		messageGenerator.addResolvedInfoMessage("item_saved", "item_saved_long", true);
-		
-		savePossible = false;
-		
-		return ViewIds.GROUP_ADMIN_SHOW_LOCAL_GROUP + "?faces-redirect=true&serviceId=" + serviceEntity.getId() + "&groupId=" + entity.getId();
-	}
-	
-	public String cancel() {
-		savePossible = false;
-		return ViewIds.GROUP_ADMIN_SHOW_LOCAL_GROUP + "?faces-redirect=true&serviceId=" + serviceEntity.getId() + "&groupId=" + entity.getId();
-	}
-	
-	public void addUserToGroup(UserEntity user) {
-		savePossible = true;
-		usersInGroup.add(user);
-	}
-	
-	public void removeUserFromGroup(UserEntity user) {
-		savePossible = true;
-		usersInGroup.remove(user);
 	}
 	
 	public LocalGroupEntity getEntity() {
@@ -184,19 +196,19 @@ public class GroupAdminEditLocalGroupBean implements Serializable {
 		return groupFlagList;
 	}
 
-	public LazyDataModel<UserEntity> getUserList() {
-		return userList;
+	public List<UserEntity> getEffectiveMemberList() {
+		return effectiveMemberList;
 	}
 
-	public LazyDataModel<GroupEntity> getGroupList() {
-		return groupList;
+	public Boolean getEditable() {
+		return editable;
 	}
 
-	public List<UserEntity> getUsersInGroup() {
-		return usersInGroup;
+	public List<UserEntity> getMemberList() {
+		return memberList;
 	}
 
-	public Boolean getSavePossible() {
-		return savePossible;
+	public ServiceEntity getServiceEntity() {
+		return serviceEntity;
 	}
 }

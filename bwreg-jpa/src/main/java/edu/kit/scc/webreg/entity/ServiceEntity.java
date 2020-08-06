@@ -30,6 +30,7 @@ import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Type;
 
 import edu.kit.scc.webreg.entity.as.AttributeSourceServiceEntity;
+import edu.kit.scc.webreg.entity.project.ProjectAdminRoleEntity;
 
 @Entity(name = "ServiceEntity")
 @Table(name = "service")
@@ -314,5 +315,4 @@ public class ServiceEntity extends AbstractBaseEntity {
 	public void setSshPubKeyApproverRole(SshPubKeyApproverRoleEntity sshPubKeyApproverRole) {
 		this.sshPubKeyApproverRole = sshPubKeyApproverRole;
 	}
-
 }

@@ -42,6 +42,8 @@ public interface ServiceDao extends BaseDao<ServiceEntity, Long> {
 
 	List<ServiceEntity> findByParentService(ServiceEntity service);
 
+	List<ServiceEntity> findByProjectAdminRole(RoleEntity role);
+
 	List<ServiceEntity> findBySshPubKeyApproverRole(RoleEntity role);
 
 }

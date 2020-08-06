@@ -41,4 +41,5 @@ public interface BaseDao<T extends BaseEntity<PK>, PK extends Serializable> {
 
 	void refresh(T entity);
 
+	List<T> findByMultipleId(List<PK> ids);
 }

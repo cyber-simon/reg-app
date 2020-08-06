@@ -8,7 +8,7 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.bean.admin.service;
+package edu.kit.scc.webreg.bean.sadm.group;
 
 import java.io.Serializable;
 import java.util.List;
@@ -18,66 +18,47 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-
-import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
-import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.sec.AuthorizationBean;
-import edu.kit.scc.webreg.service.RegistryService;
+import edu.kit.scc.webreg.service.ServiceGroupFlagService;
 import edu.kit.scc.webreg.service.ServiceService;
-import edu.kit.scc.webreg.service.reg.RegisterUserService;
-import edu.kit.scc.webreg.session.SessionManager;
 
 @ManagedBean
 @ViewScoped
-public class ServiceAdminUserListDeproBean implements Serializable {
+public class GroupAdminListGroupsBean implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+ 	private static final long serialVersionUID = 1L;
 
 	@Inject
-	private Logger logger;
+    private ServiceGroupFlagService groupFlagService;
+    
+	@Inject
+	private ServiceService serviceService;
 	
     @Inject
-    private RegistryService service;
-
-    @Inject
-    private RegisterUserService registerUserService;
-    
-    @Inject
-    private ServiceService serviceService;
-
-    @Inject
     private AuthorizationBean authBean;
-    
-    @Inject
-    private SessionManager sessionManager;
-    
+
     private ServiceEntity serviceEntity;
     
+    private List<ServiceGroupFlagEntity> groupFlagList;
+    
     private Long serviceId;
-
-    private List<RegistryEntity> deproList;
     
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (serviceEntity == null) {
 			serviceEntity = serviceService.findById(serviceId);
-			deproList = service.findRegistriesForDepro(serviceEntity.getShortName());
-
 		}
-		if (! authBean.isUserServiceAdmin(serviceEntity))
+	
+		if (! authBean.isUserServiceGroupAdmin(serviceEntity))
 			throw new NotAuthorizedException("Nicht autorisiert");
 	}
 
-	public void depro(RegistryEntity registry) {
-		logger.debug("Deprovsion registry {} (user {})", registry.getId(), registry.getUser().getEppn());
-		deproList.remove(registry);
-		try {
-			registerUserService.deprovision(registry, "user-" + sessionManager.getUserId());
-		} catch (RegisterException e) {
-			logger.warn("Deprovision failed!", e);
-		}
+	public List<ServiceGroupFlagEntity> getGroupFlagList() {
+		if (groupFlagList == null)
+			groupFlagList = groupFlagService.findLocalGroupsForService(serviceEntity);
+		return groupFlagList;
 	}
 	
 	public ServiceEntity getServiceEntity() {
@@ -96,8 +77,5 @@ public class ServiceAdminUserListDeproBean implements Serializable {
 		this.serviceId = serviceId;
 	}
 
-	public List<RegistryEntity> getDeproList() {
-		return deproList;
-	}
 
 }

@@ -67,6 +67,11 @@ public abstract class BaseServiceImpl<T extends BaseEntity<PK>, PK extends Seria
 	}
 
 	@Override
+	public List<T> findByMultipleId(List<PK> ids) {
+		return getDao().findByMultipleId(ids);
+	}
+
+	@Override
 	public T findByIdWithAttrs(PK id, String...attrs) {
 		return getDao().findByIdWithAttrs(id, attrs);
 	}
