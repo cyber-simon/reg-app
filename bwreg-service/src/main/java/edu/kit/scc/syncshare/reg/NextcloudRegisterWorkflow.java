@@ -80,6 +80,12 @@ public class NextcloudRegisterWorkflow  implements RegisterUserWorkflow, Infotai
 	}
 
 	@Override
+	public Infotainment getInfoForAdmin(RegistryEntity registry, UserEntity user,
+			ServiceEntity service) throws RegisterException {
+		return getInfo(registry, user, service);
+	}
+
+	@Override
 	public void registerUser(UserEntity user, ServiceEntity service, RegistryEntity registry, Auditor auditor)
 			throws RegisterException {
 		
@@ -90,7 +96,7 @@ public class NextcloudRegisterWorkflow  implements RegisterUserWorkflow, Infotai
 	@Override
 	public void deregisterUser(UserEntity user, ServiceEntity service, RegistryEntity registry, Auditor auditor)
 			throws RegisterException {
-		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
+		//PropertyReader prop = PropertyReader.newRegisterPropReader(service);
 
 	}
 

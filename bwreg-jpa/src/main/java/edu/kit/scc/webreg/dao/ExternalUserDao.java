@@ -21,5 +21,6 @@ public interface ExternalUserDao extends BaseDao<ExternalUserEntity, Long> {
 	List<ExternalUserEntity> findByAdmin(ExternalUserAdminRoleEntity adminRole);
 	List<ExternalUserEntity> findByAttribute(String key, String value, ExternalUserAdminRoleEntity adminRole);
 	List<ExternalUserEntity> findByGeneric(String key, String value, ExternalUserAdminRoleEntity adminRole);
+	List<ExternalUserEntity> findAll(ExternalUserAdminRoleEntity adminRole);
 	
 }

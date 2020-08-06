@@ -149,7 +149,11 @@ public class AttributeQueryHelper implements Serializable {
 		
 		SAMLMessageSecuritySupport.signMessage(outbound);
 		
-		RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(getConnectTimeout()).build();
+		RequestConfig requestConfig = RequestConfig.custom()
+				.setSocketTimeout(getSocketTimeout())
+				.setConnectTimeout(getConnectTimeout())
+				.setConnectionRequestTimeout(getConnectionRequestTimeout())
+				.build();
 		CloseableHttpClient client = HttpClients.custom().setDefaultRequestConfig(requestConfig).build();
 
 		PipelineFactoryHttpSOAPClient<SAMLObject, SAMLObject> pf = new PipelineFactoryHttpSOAPClient<SAMLObject, SAMLObject>();
@@ -167,13 +171,17 @@ public class AttributeQueryHelper implements Serializable {
 				return new BasicHttpClientMessagePipeline<SAMLObject, SAMLObject>(new HttpClientRequestSOAP11Encoder(), new HttpClientResponseSOAP11Decoder());
 			}
 		});
-		pf.send(attributeService.getLocation(), inOutContext);
 		
-		Response returnResponse = (Response) inOutContext.getInboundMessageContext().getMessage();
-
-		client.close();
-		
-		return returnResponse;
+		try {
+			pf.send(attributeService.getLocation(), inOutContext);
+			
+			Response returnResponse = (Response) inOutContext.getInboundMessageContext().getMessage();
+			
+			return returnResponse;
+		}
+		finally {
+			client.close();
+		}
 	}
 		
 	public Response query(SamlUserEntity entity, SamlMetadataEntity idpEntity, 
@@ -216,6 +224,22 @@ public class AttributeQueryHelper implements Serializable {
 
 	private int getConnectTimeout() {
 		String aqString = appConfig.getConfigValue("attributequery_timeout");
+		if (aqString == null)
+			return 30*1000;
+		else 
+			return Integer.parseInt(aqString);
+	}
+
+	private int getSocketTimeout() {
+		String aqString = appConfig.getConfigValue("attributequery_socket_timeout");
+		if (aqString == null)
+			return 30*1000;
+		else 
+			return Integer.parseInt(aqString);
+	}
+
+	private int getConnectionRequestTimeout() {
+		String aqString = appConfig.getConfigValue("attributequery_connectionrequest_timeout");
 		if (aqString == null)
 			return 30*1000;
 		else 

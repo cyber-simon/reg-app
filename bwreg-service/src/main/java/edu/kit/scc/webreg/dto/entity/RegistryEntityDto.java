@@ -37,6 +37,8 @@ public class RegistryEntityDto extends AbstractBaseEntityDto {
 	
 	private Set<String> userEmailAddresses;
 	
+	private String serviceShortName;
+	
 	public RegistryStatus getRegistryStatus() {
 		return registryStatus;
 	}
@@ -139,5 +141,13 @@ public class RegistryEntityDto extends AbstractBaseEntityDto {
 
 	public void setUserEmailAddress(String userEmailAddress) {
 		this.userEmailAddress = userEmailAddress;
+	}
+
+	public String getServiceShortName() {
+		return serviceShortName;
+	}
+
+	public void setServiceShortName(String serviceShortName) {
+		this.serviceShortName = serviceShortName;
 	}
 }

@@ -143,6 +143,12 @@ public class OpenStackRegisterWorkflow implements RegisterUserWorkflow, Infotain
 		return info;
 	}
 
+	@Override
+	public Infotainment getInfoForAdmin(RegistryEntity registry, UserEntity user,
+			ServiceEntity service) throws RegisterException {
+		return getInfo(registry, user, service);
+	}
+
 	/**
 	 * SetPasswordCapable methods
 	 */

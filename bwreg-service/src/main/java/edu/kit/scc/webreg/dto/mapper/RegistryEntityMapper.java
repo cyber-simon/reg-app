@@ -23,6 +23,7 @@ public class RegistryEntityMapper extends AbstractBaseEntityMapper<RegistryEntit
 		toDtoEntity.setUserEmailAddresses(new HashSet<String>());
 		toDtoEntity.getUserEmailAddresses().add(fromBaseEntity.getUser().getEmail());
 		toDtoEntity.getUserEmailAddresses().addAll(fromBaseEntity.getUser().getEmailAddresses());
+		toDtoEntity.setServiceShortName(fromBaseEntity.getService().getShortName());
 	}
 
 	@Override

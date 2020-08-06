@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.session;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -51,6 +52,7 @@ public class SessionManager implements Serializable {
 	private Long roleSetCreated;
 
 	private List<ServiceEntity> serviceApproverList;
+	private List<ServiceEntity> serviceSshPubKeyApproverList;
 	private List<ServiceEntity> serviceAdminList;
 	private List<ServiceEntity> serviceHotlineList;
 	private List<ServiceEntity> serviceGroupAdminList;
@@ -66,9 +68,13 @@ public class SessionManager implements Serializable {
 	
 	private String locale;
 	
+	private Instant twoFaElevation;
+	private Instant loginTime;
+	
 	@PostConstruct
 	public void init() {
 		serviceApproverList = new ArrayList<ServiceEntity>();
+		serviceSshPubKeyApproverList = new ArrayList<ServiceEntity>();
 		serviceAdminList = new ArrayList<ServiceEntity>();
 		serviceHotlineList = new ArrayList<ServiceEntity>();
 		serviceGroupAdminList = new ArrayList<ServiceEntity>();
@@ -79,6 +85,7 @@ public class SessionManager implements Serializable {
 	
 	public void clearRoleList() {
 		serviceApproverList.clear();
+		serviceSshPubKeyApproverList.clear();
 		serviceAdminList.clear();
 		serviceHotlineList.clear();
 		serviceGroupAdminList.clear();
@@ -257,5 +264,25 @@ public class SessionManager implements Serializable {
 
 	public void setAuthnRequestIdpConfigId(Long authnRequestIdpConfigId) {
 		this.authnRequestIdpConfigId = authnRequestIdpConfigId;
+	}
+
+	public List<ServiceEntity> getServiceSshPubKeyApproverList() {
+		return serviceSshPubKeyApproverList;
+	}
+
+	public Instant getTwoFaElevation() {
+		return twoFaElevation;
+	}
+
+	public void setTwoFaElevation(Instant twoFaElevation) {
+		this.twoFaElevation = twoFaElevation;
+	}
+
+	public Instant getLoginTime() {
+		return loginTime;
+	}
+
+	public void setLoginTime(Instant loginTime) {
+		this.loginTime = loginTime;
 	}
 }

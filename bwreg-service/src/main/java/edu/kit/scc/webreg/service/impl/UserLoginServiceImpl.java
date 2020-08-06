@@ -20,7 +20,6 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.opensaml.messaging.context.InOutOperationContext;
 import org.opensaml.messaging.context.MessageContext;
@@ -49,6 +48,7 @@ import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
 import edu.kit.scc.webreg.dao.SamlSpConfigurationDao;
 import edu.kit.scc.webreg.dao.SamlUserDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
+import edu.kit.scc.webreg.dao.UserLoginInfoDao;
 import edu.kit.scc.webreg.drools.OverrideAccess;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;
 import edu.kit.scc.webreg.drools.impl.KnowledgeSessionSingleton;
@@ -61,6 +61,9 @@ import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
+import edu.kit.scc.webreg.entity.UserLoginInfoStatus;
+import edu.kit.scc.webreg.entity.UserLoginMethod;
 import edu.kit.scc.webreg.exc.AssertionException;
 import edu.kit.scc.webreg.exc.GenericRestInterfaceException;
 import edu.kit.scc.webreg.exc.LoginFailedException;
@@ -89,6 +92,9 @@ import edu.kit.scc.webreg.service.saml.Saml2ResponseValidationService;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
 import edu.kit.scc.webreg.service.saml.SsoHelper;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
+import edu.kit.scc.webreg.service.twofa.TwoFaException;
+import edu.kit.scc.webreg.service.twofa.TwoFaService;
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
 
 @Stateless
 public class UserLoginServiceImpl implements UserLoginService, Serializable {
@@ -143,6 +149,12 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 	@Inject
 	private Saml2ResponseValidationService saml2ResponseValidationService;
 
+	@Inject
+	private TwoFaService twoFaService;
+	
+	@Inject
+	private UserLoginInfoDao userLoginInfoDao;
+	
 	@Override
 	public Map<String, String> ecpLogin(String eppn,
 			String serviceShortName,
@@ -198,8 +210,59 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 		}
 	}
 
+	private void createLoginInfo(UserEntity user, RegistryEntity registry, UserLoginMethod method, UserLoginInfoStatus status) {
+		UserLoginInfoEntity loginInfo = userLoginInfoDao.createNew();
+		loginInfo.setUser(user);
+		loginInfo.setRegistry(registry);
+		loginInfo.setLoginDate(new Date());
+		loginInfo.setLoginMethod(method);
+		loginInfo.setLoginStatus(status);
+		userLoginInfoDao.persist(loginInfo);
+	}
+	
 	private Map<String, String> ecp(SamlUserEntity user, ServiceEntity service, RegistryEntity registry,
 			String password, String localHostName) throws RestInterfaceException {
+
+		if (password == null || password.equals("")) {
+			createLoginInfo(user, registry, UserLoginMethod.LOCAL, UserLoginInfoStatus.FAILED);
+			throw new LoginFailedException("Password blank");
+		}
+		
+		if (service.getServiceProps().containsKey("twofa") && 
+				service.getServiceProps().get("twofa").equalsIgnoreCase("enabled")) {
+			
+			String separator = ",";
+			if (service.getServiceProps().containsKey("twofa_separator")) {
+				separator = service.getServiceProps().get("twofa_separator");
+			}
+			
+			int index = password.lastIndexOf(separator);
+			
+			if (index < 2) {
+				createLoginInfo(user, registry, UserLoginMethod.TWOFA, UserLoginInfoStatus.FAILED);
+				throw new LoginFailedException("Password must contain separator char");
+			}
+			
+			String twoFa = password.substring(index + 1);
+			password = password.substring(0, index);
+			
+			try {
+				LinotpSimpleResponse response = twoFaService.checkToken(user.getId(), twoFa);
+				if (!(response.getResult() != null && response.getResult().isStatus() && 
+						response.getResult().isValue())) {
+					logger.info("User {} ({}) failed 2fa authentication", user.getEppn(), user.getId()); 
+					createLoginInfo(user, registry, UserLoginMethod.TWOFA, UserLoginInfoStatus.FAILED);
+					throw new LoginFailedException("2fa wrong");
+				}
+				else {
+					logger.info("User {} ({}) 2fa authentication success", user.getEppn(), user.getId()); 
+					createLoginInfo(user, registry, UserLoginMethod.TWOFA, UserLoginInfoStatus.SUCCESS);
+				}
+			} catch (TwoFaException e) {
+				logger.info("Problems with 2fa authentication", e); 
+				throw new LoginFailedException("Problems with 2fa authentication");
+			}			
+		}
 
 		if (registry.getRegistryValues().containsKey("userPassword")) {
 			logger.debug("userPassword is set on registry. Comparing with given password");
@@ -207,6 +270,8 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			logger.debug("Passwords match: {}", match);
 			
 			if (match) {
+				createLoginInfo(user, registry, UserLoginMethod.LOCAL, UserLoginInfoStatus.SUCCESS);
+
 				updateUser(user, service, "login-with-service-password");
 
 				List<Object> objectList = checkRules(user, service, registry);
@@ -225,6 +290,12 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 				
 				return map;				
 			}
+		}
+		
+		if (service.getServiceProps().containsKey("ecp") && 
+				service.getServiceProps().get("ecp").equalsIgnoreCase("disabled")) {
+			createLoginInfo(user, registry, UserLoginMethod.LOCAL, UserLoginInfoStatus.FAILED);
+			throw new LoginFailedException("Local authentication failed and ecp is disabled");
 		}
 		
 		logger.debug("Attempting ECP Authentication for {} and service {} (regId {})", user.getEppn(), service.getShortName(), registry.getId());
@@ -289,7 +360,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			credentialsProvider.setCredentials(new AuthScope(bindingHost, 443),
 	                new UsernamePasswordCredentials(username, password));
 			
-			CloseableHttpClient client = HttpClients.custom().setDefaultCredentialsProvider(credentialsProvider).build();
+			HttpClient client = HttpClients.custom().setDefaultCredentialsProvider(credentialsProvider).build();
 			
 			PipelineFactoryHttpSOAPClient<SAMLObject, SAMLObject> pf = new PipelineFactoryHttpSOAPClient<SAMLObject, SAMLObject>();
 			pf.setHttpClient(client);
@@ -314,12 +385,11 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 				logger.debug("SoapException: {}", se.getMessage());
 				if (se.getCause() != null)
 					logger.debug("Inner Exception: {}", se.getCause().getMessage());
-				client.close();
+				createLoginInfo(user, registry, UserLoginMethod.HOME_ORG, UserLoginInfoStatus.FAILED);
 				throw new LoginFailedException(se.getMessage());
 			}
 			Response response = (Response) inOutContext.getInboundMessageContext().getMessage();
-
-			client.close();
+			createLoginInfo(user, registry, UserLoginMethod.HOME_ORG, UserLoginInfoStatus.SUCCESS);
 
 			return processResponse(response, idpEntityDesc, service, idp, sp, "ecp");
 

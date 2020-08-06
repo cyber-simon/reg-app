@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="serviceId" value="#{sshPubKeyApprovalListBean.serviceId}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{sshPubKeyApprovalListBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+
+		<div id="panelInline">
+			<p:panel header="#{messages.new_approvals}">
+				<p:dataTable id="keyTable" var="key" 
+						value="#{sshPubKeyApprovalListBean.list}" style="width:auto;" 
+						paginator="true" rows="15">
+					<p:column sortBy="#{key.id}" width="10%">
+						<f:facet name="header">
+							<h:outputText value="#{messages.id}" />
+						</f:facet>
+						<h:outputText value="#{key.id}" />
+					</p:column>
+					<p:column sortBy="#{key.registry.user.eppn}" filterBy="#{key.registry.user.eppn}">
+						<f:facet name="header">
+							<h:outputText value="#{messages.eppn}" />
+						</f:facet>
+						<h:outputText value="#{key.registry.user.eppn}" /> (<h:outputText value="#{key.registry.user.surName}" />, <h:outputText value="#{key.registry.user.givenName}" />)
+					</p:column>
+					<p:column sortBy="#{key.command}" filterBy="#{key.command}">
+						<f:facet name="header">
+							<h:outputText value="#{messages.command}" />
+						</f:facet>
+						<h:outputText value="#{key.command}" />
+					</p:column>
+					<p:column sortBy="#{key.from}" filterBy="#{key.from}">
+						<f:facet name="header">
+							<h:outputText value="#{messages.from}" />
+						</f:facet>
+						<h:outputText value="#{key.from}" />
+					</p:column>
+				 	<p:column width="10%">
+						<f:facet name="header">
+							<h:outputText value="#{messages.action}" />
+						</f:facet>
+	        			<p:commandLink oncomplete="PF('addKeyDlg').show();" update=":form:addKeyDlgId">
+	        				<h:panelGroup styleClass="fa fa-fw fa-edit" />
+	        				<f:setPropertyActionListener value="#{key}" target="#{sshPubKeyApprovalListBean.selectedKey}" />
+	        			</p:commandLink>
+					</p:column>
+				</p:dataTable>
+
+				<p:dialog header="#{messages.approve_ssh_pub_key_for} #{sshPubKeyApprovalListBean.selectedKey.registry.service.name}" 
+					widgetVar="addKeyDlg" id="addKeyDlgId" modal="true" closable="false" closeOnEscape="true"
+					showEffect="fade" hideEffect="fade">
+
+			        <p:panelGrid columns="2">
+
+						<p:outputLabel for ="@next" value="#{messages.ssh_pub_key_selected}" />
+						<h:outputText value="#{sshPubKeyApprovalListBean.selectedKey.id}" />
+
+						<p:outputLabel for ="@next" value="#{messages.service}" />
+						<h:outputText value="#{sshPubKeyApprovalListBean.selectedKey.registry.service.name}" />
+
+						<p:outputLabel for ="@next" value="#{messages.name}" />
+						<h:outputText value="#{sshPubKeyApprovalListBean.selectedKey.sshPubKey.name}" />
+
+						<p:outputLabel for ="@next" value="#{messages.valid_until}" />
+						<h:outputText value="#{of:formatDate(sshPubKeyApprovalListBean.selectedKey.sshPubKey.expiresAt, 'dd.MM.yyyy HH:mm')}" />
+
+						<p:outputLabel for ="@next" value="#{messages.command}" />
+						<h:outputText value="#{sshPubKeyApprovalListBean.selectedKey.command}" />
+
+						<p:outputLabel for ="@next" value="#{messages.from}" />
+						<h:outputText value="#{sshPubKeyApprovalListBean.selectedKey.from}" />
+
+						<p:outputLabel for ="@next" value="#{messages.comment}" />
+						<h:outputText value="#{sshPubKeyApprovalListBean.selectedKey.comment}" />
+
+						<p:outputLabel for ="@next" value="#{messages.approver_comment}" />
+						<p:inputTextarea rows="4" cols="30" value="#{sshPubKeyApprovalListBean.approverComment}" />
+
+					</p:panelGrid>
+					
+			        <h:panelGroup layout="block" style="text-align: right">
+			            <p:commandButton value="#{messages.approve}" action="#{sshPubKeyApprovalListBean.approve(sshPubKeyApprovalListBean.selectedKey)}" 
+			            	update="@form" oncomplete="PF('addKeyDlg').hide();" style="color:green;"/>
+			            <p:commandButton value="#{messages.deny}" action="#{sshPubKeyApprovalListBean.deny(sshPubKeyApprovalListBean.selectedKey)}" 
+			            	update="@form" oncomplete="PF('addKeyDlg').hide();" style="color:red;"/>
+			            <p:commandButton value="#{messages.cancel}" oncomplete="PF('addKeyDlg').hide();"/>
+			        </h:panelGroup>				    
+
+				</p:dialog>
+				
+			</p:panel>
+		</div>
+
+	</h:form>
+	</ui:define>
+</ui:composition>
+</f:view>
+</body>
+</html>

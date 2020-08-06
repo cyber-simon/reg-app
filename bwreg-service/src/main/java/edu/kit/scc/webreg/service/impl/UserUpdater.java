@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -55,11 +56,13 @@ import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.UserEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.MetadataException;
+import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.SerialService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserServiceHook;
 import edu.kit.scc.webreg.service.reg.AttributeSourceQueryService;
+import edu.kit.scc.webreg.service.reg.impl.Registrator;
 import edu.kit.scc.webreg.service.saml.AttributeQueryHelper;
 import edu.kit.scc.webreg.service.saml.Saml2AssertionService;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
@@ -131,6 +134,9 @@ public class UserUpdater implements Serializable {
 
 	@Inject
 	private ApplicationConfig appConfig;
+
+	@Inject
+	private Registrator registrator;
 	
 	public SamlUserEntity updateUser(SamlUserEntity user, Map<String, List<Object>> attributeMap, String executor)
 			throws UserUpdateException {
@@ -152,6 +158,10 @@ public class UserUpdater implements Serializable {
 		auditor.setName(getClass().getName() + "-UserUpdate-Audit");
 		auditor.setDetail("Update user " + user.getEppn());
 	
+		// List to store parent services, that are not registered. Need to be registered
+		// later, when attribute map is populated
+		List<ServiceEntity> delayedRegisterList = new ArrayList<ServiceEntity>();
+		
 		/**
 		 * put no_assertion_count in generic store if assertion is missing. Else
 		 * reset no assertion count and put last valid assertion date in
@@ -200,6 +210,18 @@ public class UserUpdater implements Serializable {
 						RegistryStatus.ON_HOLD);
 				for (RegistryEntity registry : registryList) {
 					changeRegistryStatus(registry, RegistryStatus.LOST_ACCESS, auditor);
+					
+					/*
+					 * check if parent registry is missing
+					 */
+					if (registry.getService().getParentService() != null) {
+						List<RegistryEntity> parentRegistryList = registryDao.findByServiceAndUserAndNotStatus(
+								registry.getService().getParentService(), user, 
+								RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
+						if (parentRegistryList.size() == 0) {
+							delayedRegisterList.add(registry.getService().getParentService());
+						}
+					}
 				}
 				
 				/*
@@ -238,6 +260,15 @@ public class UserUpdater implements Serializable {
 			attributeStore.clear();
 			for (Entry<String, List<Object>> entry : attributeMap.entrySet()) {
 				attributeStore.put(entry.getKey(), attrHelper.attributeListToString(entry.getValue()));
+			}
+		}
+
+		for (ServiceEntity delayedService : delayedRegisterList) {
+			try {
+				registrator.registerUser(user, delayedService, 
+						"user-" + user.getId(), false);
+			} catch (RegisterException e) {
+				logger.warn("Parent registrytion didn't work out like it should", e);
 			}
 		}
 		

@@ -18,5 +18,6 @@ import edu.kit.scc.webreg.exc.RegisterException;
 public interface InfotainmentCapable {
 
 	Infotainment getInfo(RegistryEntity registry, UserEntity user, ServiceEntity service) throws RegisterException;
+	Infotainment getInfoForAdmin(RegistryEntity registry, UserEntity user, ServiceEntity service) throws RegisterException;
 	
 }

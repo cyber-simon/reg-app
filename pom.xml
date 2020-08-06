@@ -78,7 +78,7 @@
 			<dependency>
 				<groupId>org.omnifaces</groupId>
 				<artifactId>omnifaces</artifactId>
-				<version>3.3</version>
+				<version>3.6.1</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-fileupload</groupId>
@@ -127,7 +127,7 @@
 			<dependency>
 				<groupId>org.bouncycastle</groupId>
 				<artifactId>bcpkix-jdk15on</artifactId>
-				<version>1.51</version>
+				<version>1.65</version>
 			</dependency>
 			<dependency>
 				<groupId>ch.ethz.ganymed</groupId>

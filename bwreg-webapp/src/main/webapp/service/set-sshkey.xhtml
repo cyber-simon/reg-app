@@ -1,0 +1,175 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="registryId" value="#{setServiceSshPubKeyBean.id}"/>
+		<f:viewParam name="ssn" value="#{setServiceSshPubKeyBean.serviceShortName}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{setServiceSshPubKeyBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+
+		<div id="panelInline">
+			<p:panel header="#{messages.set_ssh_pub_key_for} #{setServiceSshPubKeyBean.serviceEntity.name}">
+				
+				<div class="panel">
+					<h:outputText value="#{messages.service_ssh_pub_key_help}" escape="false" />
+				</div>
+
+				<p:messages id="messageBox" for="key_error" showDetail="true" />
+					<p:panelGrid id="baseData" columns="2">
+				</p:panelGrid>			
+
+      			<p:dataTable var="regKey" value="#{setServiceSshPubKeyBean.sshPubKeyRegistryList.toArray()}">
+	      			<p:column width="12%">
+	       				<f:facet name="header"><h:outputText value="#{messages.status}"/></f:facet>
+        				<h:panelGroup id="deniedKey" rendered="#{regKey.keyStatus == 'DENIED'}">
+        					<i class="fa fa-fw fa-close"></i><span><h:outputText value="#{messages.ssh_pub_key_denied}" /></span>
+        				</h:panelGroup>
+        				<p:tooltip id="toolTipDeniedKey" for="deniedKey" value="#{messages.ssh_pub_key_denied}" position="top"/>
+        				<h:panelGroup id="pendingKey" rendered="#{regKey.keyStatus == 'PENDING'}">
+        					<i class="fa fa-fw fa-exclamation-triangle"></i><span><h:outputText value="#{messages.ssh_pub_key_pending}" /></span>
+        				</h:panelGroup>
+        				<p:tooltip id="toolTipPendingKey" for="pendingKey" value="#{messages.ssh_pub_key_pending}" position="top"/>
+        				<h:panelGroup id="activeKey" rendered="#{regKey.keyStatus == 'ACTIVE'}">
+        					<i class="fa fa-fw fa-check"></i><span><h:outputText value="#{messages.ssh_pub_key_active}" /></span>
+       					</h:panelGroup>
+        				<p:tooltip id="toolTipActiveKey" for="activeKey" value="#{messages.ssh_pub_key_active}" position="top"/>
+	        		</p:column>
+					<p:column width="12%">
+	       				<f:facet name="header"><h:outputText value="#{messages.ssh_pub_key_usage_type}"/></f:facet>
+	        			<h:panelGroup id="interactiveId" rendered="#{regKey.usageType == 'INTERACTIVE'}">
+	        				<i class="fa fa-fw fa-user"></i><span><h:outputText value="#{messages.interactive}" /></span>
+	        			</h:panelGroup>
+	        			<p:tooltip for="interactiveId" value="#{messages.interactive}" position="top"/>
+	        			<h:panelGroup id="commandId" rendered="#{regKey.usageType == 'COMMAND'}">
+	        				<i class="fa fa-fw fa-database"></i><span><h:outputText value="#{messages.command}" /></span>
+	        			</h:panelGroup>
+	        			<p:tooltip for="commandId" value="#{messages.command}" position="top"/>
+	        		</p:column>
+	      			<p:column>
+	       				<f:facet name="header"><h:outputText value="#{messages.ssh_key_name}:"/></f:facet>
+	        			<p:panelGrid columns="2" style="margin-bottom: 0px;">
+		        			<h:outputText value="#{regKey.sshPubKey.name}"/>
+		        			<p:outputPanel>
+			        			<h:outputText value="#{messages.comment}: #{regKey.comment}" rendered="#{not empty regKey.comment}" />
+			        			<p:outputPanel rendered="#{regKey.usageType == 'COMMAND'}">
+			        				<div><h:outputText value="#{messages.command}: #{regKey.command}" /></div>
+			        				<div><h:outputText value="#{messages.from}: #{regKey.from}" /></div>
+			        			</p:outputPanel>
+		        			</p:outputPanel> 
+	        			</p:panelGrid>
+	        		</p:column>
+					<p:column width="12%">
+	        			<p:commandButton action="#{setServiceSshPubKeyBean.delete(regKey)}" immediate="true" update="@form"
+	        				value="#{messages.delete}">
+	        				<p:confirm header="#{messages.confirm_header}" escape="false"
+	        					message="#{messages.ssh_pub_key_registry_confirm}" />
+	        			</p:commandButton>
+	        		</p:column>
+      			</p:dataTable>
+			</p:panel>
+	
+			<p:panel header="#{messages.set_ssh_pub_key}">
+      			<p:dataTable var="key" value="#{setServiceSshPubKeyBean.sshPubKeyList.toArray()}">
+	      			<p:column>
+	       				<f:facet name="header"><h:outputText value="#{messages.ssh_key_name}:"/></f:facet>
+	        			<h:outputText value="#{key.name}"/>
+	        		</p:column>
+					<p:column>
+	       				<f:facet name="header"><h:outputText value="#{messages.expires}:"/></f:facet>
+	        			<h:outputText value="#{of:formatDate(key.expiresAt, 'dd.MM.yyyy HH:mm')}"/>
+	        		</p:column>
+					<p:column>
+	        			<p:commandButton oncomplete="PF('addKeyDlg').show();" update=":form:addKeyDlgId"
+	        				value="#{messages.add}">
+	        				<f:setPropertyActionListener value="#{key}" target="#{setServiceSshPubKeyBean.selectedKey}" />
+	        			</p:commandButton>
+	        		</p:column>
+      			</p:dataTable>
+				
+				<p:dialog header="#{messages.set_ssh_pub_key_for} #{setServiceSshPubKeyBean.serviceEntity.name}" 
+					widgetVar="addKeyDlg" id="addKeyDlgId" modal="true" closable="false" closeOnEscape="true"
+					showEffect="fade" hideEffect="fade">
+				    
+				    <div class="panel" style="width:360px;">
+					    <h:outputText value="#{messages.service_ssh_pub_key_help_modal}" />
+				    </div>
+			        <p:panelGrid columns="2">
+
+						<p:outputLabel for ="@next" value="#{messages.ssh_pub_key_selected}" />
+						<h:outputText value="#{setServiceSshPubKeyBean.selectedKey.name}" />
+
+					    <p:outputLabel for="@next" value="#{messages.ssh_pub_key_usage_type}" />
+				        <p:selectOneMenu value="#{setServiceSshPubKeyBean.selectedUsageType}">
+				        	<p:ajax update="sshUsageTypeId" />
+			            	<f:selectItems value="#{setServiceSshPubKeyBean.usageTypes}" 
+			            		var="ut" itemLabel="#{ut}" itemValue="#{ut}" />
+			            </p:selectOneMenu>
+			        
+			        </p:panelGrid>
+					<p:panel id="sshUsageTypeId">
+						<h:panelGroup rendered="#{setServiceSshPubKeyBean.selectedUsageType == 'Interactive'}">
+							<div class="panel" style="width:360px;">
+								<h:outputText value="#{messages.ssh_pub_key_usage_interactive_help}" />
+							</div>
+						</h:panelGroup>
+	
+						<h:panelGroup rendered="#{setServiceSshPubKeyBean.selectedUsageType == 'Command'}">
+							<div class="panel" style="width:360px;">
+								<h:outputText value="#{messages.ssh_pub_key_usage_command_help}" />
+							</div>
+							<p:panelGrid columns="2">
+								<p:outputLabel for="@next" value="#{messages.command}" />
+								<p:inputText value="#{setServiceSshPubKeyBean.newCommand}" />
+							
+								<p:outputLabel for="@next" value="#{messages.ssh_pub_key_from}" />
+								<p:inputText value="#{setServiceSshPubKeyBean.newFrom}" />
+							</p:panelGrid>
+						</h:panelGroup>
+					</p:panel>
+
+					<p:panelGrid columns="2">
+						<p:outputLabel for="@next" value="#{messages.ssh_pub_key_comment}" />
+						<p:inputTextarea rows="4" cols="30" value="#{setServiceSshPubKeyBean.newComment}" />
+					</p:panelGrid>
+
+			        <h:panelGroup layout="block" style="text-align: right">
+			            <p:commandButton value="#{messages.add}" action="#{setServiceSshPubKeyBean.save()}" 
+			            	update="@form" oncomplete="PF('addKeyDlg').hide();" />
+			            <p:commandButton value="#{messages.cancel}" oncomplete="PF('addKeyDlg').hide();" />
+			        </h:panelGroup>				    
+				</p:dialog>   				
+
+			    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" closable="false" 
+			    	closeOnEscape="true" width="250">
+			        <p:commandButton value="#{messages.yes}" type="button" styleClass="ui-confirmdialog-yes"/>
+			        <p:commandButton value="#{messages.no}" type="button" styleClass="ui-confirmdialog-no"/>
+			    </p:confirmDialog>    
+	    
+			</p:panel>
+		</div>
+		
+	</h:form>
+	</ui:define>
+</ui:composition>
+</f:view>
+</body>
+</html>

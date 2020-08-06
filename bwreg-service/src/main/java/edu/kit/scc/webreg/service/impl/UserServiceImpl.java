@@ -24,12 +24,16 @@ import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.SamlUserDao;
 import edu.kit.scc.webreg.dao.UserDao;
+import edu.kit.scc.webreg.dao.UserLoginInfoDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
+import edu.kit.scc.webreg.entity.UserLoginInfoStatus;
+import edu.kit.scc.webreg.entity.UserLoginMethod;
 import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.UserService;
@@ -53,6 +57,21 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity, Long> implement
 	
 	@Inject 
 	private RegistryDao registryDao;
+	
+	@Inject
+	private UserLoginInfoDao userLoginInfoDao;
+	
+	@Override
+	public UserLoginInfoEntity addLoginInfo(Long userId, UserLoginMethod method, UserLoginInfoStatus status, String from) {
+		UserLoginInfoEntity loginInfo = userLoginInfoDao.createNew();
+		loginInfo.setUser(dao.findById(userId));
+		loginInfo.setLoginDate(new Date());
+		loginInfo.setLoginMethod(method);
+		loginInfo.setLoginStatus(status);
+		loginInfo.setFrom(from);
+		loginInfo = userLoginInfoDao.persist(loginInfo);
+		return loginInfo;
+	}
 	
 	@Override
 	public List<UserEntity> findOrderByUpdatedWithLimit(Date date, Integer limit) {
@@ -79,6 +98,11 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity, Long> implement
 		return dao.findByGroup(group);
 	}
 	
+	@Override
+	public UserEntity findByUidNumber(Long uidNumber) {
+		return dao.findByUidNumber(uidNumber);
+	}
+
 	@Override
 	public UserEntity findByEppn(String eppn) {
 		return dao.findByEppn(eppn);
@@ -121,7 +145,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity, Long> implement
 	protected BaseDao<UserEntity, Long> getDao() {
 		return dao;
 	}
-
+	
 	@Override
 	public void checkOnHoldRegistries(UserEntity user) {
 		if (user.getUserStatus().equals(UserStatus.ON_HOLD)) {

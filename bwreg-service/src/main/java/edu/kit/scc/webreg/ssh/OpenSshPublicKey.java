@@ -3,29 +3,25 @@ package edu.kit.scc.webreg.ssh;
 import java.io.Serializable;
 import java.security.PublicKey;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import edu.kit.scc.webreg.entity.SshPubKeyEntity;
 
 public class OpenSshPublicKey implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private String name;
-	private String value;
+	private SshPubKeyEntity pubKeyEntity;
 	
-	@JsonIgnore
 	private byte[] bytes;
 
-	@JsonIgnore
 	private int decoderPos;
 
-	@JsonIgnore
 	private PublicKey publicKey;
 
-	@JsonIgnore
 	private String baseDate;
 
-	@JsonIgnore
 	private String decoderResult;
+	
+	private String fingerprint;
 	
 	public OpenSshPublicKey() {
 		super();
@@ -76,19 +72,19 @@ public class OpenSshPublicKey implements Serializable {
 		this.decoderResult = decoderResult;
 	}
 
-	public String getName() {
-		return name;
+	public SshPubKeyEntity getPubKeyEntity() {
+		return pubKeyEntity;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setPubKeyEntity(SshPubKeyEntity pubKeyEntity) {
+		this.pubKeyEntity = pubKeyEntity;
 	}
 
-	public String getValue() {
-		return value;
+	public String getFingerprint() {
+		return fingerprint;
 	}
 
-	public void setValue(String value) {
-		this.value = value;
+	public void setFingerprint(String fingerprint) {
+		this.fingerprint = fingerprint;
 	}
 }

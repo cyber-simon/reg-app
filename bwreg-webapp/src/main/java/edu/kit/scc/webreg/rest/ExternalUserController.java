@@ -124,6 +124,16 @@ public class ExternalUserController {
 		return externalUserDtoService.findByGeneric(key, value, role);
 	}
 
+	@Path(value = "/find/all")
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	@GET
+	public List<ExternalUserEntityDto> findAll(@Context HttpServletRequest request)
+					throws IOException, RestInterfaceException, ServletException {
+		ExternalUserAdminRoleEntity role = resolveAdminRole(request);
+		return externalUserDtoService.findAll(role);
+	}
+
 	protected ExternalUserAdminRoleEntity resolveAdminRole(HttpServletRequest request)
 			throws UnauthorizedException {
 		return resolveAdminRole(request, null);

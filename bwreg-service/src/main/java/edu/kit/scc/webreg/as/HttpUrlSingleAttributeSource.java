@@ -103,12 +103,6 @@ public class HttpUrlSingleAttributeSource extends
 			asUserAttr.setQueryStatus(AttributeSourceQueryStatus.FAIL);
 			asUserAttr.setQueryMessage(e.getMessage());
 			return changed;
-		} finally {
-			try {
-				httpclient.close();
-			} catch (IOException e) {
-				logger.info("IO Exception while closing http client: {}", e);
-			}
 		}
 		HttpEntity entity = response.getEntity();
 
@@ -135,13 +129,9 @@ public class HttpUrlSingleAttributeSource extends
 						asUserAttr.setQueryStatus(AttributeSourceQueryStatus.FAIL);
 						asUserAttr.setQueryMessage(e.getMessage());
 					}
-				} catch (ParseException | IOException e) {
-					try {
-						response.close();
-						httpclient.close();
-					} catch (IOException inner) {
-						logger.info("IO Exception while closing http client: {}", inner);
-					}
+				} catch (ParseException e) {
+					throw new UserUpdateException(e);
+				} catch (IOException e) {
 					throw new UserUpdateException(e);
 				}
 			}
@@ -153,13 +143,6 @@ public class HttpUrlSingleAttributeSource extends
 			logger.debug("Status HttpUrlSingleAS is not OK. It is {} - {}", response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
 			asUserAttr.setQueryStatus(AttributeSourceQueryStatus.USER_NOT_FOUND);
 			asUserAttr.setQueryMessage("Status HttpUrlSingleAS is " + response.getStatusLine().getStatusCode());
-		}
-		
-		try {
-			response.close();
-			httpclient.close();
-		} catch (IOException e) {
-			logger.info("IO Exception while closing http client: {}", e);
 		}
 		
 		return changed;

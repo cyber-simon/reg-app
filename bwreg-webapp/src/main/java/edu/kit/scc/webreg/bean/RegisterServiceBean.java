@@ -15,7 +15,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -46,6 +48,9 @@ import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.reg.AttributeSourceQueryService;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;
+import edu.kit.scc.webreg.service.twofa.TwoFaException;
+import edu.kit.scc.webreg.service.twofa.TwoFaService;
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpTokenResultList;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 import edu.kit.scc.webreg.util.ViewIds;
@@ -97,6 +102,9 @@ public class RegisterServiceBean implements Serializable {
 	
 	@Inject
 	private FacesMessageGenerator messageGenerator;
+	
+	@Inject
+	private TwoFaService twoFaService;
 	
     private List<RegisterServiceBean.PolicyHolder> policyHolderList;
     
@@ -195,6 +203,30 @@ public class RegisterServiceBean implements Serializable {
 		for (String s : requirementsList) {
     		messageGenerator.addResolvedErrorMessage("reqs", "error", s, true);
 		}
+		
+
+		if (service.getServiceProps().containsKey("twofa") && 
+				(service.getServiceProps().get("twofa").equalsIgnoreCase("enabled") 
+					|| service.getServiceProps().get("twofa").equalsIgnoreCase("enabled_twostep"))) {
+			/*
+			 * second factor for service is enabled. Check if user has registered second factor
+			 */
+			try {
+				LinotpTokenResultList tokenList = twoFaService.findByUserId(user.getId());
+				if (tokenList.size() == 0) {
+					accessAllowed = false;
+					Map<String, Object> rendererContext = new HashMap<String, Object>();
+					rendererContext.put("service", service);
+		    		messageGenerator.addResolvedMessage("reqs", FacesMessage.SEVERITY_ERROR, "error", 
+		    				"twofa_mandatory", true, rendererContext);
+				}
+			} catch (TwoFaException e) {
+				logger.warn("There is a problem communicating with twofa server" + e.getMessage());
+				errorState = true;
+	    		messageGenerator.addResolvedErrorMessage("errorState", "error", "twofa_problem", true);
+				return;
+			}
+		}		
 	}
 	
     public String registerUser() {
@@ -226,8 +258,10 @@ public class RegisterServiceBean implements Serializable {
     			user.getEppn(), service.getName(), service.getRegisterBean()
     	});
     	
+    	RegistryEntity registry;
+    	
     	try {
-    		registerUserService.registerUser(user, service, "user-self");
+    		registry = registerUserService.registerUser(user, service, "user-self");
     		sessionManager.setUnregisteredServiceCreated(null);
     	} catch (RegisterException e) {
 			FacesContext.getCurrentInstance().addMessage("need_check", 
@@ -246,6 +280,12 @@ public class RegisterServiceBean implements Serializable {
 	    		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
 				context.redirect(service.getServiceProps().get("redirect_after_register"));
 				sessionManager.setOriginalRequestPath(null);
+				return null;
+	    	}
+	    	else if (service.getServiceProps().containsKey("ecp") &&
+	    			service.getServiceProps().get("ecp").equalsIgnoreCase("disabled")) {
+	    		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+				context.redirect("../service/set-password.xhtml?registryId=" + registry.getId());
 				return null;
 	    	}
 	    	else if (sessionManager.getOriginalRequestPath() != null) {

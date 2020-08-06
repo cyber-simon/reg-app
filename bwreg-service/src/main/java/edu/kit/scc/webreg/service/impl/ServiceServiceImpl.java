@@ -85,6 +85,11 @@ public class ServiceServiceImpl extends BaseServiceImpl<ServiceEntity, Long> imp
 	}
 
 	@Override
+	public List<ServiceEntity> findBySshPubKeyApproverRole(RoleEntity role) {
+		return dao.findBySshPubKeyApproverRole(role);
+	}
+
+	@Override
 	public List<ServiceEntity> findByGroupAdminRole(RoleEntity role) {
 		return dao.findByGroupAdminRole(role);
 	}

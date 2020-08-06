@@ -1,6 +1,7 @@
 package edu.kit.scc.webreg.dto.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.ejb.Stateless;
@@ -90,7 +91,20 @@ public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserE
 		}
 		return dtoList;
 	}
-	
+
+	@Override
+	public List<ExternalUserEntityDto> findAll(ExternalUserAdminRoleEntity adminRole) throws NoUserFoundException {
+		List<ExternalUserEntity> userList = dao.findAll(adminRole);
+		List<ExternalUserEntityDto> dtoList = new ArrayList<>();
+		
+		for (ExternalUserEntity user : userList) {
+			ExternalUserEntityDto dto = createNewDto();
+			mapper.copyProperties(user, dto);
+			dtoList.add(dto);
+		}
+		return dtoList;
+	}
+
 	@Override
 	public void createExternalUser(ExternalUserEntityDto dto, ExternalUserAdminRoleEntity role) throws RestInterfaceException {
 		ExternalUserEntity entity = dao.findByExternalId(dto.getExternalId());
@@ -103,6 +117,7 @@ public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserE
 		reverseMapper.copyProperties(dto, entity);
 		entity.setUidNumber(serialDao.next("uid-number-serial").intValue());
 		entity.setUserStatus(UserStatus.ACTIVE);
+		entity.setLastUpdate(new Date());
 		entity.setAdmin(role);
 		entity = dao.persist(entity);
 	}
@@ -115,6 +130,7 @@ public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserE
 		
 		if (role.equals(entity.getAdmin())) {
 			reverseMapper.copyProperties(dto, entity);
+			entity.setLastUpdate(new Date());
 			fireUserChangeEvent(entity, "external");
 		}
 		else {
@@ -129,8 +145,11 @@ public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserE
 			throw new NoUserFoundException("no such user");
 
 		if (role.equals(entity.getAdmin())) {
-			entity.setUserStatus(UserStatus.ACTIVE);
-			fireUserChangeEvent(entity, "external");
+			if (! UserStatus.ACTIVE.equals(entity.getUserStatus())) {
+				entity.setUserStatus(UserStatus.ACTIVE);
+				entity.setLastStatusChange(new Date());
+				fireUserChangeEvent(entity, "external");
+			}
 		}
 		else {
 			throw new UnauthorizedException("You are not authorized to modify this external user");
@@ -144,8 +163,11 @@ public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserE
 			throw new NoUserFoundException("no such user");
 
 		if (role.equals(entity.getAdmin())) {
-			entity.setUserStatus(UserStatus.ON_HOLD);
-			fireUserChangeEvent(entity, "external");
+			if (! UserStatus.ON_HOLD.equals(entity.getUserStatus())) {
+				entity.setUserStatus(UserStatus.ON_HOLD);
+				entity.setLastStatusChange(new Date());
+				fireUserChangeEvent(entity, "external");
+			}
 		}
 		else {
 			throw new UnauthorizedException("You are not authorized to modify this external user");

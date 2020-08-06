@@ -25,6 +25,7 @@ import javax.persistence.criteria.Root;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserEntity_;
 import edu.kit.scc.webreg.entity.UserStatus;
 
 @Named
@@ -89,7 +90,23 @@ public class JpaUserDao extends JpaBaseDao<UserEntity, Long> implements UserDao,
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<UserEntity> criteria = builder.createQuery(UserEntity.class);
 		Root<UserEntity> user = criteria.from(UserEntity.class);
-		criteria.where(builder.equal(user.get("eppn"), eppn));
+		criteria.where(builder.equal(user.get(UserEntity_.eppn), eppn));
+		criteria.select(user);
+		
+		try {
+			return em.createQuery(criteria).getSingleResult();
+		}
+		catch (NoResultException e) {
+			return null;
+		}
+	}	
+
+	@Override
+	public UserEntity findByUidNumber(Long uidNumber) {
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<UserEntity> criteria = builder.createQuery(UserEntity.class);
+		Root<UserEntity> user = criteria.from(UserEntity.class);
+		criteria.where(builder.equal(user.get(UserEntity_.uidNumber), uidNumber));
 		criteria.select(user);
 		
 		try {

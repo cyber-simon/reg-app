@@ -2,6 +2,7 @@ package edu.kit.scc.webreg.service.oidc;
 
 import java.io.IOException;
 import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -22,6 +23,7 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.Scope;
@@ -167,48 +169,54 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 
 			OidcClientConfigurationEntity clientConfig = flowState.getClientConfiguration();
 			List<ServiceOidcClientEntity> serviceOidcClientList = serviceOidcClientDao.findByClientConfig(clientConfig);
-			
+
+			/*
+			 * Allow OIDC config without service
+			 */
 			if (serviceOidcClientList.size() == 0) {
-				throw new OidcAuthenticationException("no service is connected to client configuration");
+				throw new OidcAuthenticationException("no script is connected to client configuration");
 			}
 			
 			RegistryEntity registry = null;
 			for (ServiceOidcClientEntity serviceOidcClient : serviceOidcClientList) {
 				ServiceEntity service = serviceOidcClient.getService();
-				logger.debug("Service for RP found: {}", service);
 				
-				registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.ACTIVE);
-				
-				if (registry != null) {
-					List<Object> objectList = checkRules(user, service, registry);
-					List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
-					List<UnauthorizedUser> unauthorizedUserList = extractUnauthorizedUser(objectList);
+				if (service != null) {
+					logger.debug("Service for RP found: {}", service);
 					
-					if (overrideAccessList.size() == 0 && unauthorizedUserList.size() > 0) {
-						return "/user/check-access.xhtml?regId=" + registry.getId();
-					}
-				}
-				else {
-					registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.LOST_ACCESS);
+					registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.ACTIVE);
 					
 					if (registry != null) {
-						logger.info("Registration for user {} and service {} in state LOST_ACCESS, checking again", 
-								user.getEppn(), service.getName());
 						List<Object> objectList = checkRules(user, service, registry);
 						List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
 						List<UnauthorizedUser> unauthorizedUserList = extractUnauthorizedUser(objectList);
 						
 						if (overrideAccessList.size() == 0 && unauthorizedUserList.size() > 0) {
-							logger.info("Registration for user {} and service {} in state LOST_ACCESS stays, redirecting to check page", 
-									user.getEppn(), service.getName());
 							return "/user/check-access.xhtml?regId=" + registry.getId();
 						}
 					}
 					else {
-						logger.info("No active registration for user {} and service {}, redirecting to register page", 
-								user.getEppn(), service.getName());
-						session.setOriginalRequestPath("/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/auth/return");
-						return "/user/register-service.xhtml?serviceId=" + service.getId();
+						registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.LOST_ACCESS);
+						
+						if (registry != null) {
+							logger.info("Registration for user {} and service {} in state LOST_ACCESS, checking again", 
+									user.getEppn(), service.getName());
+							List<Object> objectList = checkRules(user, service, registry);
+							List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
+							List<UnauthorizedUser> unauthorizedUserList = extractUnauthorizedUser(objectList);
+							
+							if (overrideAccessList.size() == 0 && unauthorizedUserList.size() > 0) {
+								logger.info("Registration for user {} and service {} in state LOST_ACCESS stays, redirecting to check page", 
+										user.getEppn(), service.getName());
+								return "/user/check-access.xhtml?regId=" + registry.getId();
+							}
+						}
+						else {
+							logger.info("No active registration for user {} and service {}, redirecting to register page", 
+									user.getEppn(), service.getName());
+							session.setOriginalRequestPath("/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/auth/return");
+							return "/user/register-service.xhtml?serviceId=" + service.getId();
+						}
 					}
 				}
 			}
@@ -260,9 +268,12 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 
 		RegistryEntity registry = flowState.getRegistry();
 
-		if (registry == null) {
-			throw new OidcAuthenticationException("No registry attached to flow state.");
-		}
+		/*
+		 * allow for no registry
+		 */
+//		if (registry == null) {
+//			throw new OidcAuthenticationException("No registry attached to flow state.");
+//		}
 		
 		List<ServiceOidcClientEntity> serviceOidcClientList = serviceOidcClientDao.findByClientConfig(clientConfig);
 
@@ -308,8 +319,11 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			//MACSigner macSigner = new MACSigner(clientConfig.getSecret());
 			
 			PrivateKey privateKey = cryptoHelper.getPrivateKey(opConfig.getPrivateKey());
+			X509Certificate certificate = cryptoHelper.getCertificate(opConfig.getCertificate());
+			JWK jwk = JWK.parse(certificate);
 			RSASSASigner rsaSigner = new RSASSASigner(privateKey);
-			jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claims);
+			JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.RS256).jwk(jwk).keyID(jwk.getKeyID()).build();
+			jwt = new SignedJWT(header, claims);
 			jwt.sign(rsaSigner);
 		} catch (JOSEException | IOException e) {
 			throw new OidcAuthenticationException(e);
@@ -359,9 +373,12 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 
 		RegistryEntity registry = flowState.getRegistry();
 
-		if (registry == null) {
-			throw new OidcAuthenticationException("No registry attached to flow state.");
-		}
+		/*
+		 * allow for no registry
+		 */
+//		if (registry == null) {
+//			throw new OidcAuthenticationException("No registry attached to flow state.");
+//		}
 
 		JWTClaimsSet.Builder claimsBuilder = new JWTClaimsSet.Builder();
 		
@@ -417,10 +434,13 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			SignedJWT jwt;
 			try {
 				//MACSigner macSigner = new MACSigner(clientConfig.getSecret());
-				
+
 				PrivateKey privateKey = cryptoHelper.getPrivateKey(opConfig.getPrivateKey());
+				X509Certificate certificate = cryptoHelper.getCertificate(opConfig.getCertificate());
+				JWK jwk = JWK.parse(certificate);
 				RSASSASigner rsaSigner = new RSASSASigner(privateKey);
-				jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claims);
+				JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.RS256).jwk(jwk).keyID(jwk.getKeyID()).build();
+				jwt = new SignedJWT(header, claims);
 				jwt.sign(rsaSigner);
 			} catch (JOSEException | IOException e) {
 				throw new OidcAuthenticationException(e);

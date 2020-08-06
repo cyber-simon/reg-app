@@ -54,6 +54,14 @@
 		            		var="role" itemLabel="#{role.name} (id #{role.id})" itemValue="#{role}"/>
 		            </h:selectOneMenu>
 				
+			        <h:outputText value="#{messages.sshkey_approver_role}:"/>
+			        <h:selectOneMenu value="#{editServiceBean.selectedSshPubKeyApproverRole}"
+			        	converter="#{sshPubKeyApproverRoleConverter}">
+			        	<f:selectItem itemLabel="Kein Approval" itemValue="#{null}"/>
+		            	<f:selectItems value="#{editServiceBean.sshPubKeyApproverRoleList}" 
+		            		var="role" itemLabel="#{role.name} (id #{role.id})" itemValue="#{role}"/>
+		            </h:selectOneMenu>
+				
 			        <h:outputText value="#{messages.admin_role}:"/>
 			        <h:selectOneMenu value="#{editServiceBean.selectedAdminRole}"
 			        	converter="#{adminRoleConverter}">

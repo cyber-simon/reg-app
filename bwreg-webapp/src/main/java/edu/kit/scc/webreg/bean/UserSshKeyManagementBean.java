@@ -10,9 +10,9 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.bean;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
@@ -22,16 +22,16 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-
+import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
+import edu.kit.scc.webreg.entity.SshPubKeyEntity;
+import edu.kit.scc.webreg.entity.SshPubKeyStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.service.ssh.SshPubKeyService;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.ssh.OpenSshKeyDecoder;
 import edu.kit.scc.webreg.ssh.OpenSshPublicKey;
+import edu.kit.scc.webreg.ssh.SshPubKeyBlacklistedException;
 import edu.kit.scc.webreg.ssh.UnsupportedKeyTypeException;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
@@ -57,6 +57,12 @@ public class UserSshKeyManagementBean implements Serializable {
 
 	@Inject
 	private FacesMessageGenerator messageGenerator;
+
+	@Inject
+	private SshPubKeyService sshPubKeyService;
+	
+	@Inject
+	private ApplicationConfig appConfig;
 	
     private List<OpenSshPublicKey> keyList;
     private String newKey;
@@ -65,23 +71,19 @@ public class UserSshKeyManagementBean implements Serializable {
     
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (user == null) {
-	    	user = userService.findByIdWithStore(sessionManager.getUserId());
-    		keyList = new ArrayList<>();
-	    	if (user.getGenericStore().containsKey("ssh_key")) {
-		    	ObjectMapper om = new ObjectMapper();
-		    	try {
-					List<OpenSshPublicKey> tempKeyList = om.readValue(user.getGenericStore().get("ssh_key"), 
-							new TypeReference<List<OpenSshPublicKey>>(){});
-					for (OpenSshPublicKey sshKey : tempKeyList) {
-						try {
-							keyList.add(keyDecoder.decode(sshKey));
-						} catch (UnsupportedKeyTypeException e) {
-							logger.warn("Unsupported key exception: ", e.getMessage());
-						}
-					}
-				} catch (IOException e) {
-					logger.warn("Could not read SSH keys from user: " + e.getMessage());
-					messageGenerator.addResolvedErrorMessage("error_msg", "SSH Key not readable. Resetting keys.", false);
+	    	user = userService.findById(sessionManager.getUserId());
+	    	List<SshPubKeyEntity> sshPubKeyList = sshPubKeyService.findByUserAndStatusWithRegs(user.getId(), SshPubKeyStatus.ACTIVE);
+	    	
+	    	keyList = new ArrayList<OpenSshPublicKey>();
+	    	for (SshPubKeyEntity sshKey : sshPubKeyList) {
+	    		OpenSshPublicKey key = new OpenSshPublicKey();
+	    		key.setPubKeyEntity(sshKey);
+	    		keyList.add(key);
+				try {
+		    		keyDecoder.decode(key);
+				} catch (UnsupportedKeyTypeException e) {
+					logger.warn("Unsupported key exception: ", e.getMessage());
+					messageGenerator.addResolvedErrorMessage("error_msg", "SSH Key not readable.", false);
 				}
 	    	}
 		}
@@ -89,53 +91,62 @@ public class UserSshKeyManagementBean implements Serializable {
 
 	public void deleteKey(String name) {
 		int removeIndex = -1;
+		SshPubKeyEntity removeEntity = null;
 		
 		for (int i=0; i<keyList.size(); i++) {
-			if (keyList.get(i).getName().equals(name)) {
+			if (keyList.get(i).getPubKeyEntity().getName().equals(name)) {
 				removeIndex = i;
+				removeEntity = keyList.get(i).getPubKeyEntity();
 				break;
 			}
 		}
 		
 		if (removeIndex != -1) {
-			keyList.remove(removeIndex);			
+			keyList.remove(removeIndex);
+			sshPubKeyService.deleteKey(removeEntity, "user-" + user.getId());
 		}
 		
-		user.getGenericStore().put("ssh_key", buildSshKeyString());
-		user = userService.save(user);
 		messageGenerator.addResolvedInfoMessage("info", "ssh_key_deleted", false);				
 	}
 	
 	public void deployKey() {
-		OpenSshPublicKey key;
+		OpenSshPublicKey key = new OpenSshPublicKey();
+		SshPubKeyEntity sshPubKeyEntity = sshPubKeyService.createNew();
+		key.setPubKeyEntity(sshPubKeyEntity);
+
 		try {
-			key = keyDecoder.decode(newName, newKey);
+			sshPubKeyEntity.setName(newName);
+			sshPubKeyEntity.setEncodedKey(newKey);
+			sshPubKeyEntity.setUser(user);
+			sshPubKeyEntity.setKeyStatus(SshPubKeyStatus.ACTIVE);
+	
+			keyDecoder.decode(key);
+
+			sshPubKeyEntity.setEncodedKey(key.getBaseDate());
+			
+			Long expireTime = 90 * 24 * 60 * 60 * 1000L; // 90 days standard expiry time for ssh keys. -1 for never expire
+			if (appConfig.getConfigValue("sshpubkey_expire_time") != null) {
+				expireTime = Long.parseLong(appConfig.getConfigValue("sshpubkey_expire_time"));
+			}
+	
+			if (expireTime != -1) {
+				sshPubKeyEntity.setExpiresAt(new Date(System.currentTimeMillis() + expireTime));			
+			}
+			
+			sshPubKeyEntity = sshPubKeyService.deployKey(user.getId(), sshPubKeyEntity, "user-" + user.getId());
 			keyList.add(key);
-			user.getGenericStore().put("ssh_key", buildSshKeyString());
-			user = userService.save(user);
 			newKey = "";
 			newName = "";
-			if (key.getPublicKey() == null) {
-				messageGenerator.addResolvedWarningMessage("warning", "ssh_key_unknown_format", false);
-			} 
-			else {
-				messageGenerator.addResolvedInfoMessage("info", "ssh_key_deployed", false);				
-			}
+			messageGenerator.addResolvedInfoMessage("info", "ssh_key_deployed", true);				
 		} catch (UnsupportedKeyTypeException e) {
 			logger.warn("An error occured whilst deploying key: " + e.getMessage());
-			messageGenerator.addResolvedErrorMessage("error_msg", e.toString(), false);
+			messageGenerator.addResolvedErrorMessage("sshKeyMessage", "error_msg", e.toString(), false);
+		} catch (SshPubKeyBlacklistedException e) {
+			logger.warn("User {} tried to deploy blacklisted key", user.getId());
+			messageGenerator.addResolvedErrorMessage("sshKeyMessage", "error", "key_blacklisted", true);
 		}
 	}
-	
-	private String buildSshKeyString() {
-		ObjectMapper om = new ObjectMapper();
-		ArrayNode array = om.createArrayNode();
-		for (OpenSshPublicKey sshKey : keyList) {
-			array.add(om.convertValue(sshKey, JsonNode.class));
-		}
-		return array.toString();
-	}
-	
+
 	public UserEntity getUser() {
 		return user;
 	}

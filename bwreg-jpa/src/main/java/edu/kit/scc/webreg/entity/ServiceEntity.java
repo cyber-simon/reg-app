@@ -57,6 +57,9 @@ public class ServiceEntity extends AbstractBaseEntity {
 	@ManyToOne(targetEntity = ApproverRoleEntity.class)
 	private ApproverRoleEntity approverRole;
 	
+	@ManyToOne(targetEntity = SshPubKeyApproverRoleEntity.class)
+	private SshPubKeyApproverRoleEntity sshPubKeyApproverRole;
+	
 	@ManyToOne(targetEntity = GroupAdminRoleEntity.class)
 	private GroupAdminRoleEntity groupAdminRole;
 	
@@ -78,6 +81,9 @@ public class ServiceEntity extends AbstractBaseEntity {
 	
 	@Column(name="group_capable")
 	private Boolean groupCapable;
+	
+	@Column(name="ssh_pub_key_capable")
+	private Boolean sshPubKeyCapable;
 	
 	@ManyToOne(targetEntity = BusinessRuleEntity.class)
 	private BusinessRuleEntity accessRule;
@@ -291,6 +297,22 @@ public class ServiceEntity extends AbstractBaseEntity {
 
 	public void setDeregisterText(String deregisterText) {
 		this.deregisterText = deregisterText;
+	}
+
+	public Boolean getSshPubKeyCapable() {
+		return sshPubKeyCapable;
+	}
+
+	public void setSshPubKeyCapable(Boolean sshPubKeyCapable) {
+		this.sshPubKeyCapable = sshPubKeyCapable;
+	}
+
+	public SshPubKeyApproverRoleEntity getSshPubKeyApproverRole() {
+		return sshPubKeyApproverRole;
+	}
+
+	public void setSshPubKeyApproverRole(SshPubKeyApproverRoleEntity sshPubKeyApproverRole) {
+		this.sshPubKeyApproverRole = sshPubKeyApproverRole;
 	}
 
 }
