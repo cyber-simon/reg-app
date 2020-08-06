@@ -64,9 +64,6 @@ public class ServiceEntity extends AbstractBaseEntity {
 	@ManyToOne(targetEntity = GroupAdminRoleEntity.class)
 	private GroupAdminRoleEntity groupAdminRole;
 	
-	@ManyToOne(targetEntity = ProjectAdminRoleEntity.class)
-	private ProjectAdminRoleEntity projectAdminRole;
-	
 	@ManyToOne(targetEntity = ImageEntity.class)
 	private ImageEntity image;
 	
@@ -303,14 +300,6 @@ public class ServiceEntity extends AbstractBaseEntity {
 		this.deregisterText = deregisterText;
 	}
 
-	public ProjectAdminRoleEntity getProjectAdminRole() {
-		return projectAdminRole;
-	}
-
-	public void setProjectAdminRole(ProjectAdminRoleEntity projectAdminRole) {
-		this.projectAdminRole = projectAdminRole;
-	}
-	
 	public Boolean getSshPubKeyCapable() {
 		return sshPubKeyCapable;
 	}

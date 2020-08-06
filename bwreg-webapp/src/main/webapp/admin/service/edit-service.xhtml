@@ -86,14 +86,6 @@
 		            		var="role" itemLabel="#{role.name} (id #{role.id})" itemValue="#{role}"/>
 		            </h:selectOneMenu>
 		
-			        <h:outputText value="#{messages.project_admin_role}:"/>
-			        <h:selectOneMenu value="#{editServiceBean.selectedProjectAdminRole}"
-			        	converter="#{projectAdminRoleConverter}">
-			        	<f:selectItem itemLabel="Keine Projektrolle" itemValue="#{null}"/>
-		            	<f:selectItems value="#{editServiceBean.projectAdminRoleList}" 
-		            		var="role" itemLabel="#{role.name} (id #{role.id})" itemValue="#{role}"/>
-		            </h:selectOneMenu>
-		
 			        <bw:inputText id="registerBeanField" label="#{messages.register_bean}"
 			        	value="#{editServiceBean.entity.registerBean}" required="true" >
 			        </bw:inputText>
