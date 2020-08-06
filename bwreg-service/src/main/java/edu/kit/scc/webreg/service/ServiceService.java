@@ -44,4 +44,5 @@ public interface ServiceService extends BaseService<ServiceEntity, Long> {
 
 	List<ServiceEntity> findByProjectAdminRole(RoleEntity role);
 
+	List<ServiceEntity> findBySshPubKeyApproverRole(RoleEntity role);
 }

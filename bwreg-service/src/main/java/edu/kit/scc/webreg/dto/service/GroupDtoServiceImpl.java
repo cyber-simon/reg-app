@@ -25,6 +25,7 @@ import edu.kit.scc.webreg.dto.mapper.GroupEntityMapper;
 import edu.kit.scc.webreg.entity.AdminUserEntity;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.GroupEntity;
+import edu.kit.scc.webreg.entity.GroupStatus;
 import edu.kit.scc.webreg.entity.LocalGroupEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.ServiceBasedGroupEntity;
@@ -180,7 +181,7 @@ public class GroupDtoServiceImpl extends BaseDtoServiceImpl<GroupEntity, GroupEn
 	@Override
 	public GroupEntityDto create(String ssn, String name, Long userId) throws RestInterfaceException {
 		LocalGroupEntity entity = localGroupDao.findByName(name);
-		if (entity != null)
+		if ((entity != null) && (entity.getGroupStatus().equals(GroupStatus.ACTIVE)))
 			throw new GenericRestInterfaceException("group already exists");
 
 		ServiceEntity service = serviceDao.findByShortName(ssn);

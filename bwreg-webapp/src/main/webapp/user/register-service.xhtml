@@ -30,7 +30,7 @@
 		<h:panelGroup rendered="#{registerServiceBean.errorState}">
 			<div class="panel">
 				<p:panel header="#{messages.error}">
-					<p:messages id="messageErrorState" for="errorState" showDetail="true" />
+					<p:messages id="messageErrorState" for="errorState" showDetail="true" escape="false" />
 				</p:panel>
 			</div>
 		</h:panelGroup>
@@ -43,7 +43,7 @@
 					</h:panelGroup>
 					<h:panelGroup rendered="#{! registerServiceBean.accessAllowed}">
 						<h:outputText value="#{messages.requirements_unsatisfied}" />
-						<p:messages id="messageBoxReqs" for="reqs" showDetail="true" />
+						<p:messages id="messageBoxReqs" for="reqs" showDetail="true" escape="false" />
 					</h:panelGroup>
 				</p:panel>
 			</div>
@@ -52,7 +52,7 @@
 					<h3>Um sich für den Dienst zu registrieren, müssen Sie den folgenden Nutzungsbedingungen 
 					zustimmen.</h3>
 				
-					<p:messages id="messageBox" for="need_check" showDetail="true" />
+					<p:messages id="messageBox" for="need_check" showDetail="true" escape="false" />
 				
 					<div style="margin: 16px 0;">
 						<ui:repeat var="policyHolder" value="#{registerServiceBean.policyHolderList}">

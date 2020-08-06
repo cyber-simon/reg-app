@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	
+	<h:form id="form">
+
+		<div class="panel">
+			<p:panel id="uidPanel" header="#{messages.bulk_import}">
+				<p:panelGrid id="baseData" columns="2">
+				
+					<p:outputLabel for="@next" value="Keys"/>
+					<p:inputTextarea id="keyField" rows="12" cols="80" autoResize="false"
+		            		value="#{bulkSshKeyBlacklistImportBean.keyField}"  required="true"/>
+				
+				</p:panelGrid>
+				<p:commandButton id="importBtn" action="#{bulkSshKeyBlacklistImportBean.importKeys()}" value="Importieren"
+					 update=":form:uidPanel"/>
+			</p:panel>
+			<p:blockUI block="uidPanel" trigger="importBtn">  
+       			<p:graphicImage value="#{resource['/img/ajax-loader.gif']}" alt="#{messages.loading}" />  
+			</p:blockUI>					
+		</div>
+			
+	</h:form>
+
+	</ui:define>
+</ui:composition>		
+</f:view>
+</body>
+</html>

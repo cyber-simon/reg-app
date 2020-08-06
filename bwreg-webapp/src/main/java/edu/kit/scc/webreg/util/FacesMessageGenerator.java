@@ -10,6 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.util;
 
+import java.util.Map;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.faces.application.FacesMessage;
 import javax.faces.application.FacesMessage.Severity;
@@ -79,6 +81,18 @@ public class FacesMessageGenerator {
 	public void addInfoMessage(String messageText, String detail) {
 		addInfoMessage(null, messageText, detail);				
 	}
+
+	public void addResolvedMessage(String msgName, Severity severity, String messageText, String detail, boolean resolveDetail, Map<String, Object> rendererContext) {
+		FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
+		if (resolveDetail)
+			FacesContext.getCurrentInstance().addMessage(msgName, 
+				new FacesMessage(severity, resourceHelper.resolveMessage(messageText, rendererContext), 
+						resourceHelper.resolveMessage(detail, rendererContext)));
+		else
+			FacesContext.getCurrentInstance().addMessage(msgName, 
+					new FacesMessage(severity, resourceHelper.resolveMessage(messageText, rendererContext), 
+							detail));
+	}	
 	
 	public void addResolvedMessage(String msgName, Severity severity, String messageText, String detail, boolean resolveDetail) {
 		FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);

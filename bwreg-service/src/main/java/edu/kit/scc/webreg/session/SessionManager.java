@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.session;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -50,11 +51,12 @@ public class SessionManager implements Serializable {
 	private Set<RoleEntity> roles;
 	private Long roleSetCreated;
 
-	private List<Long> serviceApproverList;
-	private List<Long> serviceAdminList;
-	private List<Long> serviceHotlineList;
-	private List<Long> serviceGroupAdminList;
-	private List<Long> serviceProjectAdminList;
+	private List<ServiceEntity> serviceApproverList;
+	private List<ServiceEntity> serviceSshPubKeyApproverList;
+	private List<ServiceEntity> serviceAdminList;
+	private List<ServiceEntity> serviceHotlineList;
+	private List<ServiceEntity> serviceGroupAdminList;
+	private List<ServiceEntity> serviceProjectAdminList;
 
 	private List<ServiceEntity> unregisteredServiceList;
 	private Long unregisteredServiceCreated;
@@ -67,13 +69,17 @@ public class SessionManager implements Serializable {
 	
 	private String locale;
 	
+	private Instant twoFaElevation;
+	private Instant loginTime;
+	
 	@PostConstruct
 	public void init() {
-		serviceApproverList = new ArrayList<Long>();
-		serviceAdminList = new ArrayList<Long>();
-		serviceHotlineList = new ArrayList<Long>();
-		serviceGroupAdminList = new ArrayList<Long>();
-		serviceProjectAdminList = new ArrayList<Long>();
+		serviceApproverList = new ArrayList<ServiceEntity>();
+		serviceSshPubKeyApproverList = new ArrayList<ServiceEntity>();
+		serviceAdminList = new ArrayList<ServiceEntity>();
+		serviceHotlineList = new ArrayList<ServiceEntity>();
+		serviceGroupAdminList = new ArrayList<ServiceEntity>();
+		serviceProjectAdminList = new ArrayList<ServiceEntity>();
 		groups = new HashSet<GroupEntity>();
 		groupNames = new HashSet<String>();
 		roles = new HashSet<RoleEntity>();
@@ -81,6 +87,7 @@ public class SessionManager implements Serializable {
 	
 	public void clearRoleList() {
 		serviceApproverList.clear();
+		serviceSshPubKeyApproverList.clear();
 		serviceAdminList.clear();
 		serviceHotlineList.clear();
 		serviceGroupAdminList.clear();
@@ -208,22 +215,6 @@ public class SessionManager implements Serializable {
 		return groupNames;
 	}
 
-	public List<Long> getServiceApproverList() {
-		return serviceApproverList;
-	}
-
-	public List<Long> getServiceAdminList() {
-		return serviceAdminList;
-	}
-
-	public List<Long> getServiceHotlineList() {
-		return serviceHotlineList;
-	}
-
-	public List<Long> getServiceGroupAdminList() {
-		return serviceGroupAdminList;
-	}
-
 	public Set<RoleEntity> getRoles() {
 		return roles;
 	}
@@ -261,7 +252,27 @@ public class SessionManager implements Serializable {
 		this.authnRequestIdpConfigId = authnRequestIdpConfigId;
 	}
 
-	public List<Long> getServiceProjectAdminList() {
+	public List<ServiceEntity> getServiceProjectAdminList() {
 		return serviceProjectAdminList;
+	}
+	
+	public List<ServiceEntity> getServiceSshPubKeyApproverList() {
+		return serviceSshPubKeyApproverList;
+	}
+
+	public Instant getTwoFaElevation() {
+		return twoFaElevation;
+	}
+
+	public void setTwoFaElevation(Instant twoFaElevation) {
+		this.twoFaElevation = twoFaElevation;
+	}
+
+	public Instant getLoginTime() {
+		return loginTime;
+	}
+
+	public void setLoginTime(Instant loginTime) {
+		this.loginTime = loginTime;
 	}
 }

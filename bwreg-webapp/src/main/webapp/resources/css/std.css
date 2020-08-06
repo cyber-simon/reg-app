@@ -282,3 +282,7 @@ div.serviceBlockLink a:visited {
 div.serviceBlockLink {
 	margin-left: 8px;
 }
+
+.ui-panel {
+	margin-bottom: 16px;
+}

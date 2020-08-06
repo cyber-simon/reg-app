@@ -20,6 +20,36 @@
       <div class="submenu">
 	    <div class="submenu-title">#{messages.user}</div>
 		<div class="submenu-content">
+          <div style="padding: 8px;">
+	      	#{messages.login_status}:<br/> 
+	      	<h:panelGroup rendered="#{empty authorizationBean.loggedInSince}">
+	      	  <div>
+		      	#{messages.logged_in_since_not_set} 
+		      </div>
+	      	</h:panelGroup>
+	      	<h:panelGroup rendered="#{not empty authorizationBean.loggedInSince and (authorizationBean.loggedInSince.toMinutes() ge 2)}">
+	      	  <div>
+		      	#{messages.logged_in_since} #{authorizationBean.loggedInSince.toMinutes()} #{messages.minutes}
+		      </div>
+	      	</h:panelGroup>
+	      	<h:panelGroup rendered="#{not empty authorizationBean.loggedInSince and (authorizationBean.loggedInSince.toMinutes() lt 2)}">
+	      	  <div>
+		      	#{messages.logged_in_since_recently}
+		      </div>
+	      	</h:panelGroup>
+	      	<h:panelGroup rendered="#{authorizationBean.isTwoFaElevated() and (authorizationBean.twoFaElevatedSince.toMinutes() ge 2)}">
+	      	  <div>
+		      	#{messages.twofa_elevated_since} #{authorizationBean.twoFaElevatedSince.toMinutes()} #{messages.minutes}
+		      </div>
+	      	</h:panelGroup>
+	      	<h:panelGroup rendered="#{authorizationBean.isTwoFaElevated() and (authorizationBean.twoFaElevatedSince.toMinutes() lt 2)}">
+	      	  <div>
+		      	#{messages.twofa_elevated_since_recently}
+		      </div>
+	      	</h:panelGroup>
+	      	
+		  </div>
+		  <hr style="border: 1px solid white;"/>
 		  <ul>
 	        <li><span class="ui-icon ui-icon-home" style="display:inline-block; vertical-align: bottom;" /><a href="#{request.contextPath}/index.xhtml">#{messages.index}</a></li>
             <li><span class="ui-icon ui-icon-star" style="display:inline-block; vertical-align: bottom;" />
@@ -33,6 +63,11 @@
 			<h:panelGroup rendered="#{authorizationBean.appConfig.getConfigValue('show_ssh_keys').equalsIgnoreCase('true')}">
 	            <li><span class="ui-icon ui-icon-suitcase" style="display:inline-block; vertical-align: bottom;" />
 		    	  <h:link outcome="#{request.contextPath}/user/ssh-keys.xhtml" value="#{messages.my_ssh_keys}" />
+				</li>
+			</h:panelGroup>				
+			<h:panelGroup rendered="#{authorizationBean.appConfig.getConfigValue('show_twofa').equalsIgnoreCase('true')}">
+	            <li><span class="ui-icon ui-icon-suitcase" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="#{request.contextPath}/user/twofa.xhtml" value="#{messages.my_twofa}" />
 				</li>
 			</h:panelGroup>				
           </ul>
@@ -60,6 +95,14 @@
 	            <li>
 	              <span class="ui-icon ui-icon-locked" style="display:inline-block; vertical-align: bottom;" />
     	          <h:link outcome="/service/set-password.xhtml" value="#{messages.set_password}">
+    	        	<f:param name="registryId" value="#{registry.id}" />
+    	          </h:link>
+	            </li>
+   	          </h:panelGroup>
+	          <h:panelGroup rendered="#{registry.registryStatus == 'ACTIVE' and authorizationBean.isSshPubKeyCapable(registry.service)}">
+	            <li>
+	              <span class="ui-icon ui-icon-locked" style="display:inline-block; vertical-align: bottom;" />
+    	          <h:link outcome="/service/set-sshkey.xhtml" value="#{messages.set_ssh_pub_key}">
     	        	<f:param name="registryId" value="#{registry.id}" />
     	          </h:link>
 	            </li>
@@ -144,6 +187,23 @@
 		    <ul>
 	          <li><span class="ui-icon ui-icon-carat-1-e" style="display:inline-block; vertical-align: bottom;" />
     	        <h:link outcome="/service-approver/index.xhtml" value="#{messages.new_approvals}">
+    	        	<f:param name="serviceId" value="#{service.id}" />
+    	        </h:link>
+			  </li>
+            </ul>
+          </div>
+        </div>
+       </div>
+	  </ui:repeat>
+
+      <ui:repeat var="service" value="#{authorizationBean.serviceSshPubKeyApproverList}">
+       <div class="submenu">
+        <div class="submenu-title">#{service.name} Key Approver</div>
+        <div class="submenu-content">
+		  <div>
+		    <ul>
+	          <li><span class="ui-icon ui-icon-carat-1-e" style="display:inline-block; vertical-align: bottom;" />
+    	        <h:link outcome="/service-approver/list-sshkey-approvals.xhtml" value="#{messages.new_approvals}">
     	        	<f:param name="serviceId" value="#{service.id}" />
     	        </h:link>
 			  </li>

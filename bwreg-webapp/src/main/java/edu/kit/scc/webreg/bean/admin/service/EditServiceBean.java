@@ -27,6 +27,7 @@ import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.GroupAdminRoleEntity;
 import edu.kit.scc.webreg.entity.ImageEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.SshPubKeyApproverRoleEntity;
 import edu.kit.scc.webreg.entity.project.ProjectAdminRoleEntity;
 import edu.kit.scc.webreg.service.AdminRoleService;
 import edu.kit.scc.webreg.service.ApproverRoleService;
@@ -35,6 +36,7 @@ import edu.kit.scc.webreg.service.BusinessRuleService;
 import edu.kit.scc.webreg.service.GroupAdminRoleService;
 import edu.kit.scc.webreg.service.ImageService;
 import edu.kit.scc.webreg.service.ServiceService;
+import edu.kit.scc.webreg.service.SshPubKeyApproverRoleService;
 import edu.kit.scc.webreg.service.project.ProjectAdminRoleService;
 
 @ManagedBean
@@ -48,6 +50,9 @@ public class EditServiceBean implements Serializable {
 	
 	@Inject
 	private ApproverRoleService approverRoleService;
+	
+	@Inject
+	private SshPubKeyApproverRoleService sshPubKeyApproverRoleService;
 	
 	@Inject
 	private AdminRoleService adminRoleService;
@@ -71,6 +76,7 @@ public class EditServiceBean implements Serializable {
 
 	private List<ServiceEntity> parentServiceList;
 	private List<ApproverRoleEntity> approverRoleList;
+	private List<SshPubKeyApproverRoleEntity> sshPubKeyApproverRoleList;
 	private List<AdminRoleEntity> adminRoleList;
 	private List<AdminRoleEntity> hotlineRoleList;
 	private List<GroupAdminRoleEntity> groupAdminRoleList;
@@ -81,6 +87,7 @@ public class EditServiceBean implements Serializable {
 	
 	private ServiceEntity selectedParentService;
 	private ApproverRoleEntity selectedApproverRole;
+	private SshPubKeyApproverRoleEntity selectedSshPubKeyApproverRole;
 	private AdminRoleEntity selectedAdminRole;
 	private AdminRoleEntity selectedHotlineRole;
 	private GroupAdminRoleEntity selectedGroupAdminRole;
@@ -102,6 +109,7 @@ public class EditServiceBean implements Serializable {
 		if (! initialized) {
 			entity = service.findByIdWithServiceProps(id);
 			approverRoleList = approverRoleService.findAll();
+			sshPubKeyApproverRoleList = sshPubKeyApproverRoleService.findAll();
 			adminRoleList = adminRoleService.findAll();
 			hotlineRoleList = adminRoleService.findAll();
 			groupAdminRoleList = groupAdminRoleService.findAll();
@@ -112,6 +120,7 @@ public class EditServiceBean implements Serializable {
 			parentServiceList = service.findAll();
 			
 			selectedApproverRole = entity.getApproverRole();
+			selectedSshPubKeyApproverRole = entity.getSshPubKeyApproverRole();
 			selectedAdminRole = entity.getAdminRole();
 			selectedHotlineRole = entity.getHotlineRole();
 			selectedGroupAdminRole = entity.getGroupAdminRole();
@@ -129,6 +138,7 @@ public class EditServiceBean implements Serializable {
 	
 	public String save() {
 		entity.setApproverRole(selectedApproverRole);
+		entity.setSshPubKeyApproverRole(selectedSshPubKeyApproverRole);
 		entity.setAdminRole(selectedAdminRole);
 		entity.setHotlineRole(selectedHotlineRole);
 		entity.setGroupAdminRole(selectedGroupAdminRole);
@@ -345,5 +355,21 @@ public class EditServiceBean implements Serializable {
 
 	public void setSelectedProjectAdminRole(ProjectAdminRoleEntity selectedProjectAdminRole) {
 		this.selectedProjectAdminRole = selectedProjectAdminRole;
+	}
+	
+	public List<SshPubKeyApproverRoleEntity> getSshPubKeyApproverRoleList() {
+		return sshPubKeyApproverRoleList;
+	}
+
+	public void setSshPubKeyApproverRoleList(List<SshPubKeyApproverRoleEntity> sshPubKeyApproverRoleList) {
+		this.sshPubKeyApproverRoleList = sshPubKeyApproverRoleList;
+	}
+
+	public SshPubKeyApproverRoleEntity getSelectedSshPubKeyApproverRole() {
+		return selectedSshPubKeyApproverRole;
+	}
+
+	public void setSelectedSshPubKeyApproverRole(SshPubKeyApproverRoleEntity selectedSshPubKeyApproverRole) {
+		this.selectedSshPubKeyApproverRole = selectedSshPubKeyApproverRole;
 	}
 }

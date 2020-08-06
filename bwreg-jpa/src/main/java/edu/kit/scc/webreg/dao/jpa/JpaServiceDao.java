@@ -83,6 +83,13 @@ public class JpaServiceDao extends JpaBaseDao<ServiceEntity, Long> implements Se
 
 	@Override
     @SuppressWarnings({"unchecked"})
+	public List<ServiceEntity> findBySshPubKeyApproverRole(RoleEntity role) {
+		return em.createQuery("select e from ServiceEntity e where e.sshPubKeyApproverRole = :role")
+				.setParameter("role", role).getResultList();
+	}
+
+	@Override
+    @SuppressWarnings({"unchecked"})
 	public List<ServiceEntity> findByGroupAdminRole(RoleEntity role) {
 		return em.createQuery("select e from ServiceEntity e where e.groupAdminRole = :role")
 				.setParameter("role", role).getResultList();

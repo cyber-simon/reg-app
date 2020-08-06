@@ -66,7 +66,12 @@
         <param-name>primefaces.THEME</param-name>
         <param-value>${bwreg.theme}</param-value>
 	</context-param>
-
+	
+	<context-param>
+        <param-name>primefaces.FONT_AWESOME</param-name>
+        <param-value>true</param-value>
+	</context-param>
+	
     <error-page>
         <exception-type>edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException</exception-type>
         <location>/error/error-saml.xhtml</location>
@@ -80,5 +85,9 @@
         <location>/error/error.xhtml</location>
     </error-page>
     
-    <distributable/>  
+    <!--  distributable/ -->
+    
+    <session-config>
+    	<session-timeout>30</session-timeout>
+    </session-config>  
 </web-app>

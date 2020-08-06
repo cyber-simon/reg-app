@@ -14,6 +14,7 @@ import java.io.Serializable;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import edu.kit.scc.webreg.dao.SamlAssertionDao;
@@ -27,14 +28,27 @@ public class JpaSamlAssertionDao extends JpaBaseDao<SamlAssertionEntity, Long> i
 	private static final long serialVersionUID = 1L;
     
 	@Override
-	public Class<SamlAssertionEntity> getEntityClass() {
-		return SamlAssertionEntity.class;
-	}
-	
-	@Override
 	public void deleteAssertionForUser(UserEntity user) {
 		Query query = em.createQuery("delete from SamlAssertionEntity where user=:user");
 		query.setParameter("user", user);
 		query.executeUpdate();
+	}
+
+	@Override
+	public SamlAssertionEntity findByUserId(Long userId) {
+		try {
+			return (SamlAssertionEntity) em.createQuery("select e from SamlAssertionEntity e " +
+					"where e.user.id = :userId")
+					.setParameter("userId", userId)
+					.getSingleResult();
+		}
+		catch (NoResultException e) {
+			return null;
+		}
+	}	
+
+	@Override
+	public Class<SamlAssertionEntity> getEntityClass() {
+		return SamlAssertionEntity.class;
 	}
 }

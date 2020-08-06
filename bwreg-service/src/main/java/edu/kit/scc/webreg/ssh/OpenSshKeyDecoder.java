@@ -3,20 +3,18 @@ package edu.kit.scc.webreg.ssh;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
-import java.security.KeyFactory;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.spec.DSAPublicKeySpec;
 import java.security.spec.ECGenParameterSpec;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
-import java.security.spec.ECPublicKeySpec;
-import java.security.spec.InvalidKeySpecException;
 import java.security.spec.InvalidParameterSpecException;
-import java.security.spec.RSAPublicKeySpec;
 
 import javax.enterprise.context.ApplicationScoped;
 
 import org.apache.commons.codec.binary.Base64;
+import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
+import org.bouncycastle.crypto.util.OpenSSHPublicKeyUtil;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 
@@ -24,55 +22,29 @@ import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 public class OpenSshKeyDecoder implements Serializable {
     
 	private static final long serialVersionUID = 1L;
-
-	public OpenSshPublicKey decode(String name, String opensshPublicKey) throws UnsupportedKeyTypeException {
-		OpenSshPublicKey key = new OpenSshPublicKey();
-		key.setName(name);
-		key.setValue(opensshPublicKey.trim());
-		
-		return decode(key);
-	}
 	
-	public OpenSshPublicKey decode(OpenSshPublicKey key) throws UnsupportedKeyTypeException {
+	public void decode(OpenSshPublicKey key) throws UnsupportedKeyTypeException {
 
         getKeyBytes(key);
 
         try {
             String type = decodeType(key);
-            if (type.equals("ssh-rsa")) {
-                BigInteger e = decodeBigInt(key);
-                BigInteger m = decodeBigInt(key);
-                RSAPublicKeySpec spec = new RSAPublicKeySpec(m, e);
-                key.setPublicKey(KeyFactory.getInstance("RSA").generatePublic(spec));
-            } else if (type.equals("ssh-dss")) {
-                BigInteger p = decodeBigInt(key);
-                BigInteger q = decodeBigInt(key);
-                BigInteger g = decodeBigInt(key);
-                BigInteger y = decodeBigInt(key);
-                DSAPublicKeySpec spec = new DSAPublicKeySpec(y, p, q, g);
-                key.setPublicKey(KeyFactory.getInstance("DSA").generatePublic(spec));
-            } else if (type.startsWith("ecdsa-sha2-") &&
-                    (type.endsWith("nistp256") || type.endsWith("nistp384") || type.endsWith("nistp521"))) {
-                // Based on RFC 5656, section 3.1 (https://tools.ietf.org/html/rfc5656#section-3.1)
-                String identifier = decodeType(key);
-                BigInteger q = decodeBigInt(key);
-                ECPoint ecPoint = getECPoint(q, identifier);
-                ECParameterSpec ecParameterSpec = getECParameterSpec(identifier);
-                ECPublicKeySpec spec = new ECPublicKeySpec(ecPoint, ecParameterSpec);
-                key.setPublicKey(KeyFactory.getInstance("EC").generatePublic(spec));
-            } else {
-            	key.setDecoderResult("Unsupported key type");
-            }
-            return key;
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-        	key.setDecoderResult("Unable to decode public key");
-            return key;
+            key.getPubKeyEntity().setKeyType(type);
+
+            MessageDigest digest = MessageDigest.getInstance("SHA256");
+        	AsymmetricKeyParameter params = OpenSSHPublicKeyUtil.parsePublicKey(key.getBytes());
+            byte[] result = digest.digest(key.getBytes());
+            key.setFingerprint(java.util.Base64.getEncoder().encodeToString(result));
+
+        } catch (Throwable t) {
+        	throw new UnsupportedKeyTypeException(t);
         }
     }
     
     private void getKeyBytes(OpenSshPublicKey key) throws UnsupportedKeyTypeException {
-        for (String part : key.getValue().split(" ")) {
+        for (String part : key.getPubKeyEntity().getEncodedKey().split(" ")) {
             if (Base64.isBase64(part) && part.startsWith("AAAA")) {
+            	part = part.trim();
             	key.setBaseDate(part);
                 key.setBytes(Base64.decodeBase64(part));
                 return;

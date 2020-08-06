@@ -11,6 +11,8 @@
 package edu.kit.scc.webreg.sec;
 
 import java.io.Serializable;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -35,6 +37,7 @@ import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.SshPubKeyApproverRoleEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.project.ProjectAdminRoleEntity;
 import edu.kit.scc.webreg.service.GroupService;
@@ -151,6 +154,10 @@ public class AuthorizationBean implements Serializable {
 	    			for (ServiceEntity s : serviceService.findByApproverRole(role))
 	    				sessionManager.getServiceApproverList().add(s.getId());
 	    		}
+	    		else if (role instanceof SshPubKeyApproverRoleEntity) {
+	    			for (ServiceEntity s : serviceService.findBySshPubKeyApproverRole(role))
+	    				sessionManager.getServiceSshPubKeyApproverList().add(s);
+	    		}
 	    		else if (role instanceof GroupAdminRoleEntity) {
 	    			for (ServiceEntity s : serviceService.findByGroupAdminRole(role))
 	    				sessionManager.getServiceGroupAdminList().add(s.getId());
@@ -229,6 +236,39 @@ public class AuthorizationBean implements Serializable {
 	    }
 	}
 
+    public Duration getLoggedInSince() {
+    	if (sessionManager.getLoginTime() != null) {
+    		return Duration.between(sessionManager.getLoginTime(), Instant.now());
+    	}
+    	else {
+    		return null;
+    	}
+    }
+    
+    public Duration getTwoFaElevatedSince() {
+    	if (sessionManager.getTwoFaElevation() != null) {
+    		return Duration.between(sessionManager.getTwoFaElevation(), Instant.now());
+    	}
+    	else {
+    		return null;
+    	}
+    }
+
+    public Boolean isTwoFaElevated() {
+		long elevationTime = 5L * 60L * 1000L;
+		if (appConfig.getConfigValue("elevation_time") != null) {
+			elevationTime = Long.parseLong(appConfig.getConfigValue("elevation_time"));
+		}
+
+		if (sessionManager.getTwoFaElevation() != null &&
+				(System.currentTimeMillis() - sessionManager.getTwoFaElevation().toEpochMilli()) < elevationTime) {
+			return true;
+		}
+		else {
+			return false;
+		}
+    }
+    
     public boolean isUserInRole(String roleName) {
     	if (roleName.startsWith("ROLE_"))
     		roleName = roleName.substring(5);
@@ -279,6 +319,12 @@ public class AuthorizationBean implements Serializable {
     	return sessionManager.getServiceApproverList().contains(id.getId());
     }
 
+    public boolean isUserServiceSshPubKeyApprover(ServiceEntity id) {
+    	if (id == null)
+    		return false;    	
+    	return sessionManager.getServiceSshPubKeyApproverList().contains(id);
+    }
+
     public boolean isUserServiceHotline(ServiceEntity id) {
     	if (id == null)
     		return false;
@@ -306,6 +352,10 @@ public class AuthorizationBean implements Serializable {
 		return serviceService.findByMultipleId(sessionManager.getServiceApproverList());
 	}
 
+	public List<ServiceEntity> getServiceSshPubKeyApproverList() {
+		return sessionManager.getServiceSshPubKeyApproverList();
+	}
+
 	public List<ServiceEntity> getServiceAdminList() {
 		return serviceService.findByMultipleId(sessionManager.getServiceAdminList());
 	}
@@ -325,6 +375,13 @@ public class AuthorizationBean implements Serializable {
 	public boolean isPasswordCapable(ServiceEntity serviceEntity) {
 		if (serviceEntity.getPasswordCapable() != null)
 			return serviceEntity.getPasswordCapable();
+		else
+			return false;
+	}
+
+	public boolean isSshPubKeyCapable(ServiceEntity serviceEntity) {
+		if (serviceEntity.getSshPubKeyCapable() != null)
+			return serviceEntity.getSshPubKeyCapable();
 		else
 			return false;
 	}

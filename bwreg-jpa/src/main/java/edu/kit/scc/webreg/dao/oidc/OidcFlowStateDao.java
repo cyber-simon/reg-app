@@ -19,4 +19,6 @@ public interface OidcFlowStateDao extends BaseDao<OidcFlowStateEntity, Long> {
 
 	OidcFlowStateEntity findByAccessToken(String accessToken, String accessTokenType);
 
+	void deleteExpiredTokens();
+
 }

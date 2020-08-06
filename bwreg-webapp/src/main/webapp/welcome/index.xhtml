@@ -28,7 +28,9 @@
 			<div style="margin-top: 4px;"><h:outputText value="#{messages.welcome_disco}"/></div>
 			<div><p:messages showDetail="true" /></div>
 
-			<h:panelGrid id="baseData" columns="2" style="margin-top: 8px;">
+			<p:focus conext="baseData" for="filterText" />
+
+			<h:panelGrid id="baseData" columns="2" style="margin-top: 8px;">	
 	
 				<p:outputLabel value="#{messages.federation}:" for="selectFed" />
 		        <p:selectOneMenu id="selectFed" value="#{discoveryLoginBean.selectedFederation}"
@@ -40,10 +42,10 @@
 	            </p:selectOneMenu>
 	
 				<p:outputLabel value="#{messages.search_filter}:" for="filterText" />
-				<p:inputText value="#{discoveryLoginBean.filter}" id="filterText">
+				<p:inputText value="#{discoveryLoginBean.filter}" id="filterText" >
 					<f:ajax event="keyup" execute="@this" render="idpBox" />
 				</p:inputText>
-
+				
 				<p:outputLabel value="#{messages.home_org}:" for="idpBox" />
 				<p:selectOneListbox id="idpBox" value="#{discoveryLoginBean.selectedIdp}" scrollHeight="360" style="width:300px;"
 						converter="#{samlIdpMetadataConverter}">

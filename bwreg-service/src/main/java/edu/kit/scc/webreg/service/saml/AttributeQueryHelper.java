@@ -21,8 +21,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.joda.time.DateTime;
 import org.opensaml.core.xml.XMLObject;
@@ -149,8 +149,12 @@ public class AttributeQueryHelper implements Serializable {
 		
 		SAMLMessageSecuritySupport.signMessage(outbound);
 		
-		RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(getConnectTimeout()).build();
-		HttpClient client = HttpClients.custom().setDefaultRequestConfig(requestConfig).build();
+		RequestConfig requestConfig = RequestConfig.custom()
+				.setSocketTimeout(getSocketTimeout())
+				.setConnectTimeout(getConnectTimeout())
+				.setConnectionRequestTimeout(getConnectionRequestTimeout())
+				.build();
+		CloseableHttpClient client = HttpClients.custom().setDefaultRequestConfig(requestConfig).build();
 
 		PipelineFactoryHttpSOAPClient<SAMLObject, SAMLObject> pf = new PipelineFactoryHttpSOAPClient<SAMLObject, SAMLObject>();
 		pf.setHttpClient(client);
@@ -167,11 +171,17 @@ public class AttributeQueryHelper implements Serializable {
 				return new BasicHttpClientMessagePipeline<SAMLObject, SAMLObject>(new HttpClientRequestSOAP11Encoder(), new HttpClientResponseSOAP11Decoder());
 			}
 		});
-		pf.send(attributeService.getLocation(), inOutContext);
 		
-		Response returnResponse = (Response) inOutContext.getInboundMessageContext().getMessage();
-
-		return returnResponse;
+		try {
+			pf.send(attributeService.getLocation(), inOutContext);
+			
+			Response returnResponse = (Response) inOutContext.getInboundMessageContext().getMessage();
+			
+			return returnResponse;
+		}
+		finally {
+			client.close();
+		}
 	}
 		
 	public Response query(SamlUserEntity entity, SamlMetadataEntity idpEntity, 
@@ -214,6 +224,22 @@ public class AttributeQueryHelper implements Serializable {
 
 	private int getConnectTimeout() {
 		String aqString = appConfig.getConfigValue("attributequery_timeout");
+		if (aqString == null)
+			return 30*1000;
+		else 
+			return Integer.parseInt(aqString);
+	}
+
+	private int getSocketTimeout() {
+		String aqString = appConfig.getConfigValue("attributequery_socket_timeout");
+		if (aqString == null)
+			return 30*1000;
+		else 
+			return Integer.parseInt(aqString);
+	}
+
+	private int getConnectionRequestTimeout() {
+		String aqString = appConfig.getConfigValue("attributequery_connectionrequest_timeout");
 		if (aqString == null)
 			return 30*1000;
 		else 

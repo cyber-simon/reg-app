@@ -71,4 +71,7 @@ public interface RegistryDao extends BaseDao<RegistryEntity, Long> {
 
 	List<RegistryEntity> findByServiceAndStatusOrderByRecon(ServiceEntity service, RegistryStatus status, int limit);
 
+	List<RegistryEntity> findAllByRegValueAndStatus(ServiceEntity service, String key, String value,
+			RegistryStatus status);
+
 }

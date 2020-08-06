@@ -76,7 +76,11 @@ public class MetadataHelper implements Serializable {
 	private ApplicationConfig appConfig;
 	
 	public EntitiesDescriptor fetchMetadata(String url) {
-		RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(getConnectTimeout()).build();
+		RequestConfig requestConfig = RequestConfig.custom()
+				.setConnectTimeout(getConnectTimeout())
+				.setSocketTimeout(getConnectTimeout())
+				.setConnectionRequestTimeout(getConnectTimeout())
+				.build();
 		CloseableHttpClient httpclient = HttpClients.custom().setDefaultRequestConfig(requestConfig).build();
 		HttpGet httpGet = new HttpGet(url);
 		
@@ -84,8 +88,15 @@ public class MetadataHelper implements Serializable {
 			CloseableHttpResponse response = httpclient.execute(httpGet);
 			logger.info("Fetching Metadata from {}", url);
 			try {
-				HttpEntity entity = response.getEntity();
-				return parseMetadata(entity.getContent());
+				if (response.getStatusLine().getStatusCode() == 200) {
+					HttpEntity entity = response.getEntity();
+					return parseMetadata(entity.getContent());
+				}
+				else {
+					logger.warn("Metadata download from {} got status code {} - bailing out", url, response.getStatusLine());
+					return null;
+				}
+				
 			} finally {
 				response.close();
 			}
@@ -96,8 +107,15 @@ public class MetadataHelper implements Serializable {
 			logger.warn("No Metadata available", e);
 			return null;
 		} catch (IOException e) {
-			logger.warn("No Metadata available", e);
+			logger.warn("No Metadata available: {}", e.toString());
 			return null;
+		}
+		finally {
+			try {
+				httpclient.close();
+			} catch (IOException e) {
+				logger.info("IOException at httpClient close", e);
+			}
 		}
 	}
 

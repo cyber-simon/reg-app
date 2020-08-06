@@ -1,5 +1,6 @@
 package edu.kit.scc.webreg.service.saml;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -21,11 +22,15 @@ import org.slf4j.MDC;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
 import edu.kit.scc.webreg.dao.SamlUserDao;
-import edu.kit.scc.webreg.drools.KnowledgeSessionService;
+import edu.kit.scc.webreg.dao.UserLoginInfoDao;
+import edu.kit.scc.webreg.drools.impl.KnowledgeSessionSingleton;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntityStatus;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
+import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
+import edu.kit.scc.webreg.entity.UserLoginInfoStatus;
+import edu.kit.scc.webreg.entity.UserLoginMethod;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.impl.UserUpdater;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
@@ -45,6 +50,9 @@ public class SamlSpPostServiceImpl implements SamlSpPostService {
 	private SamlUserDao userDao;
 	
 	@Inject
+	private UserLoginInfoDao userLoginInfoDao;
+
+	@Inject
 	private UserUpdater userUpdater;
 	
 	@Inject
@@ -57,7 +65,7 @@ public class SamlSpPostServiceImpl implements SamlSpPostService {
 	private Saml2AssertionService saml2AssertionService;	
 
 	@Inject
-	private KnowledgeSessionService knowledgeSessionService;
+	private KnowledgeSessionSingleton knowledgeSessionService;
 	
 	@Inject
 	private ApplicationConfig appConfig;
@@ -141,8 +149,17 @@ public class SamlSpPostServiceImpl implements SamlSpPostService {
 			}
 			
 			session.setUserId(user.getId());
+			session.setLoginTime(Instant.now());
 			session.setTheme(user.getTheme());
 			session.setLocale(user.getLocale());
+			
+			UserLoginInfoEntity loginInfo = userLoginInfoDao.createNew();
+			loginInfo.setUser(user);
+			loginInfo.setLoginDate(new Date());
+			loginInfo.setLoginMethod(UserLoginMethod.HOME_ORG);
+			loginInfo.setLoginStatus(UserLoginInfoStatus.SUCCESS);
+			loginInfo.setFrom(request.getRemoteAddr());
+			loginInfo = userLoginInfoDao.persist(loginInfo);
 			
 			if (session.getOriginalRequestPath() != null) {
 				String orig = session.getOriginalRequestPath();

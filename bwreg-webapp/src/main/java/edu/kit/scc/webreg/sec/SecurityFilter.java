@@ -40,6 +40,8 @@ import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.service.AdminUserService;
 import edu.kit.scc.webreg.service.RoleService;
 import edu.kit.scc.webreg.service.reg.PasswordUtil;
+import edu.kit.scc.webreg.service.twofa.TwoFaException;
+import edu.kit.scc.webreg.service.twofa.TwoFaService;
 import edu.kit.scc.webreg.session.SessionManager;
 
 @Named
@@ -65,6 +67,9 @@ public class SecurityFilter implements Filter {
 	
 	@Inject
 	private AdminUserService adminUserService;
+	
+	@Inject
+	private TwoFaService twoFaService;
 
 	@Inject
 	private ApplicationConfig appConfig;
@@ -106,6 +111,8 @@ public class SecurityFilter implements Filter {
 			path.startsWith("/logout/") ||
 			path.startsWith("/error/") ||
 			path.startsWith("/oidc/") ||
+			path.startsWith("/ferest/") ||
+			path.startsWith("/rest/otp/simplecheck/") ||
 			path.equals("/favicon.ico")
 				) {
 			chain.doFilter(servletRequest, servletResponse);
@@ -134,7 +141,65 @@ public class SecurityFilter implements Filter {
 			
 			if (accessChecker.check(path, roles)) {
     			request.setAttribute(USER_ID, session.getUserId());
-				chain.doFilter(servletRequest, servletResponse);
+    			
+    			if (path.startsWith("/user/twofa.xhtml")) {
+    				/*
+    				 * Pages which require 2fa if there is an active token are handled here
+    				 */
+    				long elevationTime = 5L * 60L * 1000L;
+    				if (appConfig.getConfigValue("elevation_time") != null) {
+    					elevationTime = Long.parseLong(appConfig.getConfigValue("elevation_time"));
+    				}
+    				
+    				if (session.getTwoFaElevation() != null &&
+							(System.currentTimeMillis() - session.getTwoFaElevation().toEpochMilli()) < elevationTime) {
+    					// user already elevated
+        				chain.doFilter(servletRequest, servletResponse);
+					}
+    				else {
+    					try {
+							if (twoFaService.hasActiveToken(session.getUserId())) {
+								logger.debug("User from {} not elevated. Redirecting to twofa login page", request.getRemoteAddr());
+								session.setOriginalRequestPath(getFullURL(request));
+								request.getServletContext().getRequestDispatcher("/user/twofa-login.xhtml").forward(servletRequest, servletResponse);
+							}
+							else {
+								// user has no active tokens, show page anyway
+								chain.doFilter(servletRequest, servletResponse);
+							}
+						} catch (TwoFaException e) {
+							logger.warn("Cannot communicate with twofa server", e);
+							throw new ServletException("There is a problem with 2fa", e);
+						}
+    				}
+    			}
+    			else if (path.startsWith("/user/important.xhtml")) {
+    				/*
+    				 * Pages which always require 2fa are handled here
+    				 */
+    				long elevationTime = 5L * 60L * 1000L;
+    				if (appConfig.getConfigValue("elevation_time") != null) {
+    					elevationTime = Long.parseLong(appConfig.getConfigValue("elevation_time"));
+    				}
+
+    				if (session.getTwoFaElevation() != null &&
+							(System.currentTimeMillis() - session.getTwoFaElevation().toEpochMilli()) < elevationTime) {
+    					// user already elevated
+        				chain.doFilter(servletRequest, servletResponse);
+					}
+    				else {
+						logger.debug("User from {} not elevated. Redirecting to twofa login page", request.getRemoteAddr());
+						session.setOriginalRequestPath(getFullURL(request));
+						request.getServletContext().getRequestDispatcher("/user/twofa-login.xhtml").forward(servletRequest, servletResponse);    					
+    				}
+
+    			}
+    			else {
+    				/*
+    				 * Normal pages are handled here
+    				 */
+    				chain.doFilter(servletRequest, servletResponse);
+    			}
 			}
 			else
 				response.sendError(HttpServletResponse.SC_FORBIDDEN, "Not allowed");

@@ -1,0 +1,227 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+
+<f:view>
+<f:metadata>
+	<f:viewParam name="retsid" value="#{twoFaUserBean.returnServiceId}"/>
+	<f:event type="javax.faces.event.PreRenderViewEvent"
+           listener="#{twoFaUserBean.preRenderView}" />
+</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+			<div><p:messages showDetail="true" /></div>
+
+		<p:panel header="#{messages.twofa_list}" rendered="#{twoFaUserBean.readOnly}">
+			
+			<div><h:outputText value="#{messages.twofa_list_readonly}"/></div>
+			<div><a href="#{twoFaUserBean.managementUrl}" target="_blank">#{twoFaUserBean.managementUrl}</a></div>
+			
+			<p:dataGrid var="token" value="#{twoFaUserBean.tokenList}" columns="2" styleClass="whitefoot"
+					layout="grid" style="margin-bottom: 16px; opacity: 0.5;">
+		        <p:panel styleClass="grayback" style="margin-bottom: 0px;">
+		        	<f:facet name="header">
+		        		<i class="fa fa-fw fa-key"></i>
+						<b><h:outputText value="#{token.serial}" /></b>
+					</f:facet>
+					<p:panelGrid columns="2">
+						<p:outputPanel>
+							<h:graphicImage width="60px" value="#{resource['img/smartphone.svg']}" alt="Smartphone" rendered="#{token.tokenType == 'TOTP' and token.serial.startsWith('TOTP')}"/>
+							<h:graphicImage width="60px" value="#{resource['img/kittoken_small.png']}" alt="Hardware Token" rendered="#{token.tokenType == 'TOTP' and not token.serial.startsWith('TOTP')}"/>
+							<h:graphicImage width="60px" value="#{resource['img/yubikey_small.png']}" alt="Yubikey" rendered="#{token.tokenType == 'yubico'}"/>
+						</p:outputPanel>
+						<p:outputPanel>
+							<h:panelGrid columns="2">
+								<p:outputLabel for="@next" value="#{messages.twofa_tokentype}:" />
+								<h:panelGroup>
+									<h:outputText value="#{messages.twofa_tokentype_tanlist}" rendered="#{token.tokenType == 'HMAC' and token.serial.startsWith('OATH')}"/>
+									<h:outputText value="#{messages.twofa_tokentype_totp}" rendered="#{token.tokenType == 'TOTP' and token.serial.startsWith('TOTP')}"/>
+									<h:outputText value="#{messages.twofa_tokentype_totp_hardware}" rendered="#{token.tokenType == 'TOTP' and not token.serial.startsWith('TOTP')}"/>
+									<h:outputText value="#{messages.twofa_tokentype_tanlist}" rendered="#{token.tokenType == 'HOTP'}"/>
+									<h:outputText value="#{messages.twofa_tokentype_yubikey}" rendered="#{token.tokenType == 'yubico'}"/>
+								</h:panelGroup>
+								
+								<p:outputLabel for="@next" value="#{messages.twofa_active}:" />
+								<h:outputText value="#{token.isactive ? messages.yes : messages.no}" />
+							</h:panelGrid>
+
+							<p:panel style="margin: 8px;" rendered="#{! token.isactive and (token.tokenDesc.contains('INIT'))}">
+								<h:outputText value="#{messages.twofa_token_not_init}" style="color:red;"/>
+							</p:panel>
+							</p:outputPanel>
+					</p:panelGrid>
+				</p:panel>
+			</p:dataGrid>
+		</p:panel>
+
+		<p:dataGrid var="token" value="#{twoFaUserBean.tokenList}" columns="2" styleClass="whitefoot"
+				layout="grid" style="margin-bottom: 16px;" rendered="#{! twoFaUserBean.readOnly}">
+	        <f:facet name="header">#{messages.twofa_list}</f:facet>
+	        <p:panel styleClass="grayback" style="margin-bottom: 0px;">
+	        	<f:facet name="header">
+	        		<i class="fa fa-fw fa-key"></i>
+					<b><h:outputText value="#{token.serial}" /></b>
+				</f:facet>
+				<p:panelGrid columns="2">
+					<p:outputPanel>
+						<h:graphicImage width="60px" value="#{resource['img/smartphone.svg']}" alt="Smartphone" rendered="#{token.tokenType == 'TOTP' and token.serial.startsWith('TOTP')}"/>
+						<h:graphicImage width="60px" value="#{resource['img/kittoken_small.png']}" alt="Hardware Token" rendered="#{token.tokenType == 'TOTP' and not token.serial.startsWith('TOTP')}"/>
+						<h:graphicImage width="60px" value="#{resource['img/yubikey_small.png']}" alt="Yubikey" rendered="#{token.tokenType == 'yubico'}"/>
+					</p:outputPanel>
+					<p:outputPanel>
+						<h:panelGrid columns="2" style="margin-bottom: 16px;">
+							<p:outputLabel for="@next" value="#{messages.twofa_tokentype}:" />
+							<h:panelGroup>
+								<h:outputText value="#{messages.twofa_tokentype_totp}" rendered="#{token.tokenType == 'TOTP' and token.serial.startsWith('TOTP')}"/>
+								<h:outputText value="#{messages.twofa_tokentype_totp_hardware}" rendered="#{token.tokenType == 'TOTP' and not token.serial.startsWith('TOTP')}"/>
+								<h:outputText value="#{messages.twofa_tokentype_tanlist}" rendered="#{token.tokenType == 'HMAC'}"/>
+								<h:outputText value="#{messages.twofa_tokentype_yubikey}" rendered="#{token.tokenType == 'yubico'}"/>
+							</h:panelGroup>
+		
+							<p:outputLabel for="@next" value="#{messages.twofa_active}:" />
+							<h:outputText value="#{token.isactive ? messages.yes : messages.no}" />
+						</h:panelGrid>
+						<p:panel style="margin: 8px;" rendered="#{! token.isactive and (token.tokenDesc.contains('INIT'))}">
+							<h:outputText value="#{messages.twofa_token_not_init}" style="color:red;" />
+						</p:panel>
+						<p:commandButton action="#{twoFaUserBean.disableToken(token.serial)}" value="#{messages.disable}" 
+							update="@form" rendered="#{token.isactive}"/>
+						<p:commandButton action="#{twoFaUserBean.enableToken(token.serial)}" value="#{messages.enable}" 
+							update="@form" rendered="#{! token.isactive and (! token.tokenDesc.contains('INIT'))}"/>
+						<p:commandButton action="#{twoFaUserBean.deleteToken(token.serial)}" value="#{messages.delete}" 
+							update="@form" rendered="#{! token.isactive and (token.tokenDesc.contains('DELABLE'))}" style="color:red;">
+							<p:confirm header="#{messages.confirm_header}" message="#{messages.confirm}" />
+						</p:commandButton>
+						<p:commandButton action="#{twoFaUserBean.getBackupTanList(token.serial)}" value="#{messages.token_get_tanlist_values}" 
+							update="@form" rendered="#{token.isactive and token.tokenType == 'HMAC'}"
+							oncomplete="PF('showBackupTanDlg').show();"/>
+					</p:outputPanel>
+				</p:panelGrid>
+			</p:panel>
+		</p:dataGrid>
+
+		<p:panel rendered="#{! twoFaUserBean.readOnly}">
+			<div style="margin-bottom: 16px;">
+				<h:outputText value="#{messages.twofa_create_new_token}" />
+			</div>
+			<p:outputPanel style="margin-bottom: 16px;">
+				<p:commandButton id="openAddTotpDialog" oncomplete="PF('addTotpDlg').show();" value="#{messages.twofa_create_new_totp}"></p:commandButton>
+				<p:commandButton id="openAddYubicoDialog" oncomplete="PF('addYubicoDlg').show();" value="#{messages.twofa_create_new_yubico}"></p:commandButton>
+				<p:commandButton id="openAddBackupTanDialog" oncomplete="PF('addBackupTanDlg').show();" value="#{messages.twofa_create_backup_tan_list}"></p:commandButton>
+			</p:outputPanel>
+			<p:outputPanel rendered="#{not empty twoFaUserBean.returnServiceId}">
+				<p:link href="../user/register-service.xhtml" value="#{messages.twofa_back_to_register}">
+					<f:param name="serviceId" value="#{twoFaUserBean.returnServiceId}"/>
+				</p:link>
+			</p:outputPanel>
+		</p:panel>
+
+		<p:dialog header="#{messages.twofa_backup_tan_list_values}" 
+					widgetVar="showBackupTanDlg" id="showBackupTanId" modal="true" closable="true" closeOnEscape="true"
+					showEffect="fade" hideEffect="fade">
+			<h:outputText value="#{twoFaUserBean.backupTanList.result.value.otp}" />
+		</p:dialog>
+			
+		<p:dialog header="#{messages.twofa_create_totp_token}" 
+					widgetVar="addTotpDlg" id="addTotpDlgId" modal="true" closable="true" closeOnEscape="true"
+					showEffect="fade" hideEffect="fade">
+			<p:ajax event="close" update="@form" />
+
+			<div class="panel" style="width:520px;">
+			    <h:outputText value="#{messages.twofa_create_totp_token_desc}" escape="false" />
+		    </div>
+
+			<p:panel id="totpResponsePanel" style="height: 260px;">
+			    <p:commandButton id="totpStartButton" action="#{twoFaUserBean.createAuthenticatorToken()}" value="#{messages.start}"
+		    		update="totpResponsePanel" oncomplete="PF('addTotpDlg').initPosition()" rendered="#{empty twoFaUserBean.createTokenResponse}"/>
+				<h:panelGroup rendered="#{not empty twoFaUserBean.createTokenResponse}">
+					<h:panelGrid columns="2">
+						<p:outputPanel>
+							<h:outputText value="#{twoFaUserBean.createTokenResponse.detail.googleurl.img}" escape="false" />
+						</p:outputPanel>
+						<p:outputPanel>
+							<h:panelGrid columns="2">
+								<p:outputLabel for="@next" value="#{messages.twofa_serial}:" />
+								<h:outputText value="#{twoFaUserBean.createTokenResponse.detail.serial}"/>
+								
+								<p:outputLabel for="@next" value="#{messages.twofa_code}:" />
+								<p:inputText id="totpText" autocomplete="false" value="#{twoFaUserBean.totpCode}"/>
+							</h:panelGrid>
+							<p:commandButton id="checkTotpButton" action="#{twoFaUserBean.checkAuthenticatorToken()}" value="#{messages.check}"
+								update="totpResponsePanel" />
+							</p:outputPanel>
+						</h:panelGrid>
+				</h:panelGroup>
+			</p:panel>
+		</p:dialog>
+
+		<p:dialog header="#{messages.twofa_create_yubico_token}" 
+					widgetVar="addYubicoDlg" id="addYubicoDlgId" modal="true" closable="true" closeOnEscape="true"
+					showEffect="fade" hideEffect="fade">
+			<p:ajax event="close" update="@form" />
+			<div class="panel" style="width:360px;">
+			    <h:outputText value="#{messages.twofa_create_yubico_token_desc}" escape="false" />
+		    </div>
+		
+			<p:panel id="yubicoResponsePanel">
+				<h:panelGrid columns="2">
+					<p:outputLabel for="@next" value="#{messages.twofa_code}:" />
+					<p:inputText id="yubicoText" autocomplete="false" value="#{twoFaUserBean.yubicoCode}"/>
+				</h:panelGrid>
+			    <p:commandButton id="yubicoStartButton" action="#{twoFaUserBean.createYubicoToken()}" value="#{messages.start}"
+		    		update="yubicoResponsePanel"/>
+			</p:panel>
+
+		</p:dialog>
+		
+		<p:dialog header="#{messages.twofa_create_backup_tan_list}" 
+					widgetVar="addBackupTanDlg" id="addBackupTanDlgId" modal="true" closable="true" closeOnEscape="true"
+					showEffect="fade" hideEffect="fade">
+			<p:ajax event="close" update="@form" />
+			<div class="panel" style="width:360px;">
+			    <h:outputText value="#{messages.twofa_create_backup_tan_list_desc}" escape="false" />
+		    </div>
+		
+			<p:panel id="backupTanResponsePanel">
+			    <p:commandButton id="backupTanStartButton" action="#{twoFaUserBean.createBackupTanList()}" value="#{messages.start}"
+		    		update="backupTanResponsePanel"/>
+			</p:panel>
+
+		</p:dialog>
+		
+		<p:dialog header="#{messages.twofa_create_backuptan_token}" 
+					widgetVar="addBackuptanDlg" id="addBackuptanDlgId" modal="true" closable="true" closeOnEscape="true"
+					showEffect="fade" hideEffect="fade">
+					
+		</p:dialog>
+
+	    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" closable="false" closeOnEscape="true">
+	        <p:commandButton value="#{messages.yes}" type="button" styleClass="ui-confirmdialog-yes" />
+	        <p:commandButton value="#{messages.no}" type="button" styleClass="ui-confirmdialog-no" />
+	    </p:confirmDialog>    
+
+		<p:defaultCommand target="yubicoStartButton" scope="addYubicoDlgId"/>		
+		<p:defaultCommand target="checkTotpButton" scope="addTotpDlgId"/>		
+
+	</h:form>
+	</ui:define>
+
+</ui:composition>
+</f:view>
+</body>
+</html>

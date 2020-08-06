@@ -14,7 +14,10 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.Lob;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.Type;
 
 @Entity(name = "EmailTemplateEntity")
 @Table(name = "email_template")
@@ -29,7 +32,9 @@ public class EmailTemplateEntity extends AbstractBaseEntity {
 	@Column(name = "tpl_subject", length=512)
 	private String subject;
 	
-	@Column(name = "tpl_body", length=2048)
+	@Column(name = "tpl_body")
+	@Lob 
+	@Type(type = "org.hibernate.type.TextType")	
 	private String body;
 	
 	@Column(name = "tpl_to", length=512)

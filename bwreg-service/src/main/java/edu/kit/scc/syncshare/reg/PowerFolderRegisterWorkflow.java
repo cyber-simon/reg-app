@@ -143,7 +143,12 @@ public class PowerFolderRegisterWorkflow implements RegisterUserWorkflow, Infota
 			new InfotainmentTreeNode("E-Mail", pfAccount.getEmail(), userRoot);
 		}
 		info.setRoot(root);
-		return info;
-			
+		return info;		
 	}
+	
+	@Override
+	public Infotainment getInfoForAdmin(RegistryEntity registry, UserEntity user,
+			ServiceEntity service) throws RegisterException {
+		return getInfo(registry, user, service);
+	}	
 }

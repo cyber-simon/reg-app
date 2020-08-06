@@ -30,7 +30,7 @@ import edu.kit.scc.webreg.dao.SamlAAMetadataDao;
 import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
 import edu.kit.scc.webreg.dao.SamlIdpScopeDao;
 import edu.kit.scc.webreg.dao.SamlSpMetadataDao;
-import edu.kit.scc.webreg.drools.KnowledgeSessionService;
+import edu.kit.scc.webreg.drools.impl.KnowledgeSessionSingleton;
 import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.FederationEntity;
 import edu.kit.scc.webreg.entity.SamlAAMetadataEntity;
@@ -39,6 +39,7 @@ import edu.kit.scc.webreg.entity.SamlIdpScopeEntity;
 import edu.kit.scc.webreg.entity.SamlMetadataEntityStatus;
 import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 import edu.kit.scc.webreg.service.FederationService;
+import edu.kit.scc.webreg.service.saml.FederationSingletonBean;
 import edu.kit.scc.webreg.service.saml.MetadataHelper;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
 
@@ -49,6 +50,9 @@ public class FederationServiceImpl extends BaseServiceImpl<FederationEntity, Lon
 
 	@Inject
 	private Logger logger;
+	
+	@Inject
+	private FederationSingletonBean federationSingletonBean;
 	
 	@Inject
 	private FederationDao dao;
@@ -66,7 +70,7 @@ public class FederationServiceImpl extends BaseServiceImpl<FederationEntity, Lon
 	private SamlAAMetadataDao aaDao;
 	
 	@Inject
-	private KnowledgeSessionService knowledgeSessionService;
+	private KnowledgeSessionSingleton knowledgeSessionService;
 	
 	@Inject 
 	private SamlHelper samlHelper;
@@ -79,6 +83,11 @@ public class FederationServiceImpl extends BaseServiceImpl<FederationEntity, Lon
 		logger.info("Starting updateFederation for federation {}", entity.getName());
 		
 		EntitiesDescriptor entities = metadataHelper.fetchMetadata(entity.getFederationMetadataUrl());
+		if (entities == null) {
+			logger.info("Empty entities list, nothing to do.");
+			return;
+		}
+		
 		List<EntityDescriptor> entityList = metadataHelper.convertEntitiesDescriptor(entities);
 		logger.debug("Got entity List size {}", entityList.size());
 
@@ -146,6 +155,9 @@ public class FederationServiceImpl extends BaseServiceImpl<FederationEntity, Lon
 		entity.setPolledAt(new Date());
 		dao.persist(entity);
 		logger.debug("Updated SAML Entities for Federation {}", entity.getName());
+		
+		logger.debug("Refreshing Federation Singleton Bean Cache");
+		federationSingletonBean.refreshCache();
 	}
 
 	private void updateAAEntities(FederationEntity entity, List<EntityDescriptor> entityList) {

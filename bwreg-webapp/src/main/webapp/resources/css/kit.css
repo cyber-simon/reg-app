@@ -343,3 +343,17 @@ div.serviceBlockLink {
 .ui-button {
 	margin: 0px 0px 0px 8px;
 }
+
+.ui-panel, .ui-panelgrid {
+	margin-bottom: 16px;
+}
+
+.ui-panel.grayback .ui-panel-titlebar {
+	color: #000000;
+	background: #dddddd;
+}
+
+.ui-datagrid.whitefoot .ui-datagrid-footer {
+	color: #000000;
+	background: #ffffff;
+}

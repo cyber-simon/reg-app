@@ -10,9 +10,12 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa.oidc;
 
+import java.util.Date;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 import javax.persistence.NoResultException;
+import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
@@ -53,6 +56,13 @@ public class JpaOidcFlowStateDao extends JpaBaseDao<OidcFlowStateEntity, Long> i
 		return em.createQuery(criteria).getSingleResult();
 	}	
 
+	@Override
+	public void deleteExpiredTokens() {
+		Query query = em.createQuery("delete from OidcFlowStateEntity where validUntil <= :validUntil");
+		query.setParameter("validUntil", new Date());
+		query.executeUpdate();
+	}
+	
 	@Override
 	public Class<OidcFlowStateEntity> getEntityClass() {
 		return OidcFlowStateEntity.class;

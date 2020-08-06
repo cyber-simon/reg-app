@@ -73,9 +73,12 @@ public class UserEntity extends AbstractBaseEntity {
 
 	@OneToMany(targetEntity = UserGroupEntity.class, mappedBy="user")
 	private Set<UserGroupEntity> groups;
-		
+
 	@OneToMany(targetEntity = ASUserAttrEntity.class, mappedBy="user")
 	private Set<ASUserAttrEntity> userAttrs;
+		
+	@OneToMany(targetEntity = SshPubKeyEntity.class, mappedBy="user")
+	private Set<SshPubKeyEntity> sshPubKeys;
 		
 	@Enumerated(EnumType.STRING)
 	private UserStatus userStatus;
@@ -240,5 +243,13 @@ public class UserEntity extends AbstractBaseEntity {
 
 	public void setUserAttrs(Set<ASUserAttrEntity> userAttrs) {
 		this.userAttrs = userAttrs;
+	}
+
+	public Set<SshPubKeyEntity> getSshPubKeys() {
+		return sshPubKeys;
+	}
+
+	public void setSshPubKeys(Set<SshPubKeyEntity> sshPubKeys) {
+		this.sshPubKeys = sshPubKeys;
 	}
 }

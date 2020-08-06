@@ -1,6 +1,8 @@
 package edu.kit.scc.webreg.dto.service;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dto.entity.BaseEntityDto;
@@ -32,4 +34,16 @@ public abstract class BaseDtoServiceImpl<T extends BaseEntity<PK>, E extends Bas
 		getMapper().copyProperties(getDao().findById(pk), dto);
 		return dto;
 	}
+	
+	@Override
+	public List<E> findAll() {
+		List<T> daoList = getDao().findAll();
+		List<E> dtoList = new ArrayList<E>(daoList.size());
+		for (T dao : daoList) {
+			E dto = createNewDto();
+			getMapper().copyProperties(dao, dto);
+			dtoList.add(dto);
+		}
+		return dtoList;
+	}	
 }

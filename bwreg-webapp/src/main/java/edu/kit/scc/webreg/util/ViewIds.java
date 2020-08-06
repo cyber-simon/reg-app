@@ -50,19 +50,19 @@ public class ViewIds {
 	public static final String EDIT_POLICY = "/admin/service/edit-policy.xhtml";	
 	public static final String EDIT_SERVICE = "/admin/service/edit-service.xhtml";	
 	public static final String EDIT_SERVICEDESC = "/admin/service/edit-servicedesc.xhtml";	
-	public static final String EDIT_EMAIL_TEMPLATE = "/admin/service/edit-email-template.xhtml";	
+	public static final String EDIT_EMAIL_TEMPLATE = "/admin/mail/edit-email-template.xhtml";	
 
 	public static final String SHOW_POLICY = "/admin/service/show-policy.xhtml";	
 	public static final String SHOW_SERVICE = "/admin/service/show-service.xhtml";	
-	public static final String SHOW_EMAIL_TEMPLATE = "/admin/service/show-email-template.xhtml";	
+	public static final String SHOW_EMAIL_TEMPLATE = "/admin/mail/show-email-template.xhtml";	
 
 	public static final String ADD_AGREEMENT = "/admin/service/add-agreement.xhtml";
 	public static final String ADD_POLICY = "/admin/service/add-policy.xhtml";	
 	public static final String ADD_SERVICE = "/admin/service/add-service.xhtml";	
-	public static final String ADD_EMAIL_TEMPLATE = "/admin/service/add-email-template.xhtml";	
+	public static final String ADD_EMAIL_TEMPLATE = "/admin/mail/add-email-template.xhtml";	
 
 	public static final String LIST_SERVICES = "/admin/service/list-services.xhtml";	
-	public static final String LIST_EMAIL_TEMPLATES = "/admin/service/list-email-templates.xhtml";	
+	public static final String LIST_EMAIL_TEMPLATES = "/admin/mail/list-email-templates.xhtml";	
 	
 	/*
 	 * Roles

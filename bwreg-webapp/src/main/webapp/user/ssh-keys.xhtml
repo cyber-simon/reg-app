@@ -24,46 +24,90 @@
 
 	<ui:define name="content">
 	<h:form id="form">
-		<p:panel id="panel" header="#{messages.my_ssh_keys}">
-			
-			<div><p:messages showDetail="true" /></div>
+		<div><p:messages showDetail="true" /></div>
 
-       		<p:dataTable var="key" value="#{userSshKeyManagementBean.keyList.toArray()}">
-				<p:column>
-       				<f:facet name="header"><h:outputText value="#{messages.ssh_key_name}:"/></f:facet>
-        			<h:outputText value="#{key.name}"/>
-        		</p:column>
-        		<p:column>
-        			<h:outputText value="#{key.publicKey}" rendered="#{not empty key.publicKey}" />
-        			<h:outputText value="#{messages.ssh_key_type_unknown}" rendered="#{empty key.publicKey}" />
-        		</p:column>
-        		<p:column> 
-					<p:commandLink id="delete" action="#{userSshKeyManagementBean.deleteKey(key.name)}" value="#{messages.delete}" immediate="true" update="@form">
-						<p:confirm header="#{messages.confirm_header}" message="#{messages.confirm}" />
-					</p:commandLink>
-				</p:column>
-        	</p:dataTable>
+		<p:dataGrid var="key" value="#{userSshKeyManagementBean.keyList.toArray()}" styleClass="whitefoot"
+				columns="2" layout="grid" style="margin-bottom: 16px;">
+	        <f:facet name="header">#{messages.ssh_pub_key_list}</f:facet>
+	        <p:panel styleClass="grayback" style="margin-bottom: 0px;">
+	        	<f:facet name="header">
+	        		<i class="fa fa-fw fa-key"></i>
+	        		<b><h:outputText value="#{key.pubKeyEntity.name}"/></b>
+				</f:facet>
+				
+	        	<h:panelGrid columns="2">
+
+	        		<h:outputText for="@next" value="#{messages.expires}:" style="font-weight: bold;"/>
+	        		<p:outputPanel>
+		        		<h:outputText value="#{of:formatDate(key.pubKeyEntity.expiresAt, 'dd.MM.yyyy HH:mm')}"
+		        			rendered="#{not empty key.pubKeyEntity.expiresAt}" style="font-weight: bold;"/>
+		        		<h:outputText value="#{messages.never}"
+		        			rendered="#{empty key.pubKeyEntity.expiresAt}" style="font-weight: bold;"/>
+	        		</p:outputPanel>
+
+	        		<p:outputLabel for="@next" value="#{messages.ssh_key_type}:"/>
+	        		<h:outputText value="#{key.pubKeyEntity.keyType}"/>
+	        		
+	        		<p:outputLabel for="@next" value="#{messages.fingerprint} (SHA256):"/>
+	        		<h:panelGroup>
+		        		<h:outputText value="#{key.fingerprint}" rendered="#{not empty key.fingerprint}"/>
+		        		<h:outputText value="#{messages.unknown}" rendered="#{empty key.fingerprint}"/>
+	        		</h:panelGroup>
+	        		
+	        		<h:outputText for="@next" value="#{messages.services}:"/>
+					<p:repeat var="reg" value="#{key.pubKeyEntity.sshPubKeyRegistries}">
+	        			<div>
+		        			<h:outputText value="#{reg.registry.service.name}"/> 
+		        			<h:panelGroup id="interactiveId" rendered="#{reg.usageType == 'INTERACTIVE'}"><i class="fa fa-fw fa-user"></i></h:panelGroup>
+		        			<p:tooltip for="interactiveId" value="#{messages.ssh_pub_key_interactiv}" position="top"/>
+		        			<h:panelGroup id="commandId" rendered="#{reg.usageType == 'COMMAND'}"><i class="fa fa-fw fa-database"></i></h:panelGroup>
+		        			<p:tooltip for="commandId" value="#{messages.ssh_pub_key_command}" position="top"/>
+	        			</div>
+					</p:repeat>
+	        		
+	        	</h:panelGrid>
+
+				<p:commandButton action="#{userSshKeyManagementBean.deleteKey(key.pubKeyEntity.name)}" value="#{messages.revoke}" 
+					update="@form" immediate="true">
+					<p:confirm header="#{messages.confirm_header}" message="#{messages.ssh_key_confirm}" />
+				</p:commandButton>
+
+			</p:panel>		
+		</p:dataGrid>
+
+		<p:panel>
+			<p:commandButton id="openAddSshKeyDlg" oncomplete="PF('addSshKeyDlg').show();" value="#{messages.add_ssh_pub_key}"></p:commandButton>
+		</p:panel>
+
+		<p:dialog header="#{messages.add_ssh_pub_key}" 
+					widgetVar="addSshKeyDlg" id="addSshKeyDlgId" modal="true" closable="true" closeOnEscape="true"
+					showEffect="fade" hideEffect="fade">
+			<p:ajax event="close" update="@form" />
+
+			<div class="panel" style="width:360px;">
+			    <h:outputText value="#{messages.add_ssh_pub_key_desc}" escape="false" />
+		    </div>
 
 			<p:panelGrid id="baseData" columns="2">
 		        <bw:inputText id="sshKeyName" label="#{messages.ssh_key_name}:" 
 			        	value="#{userSshKeyManagementBean.newName}" required="true"/>			
 
-		        <h:outputText value="#{messages.ssh_key}:"/>
-		        <p:inputTextarea value="#{userSshKeyManagementBean.newKey}" style="width: 400px; height: 100px;" 
-		        	autoResize="false" />
+		        <h:outputText for="@next" value="#{messages.ssh_key}:"/>
+		        <p:outputPanel>
+			        <p:inputTextarea id="keyInputArea" value="#{userSshKeyManagementBean.newKey}" 
+			        	style="width: 400px; height: 100px;" autoResize="false" maxlength="8128">
+			        	<f:validator validatorId="edu.kit.SshKeyValidator"/>
+			        	<p:ajax update="keyInputMessage" event="keyup" />
+			        </p:inputTextarea>
+			        <p:message id="keyInputMessage" for="keyInputArea" />
+		        </p:outputPanel>
 			</p:panelGrid>
-			<p:commandButton id="add" action="#{userSshKeyManagementBean.deployKey()}" value="#{messages.add}" update="@form" />
-			<p:ajaxStatus id="ajaxStatusPanel" style="display: inline-block; margin-left: 8px; vertical-align: baseline;">
-				<f:facet name="start">  
-					<h:graphicImage value="#{resource['/img/ajax-loader.gif']}" alt="#{messages.loading}"/>
-				</f:facet>  
-				<f:facet name="complete">  
-					<h:outputText value="" />
-				</f:facet>  				
-			</p:ajaxStatus>  
-		</p:panel>
 
-	    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+			<p:commandButton id="add" action="#{userSshKeyManagementBean.deployKey()}" value="#{messages.add}" update="@form" />
+
+		</p:dialog>
+
+	    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" closable="false" closeOnEscape="true">
 	        <p:commandButton value="#{messages.yes}" type="button" styleClass="ui-confirmdialog-yes" />
 	        <p:commandButton value="#{messages.no}" type="button" styleClass="ui-confirmdialog-no" />
 	    </p:confirmDialog>    

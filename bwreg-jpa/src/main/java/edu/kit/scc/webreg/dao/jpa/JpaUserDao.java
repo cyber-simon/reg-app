@@ -25,6 +25,7 @@ import javax.persistence.criteria.Root;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserEntity_;
 import edu.kit.scc.webreg.entity.UserStatus;
 
 @Named
@@ -43,15 +44,19 @@ public class JpaUserDao extends JpaBaseDao<UserEntity, Long> implements UserDao,
     @Override
     @SuppressWarnings({"unchecked"})
 	public List<UserEntity> findOrderByUpdatedWithLimit(Date date, Integer limit) {
-		return em.createQuery("select e from UserEntity e where lastUpdate < :date and lastFailedUpdate is null order by lastUpdate asc")
-				.setParameter("date", date).setMaxResults(limit).getResultList();
+		return em.createQuery("select e from UserEntity e where e.userStatus != :status and e.lastUpdate < :date and e.lastFailedUpdate is null order by e.lastUpdate asc")
+				.setParameter("date", date)
+				.setParameter("status", UserStatus.DEREGISTERED)
+				.setMaxResults(limit).getResultList();
 	}
 
     @Override
     @SuppressWarnings({"unchecked"})
 	public List<UserEntity> findOrderByFailedUpdateWithLimit(Date date, Integer limit) {
-		return em.createQuery("select e from UserEntity e where lastFailedUpdate < :date order by lastFailedUpdate asc")
-				.setParameter("date", date).setMaxResults(limit).getResultList();
+		return em.createQuery("select e from UserEntity e where e.userStatus != :status and e.lastFailedUpdate < :date order by e.lastFailedUpdate asc")
+				.setParameter("date", date)
+				.setParameter("status", UserStatus.DEREGISTERED)
+				.setMaxResults(limit).getResultList();
 	}
 
     @Override
@@ -79,7 +84,23 @@ public class JpaUserDao extends JpaBaseDao<UserEntity, Long> implements UserDao,
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<UserEntity> criteria = builder.createQuery(UserEntity.class);
 		Root<UserEntity> user = criteria.from(UserEntity.class);
-		criteria.where(builder.equal(user.get("eppn"), eppn));
+		criteria.where(builder.equal(user.get(UserEntity_.eppn), eppn));
+		criteria.select(user);
+		
+		try {
+			return em.createQuery(criteria).getSingleResult();
+		}
+		catch (NoResultException e) {
+			return null;
+		}
+	}	
+
+	@Override
+	public UserEntity findByUidNumber(Long uidNumber) {
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<UserEntity> criteria = builder.createQuery(UserEntity.class);
+		Root<UserEntity> user = criteria.from(UserEntity.class);
+		criteria.where(builder.equal(user.get(UserEntity_.uidNumber), uidNumber));
 		criteria.select(user);
 		
 		try {
