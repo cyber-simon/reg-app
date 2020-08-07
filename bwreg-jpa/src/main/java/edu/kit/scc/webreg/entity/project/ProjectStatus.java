@@ -8,13 +8,12 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.dao.identity;
+package edu.kit.scc.webreg.entity.project;
 
-import edu.kit.scc.webreg.dao.BaseDao;
-import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+public enum ProjectStatus {
 
-public interface IdentityDao extends BaseDao<IdentityEntity, Long> {
-
-	IdentityEntity findByUserId(Long userId);
-
+	ACTIVE,
+	PENDING,
+	DELETED,
+	
 }

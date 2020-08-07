@@ -12,7 +12,5 @@ package edu.kit.scc.webreg.entity.project;
 
 public enum ProjectServiceType {
 
-	ADMIN,
-	READ_WRITE,
-	READ_ONLY
+	AUTO_REGISTER,
 }

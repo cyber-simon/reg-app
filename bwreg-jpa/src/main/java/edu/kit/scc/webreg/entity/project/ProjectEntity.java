@@ -12,6 +12,8 @@ package edu.kit.scc.webreg.entity.project;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -48,6 +50,12 @@ public class ProjectEntity extends AbstractBaseEntity {
 	
 	@Column(name = "short_description", length = 2048)
 	private String shortDescription;
+
+	@Column(name = "sub_projects_allowed")
+	private Boolean subProjectsAllowed;
+	
+	@Enumerated(EnumType.STRING)
+	private ProjectStatus projectStatus;	
 
 	public String getName() {
 		return name;
@@ -95,5 +103,21 @@ public class ProjectEntity extends AbstractBaseEntity {
 
 	public void setShortDescription(String shortDescription) {
 		this.shortDescription = shortDescription;
+	}
+
+	public Boolean getSubProjectsAllowed() {
+		return subProjectsAllowed;
+	}
+
+	public void setSubProjectsAllowed(Boolean subProjectsAllowed) {
+		this.subProjectsAllowed = subProjectsAllowed;
+	}
+
+	public ProjectStatus getProjectStatus() {
+		return projectStatus;
+	}
+
+	public void setProjectStatus(ProjectStatus projectStatus) {
+		this.projectStatus = projectStatus;
 	}
 }

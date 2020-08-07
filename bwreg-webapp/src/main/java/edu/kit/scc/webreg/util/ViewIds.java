@@ -41,7 +41,7 @@ public class ViewIds {
 	/*
 	 * Projects
 	 */
-	public static final String PROJECT_ADMIN_INDEX = "/service-project-admin/index.xhtml";	
+	public static final String PROJECT_INDEX = "/project/index.xhtml";	
 	
 	/*
 	 * Services

@@ -18,7 +18,10 @@ import javax.inject.Named;
 import edu.kit.scc.webreg.dao.jpa.JpaBaseDao;
 import edu.kit.scc.webreg.dao.project.ProjectDao;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
+import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
 import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
 import edu.kit.scc.webreg.entity.project.ProjectServiceType;
 
@@ -31,6 +34,23 @@ public class JpaProjectDao extends JpaBaseDao<ProjectEntity, Long> implements Pr
 	public List<ProjectEntity> findByService(ServiceEntity service) {
 		return em.createQuery("select r.project from ProjectServiceEntity r where r.service = :service order by r.project.name")
 			.setParameter("service", service).getResultList();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ProjectEntity> findAdminByIdentity(IdentityEntity identity) {
+		return em.createQuery("select r.project from ProjectIdentityAdminEntity r where r.identity = :identity order by r.project.name")
+				.setParameter("identity", identity).getResultList();
+	}
+	
+	@Override
+	public ProjectIdentityAdminEntity addAdminToProject(ProjectEntity project, IdentityEntity identity, ProjectAdminType type) {
+		ProjectIdentityAdminEntity entity = new ProjectIdentityAdminEntity();
+		entity.setProject(project);
+		entity.setIdentity(identity);
+		entity.setType(type);
+		em.persist(entity);
+		return entity;
 	}
 
 	@Override

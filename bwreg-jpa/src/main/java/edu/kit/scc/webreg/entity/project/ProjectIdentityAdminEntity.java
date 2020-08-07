@@ -20,18 +20,17 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 
-@Entity(name = "ProjectMembershipEntity")
-@Table(name = "project_membership")
-public class ProjectMembershipEntity implements Serializable {
+@Entity(name = "ProjectIdentityAdminEntity")
+@Table(name = "project_admin_identity")
+public class ProjectIdentityAdminEntity implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
     @Id
-	@ManyToOne(targetEntity = UserEntity.class)
-    @JoinColumn(name = "user_id", nullable = false)
+	@ManyToOne(targetEntity = IdentityEntity.class)
+    @JoinColumn(name = "identity_id", nullable = false)
 	private IdentityEntity identity;
 	
     @Id
@@ -40,7 +39,7 @@ public class ProjectMembershipEntity implements Serializable {
 	private ProjectEntity project;
 
 	@Enumerated(EnumType.STRING)
-	private ProjectMembershipType membershipType;	
+	private ProjectAdminType type;	
 
 	public ProjectEntity getProject() {
 		return project;
@@ -50,12 +49,20 @@ public class ProjectMembershipEntity implements Serializable {
 		this.project = project;
 	}
 
-	public ProjectMembershipType getMembershipType() {
-		return membershipType;
+	public IdentityEntity getIdentity() {
+		return identity;
 	}
 
-	public void setMembershipType(ProjectMembershipType membershipType) {
-		this.membershipType = membershipType;
+	public void setIdentity(IdentityEntity identity) {
+		this.identity = identity;
+	}
+
+	public ProjectAdminType getType() {
+		return type;
+	}
+
+	public void setType(ProjectAdminType type) {
+		this.type = type;
 	}
 
 	@Override
@@ -63,8 +70,8 @@ public class ProjectMembershipEntity implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((identity == null) ? 0 : identity.hashCode());
-		result = prime * result + ((membershipType == null) ? 0 : membershipType.hashCode());
 		result = prime * result + ((project == null) ? 0 : project.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
 
@@ -76,19 +83,19 @@ public class ProjectMembershipEntity implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ProjectMembershipEntity other = (ProjectMembershipEntity) obj;
+		ProjectIdentityAdminEntity other = (ProjectIdentityAdminEntity) obj;
 		if (identity == null) {
 			if (other.identity != null)
 				return false;
 		} else if (!identity.equals(other.identity))
-			return false;
-		if (membershipType != other.membershipType)
 			return false;
 		if (project == null) {
 			if (other.project != null)
 				return false;
 		} else if (!project.equals(other.project))
 			return false;
+		if (type != other.type)
+			return false;
 		return true;
-	}	
+	}
 }

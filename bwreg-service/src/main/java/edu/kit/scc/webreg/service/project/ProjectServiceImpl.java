@@ -16,10 +16,12 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import edu.kit.scc.webreg.dao.BaseDao;
+import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.dao.project.ProjectDao;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
-import edu.kit.scc.webreg.entity.project.ProjectServiceType;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
 
 @Stateless
@@ -28,19 +30,28 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity, Long> imp
 	private static final long serialVersionUID = 1L;
 
 	@Inject
+	private IdentityDao identityDao;
+	
+	@Inject
 	private ProjectDao dao;
 	
 	@Override
 	public List<ProjectEntity> findByService(ServiceEntity service) {
 		return dao.findByService(service);
 	}
-	
+
+	@Override
+	public List<ProjectEntity> findAdminByUserId(Long userId) {
+		IdentityEntity identity = identityDao.findByUserId(userId);
+		return dao.findAdminByIdentity(identity);
+	}
+
 	@Override 
-	public ProjectEntity save(ProjectEntity project, ServiceEntity... services) {
+	public ProjectEntity save(ProjectEntity project, Long userId) {
+		IdentityEntity identity = identityDao.findByUserId(userId);
+		
 		project = dao.persist(project);
-		for (ServiceEntity service : services) {
-			dao.addServiceToProject(project, service, ProjectServiceType.ADMIN);
-		}
+		dao.addAdminToProject(project, identity, ProjectAdminType.OWNER);
 		return project;
 	}
 		

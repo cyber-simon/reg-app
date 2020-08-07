@@ -13,7 +13,6 @@
 <body>
 <f:view>
 	<f:metadata>
-		<f:viewParam name="serviceId" value="#{projectAdminListProjectBean.serviceId}"/>
 		<f:event type="javax.faces.event.PreRenderViewEvent"
             listener="#{projectAdminListProjectBean.preRenderView}" />
 	</f:metadata>
@@ -24,7 +23,7 @@
 	<ui:define name="content">
 	<h:form id="form">
 
-		<h2><h:outputText value="#{messages.projects}: #{projectAdminListProjectBean.serviceEntity.name}"/></h2>
+		<h2><h:outputText value="#{messages.my_projects}"/></h2>
 
 		<p:dataTable id="dataTable" var="project" value="#{projectAdminListProjectBean.projectList}" paginator="true" rows="15">
 			<p:column>
@@ -45,14 +44,11 @@
 				</f:facet>
 				<h:link outcome="show-project.xhtml" value="#{project.name}">
 		      		<f:param name="projectId" value="#{project.id}"/>
-      				<f:param name="serviceId" value="#{projectAdminListProjectBean.serviceEntity.id}"/>
 				</h:link>
 			</p:column>			
 		</p:dataTable>
 		
-		<h:link outcome="add-project.xhtml" value="#{messages.add_project}">
-      		<f:param name="serviceId" value="#{projectAdminListProjectBean.serviceId}"/>
-    	</h:link>
+		<h:link outcome="add-project.xhtml" value="#{messages.add_project}" />
 
 	</h:form>
 	</ui:define>

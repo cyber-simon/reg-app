@@ -20,6 +20,8 @@ public interface ProjectService extends BaseService<ProjectEntity, Long> {
 
 	List<ProjectEntity> findByService(ServiceEntity service);
 
-	ProjectEntity save(ProjectEntity project, ServiceEntity... services);
+	ProjectEntity save(ProjectEntity project, Long userId);
+
+	List<ProjectEntity> findAdminByUserId(Long userId);
 
 }

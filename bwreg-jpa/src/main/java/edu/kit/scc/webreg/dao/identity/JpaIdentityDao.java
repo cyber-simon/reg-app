@@ -11,15 +11,30 @@
 package edu.kit.scc.webreg.dao.identity;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.inject.Named;
 
+import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.jpa.JpaBaseDao;
+import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 
 @Named
 @ApplicationScoped
 public class JpaIdentityDao extends JpaBaseDao<IdentityEntity, Long> implements IdentityDao {
 
+	@Inject
+	private UserDao userDao;
+	
+	@Override
+	public IdentityEntity findByUserId(Long userId) {
+		UserEntity user = userDao.findById(userId);
+		if (user == null)
+			return null;
+		else
+			return user.getIdentity();
+	}
+	
 	@Override
 	public Class<IdentityEntity> getEntityClass() {
 		return IdentityEntity.class;
