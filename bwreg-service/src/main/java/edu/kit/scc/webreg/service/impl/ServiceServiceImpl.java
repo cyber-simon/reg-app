@@ -95,11 +95,6 @@ public class ServiceServiceImpl extends BaseServiceImpl<ServiceEntity, Long> imp
 	}
 
 	@Override
-	public List<ServiceEntity> findByProjectAdminRole(RoleEntity role) {
-		return dao.findByProjectAdminRole(role);
-	}
-
-	@Override
 	public List<ServiceEntity> findAllWithPolicies() {
 		return dao.findAllWithPolicies();
 	}

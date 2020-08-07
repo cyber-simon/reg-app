@@ -56,7 +56,6 @@ public class SessionManager implements Serializable {
 	private List<ServiceEntity> serviceAdminList;
 	private List<ServiceEntity> serviceHotlineList;
 	private List<ServiceEntity> serviceGroupAdminList;
-	private List<ServiceEntity> serviceProjectAdminList;
 
 	private List<ServiceEntity> unregisteredServiceList;
 	private Long unregisteredServiceCreated;
@@ -79,7 +78,6 @@ public class SessionManager implements Serializable {
 		serviceAdminList = new ArrayList<ServiceEntity>();
 		serviceHotlineList = new ArrayList<ServiceEntity>();
 		serviceGroupAdminList = new ArrayList<ServiceEntity>();
-		serviceProjectAdminList = new ArrayList<ServiceEntity>();
 		groups = new HashSet<GroupEntity>();
 		groupNames = new HashSet<String>();
 		roles = new HashSet<RoleEntity>();
@@ -268,10 +266,6 @@ public class SessionManager implements Serializable {
 		this.authnRequestIdpConfigId = authnRequestIdpConfigId;
 	}
 
-	public List<ServiceEntity> getServiceProjectAdminList() {
-		return serviceProjectAdminList;
-	}
-	
 	public List<ServiceEntity> getServiceSshPubKeyApproverList() {
 		return serviceSshPubKeyApproverList;
 	}

@@ -39,7 +39,6 @@ import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.SshPubKeyApproverRoleEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.entity.project.ProjectAdminRoleEntity;
 import edu.kit.scc.webreg.service.GroupService;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.RoleService;
@@ -161,10 +160,6 @@ public class AuthorizationBean implements Serializable {
 	    		else if (role instanceof GroupAdminRoleEntity) {
 	    			for (ServiceEntity s : serviceService.findByGroupAdminRole(role))
 	    				sessionManager.getServiceGroupAdminList().add(s);
-	    		}
-	    		else if (role instanceof ProjectAdminRoleEntity) {
-	    			for (ServiceEntity s : serviceService.findByProjectAdminRole(role))
-	    				sessionManager.getServiceProjectAdminList().add(s);
 	    		}
 	    	}
 	    	end = System.currentTimeMillis();
@@ -337,12 +332,6 @@ public class AuthorizationBean implements Serializable {
     	return sessionManager.getServiceGroupAdminList().contains(id);
     }
 
-    public boolean isUserServiceProjectAdmin(ServiceEntity id) {
-    	if (id == null)
-    		return false;
-    	return sessionManager.getServiceProjectAdminList().contains(id);
-    }
-
     public List<RegistryEntity> getUserRegistryList() {
     	if (userRegistryList == null) init();
    		return userRegistryList;
@@ -366,10 +355,6 @@ public class AuthorizationBean implements Serializable {
 
 	public List<ServiceEntity> getServiceGroupAdminList() {
 		return sessionManager.getServiceGroupAdminList();
-	}
-
-	public List<ServiceEntity> getServiceProjectAdminList() {
-		return sessionManager.getServiceProjectAdminList();
 	}
 
 	public boolean isPasswordCapable(ServiceEntity serviceEntity) {

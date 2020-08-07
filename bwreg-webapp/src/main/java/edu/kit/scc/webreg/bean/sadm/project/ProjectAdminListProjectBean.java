@@ -51,8 +51,6 @@ public class ProjectAdminListProjectBean implements Serializable {
 			serviceEntity = serviceService.findById(serviceId);
 		}
 	
-		if (! authBean.isUserServiceProjectAdmin(serviceEntity))
-			throw new NotAuthorizedException("Nicht autorisiert");
 	}
 
 	public List<ProjectEntity> getProjectList() {
