@@ -16,9 +16,9 @@
 	  <ul class="navigation-l1">
 		<h:panelGroup rendered="#{sessionManager.isLoggedIn()}">
    			<li class="flyout"><a href="#{request.contextPath}/index.xhtml">#{messages.index}</a>
-		    	<ui:repeat var="registry" value="#{authorizationBean.userRegistryList}">
 	    	    		<div class="dropdown">
 							<ul class="navigation-l2">
+		    	<ui:repeat var="registry" value="#{authorizationBean.userRegistryList}">
 								<li class="has-submenu">
 									<h:link outcome="/service/index.xhtml" value="#{registry.service.name}">
     	    			    			<f:param name="serviceId" value="#{registry.service.id}" />
@@ -33,9 +33,9 @@
 				    	    			</ul>
 				    	    		</div>
 								</li>
+		    	</ui:repeat>
 	    	    			</ul>
 	    	    		</div>
-		    	</ui:repeat>
    	    	</li>
 			<li class=""><a href="https://www.scc.kit.edu/" target="_blank">Das SCC</a></li>
 			<li class=""><a href="https://www.scc.kit.edu/stellen/index.php" target="_blank">Stellenangebote</a></li>

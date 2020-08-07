@@ -23,45 +23,46 @@
 
 	<ui:define name="content">
 
-	<h:form id="form" prependId="false">
-		<p:panel header="#{messages.welcome}">
-			<div style="margin-top: 4px;"><h:outputText value="#{messages.welcome_disco}"/></div>
-			<div><p:messages showDetail="true" /></div>
-
-			<p:focus conext="baseData" for="filterText" />
-
-			<h:panelGrid id="baseData" columns="2" style="margin-top: 8px;">	
+	<div>
+		<h:form id="form" prependId="false">
+			<p:panel header="#{messages.welcome}" styleClass="full">
+				<div style="margin-top: 4px;"><h:outputText value="#{messages.welcome_disco}"/></div>
+				<div><p:messages showDetail="true" /></div>
 	
-				<p:outputLabel value="#{messages.federation}:" for="selectFed" />
-		        <p:selectOneMenu id="selectFed" value="#{discoveryLoginBean.selectedFederation}"
-		        	converter="#{federationConverter}" >
-		        	<f:selectItem itemLabel="#{messages.all}" itemValue="#{null}"/>
-	            	<f:selectItems value="#{discoveryLoginBean.federationList}" 
-	            		var="federation" itemLabel="#{federation.name} (id #{federation.id})" itemValue="#{federation}"/>
-	            	<f:ajax execute="@this" render="idpBox" event="change" />
-	            </p:selectOneMenu>
+				<p:focus conext="baseData" for="filterText" />
 	
-				<p:outputLabel value="#{messages.search_filter}:" for="filterText" />
-				<p:inputText value="#{discoveryLoginBean.filter}" id="filterText" >
-					<f:ajax event="keyup" execute="@this" render="idpBox" />
-				</p:inputText>
-				
-				<p:outputLabel value="#{messages.home_org}:" for="idpBox" />
-				<p:selectOneListbox id="idpBox" value="#{discoveryLoginBean.selectedIdp}" scrollHeight="360" style="width:300px;"
-						converter="#{samlIdpMetadataConverter}">
-	            	<f:selectItems value="#{discoveryLoginBean.idpList}" 
-	            		var="idp" itemLabel="#{idp.displayName == null ? idp.orgName : idp.displayName}" itemValue="#{idp}"/>
-					<p:ajax event="dblclick" listener="#{discoveryLoginBean.login}" update=":form" />	            		
-				</p:selectOneListbox>
-				
-			</h:panelGrid>
+				<h:panelGrid id="baseData" columns="2" style="margin-top: 8px;">	
+		
+					<p:outputLabel value="#{messages.federation}:" for="selectFed" />
+			        <p:selectOneMenu id="selectFed" value="#{discoveryLoginBean.selectedFederation}"
+			        	converter="#{federationConverter}" >
+			        	<f:selectItem itemLabel="#{messages.all}" itemValue="#{null}"/>
+		            	<f:selectItems value="#{discoveryLoginBean.federationList}" 
+		            		var="federation" itemLabel="#{federation.name} (id #{federation.id})" itemValue="#{federation}"/>
+		            	<f:ajax execute="@this" render="idpBox" event="change" />
+		            </p:selectOneMenu>
+		
+					<p:outputLabel value="#{messages.search_filter}:" for="filterText" />
+					<p:inputText value="#{discoveryLoginBean.filter}" id="filterText" >
+						<f:ajax event="keyup" execute="@this" render="idpBox" />
+					</p:inputText>
+					
+					<p:outputLabel value="#{messages.home_org}:" for="idpBox" />
+					<p:selectOneListbox id="idpBox" value="#{discoveryLoginBean.selectedIdp}" scrollHeight="360" style="width:300px;"
+							converter="#{samlIdpMetadataConverter}">
+		            	<f:selectItems value="#{discoveryLoginBean.idpList}" 
+		            		var="idp" itemLabel="#{idp.displayName == null ? idp.orgName : idp.displayName}" itemValue="#{idp}"/>
+						<p:ajax event="dblclick" listener="#{discoveryLoginBean.login}" update=":form" />	            		
+					</p:selectOneListbox>
+					
+				</h:panelGrid>
+		
+				<p:commandButton id="login" action="#{discoveryLoginBean.login}" value="#{messages.proceed}"
+					update=":form" />
+			</p:panel>
 	
-			<p:commandButton id="login" action="#{discoveryLoginBean.login}" value="#{messages.proceed}"
-				update=":form" />
-		</p:panel>
-
-	</h:form>
-	
+		</h:form>
+	</div>
 	</ui:define>
 </ui:composition>
 </body>

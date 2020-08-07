@@ -17,7 +17,7 @@
 
 	<ui:define name="content">
 
-	<div class="panel">
+	<div>
 		<p:panel header="#{messages.index_motd_header}" rendered="#{messages.index_motd_header != '???index_motd_header???'}"
 				style="margin-bottom: 8px;">
 			<div class="panel">
@@ -25,7 +25,7 @@
 			</div>
 		</p:panel>
 		<p:panel>
-			<div style="margin-top: 4px;">
+			<div>
 				<h:outputText value="#{messages.index_text1}" />
 			</div>
 			<h:panelGroup rendered="#{not empty userIndexBean.userRegistryList}">
