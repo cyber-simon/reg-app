@@ -25,79 +25,73 @@
 
 	<ui:define name="content">
 	<h:form id="form">
+	<div class="full">
 
-		<div class="panel"> 
-			<p:panel header="#{messages.registry_details}: #{registryDetailBean.entity.service.name}">
-				<p:panelGrid id="baseData" columns="2">
+		<p:panel header="#{messages.registry_details}: #{registryDetailBean.entity.service.name}">
+			<p:panelGrid id="baseData" columns="2">
+		
+		        <h:outputText value="#{messages.registered_time}:"/>
+		        <h:outputText value="#{of:formatDate(registryDetailBean.entity.agreedTime, 'dd.MM.yyyy HH:mm')}"/>
+
+		        <h:outputText value="#{messages.status}:"/>
+		        <h:outputText value="#{registryDetailBean.entity.registryStatus}"/>
+					
+			</p:panelGrid>
+			<p:dataTable id="attrData" style="min-width: 500px;" 
+					value="#{registryDetailBean.entity.registryValues.keySet().toArray()}" var="key">
+				<p:column>
+					<f:facet name="header">
+						<h:outputText value="#{messages.name}" />
+					</f:facet>
+					<h:outputText value="#{key}" />
+				</p:column>
+				<p:column>
+					<f:facet name="header">
+						<h:outputText value="#{messages.value}" />
+					</f:facet>
+					<h:outputText value="#{registryDetailBean.entity.registryValues.get(key)}" 
+						rendered="#{key != 'userPassword'}"/>
+					<h:outputText value="set" 
+						rendered="#{key == 'userPassword'}"/>
+				</p:column>						
+			</p:dataTable>
 			
-			        <h:outputText value="#{messages.registered_time}:"/>
-			        <h:outputText value="#{of:formatDate(registryDetailBean.entity.agreedTime, 'dd.MM.yyyy HH:mm')}"/>
-
-			        <h:outputText value="#{messages.status}:"/>
-			        <h:outputText value="#{registryDetailBean.entity.registryStatus}"/>
-						
-				</p:panelGrid>
-				<p:dataTable id="attrData" style="min-width: 500px;" 
-						value="#{registryDetailBean.entity.registryValues.keySet().toArray()}" var="key">
-					<p:column>
-						<f:facet name="header">
-							<h:outputText value="#{messages.name}" />
-						</f:facet>
-						<h:outputText value="#{key}" />
-					</p:column>
-					<p:column>
-						<f:facet name="header">
-							<h:outputText value="#{messages.value}" />
-						</f:facet>
-						<h:outputText value="#{registryDetailBean.entity.registryValues.get(key)}" 
-							rendered="#{key != 'userPassword'}"/>
-						<h:outputText value="set" 
-							rendered="#{key == 'userPassword'}"/>
-					</p:column>						
-				</p:dataTable>
-				
-			</p:panel>
-		</div>
+		</p:panel>
 	
-		<h:panelGroup rendered="#{not empty registryDetailBean.infotainment}">
-			<div class="panel"> 
-				<p:panel header="#{messages.more_properties}: #{registryDetailBean.entity.service.name}">
-					<div>
-						<h:outputText value="#{registryDetailBean.infotainment.message}" />
-					</div>
-					<p:treeTable rendered="#{not empty registryDetailBean.infotainmentRoot}"
-								value="#{registryDetailBean.infotainmentRoot}" var="node">
-								
-						<p:column>  
-            				<f:facet name="header">Name</f:facet>  
-            				<h:outputText value="#{node.nodeName}" />  
-        				</p:column>  
-  					
-						<p:column>  
-            				<f:facet name="header">Message</f:facet>  
-            				<h:outputText value="#{node.message}" />  
-        				</p:column>  
-  					
-					</p:treeTable>
-				</p:panel>
-			</div>			
-		</h:panelGroup>
-	
-		<h:panelGroup rendered="#{registryDetailBean.entity.registryStatus == 'ACTIVE'}">
-			<div class="panel"> 
-				<p:panel header="#{messages.deregister}: #{registryDetailBean.entity.service.name}">
-					<div>
-						<h:outputText value="#{messages.deregister_desc}" />
-					</div>
-					<div>
-						<h:link outcome="/user/deregister-service.xhtml" value="#{messages.deregister}">
-							<f:param name="regId" value="#{registryDetailBean.entity.id}" />
-						</h:link>
-					</div>
-				</p:panel>
+		<p:panel header="#{messages.more_properties}: #{registryDetailBean.entity.service.name}"
+				rendered="#{not empty registryDetailBean.infotainment}">
+			<div>
+				<h:outputText value="#{registryDetailBean.infotainment.message}" />
 			</div>
-		</h:panelGroup>
+			<p:treeTable rendered="#{not empty registryDetailBean.infotainmentRoot}"
+						value="#{registryDetailBean.infotainmentRoot}" var="node">
+						
+				<p:column>  
+          				<f:facet name="header">Name</f:facet>  
+          				<h:outputText value="#{node.nodeName}" />  
+      				</p:column>  
+					
+				<p:column>  
+          				<f:facet name="header">Message</f:facet>  
+          				<h:outputText value="#{node.message}" />  
+      				</p:column>  
+					
+			</p:treeTable>
+		</p:panel>
 	
+		<p:panel header="#{messages.deregister}: #{registryDetailBean.entity.service.name}"
+				rendered="#{registryDetailBean.entity.registryStatus == 'ACTIVE'}">
+			<div>
+				<h:outputText value="#{messages.deregister_desc}" />
+			</div>
+			<div>
+				<h:link outcome="/user/deregister-service.xhtml" value="#{messages.deregister}">
+					<f:param name="regId" value="#{registryDetailBean.entity.id}" />
+				</h:link>
+			</div>
+		</p:panel>
+	
+	</div>
 	</h:form>
 	</ui:define>
 </ui:composition>
