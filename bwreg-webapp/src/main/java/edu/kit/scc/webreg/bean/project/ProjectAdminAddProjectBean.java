@@ -8,7 +8,7 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.bean.sadm.project;
+package edu.kit.scc.webreg.bean.project;
 
 import java.io.Serializable;
 
