@@ -22,6 +22,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaBuilder.In;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Order;
@@ -141,6 +142,24 @@ public abstract class JpaBaseDao<T extends BaseEntity<PK>, PK extends Serializab
 	@Override
 	public boolean isPersisted(T entity) {
 		return em.contains(entity);
+	}
+	
+	@Override
+	public List<T> findByMultipleId(List<PK> ids) {
+		if (ids.size() == 0)
+			return new ArrayList<T>();
+		
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<T> criteria = builder.createQuery(getEntityClass());
+		Root<T> entity = criteria.from(getEntityClass());
+		In<Object> inClause = builder.in(entity.get("id"));
+		for (Object id : ids) {
+			inClause.value(id);
+		}
+		criteria.where(inClause);
+		criteria.select(entity);
+		
+		return em.createQuery(criteria).getResultList();		
 	}
 	
 	@Override

@@ -16,6 +16,7 @@ import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.TokenEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpConnection;
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpGetBackupTanListResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpInitAuthenticatorTokenResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpSetFieldResult;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpShowUserResponse;
@@ -185,6 +186,58 @@ public class TwoFaServiceImpl implements TwoFaService {
 			eventSubmitter.submit(event, EventType.TWOFA_CREATED, executor);
 		} catch (EventSubmitException e) {
 			logger.warn("Could not submit event", e);
+		}
+
+		return response;
+	}
+
+	@Override
+	public LinotpInitAuthenticatorTokenResponse createBackupTanList(Long userId, String executor) throws TwoFaException {
+		UserEntity user = userDao.findById(userId);
+		
+		Map<String, String> configMap = configResolver.resolveConfig(user);
+
+		LinotpConnection linotpConnection = new LinotpConnection(configMap);
+		linotpConnection.requestAdminSession();
+		
+		LinotpInitAuthenticatorTokenResponse response = linotpConnection.createBackupTanList(user);
+		
+		if (response == null) {
+			throw new TwoFaException("Token generation did not succeed!");
+		}
+
+		HashMap<String, Object> eventMap = new HashMap<String, Object>();
+		eventMap.put("user", user);
+		eventMap.put("respone", response);
+		if (response.getDetail() != null)
+			eventMap.put("serial", response.getDetail().getSerial());
+		TokenEvent event = new TokenEvent(eventMap);
+		try {
+			eventSubmitter.submit(event, EventType.TWOFA_CREATED, executor);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}
+
+		return response;
+	}
+
+	@Override
+	public LinotpGetBackupTanListResponse getBackupTanList(Long userId, String serial, String executor) throws TwoFaException {
+		UserEntity user = userDao.findById(userId);
+		
+		Map<String, String> configMap = configResolver.resolveConfig(user);
+
+		LinotpConnection linotpConnection = new LinotpConnection(configMap);
+		linotpConnection.requestAdminSession();
+		
+		int count = 5;
+		if (configMap.containsKey("backup_count")) {
+			count = Integer.parseInt(configMap.get("backup_count"));
+		}
+		LinotpGetBackupTanListResponse response = linotpConnection.getBackupTanList(serial, count);
+		
+		if (response == null) {
+			throw new TwoFaException("Could not get backup tan list!");
 		}
 
 		return response;

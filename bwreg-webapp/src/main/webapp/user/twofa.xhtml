@@ -89,7 +89,7 @@
 							<h:panelGroup>
 								<h:outputText value="#{messages.twofa_tokentype_totp}" rendered="#{token.tokenType == 'TOTP' and token.serial.startsWith('TOTP')}"/>
 								<h:outputText value="#{messages.twofa_tokentype_totp_hardware}" rendered="#{token.tokenType == 'TOTP' and not token.serial.startsWith('TOTP')}"/>
-								<h:outputText value="#{messages.twofa_tokentype_tanlist}" rendered="#{token.tokenType == 'HOTP'}"/>
+								<h:outputText value="#{messages.twofa_tokentype_tanlist}" rendered="#{token.tokenType == 'HMAC'}"/>
 								<h:outputText value="#{messages.twofa_tokentype_yubikey}" rendered="#{token.tokenType == 'yubico'}"/>
 							</h:panelGroup>
 		
@@ -107,6 +107,9 @@
 							update="@form" rendered="#{! token.isactive and (token.tokenDesc.contains('DELABLE'))}" style="color:red;">
 							<p:confirm header="#{messages.confirm_header}" message="#{messages.confirm}" />
 						</p:commandButton>
+						<p:commandButton action="#{twoFaUserBean.getBackupTanList(token.serial)}" value="#{messages.token_get_tanlist_values}" 
+							update="@form" rendered="#{token.isactive and token.tokenType == 'HMAC'}"
+							oncomplete="PF('showBackupTanDlg').show();"/>
 					</p:outputPanel>
 				</p:panelGrid>
 			</p:panel>
@@ -119,6 +122,7 @@
 			<p:outputPanel style="margin-bottom: 16px;">
 				<p:commandButton id="openAddTotpDialog" oncomplete="PF('addTotpDlg').show();" value="#{messages.twofa_create_new_totp}"></p:commandButton>
 				<p:commandButton id="openAddYubicoDialog" oncomplete="PF('addYubicoDlg').show();" value="#{messages.twofa_create_new_yubico}"></p:commandButton>
+				<p:commandButton id="openAddBackupTanDialog" oncomplete="PF('addBackupTanDlg').show();" value="#{messages.twofa_create_backup_tan_list}"></p:commandButton>
 			</p:outputPanel>
 			<p:outputPanel rendered="#{not empty twoFaUserBean.returnServiceId}">
 				<p:link href="../user/register-service.xhtml" value="#{messages.twofa_back_to_register}">
@@ -126,7 +130,13 @@
 				</p:link>
 			</p:outputPanel>
 		</p:panel>
-	
+
+		<p:dialog header="#{messages.twofa_backup_tan_list_values}" 
+					widgetVar="showBackupTanDlg" id="showBackupTanId" modal="true" closable="true" closeOnEscape="true"
+					showEffect="fade" hideEffect="fade">
+			<h:outputText value="#{twoFaUserBean.backupTanList.result.value.otp}" />
+		</p:dialog>
+			
 		<p:dialog header="#{messages.twofa_create_totp_token}" 
 					widgetVar="addTotpDlg" id="addTotpDlgId" modal="true" closable="true" closeOnEscape="true"
 					showEffect="fade" hideEffect="fade">
@@ -175,6 +185,21 @@
 				</h:panelGrid>
 			    <p:commandButton id="yubicoStartButton" action="#{twoFaUserBean.createYubicoToken()}" value="#{messages.start}"
 		    		update="yubicoResponsePanel"/>
+			</p:panel>
+
+		</p:dialog>
+		
+		<p:dialog header="#{messages.twofa_create_backup_tan_list}" 
+					widgetVar="addBackupTanDlg" id="addBackupTanDlgId" modal="true" closable="true" closeOnEscape="true"
+					showEffect="fade" hideEffect="fade">
+			<p:ajax event="close" update="@form" />
+			<div class="panel" style="width:360px;">
+			    <h:outputText value="#{messages.twofa_create_backup_tan_list_desc}" escape="false" />
+		    </div>
+		
+			<p:panel id="backupTanResponsePanel">
+			    <p:commandButton id="backupTanStartButton" action="#{twoFaUserBean.createBackupTanList()}" value="#{messages.start}"
+		    		update="backupTanResponsePanel"/>
 			</p:panel>
 
 		</p:dialog>

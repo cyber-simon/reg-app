@@ -34,8 +34,12 @@ public class SessionManager implements Serializable {
 
 	private Long authnRequestId;
 	private Long authnRequestIdpConfigId;
-	
+
+	// userId of first login process used
 	private Long userId;
+	
+	// identityId of the actual user
+	private Long identityId;
 	
 	private Long idpId;
 	
@@ -284,5 +288,13 @@ public class SessionManager implements Serializable {
 
 	public void setLoginTime(Instant loginTime) {
 		this.loginTime = loginTime;
+	}
+
+	public Long getIdentityId() {
+		return identityId;
+	}
+
+	public void setIdentityId(Long identityId) {
+		this.identityId = identityId;
 	}
 }

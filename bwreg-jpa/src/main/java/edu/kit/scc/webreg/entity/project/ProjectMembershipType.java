@@ -12,6 +12,5 @@ package edu.kit.scc.webreg.entity.project;
 
 public enum ProjectMembershipType {
 
-	OWNER,
 	MEMBER
 }

@@ -18,6 +18,7 @@ import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.SshPubKeyRegistryEntity;
+import edu.kit.scc.webreg.entity.SshPubKeyUsageType;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
 import edu.kit.scc.webreg.entity.UserLoginInfoStatus;
@@ -180,6 +181,13 @@ public class SshLoginServiceImpl implements SshLoginService {
 	protected String buildKeyList(List<SshPubKeyRegistryEntity> regKeyList, UserEntity user) {
 		StringBuffer sb = new StringBuffer();
 		for (SshPubKeyRegistryEntity regKey : regKeyList) {
+			if (regKey.getUsageType().equals(SshPubKeyUsageType.COMMAND)) {
+				sb.append("command=\"");
+				sb.append(regKey.getCommand());
+				sb.append("\",from=\"");
+				sb.append(regKey.getFrom());
+				sb.append("\" ");
+			}
 			sb.append(regKey.getSshPubKey().getKeyType());
 			sb.append(" ");
 			sb.append(regKey.getSshPubKey().getEncodedKey());

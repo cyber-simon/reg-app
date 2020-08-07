@@ -76,7 +76,6 @@ public class ApproveUserBean implements Serializable {
 			logger.warn("Could not approve user registry", e);
 			return "";
 		}
-		entity = service.save(entity);
 		
 		return ViewIds.LIST_APPROVALS + "?faces-redirect=true&serviceId=" + entity.getService().getId();
 	}
@@ -93,7 +92,6 @@ public class ApproveUserBean implements Serializable {
 			logger.warn("Could not deny approval for user registry", e);
 			return "";
 		}
-		entity = service.save(entity);
 		
 		return ViewIds.LIST_APPROVALS + "?faces-redirect=true&serviceId=" + entity.getService().getId();
 	}

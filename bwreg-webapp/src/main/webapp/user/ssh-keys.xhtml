@@ -67,9 +67,9 @@
 	        		
 	        	</h:panelGrid>
 
-				<p:commandButton action="#{userSshKeyManagementBean.deleteKey(key.pubKeyEntity.name)}" value="#{messages.delete}" 
-					update="@form">
-					<p:confirm header="#{messages.confirm_header}" message="#{messages.confirm}" />
+				<p:commandButton action="#{userSshKeyManagementBean.deleteKey(key.pubKeyEntity.name)}" value="#{messages.revoke}" 
+					update="@form" immediate="true">
+					<p:confirm header="#{messages.confirm_header}" message="#{messages.ssh_key_confirm}" />
 				</p:commandButton>
 
 			</p:panel>		

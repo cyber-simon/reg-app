@@ -21,6 +21,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 
 @Entity(name = "ProjectMembershipEntity")
 @Table(name = "project_membership")
@@ -31,7 +32,7 @@ public class ProjectMembershipEntity implements Serializable {
     @Id
 	@ManyToOne(targetEntity = UserEntity.class)
     @JoinColumn(name = "user_id", nullable = false)
-	private UserEntity user;
+	private IdentityEntity identity;
 	
     @Id
     @ManyToOne(targetEntity = ProjectEntity.class)
@@ -40,45 +41,6 @@ public class ProjectMembershipEntity implements Serializable {
 
 	@Enumerated(EnumType.STRING)
 	private ProjectMembershipType membershipType;	
-
-	public UserEntity getUser() {
-		return user;
-	}
-
-	public void setUser(UserEntity user) {
-		this.user = user;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((project == null) ? 0 : project.hashCode());
-		result = prime * result + ((user == null) ? 0 : user.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ProjectMembershipEntity other = (ProjectMembershipEntity) obj;
-		if (project == null) {
-			if (other.project != null)
-				return false;
-		} else if (!project.equals(other.project))
-			return false;
-		if (user == null) {
-			if (other.user != null)
-				return false;
-		} else if (!user.equals(other.user))
-			return false;
-		return true;
-	}
 
 	public ProjectEntity getProject() {
 		return project;
@@ -94,5 +56,39 @@ public class ProjectMembershipEntity implements Serializable {
 
 	public void setMembershipType(ProjectMembershipType membershipType) {
 		this.membershipType = membershipType;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((identity == null) ? 0 : identity.hashCode());
+		result = prime * result + ((membershipType == null) ? 0 : membershipType.hashCode());
+		result = prime * result + ((project == null) ? 0 : project.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ProjectMembershipEntity other = (ProjectMembershipEntity) obj;
+		if (identity == null) {
+			if (other.identity != null)
+				return false;
+		} else if (!identity.equals(other.identity))
+			return false;
+		if (membershipType != other.membershipType)
+			return false;
+		if (project == null) {
+			if (other.project != null)
+				return false;
+		} else if (!project.equals(other.project))
+			return false;
+		return true;
 	}	
 }

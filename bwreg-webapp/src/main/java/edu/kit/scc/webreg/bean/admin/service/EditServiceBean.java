@@ -57,7 +57,7 @@ public class EditServiceBean implements Serializable {
 	
 	@Inject
 	private GroupAdminRoleService groupAdminRoleService;
-	
+
 	@Inject
 	private ImageService imageService;
 	
@@ -330,7 +330,7 @@ public class EditServiceBean implements Serializable {
 	public void setSelectedParentService(ServiceEntity selectedParentService) {
 		this.selectedParentService = selectedParentService;
 	}
-
+	
 	public List<SshPubKeyApproverRoleEntity> getSshPubKeyApproverRoleList() {
 		return sshPubKeyApproverRoleList;
 	}

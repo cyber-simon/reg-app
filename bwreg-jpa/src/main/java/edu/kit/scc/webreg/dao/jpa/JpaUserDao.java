@@ -71,6 +71,12 @@ public class JpaUserDao extends JpaBaseDao<UserEntity, Long> implements UserDao,
 	public List<UserEntity> findLegacyUsers() {
 		return em.createQuery("select e from UserEntity e where e.idp is null").getResultList();
 	}
+
+    @Override
+    @SuppressWarnings({"unchecked"})
+	public List<UserEntity> findMissingIdentity() {
+		return em.createQuery("select e from UserEntity e where e.identity is null").getResultList();
+	}
  
     @Override
     @SuppressWarnings({"unchecked"})

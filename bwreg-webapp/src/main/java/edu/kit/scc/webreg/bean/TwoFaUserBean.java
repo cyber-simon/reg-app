@@ -25,6 +25,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.twofa.TwoFaException;
 import edu.kit.scc.webreg.service.twofa.TwoFaService;
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpGetBackupTanListResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpInitAuthenticatorTokenResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpTokenResultList;
@@ -58,6 +59,8 @@ public class TwoFaUserBean implements Serializable {
 	
 	private String totpCode, yubicoCode;
 	private String defaultButton;
+	
+	private LinotpGetBackupTanListResponse backupTanList;
 	
 	private Long returnServiceId;
 	
@@ -113,6 +116,49 @@ public class TwoFaUserBean implements Serializable {
 				PrimeFaces.current().executeScript("PF('addYubicoDlg').hide();");
 				createTokenResponse = null;
 				yubicoCode = "";
+				
+			} catch (TwoFaException e) {
+				logger.warn("TwoFaException", e);
+			}
+		}
+	}
+
+	public void createBackupTanList() {
+		if (! getReadOnly()) {
+			try {
+				LinotpInitAuthenticatorTokenResponse response = twoFaService.createBackupTanList(user.getId(), "user-" + user.getId());
+
+				if (response.getResult().isStatus() && response.getResult().isValue()) {
+					if (response != null && response.getDetail() != null) {
+						String serial = response.getDetail().getSerial();
+						twoFaService.initToken(user.getId(), serial, "user-" + user.getId());
+						
+					}
+					
+					tokenList = twoFaService.findByUserId(sessionManager.getUserId());
+					if (tokenList.size() == 1) {
+						// this was the first token. We have to set 2fa elevation
+						sessionManager.setTwoFaElevation(Instant.now());
+					}					
+				}
+				else {
+					messageGenerator.addResolvedWarningMessage("warn", "twofa_token_failed", true);
+				}
+	
+				PrimeFaces.current().executeScript("PF('addBackupTanDlg').hide();");
+				createTokenResponse = null;
+				yubicoCode = "";
+				
+			} catch (TwoFaException e) {
+				logger.warn("TwoFaException", e);
+			}
+		}
+	}	
+
+	public void getBackupTanList(String serial) {
+		if (! getReadOnly()) {
+			try {
+				backupTanList = twoFaService.getBackupTanList(user.getId(), serial, "user-" + user.getId());
 				
 			} catch (TwoFaException e) {
 				logger.warn("TwoFaException", e);
@@ -263,6 +309,10 @@ public class TwoFaUserBean implements Serializable {
 		if (returnServiceId != null) {
 			this.returnServiceId = returnServiceId;
 		}
+	}
+
+	public LinotpGetBackupTanListResponse getBackupTanList() {
+		return backupTanList;
 	}
 
 }

@@ -40,6 +40,19 @@ import edu.kit.scc.webreg.entity.UserEntity;
 @ApplicationScoped
 public class JpaRegistryDao extends JpaBaseDao<RegistryEntity, Long> implements RegistryDao {
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<RegistryEntity> findAllByRegValueAndStatus(ServiceEntity service, String key, String value, RegistryStatus status) {
+		return em.createQuery("select r from RegistryEntity r join r.registryValues rv "
+				+ "where (key(rv) = :key and rv = :val) "
+				+ "and r.service = :service and r.registryStatus = :status")
+				.setParameter("key", key)
+				.setParameter("val", value)
+				.setParameter("service", service)
+				.setParameter("status", status)
+				.getResultList();
+	}		
+	
 	@Override
 	public RegistryEntity findByIdWithAgreements(Long id) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
@@ -332,7 +345,14 @@ public class JpaRegistryDao extends JpaBaseDao<RegistryEntity, Long> implements 
 
 		return em.createQuery(criteria).getResultList();
 	}	
-		
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<RegistryEntity> findMissingIdentity() {
+		return em.createQuery("select r from RegistryEntity r where r.identity is null")
+				.getResultList();
+	}	
+	
 	@Override
 	public Class<RegistryEntity> getEntityClass() {
 		return RegistryEntity.class;

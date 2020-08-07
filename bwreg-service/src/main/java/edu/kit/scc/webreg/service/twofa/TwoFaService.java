@@ -1,5 +1,7 @@
 package edu.kit.scc.webreg.service.twofa;
 
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpGetBackupTanListResponse;
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpGetBackupTanListResult;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpInitAuthenticatorTokenResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpSetFieldResult;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
@@ -26,5 +28,10 @@ public interface TwoFaService {
 	LinotpSetFieldResult initToken(Long userId, String serial, String executor) throws TwoFaException;
 
 	LinotpSimpleResponse disableToken(Long userId, String serial, String executor) throws TwoFaException;
+
+	LinotpInitAuthenticatorTokenResponse createBackupTanList(Long userId, String executor) throws TwoFaException;
+
+	LinotpGetBackupTanListResponse getBackupTanList(Long userId, String serial, String executor)
+			throws TwoFaException;
 
 }

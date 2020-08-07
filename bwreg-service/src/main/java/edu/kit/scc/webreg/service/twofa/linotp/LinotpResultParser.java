@@ -42,8 +42,18 @@ public class LinotpResultParser {
 		} catch (IOException e) {
 			throw new TwoFaException(e);
 		}		
+	}	
+	
+	public LinotpGetBackupTanListResponse parseGetBackupTanListResponse(String responseString) throws TwoFaException {
+		try {
+			LinotpGetBackupTanListResponse response = 
+					om.readValue(responseString, LinotpGetBackupTanListResponse.class);
+			return response;
+		} catch (IOException e) {
+			throw new TwoFaException(e);
+		}		
 	}
-
+	
 	public LinotpSetFieldResult parseSetFieldResponse(String responseString) throws TwoFaException {
 		try {
 			LinotpSetFieldResult response = 

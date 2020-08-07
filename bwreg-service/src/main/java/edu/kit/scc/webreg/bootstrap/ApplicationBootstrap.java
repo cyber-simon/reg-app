@@ -35,6 +35,7 @@ import edu.kit.scc.webreg.service.RoleService;
 import edu.kit.scc.webreg.service.SerialService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.impl.HookManager;
 import edu.kit.scc.webreg.service.mail.TemplateRenderer;
 import edu.kit.scc.webreg.service.timer.ClusterSchedulerManager;
@@ -82,6 +83,9 @@ public class ApplicationBootstrap {
 	
 	@Inject 
 	private HookManager hookManager;
+	
+	@Inject
+	private IdentityService identityService;
 	
 	@PostConstruct
 	public void init() {
@@ -147,6 +151,8 @@ public class ApplicationBootstrap {
         bpmProcessService.init();
         
         velocityRenderer.init();
+        
+        identityService.createMissingIdentities();
         
         standardScheduler.initialize();
         clusterSchedulerManager.initialize();

@@ -31,6 +31,8 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+
 @Entity
 @Table(name = "registry")
 public class RegistryEntity extends AbstractBaseEntity {
@@ -39,6 +41,9 @@ public class RegistryEntity extends AbstractBaseEntity {
 
 	@Enumerated(EnumType.STRING)
 	private RegistryStatus registryStatus;
+	
+	@ManyToOne(targetEntity = IdentityEntity.class)
+	private IdentityEntity identity;
 	
 	@ManyToOne(targetEntity = UserEntity.class)
 	private UserEntity user;
@@ -176,5 +181,13 @@ public class RegistryEntity extends AbstractBaseEntity {
 
 	public void setLastAccessCheck(Date lastAccessCheck) {
 		this.lastAccessCheck = lastAccessCheck;
+	}
+
+	public IdentityEntity getIdentity() {
+		return identity;
+	}
+
+	public void setIdentity(IdentityEntity identity) {
+		this.identity = identity;
 	}
 }
