@@ -41,14 +41,14 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity, Long> imp
 	}
 
 	@Override
-	public List<ProjectEntity> findAdminByUserId(Long userId) {
-		IdentityEntity identity = identityDao.findByUserId(userId);
+	public List<ProjectEntity> findAdminByUserId(Long identityId) {
+		IdentityEntity identity = identityDao.findById(identityId);
 		return dao.findAdminByIdentity(identity);
 	}
 
 	@Override 
-	public ProjectEntity save(ProjectEntity project, Long userId) {
-		IdentityEntity identity = identityDao.findByUserId(userId);
+	public ProjectEntity save(ProjectEntity project, Long identityId) {
+		IdentityEntity identity = identityDao.findById(identityId);
 		
 		project = dao.persist(project);
 		dao.addAdminToProject(project, identity, ProjectAdminType.OWNER);

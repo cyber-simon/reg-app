@@ -149,6 +149,7 @@ public class SamlSpPostServiceImpl implements SamlSpPostService {
 			}
 			
 			session.setUserId(user.getId());
+			session.setIdentityId(user.getIdentity().getId());
 			session.setLoginTime(Instant.now());
 			session.setTheme(user.getTheme());
 			session.setLocale(user.getLocale());

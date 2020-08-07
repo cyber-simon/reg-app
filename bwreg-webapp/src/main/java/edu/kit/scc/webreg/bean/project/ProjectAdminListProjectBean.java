@@ -42,7 +42,7 @@ public class ProjectAdminListProjectBean implements Serializable {
 
 	public List<ProjectEntity> getProjectList() {
 		if (projectList == null) {
-			projectList = projectService.findAdminByUserId(session.getUserId());
+			projectList = projectService.findAdminByUserId(session.getIdentityId());
 		}
 		return projectList;
 	}

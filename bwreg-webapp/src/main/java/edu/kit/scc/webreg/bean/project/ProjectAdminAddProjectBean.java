@@ -17,7 +17,6 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
-import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
 import edu.kit.scc.webreg.service.project.ProjectService;
 import edu.kit.scc.webreg.session.SessionManager;
@@ -44,7 +43,7 @@ public class ProjectAdminAddProjectBean implements Serializable {
 	}
 	
 	public String save() {
-		entity = service.save(entity, session.getUserId());
+		entity = service.save(entity, session.getIdentityId());
 		
 		return ViewIds.PROJECT_INDEX + "&faces-redirect=true";
 	}
