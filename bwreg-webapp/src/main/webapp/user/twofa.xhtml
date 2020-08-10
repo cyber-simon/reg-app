@@ -117,7 +117,7 @@
 			</p:panel>
 		</p:dataGrid>
 
-		<p:panel rendered="#{! twoFaUserBean.readOnly}">
+		<p:panel rendered="#{(! twoFaUserBean.readOnly) and (twoFaUserBean.tokenList.size() lt 7)}">
 			<div style="margin-bottom: 16px;">
 				<h:outputText value="#{messages.twofa_create_new_token}" />
 			</div>
