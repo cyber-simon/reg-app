@@ -133,10 +133,23 @@
 			</p:outputPanel>
 		</p:panel>
 
-		<p:dialog header="#{messages.twofa_backup_tan_list_values}" 
+		<p:dialog header="#{messages.twofa_tokentype_tanlist}" width="240"
 					widgetVar="showBackupTanDlg" id="showBackupTanId" modal="true" closable="true" closeOnEscape="true"
 					showEffect="fade" hideEffect="fade">
-			<h:outputText value="#{twoFaUserBean.backupTanList.result.value.otp}" />
+			<div style="margin-bottom: 8px;">
+				<h:outputText value="#{messages.twofa_backup_tan_list_values}" />
+			</div>
+			<ul style="margin-bottom: 16px;">
+				<ui:repeat var="key" value="#{twoFaUserBean.backupTanList.result.value.otp.keySet()}">
+					<li style="margin-bottom: 4px;">
+						<b><h:outputText value="#{key}" /></b> -  
+						<h:outputText value="#{twoFaUserBean.backupTanList.result.value.otp.get(key)}" />
+					</li>
+				</ui:repeat>
+			</ul>
+			<p:commandButton value="Print" type="button" style="margin-bottom: 16px">
+    			<p:printer target="showBackupTanId" />
+			</p:commandButton>
 		</p:dialog>
 			
 		<p:dialog header="#{messages.twofa_create_totp_token}" 
