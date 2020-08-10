@@ -47,11 +47,15 @@
 						<h:graphicImage width="60px" value="#{resource['img/smartphone.svg']}" alt="Smartphone" rendered="#{token.tokenType == 'TOTP' and token.serial.startsWith('TOTP')}"/>
 						<h:graphicImage width="60px" value="#{resource['img/kittoken_small.png']}" alt="Hardware Token" rendered="#{token.tokenType == 'TOTP' and not token.serial.startsWith('TOTP')}"/>
 						<h:graphicImage width="60px" value="#{resource['img/yubikey_small.png']}" alt="Yubikey" rendered="#{token.tokenType == 'yubico'}"/>
+						<h:graphicImage width="60px" value="#{resource['img/tanlist.svg']}" alt="Backup TAN List" rendered="#{token.tokenType == 'HMAC'}"/>
 					</p:outputPanel>
-					<p:outputPanel>
-						<div><h:outputText value="#{token.tokenType}" /></div>
-						<div><h:outputText value="#{token.isactive}" /></div>
-					</p:outputPanel>
+					<h:panelGroup>
+						<h:outputText value="#{messages.twofa_tokentype_tanlist}" rendered="#{token.tokenType == 'HMAC' and token.serial.startsWith('OATH')}"/>
+						<h:outputText value="#{messages.twofa_tokentype_totp}" rendered="#{token.tokenType == 'TOTP' and token.serial.startsWith('TOTP')}"/>
+						<h:outputText value="#{messages.twofa_tokentype_totp_hardware}" rendered="#{token.tokenType == 'TOTP' and not token.serial.startsWith('TOTP')}"/>
+						<h:outputText value="#{messages.twofa_tokentype_tanlist}" rendered="#{token.tokenType == 'HOTP'}"/>
+						<h:outputText value="#{messages.twofa_tokentype_yubikey}" rendered="#{token.tokenType == 'yubico'}"/>
+					</h:panelGroup>
 				</p:panelGrid>
 			</p:panel>
 		</p:dataGrid>
