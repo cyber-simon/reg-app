@@ -35,8 +35,8 @@ import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.service.UserDeleteService;
-import edu.kit.scc.webreg.service.reg.ApprovalService;
-import edu.kit.scc.webreg.service.reg.RegisterUserService;
+import edu.kit.scc.webreg.service.reg.impl.Approvor;
+import edu.kit.scc.webreg.service.reg.impl.Registrator;
 
 @Stateless
 public class UserDeleteServiceImpl implements UserDeleteService {
@@ -45,10 +45,10 @@ public class UserDeleteServiceImpl implements UserDeleteService {
 	private Logger logger;
 	
 	@Inject
-	private RegisterUserService registerUserService;
+	private Registrator registrator;
 	
 	@Inject
-	private ApprovalService approvalService;
+	private Approvor approvor;
 	
 	@Inject
 	private AuditEntryDao auditEntryDao;
@@ -77,7 +77,7 @@ public class UserDeleteServiceImpl implements UserDeleteService {
 	@Override
 	public void deleteUserData(SamlUserEntity user, String executor) {
 		logger.info("Delete all personal user data for user {}, {}", user.getEppn(), user.getId());
-		user = samlUserDao.findById(user.getId());
+		user = samlUserDao.merge(user);
 		UserDeleteAuditor auditor = new UserDeleteAuditor(auditEntryDao, auditDetailDao, appConfig);
 		auditor.startAuditTrail(executor, true);
 		auditor.setName("UserDelete-Audit");
@@ -95,7 +95,7 @@ public class UserDeleteServiceImpl implements UserDeleteService {
 					(RegistryStatus.LOST_ACCESS == registry.getRegistryStatus()) ||
 					(RegistryStatus.ON_HOLD == registry.getRegistryStatus())) {
 				try {
-					registerUserService.deregisterUser(registry, executor, auditor);
+					registrator.deregisterUser(registry, executor, auditor);
 				} catch (RegisterException e) {
 					logger.warn("Exception while deregister user", e);
 				}
@@ -103,7 +103,7 @@ public class UserDeleteServiceImpl implements UserDeleteService {
 			
 			if (RegistryStatus.PENDING == registry.getRegistryStatus()) {
 				try {
-					approvalService.denyApproval(registry, executor, auditor);
+					approvor.denyApproval(registry, executor, auditor);
 				} catch (RegisterException e) {
 					logger.warn("Exception while deny approval", e);
 				}
