@@ -225,7 +225,7 @@ public class TwoFaUserBean implements Serializable {
 				tokenList = twoFaService.findByUserId(sessionManager.getUserId());
 				if ((response.getResult() != null) && response.getResult().isStatus() &&
 						response.getResult().isValue()) {
-					messageGenerator.addInfoMessage("Info", "Token " + serial + " disable");
+					messageGenerator.addInfoMessage("Info", "Token " + serial + " disabled");
 				}
 				else {
 					messageGenerator.addWarningMessage("Warn", "Token " + serial + " could not be disable");

@@ -43,7 +43,7 @@
 		                <h:outputText value="#{u.givenName}" />
 		            </p:column>
 		        </p:autoComplete>
-						
+				<p:focus for="userAutocompl" />
 			</p:panelGrid>
 		
 			<p:outputPanel style="margin-bottom: 16px;">
@@ -88,17 +88,10 @@
 							<p:panel style="margin: 8px;" rendered="#{! token.isactive and (token.tokenDesc.contains('INIT'))}">
 								<h:outputText value="#{messages.twofa_token_not_init}" style="color:red;" />
 							</p:panel>
-							<p:commandButton action="#{twoFaUserBean.disableToken(token.serial)}" value="#{messages.disable}" 
+							<p:commandButton action="#{tokenAdminIndexBean.disableToken(token.serial)}" value="#{messages.disable}" 
 								update="@form" rendered="#{token.isactive}"/>
-							<p:commandButton action="#{twoFaUserBean.enableToken(token.serial)}" value="#{messages.enable}" 
+							<p:commandButton action="#{tokenAdminIndexBean.enableToken(token.serial)}" value="#{messages.enable}" 
 								update="@form" rendered="#{! token.isactive and (! token.tokenDesc.contains('INIT'))}"/>
-							<p:commandButton action="#{twoFaUserBean.deleteToken(token.serial)}" value="#{messages.delete}" 
-								update="@form" rendered="#{! token.isactive and (token.tokenDesc.contains('DELABLE'))}" style="color:red;">
-								<p:confirm header="#{messages.confirm_header}" message="#{messages.confirm}" />
-							</p:commandButton>
-							<p:commandButton action="#{twoFaUserBean.getBackupTanList(token.serial)}" value="#{messages.token_get_tanlist_values}" 
-								update="@form" rendered="#{token.isactive and token.tokenType == 'HMAC'}"
-								oncomplete="PF('showBackupTanDlg').show();"/>
 						</p:outputPanel>
 					</p:panelGrid>
 				</p:panel>

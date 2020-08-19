@@ -20,6 +20,8 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+
 import edu.kit.scc.webreg.dao.GenericSortOrder;
 import edu.kit.scc.webreg.dao.ops.MultipathOrPredicate;
 import edu.kit.scc.webreg.dao.ops.OrPredicate;
@@ -29,6 +31,7 @@ import edu.kit.scc.webreg.sec.AuthorizationBean;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.twofa.TwoFaException;
 import edu.kit.scc.webreg.service.twofa.TwoFaService;
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpTokenResultList;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
@@ -39,6 +42,9 @@ public class TokenAdminIndexBean implements Serializable {
 
  	private static final long serialVersionUID = 1L;
 
+ 	@Inject
+ 	private Logger logger;
+ 	
  	@Inject
  	private UserService userService;
  	
@@ -93,6 +99,44 @@ public class TokenAdminIndexBean implements Serializable {
 				new PathObjectValue("givenName", part)
 		));
 		return userService.findAllPaging(0, 10, "eppn", GenericSortOrder.ASC, filterMap);
+	}
+
+	public void enableToken(String serial) {
+		if (! getReadOnly()) {
+			try {
+				LinotpSimpleResponse response = twoFaService.enableToken(selectedUser.getId(), serial, "user-" + session.getUserId());
+				userTokenList = twoFaService.findByUserId(selectedUser.getId());
+				if ((response.getResult() != null) && response.getResult().isStatus() &&
+						response.getResult().isValue()) {
+					messageGenerator.addInfoMessage("Info", "Token " + serial + " enabled");
+				}
+				else {
+					messageGenerator.addWarningMessage("Warn", "Token " + serial + " could not be enabled");
+				}
+			} catch (TwoFaException e) {
+				logger.warn("TwoFaException", e);
+				messageGenerator.addErrorMessage("Error", e.toString());
+			}
+		}
+	}
+
+	public void disableToken(String serial) {
+		if (! getReadOnly()) {
+			try {
+				LinotpSimpleResponse response = twoFaService.disableToken(selectedUser.getId(), serial, "user-" + session.getUserId());
+				userTokenList = twoFaService.findByUserId(selectedUser.getId());
+				if ((response.getResult() != null) && response.getResult().isStatus() &&
+						response.getResult().isValue()) {
+					messageGenerator.addInfoMessage("Info", "Token " + serial + " disabled");
+				}
+				else {
+					messageGenerator.addWarningMessage("Warn", "Token " + serial + " could not be disable");
+				}
+			} catch (TwoFaException e) {
+				logger.warn("TwoFaException", e);
+				messageGenerator.addErrorMessage("Error", e.toString());
+			}
+		}
 	}
 	
 	public Boolean getReadOnly() {
