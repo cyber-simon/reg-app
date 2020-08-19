@@ -115,6 +115,7 @@ public class ApplicationBootstrap {
     	checkRole("TimerAdmin");
     	checkRole("AuditAdmin");
     	checkRole("MailAdmin");
+    	checkRole("TokenAdmin");
     	checkRole("User");
     	checkRole("AttributeSourceAdmin");
     	checkRole("ExternalUserAdmin");	

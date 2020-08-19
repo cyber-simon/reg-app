@@ -66,6 +66,10 @@ public class TwoFaServiceImpl implements TwoFaService {
 			resultList.setManagementUrl(configMap.get("managementUrl"));
 		}
 
+		if (configMap.containsKey("adminRole")) {
+			resultList.setAdminRole(configMap.get("adminRole"));
+		}
+
 		return resultList;
 	}
 

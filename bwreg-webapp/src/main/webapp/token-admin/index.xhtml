@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{tokenAdminIndexBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+
+		<p:panel id="tokenPanel" header="Token Admin"> 
+			<p:panelGrid columns="2">
+				<h:outputLabel value="Eppn" for="@next" />
+		        <p:autoComplete id="userAutocompl" multiple="false" value="#{tokenAdminIndexBean.selectedUser}" 
+		        		completeMethod="#{tokenAdminIndexBean.completeUser}"
+		                var="u" itemLabel="#{u.eppn}" itemValue="#{u}" converter="#{userConverter}" 
+		                forceSelection="true">
+		            <p:column style="width:20%">
+		                <h:outputText value="#{u.id}" />
+		            </p:column>
+		            <p:column>
+		                <h:outputText value="#{u.eppn}" />
+		            </p:column>
+		            <p:column>
+		                <h:outputText value="#{u.surName}" />
+		            </p:column>
+		            <p:column>
+		                <h:outputText value="#{u.givenName}" />
+		            </p:column>
+		        </p:autoComplete>
+						
+			</p:panelGrid>
+		
+			<p:outputPanel style="margin-bottom: 16px;">
+				<p:commandButton action="#{tokenAdminIndexBean.searchToken()}" value="Search" update="tokenPanel,messageBox"/>
+			</p:outputPanel>
+			
+			<p:panel rendered="#{tokenAdminIndexBean.readOnly}">
+				<h:outputText value="No User selected, or Token read only" />
+			</p:panel>
+
+			<p:messages id="messageBox" showDetail="true" escape="false" />
+			
+			<p:dataGrid var="token" value="#{tokenAdminIndexBean.userTokenList}" columns="2" styleClass="whitefoot"
+					layout="grid" style="margin-bottom: 16px;"
+					rendered="#{not tokenAdminIndexBean.readOnly}">
+		        <f:facet name="header">#{messages.twofa_list} (#{tokenAdminIndexBean.selectedUser.eppn})</f:facet>
+		        <p:panel styleClass="grayback" style="margin-bottom: 0px;">
+		        	<f:facet name="header">
+		        		<i class="fa fa-fw fa-key"></i>
+						<b><h:outputText value="#{token.serial}" /></b>
+					</f:facet>
+					<p:panelGrid columns="2">
+						<p:outputPanel>
+							<h:graphicImage width="60px" value="#{resource['img/smartphone.svg']}" alt="Smartphone" rendered="#{token.tokenType == 'TOTP' and token.serial.startsWith('TOTP')}"/>
+							<h:graphicImage width="60px" value="#{resource['img/kittoken_small.png']}" alt="Hardware Token" rendered="#{token.tokenType == 'TOTP' and not token.serial.startsWith('TOTP')}"/>
+							<h:graphicImage width="60px" value="#{resource['img/yubikey_small.png']}" alt="Yubikey" rendered="#{token.tokenType == 'yubico'}"/>
+							<h:graphicImage width="60px" value="#{resource['img/tanlist.svg']}" alt="Backup TAN List" rendered="#{token.tokenType == 'HMAC'}"/>
+						</p:outputPanel>
+						<p:outputPanel>
+							<h:panelGrid columns="2" style="margin-bottom: 16px;">
+								<p:outputLabel for="@next" value="#{messages.twofa_tokentype}:" />
+								<h:panelGroup>
+									<h:outputText value="#{messages.twofa_tokentype_totp}" rendered="#{token.tokenType == 'TOTP' and token.serial.startsWith('TOTP')}"/>
+									<h:outputText value="#{messages.twofa_tokentype_totp_hardware}" rendered="#{token.tokenType == 'TOTP' and not token.serial.startsWith('TOTP')}"/>
+									<h:outputText value="#{messages.twofa_tokentype_tanlist}" rendered="#{token.tokenType == 'HMAC'}"/>
+									<h:outputText value="#{messages.twofa_tokentype_yubikey}" rendered="#{token.tokenType == 'yubico'}"/>
+								</h:panelGroup>
+			
+								<p:outputLabel for="@next" value="#{messages.twofa_active}:" />
+								<h:outputText value="#{token.isactive ? messages.yes : messages.no}" />
+							</h:panelGrid>
+							<p:panel style="margin: 8px;" rendered="#{! token.isactive and (token.tokenDesc.contains('INIT'))}">
+								<h:outputText value="#{messages.twofa_token_not_init}" style="color:red;" />
+							</p:panel>
+							<p:commandButton action="#{twoFaUserBean.disableToken(token.serial)}" value="#{messages.disable}" 
+								update="@form" rendered="#{token.isactive}"/>
+							<p:commandButton action="#{twoFaUserBean.enableToken(token.serial)}" value="#{messages.enable}" 
+								update="@form" rendered="#{! token.isactive and (! token.tokenDesc.contains('INIT'))}"/>
+							<p:commandButton action="#{twoFaUserBean.deleteToken(token.serial)}" value="#{messages.delete}" 
+								update="@form" rendered="#{! token.isactive and (token.tokenDesc.contains('DELABLE'))}" style="color:red;">
+								<p:confirm header="#{messages.confirm_header}" message="#{messages.confirm}" />
+							</p:commandButton>
+							<p:commandButton action="#{twoFaUserBean.getBackupTanList(token.serial)}" value="#{messages.token_get_tanlist_values}" 
+								update="@form" rendered="#{token.isactive and token.tokenType == 'HMAC'}"
+								oncomplete="PF('showBackupTanDlg').show();"/>
+						</p:outputPanel>
+					</p:panelGrid>
+				</p:panel>
+			</p:dataGrid>
+			
+		</p:panel>
+		
+	</h:form>
+	</ui:define>
+</ui:composition>
+</f:view>
+</body>
+</html>

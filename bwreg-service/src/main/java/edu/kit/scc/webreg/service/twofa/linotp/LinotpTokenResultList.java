@@ -13,6 +13,8 @@ public class LinotpTokenResultList extends ArrayList<LinotpToken> {
 	
 	private String managementUrl;
 	
+	private String adminRole;
+	
 	public LinotpTokenResultList() {
 		super();
 	}	
@@ -46,5 +48,13 @@ public class LinotpTokenResultList extends ArrayList<LinotpToken> {
 
 	public void setStatusMessage(String statusMessage) {
 		this.statusMessage = statusMessage;
+	}
+
+	public String getAdminRole() {
+		return adminRole;
+	}
+
+	public void setAdminRole(String adminRole) {
+		this.adminRole = adminRole;
 	}
 }
