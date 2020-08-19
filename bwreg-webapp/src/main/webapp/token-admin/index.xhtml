@@ -27,7 +27,7 @@
 			<p:panelGrid columns="2">
 				<h:outputLabel value="Eppn" for="@next" />
 		        <p:autoComplete id="userAutocompl" multiple="false" value="#{tokenAdminIndexBean.selectedUser}" 
-		        		completeMethod="#{tokenAdminIndexBean.completeUser}"
+		        		completeMethod="#{tokenAdminIndexBean.completeUser}" minQueryLength="2"
 		                var="u" itemLabel="#{u.eppn}" itemValue="#{u}" converter="#{userConverter}" 
 		                forceSelection="true">
 		            <p:column style="width:20%">

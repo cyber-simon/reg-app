@@ -21,6 +21,9 @@ import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
 import edu.kit.scc.webreg.dao.GenericSortOrder;
+import edu.kit.scc.webreg.dao.ops.MultipathOrPredicate;
+import edu.kit.scc.webreg.dao.ops.OrPredicate;
+import edu.kit.scc.webreg.dao.ops.PathObjectValue;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.sec.AuthorizationBean;
 import edu.kit.scc.webreg.service.UserService;
@@ -84,7 +87,11 @@ public class TokenAdminIndexBean implements Serializable {
 	
 	public List<UserEntity> completeUser(String part) {
 		Map<String, Object> filterMap = new HashMap<String, Object>();
-		filterMap.put("eppn", part);
+		filterMap.put("eppn", new MultipathOrPredicate(
+				new PathObjectValue("eppn", part),
+				new PathObjectValue("surName", part),
+				new PathObjectValue("givenName", part)
+		));
 		return userService.findAllPaging(0, 10, "eppn", GenericSortOrder.ASC, filterMap);
 	}
 	
