@@ -21,6 +21,12 @@
 
 	<h:form id="form" prependId="false">
 		<p:panel header="#{messages.twofa_login}">
+
+			<p:outputPanel rendered="#{twoFaLoginBean.readOnly}">
+				<div><h:outputText value="#{messages.twofa_list_readonly}"/></div>
+				<div><a href="#{twoFaLoginBean.managementUrl}" target="_blank">#{twoFaLoginBean.managementUrl}</a></div>
+			</p:outputPanel>
+			
 			<div style="margin-top: 8px; margin-bottom: 16px;"><h:outputText value="#{messages.twofa_login_text}"/></div>
 			<div><p:messages showDetail="true" /></div>
 
