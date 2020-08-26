@@ -220,7 +220,7 @@ public class TwoFaServiceImpl implements TwoFaService {
 		
 		LinotpInitAuthenticatorTokenResponse response = linotpConnection.createYubicoToken(user, yubi);
 		
-		if (response == null) {
+		if (response == null || response.getDetail() == null) {
 			auditor.logAction(user.getEppn(), "CREATE YUBICO TOKEN", "", "", AuditStatus.FAIL);
 			auditor.finishAuditTrail();
 			throw new TwoFaException("Token generation did not succeed!");

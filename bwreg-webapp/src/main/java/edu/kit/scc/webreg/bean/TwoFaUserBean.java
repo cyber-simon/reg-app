@@ -99,8 +99,17 @@ public class TwoFaUserBean implements Serializable {
 				if (response.getResult().isStatus() && response.getResult().isValue()) {
 					if (response != null && response.getDetail() != null) {
 						String serial = response.getDetail().getSerial();
-						twoFaService.initToken(user.getId(), serial, "user-" + user.getId());
-						
+						LinotpSimpleResponse checkResponse = 
+								twoFaService.checkSpecificToken(user.getId(), serial, yubicoCode);
+						if (! (checkResponse.getResult().isStatus() && 
+								checkResponse.getResult().isValue())) {
+							// Token creating was successful, but check failed
+							twoFaService.deleteToken(user.getId(), serial, "user-" + user.getId());
+							messageGenerator.addResolvedWarningMessage("warn", "twofa_token_failed", true);
+						}
+						else {
+							twoFaService.initToken(user.getId(), serial, "user-" + user.getId());
+						}
 					}
 					
 					tokenList = twoFaService.findByUserId(sessionManager.getUserId());
@@ -119,6 +128,10 @@ public class TwoFaUserBean implements Serializable {
 				
 			} catch (TwoFaException e) {
 				logger.warn("TwoFaException", e);
+				messageGenerator.addResolvedWarningMessage("warn", "twofa_token_failed", true);
+				PrimeFaces.current().executeScript("PF('addYubicoDlg').hide();");
+				createTokenResponse = null;
+				yubicoCode = "";
 			}
 		}
 	}
