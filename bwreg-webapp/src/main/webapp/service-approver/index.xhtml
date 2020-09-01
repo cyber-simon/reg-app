@@ -24,6 +24,8 @@
 	<ui:define name="content">
 	<h:form id="form">
 
+		<h2><h:outputText value="#{messages.service}: #{approvalListBean.serviceEntity.name}"/></h2>
+
 		<div id="panelInline">
 			<p:panel header="#{messages.new_approvals}">
 				<p:dataTable id="registeredTable" var="registry" 
