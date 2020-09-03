@@ -32,6 +32,7 @@ import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 
+import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.oidc.OidcClientConfigurationDao;
@@ -92,6 +93,9 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	
 	@Inject
 	private KnowledgeSessionSingleton knowledgeSessionService;
+	
+	@Inject
+	private ApplicationConfig appConfig;
 	
 	@Override
 	public String registerAuthRequest(String realm, String responseType,
@@ -170,15 +174,19 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			OidcClientConfigurationEntity clientConfig = flowState.getClientConfiguration();
 			List<ServiceOidcClientEntity> serviceOidcClientList = serviceOidcClientDao.findByClientConfig(clientConfig);
 
-			/*
-			 * Allow OIDC config without service
-			 */
 			if (serviceOidcClientList.size() == 0) {
 				throw new OidcAuthenticationException("no script is connected to client configuration");
 			}
 			
+			Boolean wantsElevation = false;
 			RegistryEntity registry = null;
+			
 			for (ServiceOidcClientEntity serviceOidcClient : serviceOidcClientList) {
+				if (serviceOidcClient.getWantsElevation() != null &&
+						serviceOidcClient.getWantsElevation()) {
+					wantsElevation = true;
+				}
+				
 				ServiceEntity service = serviceOidcClient.getService();
 				
 				if (service != null) {
@@ -218,6 +226,21 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 							return "/user/register-service.xhtml?serviceId=" + service.getId();
 						}
 					}
+				}
+			}
+
+			if (wantsElevation) {
+				long elevationTime = 5L * 60L * 1000L;
+				if (appConfig.getConfigValue("elevation_time") != null) {
+					elevationTime = Long.parseLong(appConfig.getConfigValue("elevation_time"));
+				}
+				
+				if (session.getTwoFaElevation() == null ||
+						(System.currentTimeMillis() - session.getTwoFaElevation().toEpochMilli()) > elevationTime) {
+					// second factor is active for this service and web login
+					// and user is not elevated yet
+					session.setOriginalRequestPath("/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/auth/return");
+					return "/user/twofa-login.xhtml";
 				}
 			}
 			

@@ -1,5 +1,6 @@
 package edu.kit.scc.webreg.entity.oidc;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -20,8 +21,11 @@ public class ServiceOidcClientEntity extends AbstractBaseEntity {
 	@ManyToOne(targetEntity = OidcClientConfigurationEntity.class)
 	private OidcClientConfigurationEntity clientConfig;
 
-	@ManyToOne (targetEntity = ScriptEntity.class)
+	@ManyToOne(targetEntity = ScriptEntity.class)
 	private ScriptEntity script;
+	
+	@Column(name = "wants_elevation")
+	private Boolean wantsElevation;
 	
 	public ServiceEntity getService() {
 		return service;
@@ -44,5 +48,13 @@ public class ServiceOidcClientEntity extends AbstractBaseEntity {
 
 	public void setClientConfig(OidcClientConfigurationEntity clientConfig) {
 		this.clientConfig = clientConfig;
+	}
+
+	public Boolean getWantsElevation() {
+		return wantsElevation;
+	}
+
+	public void setWantsElevation(Boolean wantsElevation) {
+		this.wantsElevation = wantsElevation;
 	}
 }
