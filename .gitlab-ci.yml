@@ -5,8 +5,8 @@ variables:
 
 cache:
   paths:
-    - /build/.m2/
-    - /build/target/
+    - .m2/
+    - target/
 
 build:
   stage: build
