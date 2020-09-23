@@ -29,4 +29,7 @@ public interface EventSubmitter extends Serializable {
 			List<EventEntity> eventList, EventType eventType, String executor)
 			throws EventSubmitException;
 
+	void submit(AbstractEvent<? extends Serializable> event, EventType eventType, String executor,
+			Boolean filterServiceEvents) throws EventSubmitException;
+
 }
