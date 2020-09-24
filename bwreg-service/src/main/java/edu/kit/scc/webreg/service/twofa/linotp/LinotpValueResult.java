@@ -1,6 +1,10 @@
 package edu.kit.scc.webreg.service.twofa.linotp;
 
-public class LinotpValueResult {
+import java.io.Serializable;
+
+public class LinotpValueResult implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private boolean status;
 

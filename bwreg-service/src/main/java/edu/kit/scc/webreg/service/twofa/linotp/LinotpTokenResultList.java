@@ -1,8 +1,9 @@
 package edu.kit.scc.webreg.service.twofa.linotp;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class LinotpTokenResultList extends ArrayList<LinotpToken> {
+public class LinotpTokenResultList extends ArrayList<LinotpToken> implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
