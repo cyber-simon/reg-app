@@ -45,6 +45,8 @@ public class SessionManager implements Serializable {
 	
 	private Long spId;
 
+	private Long oidcRelyingPartyId;
+
 	private Map<String, List<Object>> attributeMap;
 	
 	private String persistentId;
@@ -296,5 +298,13 @@ public class SessionManager implements Serializable {
 
 	public void setIdentityId(Long identityId) {
 		this.identityId = identityId;
+	}
+
+	public Long getOidcRelyingPartyId() {
+		return oidcRelyingPartyId;
+	}
+
+	public void setOidcRelyingPartyId(Long oidcRelyingPartyId) {
+		this.oidcRelyingPartyId = oidcRelyingPartyId;
 	}
 }

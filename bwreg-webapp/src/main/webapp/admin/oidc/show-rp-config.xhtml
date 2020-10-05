@@ -34,6 +34,21 @@
 			        <h:outputText value="#{messages.name}:"/>
 			        <h:outputText value="#{showOidcRpConfigurationBean.entity.name}"/>
 		
+			        <h:outputText value="#{messages.displayName}:"/>
+			        <h:outputText value="#{showOidcRpConfigurationBean.entity.displayName}"/>
+		
+			        <h:outputText value="#{messages.clientId}:"/>
+			        <h:outputText value="#{showOidcRpConfigurationBean.entity.clientId}"/>
+		
+			        <h:outputText value="#{messages.secret}:"/>
+			        <h:outputText value="#{showOidcRpConfigurationBean.entity.secret}"/>
+		
+			        <h:outputText value="#{messages.scopes}:"/>
+			        <h:outputText value="#{showOidcRpConfigurationBean.entity.scopes}"/>
+		
+			        <h:outputText value="#{messages.serviceUrl}:"/>
+			        <h:outputText value="#{showOidcRpConfigurationBean.entity.serviceUrl}"/>
+		
 				</p:panelGrid>
 		<h:link outcome="edit-rp-config.xhtml" value="#{messages.edit}">
 			<f:param name="id" value="#{showOidcRpConfigurationBean.entity.id}"/>

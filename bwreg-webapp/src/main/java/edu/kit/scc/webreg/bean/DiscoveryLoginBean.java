@@ -111,6 +111,17 @@ public class DiscoveryLoginBean implements Serializable {
 							"Bitte wählen Sie Ihre Heimatorganisation");
 		}
 	}
+
+	public void oidcLogin() {
+		ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+		sessionManager.setOidcRelyingPartyId(50080514L);
+		try {
+			externalContext.redirect("/rpoidc/login");
+		} catch (IOException e) {
+			messageGenerator.addErrorMessage("Ein Fehler ist aufgetreten", 
+							e.toString());
+		}
+	}
 	
 	public void updateIdpList() {
 		if (selectedFederation == null) {

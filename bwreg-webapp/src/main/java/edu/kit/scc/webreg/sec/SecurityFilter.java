@@ -111,6 +111,7 @@ public class SecurityFilter implements Filter {
 			path.startsWith("/logout/") ||
 			path.startsWith("/error/") ||
 			path.startsWith("/oidc/") ||
+			path.startsWith("/rpoidc/") ||
 			path.startsWith("/ferest/") ||
 			path.startsWith("/rest/otp/simplecheck/") ||
 			path.equals("/favicon.ico")

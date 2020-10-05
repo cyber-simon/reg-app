@@ -34,6 +34,30 @@
 					<bw:inputText id="entityIdField" label="#{messages.name}"
 						value="#{editOidcRpConfigurationBean.entity.name}" required="true" />
 		
+					<bw:inputText id="displayNameField" label="#{messages.displayName}"
+						value="#{editOidcRpConfigurationBean.entity.displayName}" required="false" />
+		
+					<bw:inputText id="clientIdField" label="#{messages.clientId}"
+						value="#{editOidcRpConfigurationBean.entity.clientId}" required="false" />
+		
+					<bw:inputText id="secretField" label="#{messages.secret}"
+						value="#{editOidcRpConfigurationBean.entity.secret}" required="false" />
+		
+					<bw:inputText id="scopesField" label="#{messages.scopes}"
+						value="#{editOidcRpConfigurationBean.entity.scopes}" required="false" />
+		
+					<bw:inputText id="serviceUrlField" label="#{messages.serviceUrl}"
+						value="#{editOidcRpConfigurationBean.entity.serviceUrl}" required="false" />
+
+					<bw:inputText id="authUrlField" label="#{messages.authUrl}"
+						value="#{editOidcRpConfigurationBean.entity.authUrl}" required="false" />
+		
+					<bw:inputText id="tokenEndpointField" label="#{messages.tokenEndpoint}"
+						value="#{editOidcRpConfigurationBean.entity.tokenEndpoint}" required="false" />
+		
+					<bw:inputText id="userInfoEndpointField" label="#{messages.userInfoEndpoint}"
+						value="#{editOidcRpConfigurationBean.entity.userInfoEndpoint}" required="false" />
+		
 				</p:panelGrid>
 			<h:commandButton id="save" action="#{editOidcRpConfigurationBean.save}" value="#{messages.save}"/>
 			</p:panel>

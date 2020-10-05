@@ -60,6 +60,10 @@
 				update=":form" />
 		</p:panel>
 
+		<p:panel header="OIDC Test">
+			<p:commandButton id="oidcLogin" action="#{discoveryLoginBean.oidcLogin()}" value="#{messages.proceed}" 
+				immediate="true"/>
+		</p:panel>
 	</h:form>
 	
 	</ui:define>
