@@ -17,7 +17,9 @@ import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
 
 import edu.kit.scc.webreg.dao.oidc.OidcRpConfigurationDao;
+import edu.kit.scc.webreg.dao.oidc.OidcRpFlowStateDao;
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcRpFlowStateEntity;
 import edu.kit.scc.webreg.service.saml.exc.OidcAuthenticationException;
 
 @Stateless
@@ -30,6 +32,9 @@ public class OidcClientRedirectServiceImpl implements OidcClientRedirectService 
 	
 	@Inject
 	private OidcRpConfigurationDao rpConfigDao;
+	
+	@Inject
+	private OidcRpFlowStateDao rpFlowStateDao;
 	
 	@Override
 	public void redirectClient(Long oidcRelyingPartyId, HttpServletResponse response) throws OidcAuthenticationException {
@@ -50,6 +55,11 @@ public class OidcClientRedirectServiceImpl implements OidcClientRedirectService 
 				    .endpointURI(authzEndpoint)
 				    .build();
 			URI requestURI = request.toURI();
+			
+			OidcRpFlowStateEntity flowState = rpFlowStateDao.createNew();
+			flowState.setRpConfiguration(rpConfig);
+			flowState.setState(state.getValue());
+			rpFlowStateDao.persist(flowState);
 			
 			logger.info("Sending OIDC Client to uri: {}", requestURI);
 			
