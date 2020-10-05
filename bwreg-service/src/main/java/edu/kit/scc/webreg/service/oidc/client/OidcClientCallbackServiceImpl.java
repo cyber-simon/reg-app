@@ -10,7 +10,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 
 import com.nimbusds.jwt.JWT;
-import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationCodeGrant;
 import com.nimbusds.oauth2.sdk.AuthorizationGrant;
@@ -22,11 +21,19 @@ import com.nimbusds.oauth2.sdk.TokenResponse;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
 import com.nimbusds.oauth2.sdk.auth.Secret;
+import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
+import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
+import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponseParser;
+import com.nimbusds.openid.connect.sdk.UserInfoRequest;
+import com.nimbusds.openid.connect.sdk.UserInfoResponse;
+import com.nimbusds.openid.connect.sdk.claims.UserInfo;
+import com.nimbusds.openid.connect.sdk.op.OIDCProviderConfigurationRequest;
+import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 import edu.kit.scc.webreg.dao.oidc.OidcRpConfigurationDao;
 import edu.kit.scc.webreg.dao.oidc.OidcRpFlowStateDao;
@@ -68,6 +75,11 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 			}
 
 			OidcRpConfigurationEntity rpConfig = flowState.getRpConfiguration();
+			
+			Issuer issuer = new Issuer(rpConfig.getServiceUrl());
+			OIDCProviderConfigurationRequest configRequest = new OIDCProviderConfigurationRequest(issuer);
+			HTTPResponse configResponse = configRequest.toHTTPRequest().send();
+			OIDCProviderMetadata opMetadata = OIDCProviderMetadata.parse(configResponse.getContentAsJSONObject());
 
 			AuthorizationCode code = successResponse.getAuthorizationCode();
 			flowState.setCode(code.getValue());
@@ -79,11 +91,9 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 			Secret clientSecret = new Secret(rpConfig.getSecret());
 			ClientAuthentication clientAuth = new ClientSecretBasic(clientID, clientSecret);
 
-			// The token endpoint
-			URI tokenEndpoint = new URI(rpConfig.getTokenEndpoint());
-
 			// Make the token request
-			TokenRequest tokenRequest = new TokenRequest(tokenEndpoint, clientAuth, codeGrant);
+			TokenRequest tokenRequest = new TokenRequest(opMetadata.getTokenEndpointURI(), 
+					clientAuth, codeGrant);
 			TokenResponse tokenResponse = OIDCTokenResponseParser.parse(tokenRequest.toHTTPRequest().send());
 
 			if (! response.indicatesSuccess()) {
@@ -91,11 +101,28 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 			}
 
 			OIDCTokenResponse oidcTokenResponse = (OIDCTokenResponse) tokenResponse.toSuccessResponse();
+
 			
 			JWT idToken = oidcTokenResponse.getOIDCTokens().getIDToken();
 			AccessToken accessToken = oidcTokenResponse.getOIDCTokens().getAccessToken();
 			RefreshToken refreshToken = oidcTokenResponse.getOIDCTokens().getRefreshToken();
+
+			BearerAccessToken bat = oidcTokenResponse.getOIDCTokens().getBearerAccessToken();
+			HTTPResponse httpResponse = new UserInfoRequest(
+					opMetadata.getUserInfoEndpointURI(), bat)
+				    .toHTTPRequest()
+				    .send();
 			
+			UserInfoResponse userInfoResponse = UserInfoResponse.parse(httpResponse);
+
+			if (! userInfoResponse.indicatesSuccess()) {
+			    throw new OidcAuthenticationException("got userinfo error response: " + 
+			    		userInfoResponse.toErrorResponse().getErrorObject().getDescription());
+			}
+			
+			UserInfo userInfo = userInfoResponse.toSuccessResponse().getUserInfo();
+			logger.info("userinfo {}, {}, {}", userInfo.getSubject(), userInfo.getPreferredUsername(), 
+					userInfo.getEmailAddress());
 		} catch (IOException | ParseException | URISyntaxException e) {
 			logger.warn("Oidc callback failed: {}", e.getMessage());
 			throw new OidcAuthenticationException(e);
