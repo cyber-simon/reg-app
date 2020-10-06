@@ -6,8 +6,10 @@ import java.net.URISyntaxException;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
+import org.slf4j.MDC;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -41,11 +43,17 @@ import com.nimbusds.openid.connect.sdk.op.OIDCProviderConfigurationRequest;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import com.nimbusds.openid.connect.sdk.validators.IDTokenValidator;
 
+import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.oidc.OidcRpConfigurationDao;
 import edu.kit.scc.webreg.dao.oidc.OidcRpFlowStateDao;
+import edu.kit.scc.webreg.dao.oidc.OidcUserDao;
+import edu.kit.scc.webreg.drools.impl.KnowledgeSessionSingleton;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcRpFlowStateEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.service.saml.exc.OidcAuthenticationException;
+import edu.kit.scc.webreg.session.SessionManager;
 
 @Stateless
 public class OidcClientCallbackServiceImpl implements OidcClientCallbackService {
@@ -64,8 +72,20 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 	@Inject
 	private OidcOpMetadataSingletonBean opMetadataBean;
 
+	@Inject
+	private OidcUserDao oidcUserDao;
+	
+	@Inject
+	private KnowledgeSessionSingleton knowledgeSessionService;
+	
+	@Inject
+	private ApplicationConfig appConfig;
+	
+	@Inject
+	private SessionManager session;
+		
 	@Override
-	public void callback(String uri) throws OidcAuthenticationException {
+	public void callback(String uri, HttpServletResponse httpServletResponse) throws OidcAuthenticationException {
 
 		try {
 			AuthorizationResponse response = AuthorizationResponse.parse(new URI(uri));
@@ -114,8 +134,10 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 					JWSAlgorithm.RS256, 
 					opMetadataBean.getJWKSetURI(rpConfig).toURL());
 
+			IDTokenClaimsSet claims;
+			
 			try {
-				IDTokenClaimsSet claims = validator.validate(idToken, new Nonce(flowState.getNonce()));
+				claims = validator.validate(idToken, new Nonce(flowState.getNonce()));
 				logger.debug("Got signed claims verified from {}: {}", claims.getIssuer(), claims.getSubject());
 			} catch (BadJOSEException | JOSEException e) {
 			    throw new OidcAuthenticationException("signature failed: " + e.getMessage());
@@ -140,6 +162,26 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 			UserInfo userInfo = userInfoResponse.toSuccessResponse().getUserInfo();
 			logger.info("userinfo {}, {}, {}", userInfo.getSubject(), userInfo.getPreferredUsername(), 
 					userInfo.getEmailAddress());
+			
+			OidcUserEntity user = oidcUserDao.findByIssuerAndSub(rpConfig, claims.getSubject().getValue());
+
+			if (user != null) {
+				MDC.put("userId", "" + user.getId());
+			}
+			
+			if (user == null) {
+				logger.info("New User detected, sending to register Page");
+
+				// Store OIDC Data temporarily in Session
+				logger.debug("Storing relevant Oidc data in session");
+				session.setSubjectId(claims.getSubject().getValue());
+
+				// TODO: setAttributeMap in Session with attributes from OIDC 
+				
+				httpServletResponse.sendRedirect("/register/register-oidc.xhtml");
+				return;
+			}
+						
 		} catch (IOException | ParseException | URISyntaxException e) {
 			logger.warn("Oidc callback failed: {}", e.getMessage());
 			throw new OidcAuthenticationException(e);

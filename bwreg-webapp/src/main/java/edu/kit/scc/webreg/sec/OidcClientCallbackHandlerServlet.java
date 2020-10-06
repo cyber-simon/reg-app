@@ -69,7 +69,7 @@ public class OidcClientCallbackHandlerServlet implements Servlet {
 		}
 		
 		try {
-			callbackService.callback(requestURL.toString());
+			callbackService.callback(requestURL.toString(), response);
 		} catch (OidcAuthenticationException e) {
 			throw new ServletException("Problems encountered: " + e.getMessage());
 		}

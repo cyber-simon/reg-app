@@ -50,6 +50,7 @@ public class SessionManager implements Serializable {
 	private Map<String, List<Object>> attributeMap;
 	
 	private String persistentId;
+	private String subjectId;
 	
 	private String originalRequestPath;
 	private String originalIdpEntityId;
@@ -306,5 +307,13 @@ public class SessionManager implements Serializable {
 
 	public void setOidcRelyingPartyId(Long oidcRelyingPartyId) {
 		this.oidcRelyingPartyId = oidcRelyingPartyId;
+	}
+
+	public String getSubjectId() {
+		return subjectId;
+	}
+
+	public void setSubjectId(String subjectId) {
+		this.subjectId = subjectId;
 	}
 }

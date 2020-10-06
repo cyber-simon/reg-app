@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 
-import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
@@ -18,6 +17,7 @@ import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.Nonce;
+import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 
 import edu.kit.scc.webreg.dao.oidc.OidcRpConfigurationDao;
 import edu.kit.scc.webreg.dao.oidc.OidcRpFlowStateDao;
@@ -55,7 +55,7 @@ public class OidcClientRedirectServiceImpl implements OidcClientRedirectService 
 			URI authzEndpoint = opMetadataBean.getAuthorizationEndpointURI(rpConfig);
 			
 			ClientID clientID = new ClientID(rpConfig.getClientId());
-			Scope scope = new Scope("openid", "profile", "email");
+			Scope scope = new Scope(OIDCScopeValue.OPENID, OIDCScopeValue.PROFILE, OIDCScopeValue.EMAIL);
 			URI callback = new URI(rpConfig.getCallbackUrl());
 			State state = new State();
 			Nonce nonce = new Nonce();
