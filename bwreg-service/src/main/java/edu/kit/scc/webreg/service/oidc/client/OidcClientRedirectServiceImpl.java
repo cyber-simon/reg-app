@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
+import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.id.ClientID;
@@ -36,16 +37,24 @@ public class OidcClientRedirectServiceImpl implements OidcClientRedirectService 
 	@Inject
 	private OidcRpFlowStateDao rpFlowStateDao;
 	
+	@Inject
+	private OidcOpMetadataSingletonBean opMetadataBean;
+	
 	@Override
 	public void redirectClient(Long oidcRelyingPartyId, HttpServletResponse response) throws OidcAuthenticationException {
 		
 		OidcRpConfigurationEntity rpConfig = rpConfigDao.findById(oidcRelyingPartyId);
 		
+		if (rpConfig == null) {
+			throw new OidcAuthenticationException("relying party not configured");
+		}
+		
 		try {
-			URI authzEndpoint = new URI(rpConfig.getAuthUrl());
+			URI authzEndpoint = opMetadataBean.getAuthorizationEndpointURI(rpConfig);
+			
 			ClientID clientID = new ClientID(rpConfig.getClientId());
 			Scope scope = new Scope("openid", "profile", "email");
-			URI callback = new URI("https://bwidm.scc.kit.edu/rpoidc/callback");
+			URI callback = new URI(rpConfig.getCallbackUrl());
 			State state = new State();
 			AuthorizationRequest request = new AuthorizationRequest.Builder(
 				    new ResponseType(ResponseType.Value.CODE), clientID)
@@ -64,7 +73,7 @@ public class OidcClientRedirectServiceImpl implements OidcClientRedirectService 
 			logger.info("Sending OIDC Client to uri: {}", requestURI);
 			
 			response.sendRedirect(requestURI.toString());
-		} catch (URISyntaxException | IOException e) {
+		} catch (URISyntaxException | IOException | ParseException e) {
 			logger.warn("Exception while building oidc request and redirect: {}", e.getMessage());
 			throw new OidcAuthenticationException(e);
 		}

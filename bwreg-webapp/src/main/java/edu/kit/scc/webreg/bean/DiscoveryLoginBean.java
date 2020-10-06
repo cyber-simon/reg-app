@@ -26,8 +26,10 @@ import javax.inject.Inject;
 import edu.kit.scc.webreg.entity.FederationEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.SamlSpConfigurationService;
+import edu.kit.scc.webreg.service.oidc.OidcRpConfigurationService;
 import edu.kit.scc.webreg.service.saml.FederationSingletonBean;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
@@ -48,6 +50,9 @@ public class DiscoveryLoginBean implements Serializable {
 	private SamlSpConfigurationService spService;
 	
 	@Inject
+	private OidcRpConfigurationService oidcRpService;
+	
+	@Inject
 	private SessionManager sessionManager;
 	
 	@Inject
@@ -58,6 +63,9 @@ public class DiscoveryLoginBean implements Serializable {
 	private FederationEntity selectedFederation;
 	private SamlIdpMetadataEntity selectedIdp;
 
+	private List<OidcRpConfigurationEntity> oidcRpList;
+	private OidcRpConfigurationEntity selectedOidcRp;
+	
 	private String filter;
 	
 	private Boolean initialized = false;
@@ -114,12 +122,19 @@ public class DiscoveryLoginBean implements Serializable {
 
 	public void oidcLogin() {
 		ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
-		sessionManager.setOidcRelyingPartyId(50080514L);
-		try {
-			externalContext.redirect("/rpoidc/login");
-		} catch (IOException e) {
-			messageGenerator.addErrorMessage("Ein Fehler ist aufgetreten", 
-							e.toString());
+		
+		if (selectedOidcRp != null) {
+			sessionManager.setOidcRelyingPartyId(selectedOidcRp.getId());
+			try {
+				externalContext.redirect("/rpoidc/login");
+			} catch (IOException e) {
+				messageGenerator.addErrorMessage("Ein Fehler ist aufgetreten", 
+								e.toString());
+			}
+		}
+		else {
+				messageGenerator.addWarningMessage("Keine Auswahl getroffen", 
+							"Bitte wählen Sie Ihre Heimatorganisation");
 		}
 	}
 	
@@ -187,6 +202,21 @@ public class DiscoveryLoginBean implements Serializable {
 
 	public void setFilter(String filter) {
 		this.filter = filter;
+	}
+
+	public List<OidcRpConfigurationEntity> getOidcRpList() {
+		if (oidcRpList == null) {
+			oidcRpList = oidcRpService.findAll();
+		}
+		return oidcRpList;
+	}
+
+	public OidcRpConfigurationEntity getSelectedOidcRp() {
+		return selectedOidcRp;
+	}
+
+	public void setSelectedOidcRp(OidcRpConfigurationEntity selectedOidcRp) {
+		this.selectedOidcRp = selectedOidcRp;
 	}
 
 }

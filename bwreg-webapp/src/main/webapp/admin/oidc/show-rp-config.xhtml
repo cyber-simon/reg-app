@@ -49,6 +49,9 @@
 			        <h:outputText value="#{messages.serviceUrl}:"/>
 			        <h:outputText value="#{showOidcRpConfigurationBean.entity.serviceUrl}"/>
 		
+			        <h:outputText value="#{messages.callbackUrl}:"/>
+			        <h:outputText value="#{showOidcRpConfigurationBean.entity.callbackUrl}"/>
+		
 				</p:panelGrid>
 		<h:link outcome="edit-rp-config.xhtml" value="#{messages.edit}">
 			<f:param name="id" value="#{showOidcRpConfigurationBean.entity.id}"/>

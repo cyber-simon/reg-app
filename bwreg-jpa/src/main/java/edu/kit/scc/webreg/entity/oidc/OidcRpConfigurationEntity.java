@@ -30,14 +30,8 @@ public class OidcRpConfigurationEntity extends AbstractBaseEntity {
 	@Column(name = "service_url", length = 1024)
 	private String serviceUrl;
 
-	@Column(name = "auth_url", length = 1024)
-	private String authUrl;
-
-	@Column(name = "token_endpoint", length = 1024)
-	private String tokenEndpoint;
-
-	@Column(name = "userinfo_endpoint", length = 1024)
-	private String userInfoEndpoint;
+	@Column(name = "callback_url", length = 1024)
+	private String callbackUrl;
 
 	public String getName() {
 		return name;
@@ -45,30 +39,6 @@ public class OidcRpConfigurationEntity extends AbstractBaseEntity {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public String getAuthUrl() {
-		return authUrl;
-	}
-
-	public void setAuthUrl(String authUrl) {
-		this.authUrl = authUrl;
-	}
-
-	public String getTokenEndpoint() {
-		return tokenEndpoint;
-	}
-
-	public void setTokenEndpoint(String tokenEndpoint) {
-		this.tokenEndpoint = tokenEndpoint;
-	}
-
-	public String getUserInfoEndpoint() {
-		return userInfoEndpoint;
-	}
-
-	public void setUserInfoEndpoint(String userInfoEndpoint) {
-		this.userInfoEndpoint = userInfoEndpoint;
 	}
 
 	public String getClientId() {
@@ -111,4 +81,11 @@ public class OidcRpConfigurationEntity extends AbstractBaseEntity {
 		this.displayName = displayName;
 	}
 
+	public String getCallbackUrl() {
+		return callbackUrl;
+	}
+
+	public void setCallbackUrl(String callbackUrl) {
+		this.callbackUrl = callbackUrl;
+	}
 }

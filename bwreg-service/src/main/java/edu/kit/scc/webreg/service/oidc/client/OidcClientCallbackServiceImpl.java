@@ -55,6 +55,9 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 	@Inject
 	private OidcRpFlowStateDao rpFlowStateDao;
 	
+	@Inject
+	private OidcOpMetadataSingletonBean opMetadataBean;
+
 	@Override
 	public void callback(String uri) throws OidcAuthenticationException {
 
@@ -76,11 +79,6 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 
 			OidcRpConfigurationEntity rpConfig = flowState.getRpConfiguration();
 			
-			Issuer issuer = new Issuer(rpConfig.getServiceUrl());
-			OIDCProviderConfigurationRequest configRequest = new OIDCProviderConfigurationRequest(issuer);
-			HTTPResponse configResponse = configRequest.toHTTPRequest().send();
-			OIDCProviderMetadata opMetadata = OIDCProviderMetadata.parse(configResponse.getContentAsJSONObject());
-
 			AuthorizationCode code = successResponse.getAuthorizationCode();
 			flowState.setCode(code.getValue());
 
@@ -92,24 +90,23 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 			ClientAuthentication clientAuth = new ClientSecretBasic(clientID, clientSecret);
 
 			// Make the token request
-			TokenRequest tokenRequest = new TokenRequest(opMetadata.getTokenEndpointURI(), 
+			TokenRequest tokenRequest = new TokenRequest(opMetadataBean.getTokenEndpointURI(rpConfig), 
 					clientAuth, codeGrant);
 			TokenResponse tokenResponse = OIDCTokenResponseParser.parse(tokenRequest.toHTTPRequest().send());
 
-			if (! response.indicatesSuccess()) {
-			    throw new OidcAuthenticationException("got token error response: " + response.toErrorResponse());
+			if (! tokenResponse.indicatesSuccess()) {
+			    throw new OidcAuthenticationException("got token error response: " + tokenResponse.toErrorResponse().getErrorObject().getDescription());
 			}
 
 			OIDCTokenResponse oidcTokenResponse = (OIDCTokenResponse) tokenResponse.toSuccessResponse();
 
-			
 			JWT idToken = oidcTokenResponse.getOIDCTokens().getIDToken();
 			AccessToken accessToken = oidcTokenResponse.getOIDCTokens().getAccessToken();
 			RefreshToken refreshToken = oidcTokenResponse.getOIDCTokens().getRefreshToken();
 
 			BearerAccessToken bat = oidcTokenResponse.getOIDCTokens().getBearerAccessToken();
 			HTTPResponse httpResponse = new UserInfoRequest(
-					opMetadata.getUserInfoEndpointURI(), bat)
+					opMetadataBean.getUserInfoEndpointURI(rpConfig), bat)
 				    .toHTTPRequest()
 				    .send();
 			
