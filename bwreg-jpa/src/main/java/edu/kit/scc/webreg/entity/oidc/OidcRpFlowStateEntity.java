@@ -28,6 +28,9 @@ public class OidcRpFlowStateEntity extends AbstractBaseEntity {
 	@Column(name = "code", length = 256)
 	private String code;
 
+	@Column(name = "nonce", length = 256)
+	private String nonce;
+
 	@Column(name = "valid_until")
 	private Date validUntil;
 	
@@ -69,5 +72,13 @@ public class OidcRpFlowStateEntity extends AbstractBaseEntity {
 
 	public void setCode(String code) {
 		this.code = code;
+	}
+
+	public String getNonce() {
+		return nonce;
+	}
+
+	public void setNonce(String nonce) {
+		this.nonce = nonce;
 	}
 }

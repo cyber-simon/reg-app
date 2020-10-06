@@ -9,6 +9,9 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationCodeGrant;
@@ -27,13 +30,16 @@ import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
+import com.nimbusds.openid.connect.sdk.Nonce;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponseParser;
 import com.nimbusds.openid.connect.sdk.UserInfoRequest;
 import com.nimbusds.openid.connect.sdk.UserInfoResponse;
+import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderConfigurationRequest;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
+import com.nimbusds.openid.connect.sdk.validators.IDTokenValidator;
 
 import edu.kit.scc.webreg.dao.oidc.OidcRpConfigurationDao;
 import edu.kit.scc.webreg.dao.oidc.OidcRpFlowStateDao;
@@ -82,7 +88,7 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 			AuthorizationCode code = successResponse.getAuthorizationCode();
 			flowState.setCode(code.getValue());
 
-			URI callback = new URI("https://bwidm.scc.kit.edu/rpoidc/callback");
+			URI callback = new URI(rpConfig.getCallbackUrl());
 			AuthorizationGrant codeGrant = new AuthorizationCodeGrant(code, callback);
 
 			ClientID clientID = new ClientID(rpConfig.getClientId());
@@ -101,6 +107,20 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 			OIDCTokenResponse oidcTokenResponse = (OIDCTokenResponse) tokenResponse.toSuccessResponse();
 
 			JWT idToken = oidcTokenResponse.getOIDCTokens().getIDToken();
+
+			IDTokenValidator validator = new IDTokenValidator(
+					new Issuer(rpConfig.getServiceUrl()), 
+					new ClientID(rpConfig.getClientId()), 
+					JWSAlgorithm.RS256, 
+					opMetadataBean.getJWKSetURI(rpConfig).toURL());
+
+			try {
+				IDTokenClaimsSet claims = validator.validate(idToken, new Nonce(flowState.getNonce()));
+				logger.debug("Got signed claims verified from {}: {}", claims.getIssuer(), claims.getSubject());
+			} catch (BadJOSEException | JOSEException e) {
+			    throw new OidcAuthenticationException("signature failed: " + e.getMessage());
+			} 
+					
 			AccessToken accessToken = oidcTokenResponse.getOIDCTokens().getAccessToken();
 			RefreshToken refreshToken = oidcTokenResponse.getOIDCTokens().getRefreshToken();
 

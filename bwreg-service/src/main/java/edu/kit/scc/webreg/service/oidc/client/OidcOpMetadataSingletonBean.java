@@ -42,6 +42,11 @@ public class OidcOpMetadataSingletonBean {
 		return opMetadata.getTokenEndpointURI();		
 	}
 	
+	public URI getJWKSetURI(OidcRpConfigurationEntity rpConfig) throws IOException, ParseException {
+		OIDCProviderMetadata opMetadata = getOpMetadata(rpConfig);
+		return opMetadata.getJWKSetURI();		
+	}
+	
 	public URI getUserInfoEndpointURI(OidcRpConfigurationEntity rpConfig) throws IOException, ParseException {
 		OIDCProviderMetadata opMetadata = getOpMetadata(rpConfig);
 		return opMetadata.getUserInfoEndpointURI();		

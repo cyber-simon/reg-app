@@ -16,6 +16,8 @@ import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
+import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
+import com.nimbusds.openid.connect.sdk.Nonce;
 
 import edu.kit.scc.webreg.dao.oidc.OidcRpConfigurationDao;
 import edu.kit.scc.webreg.dao.oidc.OidcRpFlowStateDao;
@@ -56,18 +58,20 @@ public class OidcClientRedirectServiceImpl implements OidcClientRedirectService 
 			Scope scope = new Scope("openid", "profile", "email");
 			URI callback = new URI(rpConfig.getCallbackUrl());
 			State state = new State();
-			AuthorizationRequest request = new AuthorizationRequest.Builder(
-				    new ResponseType(ResponseType.Value.CODE), clientID)
-				    .scope(scope)
+			Nonce nonce = new Nonce();
+			AuthenticationRequest request = new AuthenticationRequest.Builder(
+				    new ResponseType(ResponseType.Value.CODE),
+				    scope, clientID, callback)
 				    .state(state)
-				    .redirectionURI(callback)
 				    .endpointURI(authzEndpoint)
+				    .nonce(nonce)
 				    .build();
 			URI requestURI = request.toURI();
 			
 			OidcRpFlowStateEntity flowState = rpFlowStateDao.createNew();
 			flowState.setRpConfiguration(rpConfig);
 			flowState.setState(state.getValue());
+			flowState.setNonce(nonce.getValue());
 			rpFlowStateDao.persist(flowState);
 			
 			logger.info("Sending OIDC Client to uri: {}", requestURI);
