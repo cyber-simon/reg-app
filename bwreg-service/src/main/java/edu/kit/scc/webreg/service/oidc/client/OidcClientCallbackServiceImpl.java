@@ -82,6 +82,9 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 	private ApplicationConfig appConfig;
 	
 	@Inject
+	private OidcTokenHelper oidcTokenHelper;
+	
+	@Inject
 	private SessionManager session;
 		
 	@Override
@@ -175,8 +178,7 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 				// Store OIDC Data temporarily in Session
 				logger.debug("Storing relevant Oidc data in session");
 				session.setSubjectId(claims.getSubject().getValue());
-
-				// TODO: setAttributeMap in Session with attributes from OIDC 
+				session.setAttributeMap(oidcTokenHelper.convertToAttributeMap(claims, userInfo));
 				
 				httpServletResponse.sendRedirect("/register/register-oidc.xhtml");
 				return;
