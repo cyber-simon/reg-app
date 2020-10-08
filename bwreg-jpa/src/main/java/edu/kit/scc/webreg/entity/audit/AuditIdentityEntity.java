@@ -8,17 +8,26 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.dao.identity;
+package edu.kit.scc.webreg.entity.audit;
 
-import java.util.List;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 
-import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 
-public interface IdentityDao extends BaseDao<IdentityEntity, Long> {
+@Entity(name = "AuditIdentityEntity")
+public class AuditIdentityEntity extends AuditEntryEntity {
 
-	IdentityEntity findByUserId(Long userId);
+	private static final long serialVersionUID = 1L;
 
-	List<IdentityEntity> findMissingTwoFaUserId();
+	@ManyToOne(targetEntity = IdentityEntity.class)
+	private IdentityEntity identity;
 
+	public IdentityEntity getIdentity() {
+		return identity;
+	}
+
+	public void setIdentity(IdentityEntity identity) {
+		this.identity = identity;
+	}
 }

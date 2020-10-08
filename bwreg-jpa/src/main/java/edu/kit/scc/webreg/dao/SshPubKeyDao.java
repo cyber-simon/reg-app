@@ -17,14 +17,16 @@ import edu.kit.scc.webreg.entity.SshPubKeyStatus;
 
 public interface SshPubKeyDao extends BaseDao<SshPubKeyEntity, Long> {
 
-	List<SshPubKeyEntity> findByUser(Long userId);
-
-	List<SshPubKeyEntity> findByUserAndStatus(Long userId, SshPubKeyStatus keyStatus);
-
-	List<SshPubKeyEntity> findByUserAndKey(Long userId, String encodedKey);
-
-	List<SshPubKeyEntity> findByUserAndStatusWithRegs(Long userId, SshPubKeyStatus keyStatus);
-
 	List<SshPubKeyEntity> findByKey(String encodedKey);
+
+	List<SshPubKeyEntity> findMissingIdentity();
+
+	List<SshPubKeyEntity> findByIdentityAndKey(Long identityId, String encodedKey);
+
+	List<SshPubKeyEntity> findByIdentityAndStatusWithRegs(Long identityId, SshPubKeyStatus keyStatus);
+
+	List<SshPubKeyEntity> findByIdentityAndStatus(Long identityId, SshPubKeyStatus keyStatus);
+
+	List<SshPubKeyEntity> findByIdentity(Long identityId);
 
 }

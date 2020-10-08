@@ -28,10 +28,10 @@ import edu.kit.scc.webreg.drools.UnauthorizedUser;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
-import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.ServiceService;
-import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.session.SessionManager;
 
 @Named("userIndexBean")
@@ -45,7 +45,7 @@ public class UserIndexBean {
 
 	private Map<ServiceEntity, String>	serviceAccessMap; 
 	
-	private UserEntity user;
+	private IdentityEntity identity;
 	
 	@Inject
 	private Logger logger;
@@ -60,23 +60,23 @@ public class UserIndexBean {
     private SessionManager sessionManager;
     
     @Inject
-    private UserService userService;
+    private IdentityService identityService;
 
 	@Inject
 	private KnowledgeSessionService knowledgeSessionService;
 
     @PostConstruct
     public void init() {
-    	user = userService.findByIdWithStore(sessionManager.getUserId());
+    	identity = identityService.findById(sessionManager.getIdentityId());
     	allServiceList = serviceService.findAllPublishedWithServiceProps();
-    	userRegistryList = registryService.findByUserAndNotStatusAndNotHidden(
-    			user, RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED, RegistryStatus.PENDING);
-    	pendingRegistryList = registryService.findByUserAndStatus(user, RegistryStatus.PENDING);
+    	userRegistryList = registryService.findByIdentityAndNotStatusAndNotHidden(
+    			identity, RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED, RegistryStatus.PENDING);
+    	pendingRegistryList = registryService.findByIdentityAndStatus(identity, RegistryStatus.PENDING);
     	
     	serviceAccessMap = new HashMap<ServiceEntity, String>(userRegistryList.size());
 
     	long start = System.currentTimeMillis();
-    	checkServiceAccess(userRegistryList, user);
+    	checkServiceAccess(userRegistryList, identity);
     	long end = System.currentTimeMillis();
     	logger.debug("Rule processing took {} ms", end - start);
 	}
@@ -93,16 +93,12 @@ public class UserIndexBean {
    		return userRegistryList;
     }
 
-	public UserEntity getUser() {
-		return user;
-	}
-
 	public List<RegistryEntity> getPendingRegistryList() {
 		return pendingRegistryList;
 	}
 
-	private void checkServiceAccess(List<RegistryEntity> registryList, UserEntity user) {
-		Map<RegistryEntity, List<Object>> objectMap = knowledgeSessionService.checkRules(userRegistryList, user, "user-self", false);
+	private void checkServiceAccess(List<RegistryEntity> registryList, IdentityEntity identity) {
+		Map<RegistryEntity, List<Object>> objectMap = knowledgeSessionService.checkRules(userRegistryList, identity, "user-self", false);
 		
 		for (Entry<RegistryEntity, List<Object>> entry : objectMap.entrySet()) {
 			RegistryEntity registry = entry.getKey();
@@ -125,6 +121,10 @@ public class UserIndexBean {
 			if (sb.length() > 0)
 				serviceAccessMap.put(registry.getService(), sb.toString());
 		}
+	}
+
+	public IdentityEntity getIdentity() {
+		return identity;
 	}
 
 }

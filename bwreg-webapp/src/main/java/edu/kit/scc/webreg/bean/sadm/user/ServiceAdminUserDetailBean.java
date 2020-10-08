@@ -136,7 +136,7 @@ public class ServiceAdminUserDetailBean implements Serializable {
 	public void reconsiliation() {
 		logger.debug("Manual quick recon for Account {} Service {}", entity.getUser().getEppn(), entity.getService().getName());
 		try {
-			registerUserService.reconsiliation(entity, false, "service-admin-" + sessionManager.getUserId());
+			registerUserService.reconsiliation(entity, false, "service-admin-" + sessionManager.getIdentityId());
 		} catch (RegisterException e) {
 			logger.error("An error occured", e);
 		}
@@ -145,7 +145,7 @@ public class ServiceAdminUserDetailBean implements Serializable {
 	public void fullReconsiliation() {
 		logger.debug("Manual full recon for Account {} Service {}", entity.getUser().getEppn(), entity.getService().getName());
 		try {
-			registerUserService.reconsiliation(entity, true, "service-admin-" + sessionManager.getUserId());
+			registerUserService.reconsiliation(entity, true, "service-admin-" + sessionManager.getIdentityId());
 		} catch (RegisterException e) {
 			logger.error("An error occured", e);
 		}
@@ -198,7 +198,7 @@ public class ServiceAdminUserDetailBean implements Serializable {
 	public void deregister() {
 		try {
 			logger.info("Deregister registry {} via AdminRegistry page", entity.getId());
-			registerUserService.deregisterUser(entity, "service-admin-" + sessionManager.getUserId());
+			registerUserService.deregisterUser(entity, "service-admin-" + sessionManager.getIdentityId());
 		} catch (RegisterException e) {
 			logger.warn("Could not deregister User", e);
 		}
@@ -209,7 +209,7 @@ public class ServiceAdminUserDetailBean implements Serializable {
 
 		if (getUser() instanceof SamlUserEntity) {
 			try {
-				user = userService.updateUserFromIdp((SamlUserEntity) getUser(), "user-" + sessionManager.getUserId());
+				user = userService.updateUserFromIdp((SamlUserEntity) getUser(), "user-" + sessionManager.getIdentityId());
 				messageGenerator.addInfoMessage("Info", "SAML AttributeQuery went through without errors");
 			} catch (UserUpdateException e) {
 				logger.info("Exception while Querying IDP: {}", e.getMessage());

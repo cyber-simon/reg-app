@@ -65,14 +65,14 @@ public class SshPubKeyApprovalListBean implements Serializable {
     
 	public String approve(SshPubKeyRegistryEntity key) {
 		key.setApproverComment(approverComment);
-		service.approveRegistry(key, sessionManager.getUserId());
+		service.approveRegistry(key, sessionManager.getIdentityId());
 		list.remove(selectedKey);
 		return null;
 	}
 	
 	public String deny(SshPubKeyRegistryEntity key) {
 		key.setApproverComment(approverComment);
-		service.denyRegistry(key, sessionManager.getUserId());
+		service.denyRegistry(key, sessionManager.getIdentityId());
 		list.remove(selectedKey);
 		return null;
 	}

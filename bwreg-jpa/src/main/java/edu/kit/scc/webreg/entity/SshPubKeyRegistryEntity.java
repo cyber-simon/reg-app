@@ -9,6 +9,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+
 @Entity(name = "SshPubKeyRegistryEntity")
 @Table(name = "ssh_pub_key_registry")
 public class SshPubKeyRegistryEntity extends AbstractBaseEntity {
@@ -42,8 +44,8 @@ public class SshPubKeyRegistryEntity extends AbstractBaseEntity {
 	@Column(name = "approved_at")
 	private Date approvedAt;	
 
-	@ManyToOne(targetEntity = UserEntity.class)
-	private UserEntity approvedBy;
+	@ManyToOne(targetEntity = IdentityEntity.class)
+	private IdentityEntity approver;
 
 	@Column(name = "expires_at")
 	private Date expiresAt;
@@ -128,12 +130,11 @@ public class SshPubKeyRegistryEntity extends AbstractBaseEntity {
 		this.approvedAt = approvedAt;
 	}
 
-	public UserEntity getApprovedBy() {
-		return approvedBy;
+	public IdentityEntity getApprover() {
+		return approver;
 	}
 
-	public void setApprovedBy(UserEntity approvedBy) {
-		this.approvedBy = approvedBy;
+	public void setApprover(IdentityEntity approver) {
+		this.approver = approver;
 	}
-	
 }

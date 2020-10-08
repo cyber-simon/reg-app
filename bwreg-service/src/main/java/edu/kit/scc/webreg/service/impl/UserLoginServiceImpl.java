@@ -247,7 +247,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			password = password.substring(0, index);
 			
 			try {
-				LinotpSimpleResponse response = twoFaService.checkToken(user.getId(), twoFa);
+				LinotpSimpleResponse response = twoFaService.checkToken(user.getIdentity(), twoFa);
 				if (!(response.getResult() != null && response.getResult().isStatus() && 
 						response.getResult().isValue())) {
 					logger.info("User {} ({}) failed 2fa authentication", user.getEppn(), user.getId()); 

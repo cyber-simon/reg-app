@@ -51,9 +51,9 @@ public class UserUpdateAccessCheckExecutor extends
 			RegistryService registryService = (RegistryService) ic.lookup("global/bwreg/bwreg-service/RegistryServiceImpl!edu.kit.scc.webreg.service.RegistryService");
 			
 			UserEntity user = getEvent().getEntity();
-			List<RegistryEntity> registryList = registryService.findByUserAndStatus(user, RegistryStatus.ACTIVE);
+			List<RegistryEntity> registryList = registryService.findByIdentityAndStatus(user.getIdentity(), RegistryStatus.ACTIVE);
 			
-			knowledgeSessionService.checkRules(registryList, user, executor);
+			knowledgeSessionService.checkRules(registryList, user.getIdentity(), executor);
 			
 		} catch (NamingException e) {
 			logger.warn("Could not check access: {}", e);

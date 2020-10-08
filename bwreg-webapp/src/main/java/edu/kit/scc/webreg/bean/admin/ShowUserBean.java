@@ -131,7 +131,7 @@ public class ShowUserBean implements Serializable {
 
 		if (user instanceof SamlUserEntity) {
 			try {
-				userService.updateUserFromIdp((SamlUserEntity) user, "user-" + sessionManager.getUserId());
+				userService.updateUserFromIdp((SamlUserEntity) user, "identity-" + sessionManager.getIdentityId());
 			} catch (UserUpdateException e) {
 				logger.info("Exception while Querying IDP: {}", e.getMessage());
 				if (e.getCause() != null) {
@@ -158,7 +158,7 @@ public class ShowUserBean implements Serializable {
 				tempRegistryList.add(registry);
 			}
 		}
-		knowledgeSessionService.checkRules(tempRegistryList, user, "user-" + sessionManager.getUserId(), false);
+		knowledgeSessionService.checkRules(tempRegistryList, user.getIdentity(), "identity-" + sessionManager.getIdentityId(), false);
 	}
 	
 	public UserEntity getEntity() {

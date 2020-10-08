@@ -6,8 +6,6 @@ import java.util.List;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.SshPubKeyDao;
 import edu.kit.scc.webreg.dao.UserDao;
@@ -25,9 +23,6 @@ public class SshPubKeyDtoServiceImpl extends BaseDtoServiceImpl<SshPubKeyEntity,
 	private static final long serialVersionUID = 1L;
 
 	@Inject
-	private Logger logger;
-	
-	@Inject
 	private UserDao userDao;
 	
 	@Inject
@@ -40,7 +35,7 @@ public class SshPubKeyDtoServiceImpl extends BaseDtoServiceImpl<SshPubKeyEntity,
 	public List<SshPubKeyEntityDto> findByUidNumber(Long uidNumber) throws RestInterfaceException {
 		UserEntity user = userDao.findByUidNumber(uidNumber);
 		
-		List<SshPubKeyEntity> list = dao.findByUser(user.getId());
+		List<SshPubKeyEntity> list = dao.findByIdentity(user.getIdentity().getId());
 		
 		return convertList(list);
 	}	
@@ -49,7 +44,7 @@ public class SshPubKeyDtoServiceImpl extends BaseDtoServiceImpl<SshPubKeyEntity,
 	public List<SshPubKeyEntityDto> findByUidNumberAndStatus(Long uidNumber, SshPubKeyStatus keyStatus) throws RestInterfaceException {
 		UserEntity user = userDao.findByUidNumber(uidNumber);
 		
-		List<SshPubKeyEntity> list = dao.findByUserAndStatus(user.getId(), keyStatus);
+		List<SshPubKeyEntity> list = dao.findByIdentityAndStatus(user.getIdentity().getId(), keyStatus);
 		
 		return convertList(list);
 	}	

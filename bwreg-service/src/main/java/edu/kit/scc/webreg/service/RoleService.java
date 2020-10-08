@@ -45,4 +45,10 @@ public interface RoleService extends BaseService<RoleEntity, Long> {
 
 	void removeGroupFromRole(GroupEntity group, RoleEntity role);
 
+	List<RoleEntity> findByUserIdList(List<Long> userIdList);
+
+	List<RoleEntity> findByIdentityId(Long identityId);
+
+	Boolean checkIdentityInRole(Long identityId, String roleName);
+
 }

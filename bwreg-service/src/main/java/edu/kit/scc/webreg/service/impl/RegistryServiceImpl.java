@@ -24,6 +24,7 @@ import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.service.RegistryService;
 
 @Stateless
@@ -98,8 +99,8 @@ public class RegistryServiceImpl extends BaseServiceImpl<RegistryEntity, Long> i
 	}
 	
 	@Override
-	public List<RegistryEntity> findByServiceAndUserAndNotStatus(ServiceEntity service, UserEntity user, RegistryStatus... status) {
-		return dao.findByServiceAndUserAndNotStatus(service, user, status);
+	public List<RegistryEntity> findByServiceAndIdentityAndNotStatus(ServiceEntity service, IdentityEntity identity, RegistryStatus... status) {
+		return dao.findByServiceAndIdentityAndNotStatus(service, identity, status);
 	}
 	
 	@Override
@@ -113,18 +114,23 @@ public class RegistryServiceImpl extends BaseServiceImpl<RegistryEntity, Long> i
 	}
 
 	@Override
-	public List<RegistryEntity> findByUserAndStatus(UserEntity user, RegistryStatus... status) {
-		return dao.findByUserAndStatus(user, status);
+	public List<RegistryEntity> findByIdentityAndStatus(IdentityEntity identity, RegistryStatus... status) {
+		return dao.findByIdentityAndStatus(identity, status);
 	}
 
 	@Override
-	public List<RegistryEntity> findByUserAndNotStatusAndNotHidden(UserEntity user, RegistryStatus... status) {
-		return dao.findByUserAndNotStatusAndNotHidden(user, status);
+	public List<RegistryEntity> findByIdentityAndNotStatusAndNotHidden(IdentityEntity identity, RegistryStatus... status) {
+		return dao.findByIdentityAndNotStatusAndNotHidden(identity, status);
 	}
 
 	@Override
 	public List<RegistryEntity> findByUser(UserEntity user) {
 		return dao.findByUser(user);
+	}
+
+	@Override
+	public List<RegistryEntity> findByIdentity(IdentityEntity identity) {
+		return dao.findByIdentity(identity);
 	}
 
 	@Override

@@ -34,7 +34,6 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.service.twofa.TwoFaException;
 
 public class LinotpConnection {
@@ -94,7 +93,7 @@ public class LinotpConnection {
 		httpClient = HttpClients.custom().setDefaultRequestConfig(config).build();
 	}
 
-	public LinotpSimpleResponse checkToken(UserEntity user, String token) throws TwoFaException {
+	public LinotpSimpleResponse checkToken(String token) throws TwoFaException {
 		try {
 			HttpPost httpPost = new HttpPost(configMap.get("url") + "/validate/check");
 			
@@ -103,7 +102,8 @@ public class LinotpConnection {
 			if (configMap.containsKey("userId"))
 			    nvps.add(new BasicNameValuePair("user", configMap.get("userId")));
 			else
-				nvps.add(new BasicNameValuePair("user", user.getEppn()));
+				throw new TwoFaException("userId missing in config map");
+			
 			if (configMap.containsKey("realm"))
 				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
 			
@@ -157,7 +157,7 @@ public class LinotpConnection {
 		}
 	}
 	
-	public LinotpInitAuthenticatorTokenResponse createAuthenticatorToken(UserEntity user) throws TwoFaException {
+	public LinotpInitAuthenticatorTokenResponse createAuthenticatorToken() throws TwoFaException {
 		try {
 			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/init");
 			
@@ -173,7 +173,8 @@ public class LinotpConnection {
 			if (configMap.containsKey("userId"))
 			    nvps.add(new BasicNameValuePair("user", configMap.get("userId")));
 			else
-				nvps.add(new BasicNameValuePair("user", user.getEppn()));
+				throw new TwoFaException("userId missing in config map");
+
 			if (configMap.containsKey("realm"))
 				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
 			
@@ -195,7 +196,7 @@ public class LinotpConnection {
 		}		
 	}
 	
-	public LinotpInitAuthenticatorTokenResponse createYubicoToken(UserEntity user, String yubi) throws TwoFaException {
+	public LinotpInitAuthenticatorTokenResponse createYubicoToken(String yubi) throws TwoFaException {
 		try {
 			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/init");
 			
@@ -208,7 +209,8 @@ public class LinotpConnection {
 			if (configMap.containsKey("userId"))
 			    nvps.add(new BasicNameValuePair("user", configMap.get("userId")));
 			else
-				nvps.add(new BasicNameValuePair("user", user.getEppn()));
+				throw new TwoFaException("userId missing in config map");
+
 			if (configMap.containsKey("realm"))
 				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
 			
@@ -230,7 +232,7 @@ public class LinotpConnection {
 		}		
 	}
 
-	public LinotpInitAuthenticatorTokenResponse createBackupTanList(UserEntity user) throws TwoFaException {
+	public LinotpInitAuthenticatorTokenResponse createBackupTanList() throws TwoFaException {
 		try {
 			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/init");
 			
@@ -245,7 +247,8 @@ public class LinotpConnection {
 			if (configMap.containsKey("userId"))
 			    nvps.add(new BasicNameValuePair("user", configMap.get("userId")));
 			else
-				nvps.add(new BasicNameValuePair("user", user.getEppn()));
+				throw new TwoFaException("userId missing in config map");
+
 			if (configMap.containsKey("realm"))
 				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
 			
@@ -406,7 +409,7 @@ public class LinotpConnection {
 		}		
 	}
 	
-	public LinotpShowUserResponse getTokenList(UserEntity user) throws TwoFaException {
+	public LinotpShowUserResponse getTokenList() throws TwoFaException {
 
 		try {
 			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/show");
@@ -414,7 +417,8 @@ public class LinotpConnection {
 			if (configMap.containsKey("userId"))
 			    nvps.add(new BasicNameValuePair("user", configMap.get("userId")));
 			else
-				nvps.add(new BasicNameValuePair("user", user.getEppn()));
+				throw new TwoFaException("userId missing in config map");
+
 			if (configMap.containsKey("realm"))
 				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
 			nvps.add(new BasicNameValuePair("session", adminSession));

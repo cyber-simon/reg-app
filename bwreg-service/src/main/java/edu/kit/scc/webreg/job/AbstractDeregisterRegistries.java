@@ -14,6 +14,7 @@ import edu.kit.scc.webreg.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.RegistryService;
@@ -63,7 +64,8 @@ public abstract class AbstractDeregisterRegistries extends AbstractExecutableJob
 					if (registry.getUser() instanceof SamlUserEntity) {
 						
 						SamlUserEntity user = (SamlUserEntity) registry.getUser();
-						
+						IdentityEntity identity = registry.getIdentity();
+
 						if ((System.currentTimeMillis() - user.getLastUpdate().getTime()) > lastUserUpdate) {
 							// user is too old, try update first
 							logger.info("User {} lastUpdate is older than {}ms. Trying update", user.getEppn(), lastUserUpdate);
@@ -84,7 +86,7 @@ public abstract class AbstractDeregisterRegistries extends AbstractExecutableJob
 						}
 						List<RegistryEntity> tempRegistryList = new ArrayList<RegistryEntity>();
 						tempRegistryList.add(registry);
-						knowledgeSessionService.checkRules(tempRegistryList, user, auditName, false);
+						knowledgeSessionService.checkRules(tempRegistryList, identity, auditName, false);
 						
 						if (registryStatus.equals(registry.getRegistryStatus())) {
 							registerUserService.deregisterUser(registry, auditName);

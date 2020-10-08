@@ -35,6 +35,7 @@ import edu.kit.scc.webreg.entity.SamlIdpMetadataEntityStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity_;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 
 @Named
 @ApplicationScoped
@@ -268,16 +269,34 @@ public class JpaRegistryDao extends JpaBaseDao<RegistryEntity, Long> implements 
 			return null;
 		}
 	}	
-	
+
 	@Override
-	public List<RegistryEntity> findByServiceAndUserAndNotStatus(ServiceEntity service, UserEntity user, RegistryStatus... status) {
+	public RegistryEntity findByServiceAndIdentityAndStatus(ServiceEntity service, IdentityEntity identity, RegistryStatus status) {
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<RegistryEntity> criteria = builder.createQuery(RegistryEntity.class);
+		Root<RegistryEntity> root = criteria.from(RegistryEntity.class);
+		criteria.where(builder.and(
+				builder.equal(root.get("service"), service),
+				builder.equal(root.get("identity"), identity),
+				builder.equal(root.get("registryStatus"), status)));
+		criteria.select(root);
+
+		try {
+			return em.createQuery(criteria).getSingleResult();
+		} catch (NoResultException e) {
+			return null;
+		}
+	}	
+
+	@Override
+	public List<RegistryEntity> findByServiceAndIdentityAndNotStatus(ServiceEntity service, IdentityEntity identity, RegistryStatus... status) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<RegistryEntity> criteria = builder.createQuery(RegistryEntity.class);
 		Root<RegistryEntity> root = criteria.from(RegistryEntity.class);
 		
 		List<Predicate> predList = new ArrayList<Predicate>();
 		predList.add(builder.equal(root.get("service"), service));
-		predList.add(builder.equal(root.get("user"), user));
+		predList.add(builder.equal(root.get("identity"), identity));
 		for (RegistryStatus s : status)
 			predList.add(builder.notEqual(root.get("registryStatus"), s));
 		
@@ -287,6 +306,27 @@ public class JpaRegistryDao extends JpaBaseDao<RegistryEntity, Long> implements 
 		return em.createQuery(criteria).getResultList();
 	}	
 	
+	@Override
+	public List<RegistryEntity> findByIdentityAndStatus(IdentityEntity identity, RegistryStatus... status) {
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<RegistryEntity> criteria = builder.createQuery(RegistryEntity.class);
+		Root<RegistryEntity> root = criteria.from(RegistryEntity.class);
+
+		List<Predicate> predList = new ArrayList<Predicate>();
+		
+		for (RegistryStatus s : status)
+			predList.add(builder.equal(root.get("registryStatus"), s));
+		
+		criteria.where(builder.and(
+				builder.equal(root.get(RegistryEntity_.identity), identity),
+				builder.or(predList.toArray(new Predicate[]{}))));
+		criteria.select(root);
+		criteria.distinct(true);
+		criteria.orderBy(builder.asc(root.get("id")));
+
+		return em.createQuery(criteria).getResultList();
+	}	
+
 	@Override
 	public List<RegistryEntity> findByUserAndStatus(UserEntity user, RegistryStatus... status) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
@@ -307,9 +347,9 @@ public class JpaRegistryDao extends JpaBaseDao<RegistryEntity, Long> implements 
 
 		return em.createQuery(criteria).getResultList();
 	}	
-		
+
 	@Override
-	public List<RegistryEntity> findByUserAndNotStatusAndNotHidden(UserEntity user, RegistryStatus... status) {
+	public List<RegistryEntity> findByIdentityAndNotStatusAndNotHidden(IdentityEntity identity, RegistryStatus... status) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<RegistryEntity> criteria = builder.createQuery(RegistryEntity.class);
 		Root<RegistryEntity> root = criteria.from(RegistryEntity.class);
@@ -321,7 +361,7 @@ public class JpaRegistryDao extends JpaBaseDao<RegistryEntity, Long> implements 
 				builder.isNull(serviceJoin.get(ServiceEntity_.hidden)),
 				builder.equal(serviceJoin.get(ServiceEntity_.hidden), false)));
 		
-		predList.add(builder.equal(root.get(RegistryEntity_.user), user));
+		predList.add(builder.equal(root.get(RegistryEntity_.identity), identity));
 		for (RegistryStatus s : status)
 			predList.add(builder.notEqual(root.get("registryStatus"), s));
 		
@@ -339,6 +379,20 @@ public class JpaRegistryDao extends JpaBaseDao<RegistryEntity, Long> implements 
 		Root<RegistryEntity> root = criteria.from(RegistryEntity.class);
 		criteria.where(
 				builder.equal(root.get("user"), user));
+		criteria.select(root);
+		criteria.distinct(true);
+		criteria.orderBy(builder.asc(root.get("id")));
+
+		return em.createQuery(criteria).getResultList();
+	}	
+	
+	@Override
+	public List<RegistryEntity> findByIdentity(IdentityEntity identity) {
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<RegistryEntity> criteria = builder.createQuery(RegistryEntity.class);
+		Root<RegistryEntity> root = criteria.from(RegistryEntity.class);
+		criteria.where(
+				builder.equal(root.get("identity"), identity));
 		criteria.select(root);
 		criteria.distinct(true);
 		criteria.orderBy(builder.asc(root.get("id")));

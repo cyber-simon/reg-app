@@ -18,9 +18,11 @@ import javax.inject.Inject;
 
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.RoleDao;
+import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.service.RoleService;
 
 @Stateless
@@ -30,6 +32,9 @@ public class RoleServiceImpl extends BaseServiceImpl<RoleEntity, Long> implement
 
 	@Inject
 	private RoleDao dao;
+	
+	@Inject
+	private IdentityDao identityDao;
 
 	@Override
 	public void addUserToRole(UserEntity user, String roleName) {
@@ -67,8 +72,29 @@ public class RoleServiceImpl extends BaseServiceImpl<RoleEntity, Long> implement
 	}
 
 	@Override
+	public List<RoleEntity> findByUserIdList(List<Long> userIdList) {
+		return dao.findByUserIdList(userIdList);
+	}
+
+	@Override
+	public List<RoleEntity> findByIdentityId(Long identityId) {
+		return dao.findByIdentityId(identityId);
+	}
+
+	@Override
 	public Boolean checkUserInRole(Long userId, String roleName) {
 		return dao.checkUserInRole(userId, roleName);
+	}
+	
+	@Override
+	public Boolean checkIdentityInRole(Long identityId, String roleName) {
+		IdentityEntity identity = identityDao.findById(identityId);
+		for (UserEntity user : identity.getUsers()) {
+			if (dao.checkAdminUserInRole(user.getId(), roleName)) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	@Override

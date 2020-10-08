@@ -72,6 +72,7 @@ import edu.kit.scc.webreg.dao.SamlIdpConfigurationDao;
 import edu.kit.scc.webreg.dao.SamlSpMetadataDao;
 import edu.kit.scc.webreg.dao.ServiceSamlSpDao;
 import edu.kit.scc.webreg.dao.UserDao;
+import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.drools.OverrideAccess;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;
 import edu.kit.scc.webreg.drools.impl.KnowledgeSessionSingleton;
@@ -85,6 +86,7 @@ import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceSamlSpEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.script.ScriptingEnv;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
@@ -99,6 +101,9 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 
 	@Inject
 	private UserDao userDao;
+
+	@Inject
+	private IdentityDao identityDao;
 
 	@Inject
 	private RegistryDao registryDao;
@@ -140,15 +145,20 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 	}
 
 	@Override
-	public String resumeAuthnRequest(Long authnRequestId, Long userId, 
+	public String resumeAuthnRequest(Long authnRequestId, Long identityId, 
 			Long authnRequestIdpConfigId, HttpServletResponse response) throws SamlAuthenticationException {
 		
 		SamlIdpConfigurationEntity idpConfig = idpConfigDao.findById(authnRequestIdpConfigId);
 		logger.debug("IDP Config loaded: {}", idpConfig.getEntityId());
 		
-		UserEntity user = userDao.findById(userId);
-		logger.debug("User loaded: {}", user.getId());
+		IdentityEntity identity = identityDao.findById(identityId);
+		logger.debug("Identity loaded: {}", identity.getId());
 
+		// First user object picked for now
+		// TODO Change to something more correct. Script must choose user from identity ie.
+		List<UserEntity> userList = userDao.findByIdentity(identity);
+		UserEntity user = userList.get(0);
+		
 		SamlAuthnRequestEntity authnRequestEntity = samlAuthnRequestDao.findById(authnRequestId);
 		AuthnRequest authnRequest = samlHelper.unmarshal(authnRequestEntity.getAuthnrequestData(), AuthnRequest.class);
 		

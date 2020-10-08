@@ -162,7 +162,7 @@ public class Registrator implements Serializable {
 
 		if (service.getParentService() != null) {
 			logger.info("Service has Parent. Checking parent first.");
-			List<RegistryEntity> r = registryDao.findByServiceAndUserAndNotStatus(service.getParentService(), user, 
+			List<RegistryEntity> r = registryDao.findByServiceAndIdentityAndNotStatus(service.getParentService(), user.getIdentity(), 
 					RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
 			if (r.size() == 0) {
 				logger.info("User {} is not registered with parent service {} yet", user.getEppn(), service.getParentService().getName());
@@ -564,8 +564,8 @@ public class Registrator implements Serializable {
 				Boolean activeSisterRegistry = false;
 				
 				for (ServiceEntity sisterService : sisterServiceList) {
-					List<RegistryEntity> sisterRegistryList = registryDao.findByServiceAndUserAndNotStatus(
-							sisterService, userEntity, 
+					List<RegistryEntity> sisterRegistryList = registryDao.findByServiceAndIdentityAndNotStatus(
+							sisterService, userEntity.getIdentity(), 
 							RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
 					
 					if (sisterRegistryList.size() > 0) {
@@ -578,8 +578,8 @@ public class Registrator implements Serializable {
 					/*
 					 * no more registries for parent service left. Deregister parent.
 					 */
-					List<RegistryEntity> parentRegistryList = registryDao.findByServiceAndUserAndNotStatus(
-							registry.getService().getParentService(), userEntity, 
+					List<RegistryEntity> parentRegistryList = registryDao.findByServiceAndIdentityAndNotStatus(
+							registry.getService().getParentService(), userEntity.getIdentity(), 
 							RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
 
 					for (RegistryEntity parentRegistry : parentRegistryList) {

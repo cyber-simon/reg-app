@@ -215,8 +215,8 @@ public class UserUpdater implements Serializable {
 					 * check if parent registry is missing
 					 */
 					if (registry.getService().getParentService() != null) {
-						List<RegistryEntity> parentRegistryList = registryDao.findByServiceAndUserAndNotStatus(
-								registry.getService().getParentService(), user, 
+						List<RegistryEntity> parentRegistryList = registryDao.findByServiceAndIdentityAndNotStatus(
+								registry.getService().getParentService(), user.getIdentity(), 
 								RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
 						if (parentRegistryList.size() == 0) {
 							delayedRegisterList.add(registry.getService().getParentService());

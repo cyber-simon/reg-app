@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dao.GenericSortOrder;
 import edu.kit.scc.webreg.dao.ops.MultipathOrPredicate;
-import edu.kit.scc.webreg.dao.ops.OrPredicate;
 import edu.kit.scc.webreg.dao.ops.PathObjectValue;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.sec.AuthorizationBean;
@@ -74,7 +73,7 @@ public class TokenAdminIndexBean implements Serializable {
 		}
 		else {
 			try {
-				userTokenList = twoFaService.findByUserId(selectedUser.getId());
+				userTokenList = twoFaService.findByIdentity(selectedUser.getIdentity());
 				
 				if (userTokenList.getReadOnly()) {
 					messageGenerator.addWarningMessage("Warning", "User is in read only realm");
@@ -104,8 +103,8 @@ public class TokenAdminIndexBean implements Serializable {
 	public void enableToken(String serial) {
 		if (! getReadOnly()) {
 			try {
-				LinotpSimpleResponse response = twoFaService.enableToken(selectedUser.getId(), serial, "user-" + session.getUserId());
-				userTokenList = twoFaService.findByUserId(selectedUser.getId());
+				LinotpSimpleResponse response = twoFaService.enableToken(selectedUser.getIdentity(), serial, "identity-" + session.getIdentityId());
+				userTokenList = twoFaService.findByIdentity(selectedUser.getIdentity());
 				if ((response.getResult() != null) && response.getResult().isStatus() &&
 						response.getResult().isValue()) {
 					messageGenerator.addInfoMessage("Info", "Token " + serial + " enabled");
@@ -123,8 +122,8 @@ public class TokenAdminIndexBean implements Serializable {
 	public void disableToken(String serial) {
 		if (! getReadOnly()) {
 			try {
-				LinotpSimpleResponse response = twoFaService.disableToken(selectedUser.getId(), serial, "user-" + session.getUserId());
-				userTokenList = twoFaService.findByUserId(selectedUser.getId());
+				LinotpSimpleResponse response = twoFaService.disableToken(selectedUser.getIdentity(), serial, "identity-" + session.getIdentityId());
+				userTokenList = twoFaService.findByIdentity(selectedUser.getIdentity());
 				if ((response.getResult() != null) && response.getResult().isStatus() &&
 						response.getResult().isValue()) {
 					messageGenerator.addInfoMessage("Info", "Token " + serial + " disabled");

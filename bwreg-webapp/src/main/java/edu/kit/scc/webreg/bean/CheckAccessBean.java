@@ -25,9 +25,11 @@ import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
@@ -38,6 +40,7 @@ public class CheckAccessBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	private UserEntity user;
+	private IdentityEntity identity;
 	private ServiceEntity service;
 	private RegistryEntity registry;
 
@@ -58,20 +61,24 @@ public class CheckAccessBean implements Serializable {
     
     @Inject
     private UserService userService;
+
+    @Inject
+    private IdentityService identityService;
     
 	@Inject
 	private KnowledgeSessionService knowledgeSessionService;
 
     public void preRenderView(ComponentSystemEvent ev) {
     	if (! initialized) {
-        	user = userService.findById(sessionManager.getUserId());
+    		identity = identityService.findById(sessionManager.getIdentityId());
         	registry = registryService.findById(id);
-        	
-        	if (! registry.getUser().getId().equals(user.getId())) {
+    		
+        	if (! registry.getIdentity().getId().equals(identity.getId())) {
         		throw new NotAuthorizedException("no authorized to view this item");
         	}
         	
         	service = registry.getService();
+        	user = registry.getUser();
         	
        		checkServiceAccess(registry.getService());    		
     	}
