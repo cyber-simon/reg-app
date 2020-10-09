@@ -129,7 +129,7 @@ public class JpaRoleDao extends JpaBaseDao<RoleEntity, Long> implements RoleDao 
 				.setParameter("identityId", identityId).getResultList(); 
 
     	IdentityEntity identity = identityDao.findById(identityId);
-    	roleList.addAll(em.createQuery("select r.role from UserRoleEntity r where r.user.id in :userIdList")
+    	roleList.addAll(em.createQuery("select r.role from UserRoleEntity r where r.user in :userIdList")
 				.setParameter("userIdList", identity.getUsers()).getResultList());
     	
 		return roleList;

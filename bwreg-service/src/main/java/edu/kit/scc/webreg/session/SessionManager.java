@@ -35,9 +35,6 @@ public class SessionManager implements Serializable {
 	private Long authnRequestId;
 	private Long authnRequestIdpConfigId;
 
-	// userId of logged in user accounts. Order is login order!
-	private List<Long> userIdList;
-
 	// identityId of the actual user
 	private Long identityId;
 	
@@ -80,7 +77,6 @@ public class SessionManager implements Serializable {
 	
 	@PostConstruct
 	public void init() {
-		userIdList = new ArrayList<Long>();
 		serviceApproverList = new ArrayList<ServiceEntity>();
 		serviceSshPubKeyApproverList = new ArrayList<ServiceEntity>();
 		serviceAdminList = new ArrayList<ServiceEntity>();
@@ -308,9 +304,5 @@ public class SessionManager implements Serializable {
 
 	public void setSubjectId(String subjectId) {
 		this.subjectId = subjectId;
-	}
-
-	public List<Long> getUserIdList() {
-		return userIdList;
 	}
 }

@@ -136,8 +136,8 @@ public class SecurityFilter implements Filter {
 		else if (session != null && session.isLoggedIn()) {
 
 			MDC.put("userId", "" + session.getIdentityId());
-			
-			Set<RoleEntity> roles = new HashSet<RoleEntity>(roleService.findByUserIdList(session.getUserIdList()));
+
+			Set<RoleEntity> roles = new HashSet<RoleEntity>(roleService.findByIdentityId(session.getIdentityId()));
 			session.addRoles(roles);
 			
 			if (accessChecker.check(path, roles)) {
