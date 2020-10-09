@@ -92,8 +92,11 @@ public class IdentityServiceImpl extends BaseServiceImpl<IdentityEntity, Long> i
 
 		List<SshPubKeyEntity> keyList = sshPubKeyDao.findMissingIdentity();
 		for (SshPubKeyEntity key : keyList) {
-			logger.info("Migrate ssh key for user {}", key.getUser().getId());
-			key.setIdentity(key.getUser().getIdentity());
+			// Keys can have no user. These are blacklisted key, we can ignore them
+			if (key.getUser() != null) {
+				logger.info("Migrate ssh key for user {}", key.getUser().getId());
+				key.setIdentity(key.getUser().getIdentity());
+			}
 		}
 		logger.info("Migrate ssh pub keys from users to identities done.");
 
