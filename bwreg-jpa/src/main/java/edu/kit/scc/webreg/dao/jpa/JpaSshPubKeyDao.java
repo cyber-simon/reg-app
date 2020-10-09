@@ -40,7 +40,7 @@ public class JpaSshPubKeyDao extends JpaBaseDao<SshPubKeyEntity, Long> implement
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<SshPubKeyEntity> findByIdentityAndStatus(Long identityId, SshPubKeyStatus keyStatus) {
-		return em.createQuery("select e from SshPubKeyEntity e where e.identity.id = :userId and e.keyStatus = :keyStatus")
+		return em.createQuery("select e from SshPubKeyEntity e where e.identity.id = :identityId and e.keyStatus = :keyStatus")
 				.setParameter("identityId", identityId)
 				.setParameter("keyStatus", keyStatus)
 				.getResultList();	
