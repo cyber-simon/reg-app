@@ -38,7 +38,7 @@ public class UserPropertiesBean implements Serializable {
 
 	private IdentityEntity identity;
 	private List<UserEntity> userList;
-	private UserEntity selectedUser;
+	private UserEntity user;
 	
 	private SamlIdpMetadataEntity idpEntity;
 
@@ -65,12 +65,12 @@ public class UserPropertiesBean implements Serializable {
 		if (identity == null) {
 			identity = identityService.findById(sessionManager.getIdentityId());
 			userList = userService.findByIdentity(identity);
-			selectedUser = userService.findByIdWithStore(userList.get(0).getId());
-	    	roleList = roleService.findByUser(selectedUser);
-	    	groupList = groupService.findByUser(selectedUser);
+			user = userService.findByIdWithStore(userList.get(0).getId());
+	    	roleList = roleService.findByUser(user);
+	    	groupList = groupService.findByUser(user);
 	    	
-	    	if (selectedUser instanceof SamlUserEntity) {
-	    		idpEntity = ((SamlUserEntity) selectedUser).getIdp();
+	    	if (user instanceof SamlUserEntity) {
+	    		idpEntity = ((SamlUserEntity) user).getIdp();
 	    	}
 		}
 	}
@@ -87,11 +87,19 @@ public class UserPropertiesBean implements Serializable {
 		return groupList;
 	}
 
-	public UserEntity getSelectedUser() {
-		return selectedUser;
+	public IdentityEntity getIdentity() {
+		return identity;
 	}
 
-	public void setSelectedUser(UserEntity selectedUser) {
-		this.selectedUser = selectedUser;
+	public List<UserEntity> getUserList() {
+		return userList;
+	}
+
+	public UserEntity getUser() {
+		return user;
+	}
+
+	public void setUser(UserEntity user) {
+		this.user = user;
 	}
 }
