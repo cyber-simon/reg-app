@@ -20,10 +20,14 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.net.ssl.SSLContext;
 
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.conn.ssl.DefaultHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContexts;
 import org.joda.time.DateTime;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.messaging.context.InOutOperationContext;
@@ -149,12 +153,18 @@ public class AttributeQueryHelper implements Serializable {
 		
 		SAMLMessageSecuritySupport.signMessage(outbound);
 		
+		SSLContext sslContext = SSLContexts.custom().build();
+
+		SSLConnectionSocketFactory f = new SSLConnectionSocketFactory(sslContext, new String[] { "TLSv1.2" },
+				null, new DefaultHostnameVerifier());
+			
 		RequestConfig requestConfig = RequestConfig.custom()
 				.setSocketTimeout(getSocketTimeout())
 				.setConnectTimeout(getConnectTimeout())
 				.setConnectionRequestTimeout(getConnectionRequestTimeout())
 				.build();
-		CloseableHttpClient client = HttpClients.custom().setDefaultRequestConfig(requestConfig).build();
+		CloseableHttpClient client = HttpClients.custom()
+				.setSSLSocketFactory(f).setDefaultRequestConfig(requestConfig).build();
 
 		PipelineFactoryHttpSOAPClient<SAMLObject, SAMLObject> pf = new PipelineFactoryHttpSOAPClient<SAMLObject, SAMLObject>();
 		pf.setHttpClient(client);
