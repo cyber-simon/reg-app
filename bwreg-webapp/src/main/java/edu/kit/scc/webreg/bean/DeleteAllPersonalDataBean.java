@@ -63,7 +63,7 @@ public class DeleteAllPersonalDataBean implements Serializable {
 	}
 	
 	public String cancel() {
-		return ViewIds.INDEX_USER;
+		return ViewIds.USER_PROPERTIES + "?faces-redirect=true";
 	}
 
 	public String commit() {
