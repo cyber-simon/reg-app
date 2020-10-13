@@ -60,8 +60,10 @@ public class TwoFaConfigurationResolver {
 				throw new TwoFaConfigurationResolverException("unkown script type: " + scriptEntity.getScriptType());
 			}
 		} catch (ScriptException e) {
+			logger.warn("Script threw error: {}", e.getMessage());
 			throw new TwoFaConfigurationResolverException(e);
 		} catch (NoSuchMethodException e) {
+			logger.warn("Script resolve method is missing: {}", e.getMessage());
 			throw new TwoFaConfigurationResolverException(e);
 		}
 	}
