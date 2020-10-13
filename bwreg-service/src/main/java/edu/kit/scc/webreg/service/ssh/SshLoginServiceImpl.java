@@ -157,23 +157,27 @@ public class SshLoginServiceImpl implements SshLoginService {
 				if ((System.currentTimeMillis() - twofaLoginInfo.getLoginDate().getTime()) < expiry &&
 						(System.currentTimeMillis() - localLoginInfo.getLoginDate().getTime()) < expiry) {
 					List<SshPubKeyRegistryEntity> regKeyList = sshPubKeyRegistryDao.findByRegistryForLogin(registry.getId());
+					logger.debug("Sending out {} keys for registry {}", regKeyList.size(), registry.getId());
 					return buildKeyList(regKeyList, user);
 				}
 				else {
 					// always return command keys
 					List<SshPubKeyRegistryEntity> regKeyList = sshPubKeyRegistryDao.findByRegistryForCommandLogin(registry.getId());
+					logger.debug("Sending out {} keys for registry {}", regKeyList.size(), registry.getId());
 					return buildKeyList(regKeyList, user);
 				}
 			}
 			else {
 				// always return command keys
 				List<SshPubKeyRegistryEntity> regKeyList = sshPubKeyRegistryDao.findByRegistryForCommandLogin(registry.getId());
+				logger.debug("Sending out {} keys for registry {}", regKeyList.size(), registry.getId());
 				return buildKeyList(regKeyList, user);
 			}
 		}
 		else {
 			// return all keys if twofa is disabled for service
 			List<SshPubKeyRegistryEntity> regKeyList = sshPubKeyRegistryDao.findByRegistryForLogin(registry.getId());
+			logger.debug("Sending out {} keys for registry {}", regKeyList.size(), registry.getId());
 			return buildKeyList(regKeyList, user);
 		}
 	}
