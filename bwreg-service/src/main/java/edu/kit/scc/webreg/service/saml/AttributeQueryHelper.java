@@ -12,6 +12,8 @@ package edu.kit.scc.webreg.service.saml;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -152,11 +154,6 @@ public class AttributeQueryHelper implements Serializable {
 				new InOutOperationContext<SAMLObject, SAMLObject>(inbound, outbound);
 		
 		SAMLMessageSecuritySupport.signMessage(outbound);
-		
-		SSLContext sslContext = SSLContexts.custom().build();
-
-		SSLConnectionSocketFactory f = new SSLConnectionSocketFactory(sslContext, new String[] { "TLSv1.2" },
-				null, new DefaultHostnameVerifier());
 			
 		RequestConfig requestConfig = RequestConfig.custom()
 				.setSocketTimeout(getSocketTimeout())
@@ -164,7 +161,9 @@ public class AttributeQueryHelper implements Serializable {
 				.setConnectionRequestTimeout(getConnectionRequestTimeout())
 				.build();
 		CloseableHttpClient client = HttpClients.custom()
-				.setSSLSocketFactory(f).setDefaultRequestConfig(requestConfig).build();
+				.setSSLSocketFactory(getSSLConnectionSocketFactory())
+				.setDefaultRequestConfig(requestConfig)
+				.build();
 
 		PipelineFactoryHttpSOAPClient<SAMLObject, SAMLObject> pf = new PipelineFactoryHttpSOAPClient<SAMLObject, SAMLObject>();
 		pf.setHttpClient(client);
@@ -254,5 +253,20 @@ public class AttributeQueryHelper implements Serializable {
 			return 30*1000;
 		else 
 			return Integer.parseInt(aqString);
+	}
+	
+	private SSLConnectionSocketFactory getSSLConnectionSocketFactory() throws KeyManagementException, NoSuchAlgorithmException {
+		String proto = appConfig.getConfigValue("attributequery_tls_version");
+		String[] protos;
+		if (proto == null)
+			protos = new String[] { "TLSv1.2" };
+		else 
+			protos = proto.split(",");
+
+		SSLContext sslContext = SSLContexts.custom().build();
+
+		SSLConnectionSocketFactory f = new SSLConnectionSocketFactory(sslContext, protos,
+				null, new DefaultHostnameVerifier());
+		return f;
 	}
 }
