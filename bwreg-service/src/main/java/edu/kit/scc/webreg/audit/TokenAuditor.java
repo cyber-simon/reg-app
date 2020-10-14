@@ -13,10 +13,10 @@ package edu.kit.scc.webreg.audit;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
-import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.entity.audit.AuditUserEntity;
+import edu.kit.scc.webreg.entity.audit.AuditIdentityEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 
-public class TokenAuditor extends AbstractAuditor<AuditUserEntity> {
+public class TokenAuditor extends AbstractAuditor<AuditIdentityEntity> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -26,12 +26,12 @@ public class TokenAuditor extends AbstractAuditor<AuditUserEntity> {
 		super(auditEntryDao, auditDetailDao, appConfig);
 	}
 
-	public void setUser(UserEntity entity) {
-		audit.setUser(entity);
+	public void setIdentity(IdentityEntity entity) {
+		audit.setIdentity(entity);
 	}
 
 	@Override
-	protected AuditUserEntity newInstance() {
-		return new AuditUserEntity();
+	protected AuditIdentityEntity newInstance() {
+		return new AuditIdentityEntity();
 	}
 }

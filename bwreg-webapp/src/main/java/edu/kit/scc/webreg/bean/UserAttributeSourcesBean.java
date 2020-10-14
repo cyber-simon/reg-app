@@ -21,9 +21,11 @@ import javax.inject.Inject;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.service.ASUserAttrService;
 import edu.kit.scc.webreg.service.AttributeSourceService;
 import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.session.SessionManager;
 
 @ManagedBean
@@ -32,7 +34,9 @@ public class UserAttributeSourcesBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private UserEntity user;
+	private IdentityEntity identity;
+	private List<UserEntity> userList;
+	private UserEntity selectedUser;
 	
 	private List<ASUserAttrEntity> userAttrList;
 	private ASUserAttrEntity selectedUserAttr;
@@ -40,6 +44,9 @@ public class UserAttributeSourcesBean implements Serializable {
 	
 	@Inject
 	private UserService userService;
+    
+	@Inject
+	private IdentityService identityService;
     
     @Inject
     private ASUserAttrService asUserAttrService;
@@ -51,18 +58,12 @@ public class UserAttributeSourcesBean implements Serializable {
     private SessionManager sessionManager;
 
 	public void preRenderView(ComponentSystemEvent ev) {
-		if (user == null) {
-	    	user = userService.findById(sessionManager.getUserId());
-	    	userAttrList = asUserAttrService.findForUser(user);
+		if (identity == null) {
+			identity = identityService.findById(sessionManager.getIdentityId());
+			userList = userService.findByIdentity(identity);
+			selectedUser = userList.get(0);
+	    	userAttrList = asUserAttrService.findForUser(selectedUser);
 		}
-	}
-
-	public UserEntity getUser() {
-		return user;
-	}
-
-	public void setUser(UserEntity user) {
-		this.user = user;
 	}
 
 	public List<ASUserAttrEntity> getUserAttrList() {
@@ -86,5 +87,13 @@ public class UserAttributeSourcesBean implements Serializable {
 
 	public AttributeSourceEntity getSelectedAttributeSource() {
 		return selectedAttributeSource;
+	}
+
+	public UserEntity getSelectedUser() {
+		return selectedUser;
+	}
+
+	public void setSelectedUser(UserEntity selectedUser) {
+		this.selectedUser = selectedUser;
 	}
 }

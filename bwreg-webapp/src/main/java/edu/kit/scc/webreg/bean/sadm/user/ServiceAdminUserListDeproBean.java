@@ -74,7 +74,7 @@ public class ServiceAdminUserListDeproBean implements Serializable {
 		logger.debug("Deprovsion registry {} (user {})", registry.getId(), registry.getUser().getEppn());
 		deproList.remove(registry);
 		try {
-			registerUserService.deprovision(registry, "user-" + sessionManager.getUserId());
+			registerUserService.deprovision(registry, "identity-" + sessionManager.getIdentityId());
 		} catch (RegisterException e) {
 			logger.warn("Deprovision failed!", e);
 		}

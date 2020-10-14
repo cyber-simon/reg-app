@@ -49,7 +49,7 @@ import edu.kit.scc.webreg.session.SessionManager;
 public class SecurityFilter implements Filter {
 
 	public static final String ADMIN_USER_ID = "_admin_user_id";
-	public static final String USER_ID = "_user_id";
+	public static final String IDENTITY_ID = "_identity_id";
 	public static final String DIRECT_USER_ID = "_direct_user_id";
 	public static final String DIRECT_USER_PW = "_direct_user_pw";
 	
@@ -111,6 +111,7 @@ public class SecurityFilter implements Filter {
 			path.startsWith("/logout/") ||
 			path.startsWith("/error/") ||
 			path.startsWith("/oidc/") ||
+			path.startsWith("/rpoidc/") ||
 			path.startsWith("/ferest/") ||
 			path.startsWith("/rest/otp/simplecheck/") ||
 			path.equals("/favicon.ico")
@@ -129,18 +130,18 @@ public class SecurityFilter implements Filter {
 				&& (httpSession == null || (! session.isLoggedIn()))) {
 			processRestLogin(path, request, response, chain);
 		}
-		else if (path.startsWith("/register/") && session != null && session.getUserId() == null) {
+		else if (path.startsWith("/register/") && session != null && session.getIdentityId() == null) {
 			chain.doFilter(servletRequest, servletResponse);
 		}
 		else if (session != null && session.isLoggedIn()) {
 
-			MDC.put("userId", "" + session.getUserId());
-			
-			Set<RoleEntity> roles = new HashSet<RoleEntity>(roleService.findByUserId(session.getUserId()));
+			MDC.put("userId", "" + session.getIdentityId());
+
+			Set<RoleEntity> roles = new HashSet<RoleEntity>(roleService.findByIdentityId(session.getIdentityId()));
 			session.addRoles(roles);
 			
 			if (accessChecker.check(path, roles)) {
-    			request.setAttribute(USER_ID, session.getUserId());
+    			request.setAttribute(IDENTITY_ID, session.getIdentityId());
     			
     			if (path.startsWith("/user/twofa.xhtml")) {
     				/*
@@ -158,7 +159,7 @@ public class SecurityFilter implements Filter {
 					}
     				else {
     					try {
-							if (twoFaService.hasActiveToken(session.getUserId())) {
+							if (twoFaService.hasActiveTokenById(session.getIdentityId())) {
 								logger.debug("User from {} not elevated. Redirecting to twofa login page", request.getRemoteAddr());
 								session.setOriginalRequestPath(getFullURL(request));
 								request.getServletContext().getRequestDispatcher("/user/twofa-login.xhtml").forward(servletRequest, servletResponse);

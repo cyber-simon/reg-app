@@ -26,6 +26,12 @@
 	<h:form>
 
 	<div class="panel">
+		<p:panel rendered="#{userPropertiesBean.userList.size() gt 1}">
+			<p:outputLabel for="@next" value="Choose account: " />
+			<p:selectOneMenu id="userSelect" value="#{userPropertiesBean.user}" converter="#{userConverter}">
+    	        <f:selectItems value="#{userPropertiesBean.userList}" var="user" itemLabel="#{user.eppn}" itemValue="#{user}" />
+	        </p:selectOneMenu>
+		</p:panel>
 		<p:tabView id="tabVw" dynamic="true" cache="true">
 			<p:tab id="tab1" title="#{messages.my_data}">
 				<div class="panel">#{messages.my_data_explanation}</div>

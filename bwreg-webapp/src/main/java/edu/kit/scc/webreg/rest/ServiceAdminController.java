@@ -136,10 +136,10 @@ public class ServiceAdminController {
 	protected Boolean checkAccess(HttpServletRequest request, String roleName) {
 		Boolean check;
 		
-		if (request.getAttribute(SecurityFilter.USER_ID) != null &&
-				request.getAttribute(SecurityFilter.USER_ID) instanceof Long) {
-			Long userId = (Long) request.getAttribute(SecurityFilter.USER_ID);
-			check = roleService.checkUserInRole(userId, roleName);
+		if (request.getAttribute(SecurityFilter.IDENTITY_ID) != null &&
+				request.getAttribute(SecurityFilter.IDENTITY_ID) instanceof Long) {
+			Long identityId = (Long) request.getAttribute(SecurityFilter.IDENTITY_ID);
+			check = roleService.checkIdentityInRole(identityId, roleName);
 		}
 		else if (request.getAttribute(SecurityFilter.ADMIN_USER_ID) != null &&
 				request.getAttribute(SecurityFilter.ADMIN_USER_ID) instanceof Long) {
@@ -154,10 +154,10 @@ public class ServiceAdminController {
 	}
 	
 	protected String resolveUsername(HttpServletRequest request) {
-		if (request.getAttribute(SecurityFilter.USER_ID) != null &&
-				request.getAttribute(SecurityFilter.USER_ID) instanceof Long) {
-			Long userId = (Long) request.getAttribute(SecurityFilter.USER_ID);
-			return "user-" + userId;
+		if (request.getAttribute(SecurityFilter.IDENTITY_ID) != null &&
+				request.getAttribute(SecurityFilter.IDENTITY_ID) instanceof Long) {
+			Long identityId = (Long) request.getAttribute(SecurityFilter.IDENTITY_ID);
+			return "identity-" + identityId;
 		}
 		else if (request.getAttribute(SecurityFilter.ADMIN_USER_ID) != null &&
 				request.getAttribute(SecurityFilter.ADMIN_USER_ID) instanceof Long) {

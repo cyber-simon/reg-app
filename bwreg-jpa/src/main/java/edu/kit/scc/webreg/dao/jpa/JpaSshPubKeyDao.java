@@ -25,36 +25,43 @@ public class JpaSshPubKeyDao extends JpaBaseDao<SshPubKeyEntity, Long> implement
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<SshPubKeyEntity> findByUser(Long userId) {
-		return em.createQuery("select e from SshPubKeyEntity e where e.user.id = :userId")
-				.setParameter("userId", userId).getResultList();	
+	public List<SshPubKeyEntity> findByIdentity(Long identityId) {
+		return em.createQuery("select e from SshPubKeyEntity e where e.identity.id = :identityId")
+				.setParameter("identityId", identityId).getResultList();	
 	}
-	
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<SshPubKeyEntity> findMissingIdentity() {
+		return em.createQuery("select r from SshPubKeyEntity r where r.identity is null")
+				.getResultList();
+	}	
+
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<SshPubKeyEntity> findByUserAndStatus(Long userId, SshPubKeyStatus keyStatus) {
-		return em.createQuery("select e from SshPubKeyEntity e where e.user.id = :userId and e.keyStatus = :keyStatus")
-				.setParameter("userId", userId)
+	public List<SshPubKeyEntity> findByIdentityAndStatus(Long identityId, SshPubKeyStatus keyStatus) {
+		return em.createQuery("select e from SshPubKeyEntity e where e.identity.id = :identityId and e.keyStatus = :keyStatus")
+				.setParameter("identityId", identityId)
 				.setParameter("keyStatus", keyStatus)
 				.getResultList();	
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<SshPubKeyEntity> findByUserAndStatusWithRegs(Long userId, SshPubKeyStatus keyStatus) {
+	public List<SshPubKeyEntity> findByIdentityAndStatusWithRegs(Long identityId, SshPubKeyStatus keyStatus) {
 		return em.createQuery("select distinct e from SshPubKeyEntity e "
 				+ "left join fetch e.sshPubKeyRegistries "
-				+ "where e.user.id = :userId and e.keyStatus = :keyStatus")
-				.setParameter("userId", userId)
+				+ "where e.identity.id = :identityId and e.keyStatus = :keyStatus")
+				.setParameter("identityId", identityId)
 				.setParameter("keyStatus", keyStatus)
 				.getResultList();	
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<SshPubKeyEntity> findByUserAndKey(Long userId, String encodedKey) {
-		return em.createQuery("select e from SshPubKeyEntity e where e.user.id = :userId and e.encodedKey = :encodedKey")
-				.setParameter("userId", userId)
+	public List<SshPubKeyEntity> findByIdentityAndKey(Long identityId, String encodedKey) {
+		return em.createQuery("select e from SshPubKeyEntity e where e.identity.id = :userId and e.encodedKey = :encodedKey")
+				.setParameter("identityId", identityId)
 				.setParameter("encodedKey", encodedKey)
 				.getResultList();	
 	}

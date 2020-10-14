@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.ScriptEntity;
-import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.script.ScriptingEnv;
 
 @Named("twoFaConfigurationResolver")
@@ -31,7 +31,7 @@ public class TwoFaConfigurationResolver {
 	@Inject
 	private ScriptingEnv scriptingEnv;
 
-	public Map<String, String> resolveConfig(UserEntity user) throws TwoFaConfigurationResolverException {
+	public Map<String, String> resolveConfig(IdentityEntity identity) throws TwoFaConfigurationResolverException {
 		try {
 			String scriptName = appConfig.getConfigValue("linotp_resolve_config");
 
@@ -53,15 +53,17 @@ public class TwoFaConfigurationResolver {
 
 				Map<String, String> configMap = new HashMap<String, String>();
 				
-				invocable.invokeFunction("resolveConfig", scriptingEnv, configMap, user, logger);
+				invocable.invokeFunction("resolveConfig", scriptingEnv, configMap, identity, logger);
 				
 				return configMap;
 			} else {
 				throw new TwoFaConfigurationResolverException("unkown script type: " + scriptEntity.getScriptType());
 			}
 		} catch (ScriptException e) {
+			logger.warn("Script threw error: {}", e.getMessage());
 			throw new TwoFaConfigurationResolverException(e);
 		} catch (NoSuchMethodException e) {
+			logger.warn("Script resolve method is missing: {}", e.getMessage());
 			throw new TwoFaConfigurationResolverException(e);
 		}
 	}

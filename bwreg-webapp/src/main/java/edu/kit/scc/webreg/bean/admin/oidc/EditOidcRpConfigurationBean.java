@@ -41,7 +41,7 @@ public class EditOidcRpConfigurationBean implements Serializable {
 	
 	public String save() {
 		service.save(entity);
-		return "show-op-config.xhtml?faces-redirect=true&id=" + entity.getId();
+		return "show-rp-config.xhtml?faces-redirect=true&id=" + entity.getId();
 	}
 
 	public OidcRpConfigurationEntity getEntity() {

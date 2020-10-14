@@ -25,6 +25,7 @@ import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.SamlUserDao;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.UserLoginInfoDao;
+import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
@@ -35,6 +36,7 @@ import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
 import edu.kit.scc.webreg.entity.UserLoginInfoStatus;
 import edu.kit.scc.webreg.entity.UserLoginMethod;
 import edu.kit.scc.webreg.entity.UserStatus;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.UserService;
 
@@ -61,10 +63,15 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity, Long> implement
 	@Inject
 	private UserLoginInfoDao userLoginInfoDao;
 	
+	@Inject
+	private IdentityDao identityDao;
+	
 	@Override
 	public UserLoginInfoEntity addLoginInfo(Long userId, UserLoginMethod method, UserLoginInfoStatus status, String from) {
+		UserEntity user = dao.findById(userId);
 		UserLoginInfoEntity loginInfo = userLoginInfoDao.createNew();
-		loginInfo.setUser(dao.findById(userId));
+		loginInfo.setUser(user);
+		loginInfo.setIdentity(user.getIdentity());
 		loginInfo.setLoginDate(new Date());
 		loginInfo.setLoginMethod(method);
 		loginInfo.setLoginStatus(status);
@@ -72,7 +79,25 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity, Long> implement
 		loginInfo = userLoginInfoDao.persist(loginInfo);
 		return loginInfo;
 	}
-	
+
+	@Override
+	public UserLoginInfoEntity addLoginInfo(IdentityEntity identity, UserLoginMethod method, UserLoginInfoStatus status, String from) {
+		identity = identityDao.merge(identity);
+		UserLoginInfoEntity loginInfo = userLoginInfoDao.createNew();
+		loginInfo.setIdentity(identity);
+		loginInfo.setLoginDate(new Date());
+		loginInfo.setLoginMethod(method);
+		loginInfo.setLoginStatus(status);
+		loginInfo.setFrom(from);
+		loginInfo = userLoginInfoDao.persist(loginInfo);
+		return loginInfo;
+	}
+
+	@Override
+	public List<UserEntity> findByIdentity(IdentityEntity identity) {
+		return dao.findByIdentity(identity);
+	}
+
 	@Override
 	public List<UserEntity> findOrderByUpdatedWithLimit(Date date, Integer limit) {
 		return dao.findOrderByUpdatedWithLimit(date, limit);

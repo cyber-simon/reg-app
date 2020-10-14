@@ -19,6 +19,7 @@ import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 
 public interface RegistryService extends BaseService<RegistryEntity, Long> {
 
@@ -29,8 +30,7 @@ public interface RegistryService extends BaseService<RegistryEntity, Long> {
 	List<RegistryEntity> findByServiceAndStatus(ServiceEntity service,
 			RegistryStatus status);
 
-	List<RegistryEntity> findByUserAndStatus(UserEntity user,
-			RegistryStatus... status);
+	List<RegistryEntity> findByIdentityAndStatus(IdentityEntity identity, RegistryStatus... status);
 
 	List<RegistryEntity> findByServiceAndUser(ServiceEntity service, UserEntity user);
 
@@ -51,10 +51,7 @@ public interface RegistryService extends BaseService<RegistryEntity, Long> {
 	List<RegistryEntity> findByServiceAndStatus(String serviceShortName,
 			RegistryStatus status, Date date, int limit);
 
-	List<RegistryEntity> findByServiceAndUserAndNotStatus(ServiceEntity service,
-			UserEntity user, RegistryStatus... status);
-
-	List<RegistryEntity> findByUserAndNotStatusAndNotHidden(UserEntity user,
+	List<RegistryEntity> findByIdentityAndNotStatusAndNotHidden(IdentityEntity identity,
 			RegistryStatus... status);
 
 	List<RegistryEntity> findRegistriesForDepro(String serviceShortName);
@@ -68,4 +65,9 @@ public interface RegistryService extends BaseService<RegistryEntity, Long> {
 	List<RegistryEntity> findByServiceOrderByRecon(ServiceEntity service, int limit);
 
 	List<RegistryEntity> findByServiceAndStatusOrderByRecon(ServiceEntity service, RegistryStatus status, int limit);
+
+	List<RegistryEntity> findByServiceAndIdentityAndNotStatus(ServiceEntity service, IdentityEntity identity,
+			RegistryStatus... status);
+
+	List<RegistryEntity> findByIdentity(IdentityEntity identity);
 }

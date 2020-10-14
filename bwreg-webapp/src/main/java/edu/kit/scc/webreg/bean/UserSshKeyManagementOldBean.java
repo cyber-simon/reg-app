@@ -28,8 +28,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.service.UserService;
-import edu.kit.scc.webreg.service.ssh.SshPubKeyService;
+import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.ssh.OpenSshKeyDecoderOld;
 import edu.kit.scc.webreg.ssh.OpenSshPublicKeyOld;
@@ -49,6 +50,9 @@ public class UserSshKeyManagementOldBean implements Serializable {
 	
 	@Inject
 	private UserService userService;
+
+	@Inject
+	private IdentityService identityService;
 	
     @Inject 
     private SessionManager sessionManager;
@@ -66,8 +70,11 @@ public class UserSshKeyManagementOldBean implements Serializable {
     
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (user == null) {
-	    	user = userService.findByIdWithStore(sessionManager.getUserId());
-    		keyList = new ArrayList<>();
+			IdentityEntity identity = identityService.findById(sessionManager.getIdentityId());
+			List<UserEntity> userList = userService.findByIdentity(identity);
+	    	user = userService.findByIdWithStore(userList.get(0).getId());
+
+	    	keyList = new ArrayList<>();
 	    	if (user.getGenericStore().containsKey("ssh_key")) {
 		    	ObjectMapper om = new ObjectMapper();
 		    	try {

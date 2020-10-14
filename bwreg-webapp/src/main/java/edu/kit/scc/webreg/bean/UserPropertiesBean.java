@@ -23,12 +23,12 @@ import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.service.GroupService;
 import edu.kit.scc.webreg.service.RoleService;
 import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.session.SessionManager;
-import edu.kit.scc.webreg.util.Theme;
-import edu.kit.scc.webreg.util.ThemeSwitcherBean;
 
 @ManagedBean
 @ViewScoped
@@ -36,6 +36,8 @@ public class UserPropertiesBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	private IdentityEntity identity;
+	private List<UserEntity> userList;
 	private UserEntity user;
 	
 	private SamlIdpMetadataEntity idpEntity;
@@ -44,11 +46,12 @@ public class UserPropertiesBean implements Serializable {
 
 	private List<GroupEntity> groupList;
 	
-	private String theme;
-	
 	@Inject
 	private UserService userService;
-	
+    
+	@Inject
+	private IdentityService identityService;
+
 	@Inject
 	private RoleService roleService;
 	
@@ -58,15 +61,13 @@ public class UserPropertiesBean implements Serializable {
     @Inject 
     private SessionManager sessionManager;
     
-    @Inject
-    private ThemeSwitcherBean themeSwitcherBean;
-
 	public void preRenderView(ComponentSystemEvent ev) {
-		if (user == null) {
-	    	user = userService.findByIdWithStore(sessionManager.getUserId());
+		if (identity == null) {
+			identity = identityService.findById(sessionManager.getIdentityId());
+			userList = userService.findByIdentity(identity);
+			user = userService.findByIdWithStore(userList.get(0).getId());
 	    	roleList = roleService.findByUser(user);
 	    	groupList = groupService.findByUser(user);
-	    	theme = sessionManager.getTheme();
 	    	
 	    	if (user instanceof SamlUserEntity) {
 	    		idpEntity = ((SamlUserEntity) user).getIdp();
@@ -78,33 +79,27 @@ public class UserPropertiesBean implements Serializable {
 		return idpEntity;
 	}
 
-	public UserEntity getUser() {
-		return user;
-	}
-
 	public List<RoleEntity> getRoleList() {
 		return roleList;
 	}
 
-    public List<Theme> getThemeList() {
-        return themeSwitcherBean.getThemeList();
-    }
-
-	public String getTheme() {
-		return theme;
-	}
-
-	public void setTheme(String theme) {
-		this.theme = theme;
-	}
-
-	public void saveTheme() {
-		user.setTheme(theme);
-		userService.save(user);
-		sessionManager.setTheme(theme);
-	}
-
 	public List<GroupEntity> getGroupList() {
 		return groupList;
+	}
+
+	public IdentityEntity getIdentity() {
+		return identity;
+	}
+
+	public List<UserEntity> getUserList() {
+		return userList;
+	}
+
+	public UserEntity getUser() {
+		return user;
+	}
+
+	public void setUser(UserEntity user) {
+		this.user = user;
 	}
 }

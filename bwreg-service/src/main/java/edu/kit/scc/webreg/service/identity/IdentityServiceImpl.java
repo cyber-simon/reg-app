@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.service.identity;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -19,9 +20,11 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.RegistryDao;
+import edu.kit.scc.webreg.dao.SshPubKeyDao;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.SshPubKeyEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
@@ -43,6 +46,9 @@ public class IdentityServiceImpl extends BaseServiceImpl<IdentityEntity, Long> i
 	@Inject
 	private RegistryDao registryDao;
 	
+	@Inject
+	private SshPubKeyDao sshPubKeyDao;
+	
 	@Override
 	public void createMissingIdentities() {
 		logger.info("Creating missing identities...");
@@ -51,6 +57,7 @@ public class IdentityServiceImpl extends BaseServiceImpl<IdentityEntity, Long> i
 		for (UserEntity user : userList) {
 			logger.info("Creating identity for user {}", user.getId());
 			IdentityEntity id = dao.createNew();
+			id.setTwoFaUserId(user.getId().toString());
 			id = dao.persist(id);
 			user.setIdentity(id);
 		}
@@ -64,6 +71,35 @@ public class IdentityServiceImpl extends BaseServiceImpl<IdentityEntity, Long> i
 			registry.setIdentity(registry.getUser().getIdentity());
 		}
 		logger.info("Migrate registries from users to identities done.");
+		
+		logger.info("Add missing 2fa userIds...");
+		List<IdentityEntity> idList = dao.findMissingTwoFaUserId();
+		for (IdentityEntity id : idList) {
+			Set<UserEntity> users = id.getUsers();
+			
+			if (users.size() == 1) {
+				for(UserEntity user : users) {
+					id.setTwoFaUserId(user.getId().toString());
+				}			
+			}
+			else {
+				logger.warn("Add missing 2fa user id from identity with more than one account is not supported! Check identity {}" + id.getId());
+			}
+		}
+		logger.info("Add missing 2fa userIds done.");
+		
+		logger.info("Migrate ssh pub keys from users to identities...");
+
+		List<SshPubKeyEntity> keyList = sshPubKeyDao.findMissingIdentity();
+		for (SshPubKeyEntity key : keyList) {
+			// Keys can have no user. These are blacklisted key, we can ignore them
+			if (key.getUser() != null) {
+				logger.info("Migrate ssh key for user {}", key.getUser().getId());
+				key.setIdentity(key.getUser().getIdentity());
+			}
+		}
+		logger.info("Migrate ssh pub keys from users to identities done.");
+
 	}
 
 	@Override

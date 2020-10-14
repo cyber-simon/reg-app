@@ -34,7 +34,6 @@ import edu.kit.scc.webreg.service.GroupService;
 import edu.kit.scc.webreg.service.RoleService;
 import edu.kit.scc.webreg.service.SerialService;
 import edu.kit.scc.webreg.service.ServiceService;
-import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.impl.HookManager;
 import edu.kit.scc.webreg.service.mail.TemplateRenderer;
@@ -54,9 +53,6 @@ public class ApplicationBootstrap {
 	@Inject
 	private GroupService groupService;
 
-	@Inject
-	private UserService userService;
-	
 	@Inject
 	private RoleService roleService;
 	

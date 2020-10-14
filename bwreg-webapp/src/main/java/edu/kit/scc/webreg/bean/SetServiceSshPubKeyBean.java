@@ -27,13 +27,12 @@ import edu.kit.scc.webreg.entity.SshPubKeyRegistryStatus;
 import edu.kit.scc.webreg.entity.SshPubKeyStatus;
 import edu.kit.scc.webreg.entity.SshPubKeyUsageType;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
 import edu.kit.scc.webreg.sec.AuthorizationBean;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.ServiceService;
-import edu.kit.scc.webreg.service.UserService;
-import edu.kit.scc.webreg.service.reg.RegisterUserService;
-import edu.kit.scc.webreg.service.reg.RegisterUserWorkflow;
+import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.ssh.SshPubKeyRegistryService;
 import edu.kit.scc.webreg.service.ssh.SshPubKeyService;
 import edu.kit.scc.webreg.session.SessionManager;
@@ -60,11 +59,8 @@ public class SetServiceSshPubKeyBean implements Serializable {
 	private SessionManager sessionManager;
 	
 	@Inject
-	private UserService userService;
+	private IdentityService identityService;
 	
-    @Inject
-    private RegisterUserService registerUserService;
-
     @Inject
     private SshPubKeyService sshPubKeyService;
 
@@ -77,6 +73,7 @@ public class SetServiceSshPubKeyBean implements Serializable {
 	private RegistryEntity registryEntity;
 	private ServiceEntity serviceEntity;
 	private UserEntity userEntity;
+	private IdentityEntity identity;
 	
 	private Long id;
 	private String serviceShortName;
@@ -92,7 +89,7 @@ public class SetServiceSshPubKeyBean implements Serializable {
 	
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (! initialized) {
-			userEntity = userService.findById(sessionManager.getUserId());
+			identity = identityService.findById(sessionManager.getIdentityId());
 
 			if (id != null) {
 				registryEntity = registryService.findById(id);
@@ -110,14 +107,16 @@ public class SetServiceSshPubKeyBean implements Serializable {
 				
 				registryEntity = registryService.findByServiceAndUserAndStatus(serviceEntity, userEntity, RegistryStatus.ACTIVE);
 			}
+
+			userEntity = registryEntity.getUser();
 			
-			if (! registryEntity.getUser().getId().equals(userEntity.getId()))
+			if (! registryEntity.getIdentity().getId().equals(identity.getId()))
 				throw new NotAuthorizedException("Not authorized to view this item");
 
 			if (! authBean.isUserInService(serviceEntity)) 
 				throw new IllegalArgumentException("Not authorized for this service");
 
-			sshPubKeyList = sshPubKeyService.findByUserAndStatus(userEntity.getId(), SshPubKeyStatus.ACTIVE);
+			sshPubKeyList = sshPubKeyService.findByIdentityAndStatus(identity.getId(), SshPubKeyStatus.ACTIVE);
 			sshPubKeyRegistryList = sshPubKeyRegistryService.findByRegistry(registryEntity.getId());
 
 			for (SshPubKeyRegistryEntity s : sshPubKeyRegistryList) {

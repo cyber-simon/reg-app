@@ -176,7 +176,6 @@ public class RegisterUserBean implements Serializable {
 			return null;
 		}
 
-    	sessionManager.setUserId(entity.getId());
     	sessionManager.setIdentityId(entity.getIdentity().getId());
     	
 		if (sessionManager.getOriginalRequestPath() != null) {

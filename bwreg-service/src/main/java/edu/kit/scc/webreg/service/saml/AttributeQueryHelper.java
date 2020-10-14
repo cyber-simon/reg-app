@@ -12,6 +12,8 @@ package edu.kit.scc.webreg.service.saml;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -20,10 +22,14 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.net.ssl.SSLContext;
 
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.conn.ssl.DefaultHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContexts;
 import org.joda.time.DateTime;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.messaging.context.InOutOperationContext;
@@ -148,13 +154,16 @@ public class AttributeQueryHelper implements Serializable {
 				new InOutOperationContext<SAMLObject, SAMLObject>(inbound, outbound);
 		
 		SAMLMessageSecuritySupport.signMessage(outbound);
-		
+			
 		RequestConfig requestConfig = RequestConfig.custom()
 				.setSocketTimeout(getSocketTimeout())
 				.setConnectTimeout(getConnectTimeout())
 				.setConnectionRequestTimeout(getConnectionRequestTimeout())
 				.build();
-		CloseableHttpClient client = HttpClients.custom().setDefaultRequestConfig(requestConfig).build();
+		CloseableHttpClient client = HttpClients.custom()
+				.setSSLSocketFactory(getSSLConnectionSocketFactory())
+				.setDefaultRequestConfig(requestConfig)
+				.build();
 
 		PipelineFactoryHttpSOAPClient<SAMLObject, SAMLObject> pf = new PipelineFactoryHttpSOAPClient<SAMLObject, SAMLObject>();
 		pf.setHttpClient(client);
@@ -244,5 +253,20 @@ public class AttributeQueryHelper implements Serializable {
 			return 30*1000;
 		else 
 			return Integer.parseInt(aqString);
+	}
+	
+	private SSLConnectionSocketFactory getSSLConnectionSocketFactory() throws KeyManagementException, NoSuchAlgorithmException {
+		String proto = appConfig.getConfigValue("attributequery_tls_version");
+		String[] protos;
+		if (proto == null)
+			protos = new String[] { "TLSv1.2" };
+		else 
+			protos = proto.split(",");
+
+		SSLContext sslContext = SSLContexts.custom().build();
+
+		SSLConnectionSocketFactory f = new SSLConnectionSocketFactory(sslContext, protos,
+				null, new DefaultHostnameVerifier());
+		return f;
 	}
 }

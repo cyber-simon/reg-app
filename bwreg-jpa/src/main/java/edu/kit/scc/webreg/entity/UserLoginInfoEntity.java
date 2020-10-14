@@ -9,6 +9,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+
 @Entity(name = "UserLoginInfoEntity")
 @Table(name = "user_login_info")
 public class UserLoginInfoEntity extends AbstractBaseEntity {
@@ -17,6 +19,9 @@ public class UserLoginInfoEntity extends AbstractBaseEntity {
 
 	@ManyToOne(targetEntity = UserEntity.class)
 	private UserEntity user;
+
+	@ManyToOne(targetEntity = IdentityEntity.class)
+	private IdentityEntity identity;
 
 	@ManyToOne(targetEntity = RegistryEntity.class)
 	private RegistryEntity registry;
@@ -79,5 +84,13 @@ public class UserLoginInfoEntity extends AbstractBaseEntity {
 
 	public void setRegistry(RegistryEntity registry) {
 		this.registry = registry;
+	}
+
+	public IdentityEntity getIdentity() {
+		return identity;
+	}
+
+	public void setIdentity(IdentityEntity identity) {
+		this.identity = identity;
 	}
 }

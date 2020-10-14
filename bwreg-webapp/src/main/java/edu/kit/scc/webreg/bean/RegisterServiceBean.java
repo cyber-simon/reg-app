@@ -40,12 +40,14 @@ import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceServiceEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.exc.MisconfiguredServiceException;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.reg.AttributeSourceQueryService;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;
 import edu.kit.scc.webreg.service.twofa.TwoFaException;
@@ -63,8 +65,10 @@ public class RegisterServiceBean implements Serializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(RegisterServiceBean.class);
 	
-	private UserEntity user;
-
+	private IdentityEntity identity;
+	private List<UserEntity> userList;
+	private UserEntity selectedUserEntity;
+	
 	private ServiceEntity service;
 	
 	private Long id;
@@ -82,6 +86,9 @@ public class RegisterServiceBean implements Serializable {
     @Inject
     private ServiceService serviceService;
 
+    @Inject
+    private IdentityService identityService;
+    
     @Inject
     private UserService userService;
     
@@ -109,8 +116,11 @@ public class RegisterServiceBean implements Serializable {
     private List<RegisterServiceBean.PolicyHolder> policyHolderList;
     
 	public void preRenderView(ComponentSystemEvent ev) {
-    	user = userService.findById(sessionManager.getUserId());
-
+		
+		if (getUserList().size() == 1) {
+			selectedUserEntity = getUserList().get(0);
+		}
+		
     	if (! initialzed) {
     		if (id == null && serviceShortName != null) {
     			service = serviceService.findByShortName(serviceShortName);
@@ -119,7 +129,7 @@ public class RegisterServiceBean implements Serializable {
     		
 			service = serviceService.findByIdWithAttrs(id, "policies", "attributeSourceService", "serviceProps");
 			
-			List<RegistryEntity> r = registryService.findByServiceAndUserAndNotStatus(service, user, 
+			List<RegistryEntity> r = registryService.findByServiceAndIdentityAndNotStatus(service, getIdentity(), 
 					RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
 			if (r.size() != 0) {
 				errorState = true;
@@ -127,12 +137,14 @@ public class RegisterServiceBean implements Serializable {
 				return;
 			}
 			
-			for (AttributeSourceServiceEntity asse : service.getAttributeSourceService()) {
-				logger.info("Updating attribute source {}", asse.getAttributeSource().getName());
-				try {
-					asQueryService.updateUserAttributes(user, asse.getAttributeSource(), "user-" + user.getId());
-				} catch (UserUpdateException e) {
-					logger.info("Updating attribute source exception", e);
+			for (UserEntity user : userList) {
+				for (AttributeSourceServiceEntity asse : service.getAttributeSourceService()) {
+					logger.info("Updating attribute source {}", asse.getAttributeSource().getName());
+					try {
+						asQueryService.updateUserAttributes(user, asse.getAttributeSource(), "user-" + user.getId());
+					} catch (UserUpdateException e) {
+						logger.info("Updating attribute source exception", e);
+					}
 				}
 			}
 			
@@ -166,13 +178,13 @@ public class RegisterServiceBean implements Serializable {
 		List<Object> objectList;
 		
 		if (service.getAccessRule() == null) {
-			objectList = knowledgeSessionService.checkRule("default", "permitAllRule", "1.0.0", user, service, null, "user-self", false);
+			objectList = knowledgeSessionService.checkRule("default", "permitAllRule", "1.0.0", selectedUserEntity, service, null, "user-self", false);
 		}
 		else {
 			BusinessRulePackageEntity rulePackage = service.getAccessRule().getRulePackage();
 			if (rulePackage != null) {
 				objectList = knowledgeSessionService.checkRule(rulePackage.getPackageName(), rulePackage.getKnowledgeBaseName(), 
-					rulePackage.getKnowledgeBaseVersion(), user, service, null, "user-self", false);
+					rulePackage.getKnowledgeBaseVersion(), selectedUserEntity, service, null, "user-self", false);
 			}
 			else {
 				throw new IllegalStateException("checkServiceAccess called with a rule (" +
@@ -212,7 +224,7 @@ public class RegisterServiceBean implements Serializable {
 			 * second factor for service is enabled. Check if user has registered second factor
 			 */
 			try {
-				LinotpTokenResultList tokenList = twoFaService.findByUserId(user.getId());
+				LinotpTokenResultList tokenList = twoFaService.findByIdentity(getIdentity());
 				if (tokenList.size() == 0) {
 					accessAllowed = false;
 					Map<String, Object> rendererContext = new HashMap<String, Object>();
@@ -238,7 +250,7 @@ public class RegisterServiceBean implements Serializable {
 			return null;
     	}
 
-		List<RegistryEntity> r = registryService.findByServiceAndUserAndNotStatus(service, user, 
+		List<RegistryEntity> r = registryService.findByServiceAndIdentityAndNotStatus(service, getIdentity(), 
 				RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
 		if (r.size() != 0) {
     		messageGenerator.addResolvedErrorMessage("errorState", "error", "already_registered", true);
@@ -254,14 +266,14 @@ public class RegisterServiceBean implements Serializable {
     		}
     	}
     	
-    	logger.debug("user {} wants to register to service {} using bean {}", new Object[] {
-    			user.getEppn(), service.getName(), service.getRegisterBean()
+    	logger.debug("identity {} with user {} wants to register to service {} using bean {}", new Object[] {
+    			getIdentity().getId(), selectedUserEntity.getEppn(), service.getName(), service.getRegisterBean()
     	});
     	
     	RegistryEntity registry;
     	
     	try {
-    		registry = registerUserService.registerUser(user, service, "user-self");
+    		registry = registerUserService.registerUser(selectedUserEntity, service, "user-self");
     		sessionManager.setUnregisteredServiceCreated(null);
     	} catch (RegisterException e) {
 			FacesContext.getCurrentInstance().addMessage("need_check", 
@@ -301,10 +313,6 @@ public class RegisterServiceBean implements Serializable {
     	return ViewIds.INDEX_USER + "?faces-redirect=true";
     }
     
-	public UserEntity getUser() {
-		return user;
-	}
-
 	public Long getId() {
 		return id;
 	}
@@ -365,5 +373,27 @@ public class RegisterServiceBean implements Serializable {
 
 	public void setErrorState(Boolean errorState) {
 		this.errorState = errorState;
+	}
+
+	public IdentityEntity getIdentity() {
+		if (identity == null) {
+			identity = identityService.findById(sessionManager.getIdentityId());
+		}
+		return identity;
+	}
+
+	public List<UserEntity> getUserList() {
+		if (userList == null) {
+			userList = userService.findByIdentity(getIdentity());
+		}
+		return userList;
+	}
+
+	public UserEntity getSelectedUserEntity() {
+		return selectedUserEntity;
+	}
+
+	public void setSelectedUserEntity(UserEntity selectedUserEntity) {
+		this.selectedUserEntity = selectedUserEntity;
 	}
 }

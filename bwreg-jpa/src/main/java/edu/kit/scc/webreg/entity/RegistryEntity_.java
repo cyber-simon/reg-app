@@ -7,6 +7,8 @@ import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.StaticMetamodel;
 
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+
 @Generated(value = "org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor")
 @StaticMetamodel(RegistryEntity.class)
 public abstract class RegistryEntity_ extends edu.kit.scc.webreg.entity.AbstractBaseEntity_ {
@@ -21,6 +23,7 @@ public abstract class RegistryEntity_ extends edu.kit.scc.webreg.entity.Abstract
 	public static volatile SingularAttribute<RegistryEntity, RegistryStatus> registryStatus;
 	public static volatile SingularAttribute<RegistryEntity, Date> lastAccessCheck;
 	public static volatile SingularAttribute<RegistryEntity, UserEntity> user;
+	public static volatile SingularAttribute<RegistryEntity, IdentityEntity> identity;
 	public static volatile SingularAttribute<RegistryEntity, String> registerBean;
 	public static volatile SingularAttribute<RegistryEntity, Date> agreedTime;
 

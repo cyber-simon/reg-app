@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.ServiceEventDao;
 import edu.kit.scc.webreg.dao.SshPubKeyRegistryDao;
-import edu.kit.scc.webreg.dao.UserDao;
+import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.entity.EventEntity;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.SshPubKeyRegistryEntity;
@@ -44,7 +44,7 @@ public class SshPubKeyRegistryServiceImpl extends BaseServiceImpl<SshPubKeyRegis
 	private SshPubKeyRegistryDao dao;
 	
 	@Inject
-	private UserDao userDao;
+	private IdentityDao identityDao;
 	
 	@Inject
 	private ServiceEventDao serviceEventDao;
@@ -95,7 +95,7 @@ public class SshPubKeyRegistryServiceImpl extends BaseServiceImpl<SshPubKeyRegis
 	public SshPubKeyRegistryEntity approveRegistry(SshPubKeyRegistryEntity entity, Long approverId) {
 		entity = dao.merge(entity);
 		entity.setKeyStatus(SshPubKeyRegistryStatus.ACTIVE);
-		entity.setApprovedBy(userDao.findById(approverId));
+		entity.setApprover(identityDao.findById(approverId));
 		entity.setApprovedAt(new Date());
 		
 		SshPubKeyRegistryEvent event = new SshPubKeyRegistryEvent(entity);
@@ -114,7 +114,7 @@ public class SshPubKeyRegistryServiceImpl extends BaseServiceImpl<SshPubKeyRegis
 	public SshPubKeyRegistryEntity denyRegistry(SshPubKeyRegistryEntity entity, Long approverId) {
 		entity = dao.merge(entity);
 		entity.setKeyStatus(SshPubKeyRegistryStatus.DENIED);
-		entity.setApprovedBy(userDao.findById(approverId));
+		entity.setApprover(identityDao.findById(approverId));
 		entity.setApprovedAt(new Date());
 		
 		SshPubKeyRegistryEvent event = new SshPubKeyRegistryEvent(entity);

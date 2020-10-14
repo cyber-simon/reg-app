@@ -35,9 +35,6 @@ public class SessionManager implements Serializable {
 	private Long authnRequestId;
 	private Long authnRequestIdpConfigId;
 
-	// userId of first login process used
-	private Long userId;
-	
 	// identityId of the actual user
 	private Long identityId;
 	
@@ -45,9 +42,12 @@ public class SessionManager implements Serializable {
 	
 	private Long spId;
 
+	private Long oidcRelyingPartyId;
+
 	private Map<String, List<Object>> attributeMap;
 	
 	private String persistentId;
+	private String subjectId;
 	
 	private String originalRequestPath;
 	private String originalIdpEntityId;
@@ -99,12 +99,8 @@ public class SessionManager implements Serializable {
 		groups.clear();
 	}
 	
-	public Long getUserId() {
-		return userId;
-	}
-
 	public boolean isLoggedIn() {
-		return (userId != null ? true : false);		
+		return (identityId != null ? true : false);		
 	}
 
 	public void logout() {
@@ -137,10 +133,6 @@ public class SessionManager implements Serializable {
 
 	public void setSpId(Long spId) {
 		this.spId = spId;
-	}
-
-	public void setUserId(Long userId) {
-		this.userId = userId;
 	}
 
 	public Map<String, List<Object>> getAttributeMap() {
@@ -296,5 +288,21 @@ public class SessionManager implements Serializable {
 
 	public void setIdentityId(Long identityId) {
 		this.identityId = identityId;
+	}
+
+	public Long getOidcRelyingPartyId() {
+		return oidcRelyingPartyId;
+	}
+
+	public void setOidcRelyingPartyId(Long oidcRelyingPartyId) {
+		this.oidcRelyingPartyId = oidcRelyingPartyId;
+	}
+
+	public String getSubjectId() {
+		return subjectId;
+	}
+
+	public void setSubjectId(String subjectId) {
+		this.subjectId = subjectId;
 	}
 }

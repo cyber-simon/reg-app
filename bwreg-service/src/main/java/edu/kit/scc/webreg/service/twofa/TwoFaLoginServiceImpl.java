@@ -15,13 +15,11 @@ import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.UserLoginInfoDao;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
-import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
 import edu.kit.scc.webreg.entity.UserLoginInfoStatus;
 import edu.kit.scc.webreg.entity.UserLoginMethod;
-import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.exc.LoginFailedException;
 import edu.kit.scc.webreg.exc.NoRegistryFoundException;
 import edu.kit.scc.webreg.exc.NoServiceFoundException;
@@ -49,9 +47,6 @@ public class TwoFaLoginServiceImpl implements TwoFaLoginService {
 	
 	@Inject
 	private UserLoginInfoDao userLoginInfoDao;
-
-	@Inject
-	private EventSubmitter eventSubmitter;
 
 	@Override
 	public String otpLogin(String eppn, String serviceShortName, String otp, String secret, HttpServletRequest request) 
@@ -110,7 +105,7 @@ public class TwoFaLoginServiceImpl implements TwoFaLoginService {
 			throw new LoginFailedException("Password blank");
 		}
 
-		LinotpSimpleResponse response = twoFaService.checkToken(user.getId(), otp);
+		LinotpSimpleResponse response = twoFaService.checkToken(user.getIdentity(), otp);
 
 		if (!(response.getResult() != null && response.getResult().isStatus() && 
 				response.getResult().isValue())) {
