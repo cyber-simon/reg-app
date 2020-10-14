@@ -82,6 +82,9 @@ public class TwoFaLoginServiceImpl implements TwoFaLoginService {
 				if (registryList.size() == 0) {
 					registryList.addAll(registryDao.findAllByRegValueAndStatus(service, "localUid", eppn, RegistryStatus.ON_HOLD));
 				}
+				if (registryList.size() == 0) {
+					throw new NoUserFoundException("no such localUid in registries");
+				}
 				registry = registryList.get(0);
 				user = registry.getUser();
 			}

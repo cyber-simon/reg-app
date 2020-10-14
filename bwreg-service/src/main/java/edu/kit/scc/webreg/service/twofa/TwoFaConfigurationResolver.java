@@ -55,10 +55,6 @@ public class TwoFaConfigurationResolver {
 				
 				invocable.invokeFunction("resolveConfig", scriptingEnv, configMap, identity, logger);
 				
-				if (! configMap.containsKey("userId")) {
-					configMap.put("userId", identity.getTwoFaUserId());
-				}
-				
 				return configMap;
 			} else {
 				throw new TwoFaConfigurationResolverException("unkown script type: " + scriptEntity.getScriptType());
