@@ -13,10 +13,7 @@ package edu.kit.scc.webreg.sec;
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
@@ -24,28 +21,11 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.slf4j.Logger;
-
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
-import edu.kit.scc.webreg.drools.KnowledgeSessionService;
-import edu.kit.scc.webreg.entity.AdminRoleEntity;
-import edu.kit.scc.webreg.entity.ApproverRoleEntity;
-import edu.kit.scc.webreg.entity.GroupAdminRoleEntity;
-import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
-import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.RoleEntity;
-import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
-import edu.kit.scc.webreg.entity.SshPubKeyApproverRoleEntity;
-import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.entity.identity.IdentityEntity;
-import edu.kit.scc.webreg.service.GroupService;
-import edu.kit.scc.webreg.service.RegistryService;
-import edu.kit.scc.webreg.service.RoleService;
-import edu.kit.scc.webreg.service.ServiceService;
-import edu.kit.scc.webreg.service.UserService;
-import edu.kit.scc.webreg.service.identity.IdentityService;
+import edu.kit.scc.webreg.service.AuthorizationService;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.RoleCache;
 
@@ -58,202 +38,23 @@ public class AuthorizationBean implements Serializable {
 	private List<RegistryEntity> userRegistryList;
 	
 	@Inject
-	private Logger logger;
+	private AuthorizationService authService;
 	
-    @Inject
-    private RegistryService registryService;
-
-    @Inject
-    private RoleService roleService;
-
-    @Inject
-    private ServiceService serviceService;
-    
     @Inject 
     private SessionManager sessionManager;
-    
-    @Inject
-    private UserService userService;
-    
-    @Inject
-    private IdentityService identityService;
-    
-    @Inject
-    private GroupService groupService;
     
     @Inject
     private ApplicationConfig appConfig;
     
     @Inject
     private RoleCache roleCache;
-    
-    @Inject
-    private KnowledgeSessionService knowledgeSessionService;
-    
+
     @PostConstruct
     private void init() {
     	if (sessionManager.getIdentityId() == null)
     		return;
     	
-    	Long rolesTimeout;
-    	if (appConfig.getConfigValue("AuthorizationBean_rolesTimeout") != null)
-    		rolesTimeout = Long.parseLong(appConfig.getConfigValue("AuthorizationBean_rolesTimeout"));
-    	else 
-    		rolesTimeout = 1 * 60 * 1000L;
-
-    	Long groupsTimeout;
-    	if (appConfig.getConfigValue("AuthorizationBean_groupsTimeout") != null)
-    		groupsTimeout = Long.parseLong(appConfig.getConfigValue("AuthorizationBean_groupsTimeout"));
-    	else 
-    		groupsTimeout = 1 * 60 * 1000L;
-    	
-    	Long unregisteredServiceTimeout;
-    	if (appConfig.getConfigValue("AuthorizationBean_unregisteredServiceTimeout") != null)
-    		unregisteredServiceTimeout = Long.parseLong(appConfig.getConfigValue("AuthorizationBean_unregisteredServiceTimeout"));
-    	else 
-    		unregisteredServiceTimeout = 1 * 60 * 1000L;
-    	
-    	long start, end;
-
-    	IdentityEntity identity = identityService.findById(sessionManager.getIdentityId());
-
-    	//TODO change all to Identity framework
-    	
-    	start = System.currentTimeMillis();
-    	List<UserEntity> userList = userService.findByIdentity(identity);
-    	end = System.currentTimeMillis();
-    	logger.trace("user find by id with store loading took {} ms", (end-start));
-
-    	if (sessionManager.getGroupSetCreated() == null || 
-    			(System.currentTimeMillis() - sessionManager.getGroupSetCreated()) > groupsTimeout) {
-	    	start = System.currentTimeMillis();
-
-	    	sessionManager.clearGroups();
-	    	
-	    	for (UserEntity user : userList) {
-		    	Set<GroupEntity> groupList = groupService.findByUserWithChildren(user);
-		    	
-	    		sessionManager.getGroups().addAll(groupList);
-	    		for (GroupEntity g : groupList) {
-	    			sessionManager.getGroupNames().add(g.getName());
-	    		}
-	    	}
-	    	sessionManager.setGroupSetCreated(System.currentTimeMillis());
-
-	    	end = System.currentTimeMillis();
-	    	logger.trace("groups loading took {} ms", (end-start));
-    	}
-
-    	if (sessionManager.getRoleSetCreated() == null || 
-    			(System.currentTimeMillis() - sessionManager.getRoleSetCreated()) > rolesTimeout) {
-	    	start = System.currentTimeMillis();
-
-	    	sessionManager.clearRoleList();
-	    	
-	    	for (UserEntity user : userList) {
-		    	Set<RoleEntity> roles = new HashSet<RoleEntity>(roleService.findByUser(user));
-		    	List<RoleEntity> rolesForGroupList = roleService.findByGroups(sessionManager.getGroups());
-		    	roles.addAll(rolesForGroupList);
-	
-		    	for (RoleEntity role : roles) {
-		    		sessionManager.addRole(role);
-		    		if (role instanceof AdminRoleEntity) {
-		    			for (ServiceEntity s : serviceService.findByAdminRole(role))
-		    				sessionManager.getServiceAdminList().add(s);
-		    			for (ServiceEntity s : serviceService.findByHotlineRole(role))
-		    				sessionManager.getServiceHotlineList().add(s);
-		    		}
-		    		else if (role instanceof ApproverRoleEntity) {
-		    			for (ServiceEntity s : serviceService.findByApproverRole(role))
-		    				sessionManager.getServiceApproverList().add(s);
-		    		}
-		    		else if (role instanceof SshPubKeyApproverRoleEntity) {
-		    			for (ServiceEntity s : serviceService.findBySshPubKeyApproverRole(role))
-		    				sessionManager.getServiceSshPubKeyApproverList().add(s);
-		    		}
-		    		else if (role instanceof GroupAdminRoleEntity) {
-		    			for (ServiceEntity s : serviceService.findByGroupAdminRole(role))
-		    				sessionManager.getServiceGroupAdminList().add(s);
-		    		}
-		    	}
-	    	}
-	    	
-	    	end = System.currentTimeMillis();
-	    	logger.trace("Role loading took {} ms", (end-start));
-	    	
-	    	sessionManager.setRoleSetCreated(System.currentTimeMillis());
-    	}
-    	
-    	start = System.currentTimeMillis();
-    	userRegistryList = registryService.findByIdentityAndNotStatusAndNotHidden(
-    			identity, RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
-    	end = System.currentTimeMillis();
-    	logger.trace("registered servs loading took {} ms", (end-start));
-    	
-    	if (sessionManager.getUnregisteredServiceCreated() == null || 
-    			(System.currentTimeMillis() - sessionManager.getUnregisteredServiceCreated()) > unregisteredServiceTimeout) {
-    		
-	    	List<ServiceEntity> unregisteredServiceList = serviceService.findAllPublishedWithServiceProps();
-	    	
-	    	for (RegistryEntity registry : userRegistryList) {
-	    		unregisteredServiceList.remove(registry.getService());
-	    	}
-	
-	    	if (appConfig.getConfigValue("service_filter_rule") != null) {
-	    		String serviceFilterRule = appConfig.getConfigValue("service_filter_rule");
-				logger.debug("Checking service filter rule {}", serviceFilterRule);
-		    	start = System.currentTimeMillis();
-	
-		    	List<ServiceEntity> tempList = new ArrayList<ServiceEntity>();
-		    	
-		    	for (UserEntity user : userList) {
-			    	tempList.addAll(knowledgeSessionService.checkServiceFilterRule(
-			    			serviceFilterRule, user, unregisteredServiceList,
-			    			sessionManager.getGroups(), sessionManager.getRoles()));
-		    	}
-		    	
-		    	unregisteredServiceList = tempList;
-		    	
-		    	end = System.currentTimeMillis();
-		    	logger.debug("Rule processing took {} ms", end - start);
-	
-	    	}
-	    	else {
-		    	List<ServiceEntity> tempList = new ArrayList<ServiceEntity>();
-		    	for (ServiceEntity s : unregisteredServiceList) {
-		    		Map<String, String> serviceProps = s.getServiceProps();
-		
-		    		for (UserEntity user : userList) {
-			    		if (serviceProps.containsKey("idp_filter")) {
-			    			String idpFilter = serviceProps.get("idp_filter");
-			    			if ((idpFilter != null) && (user instanceof SamlUserEntity) &&
-			    					(idpFilter.contains(((SamlUserEntity) user).getIdp().getEntityId())))
-				    			tempList.add(s);
-			    		}		    			
-			    		else if (s.getServiceProps().containsKey("group_filter")) {
-			    			String groupFilter = serviceProps.get("group_filter");
-			    			if (groupFilter != null &&
-			    					(sessionManager.getGroupNames().contains(groupFilter)))
-				    			tempList.add(s);
-			    		}
-			    		else if (s.getServiceProps().containsKey("entitlement_filter")) {
-			    			String entitlementFilter = serviceProps.get("entitlement_filter");
-			    			String entitlement = user.getAttributeStore().get("urn:oid:1.3.6.1.4.1.5923.1.1.1.7");
-			    			if (entitlementFilter != null && entitlement != null &&
-			    					( entitlement.matches(entitlementFilter)))
-				    			tempList.add(s);
-			    		}
-			    		else {
-			    			tempList.add(s);
-			    		}
-			    	}
-		    	}
-		    	unregisteredServiceList = tempList;
-	    	}
-	    	
-	    	sessionManager.setUnregisteredServiceList(unregisteredServiceList);
-	    	sessionManager.setUnregisteredServiceCreated(System.currentTimeMillis());
-	    }
+    	userRegistryList = authService.loadAll(sessionManager, sessionManager.getIdentityId());
 	}
 
     public Duration getLoggedInSince() {
