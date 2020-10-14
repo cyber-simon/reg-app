@@ -55,6 +55,8 @@ public class TwoFaServiceImpl implements TwoFaService {
 
 	@Override
 	public LinotpTokenResultList findByIdentity(IdentityEntity identity) throws TwoFaException {
+		identity = identityDao.merge(identity);
+		
 		Map<String, String> configMap = configResolver.resolveConfig(identity);
 
 		LinotpConnection linotpConnection = new LinotpConnection(configMap);
@@ -87,6 +89,8 @@ public class TwoFaServiceImpl implements TwoFaService {
 
 	@Override
 	public Boolean hasActiveToken(IdentityEntity identity) throws TwoFaException {
+		identity = identityDao.merge(identity);
+
 		List<LinotpToken> tokenList = findByIdentity(identity);
 		
 		for (LinotpToken token : tokenList) {
@@ -114,6 +118,8 @@ public class TwoFaServiceImpl implements TwoFaService {
 
 	@Override
 	public LinotpSimpleResponse checkToken(IdentityEntity identity, String token) throws TwoFaException {
+		identity = identityDao.merge(identity);
+
 		Map<String, String> configMap = configResolver.resolveConfig(identity);
 		LinotpConnection linotpConnection = new LinotpConnection(configMap);
 		return linotpConnection.checkToken(token);
@@ -121,6 +127,8 @@ public class TwoFaServiceImpl implements TwoFaService {
 
 	@Override
 	public LinotpSimpleResponse checkSpecificToken(IdentityEntity identity, String serial, String token) throws TwoFaException {
+		identity = identityDao.merge(identity);
+
 		Map<String, String> configMap = configResolver.resolveConfig(identity);
 		LinotpConnection linotpConnection = new LinotpConnection(configMap);
 		return linotpConnection.checkSpecificToken(serial, token);
