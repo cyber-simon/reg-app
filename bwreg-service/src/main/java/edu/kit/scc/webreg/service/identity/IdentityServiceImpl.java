@@ -12,6 +12,7 @@ package edu.kit.scc.webreg.service.identity;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -80,11 +81,17 @@ public class IdentityServiceImpl extends BaseServiceImpl<IdentityEntity, Long> i
 			if (users.size() == 1) {
 				for(UserEntity user : users) {
 					id.setTwoFaUserId(user.getId().toString());
-					id.setTwoFaUserName(user.getEppn());
-				}			
+					if (user.getEppn() != null)
+						id.setTwoFaUserName(user.getEppn());
+					else
+						id.setTwoFaUserName(UUID.randomUUID().toString());
+				}
+			}
+			else if (users.size() == 0) {
+				logger.warn("Identity has no attached user! Check identity {}", id.getId());
 			}
 			else {
-				logger.warn("Add missing 2fa user id from identity with more than one account is not supported! Check identity {}" + id.getId());
+				logger.warn("Add missing 2fa user id from identity with more than one account is not supported! Check identity {}", id.getId());
 			}
 		}
 		logger.info("Add missing 2fa userIds done.");

@@ -40,7 +40,7 @@ public class JpaIdentityDao extends JpaBaseDao<IdentityEntity, Long> implements 
 	@Override
     @SuppressWarnings({"unchecked"})
 	public List<IdentityEntity> findMissingTwoFaUserId() {
-		return em.createQuery("select e from IdentityEntity e where e.twoFaUserId is null").getResultList();
+		return em.createQuery("select e from IdentityEntity e where e.twoFaUserId is null or e.twoFaUserName is null").getResultList();
 	}
 	
 	@Override
