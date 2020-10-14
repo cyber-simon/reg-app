@@ -32,7 +32,7 @@ public class IdentityEntity extends AbstractBaseEntity {
 	@Column(name="twofa_user_id", length=512, unique = true)
 	private String twoFaUserId;
 
-	@Column(name="twofa_user_name", length=512, unique = true)
+	@Column(name="twofa_user_name", length=512)
 	private String twoFaUserName;
 
 	@OneToMany(targetEntity=UserEntity.class, mappedBy = "identity")
