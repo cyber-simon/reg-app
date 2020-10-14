@@ -80,6 +80,7 @@ public class IdentityServiceImpl extends BaseServiceImpl<IdentityEntity, Long> i
 			if (users.size() == 1) {
 				for(UserEntity user : users) {
 					id.setTwoFaUserId(user.getId().toString());
+					id.setTwoFaUserName(user.getEppn());
 				}			
 			}
 			else {

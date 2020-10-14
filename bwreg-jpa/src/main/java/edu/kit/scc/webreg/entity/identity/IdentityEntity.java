@@ -32,6 +32,9 @@ public class IdentityEntity extends AbstractBaseEntity {
 	@Column(name="twofa_user_id", length=512, unique = true)
 	private String twoFaUserId;
 
+	@Column(name="twofa_user_name", length=512, unique = true)
+	private String twoFaUserName;
+
 	@OneToMany(targetEntity=UserEntity.class, mappedBy = "identity")
 	private Set<UserEntity> users;
 
@@ -57,5 +60,13 @@ public class IdentityEntity extends AbstractBaseEntity {
 
 	public void setTwoFaUserId(String twoFaUserId) {
 		this.twoFaUserId = twoFaUserId;
+	}
+
+	public String getTwoFaUserName() {
+		return twoFaUserName;
+	}
+
+	public void setTwoFaUserName(String twoFaUserName) {
+		this.twoFaUserName = twoFaUserName;
 	}
 }
