@@ -23,6 +23,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
+import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.FederationEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
@@ -57,6 +58,9 @@ public class DiscoveryLoginBean implements Serializable {
 	
 	@Inject
 	private FacesMessageGenerator messageGenerator;
+	
+	@Inject
+	private ApplicationConfig appConfig;
 	
 	private List<FederationEntity> federationList;
 	private List<SamlIdpMetadataEntity> idpList;
@@ -217,6 +221,10 @@ public class DiscoveryLoginBean implements Serializable {
 
 	public void setSelectedOidcRp(OidcRpConfigurationEntity selectedOidcRp) {
 		this.selectedOidcRp = selectedOidcRp;
+	}
+
+	public ApplicationConfig getAppConfig() {
+		return appConfig;
 	}
 
 }
