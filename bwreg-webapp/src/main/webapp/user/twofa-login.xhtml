@@ -22,7 +22,12 @@
 	<h:form id="form" prependId="false">
 		<p:panel header="#{messages.twofa_login}">
 
-			<p:outputPanel rendered="#{twoFaLoginBean.readOnly}">
+			<p:outputPanel rendered="#{twoFaLoginBean.reallyReadOnly}">
+				<div><h:outputText value="#{messages.twofa_list_really_readonly}"/></div>
+				<div><a href="#{twoFaLoginBean.managementUrl}" target="_blank">#{twoFaLoginBean.managementUrl}</a></div>
+			</p:outputPanel>
+
+			<p:outputPanel rendered="#{twoFaLoginBean.readOnly and not twoFaLoginBean.reallyReadOnly}">
 				<div><h:outputText value="#{messages.twofa_list_readonly}"/></div>
 				<div><a href="#{twoFaLoginBean.managementUrl}" target="_blank">#{twoFaLoginBean.managementUrl}</a></div>
 			</p:outputPanel>
@@ -41,7 +46,8 @@
 				update=":form" />
 
 		</p:panel>
-		<p:dataGrid var="token" value="#{twoFaLoginBean.tokenList}" columns="3" styleClass="whitefoot"
+		<p:dataGrid var="token" value="#{twoFaLoginBean.tokenList}" rendered="#{not twoFaLoginBean.reallyReadOnly}"
+				columns="3" styleClass="whitefoot"
 				layout="grid" style="margin-top: 16px; margin-bottom: 16px;">
 	        <p:panel styleClass="grayback" style="margin-bottom: 0px;">
 	        	<f:facet name="header">

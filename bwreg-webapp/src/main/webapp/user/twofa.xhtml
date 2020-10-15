@@ -27,7 +27,12 @@
 	<h:form id="form">
 			<div><p:messages showDetail="true" /></div>
 
-		<p:panel header="#{messages.twofa_list}" rendered="#{twoFaUserBean.readOnly}">
+		<p:panel header="#{messages.twofa_list}" rendered="#{twoFaUserBean.reallyReadOnly}">
+			<div><h:outputText value="#{messages.twofa_list_really_readonly}"/></div>
+			<div><a href="#{twoFaUserBean.managementUrl}" target="_blank">#{twoFaUserBean.managementUrl}</a></div>
+		</p:panel>
+		
+		<p:panel header="#{messages.twofa_list}" rendered="#{twoFaUserBean.readOnly and not twoFaUserBean.reallyReadOnly}">
 			
 			<div><h:outputText value="#{messages.twofa_list_readonly}"/></div>
 			<div><a href="#{twoFaUserBean.managementUrl}" target="_blank">#{twoFaUserBean.managementUrl}</a></div>

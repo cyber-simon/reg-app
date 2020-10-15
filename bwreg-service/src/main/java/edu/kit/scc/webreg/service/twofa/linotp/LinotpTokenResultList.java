@@ -11,6 +11,7 @@ public class LinotpTokenResultList extends ArrayList<LinotpToken> implements Ser
 	private String statusMessage;
 	
 	private boolean readOnly;
+	private boolean reallyReadOnly;
 	
 	private String managementUrl;
 	
@@ -57,5 +58,13 @@ public class LinotpTokenResultList extends ArrayList<LinotpToken> implements Ser
 
 	public void setAdminRole(String adminRole) {
 		this.adminRole = adminRole;
+	}
+
+	public boolean getReallyReadOnly() {
+		return reallyReadOnly;
+	}
+
+	public void setReallyReadOnly(boolean reallyReadOnly) {
+		this.reallyReadOnly = reallyReadOnly;
 	}
 }

@@ -112,6 +112,10 @@ public class TwoFaLoginBean implements Serializable {
 		return tokenList.getReadOnly();
 	}
 	
+	public Boolean getReallyReadOnly() {
+		return tokenList.getReallyReadOnly();
+	}
+	
 	public String getManagementUrl() {
 		return tokenList.getManagementUrl();
 	}	

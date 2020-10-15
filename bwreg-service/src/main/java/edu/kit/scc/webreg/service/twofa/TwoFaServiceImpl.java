@@ -1,7 +1,6 @@
 package edu.kit.scc.webreg.service.twofa;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.ejb.Stateless;
@@ -59,39 +58,53 @@ public class TwoFaServiceImpl implements TwoFaService {
 		
 		Map<String, String> configMap = configResolver.resolveConfig(identity);
 
-		LinotpConnection linotpConnection = new LinotpConnection(configMap);
-		linotpConnection.requestAdminSession();
-		
-		LinotpShowUserResponse response = linotpConnection.getTokenList();
-		LinotpTokenResultList resultList = new LinotpTokenResultList();
-		if (response.getResult() != null && response.getResult().getValue() != null &&
-				response.getResult().getValue().getData() !=null) {
-			resultList.addAll(response.getResult().getValue().getData());
-		}
-		
-		if (configMap.containsKey("readOnly") && configMap.get("readOnly").equalsIgnoreCase("true")) {
+		if (configMap.containsKey("reallyReadOnly") && configMap.get("reallyReadOnly").equalsIgnoreCase("true")) {
+			LinotpTokenResultList resultList = new LinotpTokenResultList();
+			resultList.setReallyReadOnly(true);
 			resultList.setReadOnly(true);
+			if (configMap.containsKey("managementUrl")) {
+				resultList.setManagementUrl(configMap.get("managementUrl"));
+			}
+			return resultList;
 		}
 		else {
-			resultList.setReadOnly(false);
+			LinotpConnection linotpConnection = new LinotpConnection(configMap);
+			linotpConnection.requestAdminSession();
+			
+			LinotpShowUserResponse response = linotpConnection.getTokenList();
+			LinotpTokenResultList resultList = new LinotpTokenResultList();
+			if (response.getResult() != null && response.getResult().getValue() != null &&
+					response.getResult().getValue().getData() !=null) {
+				resultList.addAll(response.getResult().getValue().getData());
+			}
+			
+			if (configMap.containsKey("readOnly") && configMap.get("readOnly").equalsIgnoreCase("true")) {
+				resultList.setReadOnly(true);
+			}
+			else {
+				resultList.setReadOnly(false);
+			}
+	
+			if (configMap.containsKey("managementUrl")) {
+				resultList.setManagementUrl(configMap.get("managementUrl"));
+			}
+	
+			if (configMap.containsKey("adminRole")) {
+				resultList.setAdminRole(configMap.get("adminRole"));
+			}
+	
+			return resultList;
 		}
-
-		if (configMap.containsKey("managementUrl")) {
-			resultList.setManagementUrl(configMap.get("managementUrl"));
-		}
-
-		if (configMap.containsKey("adminRole")) {
-			resultList.setAdminRole(configMap.get("adminRole"));
-		}
-
-		return resultList;
 	}
 
 	@Override
 	public Boolean hasActiveToken(IdentityEntity identity) throws TwoFaException {
 		identity = identityDao.merge(identity);
+		LinotpTokenResultList tokenList = findByIdentity(identity);
 
-		List<LinotpToken> tokenList = findByIdentity(identity);
+		if (tokenList.getReallyReadOnly()) {
+			return true;
+		}
 		
 		for (LinotpToken token : tokenList) {
 			if (token.getIsactive()) {
@@ -105,8 +118,12 @@ public class TwoFaServiceImpl implements TwoFaService {
 	@Override
 	public Boolean hasActiveTokenById(Long identityId) throws TwoFaException {
 		IdentityEntity identity = identityDao.findById(identityId);
-		List<LinotpToken> tokenList = findByIdentity(identity);
-		
+		LinotpTokenResultList tokenList = findByIdentity(identity);
+
+		if (tokenList.getReallyReadOnly()) {
+			return true;
+		}
+
 		for (LinotpToken token : tokenList) {
 			if (token.getIsactive()) {
 				return true;

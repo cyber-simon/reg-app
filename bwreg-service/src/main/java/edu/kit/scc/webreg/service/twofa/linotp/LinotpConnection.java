@@ -78,14 +78,17 @@ public class LinotpConnection {
 		authCache = new BasicAuthCache();
 		authCache.put(targetHost, new BasicScheme());
 
-		credsProvider = new BasicCredentialsProvider();
-		UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(configMap.get("username"), configMap.get("password"));
-		credsProvider.setCredentials(AuthScope.ANY, credentials);
-
 		context = HttpClientContext.create();
-		context.setCredentialsProvider(credsProvider);
-		context.setAuthCache(authCache);
 
+		if (configMap.containsKey("username")) {
+			credsProvider = new BasicCredentialsProvider();
+			UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(configMap.get("username"), configMap.get("password"));
+			credsProvider.setCredentials(AuthScope.ANY, credentials);
+	
+			context.setCredentialsProvider(credsProvider);
+			context.setAuthCache(authCache);
+		}
+		
 		config = RequestConfig.custom()
 			    .setSocketTimeout(30000)
 			    .setConnectTimeout(30000)
