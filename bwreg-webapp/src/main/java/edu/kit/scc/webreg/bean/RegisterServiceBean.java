@@ -52,6 +52,7 @@ import edu.kit.scc.webreg.service.reg.AttributeSourceQueryService;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;
 import edu.kit.scc.webreg.service.twofa.TwoFaException;
 import edu.kit.scc.webreg.service.twofa.TwoFaService;
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpToken;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpTokenResultList;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
@@ -231,6 +232,23 @@ public class RegisterServiceBean implements Serializable {
 					rendererContext.put("service", service);
 		    		messageGenerator.addResolvedMessage("reqs", FacesMessage.SEVERITY_ERROR, "error", 
 		    				"twofa_mandatory", true, rendererContext);
+				}
+				else {
+					Boolean noActive = true;
+					for (LinotpToken lt : tokenList) {
+						if (lt.getIsactive()) {
+							noActive = false;
+							break;
+						}
+					}
+					
+					if (noActive) {
+						accessAllowed = false;
+						Map<String, Object> rendererContext = new HashMap<String, Object>();
+						rendererContext.put("service", service);
+			    		messageGenerator.addResolvedMessage("reqs", FacesMessage.SEVERITY_ERROR, "error", 
+			    				"twofa_mandatory", true, rendererContext);
+					}
 				}
 			} catch (TwoFaException e) {
 				logger.warn("There is a problem communicating with twofa server" + e.getMessage());
