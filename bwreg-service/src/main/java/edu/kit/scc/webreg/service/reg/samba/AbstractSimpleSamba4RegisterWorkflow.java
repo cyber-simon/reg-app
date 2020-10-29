@@ -34,7 +34,6 @@ import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.service.reg.Infotainment;
 import edu.kit.scc.webreg.service.reg.InfotainmentCapable;
 import edu.kit.scc.webreg.service.reg.RegisterUserWorkflow;
-import edu.kit.scc.webreg.service.reg.ldap.LdapWorker;
 import edu.kit.scc.webreg.service.reg.ldap.PropertyReader;
 
 public abstract class AbstractSimpleSamba4RegisterWorkflow 
@@ -64,7 +63,7 @@ public abstract class AbstractSimpleSamba4RegisterWorkflow
 
 		String localUid = regMap.get("localUid");
 
-		LdapWorker ldapWorker = new LdapWorker(prop, auditor, isSambaEnabled());
+		Samba4Worker ldapWorker = new Samba4Worker(prop, auditor);
 		ldapWorker.deleteUser(localUid);
 		ldapWorker.closeConnections();
 	}
@@ -204,7 +203,7 @@ public abstract class AbstractSimpleSamba4RegisterWorkflow
 		String homeDir = regMap.get("homeDir");
 		String description = registry.getId().toString();
 		
-		LdapWorker ldapWorker = new LdapWorker(prop, auditor, isSambaEnabled());
+		Samba4Worker ldapWorker = new Samba4Worker(prop, auditor);
 
 		ldapWorker.reconUser(cn, sn, givenName, mail, localUid, uidNumber, gidNumber, homeDir, description);
 		if (prop.hasProp("pw_location") && 
@@ -228,7 +227,7 @@ public abstract class AbstractSimpleSamba4RegisterWorkflow
 		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
 		Map<String, String> regMap = registry.getRegistryValues();
 		String localUid = regMap.get("localUid");
-		LdapWorker ldapWorker = new LdapWorker(prop, null, isSambaEnabled());
+		Samba4Worker ldapWorker = new Samba4Worker(prop, null);
 
 		ldapWorker.getInfo(info, localUid);
 		
@@ -237,6 +236,12 @@ public abstract class AbstractSimpleSamba4RegisterWorkflow
 		return info;
 	}		
 
+	@Override
+	public Infotainment getInfoForAdmin(RegistryEntity registry, UserEntity user,
+			ServiceEntity service) throws RegisterException {
+		return getInfo(registry, user, service);
+	}
+	
 	protected String evalTemplate(String template, UserEntity user, Map<String, String> reconMap, String homeId, String homeUid) 
 			throws RegisterException {
 		VelocityEngine engine = new VelocityEngine();
