@@ -81,6 +81,9 @@ public class IdentityServiceImpl extends BaseServiceImpl<IdentityEntity, Long> i
 			if (users == null) {
 				logger.warn("Identity {} has no users", id.getId());
 			}
+			else if (users.size() == 0) {
+				logger.warn("Identity {} has no users", id.getId());
+			}
 			else if (users.size() == 1) {
 				for(UserEntity user : users) {
 					id.setTwoFaUserId(user.getId().toString());
@@ -89,9 +92,6 @@ public class IdentityServiceImpl extends BaseServiceImpl<IdentityEntity, Long> i
 					else
 						id.setTwoFaUserName(UUID.randomUUID().toString());
 				}
-			}
-			else if (users.size() == 0) {
-				logger.warn("Identity has no attached user! Check identity {}", id.getId());
 			}
 			else {
 				logger.warn("Add missing 2fa user id from identity with more than one account is not supported! Check identity {}", id.getId());
