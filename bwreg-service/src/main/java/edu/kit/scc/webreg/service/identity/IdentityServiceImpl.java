@@ -78,7 +78,10 @@ public class IdentityServiceImpl extends BaseServiceImpl<IdentityEntity, Long> i
 		for (IdentityEntity id : idList) {
 			Set<UserEntity> users = id.getUsers();
 			
-			if (users.size() == 1) {
+			if (users == null) {
+				logger.warn("Identity {} has no users", id.getId());
+			}
+			else if (users.size() == 1) {
 				for(UserEntity user : users) {
 					id.setTwoFaUserId(user.getId().toString());
 					if (user.getEppn() != null)
