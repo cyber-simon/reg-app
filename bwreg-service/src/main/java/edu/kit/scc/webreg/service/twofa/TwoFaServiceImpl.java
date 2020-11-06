@@ -108,6 +108,12 @@ public class TwoFaServiceImpl implements TwoFaService {
 		
 		for (LinotpToken token : tokenList) {
 			if (token.getIsactive()) {
+				/*
+				 * filter token, that are not initialized
+				 */
+				if (token.getDescription() != null && token.getDescription().contains("INIT")) {
+					return false;
+				}
 				return true;
 			}
 		}
@@ -125,6 +131,12 @@ public class TwoFaServiceImpl implements TwoFaService {
 		}
 
 		for (LinotpToken token : tokenList) {
+			/*
+			 * filter token, that are not initialized
+			 */
+			if (token.getDescription() != null && token.getDescription().contains("INIT")) {
+				return false;
+			}
 			if (token.getIsactive()) {
 				return true;
 			}
