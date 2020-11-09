@@ -49,9 +49,11 @@
 			</div>
 			<div class="panel">
 				<p:panel id="blockPanel" header="#{messages.register}">
-					<h3>Um sich für den Dienst zu registrieren, müssen Sie den folgenden Nutzungsbedingungen 
-					zustimmen.</h3>
-				
+					<p:outputPanel rendered="#{registerServiceBean.policyHolderList.size() gt 0}">
+						<h3>Um sich für den Dienst zu registrieren, müssen Sie den folgenden Nutzungsbedingungen 
+						zustimmen.</h3>
+					</p:outputPanel>
+
 					<p:messages id="messageBox" for="need_check" showDetail="true" escape="false" />
 				
 					<div style="margin: 16px 0;">
