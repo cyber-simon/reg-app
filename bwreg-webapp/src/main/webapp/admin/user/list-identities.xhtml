@@ -33,12 +33,6 @@
 				</f:facet>
      			<h:outputText value="#{identity.id}"/>
 			</p:column>
-			<p:column sortBy="#{identity.userPreferredName}" filterBy="#{identity.userPreferredName}">
-				<f:facet name="header">
-					<h:outputText value="#{messages.user_preferred_name}" />
-				</f:facet>
-				<h:outputText value="#{identity.userPreferredName}" />
-			</p:column>			
 			<p:column>
 				<f:facet name="header">
 					<h:outputText value="#{messages.eppn}" />

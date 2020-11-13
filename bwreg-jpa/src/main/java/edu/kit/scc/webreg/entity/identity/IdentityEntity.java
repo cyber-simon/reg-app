@@ -14,6 +14,8 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -26,9 +28,6 @@ public class IdentityEntity extends AbstractBaseEntity {
 
 	private static final long serialVersionUID = 1L;
 
-	@Column(name="user_pref_name", length=128, unique = true)
-	private String userPreferredName;
-	
 	@Column(name="twofa_user_id", length=512, unique = true)
 	private String twoFaUserId;
 
@@ -38,14 +37,13 @@ public class IdentityEntity extends AbstractBaseEntity {
 	@OneToMany(targetEntity=UserEntity.class, mappedBy = "identity")
 	private Set<UserEntity> users;
 
-	public String getUserPreferredName() {
-		return userPreferredName;
-	}
+	@OneToMany(targetEntity=IdentityUserPreferenceEntity.class, mappedBy = "identity")
+	private Set<IdentityUserPreferenceEntity> userPrefs;
 
-	public void setUserPreferredName(String userPreferredName) {
-		this.userPreferredName = userPreferredName;
-	}
-
+	@ManyToOne(targetEntity = UserEntity.class)
+    @JoinColumn(name = "pref_user_id")
+	private UserEntity prefUser;
+	
 	public Set<UserEntity> getUsers() {
 		return users;
 	}
@@ -68,5 +66,21 @@ public class IdentityEntity extends AbstractBaseEntity {
 
 	public void setTwoFaUserName(String twoFaUserName) {
 		this.twoFaUserName = twoFaUserName;
+	}
+
+	public Set<IdentityUserPreferenceEntity> getUserPrefs() {
+		return userPrefs;
+	}
+
+	public void setUserPrefs(Set<IdentityUserPreferenceEntity> userPrefs) {
+		this.userPrefs = userPrefs;
+	}
+
+	public UserEntity getPrefUser() {
+		return prefUser;
+	}
+
+	public void setPrefUser(UserEntity prefUser) {
+		this.prefUser = prefUser;
 	}
 }
