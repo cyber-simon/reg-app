@@ -226,10 +226,15 @@ public class RegisterServiceBean implements Serializable {
 			 */
 			try {
 				LinotpTokenResultList tokenList = twoFaService.findByIdentity(getIdentity());
-				if (tokenList.size() == 0) {
+
+				Map<String, Object> rendererContext = new HashMap<String, Object>();
+				rendererContext.put("service", service);
+				
+				if (tokenList.getReallyReadOnly()) {
+					// 2fa are managed by other org, we can not see if the user has an active token
+				}
+				else if (tokenList.size() == 0) {
 					accessAllowed = false;
-					Map<String, Object> rendererContext = new HashMap<String, Object>();
-					rendererContext.put("service", service);
 		    		messageGenerator.addResolvedMessage("reqs", FacesMessage.SEVERITY_ERROR, "error", 
 		    				"twofa_mandatory", true, rendererContext);
 				}
@@ -244,8 +249,6 @@ public class RegisterServiceBean implements Serializable {
 					
 					if (noActive) {
 						accessAllowed = false;
-						Map<String, Object> rendererContext = new HashMap<String, Object>();
-						rendererContext.put("service", service);
 			    		messageGenerator.addResolvedMessage("reqs", FacesMessage.SEVERITY_ERROR, "error", 
 			    				"twofa_mandatory", true, rendererContext);
 					}
