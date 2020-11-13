@@ -21,8 +21,8 @@ import javax.persistence.Table;
 
 import edu.kit.scc.webreg.entity.UserEntity;
 
-@Entity(name = "IdentityRoleEntity")
-@Table(name = "idty_role")
+@Entity(name = "IdentityUserPreferenceEntity")
+@Table(name = "idty_user_prefs")
 public class IdentityUserPreferenceEntity implements Serializable {
 
 	private static final long serialVersionUID = 1L;

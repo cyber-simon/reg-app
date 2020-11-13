@@ -18,9 +18,14 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dao.EmailTemplateDao;
+import edu.kit.scc.webreg.dao.UserDao;
+import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.entity.EmailTemplateEntity;
+import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.exc.MailServiceException;
 import edu.kit.scc.webreg.exc.TemplateRenderingException;
+import edu.kit.scc.webreg.service.identity.IdentityUserPrefsResolver;
 import edu.kit.scc.webreg.service.mail.MailService;
 import edu.kit.scc.webreg.service.mail.QueuedMailService;
 import edu.kit.scc.webreg.service.mail.TemplateMailService;
@@ -44,6 +49,15 @@ public class TemplateMailServiceImpl implements TemplateMailService {
 	@Inject
 	private EmailTemplateDao emailTemplateDao;
 	
+	@Inject
+	private IdentityUserPrefsResolver userPrefsResolver;
+	
+	@Inject
+	private UserDao userDao;
+	
+	@Inject
+	private IdentityDao identityDao;
+	
 	@Override
 	public void sendMail(String templateName, Map<String, Object> rendererContext, Boolean queued) {
 		
@@ -57,6 +71,15 @@ public class TemplateMailServiceImpl implements TemplateMailService {
 				return;
 			}
 
+			if (rendererContext.containsKey("identity")) {
+				IdentityEntity identity = identityDao.merge((IdentityEntity) rendererContext.get("identity"));
+				rendererContext.putAll(userPrefsResolver.resolvePrefs(identity));
+			}
+			else if (rendererContext.containsKey("user")) {
+				UserEntity user = userDao.merge((UserEntity) rendererContext.get("user"));
+				rendererContext.putAll(userPrefsResolver.resolvePrefs(user.getIdentity()));
+			}
+			
 			logger.debug("Rendering Email");
 			
 			String body = renderer.evaluate(emailTemplateEntity.getBody(), rendererContext);
