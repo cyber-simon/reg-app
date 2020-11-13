@@ -77,6 +77,10 @@ public class TemplateMailServiceImpl implements TemplateMailService {
 				if ((! rendererContext.containsKey("user")) && (identity.getPrefUser() != null)) {
 					rendererContext.put("user", identity.getPrefUser());
 				}
+				else if ((! rendererContext.containsKey("user")) && (identity.getUsers().size() == 1)) {
+					for (UserEntity user : identity.getUsers())
+						rendererContext.put("user", user);
+				}
 			}
 			else if (rendererContext.containsKey("user")) {
 				UserEntity user = userDao.merge((UserEntity) rendererContext.get("user"));
