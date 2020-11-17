@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -35,7 +34,6 @@ import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.dao.oidc.OidcRpConfigurationDao;
 import edu.kit.scc.webreg.dao.oidc.OidcUserDao;
 import edu.kit.scc.webreg.entity.EventType;
-import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserRoleEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
@@ -46,9 +44,6 @@ import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.UserEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
-import edu.kit.scc.webreg.service.impl.AttributeMapHelper;
-import edu.kit.scc.webreg.service.impl.HomeOrgGroupUpdater;
-import edu.kit.scc.webreg.service.impl.UserUpdater;
 
 @Stateless
 public class OidcUserCreateServiceImpl implements OidcUserCreateService {
@@ -69,11 +64,8 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
 	private OidcTokenHelper tokenHelper;
 	
 	@Inject
-	private UserUpdater userUpdater;
+	private OidcUserUpdater userUpdater;
 	
-	@Inject
-	private HomeOrgGroupUpdater homeOrgGroupUpdater;
-
 	@Inject
 	private RoleDao roleDao;
 
@@ -88,9 +80,6 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
 
 	@Inject
 	private EventSubmitter eventSubmitter;
-
-	@Inject
-	private AttributeMapHelper attrHelper;
 
 	@Inject
 	private ApplicationConfig appConfig;
@@ -145,7 +134,7 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
 		auditor.setName(getClass().getName() + "-OidcUserCreate-Audit");
 		auditor.setDetail("Create OIDC user " + user.getSubjectId());
 		
-//    	userUpdater.updateUserFromAttribute(user, attributeMap, true, auditor);
+    	userUpdater.updateUserFromAttribute(user, attributeMap, true, auditor);
 		
     	/** 
     	 * if user has no uid number yet, generate one

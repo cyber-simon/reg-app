@@ -212,7 +212,6 @@ public class RegisterOidcUserBean implements Serializable {
 
     public String save() {
 
-    	/*
 		try {
 			entity = userCreateService.createUser(entity, sessionManager.getAttributeMap(), null);
 		} catch (UserUpdateException e) {
@@ -221,7 +220,6 @@ public class RegisterOidcUserBean implements Serializable {
 			return null;
 		}
 
-    	sessionManager.setUserId(entity.getId());
     	sessionManager.setIdentityId(entity.getIdentity().getId());
     	
 		if (sessionManager.getOriginalRequestPath() != null) {
@@ -238,8 +236,6 @@ public class RegisterOidcUserBean implements Serializable {
 		}
 		else
 			return "/index.xhtml?faces-redirect=true";
-*/
-    	return null;
     }
     
 	public Boolean getErrorState() {

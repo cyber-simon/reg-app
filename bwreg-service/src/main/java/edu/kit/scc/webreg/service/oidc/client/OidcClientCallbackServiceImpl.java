@@ -3,9 +3,14 @@ package edu.kit.scc.webreg.service.oidc.client;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Instant;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
@@ -44,15 +49,21 @@ import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import com.nimbusds.openid.connect.sdk.validators.IDTokenValidator;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
+import edu.kit.scc.webreg.dao.UserLoginInfoDao;
 import edu.kit.scc.webreg.dao.oidc.OidcRpConfigurationDao;
 import edu.kit.scc.webreg.dao.oidc.OidcRpFlowStateDao;
 import edu.kit.scc.webreg.dao.oidc.OidcUserDao;
 import edu.kit.scc.webreg.drools.impl.KnowledgeSessionSingleton;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
+import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
+import edu.kit.scc.webreg.entity.UserLoginInfoStatus;
+import edu.kit.scc.webreg.entity.UserLoginMethod;
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcRpFlowStateEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
+import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.saml.exc.OidcAuthenticationException;
+import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.session.SessionManager;
 
 @Stateless
@@ -85,10 +96,16 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 	private OidcTokenHelper oidcTokenHelper;
 	
 	@Inject
+	private OidcUserUpdater userUpdater;
+	
+	@Inject
+	private UserLoginInfoDao userLoginInfoDao;
+	
+	@Inject
 	private SessionManager session;
 		
 	@Override
-	public void callback(String uri, HttpServletResponse httpServletResponse) throws OidcAuthenticationException {
+	public void callback(String uri, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws OidcAuthenticationException {
 
 		try {
 			AuthorizationResponse response = AuthorizationResponse.parse(new URI(uri));
@@ -171,7 +188,7 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 			if (user != null) {
 				MDC.put("userId", "" + user.getId());
 			}
-			
+
 			if (user == null) {
 				logger.info("New User detected, sending to register Page");
 
@@ -183,7 +200,39 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 				httpServletResponse.sendRedirect("/register/register-oidc.xhtml");
 				return;
 			}
-						
+			
+	    	logger.debug("Updating OIDC user {}", user.getSubjectId());
+			
+			try {
+				user = userUpdater.updateUser(user, claims, userInfo, "web-sso");
+			} catch (UserUpdateException e) {
+				logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
+				throw new OidcAuthenticationException(e.getMessage());
+			}
+			
+			session.setIdentityId(user.getIdentity().getId());
+			session.setLoginTime(Instant.now());
+			session.setTheme(user.getTheme());
+			session.setLocale(user.getLocale());
+			
+			UserLoginInfoEntity loginInfo = userLoginInfoDao.createNew();
+			loginInfo.setUser(user);
+			loginInfo.setLoginDate(new Date());
+			loginInfo.setLoginMethod(UserLoginMethod.HOME_ORG);
+			loginInfo.setLoginStatus(UserLoginInfoStatus.SUCCESS);
+			loginInfo.setFrom(httpServletRequest.getRemoteAddr());
+			loginInfo = userLoginInfoDao.persist(loginInfo);
+			
+			if (session.getOriginalRequestPath() != null) {
+				String orig = session.getOriginalRequestPath();
+				session.setOriginalRequestPath(null);
+				httpServletResponse.sendRedirect(orig);
+			}
+			else
+				httpServletResponse.sendRedirect("/index.xhtml");
+
+			return;
+			
 		} catch (IOException | ParseException | URISyntaxException e) {
 			logger.warn("Oidc callback failed: {}", e.getMessage());
 			throw new OidcAuthenticationException(e);
