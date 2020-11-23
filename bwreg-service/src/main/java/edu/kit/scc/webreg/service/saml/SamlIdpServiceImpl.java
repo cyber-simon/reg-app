@@ -176,7 +176,7 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 
 			if (serviceSamlSpEntity.getIdp() != null && 
 					(! serviceSamlSpEntity.getIdp().getId().equals(idpConfig.getId()))) {
-				logger.debug("Specific IDP is set and not matching.");
+				logger.debug("Specific IDP {} is set and not matching {}.", serviceSamlSpEntity.getIdp().getId(), idpConfig.getId());
 			}
 			else {
 				/*
