@@ -62,7 +62,7 @@ public class OidcClientRedirectHandlerServlet implements Servlet {
 		}
 		
 		try {
-			redirectService.redirectClient(session.getOidcRelyingPartyId(), response);
+			redirectService.redirectClient(session.getOidcRelyingPartyId(), request, response);
 		} catch (OidcAuthenticationException e) {
 			throw new ServletException("Problems encountered: " + e.getMessage());
 		}

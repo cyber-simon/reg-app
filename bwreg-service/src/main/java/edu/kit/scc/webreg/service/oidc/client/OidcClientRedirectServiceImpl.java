@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
@@ -43,7 +44,7 @@ public class OidcClientRedirectServiceImpl implements OidcClientRedirectService 
 	private OidcOpMetadataSingletonBean opMetadataBean;
 	
 	@Override
-	public void redirectClient(Long oidcRelyingPartyId, HttpServletResponse response) throws OidcAuthenticationException {
+	public void redirectClient(Long oidcRelyingPartyId, HttpServletRequest servletRequest, HttpServletResponse response) throws OidcAuthenticationException {
 		
 		OidcRpConfigurationEntity rpConfig = rpConfigDao.findById(oidcRelyingPartyId);
 		
@@ -51,12 +52,23 @@ public class OidcClientRedirectServiceImpl implements OidcClientRedirectService 
 			throw new OidcAuthenticationException("relying party not configured");
 		}
 		
+		String callbackUrl;
+		if (! rpConfig.getCallbackUrl().startsWith("https://")) {
+			/*
+			 * we are dealing with a relative acs endpoint. We have to build it with the called hostname;
+			 */
+			callbackUrl = "https://" + servletRequest.getServerName() + rpConfig.getCallbackUrl();
+		}
+		else {
+			callbackUrl = rpConfig.getCallbackUrl();
+		}
+		
 		try {
 			URI authzEndpoint = opMetadataBean.getAuthorizationEndpointURI(rpConfig);
 			
 			ClientID clientID = new ClientID(rpConfig.getClientId());
 			Scope scope = new Scope(OIDCScopeValue.OPENID, OIDCScopeValue.PROFILE, OIDCScopeValue.EMAIL);
-			URI callback = new URI(rpConfig.getCallbackUrl());
+			URI callback = new URI(callbackUrl);
 			State state = new State();
 			Nonce nonce = new Nonce();
 			AuthenticationRequest request = new AuthenticationRequest.Builder(
@@ -74,7 +86,7 @@ public class OidcClientRedirectServiceImpl implements OidcClientRedirectService 
 			flowState.setNonce(nonce.getValue());
 			rpFlowStateDao.persist(flowState);
 			
-			logger.info("Sending OIDC Client to uri: {}", requestURI);
+			logger.info("Sending OIDC Client to uri: {} with callback {}", requestURI, callbackUrl);
 			
 			response.sendRedirect(requestURI.toString());
 		} catch (URISyntaxException | IOException | ParseException e) {

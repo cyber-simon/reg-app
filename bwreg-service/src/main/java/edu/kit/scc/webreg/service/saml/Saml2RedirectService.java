@@ -12,6 +12,7 @@ package edu.kit.scc.webreg.service.saml;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
@@ -47,17 +48,28 @@ public class Saml2RedirectService {
 	private SsoHelper ssoHelper;
 	
 	public void redirectClient(SamlIdpMetadataEntity idpEntity,
-			SamlSpConfigurationEntity spEntity, HttpServletResponse response) 
+			SamlSpConfigurationEntity spEntity, HttpServletRequest request, HttpServletResponse response) 
 					throws MessageEncodingException, ComponentInitializationException {
 
+		String acs;
+		if (! spEntity.getAcs().startsWith("https://")) {
+			/*
+			 * we are dealing with a relative acs endpoint. We have to build it with the called hostname;
+			 */
+			acs = "https://" + request.getServerName() + spEntity.getAcs();
+		}
+		else {
+			acs = spEntity.getAcs();
+		}
+		
 		EntityDescriptor entityDesc = samlHelper.unmarshal(
 				idpEntity.getEntityDescriptor(), EntityDescriptor.class);
 		SingleSignOnService sso = metadataHelper.getSSO(entityDesc, SAMLConstants.SAML2_REDIRECT_BINDING_URI);
 
 		AuthnRequest authnRequest = ssoHelper.buildAuthnRequest(
-				spEntity.getEntityId(), spEntity.getAcs(), SAMLConstants.SAML2_POST_BINDING_URI);
+				spEntity.getEntityId(), acs, SAMLConstants.SAML2_POST_BINDING_URI);
 
-		logger.debug("Sending client to idp {} endpoint {}", idpEntity.getEntityId(), sso.getLocation());
+		logger.debug("Sending client to idp {} endpoint {} and ACS {}", idpEntity.getEntityId(), sso.getLocation(), acs);
 
 		MessageContext<SAMLObject> messageContext = new MessageContext<SAMLObject>();
 		messageContext.setMessage(authnRequest);

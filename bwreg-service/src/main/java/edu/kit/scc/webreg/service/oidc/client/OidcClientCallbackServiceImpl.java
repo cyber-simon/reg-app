@@ -128,7 +128,18 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 			AuthorizationCode code = successResponse.getAuthorizationCode();
 			flowState.setCode(code.getValue());
 
-			URI callback = new URI(rpConfig.getCallbackUrl());
+			String callbackUrl;
+			if (! rpConfig.getCallbackUrl().startsWith("https://")) {
+				/*
+				 * we are dealing with a relative acs endpoint. We have to build it with the called hostname;
+				 */
+				callbackUrl = "https://" + httpServletRequest.getServerName() + rpConfig.getCallbackUrl();
+			}
+			else {
+				callbackUrl = rpConfig.getCallbackUrl();
+			}
+
+			URI callback = new URI(callbackUrl);
 			AuthorizationGrant codeGrant = new AuthorizationCodeGrant(code, callback);
 
 			ClientID clientID = new ClientID(rpConfig.getClientId());
