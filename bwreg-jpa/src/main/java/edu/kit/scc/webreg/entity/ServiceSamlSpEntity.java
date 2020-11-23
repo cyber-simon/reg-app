@@ -16,6 +16,9 @@ public class ServiceSamlSpEntity extends AbstractBaseEntity {
 	@ManyToOne(targetEntity = SamlSpMetadataEntity.class)
 	private SamlSpMetadataEntity sp;
 
+	@ManyToOne(targetEntity = SamlIdpConfigurationEntity.class)
+	private SamlIdpConfigurationEntity idp;
+	
 	@ManyToOne (targetEntity = ScriptEntity.class)
 	private ScriptEntity script;
 	
@@ -41,5 +44,13 @@ public class ServiceSamlSpEntity extends AbstractBaseEntity {
 
 	public void setScript(ScriptEntity script) {
 		this.script = script;
+	}
+
+	public SamlIdpConfigurationEntity getIdp() {
+		return idp;
+	}
+
+	public void setIdp(SamlIdpConfigurationEntity idp) {
+		this.idp = idp;
 	}
 }

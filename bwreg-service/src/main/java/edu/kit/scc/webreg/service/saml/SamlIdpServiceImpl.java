@@ -173,49 +173,61 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 		for (ServiceSamlSpEntity serviceSamlSpEntity : serviceSamlSpEntityList) {
 			ServiceEntity service = serviceSamlSpEntity.getService();
 			logger.debug("Service for SP found: {}", service.getId());
-			if (matchService(serviceSamlSpEntity.getScript(), user, serviceSamlSpEntity)) {
-				logger.debug("SP matches: {}", service.getId());
-				
-				registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.ACTIVE);
-				if (registry != null) {
-					List<Object> objectList = checkRules(user, service, registry);
-					List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
-					List<UnauthorizedUser> unauthorizedUserList = extractUnauthorizedUser(objectList);
-					
-					if (overrideAccessList.size() == 0 && unauthorizedUserList.size() > 0) {
-						return "/user/check-access.xhtml?regId=" + registry.getId();
-					}
 
-					filteredServiceSamlSpEntityList.add(serviceSamlSpEntity);
-				}
-				else {
-					registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.LOST_ACCESS);
+			if (serviceSamlSpEntity.getIdp() != null && 
+					(! serviceSamlSpEntity.getIdp().getId().equals(idpConfig.getId()))) {
+				logger.debug("Specific IDP is set and not matching.");
+			}
+			else {
+				/*
+				 * If the service <-> saml sp connection has no specific idp set, or the idp matches the request
+				 * evaluate all the scripts and create the user attributes
+				 */
+				if (matchService(serviceSamlSpEntity.getScript(), user, serviceSamlSpEntity)) {
+					logger.debug("SP matches: {}", service.getId());
 					
+					registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.ACTIVE);
 					if (registry != null) {
-						logger.info("Registration for user {} and service {} in state LOST_ACCESS, checking again", 
-								user.getEppn(), service.getName());
 						List<Object> objectList = checkRules(user, service, registry);
 						List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
 						List<UnauthorizedUser> unauthorizedUserList = extractUnauthorizedUser(objectList);
 						
 						if (overrideAccessList.size() == 0 && unauthorizedUserList.size() > 0) {
-							logger.info("Registration for user {} and service {} in state LOST_ACCESS stays, redirecting to check page", 
-									user.getEppn(), service.getName());
 							return "/user/check-access.xhtml?regId=" + registry.getId();
 						}
 
 						filteredServiceSamlSpEntityList.add(serviceSamlSpEntity);
 					}
 					else {
-						logger.info("No active registration for user {} and service {}, redirecting to register page", 
-								user.getEppn(), service.getName());
-						return "/user/register-service.xhtml?serviceId=" + service.getId();
+						registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.LOST_ACCESS);
+						
+						if (registry != null) {
+							logger.info("Registration for user {} and service {} in state LOST_ACCESS, checking again", 
+									user.getEppn(), service.getName());
+							List<Object> objectList = checkRules(user, service, registry);
+							List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
+							List<UnauthorizedUser> unauthorizedUserList = extractUnauthorizedUser(objectList);
+							
+							if (overrideAccessList.size() == 0 && unauthorizedUserList.size() > 0) {
+								logger.info("Registration for user {} and service {} in state LOST_ACCESS stays, redirecting to check page", 
+										user.getEppn(), service.getName());
+								return "/user/check-access.xhtml?regId=" + registry.getId();
+							}
+
+							filteredServiceSamlSpEntityList.add(serviceSamlSpEntity);
+						}
+						else {
+							logger.info("No active registration for user {} and service {}, redirecting to register page", 
+									user.getEppn(), service.getName());
+							return "/user/register-service.xhtml?serviceId=" + service.getId();
+						}
 					}
 				}
+				else {
+					logger.debug("SP no match: {}", service.getId());				
+				}				
 			}
-			else {
-				logger.debug("SP no match: {}", service.getId());				
-			}
+			
 		}
 		
 		Response samlResponse = ssoHelper.buildAuthnResponse(authnRequest, idpConfig.getEntityId());
