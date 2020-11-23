@@ -18,17 +18,23 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
+import com.nimbusds.openid.connect.sdk.claims.ClaimsSet;
+
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.service.GroupService;
 import edu.kit.scc.webreg.service.RoleService;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.session.SessionManager;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
 
 @ManagedBean
 @ViewScoped
@@ -45,6 +51,8 @@ public class UserPropertiesBean implements Serializable {
 	private List<RoleEntity> roleList;
 
 	private List<GroupEntity> groupList;
+	
+	private ClaimsSet claims;
 	
 	@Inject
 	private UserService userService;
@@ -71,6 +79,15 @@ public class UserPropertiesBean implements Serializable {
 	    	
 	    	if (user instanceof SamlUserEntity) {
 	    		idpEntity = ((SamlUserEntity) user).getIdp();
+	    	}
+	    	else if (user instanceof OidcUserEntity) {
+	    		JSONParser parser = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
+				try {
+		    		JSONObject jo = parser.parse(user.getAttributeStore().get("claims"), JSONObject.class);
+		    		claims = new ClaimsSet(jo);
+				} catch (ParseException e) {
+					System.out.println("" + e);
+				}
 	    	}
 		}
 	}
@@ -101,5 +118,9 @@ public class UserPropertiesBean implements Serializable {
 
 	public void setUser(UserEntity user) {
 		this.user = user;
+	}
+
+	public ClaimsSet getClaims() {
+		return claims;
 	}
 }

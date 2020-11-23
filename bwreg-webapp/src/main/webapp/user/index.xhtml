@@ -40,12 +40,12 @@
 					<bw:outputText label="#{messages.name}" value="#{userPropertiesBean.user.surName}, #{userPropertiesBean.user.givenName}"/>
 					<bw:outputText label="#{messages.email}" value="#{userPropertiesBean.user.email}"/>
 					<bw:outputText label="#{messages.eppn}" value="#{userPropertiesBean.user.eppn}"/>
-					<bw:outputText label="#{messages.persistent_id}" value="#{userPropertiesBean.user.persistentId}"/>
+					<bw:outputText label="#{messages.persistent_id}" value="#{userPropertiesBean.user.persistentId}" rendered="#{userPropertiesBean.user.class eq 'SamlUserEntity'}"/>
 					<bw:outputText label="#{messages.uid_number}" value="#{userPropertiesBean.user.uidNumber}"/>
 					<bw:outputText label="#{messages.primary_group}" value="#{userPropertiesBean.user.primaryGroup.name} (#{userPropertiesBean.user.primaryGroup.gidNumber})"/>
 					
 					<bw:outputText label="#{messages.idp}" value="#{userPropertiesBean.idpEntity.displayName}"
-						rendered="#{not empty userPropertiesBean.idpEntity.displayName}"/>
+						rendered="#{not empty userPropertiesBean.idpEntity and not empty userPropertiesBean.idpEntity.displayName}"/>
 					
 				</p:panelGrid>
 				<div class="panel">#{messages.my_data_delete_all}
