@@ -22,16 +22,27 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.FederationEntity;
+import edu.kit.scc.webreg.entity.SamlIdpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
+import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
+import edu.kit.scc.webreg.entity.ScriptEntity;
+import edu.kit.scc.webreg.entity.ServiceSamlSpEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
+import edu.kit.scc.webreg.service.SamlIdpConfigurationService;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.SamlSpConfigurationService;
+import edu.kit.scc.webreg.service.SamlSpMetadataService;
 import edu.kit.scc.webreg.service.oidc.OidcRpConfigurationService;
 import edu.kit.scc.webreg.service.saml.FederationSingletonBean;
+import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
@@ -62,6 +73,12 @@ public class DiscoveryLoginBean implements Serializable {
 	@Inject
 	private ApplicationConfig appConfig;
 	
+	@Inject
+	private SamlIdpConfigurationService idpConfigService;
+
+	@Inject
+	private SamlSpMetadataService spMetadataService;
+	
 	private List<FederationEntity> federationList;
 	private List<SamlIdpMetadataEntity> idpList;
 	private FederationEntity selectedFederation;
@@ -71,6 +88,9 @@ public class DiscoveryLoginBean implements Serializable {
 	private OidcRpConfigurationEntity selectedOidcRp;
 	
 	private String filter;
+	
+	private SamlSpMetadataEntity spMetadata;
+	private SamlIdpConfigurationEntity idpConfig;
 	
 	private Boolean initialized = false;
 	
@@ -90,7 +110,6 @@ public class DiscoveryLoginBean implements Serializable {
 				messageGenerator.addErrorMessage("Das SAML Subsystem ist noch nicht konfiguriert");
 				return;
 			}
-			//selectedFederation = federationList.get(0);
 			updateIdpList();		
 			initialized = true;
 		}
@@ -144,7 +163,25 @@ public class DiscoveryLoginBean implements Serializable {
 	
 	public void updateIdpList() {
 		if (selectedFederation == null) {
-			idpList = federationBean.getAllIdpList();
+			if (sessionManager.getAuthnRequestIdpConfigId() == null && sessionManager.getAuthnRequestSpMetadataId() == null) {
+				/*
+				 * reg-app login directly called
+				 */
+				idpList = federationBean.getAllIdpList();
+			}
+			else {
+				/*
+				 * reg-app login called via service provider/ relying party
+				 */
+				idpConfig = idpConfigService.findById(sessionManager.getAuthnRequestIdpConfigId());
+				spMetadata = spMetadataService.findById(sessionManager.getAuthnRequestSpMetadataId());
+				List<ServiceSamlSpEntity> serviceSamlList = idpConfigService.findBySamlSpAndIdp(idpConfig, spMetadata);
+				for (ServiceSamlSpEntity serviceSaml : serviceSamlList) {
+					if (serviceSaml.getScript() != null) {
+						idpList.addAll(federationBean.getFilteredIdpList(serviceSaml.getScript()));
+					}
+				}
+			}
 		}
 		else {
 			idpList = federationBean.getIdpList(selectedFederation);
@@ -225,6 +262,14 @@ public class DiscoveryLoginBean implements Serializable {
 
 	public ApplicationConfig getAppConfig() {
 		return appConfig;
+	}
+
+	public SamlSpMetadataEntity getSpMetadata() {
+		return spMetadata;
+	}
+
+	public SamlIdpConfigurationEntity getIdpConfig() {
+		return idpConfig;
 	}
 
 }

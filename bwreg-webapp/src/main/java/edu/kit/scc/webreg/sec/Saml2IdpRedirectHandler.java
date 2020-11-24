@@ -85,6 +85,11 @@ public class Saml2IdpRedirectHandler {
 			throw new ServletException("SAML Authentication Request ist not complete, issuer data is missing");
 		}
 		
+		if (! idpConfig.getEntityId().equals(authnRequest.getDestination())) {
+			logger.warn("EntityId from AuthnRequest ({}) does not match SamlIdpConfig EntityId ({}). This is probably some misconfig somewhere.",
+					authnRequest.getDestination(), idpConfig.getEntityId());
+		}
+		
 		SamlSpMetadataEntity spMetadata = spService.findByEntityId(authnRequest.getIssuer().getValue());
 		
 		if (spMetadata == null) {
@@ -99,6 +104,7 @@ public class Saml2IdpRedirectHandler {
 			long id = samlIdpService.registerAuthnRequest(authnRequest);
 			session.setAuthnRequestId(id);
 			session.setAuthnRequestIdpConfigId(idpConfig.getId());
+			session.setAuthnRequestSpMetadataId(spMetadata.getId());
 			session.setOriginalRequestPath(idpConfig.getRedirect() + "/response");
 			response.sendRedirect("/welcome/index.xhtml");
 			return;
@@ -107,6 +113,7 @@ public class Saml2IdpRedirectHandler {
 		long id = samlIdpService.registerAuthnRequest(authnRequest);
 		session.setAuthnRequestId(id);
 		session.setAuthnRequestIdpConfigId(idpConfig.getId());
+		session.setAuthnRequestSpMetadataId(spMetadata.getId());
 		response.sendRedirect(request.getRequestURI() + "/response");
 	}
 }

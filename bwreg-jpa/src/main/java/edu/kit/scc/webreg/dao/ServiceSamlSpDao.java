@@ -12,6 +12,7 @@ package edu.kit.scc.webreg.dao;
 
 import java.util.List;
 
+import edu.kit.scc.webreg.entity.SamlIdpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceSamlSpEntity;
@@ -21,5 +22,7 @@ public interface ServiceSamlSpDao extends BaseDao<ServiceSamlSpEntity, Long> {
 	List<ServiceSamlSpEntity> findByService(ServiceEntity service);
 
 	List<ServiceSamlSpEntity> findBySamlSp(SamlSpMetadataEntity sp);
+
+	List<ServiceSamlSpEntity> findBySamlSpAndIdp(SamlIdpConfigurationEntity idp, SamlSpMetadataEntity sp);
 	
 }

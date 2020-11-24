@@ -34,6 +34,7 @@ public class SessionManager implements Serializable {
 
 	private Long authnRequestId;
 	private Long authnRequestIdpConfigId;
+	private Long authnRequestSpMetadataId;
 
 	// identityId of the actual user
 	private Long identityId;
@@ -304,5 +305,13 @@ public class SessionManager implements Serializable {
 
 	public void setSubjectId(String subjectId) {
 		this.subjectId = subjectId;
+	}
+
+	public Long getAuthnRequestSpMetadataId() {
+		return authnRequestSpMetadataId;
+	}
+
+	public void setAuthnRequestSpMetadataId(Long authnRequestSpMetadataId) {
+		this.authnRequestSpMetadataId = authnRequestSpMetadataId;
 	}
 }

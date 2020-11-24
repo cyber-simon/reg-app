@@ -19,6 +19,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
 import edu.kit.scc.webreg.dao.ServiceSamlSpDao;
+import edu.kit.scc.webreg.entity.SamlIdpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceSamlSpEntity;
@@ -34,6 +35,20 @@ public class JpaServiceSamlSpDao extends JpaBaseDao<ServiceSamlSpEntity, Long> i
 		Root<ServiceSamlSpEntity> root = criteria.from(ServiceSamlSpEntity.class);
 		criteria.where(
 				builder.equal(root.get("service"), service));
+		criteria.select(root);
+		return em.createQuery(criteria).getResultList();
+	}
+
+    @Override
+	public List<ServiceSamlSpEntity> findBySamlSpAndIdp(SamlIdpConfigurationEntity idp, SamlSpMetadataEntity sp) {
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<ServiceSamlSpEntity> criteria = builder.createQuery(ServiceSamlSpEntity.class);
+		Root<ServiceSamlSpEntity> root = criteria.from(ServiceSamlSpEntity.class);
+		criteria.where(
+				builder.and(
+						builder.equal(root.get("sp"), sp),
+						builder.equal(root.get("idp"), idp)
+				));
 		criteria.select(root);
 		return em.createQuery(criteria).getResultList();
 	}

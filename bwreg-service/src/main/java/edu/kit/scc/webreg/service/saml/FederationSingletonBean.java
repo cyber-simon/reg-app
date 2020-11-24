@@ -10,6 +10,10 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
 import javax.inject.Inject;
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
 import org.slf4j.Logger;
 
@@ -17,6 +21,7 @@ import edu.kit.scc.webreg.dao.FederationDao;
 import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
 import edu.kit.scc.webreg.entity.FederationEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
+import edu.kit.scc.webreg.entity.ScriptEntity;
 
 @Singleton
 public class FederationSingletonBean {
@@ -41,25 +46,29 @@ public class FederationSingletonBean {
 		logger.info("Constructing federation cache");
 		federationCache = new HashMap<FederationEntity, List<SamlIdpMetadataEntity>>();
 		idpMap = new HashMap<String, SamlIdpMetadataEntity>();
+		lastRefresh = 0L;
 		refreshCache();
 	}
 	
 	public void refreshCache() {
-		sortedFederationList = federationDao.findAll();
+		if (System.currentTimeMillis() - lastRefresh > 1000L * 60L * 60L) {
 
-		idpMap.clear();
-		
-		for (FederationEntity federation : sortedFederationList) {
-			logger.info("Loading federation {} ({})", federation.getId(), federation.getEntityId());
+			sortedFederationList = federationDao.findAll();
+	
+			idpMap.clear();
 			
-			List<SamlIdpMetadataEntity> idpList = idpDao.findAllByFederationOrderByOrgname(federation);
-			federationCache.put(federation, idpList);
-			for (SamlIdpMetadataEntity idp : idpList) {
-				idpMap.put(idp.getEntityId(), idp);
+			for (FederationEntity federation : sortedFederationList) {
+				logger.info("Loading federation {} ({})", federation.getId(), federation.getEntityId());
+				
+				List<SamlIdpMetadataEntity> idpList = idpDao.findAllByFederationOrderByOrgname(federation);
+				federationCache.put(federation, idpList);
+				for (SamlIdpMetadataEntity idp : idpList) {
+					idpMap.put(idp.getEntityId(), idp);
+				}
 			}
+			
+			lastRefresh = System.currentTimeMillis();
 		}
-		
-		lastRefresh = System.currentTimeMillis();
 	}
 	
 	public List<FederationEntity> getFederationList() {
@@ -69,11 +78,37 @@ public class FederationSingletonBean {
 	public List<SamlIdpMetadataEntity> getIdpList(FederationEntity federationEntity) {
 		return federationCache.get(federationEntity);
 	}
+
+	public List<SamlIdpMetadataEntity> getFilteredIdpList(ScriptEntity scriptEntity) {
+		refreshCache();
+		
+		ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
+		
+		List<SamlIdpMetadataEntity> tempList = new ArrayList<SamlIdpMetadataEntity>(idpMap.values());
+
+		if (engine == null) {
+			logger.warn("No engine set for script {}. Returning all IDPs", scriptEntity.getName());
+			return tempList;
+		}
+		
+		try {
+			engine.eval(scriptEntity.getScript());
+
+			Invocable invocable = (Invocable) engine;
+			
+			invocable.invokeFunction("filterIdps", tempList, logger);
+			
+		} catch (ScriptException e) {
+			logger.warn("Script execution failed.", e);
+		} catch (NoSuchMethodException e) {
+			logger.info("No filterIdps method in script. returning all Idps");
+		}
+		
+		return tempList;
+	}
 	
 	public List<SamlIdpMetadataEntity> getAllIdpList() {
-		if (System.currentTimeMillis() - lastRefresh > 1000L * 60L * 60L) {
-			refreshCache();
-		}
+		refreshCache();
 		
 		List<SamlIdpMetadataEntity> tempList = new ArrayList<SamlIdpMetadataEntity>(idpMap.values());
 		Collections.sort(tempList, new Comparator<SamlIdpMetadataEntity>() {
