@@ -284,10 +284,10 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			throw new OidcAuthenticationException("unauthorized");
 		}
 	
-		UserEntity user = flowState.getUser();
+		IdentityEntity identity = flowState.getIdentity();
 
-		if (user == null) {
-			throw new OidcAuthenticationException("No user attached to flow state.");
+		if (identity == null) {
+			throw new OidcAuthenticationException("No identity attached to flow state.");
 		}
 
 		RegistryEntity registry = flowState.getRegistry();
@@ -323,7 +323,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 
 					Invocable invocable = (Invocable) engine;
 					
-					invocable.invokeFunction("buildTokenStatement", scriptingEnv, claimsBuilder, user, registry, 
+					invocable.invokeFunction("buildTokenStatement", scriptingEnv, claimsBuilder, identity, registry, 
 							serviceOidcClient.getService(), logger);
 				} catch (NoSuchMethodException | ScriptException e) {
 					logger.warn("Script execution failed. Continue with other scripts.", e);
