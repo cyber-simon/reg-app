@@ -22,10 +22,6 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
-import javax.script.Invocable;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.FederationEntity;
@@ -33,7 +29,6 @@ import edu.kit.scc.webreg.entity.SamlIdpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
-import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.ServiceSamlSpEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
 import edu.kit.scc.webreg.service.SamlIdpConfigurationService;
@@ -42,7 +37,6 @@ import edu.kit.scc.webreg.service.SamlSpConfigurationService;
 import edu.kit.scc.webreg.service.SamlSpMetadataService;
 import edu.kit.scc.webreg.service.oidc.OidcRpConfigurationService;
 import edu.kit.scc.webreg.service.saml.FederationSingletonBean;
-import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
@@ -176,6 +170,8 @@ public class DiscoveryLoginBean implements Serializable {
 				idpConfig = idpConfigService.findById(sessionManager.getAuthnRequestIdpConfigId());
 				spMetadata = spMetadataService.findById(sessionManager.getAuthnRequestSpMetadataId());
 				List<ServiceSamlSpEntity> serviceSamlList = idpConfigService.findBySamlSpAndIdp(idpConfig, spMetadata);
+				idpList = new ArrayList<SamlIdpMetadataEntity>();
+				
 				for (ServiceSamlSpEntity serviceSaml : serviceSamlList) {
 					if (serviceSaml.getScript() != null) {
 						idpList.addAll(federationBean.getFilteredIdpList(serviceSaml.getScript()));
