@@ -92,19 +92,22 @@ public class FederationSingletonBean {
 		}
 		
 		try {
+			List<SamlIdpMetadataEntity> targetList = new ArrayList<SamlIdpMetadataEntity>();
+
 			engine.eval(scriptEntity.getScript());
 
 			Invocable invocable = (Invocable) engine;
 			
-			invocable.invokeFunction("filterIdps", tempList, logger);
+			invocable.invokeFunction("filterIdps", tempList, targetList, logger);
 			
+			return targetList;
 		} catch (ScriptException e) {
 			logger.warn("Script execution failed.", e);
+			return tempList;
 		} catch (NoSuchMethodException e) {
 			logger.info("No filterIdps method in script. returning all Idps");
+			return tempList;
 		}
-		
-		return tempList;
 	}
 	
 	public List<SamlIdpMetadataEntity> getAllIdpList() {
