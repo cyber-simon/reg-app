@@ -290,6 +290,14 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			throw new OidcAuthenticationException("No identity attached to flow state.");
 		}
 
+		UserEntity user;
+		if (identity.getUsers().size() == 1) {
+			user = identity.getUsers().iterator().next();
+		}
+		else {
+			user = identity.getPrefUser();
+		}
+		
 		RegistryEntity registry = flowState.getRegistry();
 
 		/*
@@ -307,7 +315,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	      .claim("nonce", flowState.getNonce())
 	      .audience(flowState.getClientConfiguration().getName())
 	      .issueTime(new Date())
-	      .subject(flowState.getUser().getEppn())
+	      .subject(user.getEppn())
 	      .build();
 		
 		for (ServiceOidcClientEntity serviceOidcClient : serviceOidcClientList) {
@@ -323,8 +331,8 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 
 					Invocable invocable = (Invocable) engine;
 					
-					invocable.invokeFunction("buildTokenStatement", scriptingEnv, claimsBuilder, identity, registry, 
-							serviceOidcClient.getService(), logger);
+					invocable.invokeFunction("buildTokenStatement", scriptingEnv, claimsBuilder, user, registry, 
+							serviceOidcClient.getService(), logger, identity);
 				} catch (NoSuchMethodException | ScriptException e) {
 					logger.warn("Script execution failed. Continue with other scripts.", e);
 				}
@@ -389,10 +397,19 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		}				
 	
 		List<ServiceOidcClientEntity> serviceOidcClientList = serviceOidcClientDao.findByClientConfig(clientConfig);
-		UserEntity user = flowState.getUser();
 
-		if (user == null) {
-			throw new OidcAuthenticationException("No user attached to flow state.");
+		IdentityEntity identity = flowState.getIdentity();
+
+		if (identity == null) {
+			throw new OidcAuthenticationException("No identity attached to flow state.");
+		}
+
+		UserEntity user;
+		if (identity.getUsers().size() == 1) {
+			user = identity.getUsers().iterator().next();
+		}
+		else {
+			user = identity.getPrefUser();
 		}
 
 		RegistryEntity registry = flowState.getRegistry();
@@ -413,7 +430,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 					Invocable invocable = (Invocable) engine;
 					
 					invocable.invokeFunction("buildClaimsStatement", scriptingEnv, claimsBuilder, user, registry, 
-							serviceOidcClient.getService(), logger);
+							serviceOidcClient.getService(), logger, identity);
 				} catch (NoSuchMethodException | ScriptException e) {
 					logger.warn("Script execution failed. Continue with other scripts.", e);
 				}
