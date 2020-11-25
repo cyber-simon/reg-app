@@ -85,11 +85,6 @@ public class Saml2IdpRedirectHandler {
 			throw new ServletException("SAML Authentication Request ist not complete, issuer data is missing");
 		}
 		
-		if (! idpConfig.getEntityId().equals(authnRequest.getDestination())) {
-			logger.warn("EntityId from AuthnRequest ({}) does not match SamlIdpConfig EntityId ({}). This is probably some misconfig somewhere.",
-					authnRequest.getDestination(), idpConfig.getEntityId());
-		}
-		
 		SamlSpMetadataEntity spMetadata = spService.findByEntityId(authnRequest.getIssuer().getValue());
 		
 		if (spMetadata == null) {
