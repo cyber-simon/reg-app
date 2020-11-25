@@ -31,7 +31,10 @@
 			
 			<p:outputPanel rendered="#{not empty discoveryLoginBean.spMetadata}" style="margin-top: 8px;">
 				<h:outputText value="#{messages.welcome_redirected}" /><br/>
-				<b><h:outputText value="#{discoveryLoginBean.spMetadata.displayName}" /></b>
+				<b>
+					<h:outputText value="#{discoveryLoginBean.spMetadata.displayName}" rendered="#{not empty discoveryLoginBean.spMetadata.displayName}" />
+					<h:outputText value="#{discoveryLoginBean.spMetadata.entityId}" rendered="#{empty discoveryLoginBean.spMetadata.displayName}" />
+				</b>			
 			</p:outputPanel>
 
 			<p:outputPanel rendered="#{not empty discoveryLoginBean.clientConfig}" style="margin-top: 8px;">
