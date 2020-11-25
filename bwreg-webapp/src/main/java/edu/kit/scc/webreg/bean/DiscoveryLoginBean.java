@@ -30,11 +30,15 @@ import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 import edu.kit.scc.webreg.entity.ServiceSamlSpEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
 import edu.kit.scc.webreg.service.SamlIdpConfigurationService;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.SamlSpConfigurationService;
 import edu.kit.scc.webreg.service.SamlSpMetadataService;
+import edu.kit.scc.webreg.service.oidc.OidcClientConfigurationService;
+import edu.kit.scc.webreg.service.oidc.OidcOpConfigurationService;
 import edu.kit.scc.webreg.service.oidc.OidcRpConfigurationService;
 import edu.kit.scc.webreg.service.saml.FederationSingletonBean;
 import edu.kit.scc.webreg.session.SessionManager;
@@ -73,6 +77,12 @@ public class DiscoveryLoginBean implements Serializable {
 	@Inject
 	private SamlSpMetadataService spMetadataService;
 	
+	@Inject
+	private OidcOpConfigurationService oidcOpConfigService;
+	
+	@Inject
+	private OidcClientConfigurationService oidcClientConfigService;
+	
 	private List<FederationEntity> federationList;
 	private List<SamlIdpMetadataEntity> idpList;
 	private FederationEntity selectedFederation;
@@ -83,8 +93,20 @@ public class DiscoveryLoginBean implements Serializable {
 	
 	private String filter;
 	
+	/*
+	 * Login came from SAML SP.
+	 * spMetadata holds metadata of requester
+	 * idpConfig is the IDP on reg-app side, which was requested
+	 */
 	private SamlSpMetadataEntity spMetadata;
 	private SamlIdpConfigurationEntity idpConfig;
+	
+	/*
+	 * Login came from OIDC RP.
+	 * 
+	 */
+	private OidcOpConfigurationEntity opConfig;
+	private OidcClientConfigurationEntity clientConfig;
 	
 	private Boolean initialized = false;
 	
@@ -157,15 +179,19 @@ public class DiscoveryLoginBean implements Serializable {
 	
 	public void updateIdpList() {
 		if (selectedFederation == null) {
-			if (sessionManager.getAuthnRequestIdpConfigId() == null && sessionManager.getAuthnRequestSpMetadataId() == null) {
+			if (sessionManager.getOidcAuthnOpConfigId() != null && 
+					sessionManager.getOidcAuthnClientConfigId() != null) {
 				/*
-				 * reg-app login directly called
+				 * reg-app login called via OIDC relying party
 				 */
+				opConfig = oidcOpConfigService.findById(sessionManager.getOidcAuthnOpConfigId());
+				clientConfig = oidcClientConfigService.findById(sessionManager.getOidcAuthnClientConfigId());
 				idpList = federationBean.getAllIdpList();
 			}
-			else {
+			else if (sessionManager.getAuthnRequestIdpConfigId() != null && 
+					sessionManager.getAuthnRequestSpMetadataId() != null) {
 				/*
-				 * reg-app login called via service provider/ relying party
+				 * reg-app login called via SAML service provider
 				 */
 				idpConfig = idpConfigService.findById(sessionManager.getAuthnRequestIdpConfigId());
 				spMetadata = spMetadataService.findById(sessionManager.getAuthnRequestSpMetadataId());
@@ -177,6 +203,12 @@ public class DiscoveryLoginBean implements Serializable {
 						idpList.addAll(federationBean.getFilteredIdpList(serviceSaml.getScript()));
 					}
 				}
+			}
+			else {
+				/*
+				 * reg-app login directly called
+				 */
+				idpList = federationBean.getAllIdpList();
 			}
 		}
 		else {
@@ -266,6 +298,14 @@ public class DiscoveryLoginBean implements Serializable {
 
 	public SamlIdpConfigurationEntity getIdpConfig() {
 		return idpConfig;
+	}
+
+	public OidcOpConfigurationEntity getOpConfig() {
+		return opConfig;
+	}
+
+	public OidcClientConfigurationEntity getClientConfig() {
+		return clientConfig;
 	}
 
 }

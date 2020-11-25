@@ -32,23 +32,37 @@ public class SessionManager implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	/*
+	 * For SAML IDP logins triggered by SP
+	 */
 	private Long authnRequestId;
 	private Long authnRequestIdpConfigId;
 	private Long authnRequestSpMetadataId;
 
+	/*
+	 * For OIDC OP logins triggered by RP
+	 */
+	private Long oidcFlowStateId;
+	private Long oidcAuthnOpConfigId;
+	private Long oidcAuthnClientConfigId;
+	
+	/*
+	 * For Local logins to home org SAML IDP
+	 */
+	private Long idpId;
+	private Long spId;
+	private String persistentId;
+
+	/*
+	 * For Local logins to home org OIDC OP
+	 */
+	private Long oidcRelyingPartyId;
+	private String subjectId;
+
 	// identityId of the actual user
 	private Long identityId;
-	
-	private Long idpId;
-	
-	private Long spId;
-
-	private Long oidcRelyingPartyId;
 
 	private Map<String, List<Object>> attributeMap;
-	
-	private String persistentId;
-	private String subjectId;
 	
 	private String originalRequestPath;
 	private String originalIdpEntityId;
@@ -313,5 +327,29 @@ public class SessionManager implements Serializable {
 
 	public void setAuthnRequestSpMetadataId(Long authnRequestSpMetadataId) {
 		this.authnRequestSpMetadataId = authnRequestSpMetadataId;
+	}
+
+	public Long getOidcFlowStateId() {
+		return oidcFlowStateId;
+	}
+
+	public void setOidcFlowStateId(Long oidcFlowStateId) {
+		this.oidcFlowStateId = oidcFlowStateId;
+	}
+
+	public Long getOidcAuthnOpConfigId() {
+		return oidcAuthnOpConfigId;
+	}
+
+	public void setOidcAuthnOpConfigId(Long oidcAuthnOpConfigId) {
+		this.oidcAuthnOpConfigId = oidcAuthnOpConfigId;
+	}
+
+	public Long getOidcAuthnClientConfigId() {
+		return oidcAuthnClientConfigId;
+	}
+
+	public void setOidcAuthnClientConfigId(Long oidcAuthnClientConfigId) {
+		this.oidcAuthnClientConfigId = oidcAuthnClientConfigId;
 	}
 }

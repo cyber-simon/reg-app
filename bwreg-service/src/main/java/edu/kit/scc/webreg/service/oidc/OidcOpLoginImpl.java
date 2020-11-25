@@ -132,16 +132,18 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		flowState.setValidUntil(new Date(System.currentTimeMillis() + (30L * 60L * 1000L)));
 		flowState = flowStateDao.persist(flowState);
 
+		session.setOidcFlowStateId(flowState.getId());
+		session.setOidcAuthnOpConfigId(opConfig.getId());
+		session.setOidcAuthnClientConfigId(clientConfig.getId());
+		
 		if (identity != null) {
 			logger.debug("Client already logged in, sending to return page.");
-			session.setAuthnRequestId(flowState.getId());
 			return "/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/auth/return";		
 		}
 		else {
 			logger.debug("Client session from {} not established. In order to serve client must login. Sending to login page.",
 					request.getRemoteAddr());
 			
-			session.setAuthnRequestId(flowState.getId());
 			session.setOriginalRequestPath("/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/auth/return");
 			return "/welcome/index.xhtml";
 		}
@@ -162,12 +164,12 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			identity = identityDao.findById(session.getIdentityId());
 		}
 		
-		if (session.getAuthnRequestId() != null) {
+		if (session.getOidcFlowStateId() != null) {
 			if (identity == null) {
 				throw new OidcAuthenticationException("User ID missing.");
 			}
 
-			OidcFlowStateEntity flowState = flowStateDao.findById(session.getAuthnRequestId());
+			OidcFlowStateEntity flowState = flowStateDao.findById(session.getOidcFlowStateId());
 			if (flowState == null) {
 				throw new OidcAuthenticationException("Corresponding flow state not found.");
 			}
