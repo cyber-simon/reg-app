@@ -25,7 +25,23 @@
 
 	<h:form id="form" prependId="false">
 		<p:panel header="#{messages.welcome}">
-			<div style="margin-top: 4px;"><h:outputText value="#{messages.welcome_disco}"/></div>
+			<p:outputPanel rendered="#{empty discoveryLoginBean.spMetadata and empty discoveryLoginBean.clientConfig}" style="margin-top: 8px;">
+				<h:outputText value="#{messages.welcome_disco}"/>
+			</p:outputPanel>
+			
+			<p:outputPanel rendered="#{not empty discoveryLoginBean.spMetadata}" style="margin-top: 8px;">
+				<h:outputText value="#{messages.welcome_redirected}" /><br/>
+				<b><h:outputText value="#{discoveryLoginBean.spMetadata.displayName}" /></b>
+			</p:outputPanel>
+
+			<p:outputPanel rendered="#{not empty discoveryLoginBean.clientConfig}" style="margin-top: 8px;">
+				<h:outputText value="#{messages.welcome_redirected}" /><br/> 
+				<b> 
+					<h:outputText value="#{discoveryLoginBean.clientConfig.displayName}" rendered="#{not empty discoveryLoginBean.clientConfig.displayName}" />
+					<h:outputText value="#{discoveryLoginBean.clientConfig.name}" rendered="#{empty discoveryLoginBean.clientConfig.displayName}" />
+				</b>
+			</p:outputPanel>
+
 			<div><p:messages showDetail="true" /></div>
 
 			<p:focus conext="baseData" for="filterText" />
