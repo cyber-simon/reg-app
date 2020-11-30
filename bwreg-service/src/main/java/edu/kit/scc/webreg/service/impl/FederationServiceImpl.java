@@ -251,32 +251,10 @@ public class FederationServiceImpl extends BaseServiceImpl<FederationEntity, Lon
 			sp.getFederations().add(entity);
 			sp.setStatus(SamlMetadataEntityStatus.ACTIVE);
 			
-//			metadataHelper.fillDisplayData(ed, sp);
-//			sp.setEntityCategoryList(metadataHelper.getEntityCategoryList(ed));
+			metadataHelper.fillDisplayData(ed, sp);
 			
 			sp = spDao.persist(sp);
 
-//			Set<SamlIdpScopeEntity> scopes = metadataHelper.getScopes(ed, idp);
-//
-//			List<SamlIdpScopeEntity> oldScopes;
-//			if (newIdp) 
-//				oldScopes = new ArrayList<SamlIdpScopeEntity>();
-//			else
-//				oldScopes = idpScopeService.findByIdp(idp);
-//			
-//			Set<SamlIdpScopeEntity> deleteScopes = new HashSet<SamlIdpScopeEntity>(oldScopes);
-//			deleteScopes.removeAll(scopes);
-//			for (SamlIdpScopeEntity scope : deleteScopes) {
-//				logger.info("Deleting idp scope {}", scope.getScope());
-//				idpScopeService.delete(scope);
-//			}
-//			
-//			scopes.removeAll(oldScopes);
-//			for (SamlIdpScopeEntity scope : scopes) {
-//				logger.info("Creating new idp scope {}", scope.getScope());
-//				idpScopeService.save(scope);
-//			}
-			
 			updatedList.add(sp);
 		}
 		
@@ -284,7 +262,7 @@ public class FederationServiceImpl extends BaseServiceImpl<FederationEntity, Lon
 
 		for (SamlSpMetadataEntity sp : oldList) {
 			sp.getFederations().remove(entity);
-			entity.getIdps().remove(sp);
+			entity.getSps().remove(sp);
 			
 			if (sp.getFederations().size() == 0) {
 				//SP is orphaned, set Status to DELETED

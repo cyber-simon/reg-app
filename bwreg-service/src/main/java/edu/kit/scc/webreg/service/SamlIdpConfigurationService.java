@@ -18,7 +18,7 @@ import edu.kit.scc.webreg.entity.ServiceSamlSpEntity;
 
 public interface SamlIdpConfigurationService extends BaseService<SamlIdpConfigurationEntity, Long> {
 
-	SamlIdpConfigurationEntity findByHostname(String hostname);
+	List<SamlIdpConfigurationEntity> findByHostname(String hostname);
 
 	SamlIdpConfigurationEntity findByEntityId(String entityId);
 

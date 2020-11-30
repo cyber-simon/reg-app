@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.sec;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.faces.bean.ApplicationScoped;
 import javax.inject.Inject;
@@ -64,8 +65,16 @@ public class Saml2IdpRedirectHandler {
 	public void service(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		SamlIdpConfigurationEntity idpConfig = idpConfigService.findByHostname(request.getServerName());
-		if (! request.getRequestURI().equals(idpConfig.getRedirect())) {
+		List<SamlIdpConfigurationEntity> idpConfigList = idpConfigService.findByHostname(request.getServerName());
+		SamlIdpConfigurationEntity idpConfig = null;
+		for (SamlIdpConfigurationEntity tempIdpConfig : idpConfigList) {
+			if (request.getRequestURI().equals(tempIdpConfig.getRedirect())) {
+				idpConfig = tempIdpConfig;
+				break;
+			}
+		}
+		
+		if (idpConfig == null) {
 			throw new ServletException("Unknown redirect uri");
 		}
 		

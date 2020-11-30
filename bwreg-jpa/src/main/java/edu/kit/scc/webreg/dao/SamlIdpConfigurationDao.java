@@ -10,11 +10,13 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao;
 
+import java.util.List;
+
 import edu.kit.scc.webreg.entity.SamlIdpConfigurationEntity;
 
 public interface SamlIdpConfigurationDao extends BaseDao<SamlIdpConfigurationEntity, Long> {
 
-	SamlIdpConfigurationEntity findByHostname(String hostname);
+	List<SamlIdpConfigurationEntity> findByHostname(String hostname);
 
 	SamlIdpConfigurationEntity findByEntityId(String entityId);
 

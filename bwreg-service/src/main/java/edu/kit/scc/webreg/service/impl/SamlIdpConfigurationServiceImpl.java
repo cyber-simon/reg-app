@@ -40,7 +40,7 @@ public class SamlIdpConfigurationServiceImpl extends BaseServiceImpl<SamlIdpConf
 	}
 
 	@Override
-	public SamlIdpConfigurationEntity findByHostname(String hostname) {
+	public List<SamlIdpConfigurationEntity> findByHostname(String hostname) {
 		return dao.findByHostname(hostname);
 	}
 

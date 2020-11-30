@@ -10,6 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
+import java.util.List;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 import javax.persistence.NoResultException;
@@ -43,7 +45,7 @@ public class JpaSamlIdpConfigurationDao extends JpaBaseDao<SamlIdpConfigurationE
 	}	
 	
 	@Override
-	public SamlIdpConfigurationEntity findByHostname(String hostname) {
+	public List<SamlIdpConfigurationEntity> findByHostname(String hostname) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<SamlIdpConfigurationEntity> criteria = builder.createQuery(SamlIdpConfigurationEntity.class);
 		Root<SamlIdpConfigurationEntity> root = criteria.from(SamlIdpConfigurationEntity.class);
@@ -54,7 +56,7 @@ public class JpaSamlIdpConfigurationDao extends JpaBaseDao<SamlIdpConfigurationE
 				builder.equal(elementJoin.as(String.class), hostname));
 
 		try {
-			return em.createQuery(criteria).getSingleResult();
+			return em.createQuery(criteria).getResultList();
 		}
 		catch (NoResultException e) {
 			return null;
