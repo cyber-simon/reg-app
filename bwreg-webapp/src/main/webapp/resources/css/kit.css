@@ -27,6 +27,28 @@
     font-style: normal;
     font-display:block}
 
+.ui-widget {
+	font-family: "Roboto", sans-serif;
+	font-size: 1.25rem;
+	font-weight: 300;
+}
+
+.ui-widget .ui-widget {
+	font-size: 1.25rem;
+}
+
+.ui-panel {
+	border: none;
+}
+
+.col-width-1 {
+	width: 150px;
+}
+
+.col-width-2 {
+	width: auto;
+}
+
 .form .input-option.checkbox label span:before,.mediathek-teaser .teaser-element picture:after,.navigation-search .search-form button,.news-slider .swiper-button-next:before,.news-slider .swiper-button-prev:before,.page-footer .button.icon:after,.search-form-container .search-form button,.sidebar-contact .phone:before,.sidebar-media picture:after,.slider-small .swiper-button-next:before,.slider-small .swiper-button-prev:before,.social a:after,.stage-slider-tile p:after,.stage-slider .swiper-button-next:before,.stage-slider .swiper-button-prev:before,.to-top-button {
     font-family: "kit-icons"!important;
     speak: none;

@@ -16,9 +16,9 @@
 
 	<ui:define name="content">
 
-		<h3><h:outputText value="#{messages.error_msg}"/></h3>
+		<h3 class="full"><h:outputText value="#{messages.error_msg}"/></h3>
 
-		<div id="panelInline">
+		<div class="full">
 			<p:panel header="#{messages.error_detail}">
 				<div style="font-weight: bold;">
 					#{requestScope['javax.servlet.error.message']}

@@ -23,8 +23,9 @@
 
 	<ui:define name="content">
 
-	<h:form id="form" prependId="false">
-		<p:panel header="#{messages.welcome}" styleClass="full">
+	<h:form id="form" prependId="false" class="full form">
+		<h3><h:outputText value="#{messages.welcome}"/></h3>
+		<p:panel>
 			<p:outputPanel rendered="#{empty discoveryLoginBean.spMetadata and empty discoveryLoginBean.clientConfig}" style="margin-top: 8px;">
 				<h:outputText value="#{messages.welcome_disco}"/>
 			</p:outputPanel>
@@ -49,7 +50,7 @@
 
 			<p:focus conext="baseData" for="filterText" />
 
-			<h:panelGrid id="baseData" columns="2" style="margin-top: 8px;">	
+			<h:panelGrid id="baseData" columns="2" style="margin-top: 8px;" columnClasses="col-width-1,col-width-2">	
 	
 				<p:outputLabel value="#{messages.federation}:" for="selectFed" />
 		        <p:selectOneMenu id="selectFed" value="#{discoveryLoginBean.selectedFederation}"
@@ -66,7 +67,7 @@
 				</p:inputText>
 				
 				<p:outputLabel value="#{messages.home_org}:" for="idpBox" />
-				<p:selectOneListbox id="idpBox" value="#{discoveryLoginBean.selectedIdp}" scrollHeight="360" style="width:300px;"
+				<p:selectOneListbox id="idpBox" value="#{discoveryLoginBean.selectedIdp}" scrollHeight="360" style="width:auto;"
 						converter="#{samlIdpMetadataConverter}">
 	            	<f:selectItems value="#{discoveryLoginBean.idpList}" 
 	            		var="idp" itemLabel="#{idp.displayName == null ? idp.orgName : idp.displayName}" itemValue="#{idp}"/>
@@ -79,7 +80,7 @@
 				update=":form" />
 		</p:panel>
 
-		<p:panel header="OIDC Test" rendered="#{'true'.equalsIgnoreCase(discoveryLoginBean.appConfig.getConfigValue('show_oidc_login'))}">
+		<p:panel header="OIDC Test" rendered="#{'true'.equalsIgnoreCase(discoveryLoginBean.appConfig.getConfigValue('show_oidc_login'))}" styleClass="full">
 			<h:panelGrid id="oidcBaseData" columns="2" style="margin-top: 8px;">
 				<p:outputLabel value="#{messages.home_org}:" for="idpBox" />
 				<p:selectOneListbox id="oidcBox" value="#{discoveryLoginBean.selectedOidcRp}" scrollHeight="120" style="width:300px;"
