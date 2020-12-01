@@ -56,6 +56,7 @@ import org.w3c.dom.Document;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlIdpScopeEntity;
+import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
 
@@ -287,6 +288,32 @@ public class MetadataHelper implements Serializable {
 						}
 						if (uiInfo.getInformationURLs().size() > 0) {
 							idp.setInformationUrl(uiInfo.getInformationURLs().get(0).getValue());
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	public void fillDisplayData(EntityDescriptor entityDesc, SamlSpMetadataEntity sp) {
+		SPSSODescriptor spsso = entityDesc.getSPSSODescriptor(SAMLConstants.SAML20P_NS);
+		if (spsso != null) {
+			Extensions extensions = spsso.getExtensions();
+			if (extensions != null) {
+				List<XMLObject> uiInfoList = extensions.getUnknownXMLObjects(UIInfo.DEFAULT_ELEMENT_NAME);
+				if (uiInfoList.size() > 0) {
+					XMLObject xmlObject = uiInfoList.get(0);
+					if (xmlObject instanceof UIInfo) {
+						UIInfo uiInfo = (UIInfo) xmlObject;
+	
+						if (uiInfo.getDescriptions().size() > 0) {
+							sp.setDescription(uiInfo.getDescriptions().get(0).getValue());
+						}
+						if (uiInfo.getDisplayNames().size() > 0) {
+							sp.setDisplayName(uiInfo.getDisplayNames().get(0).getValue());
+						}
+						if (uiInfo.getInformationURLs().size() > 0) {
+							sp.setInformationUrl(uiInfo.getInformationURLs().get(0).getValue());
 						}
 					}
 				}

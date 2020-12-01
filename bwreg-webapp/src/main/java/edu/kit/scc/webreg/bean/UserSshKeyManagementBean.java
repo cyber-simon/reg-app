@@ -25,8 +25,8 @@ import org.slf4j.Logger;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.SshPubKeyEntity;
 import edu.kit.scc.webreg.entity.SshPubKeyStatus;
-import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.ssh.SshPubKeyService;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.ssh.OpenSshKeyDecoder;
@@ -41,13 +41,13 @@ public class UserSshKeyManagementBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private UserEntity user;
+	private IdentityEntity identity;
 	
 	@Inject
 	private Logger logger;
 	
 	@Inject
-	private UserService userService;
+	private IdentityService identityService;
 	
     @Inject 
     private SessionManager sessionManager;
@@ -70,9 +70,9 @@ public class UserSshKeyManagementBean implements Serializable {
     private OpenSshPublicKey selectedKey;
     
 	public void preRenderView(ComponentSystemEvent ev) {
-		if (user == null) {
-	    	user = userService.findById(sessionManager.getUserId());
-	    	List<SshPubKeyEntity> sshPubKeyList = sshPubKeyService.findByUserAndStatusWithRegs(user.getId(), SshPubKeyStatus.ACTIVE);
+		if (identity == null) {
+			identity = identityService.findById(sessionManager.getIdentityId());
+	    	List<SshPubKeyEntity> sshPubKeyList = sshPubKeyService.findByIdentityAndStatusWithRegs(identity.getId(), SshPubKeyStatus.ACTIVE);
 	    	
 	    	keyList = new ArrayList<OpenSshPublicKey>();
 	    	for (SshPubKeyEntity sshKey : sshPubKeyList) {
@@ -103,7 +103,7 @@ public class UserSshKeyManagementBean implements Serializable {
 		
 		if (removeIndex != -1) {
 			keyList.remove(removeIndex);
-			sshPubKeyService.deleteKey(removeEntity, "user-" + user.getId());
+			sshPubKeyService.deleteKey(removeEntity, "identity-" + identity.getId());
 		}
 		
 		messageGenerator.addResolvedInfoMessage("info", "ssh_key_deleted", false);				
@@ -117,7 +117,7 @@ public class UserSshKeyManagementBean implements Serializable {
 		try {
 			sshPubKeyEntity.setName(newName);
 			sshPubKeyEntity.setEncodedKey(newKey);
-			sshPubKeyEntity.setUser(user);
+			sshPubKeyEntity.setIdentity(identity);
 			sshPubKeyEntity.setKeyStatus(SshPubKeyStatus.ACTIVE);
 	
 			keyDecoder.decode(key);
@@ -133,7 +133,7 @@ public class UserSshKeyManagementBean implements Serializable {
 				sshPubKeyEntity.setExpiresAt(new Date(System.currentTimeMillis() + expireTime));			
 			}
 			
-			sshPubKeyEntity = sshPubKeyService.deployKey(user.getId(), sshPubKeyEntity, "user-" + user.getId());
+			sshPubKeyEntity = sshPubKeyService.deployKey(identity.getId(), sshPubKeyEntity, "identity-" + identity.getId());
 			keyList.add(key);
 			newKey = "";
 			newName = "";
@@ -142,13 +142,9 @@ public class UserSshKeyManagementBean implements Serializable {
 			logger.warn("An error occured whilst deploying key: " + e.getMessage());
 			messageGenerator.addResolvedErrorMessage("sshKeyMessage", "error_msg", e.toString(), false);
 		} catch (SshPubKeyBlacklistedException e) {
-			logger.warn("User {} tried to deploy blacklisted key", user.getId());
+			logger.warn("User {} tried to deploy blacklisted key", identity.getId());
 			messageGenerator.addResolvedErrorMessage("sshKeyMessage", "error", "key_blacklisted", true);
 		}
-	}
-
-	public UserEntity getUser() {
-		return user;
 	}
 
 	public String getNewKey() {
@@ -181,5 +177,9 @@ public class UserSshKeyManagementBean implements Serializable {
 
 	public void setSelectedKey(OpenSshPublicKey selectedKey) {
 		this.selectedKey = selectedKey;
+	}
+
+	public IdentityEntity getIdentity() {
+		return identity;
 	}
 }

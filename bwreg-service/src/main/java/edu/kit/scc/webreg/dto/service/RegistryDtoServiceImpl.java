@@ -90,7 +90,7 @@ public class RegistryDtoServiceImpl extends BaseDtoServiceImpl<RegistryEntity, R
 			throw new RegisterException("no such service");
 		}
 		
-		List<RegistryEntity> registryList = dao.findByServiceAndUserAndNotStatus(service, user, 
+		List<RegistryEntity> registryList = dao.findByServiceAndIdentityAndNotStatus(service, user.getIdentity(), 
 				RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
 		if (registryList.size() > 0) {
 			throw new RegisterException("user already registered for service");
@@ -113,7 +113,7 @@ public class RegistryDtoServiceImpl extends BaseDtoServiceImpl<RegistryEntity, R
 		if (service == null) {
 			throw new RegisterException("no such service");
 		}
-		List<RegistryEntity> registryList = dao.findByServiceAndUserAndNotStatus(service, user, 
+		List<RegistryEntity> registryList = dao.findByServiceAndIdentityAndNotStatus(service, user.getIdentity(), 
 				RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
 		
 		for (RegistryEntity registry : registryList) {

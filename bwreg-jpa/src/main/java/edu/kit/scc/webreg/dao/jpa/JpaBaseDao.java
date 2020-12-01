@@ -33,7 +33,9 @@ import javax.persistence.criteria.Root;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.GenericSortOrder;
 import edu.kit.scc.webreg.dao.ops.AndPredicate;
+import edu.kit.scc.webreg.dao.ops.MultipathOrPredicate;
 import edu.kit.scc.webreg.dao.ops.OrPredicate;
+import edu.kit.scc.webreg.dao.ops.PathObjectValue;
 import edu.kit.scc.webreg.ds.DefaultDatasource;
 import edu.kit.scc.webreg.entity.BaseEntity;
 
@@ -197,7 +199,16 @@ public abstract class JpaBaseDao<T extends BaseEntity<PK>, PK extends Serializab
 	}
 	
 	protected Predicate predicateFromObject(CriteriaBuilder builder, Root<T> root, String path, Object o) {
-		if (o instanceof OrPredicate) {
+		if (o instanceof MultipathOrPredicate) {
+			MultipathOrPredicate p = (MultipathOrPredicate) o;
+			List<Predicate> pList = new ArrayList<Predicate>();
+			for (Object object : p.getOperandList()) {
+				PathObjectValue pov = (PathObjectValue) object;
+				pList.add(predicateFromObject(builder, root, pov.getPath(), pov.getValue()));
+			}
+			return builder.or(pList.toArray(new Predicate[pList.size()]));
+		}
+		else if (o instanceof OrPredicate) {
 			OrPredicate p = (OrPredicate) o;
 			List<Predicate> pList = new ArrayList<Predicate>();
 			for (Object object : p.getOperandList()) {
@@ -214,7 +225,10 @@ public abstract class JpaBaseDao<T extends BaseEntity<PK>, PK extends Serializab
 			return builder.and(pList.toArray(new Predicate[pList.size()]));
 		}
 		else if (o instanceof String) {
-			return builder.like(this.<String>resolvePath(root, path), "%" + o + "%");
+			String s = (String) o;
+			return builder.like(
+					builder.lower(this.<String>resolvePath(root, path)), 
+					"%" + s.toLowerCase() + "%");
 		}
 		else {
 			return builder.equal(resolvePath(root, path), o);

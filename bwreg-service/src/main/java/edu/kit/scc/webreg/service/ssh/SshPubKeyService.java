@@ -19,17 +19,17 @@ import edu.kit.scc.webreg.ssh.SshPubKeyBlacklistedException;
 
 public interface SshPubKeyService extends BaseService<SshPubKeyEntity, Long> {
 
-	List<SshPubKeyEntity> findByUser(Long userId);
-
-	List<SshPubKeyEntity> findByUserAndStatus(Long userId, SshPubKeyStatus keyStatus);
-
-	List<SshPubKeyEntity> findByUserAndStatusWithRegs(Long userId, SshPubKeyStatus keyStatus);
-
 	SshPubKeyEntity deployKey(Long userId, SshPubKeyEntity entity, String executor)
 			throws SshPubKeyBlacklistedException;
 
 	SshPubKeyEntity deleteKey(SshPubKeyEntity entity, String executor);
 
 	List<SshPubKeyEntity> findByKey(String encodedKey);
+
+	List<SshPubKeyEntity> findByIdentity(Long identityId);
+
+	List<SshPubKeyEntity> findByIdentityAndStatus(Long identityId, SshPubKeyStatus keyStatus);
+
+	List<SshPubKeyEntity> findByIdentityAndStatusWithRegs(Long identityId, SshPubKeyStatus keyStatus);
 
 }

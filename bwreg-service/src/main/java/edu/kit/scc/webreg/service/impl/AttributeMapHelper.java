@@ -8,6 +8,10 @@ import java.util.Map;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 
+import com.nimbusds.openid.connect.sdk.claims.UserInfo;
+
+import net.minidev.json.JSONAware;
+
 @Named("attributeMapHelper")
 @ApplicationScoped
 public class AttributeMapHelper implements Serializable {
@@ -70,8 +74,14 @@ public class AttributeMapHelper implements Serializable {
 		if (attributeList != null) {
 			for (Object o : attributeList) {
 				if (o != null) {
-					sb.append(o.toString());
-					sb.append(separator);
+					if (o instanceof JSONAware) {
+						sb.append(((JSONAware) o).toJSONString());
+						sb.append(separator);
+					}
+					else {
+						sb.append(o.toString());
+						sb.append(separator);
+					}
 				}
 			}
 		}

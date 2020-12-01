@@ -71,7 +71,7 @@ public class ApproveUserBean implements Serializable {
 			throw new MisconfiguredServiceException("Der Approval Prozess für den Dienst ist nicht korrekt konfiguriert");
 		
 		try {
-			approvalWorkflow.approveRegistry(entity, "user-" + sessionManager.getUserId());
+			approvalWorkflow.approveRegistry(entity, "identity-" + sessionManager.getIdentityId());
 		} catch (RegisterException e) {
 			logger.warn("Could not approve user registry", e);
 			return "";
@@ -87,7 +87,7 @@ public class ApproveUserBean implements Serializable {
 			throw new MisconfiguredServiceException("Der Approval Prozess für den Dienst ist nicht korrekt konfiguriert");
 		
 		try {
-			approvalWorkflow.denyApproval(entity, "user-" + sessionManager.getUserId());
+			approvalWorkflow.denyApproval(entity, "identity-" + sessionManager.getIdentityId());
 		} catch (RegisterException e) {
 			logger.warn("Could not deny approval for user registry", e);
 			return "";

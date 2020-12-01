@@ -32,8 +32,9 @@ import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 
+import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.RegistryDao;
-import edu.kit.scc.webreg.dao.UserDao;
+import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.dao.oidc.OidcClientConfigurationDao;
 import edu.kit.scc.webreg.dao.oidc.OidcFlowStateDao;
 import edu.kit.scc.webreg.dao.oidc.OidcOpConfigurationDao;
@@ -47,6 +48,7 @@ import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcFlowStateEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
@@ -74,9 +76,9 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	
 	@Inject
 	private ServiceOidcClientDao serviceOidcClientDao;
-	
+
 	@Inject
-	private UserDao userDao;
+	private IdentityDao identityDao;
 
 	@Inject
 	private RegistryDao registryDao;
@@ -93,6 +95,9 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	@Inject
 	private KnowledgeSessionSingleton knowledgeSessionService;
 	
+	@Inject
+	private ApplicationConfig appConfig;
+	
 	@Override
 	public String registerAuthRequest(String realm, String responseType,
 			String redirectUri, String scope,
@@ -105,9 +110,9 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			throw new OidcAuthenticationException("unknown realm");
 		}
 		
-		UserEntity user = null;
-		if (session.getUserId() != null) {
-			user = userDao.findById(session.getUserId());
+		IdentityEntity identity = null;
+		if (session.getIdentityId() != null) {
+			identity = identityDao.findById(session.getIdentityId());
 		}
 		
 		OidcClientConfigurationEntity clientConfig = clientDao.findByNameAndOp(clientId, opConfig);
@@ -127,16 +132,18 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		flowState.setValidUntil(new Date(System.currentTimeMillis() + (30L * 60L * 1000L)));
 		flowState = flowStateDao.persist(flowState);
 
-		if (user != null) {
+		session.setOidcFlowStateId(flowState.getId());
+		session.setOidcAuthnOpConfigId(opConfig.getId());
+		session.setOidcAuthnClientConfigId(clientConfig.getId());
+		
+		if (identity != null) {
 			logger.debug("Client already logged in, sending to return page.");
-			session.setAuthnRequestId(flowState.getId());
 			return "/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/auth/return";		
 		}
 		else {
 			logger.debug("Client session from {} not established. In order to serve client must login. Sending to login page.",
 					request.getRemoteAddr());
 			
-			session.setAuthnRequestId(flowState.getId());
 			session.setOriginalRequestPath("/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/auth/return");
 			return "/welcome/index.xhtml";
 		}
@@ -152,17 +159,17 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			throw new OidcAuthenticationException("unknown realm");
 		}
 
-		UserEntity user = null;
-		if (session.getUserId() != null) {
-			user = userDao.findById(session.getUserId());
+		IdentityEntity identity = null;
+		if (session.getIdentityId() != null) {
+			identity = identityDao.findById(session.getIdentityId());
 		}
 		
-		if (session.getAuthnRequestId() != null) {
-			if (user == null) {
+		if (session.getOidcFlowStateId() != null) {
+			if (identity == null) {
 				throw new OidcAuthenticationException("User ID missing.");
 			}
 
-			OidcFlowStateEntity flowState = flowStateDao.findById(session.getAuthnRequestId());
+			OidcFlowStateEntity flowState = flowStateDao.findById(session.getOidcFlowStateId());
 			if (flowState == null) {
 				throw new OidcAuthenticationException("Corresponding flow state not found.");
 			}
@@ -170,24 +177,28 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			OidcClientConfigurationEntity clientConfig = flowState.getClientConfiguration();
 			List<ServiceOidcClientEntity> serviceOidcClientList = serviceOidcClientDao.findByClientConfig(clientConfig);
 
-			/*
-			 * Allow OIDC config without service
-			 */
 			if (serviceOidcClientList.size() == 0) {
 				throw new OidcAuthenticationException("no script is connected to client configuration");
 			}
 			
+			Boolean wantsElevation = false;
 			RegistryEntity registry = null;
+			
 			for (ServiceOidcClientEntity serviceOidcClient : serviceOidcClientList) {
+				if (serviceOidcClient.getWantsElevation() != null &&
+						serviceOidcClient.getWantsElevation()) {
+					wantsElevation = true;
+				}
+				
 				ServiceEntity service = serviceOidcClient.getService();
 				
 				if (service != null) {
 					logger.debug("Service for RP found: {}", service);
 					
-					registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.ACTIVE);
+					registry = registryDao.findByServiceAndIdentityAndStatus(service, identity, RegistryStatus.ACTIVE);
 					
 					if (registry != null) {
-						List<Object> objectList = checkRules(user, service, registry);
+						List<Object> objectList = checkRules(registry.getUser(), service, registry);
 						List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
 						List<UnauthorizedUser> unauthorizedUserList = extractUnauthorizedUser(objectList);
 						
@@ -196,33 +207,48 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 						}
 					}
 					else {
-						registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.LOST_ACCESS);
+						registry = registryDao.findByServiceAndIdentityAndStatus(service, identity, RegistryStatus.LOST_ACCESS);
 						
 						if (registry != null) {
 							logger.info("Registration for user {} and service {} in state LOST_ACCESS, checking again", 
-									user.getEppn(), service.getName());
-							List<Object> objectList = checkRules(user, service, registry);
+									registry.getUser().getEppn(), service.getName());
+							List<Object> objectList = checkRules(registry.getUser(), service, registry);
 							List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
 							List<UnauthorizedUser> unauthorizedUserList = extractUnauthorizedUser(objectList);
 							
 							if (overrideAccessList.size() == 0 && unauthorizedUserList.size() > 0) {
 								logger.info("Registration for user {} and service {} in state LOST_ACCESS stays, redirecting to check page", 
-										user.getEppn(), service.getName());
+										registry.getUser().getEppn(), service.getName());
 								return "/user/check-access.xhtml?regId=" + registry.getId();
 							}
 						}
 						else {
-							logger.info("No active registration for user {} and service {}, redirecting to register page", 
-									user.getEppn(), service.getName());
+							logger.info("No active registration for identity {} and service {}, redirecting to register page", 
+									identity.getId(), service.getName());
 							session.setOriginalRequestPath("/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/auth/return");
 							return "/user/register-service.xhtml?serviceId=" + service.getId();
 						}
 					}
 				}
 			}
+
+			if (wantsElevation) {
+				long elevationTime = 5L * 60L * 1000L;
+				if (appConfig.getConfigValue("elevation_time") != null) {
+					elevationTime = Long.parseLong(appConfig.getConfigValue("elevation_time"));
+				}
+				
+				if (session.getTwoFaElevation() == null ||
+						(System.currentTimeMillis() - session.getTwoFaElevation().toEpochMilli()) > elevationTime) {
+					// second factor is active for this service and web login
+					// and user is not elevated yet
+					session.setOriginalRequestPath("/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/auth/return");
+					return "/user/twofa-login.xhtml";
+				}
+			}
 			
 			flowState.setValidUntil(new Date(System.currentTimeMillis() + (10L * 60L * 1000L)));
-			flowState.setUser(user);
+			flowState.setIdentity(identity);
 			flowState.setRegistry(registry);
 			
 			String red = flowState.getRedirectUri() + "?code=" + flowState.getCode() + "&state=" + flowState.getState();
@@ -260,12 +286,20 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			throw new OidcAuthenticationException("unauthorized");
 		}
 	
-		UserEntity user = flowState.getUser();
+		IdentityEntity identity = flowState.getIdentity();
 
-		if (user == null) {
-			throw new OidcAuthenticationException("No user attached to flow state.");
+		if (identity == null) {
+			throw new OidcAuthenticationException("No identity attached to flow state.");
 		}
 
+		UserEntity user;
+		if (identity.getUsers().size() == 1) {
+			user = identity.getUsers().iterator().next();
+		}
+		else {
+			user = identity.getPrefUser();
+		}
+		
 		RegistryEntity registry = flowState.getRegistry();
 
 		/*
@@ -283,7 +317,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	      .claim("nonce", flowState.getNonce())
 	      .audience(flowState.getClientConfiguration().getName())
 	      .issueTime(new Date())
-	      .subject(flowState.getUser().getEppn())
+	      .subject(user.getEppn())
 	      .build();
 		
 		for (ServiceOidcClientEntity serviceOidcClient : serviceOidcClientList) {
@@ -300,7 +334,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 					Invocable invocable = (Invocable) engine;
 					
 					invocable.invokeFunction("buildTokenStatement", scriptingEnv, claimsBuilder, user, registry, 
-							serviceOidcClient.getService(), logger);
+							serviceOidcClient.getService(), logger, identity);
 				} catch (NoSuchMethodException | ScriptException e) {
 					logger.warn("Script execution failed. Continue with other scripts.", e);
 				}
@@ -365,20 +399,22 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		}				
 	
 		List<ServiceOidcClientEntity> serviceOidcClientList = serviceOidcClientDao.findByClientConfig(clientConfig);
-		UserEntity user = flowState.getUser();
 
-		if (user == null) {
-			throw new OidcAuthenticationException("No user attached to flow state.");
+		IdentityEntity identity = flowState.getIdentity();
+
+		if (identity == null) {
+			throw new OidcAuthenticationException("No identity attached to flow state.");
+		}
+
+		UserEntity user;
+		if (identity.getUsers().size() == 1) {
+			user = identity.getUsers().iterator().next();
+		}
+		else {
+			user = identity.getPrefUser();
 		}
 
 		RegistryEntity registry = flowState.getRegistry();
-
-		/*
-		 * allow for no registry
-		 */
-//		if (registry == null) {
-//			throw new OidcAuthenticationException("No registry attached to flow state.");
-//		}
 
 		JWTClaimsSet.Builder claimsBuilder = new JWTClaimsSet.Builder();
 		
@@ -396,7 +432,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 					Invocable invocable = (Invocable) engine;
 					
 					invocable.invokeFunction("buildClaimsStatement", scriptingEnv, claimsBuilder, user, registry, 
-							serviceOidcClient.getService(), logger);
+							serviceOidcClient.getService(), logger, identity);
 				} catch (NoSuchMethodException | ScriptException e) {
 					logger.warn("Script execution failed. Continue with other scripts.", e);
 				}
@@ -424,7 +460,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			claimsBuilder.expirationTime(new Date(System.currentTimeMillis() + (60L * 60L * 1000L)))
 		      .issuer("https://bwidm.scc.kit.edu/oidc/realms/intern")
 		      .issueTime(new Date())
-		      .subject("" + session.getUserId())
+		      .subject("" + session.getIdentityId())
 		      .build();
 			
 			JWTClaimsSet claims =  claimsBuilder.build();

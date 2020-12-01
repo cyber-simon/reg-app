@@ -23,11 +23,10 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.RegistryEntity;
-import edu.kit.scc.webreg.entity.SamlUserEntity;
-import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.UserDeleteService;
-import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.ViewIds;
 
@@ -37,7 +36,7 @@ public class DeleteAllPersonalDataBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private SamlUserEntity user;
+	private IdentityEntity identity;
 	
 	private List<RegistryEntity> registryList;
 
@@ -45,7 +44,7 @@ public class DeleteAllPersonalDataBean implements Serializable {
 	private Logger logger;
 	
 	@Inject
-	private UserService userService;
+	private IdentityService identityService;
 	
 	@Inject
 	private UserDeleteService userDeleteService;
@@ -57,24 +56,18 @@ public class DeleteAllPersonalDataBean implements Serializable {
     private SessionManager sessionManager;
     
 	public void preRenderView(ComponentSystemEvent ev) {
-		if (user == null) {
-	    	UserEntity tempUser = userService.findByIdWithStore(sessionManager.getUserId());
-	    	if (tempUser instanceof SamlUserEntity) {
-	    		user = (SamlUserEntity) tempUser;
-	    	}
-	    	else {
-	    		throw new IllegalArgumentException("This page is only for SAML Users");
-	    	}
-	    	registryList = registryService.findByUser(user);
+		if (identity == null) {
+			identity = identityService.findById(sessionManager.getIdentityId());
+	    	registryList = registryService.findByIdentity(identity);
 		}
 	}
 	
 	public String cancel() {
-		return ViewIds.INDEX_USER;
+		return ViewIds.USER_PROPERTIES + "?faces-redirect=true";
 	}
 
 	public String commit() {
-		userDeleteService.deleteUserData(user, "user-" + user.getId());
+		userDeleteService.deleteUserData(identity, "identity-" + identity.getId());
 		try {
 			FacesContext.getCurrentInstance().getExternalContext().redirect("/logout/local?redirect=delete");
 		} catch (IOException e) {
@@ -83,12 +76,12 @@ public class DeleteAllPersonalDataBean implements Serializable {
 		return "";
 	}
 	
-	public UserEntity getUser() {
-		return user;
-	}
-
 	public List<RegistryEntity> getRegistryList() {
 		return registryList;
+	}
+
+	public IdentityEntity getIdentity() {
+		return identity;
 	}
 
 }

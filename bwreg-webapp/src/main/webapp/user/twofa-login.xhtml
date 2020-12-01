@@ -21,6 +21,17 @@
 
 	<h:form id="form" prependId="false">
 		<p:panel header="#{messages.twofa_login}">
+
+			<p:outputPanel rendered="#{twoFaLoginBean.reallyReadOnly}">
+				<div><h:outputText value="#{messages.twofa_list_really_readonly}"/></div>
+				<div><a href="#{twoFaLoginBean.managementUrl}" target="_blank">#{twoFaLoginBean.managementUrl}</a></div>
+			</p:outputPanel>
+
+			<p:outputPanel rendered="#{twoFaLoginBean.readOnly and not twoFaLoginBean.reallyReadOnly}">
+				<div><h:outputText value="#{messages.twofa_list_readonly}"/></div>
+				<div><a href="#{twoFaLoginBean.managementUrl}" target="_blank">#{twoFaLoginBean.managementUrl}</a></div>
+			</p:outputPanel>
+			
 			<div style="margin-top: 8px; margin-bottom: 16px;"><h:outputText value="#{messages.twofa_login_text}"/></div>
 			<div><p:messages showDetail="true" /></div>
 
@@ -35,7 +46,8 @@
 				update=":form" />
 
 		</p:panel>
-		<p:dataGrid var="token" value="#{twoFaLoginBean.tokenList}" columns="3" styleClass="whitefoot"
+		<p:dataGrid var="token" value="#{twoFaLoginBean.tokenList}" rendered="#{not twoFaLoginBean.reallyReadOnly}"
+				columns="3" styleClass="whitefoot"
 				layout="grid" style="margin-top: 16px; margin-bottom: 16px;">
 	        <p:panel styleClass="grayback" style="margin-bottom: 0px;">
 	        	<f:facet name="header">
@@ -47,11 +59,15 @@
 						<h:graphicImage width="60px" value="#{resource['img/smartphone.svg']}" alt="Smartphone" rendered="#{token.tokenType == 'TOTP' and token.serial.startsWith('TOTP')}"/>
 						<h:graphicImage width="60px" value="#{resource['img/kittoken_small.png']}" alt="Hardware Token" rendered="#{token.tokenType == 'TOTP' and not token.serial.startsWith('TOTP')}"/>
 						<h:graphicImage width="60px" value="#{resource['img/yubikey_small.png']}" alt="Yubikey" rendered="#{token.tokenType == 'yubico'}"/>
+						<h:graphicImage width="60px" value="#{resource['img/tanlist.svg']}" alt="Backup TAN List" rendered="#{token.tokenType == 'HMAC'}"/>
 					</p:outputPanel>
-					<p:outputPanel>
-						<div><h:outputText value="#{token.tokenType}" /></div>
-						<div><h:outputText value="#{token.isactive}" /></div>
-					</p:outputPanel>
+					<h:panelGroup>
+						<h:outputText value="#{messages.twofa_tokentype_tanlist}" rendered="#{token.tokenType == 'HMAC' and token.serial.startsWith('OATH')}"/>
+						<h:outputText value="#{messages.twofa_tokentype_totp}" rendered="#{token.tokenType == 'TOTP' and token.serial.startsWith('TOTP')}"/>
+						<h:outputText value="#{messages.twofa_tokentype_totp_hardware}" rendered="#{token.tokenType == 'TOTP' and not token.serial.startsWith('TOTP')}"/>
+						<h:outputText value="#{messages.twofa_tokentype_tanlist}" rendered="#{token.tokenType == 'HOTP'}"/>
+						<h:outputText value="#{messages.twofa_tokentype_yubikey}" rendered="#{token.tokenType == 'yubico'}"/>
+					</h:panelGroup>
 				</p:panelGrid>
 			</p:panel>
 		</p:dataGrid>

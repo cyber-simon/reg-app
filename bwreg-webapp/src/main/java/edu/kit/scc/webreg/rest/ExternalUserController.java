@@ -142,10 +142,10 @@ public class ExternalUserController {
 	protected ExternalUserAdminRoleEntity resolveAdminRole(HttpServletRequest request, String preferredRoleName)
 			throws UnauthorizedException {
 		List<RoleEntity> roleList;
-		if (request.getAttribute(SecurityFilter.USER_ID) != null &&
-				request.getAttribute(SecurityFilter.USER_ID) instanceof Long) {
-			Long userId = (Long) request.getAttribute(SecurityFilter.USER_ID);
-			roleList = roleService.findByUserId(userId);
+		if (request.getAttribute(SecurityFilter.IDENTITY_ID) != null &&
+				request.getAttribute(SecurityFilter.IDENTITY_ID) instanceof Long) {
+			Long identityId = (Long) request.getAttribute(SecurityFilter.IDENTITY_ID);
+			roleList = roleService.findByIdentityId(identityId);
 		}
 		else if (request.getAttribute(SecurityFilter.ADMIN_USER_ID) != null &&
 				request.getAttribute(SecurityFilter.ADMIN_USER_ID) instanceof Long) {

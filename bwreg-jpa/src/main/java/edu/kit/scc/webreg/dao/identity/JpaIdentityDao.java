@@ -10,6 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.identity;
 
+import java.util.List;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -33,6 +35,12 @@ public class JpaIdentityDao extends JpaBaseDao<IdentityEntity, Long> implements 
 			return null;
 		else
 			return user.getIdentity();
+	}
+
+	@Override
+    @SuppressWarnings({"unchecked"})
+	public List<IdentityEntity> findMissingTwoFaUserId() {
+		return em.createQuery("select e from IdentityEntity e where e.twoFaUserId is null or e.twoFaUserName is null").getResultList();
 	}
 	
 	@Override

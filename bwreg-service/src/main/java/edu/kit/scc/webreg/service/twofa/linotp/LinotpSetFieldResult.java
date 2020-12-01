@@ -1,8 +1,11 @@
 package edu.kit.scc.webreg.service.twofa.linotp;
 
+import java.io.Serializable;
 import java.util.Map;
 
-public class LinotpSetFieldResult {
+public class LinotpSetFieldResult implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private boolean status;
 	private Map<String, Object> value;

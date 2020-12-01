@@ -10,6 +10,7 @@ import javax.persistence.Table;
 import edu.kit.scc.webreg.entity.AbstractBaseEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 
 @Entity(name = "OidcFlowStateEntity")
 @Table(name = "oidc_flow_state")
@@ -19,6 +20,9 @@ public class OidcFlowStateEntity extends AbstractBaseEntity {
 	
 	@ManyToOne(targetEntity = UserEntity.class)
 	private UserEntity user;
+
+	@ManyToOne(targetEntity = IdentityEntity.class)
+	private IdentityEntity identity;
 
 	@ManyToOne(targetEntity = OidcOpConfigurationEntity.class)
 	private OidcOpConfigurationEntity opConfiguration;
@@ -147,5 +151,13 @@ public class OidcFlowStateEntity extends AbstractBaseEntity {
 
 	public void setRegistry(RegistryEntity registry) {
 		this.registry = registry;
+	}
+
+	public IdentityEntity getIdentity() {
+		return identity;
+	}
+
+	public void setIdentity(IdentityEntity identity) {
+		this.identity = identity;
 	}
 }

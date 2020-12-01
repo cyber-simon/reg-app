@@ -77,7 +77,7 @@ public class Saml2RedirectLoginHandlerServlet implements Servlet {
 			SamlIdpMetadataEntity idpEntity = idpService.findById(session.getIdpId());
 			SamlSpConfigurationEntity spEntity = spService.findById(session.getSpId());
 			
-			saml2RedirectService.redirectClient(idpEntity, spEntity, response);
+			saml2RedirectService.redirectClient(idpEntity, spEntity, request, response);
 
 		} catch (MessageEncodingException e) {
             throw new ServletException("Error encoding outgoing message", e);

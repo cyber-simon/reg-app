@@ -117,12 +117,12 @@ public class CompareChildRegistriesBean implements Serializable {
 			}
 			else {
 				logger.debug("Starting registration of user {} to service {}", registry.getUser().getEppn(), entity.getName());
-				List<RegistryEntity> tempRegistryList = registryService.findByServiceAndUserAndNotStatus(entity, 
-						registry.getUser(), RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
+				List<RegistryEntity> tempRegistryList = registryService.findByServiceAndIdentityAndNotStatus(entity, 
+						registry.getIdentity(), RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
 				
 				if (tempRegistryList.size() == 0) {
 					try {
-						registerUserService.registerUser(registry.getUser(), entity, "admin-" + sessionManager.getUserId(), false);
+						registerUserService.registerUser(registry.getUser(), entity, "admin-" + sessionManager.getIdentityId(), false);
 					} catch (RegisterException e) {
 						logger.warn("Registration failed", e);
 					}

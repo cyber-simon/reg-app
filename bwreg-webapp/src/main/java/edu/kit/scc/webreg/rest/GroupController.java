@@ -84,9 +84,9 @@ public class GroupController {
 
 	protected Long resolveUserId(HttpServletRequest request)
 			throws UnauthorizedException {
-		if (request.getAttribute(SecurityFilter.USER_ID) != null &&
-				request.getAttribute(SecurityFilter.USER_ID) instanceof Long) {
-			return (Long) request.getAttribute(SecurityFilter.USER_ID);
+		if (request.getAttribute(SecurityFilter.IDENTITY_ID) != null &&
+				request.getAttribute(SecurityFilter.IDENTITY_ID) instanceof Long) {
+			return (Long) request.getAttribute(SecurityFilter.IDENTITY_ID);
 		}
 		else if (request.getAttribute(SecurityFilter.ADMIN_USER_ID) != null &&
 				request.getAttribute(SecurityFilter.ADMIN_USER_ID) instanceof Long) {

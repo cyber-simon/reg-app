@@ -2,18 +2,15 @@ package edu.kit.scc.webreg.dto.service;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
 
-import edu.kit.scc.webreg.dao.AdminUserDao;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.LocalGroupDao;
-import edu.kit.scc.webreg.dao.RoleDao;
 import edu.kit.scc.webreg.dao.SerialDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
 import edu.kit.scc.webreg.dao.ServiceGroupFlagDao;
@@ -22,7 +19,6 @@ import edu.kit.scc.webreg.dto.entity.GroupEntityDto;
 import edu.kit.scc.webreg.dto.mapper.BaseEntityMapper;
 import edu.kit.scc.webreg.dto.mapper.GroupDetailEntityMapper;
 import edu.kit.scc.webreg.dto.mapper.GroupEntityMapper;
-import edu.kit.scc.webreg.entity.AdminUserEntity;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.GroupStatus;
@@ -54,16 +50,10 @@ public class GroupDtoServiceImpl extends BaseDtoServiceImpl<GroupEntity, GroupEn
 	private EventSubmitter eventSubmitter;
 	
 	@Inject
-	private RoleDao roleDao;
-	
-	@Inject
 	private UserDao userDao;
 	
 	@Inject
 	private ServiceDao serviceDao;
-	
-	@Inject
-	private AdminUserDao adminUserDao;
 	
 	@Inject
 	private GroupEntityMapper mapper;
@@ -82,6 +72,9 @@ public class GroupDtoServiceImpl extends BaseDtoServiceImpl<GroupEntity, GroupEn
 	
 	@Inject
 	private GroupDao dao;
+	
+	@Inject
+	private DtoServiceAccessChecker accessChecker;
 
 	@Override
 	public GroupEntityDto findById(Long id, Long userId, Boolean withDetails) throws RestInterfaceException {
@@ -89,7 +82,7 @@ public class GroupDtoServiceImpl extends BaseDtoServiceImpl<GroupEntity, GroupEn
 		if (entity == null)
 			throw new NoUserFoundException("no such group");
 		
-		if (! checkAccess(entity, userId))
+		if (! accessChecker.checkAccess(entity, userId))
 			throw new UnauthorizedException("Not authorized");
 		
 		GroupEntityDto dto = createNewDto();
@@ -106,7 +99,7 @@ public class GroupDtoServiceImpl extends BaseDtoServiceImpl<GroupEntity, GroupEn
 		if (group == null)
 			throw new NoUserFoundException("no such group");
 		
-		if (! checkAccess(group, callerId))
+		if (! accessChecker.checkAccess(group, callerId))
 			throw new UnauthorizedException("Not authorized");
 		
 		UserEntity user = userDao.findById(userId);
@@ -145,7 +138,7 @@ public class GroupDtoServiceImpl extends BaseDtoServiceImpl<GroupEntity, GroupEn
 		if (group == null)
 			throw new NoUserFoundException("no such group");
 		
-		if (! checkAccess(group, callerId))
+		if (! accessChecker.checkAccess(group, callerId))
 			throw new UnauthorizedException("Not authorized");
 		
 		UserEntity user = userDao.findById(userId);
@@ -188,7 +181,7 @@ public class GroupDtoServiceImpl extends BaseDtoServiceImpl<GroupEntity, GroupEn
 		if (service == null) 
 			throw new NoServiceFoundException("no such service");
 		
-		if (! checkAccess(service, userId))
+		if (! accessChecker.checkAccess(service, userId))
 			throw new UnauthorizedException("Not authorized");
 		
 		entity = localGroupDao.createNew();
@@ -218,7 +211,7 @@ public class GroupDtoServiceImpl extends BaseDtoServiceImpl<GroupEntity, GroupEn
 		if (entity == null)
 			throw new NoUserFoundException("no such group");
 
-		if (! checkAccess(entity, userId))
+		if (! accessChecker.checkAccess(entity, userId))
 			throw new UnauthorizedException("Not authorized");
 		
 		GroupEntityDto dto = createNewDto();
@@ -229,50 +222,6 @@ public class GroupDtoServiceImpl extends BaseDtoServiceImpl<GroupEntity, GroupEn
 		return dto;
 	}
 
-	protected Boolean checkAccess(ServiceEntity service, Long userId) {
-		Set<RoleEntity> roles = resolveRoles(userId);
-		
-		if (roles != null && roles.contains(service.getGroupAdminRole())) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-	
-	protected Boolean checkAccess(GroupEntity group, Long userId) {
-
-		Set<RoleEntity> userRoles = resolveRoles(userId);
-		if (userRoles == null) {
-			return false;
-		}
-
-		Set<RoleEntity> groupAdminRoles = group.getAdminRoles();
-		
-		groupAdminRoles.retainAll(userRoles);
-		if (! groupAdminRoles.isEmpty()) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-	
-	protected Set<RoleEntity> resolveRoles(Long userId) {
-		AdminUserEntity adminUser = adminUserDao.findById(userId);
-		Set<RoleEntity> userRoles = null;
-		if (adminUser == null) {
-			UserEntity user = userDao.findById(userId);
-			if (user != null) {
-				userRoles = new HashSet<>(roleDao.findByUser(user));
-			}
-		}
-		else {
-			userRoles = adminUser.getRoles();
-		}
-		return userRoles;
-	}
-	
 	@Override
 	protected BaseEntityMapper<GroupEntity, GroupEntityDto, Long> getMapper() {
 		return mapper;

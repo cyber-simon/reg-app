@@ -21,12 +21,13 @@ import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.sec.AuthorizationBean;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.ServiceService;
-import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;
 import edu.kit.scc.webreg.service.reg.RegisterUserWorkflow;
 import edu.kit.scc.webreg.service.reg.SetPasswordCapable;
@@ -52,7 +53,7 @@ public class SetServicePasswordBean implements Serializable {
 	private SessionManager sessionManager;
 	
 	@Inject
-	private UserService userService;
+	private IdentityService identityService;
 	
     @Inject
     private RegisterUserService registerUserService;
@@ -63,6 +64,7 @@ public class SetServicePasswordBean implements Serializable {
 	private RegistryEntity registryEntity;
 	private ServiceEntity serviceEntity;
 	private UserEntity userEntity;
+	private IdentityEntity identity;
 	
 	private Long id;
 	private String serviceShortName;
@@ -73,7 +75,7 @@ public class SetServicePasswordBean implements Serializable {
 	
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (! initialized) {
-			userEntity = userService.findById(sessionManager.getUserId());
+			identity = identityService.findById(sessionManager.getIdentityId());
 
 			if (id != null) {
 				registryEntity = registryService.findById(id);
@@ -91,8 +93,10 @@ public class SetServicePasswordBean implements Serializable {
 				
 				registryEntity = registryService.findByServiceAndUserAndStatus(serviceEntity, userEntity, RegistryStatus.ACTIVE);
 			}
-			
-			if (! registryEntity.getUser().getId().equals(userEntity.getId()))
+
+			userEntity = registryEntity.getUser();
+
+			if (! registryEntity.getIdentity().getId().equals(identity.getId()))
 				throw new NotAuthorizedException("Not authorized to view this item");
 
 			if (! authBean.isUserInService(serviceEntity)) 

@@ -60,7 +60,7 @@ public class UserReconsiliationExecutor extends
 				return;
 			}
 			
-			List<RegistryEntity> registryList = registryService.findByUserAndStatus(user, RegistryStatus.ACTIVE);
+			List<RegistryEntity> registryList = registryService.findByIdentityAndStatus(user.getIdentity(), RegistryStatus.ACTIVE);
 			
 			for (RegistryEntity registry : registryList) {
 				try {

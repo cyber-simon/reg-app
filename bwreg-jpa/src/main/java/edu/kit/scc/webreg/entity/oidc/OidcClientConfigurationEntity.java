@@ -19,6 +19,9 @@ public class OidcClientConfigurationEntity extends AbstractBaseEntity {
 	@Column(name = "secret", length = 256)
 	private String secret;
 
+	@Column(name = "displayName", length = 1024)
+	private String displayName;
+
 	@ManyToOne(targetEntity = OidcOpConfigurationEntity.class)
 	private OidcOpConfigurationEntity opConfiguration;
 
@@ -44,5 +47,13 @@ public class OidcClientConfigurationEntity extends AbstractBaseEntity {
 
 	public void setOpConfiguration(OidcOpConfigurationEntity opConfiguration) {
 		this.opConfiguration = opConfiguration;
+	}
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
 	}
 }

@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.event;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ import org.slf4j.Logger;
 import edu.kit.scc.webreg.dao.EventDao;
 import edu.kit.scc.webreg.entity.EventEntity;
 import edu.kit.scc.webreg.entity.EventType;
+import edu.kit.scc.webreg.entity.ServiceEventEntity;
 import edu.kit.scc.webreg.exc.EventSubmitException;
 
 @Stateless
@@ -100,11 +102,33 @@ public class EventSubmitterImpl implements EventSubmitter {
 	@Override
 	public void submit(AbstractEvent<? extends Serializable> event, EventType eventType, String executor) 
 			throws EventSubmitException {
-		List<EventEntity> eventList = eventDao.findAllByEventType(eventType);
+		/*
+		 * always filter serviceevents from events, if not explicitly specified otherwise
+		 */
+		submit(event, eventType, executor, true);
+	}
 
+	@Override
+	public void submit(AbstractEvent<? extends Serializable> event, EventType eventType, String executor, Boolean filterServiceEvents) 
+			throws EventSubmitException {
+		List<EventEntity> eventListData = eventDao.findAllByEventType(eventType);
+		List<EventEntity> eventList;
+
+		if (filterServiceEvents) {
+			eventList = new ArrayList<EventEntity>();
+			for (EventEntity e : eventListData) {
+				if (! (e instanceof ServiceEventEntity)) {
+					eventList.add(e);
+				}
+			}
+		}
+		else {
+			eventList = eventListData;
+		}
+		
 		submit(event, eventList, eventType, executor);
 	}
-	
+
 	@Override
 	public void submit(EventExecutor<?, ?> eventExecutor) 
 			throws EventSubmitException {

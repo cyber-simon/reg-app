@@ -44,13 +44,13 @@ public class Saml2IdpRedirectResponseHandler {
 			return;
 		}
 		
-		if (session.getUserId() == null) {
+		if (session.getIdentityId() == null) {
 			logger.warn("No UserId set in session. Cannot continue");
 			return;
 		}
 		
 		try {
-			String redirect = samlIdpService.resumeAuthnRequest(session.getAuthnRequestId(), session.getUserId(), 
+			String redirect = samlIdpService.resumeAuthnRequest(session.getAuthnRequestId(), session.getIdentityId(), 
 								session.getAuthnRequestIdpConfigId(), response);
 			
 			if (redirect != null) {

@@ -25,11 +25,12 @@ import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.ServiceService;
-import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.reg.Infotainment;
 import edu.kit.scc.webreg.service.reg.InfotainmentCapable;
 import edu.kit.scc.webreg.service.reg.InfotainmentTreeNode;
@@ -53,7 +54,7 @@ public class RegistryDetailBean implements Serializable {
 	private ServiceService serviceService;
 	
 	@Inject
-	private UserService userService;
+	private IdentityService identityService;
 
     @Inject 
     private SessionManager sessionManager;
@@ -65,7 +66,7 @@ public class RegistryDetailBean implements Serializable {
 	
 	private RegistryEntity entity;
 	private ServiceEntity serviceEntity;
-	private UserEntity userEntity;
+	private IdentityEntity identityEntity;
 	
 	private Infotainment infotainment;
 	private TreeNode infotainmentRoot;
@@ -80,16 +81,16 @@ public class RegistryDetailBean implements Serializable {
 				throw new NotAuthorizedException("No such item");
 			
 			serviceEntity = serviceService.findByIdWithServiceProps(entity.getService().getId());
-			userEntity = userService.findById(sessionManager.getUserId());
-
-			if (! entity.getUser().getId().equals(userEntity.getId()))
+			identityEntity = identityService.findById(sessionManager.getIdentityId());
+			
+			if (! entity.getIdentity().getId().equals(identityEntity.getId()))
 				throw new NotAuthorizedException("Not authorized to view this item");
-
+			
 			if (entity.getRegistryStatus() == RegistryStatus.ACTIVE) {
 				RegisterUserWorkflow registerWorkflow = registerUserService.getWorkflowInstance(entity.getService().getRegisterBean());
 				if (registerWorkflow instanceof InfotainmentCapable) {
 					try {
-						infotainment = ((InfotainmentCapable) registerWorkflow).getInfo(entity, userEntity, serviceEntity);
+						infotainment = ((InfotainmentCapable) registerWorkflow).getInfo(entity, entity.getUser(), serviceEntity);
 						
 						if (infotainment.getRoot() != null) {
 							infotainmentRoot = new DefaultTreeNode("root", null);
@@ -137,7 +138,7 @@ public class RegistryDetailBean implements Serializable {
 	}
 
 	public UserEntity getUserEntity() {
-		return userEntity;
+		return entity.getUser();
 	}
 
 	public TreeNode getInfotainmentRoot() {

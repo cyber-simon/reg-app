@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -23,16 +24,21 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Root;
 
 import edu.kit.scc.webreg.dao.RoleDao;
+import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.RoleGroupEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserRoleEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 
 @Named
 @ApplicationScoped
 public class JpaRoleDao extends JpaBaseDao<RoleEntity, Long> implements RoleDao {
 
+	@Inject
+	private IdentityDao identityDao;
+	
 	@Override
 	public UserRoleEntity createNewUserRole() {
 		return new UserRoleEntity();
@@ -114,6 +120,26 @@ public class JpaRoleDao extends JpaBaseDao<RoleEntity, Long> implements RoleDao 
 	public List<RoleEntity> findByUserId(Long userId) {
 		return em.createQuery("select r.role from UserRoleEntity r where r.user.id = :userId")
 				.setParameter("userId", userId).getResultList();
+	}
+
+    @SuppressWarnings("unchecked")
+	@Override
+	public List<RoleEntity> findByIdentityId(Long identityId) {
+    	List<RoleEntity> roleList = em.createQuery("select r.role from IdentityRoleEntity r where r.identity.id = :identityId")
+				.setParameter("identityId", identityId).getResultList(); 
+
+    	IdentityEntity identity = identityDao.findById(identityId);
+    	roleList.addAll(em.createQuery("select r.role from UserRoleEntity r where r.user in :userIdList")
+				.setParameter("userIdList", identity.getUsers()).getResultList());
+    	
+		return roleList;
+	}
+
+    @SuppressWarnings("unchecked")
+	@Override
+	public List<RoleEntity> findByUserIdList(List<Long> userIdList) {
+		return em.createQuery("select r.role from UserRoleEntity r where r.user.id in :userIdList")
+				.setParameter("userIdList", userIdList).getResultList();
 	}
 
     @SuppressWarnings("unchecked")

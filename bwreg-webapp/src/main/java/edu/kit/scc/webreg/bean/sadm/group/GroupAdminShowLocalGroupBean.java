@@ -162,7 +162,7 @@ public class GroupAdminShowLocalGroupBean implements Serializable {
 		gl.add(entity);
 		MultipleGroupEvent mge = new MultipleGroupEvent(gl);
 		try {
-			eventSubmitter.submit(mge, EventType.GROUP_UPDATE, "user-" + sessionManager.getUserId());
+			eventSubmitter.submit(mge, EventType.GROUP_UPDATE, "user-" + sessionManager.getIdentityId());
 		} catch (EventSubmitException e) {
 			logger.warn("Exeption", e);
 		}

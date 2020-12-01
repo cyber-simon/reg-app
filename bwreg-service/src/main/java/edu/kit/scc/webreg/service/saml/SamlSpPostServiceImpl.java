@@ -148,7 +148,6 @@ public class SamlSpPostServiceImpl implements SamlSpPostService {
 				throw new SamlAuthenticationException(e.getMessage());
 			}
 			
-			session.setUserId(user.getId());
 			session.setIdentityId(user.getIdentity().getId());
 			session.setLoginTime(Instant.now());
 			session.setTheme(user.getTheme());

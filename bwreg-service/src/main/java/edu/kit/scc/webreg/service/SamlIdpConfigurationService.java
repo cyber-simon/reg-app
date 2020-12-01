@@ -10,12 +10,18 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service;
 
+import java.util.List;
+
 import edu.kit.scc.webreg.entity.SamlIdpConfigurationEntity;
+import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
+import edu.kit.scc.webreg.entity.ServiceSamlSpEntity;
 
 public interface SamlIdpConfigurationService extends BaseService<SamlIdpConfigurationEntity, Long> {
 
-	SamlIdpConfigurationEntity findByHostname(String hostname);
+	List<SamlIdpConfigurationEntity> findByHostname(String hostname);
 
 	SamlIdpConfigurationEntity findByEntityId(String entityId);
+
+	List<ServiceSamlSpEntity> findBySamlSpAndIdp(SamlIdpConfigurationEntity idpConfig, SamlSpMetadataEntity spMetadata);
 
 }

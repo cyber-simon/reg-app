@@ -1,0 +1,14 @@
+image: maven:latest
+
+variables:
+  MAVEN_CLI_OPTS: "-s maven/settings.xml --batch-mode"
+
+cache:
+  paths:
+    - .m2/
+    - target/
+
+build:
+  stage: build
+  script:
+    mvn $MAVEN_CLI_OPTS compile

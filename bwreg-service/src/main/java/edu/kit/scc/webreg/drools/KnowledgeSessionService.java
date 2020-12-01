@@ -25,6 +25,7 @@ import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.exc.MisconfiguredServiceException;
 
 public interface KnowledgeSessionService {
@@ -40,7 +41,7 @@ public interface KnowledgeSessionService {
 	KieSession getStatefulSession(String unitId);
 
 	Map<RegistryEntity, List<Object>> checkRules(
-			List<RegistryEntity> registryList, UserEntity user, String executor);
+			List<RegistryEntity> registryList, IdentityEntity identity, String executor);
 
 	List<Object> checkRule(String packageName, String knowledgeBaseName,
 			String knowledgeBaseVersion, UserEntity user,
@@ -48,7 +49,7 @@ public interface KnowledgeSessionService {
 			Boolean withCache) throws MisconfiguredServiceException;
 
 	Map<RegistryEntity, List<Object>> checkRules(
-			List<RegistryEntity> registryList, UserEntity user,
+			List<RegistryEntity> registryList, IdentityEntity identity,
 			String executor, Boolean withCache);
 
 	List<Object> checkRule(String unitId, UserEntity user,

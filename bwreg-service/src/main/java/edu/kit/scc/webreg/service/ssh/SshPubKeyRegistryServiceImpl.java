@@ -10,6 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.ssh;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -19,8 +20,10 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dao.BaseDao;
+import edu.kit.scc.webreg.dao.ServiceEventDao;
 import edu.kit.scc.webreg.dao.SshPubKeyRegistryDao;
-import edu.kit.scc.webreg.dao.UserDao;
+import edu.kit.scc.webreg.dao.identity.IdentityDao;
+import edu.kit.scc.webreg.entity.EventEntity;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.SshPubKeyRegistryEntity;
 import edu.kit.scc.webreg.entity.SshPubKeyRegistryStatus;
@@ -41,7 +44,10 @@ public class SshPubKeyRegistryServiceImpl extends BaseServiceImpl<SshPubKeyRegis
 	private SshPubKeyRegistryDao dao;
 	
 	@Inject
-	private UserDao userDao;
+	private IdentityDao identityDao;
+	
+	@Inject
+	private ServiceEventDao serviceEventDao;
 	
 	@Inject
 	private EventSubmitter eventSubmitter;
@@ -69,9 +75,15 @@ public class SshPubKeyRegistryServiceImpl extends BaseServiceImpl<SshPubKeyRegis
 		try {
 			if (entity.getKeyStatus().equals(SshPubKeyRegistryStatus.PENDING)) {
 				eventSubmitter.submit(event, EventType.SSH_KEY_REGISTRY_APPROVAL, executor);
+
+				List<EventEntity> eventList = new ArrayList<EventEntity>(serviceEventDao.findAllByService(entity.getRegistry().getService()));
+				eventSubmitter.submit(event, eventList, EventType.SSH_KEY_REGISTRY_APPROVAL, executor);
 			}
 			else {
 				eventSubmitter.submit(event, EventType.SSH_KEY_REGISTRY_DEPLOYED, executor);
+				
+				List<EventEntity> eventList = new ArrayList<EventEntity>(serviceEventDao.findAllByService(entity.getRegistry().getService()));
+				eventSubmitter.submit(event, eventList, EventType.SSH_KEY_REGISTRY_DEPLOYED, executor);
 			}
 		} catch (EventSubmitException e) {
 			logger.warn("Could not submit event", e);
@@ -83,12 +95,15 @@ public class SshPubKeyRegistryServiceImpl extends BaseServiceImpl<SshPubKeyRegis
 	public SshPubKeyRegistryEntity approveRegistry(SshPubKeyRegistryEntity entity, Long approverId) {
 		entity = dao.merge(entity);
 		entity.setKeyStatus(SshPubKeyRegistryStatus.ACTIVE);
-		entity.setApprovedBy(userDao.findById(approverId));
+		entity.setApprover(identityDao.findById(approverId));
 		entity.setApprovedAt(new Date());
 		
 		SshPubKeyRegistryEvent event = new SshPubKeyRegistryEvent(entity);
 		try {
 			eventSubmitter.submit(event, EventType.SSH_KEY_REGISTRY_DEPLOYED, "user-" + approverId);
+
+			List<EventEntity> eventList = new ArrayList<EventEntity>(serviceEventDao.findAllByService(entity.getRegistry().getService()));
+			eventSubmitter.submit(event, eventList, EventType.SSH_KEY_REGISTRY_DEPLOYED, "user-" + approverId);
 		} catch (EventSubmitException e) {
 			logger.warn("Could not submit event", e);
 		}
@@ -99,12 +114,15 @@ public class SshPubKeyRegistryServiceImpl extends BaseServiceImpl<SshPubKeyRegis
 	public SshPubKeyRegistryEntity denyRegistry(SshPubKeyRegistryEntity entity, Long approverId) {
 		entity = dao.merge(entity);
 		entity.setKeyStatus(SshPubKeyRegistryStatus.DENIED);
-		entity.setApprovedBy(userDao.findById(approverId));
+		entity.setApprover(identityDao.findById(approverId));
 		entity.setApprovedAt(new Date());
 		
 		SshPubKeyRegistryEvent event = new SshPubKeyRegistryEvent(entity);
 		try {
 			eventSubmitter.submit(event, EventType.SSH_KEY_REGISTRY_DENIED, "user-" + approverId);
+
+			List<EventEntity> eventList = new ArrayList<EventEntity>(serviceEventDao.findAllByService(entity.getRegistry().getService()));
+			eventSubmitter.submit(event, eventList, EventType.SSH_KEY_REGISTRY_DENIED, "user-" + approverId);
 		} catch (EventSubmitException e) {
 			logger.warn("Could not submit event", e);
 		}
@@ -119,6 +137,9 @@ public class SshPubKeyRegistryServiceImpl extends BaseServiceImpl<SshPubKeyRegis
 		SshPubKeyRegistryEvent event = new SshPubKeyRegistryEvent(entity);
 		try {
 			eventSubmitter.submit(event, EventType.SSH_KEY_REGISTRY_DELETED, executor);
+
+			List<EventEntity> eventList = new ArrayList<EventEntity>(serviceEventDao.findAllByService(entity.getRegistry().getService()));
+			eventSubmitter.submit(event, eventList, EventType.SSH_KEY_REGISTRY_DELETED, executor);
 		} catch (EventSubmitException e) {
 			logger.warn("Could not submit event", e);
 		}

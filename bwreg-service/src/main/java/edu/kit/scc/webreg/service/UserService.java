@@ -23,6 +23,7 @@ import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
 import edu.kit.scc.webreg.entity.UserLoginInfoStatus;
 import edu.kit.scc.webreg.entity.UserLoginMethod;
 import edu.kit.scc.webreg.entity.UserStatus;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 
 public interface UserService extends BaseService<UserEntity, Long> {
@@ -59,5 +60,10 @@ public interface UserService extends BaseService<UserEntity, Long> {
 	UserEntity findByUidNumber(Long uidNumber);
 
 	UserLoginInfoEntity addLoginInfo(Long userId, UserLoginMethod method, UserLoginInfoStatus status, String from);
+
+	List<UserEntity> findByIdentity(IdentityEntity identity);
+
+	UserLoginInfoEntity addLoginInfo(IdentityEntity identity, UserLoginMethod method, UserLoginInfoStatus status,
+			String from);
 
 }

@@ -16,6 +16,7 @@ import java.util.List;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 
 public interface UserDao extends BaseDao<UserEntity, Long> {
 
@@ -31,4 +32,5 @@ public interface UserDao extends BaseDao<UserEntity, Long> {
 	List<UserEntity> findByStatus(UserStatus status);
 	UserEntity findByUidNumber(Long uidNumber);
 	List<UserEntity> findMissingIdentity();
+	List<UserEntity> findByIdentity(IdentityEntity identity);
 }

@@ -18,17 +18,23 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
+import com.nimbusds.openid.connect.sdk.claims.ClaimsSet;
+
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.service.GroupService;
 import edu.kit.scc.webreg.service.RoleService;
 import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.session.SessionManager;
-import edu.kit.scc.webreg.util.Theme;
-import edu.kit.scc.webreg.util.ThemeSwitcherBean;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
 
 @ManagedBean
 @ViewScoped
@@ -36,6 +42,8 @@ public class UserPropertiesBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	private IdentityEntity identity;
+	private List<UserEntity> userList;
 	private UserEntity user;
 	
 	private SamlIdpMetadataEntity idpEntity;
@@ -44,11 +52,14 @@ public class UserPropertiesBean implements Serializable {
 
 	private List<GroupEntity> groupList;
 	
-	private String theme;
+	private ClaimsSet claims;
 	
 	@Inject
 	private UserService userService;
-	
+    
+	@Inject
+	private IdentityService identityService;
+
 	@Inject
 	private RoleService roleService;
 	
@@ -58,18 +69,25 @@ public class UserPropertiesBean implements Serializable {
     @Inject 
     private SessionManager sessionManager;
     
-    @Inject
-    private ThemeSwitcherBean themeSwitcherBean;
-
 	public void preRenderView(ComponentSystemEvent ev) {
-		if (user == null) {
-	    	user = userService.findByIdWithStore(sessionManager.getUserId());
+		if (identity == null) {
+			identity = identityService.findById(sessionManager.getIdentityId());
+			userList = userService.findByIdentity(identity);
+			user = userService.findByIdWithStore(userList.get(0).getId());
 	    	roleList = roleService.findByUser(user);
 	    	groupList = groupService.findByUser(user);
-	    	theme = sessionManager.getTheme();
 	    	
 	    	if (user instanceof SamlUserEntity) {
 	    		idpEntity = ((SamlUserEntity) user).getIdp();
+	    	}
+	    	else if (user instanceof OidcUserEntity) {
+	    		JSONParser parser = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
+				try {
+		    		JSONObject jo = parser.parse(user.getAttributeStore().get("claims"), JSONObject.class);
+		    		claims = new ClaimsSet(jo);
+				} catch (ParseException e) {
+					System.out.println("" + e);
+				}
 	    	}
 		}
 	}
@@ -78,33 +96,31 @@ public class UserPropertiesBean implements Serializable {
 		return idpEntity;
 	}
 
-	public UserEntity getUser() {
-		return user;
-	}
-
 	public List<RoleEntity> getRoleList() {
 		return roleList;
 	}
 
-    public List<Theme> getThemeList() {
-        return themeSwitcherBean.getThemeList();
-    }
-
-	public String getTheme() {
-		return theme;
-	}
-
-	public void setTheme(String theme) {
-		this.theme = theme;
-	}
-
-	public void saveTheme() {
-		user.setTheme(theme);
-		userService.save(user);
-		sessionManager.setTheme(theme);
-	}
-
 	public List<GroupEntity> getGroupList() {
 		return groupList;
+	}
+
+	public IdentityEntity getIdentity() {
+		return identity;
+	}
+
+	public List<UserEntity> getUserList() {
+		return userList;
+	}
+
+	public UserEntity getUser() {
+		return user;
+	}
+
+	public void setUser(UserEntity user) {
+		this.user = user;
+	}
+
+	public ClaimsSet getClaims() {
+		return claims;
 	}
 }

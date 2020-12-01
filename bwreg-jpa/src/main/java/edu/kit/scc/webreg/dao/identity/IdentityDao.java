@@ -10,11 +10,15 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.identity;
 
+import java.util.List;
+
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 
 public interface IdentityDao extends BaseDao<IdentityEntity, Long> {
 
 	IdentityEntity findByUserId(Long userId);
+
+	List<IdentityEntity> findMissingTwoFaUserId();
 
 }

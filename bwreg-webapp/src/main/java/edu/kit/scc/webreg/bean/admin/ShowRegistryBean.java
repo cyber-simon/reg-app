@@ -57,7 +57,7 @@ public class ShowRegistryBean implements Serializable {
 	public void deregister() {
 		try {
 			logger.info("Deregister registry {} via AdminRegistry page", registry.getId());
-			registerUserService.deregisterUser(registry, "user-" + sessionManager.getUserId());
+			registerUserService.deregisterUser(registry, "identity-" + sessionManager.getIdentityId());
 		} catch (RegisterException e) {
 			logger.warn("Could not deregister User", e);
 		}
@@ -69,7 +69,7 @@ public class ShowRegistryBean implements Serializable {
 		logger.info("Purging registry {} via AdminRegistry page", registry.getId());
 		
 		try {
-			registerUserService.purge(registry, "user-" + sessionManager.getUserId());
+			registerUserService.purge(registry, "identity-" + sessionManager.getIdentityId());
 		} catch (RegisterException e) {
 			logger.warn("Could not purge Registry", e);
 		}

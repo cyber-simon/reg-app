@@ -1,9 +1,9 @@
 package edu.kit.scc.webreg.service;
 
-import edu.kit.scc.webreg.entity.SamlUserEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 
 public interface UserDeleteService {
 
-	void deleteUserData(SamlUserEntity user, String executor);
+	void deleteUserData(IdentityEntity identity, String executor);
 
 }

@@ -1,8 +1,9 @@
 package edu.kit.scc.webreg.service.twofa.linotp;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class LinotpTokenResultList extends ArrayList<LinotpToken> {
+public class LinotpTokenResultList extends ArrayList<LinotpToken> implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -10,8 +11,11 @@ public class LinotpTokenResultList extends ArrayList<LinotpToken> {
 	private String statusMessage;
 	
 	private boolean readOnly;
+	private boolean reallyReadOnly;
 	
 	private String managementUrl;
+	
+	private String adminRole;
 	
 	public LinotpTokenResultList() {
 		super();
@@ -46,5 +50,21 @@ public class LinotpTokenResultList extends ArrayList<LinotpToken> {
 
 	public void setStatusMessage(String statusMessage) {
 		this.statusMessage = statusMessage;
+	}
+
+	public String getAdminRole() {
+		return adminRole;
+	}
+
+	public void setAdminRole(String adminRole) {
+		this.adminRole = adminRole;
+	}
+
+	public boolean getReallyReadOnly() {
+		return reallyReadOnly;
+	}
+
+	public void setReallyReadOnly(boolean reallyReadOnly) {
+		this.reallyReadOnly = reallyReadOnly;
 	}
 }

@@ -14,6 +14,8 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.Type;
 
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+
 @Entity(name = "SshPubKeyEntity")
 @Table(name = "ssh_pub_key")
 public class SshPubKeyEntity extends AbstractBaseEntity {
@@ -22,6 +24,9 @@ public class SshPubKeyEntity extends AbstractBaseEntity {
 
 	@ManyToOne(targetEntity = UserEntity.class)
 	private UserEntity user;
+
+	@ManyToOne(targetEntity = IdentityEntity.class)
+	private IdentityEntity identity;
 
 	@OneToMany(targetEntity = SshPubKeyRegistryEntity.class, mappedBy = "sshPubKey")
 	private Set<SshPubKeyRegistryEntity> sshPubKeyRegistries;
@@ -108,5 +113,13 @@ public class SshPubKeyEntity extends AbstractBaseEntity {
 
 	public void setSshPubKeyRegistries(Set<SshPubKeyRegistryEntity> sshPubKeyRegistries) {
 		this.sshPubKeyRegistries = sshPubKeyRegistries;
+	}
+
+	public IdentityEntity getIdentity() {
+		return identity;
+	}
+
+	public void setIdentity(IdentityEntity identity) {
+		this.identity = identity;
 	}
 }

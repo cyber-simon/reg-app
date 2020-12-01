@@ -23,10 +23,11 @@ import org.slf4j.LoggerFactory;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.service.RegistryService;
-import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.BBCodeConverter;
@@ -41,7 +42,7 @@ public class DeregisterServiceBean implements Serializable {
 	private static final Logger logger = LoggerFactory.getLogger(DeregisterServiceBean.class);
 	
 	private RegistryEntity registry;
-	private UserEntity userEntity;
+	private IdentityEntity identityEntity;
 	
 	private Long id;
 	private Boolean initialzed = false;
@@ -56,7 +57,7 @@ public class DeregisterServiceBean implements Serializable {
     private RegisterUserService registerUserService;
 
 	@Inject
-	private UserService userService;
+	private IdentityService identityService;
 	
 	@Inject
 	private BBCodeConverter bbCodeConverter;
@@ -70,9 +71,9 @@ public class DeregisterServiceBean implements Serializable {
 			if (registry == null)
 				throw new NotAuthorizedException("No such item");
 	
-			userEntity = userService.findById(sessionManager.getUserId());
+			identityEntity = identityService.findById(sessionManager.getIdentityId());
 	
-			if (! registry.getUser().getId().equals(userEntity.getId()))
+			if (! registry.getIdentity().getId().equals(identityEntity.getId()))
 				throw new NotAuthorizedException("Not authorized to view this item");
 			
 			deregisterTextBB = bbCodeConverter.convert(registry.getService().getDeregisterText());

@@ -24,10 +24,11 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 
-import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserLoginInfoStatus;
 import edu.kit.scc.webreg.entity.UserLoginMethod;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.twofa.TwoFaException;
 import edu.kit.scc.webreg.service.twofa.TwoFaService;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
@@ -51,21 +52,24 @@ public class TwoFaLoginBean implements Serializable {
 	private FacesMessageGenerator messageGenerator;
 	
 	@Inject
+	private IdentityService identityService;
+
+	@Inject
 	private UserService userService;
 
 	@Inject
 	private TwoFaService twoFaService;
 
-	private UserEntity user;
+	private IdentityEntity identity;
 	private LinotpTokenResultList tokenList;
 	
 	private String tokenInput;
 	
 	public void preRenderView(ComponentSystemEvent ev) {
-		if (user == null) {
-			user = userService.findById(sessionManager.getUserId());
+		if (identity == null) {
+			identity = identityService.findById(sessionManager.getIdentityId());
 			try {
-				tokenList = twoFaService.findByUserId(sessionManager.getUserId());
+				tokenList = twoFaService.findByIdentity(identity);
 			} catch (TwoFaException e) {
 				messageGenerator.addErrorMessage("Error", e.toString());
 				logger.debug("Exception happened", e);
@@ -76,12 +80,12 @@ public class TwoFaLoginBean implements Serializable {
 	public void check() {
 		try {
 			HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-			LinotpSimpleResponse response = twoFaService.checkToken(sessionManager.getUserId(), tokenInput);
+			LinotpSimpleResponse response = twoFaService.checkToken(identity, tokenInput);
 
 			if (response.getResult() != null && response.getResult().isStatus() && response.getResult().isValue()) {
-				// Succesfull check
+				// Successful check
 				sessionManager.setTwoFaElevation(Instant.now());
-				userService.addLoginInfo(user.getId(), UserLoginMethod.TWOFA, UserLoginInfoStatus.SUCCESS, 
+				userService.addLoginInfo(identity, UserLoginMethod.TWOFA, UserLoginInfoStatus.SUCCESS, 
 						request.getRemoteAddr());
 				
 	    		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
@@ -89,7 +93,7 @@ public class TwoFaLoginBean implements Serializable {
 				sessionManager.setOriginalRequestPath(null);
 			}
 			else {
-				userService.addLoginInfo(user.getId(), UserLoginMethod.TWOFA, UserLoginInfoStatus.FAILED, 
+				userService.addLoginInfo(identity, UserLoginMethod.TWOFA, UserLoginInfoStatus.FAILED, 
 						request.getRemoteAddr());
 				messageGenerator.addResolvedWarningMessage("twofa_login_failed", "twofa_login_failed_detail", true);
 				tokenInput = "";
@@ -104,9 +108,17 @@ public class TwoFaLoginBean implements Serializable {
 		
 	}
 
-	public UserEntity getUser() {
-		return user;
+	public Boolean getReadOnly() {
+		return tokenList.getReadOnly();
 	}
+	
+	public Boolean getReallyReadOnly() {
+		return tokenList.getReallyReadOnly();
+	}
+	
+	public String getManagementUrl() {
+		return tokenList.getManagementUrl();
+	}	
 
 	public LinotpTokenResultList getTokenList() {
 		return tokenList;
@@ -118,6 +130,10 @@ public class TwoFaLoginBean implements Serializable {
 
 	public void setTokenInput(String tokenInput) {
 		this.tokenInput = tokenInput;
+	}
+
+	public IdentityEntity getIdentity() {
+		return identity;
 	}
 	
 }

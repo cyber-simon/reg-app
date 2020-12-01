@@ -27,6 +27,7 @@ import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserEntity_;
 import edu.kit.scc.webreg.entity.UserStatus;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 
 @Named
 @ApplicationScoped
@@ -39,6 +40,13 @@ public class JpaUserDao extends JpaBaseDao<UserEntity, Long> implements UserDao,
 	public List<UserEntity> findByPrimaryGroup(GroupEntity group) {
 		return em.createQuery("select e from UserEntity e where e.primaryGroup = :primaryGroup")
 				.setParameter("primaryGroup", group).getResultList();
+	}
+
+	@Override
+    @SuppressWarnings({"unchecked"})
+	public List<UserEntity> findByIdentity(IdentityEntity identity) {
+		return em.createQuery("select e from UserEntity e where e.identity = :identity")
+				.setParameter("identity", identity).getResultList();
 	}
 
     @Override

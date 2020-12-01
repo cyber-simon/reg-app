@@ -50,6 +50,8 @@ public class AccessChecker {
 		addAccessNode(root, "service-approver", true);
 		addAccessNode(root, "service-group-admin", true);
 
+		addAccessNode(root, "token-admin", false, "TokenAdmin");
+
 		addDenyNode(root, "register", false, "User");
 		
 		AccessNode adminNode = addAccessNode(root, "admin", false, "MasterAdmin");

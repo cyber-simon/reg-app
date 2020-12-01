@@ -32,22 +32,37 @@ public class SessionManager implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	/*
+	 * For SAML IDP logins triggered by SP
+	 */
 	private Long authnRequestId;
 	private Long authnRequestIdpConfigId;
+	private Long authnRequestSpMetadataId;
 
-	// userId of first login process used
-	private Long userId;
+	/*
+	 * For OIDC OP logins triggered by RP
+	 */
+	private Long oidcFlowStateId;
+	private Long oidcAuthnOpConfigId;
+	private Long oidcAuthnClientConfigId;
 	
+	/*
+	 * For Local logins to home org SAML IDP
+	 */
+	private Long idpId;
+	private Long spId;
+	private String persistentId;
+
+	/*
+	 * For Local logins to home org OIDC OP
+	 */
+	private Long oidcRelyingPartyId;
+	private String subjectId;
+
 	// identityId of the actual user
 	private Long identityId;
-	
-	private Long idpId;
-	
-	private Long spId;
 
 	private Map<String, List<Object>> attributeMap;
-	
-	private String persistentId;
 	
 	private String originalRequestPath;
 	private String originalIdpEntityId;
@@ -99,12 +114,8 @@ public class SessionManager implements Serializable {
 		groups.clear();
 	}
 	
-	public Long getUserId() {
-		return userId;
-	}
-
 	public boolean isLoggedIn() {
-		return (userId != null ? true : false);		
+		return (identityId != null ? true : false);		
 	}
 
 	public void logout() {
@@ -137,10 +148,6 @@ public class SessionManager implements Serializable {
 
 	public void setSpId(Long spId) {
 		this.spId = spId;
-	}
-
-	public void setUserId(Long userId) {
-		this.userId = userId;
 	}
 
 	public Map<String, List<Object>> getAttributeMap() {
@@ -296,5 +303,53 @@ public class SessionManager implements Serializable {
 
 	public void setIdentityId(Long identityId) {
 		this.identityId = identityId;
+	}
+
+	public Long getOidcRelyingPartyId() {
+		return oidcRelyingPartyId;
+	}
+
+	public void setOidcRelyingPartyId(Long oidcRelyingPartyId) {
+		this.oidcRelyingPartyId = oidcRelyingPartyId;
+	}
+
+	public String getSubjectId() {
+		return subjectId;
+	}
+
+	public void setSubjectId(String subjectId) {
+		this.subjectId = subjectId;
+	}
+
+	public Long getAuthnRequestSpMetadataId() {
+		return authnRequestSpMetadataId;
+	}
+
+	public void setAuthnRequestSpMetadataId(Long authnRequestSpMetadataId) {
+		this.authnRequestSpMetadataId = authnRequestSpMetadataId;
+	}
+
+	public Long getOidcFlowStateId() {
+		return oidcFlowStateId;
+	}
+
+	public void setOidcFlowStateId(Long oidcFlowStateId) {
+		this.oidcFlowStateId = oidcFlowStateId;
+	}
+
+	public Long getOidcAuthnOpConfigId() {
+		return oidcAuthnOpConfigId;
+	}
+
+	public void setOidcAuthnOpConfigId(Long oidcAuthnOpConfigId) {
+		this.oidcAuthnOpConfigId = oidcAuthnOpConfigId;
+	}
+
+	public Long getOidcAuthnClientConfigId() {
+		return oidcAuthnClientConfigId;
+	}
+
+	public void setOidcAuthnClientConfigId(Long oidcAuthnClientConfigId) {
+		this.oidcAuthnClientConfigId = oidcAuthnClientConfigId;
 	}
 }
