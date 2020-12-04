@@ -61,7 +61,7 @@ public class ResourceBundleHelper {
 		if (bundle == null)
 			return "???" + key + "???";
 			
-		try {
+			try {
 			return bundle.getString(key);
 		} catch (Exception e) {
 			return "???" + key + "???";

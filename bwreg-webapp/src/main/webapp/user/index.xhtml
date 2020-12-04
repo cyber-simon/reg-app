@@ -23,7 +23,7 @@
 	<ui:param name="title" value="#{messages.title}"/>
 
 	<ui:define name="content">
-	<h:form>
+	<h:form id="form" prependId="false" class="full form">
 
 	<div class="panel">
 		<p:panel rendered="#{userPropertiesBean.userList.size() gt 1}">

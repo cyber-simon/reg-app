@@ -24,10 +24,11 @@
 	<ui:param name="title" value="#{messages.title}"/>
 
 	<ui:define name="content">
-	<h:form id="form">
+	<h:form id="form" prependId="false" class="full form">
 
-		<div id="panelInline">
-			<p:panel header="#{messages.set_ssh_pub_key_for} #{setServiceSshPubKeyBean.serviceEntity.name}">
+	<h3><h:outputText value="#{messages.set_ssh_pub_key_for} #{setServiceSshPubKeyBean.serviceEntity.name}" /></h3>
+	
+			<p:panel>
 				
 				<div class="panel">
 					<h:outputText value="#{messages.service_ssh_pub_key_help}" escape="false" />
@@ -87,7 +88,9 @@
       			</p:dataTable>
 			</p:panel>
 	
-			<p:panel header="#{messages.set_ssh_pub_key}">
+	<h3><h:outputText value="#{messages.set_ssh_pub_key}" /></h3>
+	
+			<p:panel>
       			<p:dataTable var="key" value="#{setServiceSshPubKeyBean.sshPubKeyList.toArray()}">
 	      			<p:column>
 	       				<f:facet name="header"><h:outputText value="#{messages.ssh_key_name}:"/></f:facet>
@@ -165,7 +168,6 @@
 			    </p:confirmDialog>    
 	    
 			</p:panel>
-		</div>
 		
 	</h:form>
 	</ui:define>

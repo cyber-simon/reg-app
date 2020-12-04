@@ -6,17 +6,82 @@
 		xmlns:f="http://java.sun.com/jsf/core"
 		xmlns:h="http://java.sun.com/jsf/html"
 		xmlns:ui="http://java.sun.com/jsf/facelets"
-		xmlns:p="http://primefaces.org/ui">
+		xmlns:p="http://primefaces.org/ui"
+		xmlns:of="http://omnifaces.org/functions">
 <head>
 	<title>Left side bar</title>
 </head>
 <body>
 	<ui:composition>
+	  <ul class="navigation-l1">
+		<h:panelGroup rendered="#{sessionManager.isLoggedIn()}">
+   			<li class="flyout"><a href="#{request.contextPath}/index.xhtml">#{messages.index}</a>
+				<div class="dropdown">
+					<ul class="navigation-l2">
+						<li class="has-submenu">
+							<h:link outcome="#{request.contextPath}/user/index.xhtml" value="#{messages.my_data}" />
+						</li>
+						<li class="has-submenu">
+							<h:link outcome="#{request.contextPath}/user/ssh-keys.xhtml" value="#{messages.my_ssh_keys}" />
+						</li>
+						<li class="has-submenu">
+							<h:link outcome="#{request.contextPath}/user/twofa.xhtml" value="#{messages.my_twofa}" />
+						</li>
+					</ul>
+				</div>   			
+   			</li>
+			<li class="flyout"><a href="#{request.contextPath}/index.xhtml">#{messages.registered_services}</a>
+				<div class="dropdown">
+					<ul class="navigation-l2">
+						<ui:repeat var="registry" value="#{authorizationBean.userRegistryList}">
+							<li class="has-submenu">
+								<h:link	outcome="/service/index.xhtml" value="#{registry.service.name}">
+									<f:param name="serviceId" value="#{registry.service.id}" />
+								</h:link>
+								<div class="submenu">
+									<ul class="navigation-l3">
+										<li class="">
+											<h:link outcome="/service/registry-detail.xhtml" value="#{messages.registry_details}">
+												<f:param name="regId" value="#{registry.id}" />
+											</h:link>
+										</li>
+									</ul>
+									<ul class="navigation-l3">
+										<h:panelGroup rendered="#{registry.registryStatus == 'ACTIVE' and authorizationBean.isPasswordCapable(registry.service)}">
+											<li class="">
+												<h:link outcome="/service/set-password.xhtml" value="#{messages.set_password}">
+													<f:param name="registryId" value="#{registry.id}" />
+												</h:link>
+											</li>
+										</h:panelGroup>
+									</ul>
+									<ul class="navigation-l3">
+										<h:panelGroup rendered="#{registry.registryStatus == 'ACTIVE' and authorizationBean.isSshPubKeyCapable(registry.service)}">
+											<li class="">
+												<h:link outcome="/service/set-sshkey.xhtml" value="#{messages.set_ssh_pub_key}">
+													<f:param name="registryId" value="#{registry.id}" />
+												</h:link>
+											</li>
+										</h:panelGroup>
+									</ul>
+								</div></li>
+						</ui:repeat>
+					</ul>
+				</div>
+			</li>
+			<li class="flyout"><a href="#{request.contextPath}/index.xhtml">#{messages.services}</a>
+   			</li>
+			<li class=""><a href="https://www.scc.kit.edu/" target="_blank">Das SCC</a></li>
+			<li class=""><a href="https://www.scc.kit.edu/stellen/index.php" target="_blank">Stellenangebote</a></li>
+			<li class="home"><a href="#{request.contextPath}/index.xhtml"><span>Startseite</span></a></li>
+		</h:panelGroup>
+	  </ul>
+ <!--   
     <h:panelGroup rendered="#{! sessionManager.isLoggedIn()}">
       <div style="color: #e5e5e5;"><h:outputText value="#{messages.login}" /></div>    	
 	</h:panelGroup>
       
-    <h:panelGroup rendered="#{sessionManager.isLoggedIn()}">
+    
       <div class="submenu">
 	    <div class="submenu-title">#{messages.user}</div>
 		<div class="submenu-content">
@@ -195,7 +260,7 @@
         </div>
        </div>
 	  </ui:repeat>
-
+	  	
       <ui:repeat var="service" value="#{authorizationBean.serviceSshPubKeyApproverList}">
        <div class="submenu">
         <div class="submenu-title">#{service.name} Key Approver</div>
@@ -243,7 +308,7 @@
 			</div>
 		</h:form>
 	</h:panelGroup>
-	 	
+	   -->	
 	</ui:composition>
 </body>
 </html>

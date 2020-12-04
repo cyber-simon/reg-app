@@ -9,18 +9,18 @@
 	<title>Default page</title>
 </head>
 <body>
-	<ui:composition template="${bwreg.template}">
+	<ui:composition template="layout-template.xhtml">
 
 		<ui:define name="header">
-			<ui:include src="${bwreg.template.head-bar}"/>
+			<ui:include src="head-bar.xhtml"/>
 		</ui:define>
 
 		<ui:define name="left_sidebar">
-			<ui:include src="${bwreg.template.left-side-bar}"/>
+			<ui:include src="left-side-bar.xhtml"/>
 		</ui:define>
 		
 		<ui:define name="footer">
-			<ui:include src="${bwreg.template.footer}"/>
+			<ui:include src="footer.xhtml"/>
 		</ui:define>
 		
 	</ui:composition>
