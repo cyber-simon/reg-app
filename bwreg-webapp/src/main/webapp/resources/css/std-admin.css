@@ -1,0 +1,288 @@
+html {
+	height: 100%;
+}
+
+body {
+	height: 100%;
+	background: white;
+}
+
+* {
+	font-family: Verdana, Arial, Helvetica, sans-serif;	
+	margin: 0;
+	padding: 0;
+}
+
+h1, h2 {
+	margin-top: 0;
+}
+
+h1 {
+	font-size: 1.6em;
+	font-weight: normal;
+}
+
+h2 {
+	font-size: 1.6em;
+}
+
+h3 {
+	font-size: 1em;
+}
+
+ul {
+    margin: 0 0 0 16px;
+    padding: 0;
+}
+
+li {
+    list-style-type: square;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a img {
+	border: none;
+}
+
+.ui-widget {
+	font-size: 11px !important;
+}
+
+div#wrapper {
+	position: relative;
+	width: 1015px;
+	margin: 0 auto;
+	min-height: 100%;
+}
+
+div#container {
+	width: 979px;
+	margin-left: 16px;
+	padding-bottom: 53px;
+}
+
+.clear {
+	clear: both;
+	height: 0;
+	overflow: hidden;	
+}
+
+#header {
+	width: 1015px;
+	height: 108px;
+    margin: 0 auto;
+    background-color: #dddddd;
+}
+
+div#header-logo {
+	float: left;
+	height: 108px;
+	width: 204px;
+}
+
+div#header-image {
+	float: left;
+	height: 108px;
+	width: 811px;
+}
+
+div#header-right {
+	float: right;
+	height: 108px;
+	right: 0;
+}
+
+div#header-text {
+	float: left;
+}
+
+div#sidebar {
+	float: left;
+	width: 183px;
+	margin-right: 5px;
+	overflow: hidden;
+}
+
+div#sidebar a:link, 
+div#sidebar a:active,
+div#sidebar a:visited {
+    border: 0 none;
+    text-decoration: none;
+    color: #000000;
+}
+
+div#sidebar a:hover {
+    border: 0 none;
+    text-decoration: none;
+    font-weight: bold;
+	color: #000000;
+}
+
+div#sidebar ul li {
+    list-style-type: none;
+    font-size: 10px;
+    padding-bottom: 3px;
+}
+
+.submenu {
+	font-size: 10px;
+	background-color: #dddddd;
+	border-radius: 4px 4px 4px 4px; 
+	-moz-border-radius: 4px 4px 4px 4px; 
+	-webkit-border-radius: 4px 4px 4px 4px; 
+	padding: 2px;
+	margin-top: 6px;	
+	margin-bottom: 6px;	
+}
+
+.submenu-content {
+	color: #000000;
+	background-color: #ffffff;
+}
+
+.submenu-title {
+	color: #000000;
+	font-weight: bold;	
+	background-color: #dddddd;
+	margin-bottom: 2px;
+	padding: 3px 5px 3px 15px;
+}
+
+div#content {
+	width: 760px;
+	float: left;
+	padding: 10px;
+	margin: 0 10px 10px 0;
+	background-color: #ffffff;	
+}
+
+div#footer-container {
+	height: 53px;
+	left: 0;
+	position: absolute;
+	width: 1015px;
+	background-color: #dddddd;	
+	bottom: 0;
+}
+
+div#footer-content {
+	font-size: 9px;
+	color: #b3b3b3;
+	margin-left: 204px;
+	border-top: 1px #b3b3b3 solid;
+	height: 20px;
+	width: 780px;
+}
+
+div#owner {
+	height: 15px;
+	text-align: left;
+	margin: 5px auto 0;
+	width: 1015px;	
+}
+
+span#owner-text {
+	color: #4D4D4D;
+	padding-left: 32px;
+	font-size: 9px;
+}
+
+div.panelInline {
+	display: inline-block;
+	margin: 4px 0 6px 0;
+}
+
+div.panel {
+	margin: 4px 0 6px 0;
+}
+
+.value_bold {
+	font-weight: bold;
+}
+
+.value_normal {
+	font-weight: normal;
+}
+
+.pretext {
+	white-space: pre;
+	font-family: Courier,monospace;
+}
+
+.errorColumn {
+}
+
+.ui-panelgrid tr, .ui-panelgrid td {
+    border: none !important;
+}
+
+.submenu-content a {
+	text-decoration: none;
+}
+
+.language-label .ui-selectonemenu-label {
+	font-size: 9px;
+	text-align: left;
+}
+
+.language-list .ui-selectonemenu-list {
+	font-size: 9px;
+	text-align: left;
+}
+
+div.serviceBlock {
+	display: inline-block; 
+	width: 31%; 
+	vertical-align: top; 
+	border: 1px #aaaaaa solid; 
+	margin: 4px;
+}
+
+div.serviceBlockHeader {
+	background-color: #eeeeee; 
+	font-weight: bold; 
+	text-align: center; 
+	padding: 2px;
+}
+
+div.serviceBlockImage {
+	float: left; 
+	padding: 4px;
+}
+
+div.serviceBlockDesc {
+	padding: 2px;
+}
+
+div.serviceBlockProblem {
+	border: 1px dashed red;
+	color: red;
+	padding: 2px;
+}
+
+div.serviceBlockProblem a:link,
+div.serviceBlockProblem a:active,
+div.serviceBlockProblem a:visited {
+	color: red;
+    text-decoration: underline;
+	padding: 2px;
+}
+
+div.serviceBlockLink a:link,
+div.serviceBlockLink a:active,
+div.serviceBlockLink a:visited {
+    border: 0 none;
+    text-decoration: none;
+    color: #000000;
+}
+
+div.serviceBlockLink {
+	margin-left: 8px;
+}
+
+.ui-panel {
+	margin-bottom: 16px;
+}

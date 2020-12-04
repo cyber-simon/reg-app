@@ -23,20 +23,21 @@
 
 	<ui:define name="content">
 
-		<div class="panel">
-			<p:panel header="#{messages.service_desc}: #{showServiceDetailBean.serviceEntity.name}">
-				<h:outputText value="#{showServiceDetailBean.serviceDescBB}" escape="false" />
-			</p:panel>
+		<h3 class="full"><h:outputText value="#{messages.service_desc}: #{showServiceDetailBean.serviceEntity.name}" /></h3>
+
+		<div class="text full">
+			<h:outputText value="#{showServiceDetailBean.serviceDescBB}" escape="false" />
 		</div>
 
-		<div class="panel">
-			<p:panel rendered="#{! authorizationBean.isUserInService(showServiceDetailBean.serviceEntity)}" >
-		          <span class="ui-icon ui-icon-carat-1-e" style="display:inline-block; vertical-align: bottom;" />
-	  	          <h:link outcome="/user/register-service.xhtml" value="#{messages.register}">
-	  	        	<f:param name="serviceId" value="#{showServiceDetailBean.serviceEntity.id}" />
-	  	          </h:link>
-			</p:panel>
-		</div>
+		
+		<h:panelGroup rendered="#{! authorizationBean.isUserInService(showServiceDetailBean.serviceEntity)}" >
+			<div class="text full">
+				<span class="ui-icon ui-icon-carat-1-e" style="display:inline-block; vertical-align: bottom;" />
+				<h:link outcome="/user/register-service.xhtml" value="#{messages.register}">
+					<f:param name="serviceId" value="#{showServiceDetailBean.serviceEntity.id}" />
+				</h:link>
+			</div>
+		</h:panelGroup>
 
 	</ui:define>
 </ui:composition>
