@@ -19,33 +19,32 @@
 
 	<ui:define name="content">
 
-	<h:form id="form" prependId="false">
-		<p:panel header="#{messages.twofa_login}">
+	<h:form id="form" prependId="false" class="full form fancy">
+		<h3>#{messages.twofa_login}</h3>
 
-			<p:outputPanel rendered="#{twoFaLoginBean.reallyReadOnly}">
-				<div><h:outputText value="#{messages.twofa_list_really_readonly}"/></div>
-				<div><a href="#{twoFaLoginBean.managementUrl}" target="_blank">#{twoFaLoginBean.managementUrl}</a></div>
-			</p:outputPanel>
+		<p:outputPanel rendered="#{twoFaLoginBean.reallyReadOnly}">
+			<div><h:outputText value="#{messages.twofa_list_really_readonly}"/></div>
+			<div class="full text"><a href="#{twoFaLoginBean.managementUrl}" target="_blank">#{twoFaLoginBean.managementUrl}</a></div>
+		</p:outputPanel>
 
-			<p:outputPanel rendered="#{twoFaLoginBean.readOnly and not twoFaLoginBean.reallyReadOnly}">
-				<div><h:outputText value="#{messages.twofa_list_readonly}"/></div>
-				<div><a href="#{twoFaLoginBean.managementUrl}" target="_blank">#{twoFaLoginBean.managementUrl}</a></div>
-			</p:outputPanel>
-			
-			<div style="margin-top: 8px; margin-bottom: 16px;"><h:outputText value="#{messages.twofa_login_text}"/></div>
-			<div><p:messages showDetail="true" /></div>
+		<p:outputPanel rendered="#{twoFaLoginBean.readOnly and not twoFaLoginBean.reallyReadOnly}">
+			<div><h:outputText value="#{messages.twofa_list_readonly}"/></div>
+			<div class="full text"><a href="#{twoFaLoginBean.managementUrl}" target="_blank">#{twoFaLoginBean.managementUrl}</a></div>
+		</p:outputPanel>
+		
+		<div style="margin-top: 1em; margin-bottom: 2em; font-size: 1.25em;"><h:outputText value="#{messages.twofa_login_text}"/></div>
+		<div><p:messages showDetail="true" /></div>
 
-			<p:focus conext="baseData" for="tokenText" />
+		<p:focus conext="baseData" for="tokenText" />
 
- 			<h:panelGrid id="baseData" columns="2" style="margin-bottom: 16px;">
-				<p:outputLabel for="@next" value="#{messages.twofa_code}"/>
-				<p:inputText id="tokenText" autocomplete="false" value="#{twoFaLoginBean.tokenInput}"/>
- 			</h:panelGrid>
-			
-			<p:commandButton id="check" action="#{twoFaLoginBean.check}" value="#{messages.check}"
-				update=":form" />
+			<h:panelGrid id="baseData" columns="2" style="margin-bottom: 16px;">
+			<p:outputLabel for="@next" value="#{messages.twofa_code}"/>
+			<p:inputText id="tokenText" autocomplete="false" value="#{twoFaLoginBean.tokenInput}"/>
+			</h:panelGrid>
+		
+		<p:commandButton id="check" action="#{twoFaLoginBean.check}" value="#{messages.check}"
+			update=":form" />
 
-		</p:panel>
 		<p:dataGrid var="token" value="#{twoFaLoginBean.tokenList}" rendered="#{not twoFaLoginBean.reallyReadOnly}"
 				columns="3" styleClass="whitefoot"
 				layout="grid" style="margin-top: 16px; margin-bottom: 16px;">

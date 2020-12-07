@@ -16,14 +16,8 @@
 
 	<ui:define name="content">
 
-	<h:form id="form" prependId="false">
-		<div class="panel">
-		
-			<p:panel header="#{messages.my_data_deleted_header}">
-				<div class="panel"><h:outputText value="#{messages.my_data_deleted_text}"/></div>
-			</p:panel>
-		</div>
-	</h:form>
+	<h3 class="full">#{messages.my_data_deleted_header}</h3>
+	<div class="full"><h:outputText value="#{messages.my_data_deleted_text}"/></div>
 	
 	</ui:define>
 </ui:composition>

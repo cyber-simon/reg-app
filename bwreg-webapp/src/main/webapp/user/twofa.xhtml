@@ -24,18 +24,20 @@
 	<ui:param name="title" value="#{messages.title}"/>
 
 	<ui:define name="content">
-	<h:form id="form">
+	<h:form id="form" class="full fancy form">
 			<div><p:messages showDetail="true" /></div>
 
-		<p:panel header="#{messages.twofa_list}" rendered="#{twoFaUserBean.reallyReadOnly}">
+		<p:outputPanel rendered="#{twoFaUserBean.reallyReadOnly}">
+			<h3>#{messages.twofa_list}</h3>
 			<div><h:outputText value="#{messages.twofa_list_really_readonly}"/></div>
-			<div><a href="#{twoFaUserBean.managementUrl}" target="_blank">#{twoFaUserBean.managementUrl}</a></div>
-		</p:panel>
+			<div class="full text"><a href="#{twoFaUserBean.managementUrl}" target="_blank">#{twoFaUserBean.managementUrl}</a></div>
+		</p:outputPanel>
 		
-		<p:panel header="#{messages.twofa_list}" rendered="#{twoFaUserBean.readOnly and not twoFaUserBean.reallyReadOnly}">
+		<p:outputPanel rendered="#{twoFaUserBean.readOnly and not twoFaUserBean.reallyReadOnly}">
+			<h3>#{messages.twofa_list}</h3>
 			
 			<div><h:outputText value="#{messages.twofa_list_readonly}"/></div>
-			<div><a href="#{twoFaUserBean.managementUrl}" target="_blank">#{twoFaUserBean.managementUrl}</a></div>
+			<div class="full text"><a href="#{twoFaUserBean.managementUrl}" target="_blank">#{twoFaUserBean.managementUrl}</a></div>
 			
 			<p:dataGrid var="token" value="#{twoFaUserBean.tokenList}" columns="2" styleClass="whitefoot"
 					layout="grid" style="margin-bottom: 16px; opacity: 0.5;">
@@ -73,7 +75,7 @@
 					</p:panelGrid>
 				</p:panel>
 			</p:dataGrid>
-		</p:panel>
+		</p:outputPanel>
 
 		<p:dataGrid var="token" value="#{twoFaUserBean.tokenList}" columns="2" styleClass="whitefoot"
 				layout="grid" style="margin-bottom: 16px;" rendered="#{! twoFaUserBean.readOnly}">

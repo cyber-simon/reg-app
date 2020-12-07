@@ -22,36 +22,29 @@
 	<ui:param name="title" value="#{messages.title}"/>
 
 	<ui:define name="content">
-	<h:form id="form">
+	<h:form id="form" class="full fancy form">
 
-		<h2><h:outputText value="#{messages.deregister}: #{deregisterServiceBean.service.name}"/></h2>
+		<h3><h:outputText value="#{messages.deregister}: #{deregisterServiceBean.service.name}"/></h3>
 	
-		<div class="panel">
-			<p:panel id="blockPanel">
-				<f:facet name="header">	
-					<div style="color: red; font-weight: bold;">
-						<h:outputText value="#{messages.deregister}: #{deregisterServiceBean.service.name}" />
-					</div>
-				</f:facet>
+		<p:panel id="blockPanel">
+	
+			<div>
+				<h:outputText value="#{messages.deregister_desc_long}"/>
+			</div>
 		
-				<div>
-					<h:outputText value="#{messages.deregister_desc_long}"/>
-				</div>
-			
-				<div>
-					<h:outputText value="#{deregisterServiceBean.deregisterTextBB}" escape="false"/>
-				</div>
-			
-				<div style="margin-top: 16px;">
-					<p:commandButton id="save" action="#{deregisterServiceBean.deregisterUser}" 
-						value="#{messages.deregister}" style="color: red;"/>
-				</div>
-			</p:panel>
-			<p:blockUI block="blockPanel" trigger="save">  
-       			<p:graphicImage value="#{resource['/img/ajax-loader.gif']}" alt="#{messages.loading}" />  
-			</p:blockUI>					
-			
-		</div>
+			<div>
+				<h:outputText value="#{deregisterServiceBean.deregisterTextBB}" escape="false"/>
+			</div>
+		
+			<div style="margin-top: 16px;">
+				<p:commandButton id="save" action="#{deregisterServiceBean.deregisterUser}" 
+					value="#{messages.deregister}" style="color: red;"/>
+			</div>
+		</p:panel>
+		<p:blockUI block="blockPanel" trigger="save">  
+      			<p:graphicImage value="#{resource['/img/ajax-loader.gif']}" alt="#{messages.loading}" />  
+		</p:blockUI>					
+
 	</h:form>
 
 	</ui:define>

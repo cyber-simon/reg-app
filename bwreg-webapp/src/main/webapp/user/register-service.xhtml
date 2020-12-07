@@ -24,7 +24,7 @@
 
 	<ui:define name="content">
 	
-	<h:form id="form">
+	<h:form id="form" class="full fancy form">
 		<h2><h:outputText value="#{messages.register}: #{registerServiceBean.service.name}"/></h2>
 
 		<h:panelGroup rendered="#{registerServiceBean.errorState}">
@@ -36,46 +36,39 @@
 		</h:panelGroup>
 		
 		<h:panelGroup rendered="#{! registerServiceBean.errorState}">	
-			<div class="panel">
-				<p:panel header="#{messages.requirements}">
-					<h:panelGroup rendered="#{registerServiceBean.accessAllowed}">
-						<h:outputText value="#{messages.requirements_met}" />
-					</h:panelGroup>
-					<h:panelGroup rendered="#{! registerServiceBean.accessAllowed}">
-						<h:outputText value="#{messages.requirements_unsatisfied}" />
-						<p:messages id="messageBoxReqs" for="reqs" showDetail="true" escape="false" />
-					</h:panelGroup>
-				</p:panel>
-			</div>
-			<div class="panel">
-				<p:panel id="blockPanel" header="#{messages.register}">
-					<p:outputPanel rendered="#{registerServiceBean.policyHolderList.size() gt 0}">
-						<h3>Um sich für den Dienst zu registrieren, müssen Sie den folgenden Nutzungsbedingungen 
-						zustimmen.</h3>
-					</p:outputPanel>
+			<p:panel rendered="#{! registerServiceBean.accessAllowed}">
+				<h:outputText value="#{messages.requirements_unsatisfied}" />
+				<p:messages id="messageBoxReqs" for="reqs" showDetail="true" escape="false" />
+			</p:panel>
 
-					<p:messages id="messageBox" for="need_check" showDetail="true" escape="false" />
+			<p:panel id="blockPanel">
+				<p:outputPanel rendered="#{registerServiceBean.policyHolderList.size() gt 0}">
+					<b>Um sich für den Dienst zu registrieren, müssen Sie den folgenden Nutzungsbedingungen 
+					zustimmen.</b>
+				</p:outputPanel>
+
+				<p:messages id="messageBox" for="need_check" showDetail="true" escape="false" />
+			
+				<div style="margin: 1.5em 0.5em;">
+					<ui:repeat var="policyHolder" value="#{registerServiceBean.policyHolderList}">
+						<b><h:outputText value="#{policyHolder.policy.name} - #{policyHolder.policy.actualAgreement.name}" /></b>
+						<div style="margin-top: 1em;">
+							<h:outputText value="#{bbCodeConverter.convert(policyHolder.policy.actualAgreement.agreement)}" escape="false"/>
+						</div>
+						<div style="margin-top: 1em;">
+							<h:selectBooleanCheckbox value="#{policyHolder.checked}" />
+							<h:outputText value="#{messages.accept_tou}" />
+						</div>
+					</ui:repeat>
+				</div>
 				
-					<div style="margin: 16px 0;">
-						<ui:repeat var="policyHolder" value="#{registerServiceBean.policyHolderList}">
-							<bw:contentBox header="#{policyHolder.policy.name} - #{policyHolder.policy.actualAgreement.name}">
-								<h:outputText value="#{bbCodeConverter.convert(policyHolder.policy.actualAgreement.agreement)}" escape="false"/>
-								<div>
-								<h:selectBooleanCheckbox value="#{policyHolder.checked}" />
-								<h:outputText value="#{messages.accept_tou}" />
-								</div>
-							</bw:contentBox>
-						</ui:repeat>
-					</div>
-					
-					<p:commandButton id="save" action="#{registerServiceBean.registerUser}" value="#{messages.register}"
-						update="messageBox" disabled="#{! registerServiceBean.accessAllowed}"  />
-				</p:panel>
-	
-				<p:blockUI block="blockPanel" trigger="save">  
-	       			<p:graphicImage value="#{resource['/img/ajax-loader.gif']}" alt="#{messages.loading}" />  
-				</p:blockUI>					
-			</div>
+				<p:commandButton id="save" action="#{registerServiceBean.registerUser}" value="#{messages.register}"
+					update="messageBox" disabled="#{! registerServiceBean.accessAllowed}"  />
+			</p:panel>
+
+			<p:blockUI block="blockPanel" trigger="save">  
+       			<p:graphicImage value="#{resource['/img/ajax-loader.gif']}" alt="#{messages.loading}" />  
+			</p:blockUI>					
 		</h:panelGroup>
 		
 	</h:form>
