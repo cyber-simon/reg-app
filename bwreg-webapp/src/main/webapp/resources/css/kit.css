@@ -41,6 +41,10 @@
 	border: none;
 }
 
+.ui-helper-hidden {
+    display: none !important;
+}
+
 .col-width-1 {
 	width: 200px;
 }

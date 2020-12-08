@@ -77,21 +77,17 @@
 		</h:panelGroup>			
 	
 		<h:panelGroup rendered="#{empty userIndexBean.userRegistryList}">
-			<ul>
-				<li>
-					<h:outputText value="#{messages.no_registered_services}"/>
-				</li>
-			</ul>
+			<h:outputText value="#{messages.no_registered_services}" styleClass="full"/>
 		</h:panelGroup>
 	
 		<h:outputText value="#{messages.index_text2}" class="full" />
 			
-		<h:panelGroup rendered="#{not empty userIndexBean.pendingRegistryList}" style="margin-top: 12px;">
+		<h:panelGroup rendered="#{not empty userIndexBean.pendingRegistryList}">
 	
-			<h:outputText value="#{messages.index_text5}" class="full"/>
+			<h:outputText value="#{messages.index_text5}" styleClass="full"/>
 	
 			<ui:repeat var="registry" value="#{userIndexBean.pendingRegistryList}">
-				<div class="third">
+				<div class="news-element third">
 					<h:outputText value="#{registry.service.name}" class="headline"/>
 					<h:panelGroup rendered="#{registry.service.image != null}">
 						<figure>

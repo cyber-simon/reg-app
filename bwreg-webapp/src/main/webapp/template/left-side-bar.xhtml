@@ -71,6 +71,71 @@
 			</li>
 			<li class="flyout"><a href="#{request.contextPath}/index.xhtml">#{messages.services}</a>
    			</li>
+   			<h:panelGroup rendered="#{authorizationBean.serviceApproverList.size() gt 0}">
+				<li class="flyout"><a href="#{request.contextPath}/index.xhtml">#{messages.approver}</a>
+					<div class="dropdown">
+						<ul class="navigation-l2">
+							<li class="has-submenu">
+								<a>#{messages.new_approvals}</a>
+								<ui:repeat var="service" value="#{authorizationBean.serviceApproverList}">
+									<div class="submenu">
+										<ul class="navigation-l3">
+											<li class="">
+												<h:link outcome="/service-approver/index.xhtml" value="#{service.name}">
+													<f:param name="serviceId" value="#{service.id}" />
+												</h:link>
+											</li>
+										</ul>
+									</div>
+								</ui:repeat>
+							</li>
+						</ul>
+					</div>
+				</li>
+   			</h:panelGroup>
+   			<h:panelGroup rendered="#{authorizationBean.serviceAdminList.size() gt 0}">
+				<li class="flyout"><a href="#{request.contextPath}/index.xhtml">Admin</a>
+					<div class="dropdown">
+						<ul class="navigation-l2">
+							<ui:repeat var="service" value="#{authorizationBean.serviceApproverList}">
+								<li class="has-submenu">
+								<a>#{service.name}</a>
+									<div class="submenu">
+										<ul class="navigation-l3">
+											<li class="">
+								    	        <h:link outcome="/service-admin/index.xhtml" value="#{messages.service_props}">
+								    	        	<f:param name="serviceId" value="#{service.id}" />
+								    	        </h:link>
+											</li>
+										</ul>
+										<ul class="navigation-l3">
+											<li class="">
+								    	        <h:link outcome="/service-admin/list-service-users.xhtml" value="#{messages.service_users}">
+								    	        	<f:param name="serviceId" value="#{service.id}" />
+								    	        </h:link>
+											</li>
+										</ul>
+										<ul class="navigation-l3">
+											<li class="">
+								    	        <h:link outcome="/service-admin/list-service-users-for-depro.xhtml" value="#{messages.service_users_depro}">
+								    	        	<f:param name="serviceId" value="#{service.id}" />
+								    	        </h:link>
+											</li>
+										</ul>
+										<ul class="navigation-l3">
+											<li class="">
+								    	        <h:link outcome="/service-admin/service-stats.xhtml" value="#{messages.statistics}">
+								    	        	<f:param name="serviceId" value="#{service.id}" />
+								    	        </h:link>
+											</li>
+										</ul>
+									</div>
+								</li>
+							</ui:repeat>
+						</ul>
+					</div>
+				</li>
+   			</h:panelGroup>
 			<li class=""><a href="https://www.scc.kit.edu/" target="_blank">Das SCC</a></li>
 			<li class=""><a href="https://www.scc.kit.edu/stellen/index.php" target="_blank">Stellenangebote</a></li>
 			<li class="home"><a href="#{request.contextPath}/index.xhtml"><span>Startseite</span></a></li>
