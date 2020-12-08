@@ -199,4 +199,8 @@ public class GroupAdminEditLocalGroupBean implements Serializable {
 	public Boolean getSavePossible() {
 		return savePossible;
 	}
+
+	public ServiceEntity getServiceEntity() {
+		return serviceEntity;
+	}
 }

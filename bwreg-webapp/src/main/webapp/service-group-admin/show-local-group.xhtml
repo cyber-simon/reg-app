@@ -21,9 +21,9 @@
 	<ui:param name="title" value="#{messages.title}"/>
 
 	<ui:define name="content">
-	<h:form id="form">
+	<h:form id="form" styleClass="form full fancy">
 
-		<h2><h:outputText id="headerText" value="#{messages.local_group}: #{groupAdminShowLocalGroupBean.entity.name}"/></h2>
+		<h3><h:outputText id="headerText" value="#{messages.local_group} #{groupAdminShowLocalGroupBean.serviceEntity.name}: #{groupAdminShowLocalGroupBean.entity.name}"/></h3>
 
 		<p:messages id="messageBox" showDetail="true" />
 		

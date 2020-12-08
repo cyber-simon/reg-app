@@ -109,4 +109,8 @@ public class GroupAdminAddLocalGroupBean implements Serializable {
 	public void setServiceId(Long serviceId) {
 		this.serviceId = serviceId;
 	}
+
+	public ServiceEntity getServiceEntity() {
+		return serviceEntity;
+	}
 }

@@ -136,6 +136,30 @@
 					</div>
 				</li>
    			</h:panelGroup>
+
+   			<h:panelGroup rendered="#{authorizationBean.serviceGroupAdminList.size() gt 0}">
+				<li class="flyout"><a href="#{request.contextPath}/index.xhtml">#{messages.group_admin}</a>
+					<div class="dropdown">
+						<ul class="navigation-l2">
+							<li class="has-submenu">
+								<a>#{messages.group_admin}</a>
+									<ui:repeat var="service" value="#{authorizationBean.serviceGroupAdminList}">
+									<div class="submenu">
+										<ul class="navigation-l3">
+											<li class="">
+								    	        <h:link outcome="/service-group-admin/index.xhtml" value="#{service.name}">
+								    	        	<f:param name="serviceId" value="#{service.id}" />
+								    	        </h:link>
+											</li>
+										</ul>
+									</div>
+								</ui:repeat>
+							</li>
+						</ul>
+					</div>
+				</li>
+   			</h:panelGroup>
+
 			<li class=""><a href="https://www.scc.kit.edu/" target="_blank">Das SCC</a></li>
 			<li class=""><a href="https://www.scc.kit.edu/stellen/index.php" target="_blank">Stellenangebote</a></li>
 			<li class="home"><a href="#{request.contextPath}/index.xhtml"><span>Startseite</span></a></li>

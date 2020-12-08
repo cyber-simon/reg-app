@@ -22,8 +22,8 @@
 
 	<ui:define name="content">
 		
-	<h:form id="form">
-		<h2><h:outputText value="#{messages.group}: #{messages.add_local_group}"/></h2>
+	<h:form id="form" styleClass="form fancy full">
+		<h3><h:outputText value="#{messages.group} #{groupAdminAddLocalGroupBean.serviceEntity.name}: #{messages.add_local_group}"/></h3>
 
 		<div id="panelInline">
 			<p:panel header="#{messages.group}">
