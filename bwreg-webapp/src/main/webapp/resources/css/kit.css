@@ -41,7 +41,7 @@
 	border: none;
 }
 
-.ui-helper-hidden {
+label.ui-helper-hidden {
     display: none !important;
 }
 
