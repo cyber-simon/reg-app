@@ -24,7 +24,12 @@
   <link rel="stylesheet" href="https://static.scc.kit.edu/fancybox/dist/jquery.fancybox.min.css" />
   <link rel="stylesheet" href="https://static.scc.kit.edu/kit-2020/fontawesome/css/all.min.css" />
   
-  <h:outputStylesheet name="css/${bwreg.css}"/>
+  <h:outputStylesheet name="css/std.css"/>
+  <h:outputStylesheet name="css/std-ext.css"/>
+  <h:panelGroup rendered="#{not empty headBarBean.stylesheet}">
+  	<link rel="stylesheet" href="#{headBarBean.stylesheet}"/>
+  </h:panelGroup>
+  
   <h:outputScript library="javax.faces" name="jsf.js" target="head"/>
   
 </h:head>
@@ -33,7 +38,7 @@
 	<ui:insert name="header">Default header</ui:insert>
 	
     <main>
-	    <section class="stage stage-small"><img src="#{resource['img/regapp.jpg']}" alt="#{headBarBean.appTitle}" loading="lazy"/>
+	    <section class="stage stage-small"><img src="#{headBarBean.appImage}" alt="#{headBarBean.appTitle}" loading="lazy"/>
     	    <div class="content-wrap"><a href="#{headBarBean.appLink}">#{headBarBean.appTitle}</a></div>
         </section>
     

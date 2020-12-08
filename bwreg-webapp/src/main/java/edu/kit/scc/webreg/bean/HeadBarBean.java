@@ -20,6 +20,10 @@ public class HeadBarBean {
 	public ApplicationConfig getAppConfig() {
 		return appConfig;
 	}
+
+	public String getStylesheet() {
+		return getApplicationBase() + getOrDefault(request.getServerName() + "_css", "");
+	}
 	
 	public String getHeaderImage() {
 		return getApplicationBase() + getOrDefault(request.getServerName() + "_header_icon", "/resources/img/logo.svg");
@@ -35,6 +39,10 @@ public class HeadBarBean {
 	
 	public String getAppTitle() {
 		return getApplicationBase() + getOrDefault(request.getServerName() + "_app_title", "FeLS - Federated Login Service");
+	}
+	
+	public String getAppImage() {
+		return getApplicationBase() + getOrDefault(request.getServerName() + "_app_image", "/resources/img/regapp.jpg");
 	}
 	
 	public String getAppLink() {

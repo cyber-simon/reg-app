@@ -1,0 +1,21 @@
+@charset "UTF-8";
+
+.ui-widget .ui-widget {
+	font-size: 1.25rem;
+}
+
+.ui-panel {
+	border: none;
+}
+
+label.ui-helper-hidden {
+    display: none !important;
+}
+
+.col-width-1 {
+	width: 200px;
+}
+
+.col-width-2 {
+	width: auto;
+}
