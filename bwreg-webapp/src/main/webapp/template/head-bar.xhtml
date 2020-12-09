@@ -20,7 +20,7 @@
 </div>
             
                 <div class="navigation">
-                    <button class="burger"><img src="#{resource['img/burger-icon.svg']}" /></button>
+                    <button class="burger"><img src="#{resource['img/burger-icon.svg']}" class="burger-icon" /></button>
                     <div class="navigation-meta">
                         <ul class="navigation-meta-links">
 
@@ -34,9 +34,9 @@
 						<div class="navigation-language" style="display: none;"><ul><li></li></ul></div>
                         
                       </div>
-                    <nav class="navigation-main">
-<ui:insert name="left_sidebar">Default left side bar</ui:insert>                    
-	</nav>
+                    <nav class="navigation-main current">
+						<ui:insert name="left_sidebar">Default left side bar</ui:insert>                    
+					</nav>
                     <ul class="side-widgets">
                         <li class="meta"><a accesskey="1" href="/scc.php">Home</a></li>
 						<li class="meta"><a accesskey="3" href="/index.php">Sitemap</a></li>

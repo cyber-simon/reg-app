@@ -21,8 +21,8 @@
     <title>#{headBarBean.headerTitle}</title>
   </f:facet>
 
-  <link rel="stylesheet" href="https://static.scc.kit.edu/fancybox/dist/jquery.fancybox.min.css" />
-  <link rel="stylesheet" href="https://static.scc.kit.edu/kit-2020/fontawesome/css/all.min.css" />
+  <link rel="stylesheet" href="/resources/static/jquery.fancybox.min.css" />
+  <link rel="stylesheet" href="/resources/static/all.min.css" />
   
   <link rel="stylesheet" href="#{headBarBean.overrideStdStylesheet}"/>
   <link rel="stylesheet" href="#{headBarBean.stylesheetExtended}"/>
@@ -31,6 +31,8 @@
   </h:panelGroup>
   
   <h:outputScript library="javax.faces" name="jsf.js" target="head"/>
+  
+  <script src="/resources/static/main.js"></script>
   
 </h:head>
 <h:body class="oe-page" vocab="http://schema.org/" typeof="WebPage">
