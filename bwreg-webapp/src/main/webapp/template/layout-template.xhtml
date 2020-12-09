@@ -18,16 +18,16 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<meta name="theme-color" content="#009682" />
 	<meta http-equiv="cleartype" content="on" />
-    <title>#{title}</title>
+    <title>#{headBarBean.headerTitle}</title>
   </f:facet>
 
   <link rel="stylesheet" href="https://static.scc.kit.edu/fancybox/dist/jquery.fancybox.min.css" />
   <link rel="stylesheet" href="https://static.scc.kit.edu/kit-2020/fontawesome/css/all.min.css" />
   
-  <h:outputStylesheet name="css/std.css"/>
-  <h:outputStylesheet name="css/std-ext.css"/>
+  <link rel="stylesheet" href="#{headBarBean.overrideStdStylesheet}"/>
+  <link rel="stylesheet" href="#{headBarBean.stylesheetExtended}"/>
   <h:panelGroup rendered="#{not empty headBarBean.stylesheet}">
-  	<link rel="stylesheet" href="#{headBarBean.stylesheet}"/>
+    <link rel="stylesheet" href="#{headBarBean.stylesheet}"/>
   </h:panelGroup>
   
   <h:outputScript library="javax.faces" name="jsf.js" target="head"/>

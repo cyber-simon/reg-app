@@ -20,9 +20,17 @@ public class HeadBarBean {
 	public ApplicationConfig getAppConfig() {
 		return appConfig;
 	}
-
+	
 	public String getStylesheet() {
 		return getApplicationBase() + getOrDefault(request.getServerName() + "_css", "");
+	}
+
+	public String getStylesheetExtended() {
+		return getApplicationBase() + getOrDefault(request.getServerName() + "_css_ext", "/resources/css/std-ext.css");
+	}
+
+	public String getOverrideStdStylesheet() {
+		return getApplicationBase() + getOrDefault(request.getServerName() + "override_std_css", "/resources/css/std.css");
 	}
 	
 	public String getHeaderImage() {
