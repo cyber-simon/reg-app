@@ -57,10 +57,12 @@
 
 		<p:messages id="messageBox" showDetail="true" escape="false" />
 		
+		<h:panelGroup rendered="#{not tokenAdminIndexBean.readOnly}">
+			<h3>#{messages.twofa_list} (#{tokenAdminIndexBean.selectedUser.eppn})</h3>
+		</h:panelGroup>
 		<p:dataGrid var="token" value="#{tokenAdminIndexBean.userTokenList}" columns="2" styleClass="whitefoot"
 				layout="grid" style="margin-bottom: 16px;"
 				rendered="#{not tokenAdminIndexBean.readOnly}">
-	        <f:facet name="header">#{messages.twofa_list} (#{tokenAdminIndexBean.selectedUser.eppn})</f:facet>
 	        <p:panel styleClass="grayback" style="margin-bottom: 0px;">
 	        	<f:facet name="header">
 	        		<i class="fa fa-fw fa-key"></i>
