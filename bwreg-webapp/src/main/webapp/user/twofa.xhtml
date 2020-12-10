@@ -104,6 +104,7 @@
 		
 							<p:outputLabel for="@next" value="#{messages.twofa_active}:" />
 							<h:outputText value="#{token.isactive ? messages.yes : messages.no}" />
+
 						</h:panelGrid>
 						<p:panel style="margin: 8px;" rendered="#{! token.isactive and (token.tokenDesc.contains('INIT'))}">
 							<h:outputText value="#{messages.twofa_token_not_init}" style="color:red;" />
@@ -180,13 +181,17 @@
 							<h:panelGrid columns="2">
 								<p:outputLabel for="@next" value="#{messages.twofa_serial}:" />
 								<h:outputText value="#{twoFaUserBean.createTokenResponse.detail.serial}"/>
-								
+
 								<p:outputLabel for="@next" value="#{messages.twofa_code}:" />
 								<p:inputText id="totpText" autocomplete="false" value="#{twoFaUserBean.totpCode}"/>
 							</h:panelGrid>
 							<p:commandButton id="checkTotpButton" action="#{twoFaUserBean.checkAuthenticatorToken()}" value="#{messages.check}"
 								update="totpResponsePanel" />
 							</p:outputPanel>
+							
+							<p:outputLabel for="@next" value="Seed:" />
+							<h:outputText value="#{twoFaUserBean.createTokenResponse.detail.otpkey.value}"/>
+
 						</h:panelGrid>
 				</h:panelGroup>
 			</p:panel>
