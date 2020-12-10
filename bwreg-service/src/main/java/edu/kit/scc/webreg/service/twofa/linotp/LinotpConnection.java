@@ -411,6 +411,32 @@ public class LinotpConnection {
 			throw new TwoFaException(e);
 		}		
 	}
+
+	public LinotpSimpleResponse resetFailcounter(String serial) throws TwoFaException {
+		try {
+			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/reset");
+			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
+			if (configMap.containsKey("realm"))
+				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
+			nvps.add(new BasicNameValuePair("session", adminSession));
+			nvps.add(new BasicNameValuePair("serial", serial));
+			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
+			
+			CloseableHttpResponse response = httpClient.execute(targetHost, httpPost, context);
+			try {
+			    HttpEntity entity = response.getEntity();
+			    String responseString = EntityUtils.toString(entity);
+			    logger.trace(responseString);
+
+			    return resultParser.parseSimpleResponse(responseString);
+
+			} finally {
+				response.close();
+			}
+		} catch (ParseException | IOException e) {
+			throw new TwoFaException(e);
+		}		
+	}
 	
 	public LinotpShowUserResponse getTokenList() throws TwoFaException {
 

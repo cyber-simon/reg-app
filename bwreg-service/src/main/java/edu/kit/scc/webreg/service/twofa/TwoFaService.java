@@ -36,4 +36,7 @@ public interface TwoFaService {
 
 	Boolean hasActiveTokenById(Long identityId) throws TwoFaException;
 
+	LinotpSimpleResponse resetFailcounter(IdentityEntity identity, String serial, String executor)
+			throws TwoFaException;
+
 }

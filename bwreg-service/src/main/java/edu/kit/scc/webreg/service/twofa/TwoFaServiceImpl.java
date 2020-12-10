@@ -418,6 +418,40 @@ public class TwoFaServiceImpl implements TwoFaService {
 		
 		return response;
 	}
+
+	@Override
+	public LinotpSimpleResponse resetFailcounter(IdentityEntity identity, String serial, String executor) throws TwoFaException {
+		identity = identityDao.merge(identity);
+
+		TokenAuditor auditor = new TokenAuditor(auditEntryDao, auditDetailDao, appConfig);
+		auditor.startAuditTrail(executor, true);
+		auditor.setName(this.getClass().getName() + "-ResetFailcounter-Audit");
+		auditor.setIdentity(identity);
+		auditor.setDetail("Reset failcounter token " + serial + " for user " + identity.getId());
+
+		Map<String, String> configMap = configResolver.resolveConfig(identity);
+
+		LinotpConnection linotpConnection = new LinotpConnection(configMap);
+		linotpConnection.requestAdminSession();
+		LinotpSimpleResponse response = linotpConnection.resetFailcounter(serial);
+
+		auditor.logAction("" + identity.getId(), "RESET FAILCOUNTER", "serial-" + serial, "", AuditStatus.SUCCESS);
+
+		HashMap<String, Object> eventMap = new HashMap<String, Object>();
+		eventMap.put("identity", identity);
+		eventMap.put("respone", response);
+		eventMap.put("serial", serial);
+		TokenEvent event = new TokenEvent(eventMap);
+		try {
+			eventSubmitter.submit(event, EventType.TWOFA_RESET_FAILCOUNTER, executor);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}
+
+		auditor.finishAuditTrail();
+		
+		return response;
+	}
 	
 	@Override
 	public LinotpSimpleResponse deleteToken(IdentityEntity identity, String serial, String executor) throws TwoFaException {

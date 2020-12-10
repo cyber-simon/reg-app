@@ -138,6 +138,25 @@ public class TokenAdminIndexBean implements Serializable {
 		}
 	}
 	
+	public void resetFailcounter(String serial) {
+		if (! getReadOnly()) {
+			try {
+				LinotpSimpleResponse response = twoFaService.resetFailcounter(selectedUser.getIdentity(), serial, "identity-" + session.getIdentityId());
+				userTokenList = twoFaService.findByIdentity(selectedUser.getIdentity());
+				if ((response.getResult() != null) && response.getResult().isStatus() &&
+						response.getResult().isValue()) {
+					messageGenerator.addInfoMessage("Info", "Token " + serial + " failcounter reset");
+				}
+				else {
+					messageGenerator.addWarningMessage("Warn", "Token " + serial + " failcounter could not be resetted");
+				}
+			} catch (TwoFaException e) {
+				logger.warn("TwoFaException", e);
+				messageGenerator.addErrorMessage("Error", e.toString());
+			}
+		}
+	}
+	
 	public Boolean getReadOnly() {
 		if (userTokenList != null)
 			return userTokenList.getReadOnly();
