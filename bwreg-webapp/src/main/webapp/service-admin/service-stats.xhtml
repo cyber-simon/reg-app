@@ -28,6 +28,7 @@
 
 		<!-- does not play well with new stylesheet -->
 		<!-- <p:chart type="pie" model="#{serviceAdminStatsBean.userPerIdpPie}" style="height:400px;" />  -->
+		<p:pieChart model="#{serviceAdminStatsBean.userPerIdpPie}" />
 		<p:dataTable id="dataTable" var="o" value="#{serviceAdminStatsBean.userPerIdpList}">
 			<p:column>
 				<f:facet name="header">
