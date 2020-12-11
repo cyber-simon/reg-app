@@ -18,13 +18,13 @@
    			<li class="flyout"><a href="#{request.contextPath}/index.xhtml">#{messages.index}</a>
 				<div class="dropdown">
 					<ul class="navigation-l2">
-						<li class="has-submenu">
+						<li class="">
 							<h:link outcome="#{request.contextPath}/user/index.xhtml" value="#{messages.my_data}" />
 						</li>
-						<li class="has-submenu">
+						<li class="">
 							<h:link outcome="#{request.contextPath}/user/ssh-keys.xhtml" value="#{messages.my_ssh_keys}" />
 						</li>
-						<li class="has-submenu">
+						<li class="">
 							<h:link outcome="#{request.contextPath}/user/twofa.xhtml" value="#{messages.my_twofa}" />
 						</li>
 					</ul>
@@ -99,7 +99,9 @@
 						<ul class="navigation-l2">
 							<ui:repeat var="service" value="#{authorizationBean.serviceAdminList}">
 								<li class="has-submenu">
-								<a>#{service.name}</a>
+									<h:link outcome="/service-admin/index.xhtml" value="#{service.name}">
+										<f:param name="serviceId" value="#{service.id}" />
+									</h:link>
 									<div class="submenu">
 										<ul class="navigation-l3">
 											<li class="">
