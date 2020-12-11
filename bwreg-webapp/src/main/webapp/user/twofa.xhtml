@@ -46,7 +46,7 @@
 		        		<i class="fa fa-fw fa-key"></i>
 						<b><h:outputText value="#{token.serial}" /></b>
 					</f:facet>
-					<p:panelGrid columns="2">
+					<h:panelGrid columns="2">
 						<p:outputPanel>
 							<h:graphicImage width="60px" value="#{resource['img/smartphone.svg']}" alt="Smartphone" rendered="#{token.tokenType == 'TOTP' and token.serial.startsWith('TOTP')}"/>
 							<h:graphicImage width="60px" value="#{resource['img/kittoken_small.png']}" alt="Hardware Token" rendered="#{token.tokenType == 'TOTP' and not token.serial.startsWith('TOTP')}"/>
@@ -72,7 +72,7 @@
 								<h:outputText value="#{messages.twofa_token_not_init}" style="color:red;"/>
 							</p:panel>
 							</p:outputPanel>
-					</p:panelGrid>
+					</h:panelGrid>
 				</p:panel>
 			</p:dataGrid>
 		</p:outputPanel>
@@ -80,12 +80,12 @@
 		<p:dataGrid var="token" value="#{twoFaUserBean.tokenList}" columns="2" styleClass="whitefoot"
 				layout="grid" style="margin-bottom: 16px;" rendered="#{! twoFaUserBean.readOnly}">
 	        <f:facet name="header">#{messages.twofa_list}</f:facet>
-	        <p:panel styleClass="grayback" style="margin-bottom: 0px;">
+	        <p:panel style="margin-bottom: 0px;">
 	        	<f:facet name="header">
 	        		<i class="fa fa-fw fa-key"></i>
 					<b><h:outputText value="#{token.serial}" /></b>
 				</f:facet>
-				<p:panelGrid columns="2">
+				<h:panelGrid columns="2">
 					<p:outputPanel>
 						<h:graphicImage width="60px" value="#{resource['img/smartphone.svg']}" alt="Smartphone" rendered="#{token.tokenType == 'TOTP' and token.serial.startsWith('TOTP')}"/>
 						<h:graphicImage width="60px" value="#{resource['img/kittoken_small.png']}" alt="Hardware Token" rendered="#{token.tokenType == 'TOTP' and not token.serial.startsWith('TOTP')}"/>
@@ -121,7 +121,7 @@
 							update="@form" rendered="#{token.isactive and token.tokenType == 'HMAC'}"
 							oncomplete="PF('showBackupTanDlg').show();"/>
 					</p:outputPanel>
-				</p:panelGrid>
+				</h:panelGrid>
 			</p:panel>
 		</p:dataGrid>
 

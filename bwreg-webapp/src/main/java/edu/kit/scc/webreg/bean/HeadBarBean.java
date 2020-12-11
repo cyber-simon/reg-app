@@ -61,6 +61,14 @@ public class HeadBarBean {
 		return getOrDefault(request.getServerName() + "_app_base", "");
 	}
 	
+	public String getBurgerIcon() {
+		return "<button class=\"burger\"><svg class=\"burger-icon\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" x=\"0px\" y=\"0px\" viewBox=\"0 0 300 274.5\" width=\"300px\" height=\"274.5px\">\n"
+				+ "    <rect class=\"burger-top\" y=\"214.4\" width=\"300\" height=\"60.1\"/>\n"
+				+ "    <rect class=\"burger-middle\" y=\"107.2\" width=\"300\" height=\"60.1\"/>\n"
+				+ "    <rect class=\"burger-bottom\" y=\"0\" width=\"300\" height=\"60.1\"/>\n"
+				+ "</svg></button>";
+	}
+	
 	private String getOrDefault(String key, String defaultString) {
 		if (appConfig.getConfigValue(key) != null) {
 			return appConfig.getConfigValue(key);

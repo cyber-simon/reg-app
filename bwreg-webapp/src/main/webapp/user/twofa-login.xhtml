@@ -53,7 +53,7 @@
 	        		<i class="fa fa-fw fa-key"></i>
 					<b><h:outputText value="#{token.serial}" /></b>
 				</f:facet>
-				<p:panelGrid columns="2">
+				<h:panelGrid columns="2">
 					<p:outputPanel>
 						<h:graphicImage width="60px" value="#{resource['img/smartphone.svg']}" alt="Smartphone" rendered="#{token.tokenType == 'TOTP' and token.serial.startsWith('TOTP')}"/>
 						<h:graphicImage width="60px" value="#{resource['img/kittoken_small.png']}" alt="Hardware Token" rendered="#{token.tokenType == 'TOTP' and not token.serial.startsWith('TOTP')}"/>
@@ -67,7 +67,7 @@
 						<h:outputText value="#{messages.twofa_tokentype_tanlist}" rendered="#{token.tokenType == 'HOTP'}"/>
 						<h:outputText value="#{messages.twofa_tokentype_yubikey}" rendered="#{token.tokenType == 'yubico'}"/>
 					</h:panelGroup>
-				</p:panelGrid>
+				</h:panelGrid>
 			</p:panel>
 		</p:dataGrid>
 
