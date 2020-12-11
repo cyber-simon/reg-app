@@ -15,7 +15,7 @@
 	<ui:composition>
 	  <ul class="navigation-l1">
 		<h:panelGroup rendered="#{sessionManager.isLoggedIn()}">
-   			<li class="flyout"><a href="#{request.contextPath}/index.xhtml">#{messages.index}</a>
+   			<li class="flyout"><a href="#{request.contextPath}/user/index.xhtml">#{messages.index}</a>
 				<div class="dropdown">
 					<ul class="navigation-l2">
 						<li class="">
@@ -72,11 +72,11 @@
 			<li class="flyout"><a href="#{request.contextPath}/index.xhtml">#{messages.services}</a>
    			</li>
    			<h:panelGroup rendered="#{authorizationBean.serviceApproverList.size() gt 0}">
-				<li class="flyout"><a href="#{request.contextPath}/index.xhtml">#{messages.approver}</a>
+				<li class="flyout"><a href="">#{messages.approver}</a>
 					<div class="dropdown">
 						<ul class="navigation-l2">
 							<li class="has-submenu">
-								<a>#{messages.new_approvals}</a>
+								<a href="">#{messages.new_approvals}</a>
 								<ui:repeat var="service" value="#{authorizationBean.serviceApproverList}">
 									<div class="submenu">
 										<ul class="navigation-l3">
@@ -94,7 +94,7 @@
 				</li>
    			</h:panelGroup>
    			<h:panelGroup rendered="#{authorizationBean.serviceAdminList.size() gt 0}">
-				<li class="flyout"><a href="#{request.contextPath}/index.xhtml">Admin</a>
+				<li class="flyout"><a href="">Admin</a>
 					<div class="dropdown">
 						<ul class="navigation-l2">
 							<ui:repeat var="service" value="#{authorizationBean.serviceAdminList}">
