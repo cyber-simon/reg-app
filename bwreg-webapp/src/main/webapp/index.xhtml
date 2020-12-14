@@ -23,11 +23,11 @@
 		</p:panel>
 	
 		<h:outputText value="#{messages.index_text1}" styleClass="full" />
-	
+
 		<h:panelGroup rendered="#{not empty userIndexBean.userRegistryList}">
 			<ui:repeat var="registry" value="#{userIndexBean.userRegistryList}">
-				<div class="news-element third">
-					<h:outputText value="#{registry.service.name}" class="headline"/>
+				<div class="news-element third" style="border: #cccccc 1px solid; padding: 0.4em;">
+					<h:outputText value="#{registry.service.name}" styleClass="headline"/>
 					<h:panelGroup rendered="#{registry.service.image != null}">
 						<figure>
 							<picture>
@@ -87,7 +87,7 @@
 			<h:outputText value="#{messages.index_text5}" styleClass="full"/>
 	
 			<ui:repeat var="registry" value="#{userIndexBean.pendingRegistryList}">
-				<div class="news-element third">
+				<div class="news-element third" style="border: #cccccc 1px solid; padding: 0.4em;">
 					<h:outputText value="#{registry.service.name}" class="headline"/>
 					<h:panelGroup rendered="#{registry.service.image != null}">
 						<figure>
@@ -125,7 +125,7 @@
 		<h:outputText value="#{messages.index_text3}" class="full" />
 
 		<ui:repeat var="service" value="#{authorizationBean.unregisteredServiceList}">
-			<div class="news-element third">
+			<div class="news-element third" style="border: #cccccc 1px solid; padding: 0.4em;">
 				<h:outputText value="#{service.name}" class="headline"/>
 				<h:panelGroup rendered="#{service.image != null}">
 					<figure>

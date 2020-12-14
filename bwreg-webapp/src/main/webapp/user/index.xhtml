@@ -25,7 +25,6 @@
 	<ui:define name="content">
 	<h:form id="form" prependId="false" class="full form">
 
-	<div class="panel">
 		<p:panel rendered="#{userPropertiesBean.userList.size() gt 1}">
 			<p:outputLabel for="@next" value="Choose account: " />
 			<p:selectOneMenu id="userSelect" value="#{userPropertiesBean.user}" converter="#{userConverter}">
@@ -48,10 +47,10 @@
 						rendered="#{not empty userPropertiesBean.idpEntity and not empty userPropertiesBean.idpEntity.displayName}"/>
 					
 				</p:panelGrid>
-				<div class="panel">#{messages.my_data_delete_all}
+				<div style="margin-top: 0.8em;">#{messages.my_data_delete_all}
 				</div>
-				<div class="panel">
-					<h:link outcome="/user/delete-all-personal-data.xhtml" value="#{messages.my_data_delete_all_link}">
+				<div style="margin-top: 0.8em;" class="text">
+					<h:link outcome="/user/delete-all-personal-data.xhtml" value="#{messages.my_data_delete_all_link}" styleClass="link">
 					</h:link>
 				</div>
 			</p:tab>
@@ -96,7 +95,11 @@
 			</p:tab>
 									
 		</p:tabView>
-	</div>
+	
+	<div class="text full" style="margin-top: 0.4em;">
+		<a href="../index.xhtml"><h:outputText value="#{messages.back}"/></a>
+	</div>		
+	
 	</h:form>
 	</ui:define>
 </ui:composition>
