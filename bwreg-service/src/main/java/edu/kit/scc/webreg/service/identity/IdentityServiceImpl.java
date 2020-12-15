@@ -91,6 +91,8 @@ public class IdentityServiceImpl extends BaseServiceImpl<IdentityEntity, Long> i
 						id.setTwoFaUserName(user.getEppn());
 					else
 						id.setTwoFaUserName(UUID.randomUUID().toString());
+
+					logger.info("Add missing 2fa userId {} and 2fa username {}", id.getTwoFaUserId(), id.getTwoFaUserName());
 				}
 			}
 			else {

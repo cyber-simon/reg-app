@@ -86,7 +86,9 @@ public class UserDeleteServiceImpl implements UserDeleteService {
 		logger.info("Delete all personal user data for identity {}", identity.getId());
 		identity = identityDao.merge(identity);
 		
-		for (UserEntity user : identity.getUsers()) {
+		List<UserEntity> userList = userDao.findByIdentity(identity);
+		
+		for (UserEntity user : userList) {
 			logger.info("Delete all personal user data for user {}", user.getId());
 
 			UserDeleteAuditor auditor = new UserDeleteAuditor(auditEntryDao, auditDetailDao, appConfig);
