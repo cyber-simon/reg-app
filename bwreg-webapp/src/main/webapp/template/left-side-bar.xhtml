@@ -70,6 +70,25 @@
 				</div>
 			</li>
 			<li class="flyout"><a href="#{request.contextPath}/index.xhtml">#{messages.services}</a>
+ 				<div class="dropdown">
+					<ul class="navigation-l2">
+						<ui:repeat var="service" value="#{authorizationBean.unregisteredServiceList}">
+							<li class="has-submenu">
+								<h:link	outcome="/service/index.xhtml" value="#{service.name}">
+									<f:param name="serviceId" value="#{service.id}" />
+								</h:link>
+								<div class="submenu">
+									<ul class="navigation-l3">
+										<li class="">
+											<h:link outcome="/user/register-service.xhtml" value="#{messages.register}">
+												<f:param name="serviceId" value="#{service.id}" />
+											</h:link>
+										</li>
+									</ul>
+								</div></li>
+						</ui:repeat>
+					</ul>
+				</div>
    			</li>
    			<h:panelGroup rendered="#{authorizationBean.serviceApproverList.size() gt 0}">
 				<li class="flyout"><a href="">#{messages.approver}</a>

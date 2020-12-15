@@ -22,7 +22,7 @@
 			<h:outputText value="#{messages.index_motd_text1}" escape="false" />
 		</p:panel>
 	
-		<h:outputText value="#{messages.index_text1}" styleClass="full" />
+		<h5 class="full"><h:outputText value="#{messages.index_text1}"/></h5>
 
 		<h:panelGroup rendered="#{not empty userIndexBean.userRegistryList}">
 			<ui:repeat var="registry" value="#{userIndexBean.userRegistryList}">
@@ -122,7 +122,7 @@
 			</ui:repeat>
 		</h:panelGroup>		
 			
-		<h:outputText value="#{messages.index_text3}" class="full" />
+		<h5 class="full"><h:outputText value="#{messages.index_text3}" /></h5>
 
 		<ui:repeat var="service" value="#{authorizationBean.unregisteredServiceList}">
 			<div class="news-element third" style="border: #cccccc 1px solid; padding: 0.4em;">
