@@ -20,3 +20,7 @@ label.ui-helper-hidden {
 .col-width-2 {
 	width: auto;
 }
+
+.form {
+	font-size: 1.25rem;
+}
