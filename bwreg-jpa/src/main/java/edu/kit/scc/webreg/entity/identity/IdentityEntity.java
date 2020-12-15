@@ -12,6 +12,7 @@ package edu.kit.scc.webreg.entity.identity;
 
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -34,7 +35,8 @@ public class IdentityEntity extends AbstractBaseEntity {
 	@Column(name="twofa_user_name", length=512)
 	private String twoFaUserName;
 
-	@OneToMany(targetEntity=UserEntity.class, mappedBy = "identity")
+	@OneToMany(targetEntity=UserEntity.class, mappedBy = "identity",
+			cascade = CascadeType.ALL)
 	private Set<UserEntity> users;
 
 	@OneToMany(targetEntity=IdentityUserPreferenceEntity.class, mappedBy = "identity")

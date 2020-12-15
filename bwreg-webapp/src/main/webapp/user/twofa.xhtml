@@ -134,10 +134,8 @@
 				<p:commandButton id="openAddYubicoDialog" oncomplete="PF('addYubicoDlg').show();" value="#{messages.twofa_create_new_yubico}"></p:commandButton>
 				<p:commandButton id="openAddBackupTanDialog" oncomplete="PF('addBackupTanDlg').show();" value="#{messages.twofa_create_backup_tan_list}"></p:commandButton>
 			</p:outputPanel>
-			<p:outputPanel rendered="#{not empty twoFaUserBean.returnServiceId}">
-				<p:link href="../user/register-service.xhtml" value="#{messages.twofa_back_to_register}">
-					<f:param name="serviceId" value="#{twoFaUserBean.returnServiceId}"/>
-				</p:link>
+			<p:outputPanel rendered="#{not empty twoFaUserBean.returnServiceId}" styleClass="text full">
+				<a href="../user/register-service.xhtml?serviceId=#{twoFaUserBean.returnServiceId}">#{messages.twofa_back_to_register}</a>
 			</p:outputPanel>
 		</p:panel>
 

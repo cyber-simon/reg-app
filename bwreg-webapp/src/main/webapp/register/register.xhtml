@@ -23,34 +23,31 @@
 
 	<h:form id="form" styleClass="form full fancy">
 
-		<div class="panel">
-			<p:panel header="#{messages.welcome_head}">
-				<div><h:outputText value="#{messages.welcome_register}" escape="false"/></div>
-		
-				<p:messages id="messageBox" showDetail="true" />
-		
-				<div class="panel">
-					<h3><h:outputText value="#{messages.my_data}:"/></h3>
-					<div class="panel">
-						<p:dataTable var="key" value="#{registerUserBean.printableAttributesList}">
-							<p:column headerText="#{messages.name}">
-								#{resourceBundleHelper.resolveMessage(key)}
-							</p:column>
-							<p:column headerText="#{messages.value}">
-								#{registerUserBean.printableAttributesMap[key]}
-							</p:column>
-						</p:dataTable>
-					</div>
-					<div class="panel">
-						<p:dataList var="key" value="#{registerUserBean.unprintableAttributesMap.keySet().toArray()}">
-							#{key}: #{registerUserBean.unprintableAttributesMap[key]}
-						</p:dataList>
-					</div>
-					<p:commandButton id="save" action="#{registerUserBean.save}" value="#{messages.confirm}" ajax="false" 
-						disabled="#{registerUserBean.errorState}"/>
-				</div>
-			</p:panel>
-		</div>
+		<h3>#{messages.welcome_head}</h3>
+
+		<div><h:outputText value="#{messages.welcome_register}" escape="false"/></div>
+
+		<p:messages id="messageBox" showDetail="true" />
+
+		<h3 style="margin-top: 0.4em;"><h:outputText value="#{messages.my_data}:"/></h3>
+
+		<p:panel>
+			<p:dataTable var="key" value="#{registerUserBean.printableAttributesList}">
+				<p:column headerText="#{messages.name}">
+					#{resourceBundleHelper.resolveMessage(key)}
+				</p:column>
+				<p:column headerText="#{messages.value}">
+					#{registerUserBean.printableAttributesMap[key]}
+				</p:column>
+			</p:dataTable>
+	
+			<p:dataList var="key" value="#{registerUserBean.unprintableAttributesMap.keySet().toArray()}">
+				#{key}: #{registerUserBean.unprintableAttributesMap[key]}
+			</p:dataList>
+	
+			<p:commandButton id="save" action="#{registerUserBean.save}" value="#{messages.confirm}" ajax="false" 
+					disabled="#{registerUserBean.errorState}"/>
+		</p:panel>
 	</h:form>
 	
 	</ui:define>

@@ -24,6 +24,7 @@ import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.RoleDao;
 import edu.kit.scc.webreg.dao.SerialDao;
+import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
 import edu.kit.scc.webreg.dao.identity.IdentityDao;
@@ -73,6 +74,9 @@ public class UserDeleteServiceImpl implements UserDeleteService {
 
 	@Inject
 	private SerialDao serialDao;
+	
+	@Inject
+	private UserDao userDao;
 	
 	@Inject
 	private ApplicationConfig appConfig;
@@ -155,5 +159,8 @@ public class UserDeleteServiceImpl implements UserDeleteService {
 			auditor.finishAuditTrail();
 			auditor.commitAuditTrail();
 		}
+		
+		identity.setTwoFaUserId(null);
+		identity.setTwoFaUserName(null);
 	}	
 }
