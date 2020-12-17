@@ -85,6 +85,7 @@ public class FederationSingletonBean {
 		ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
 		
 		List<SamlIdpMetadataEntity> tempList = new ArrayList<SamlIdpMetadataEntity>(idpMap.values());
+		Collections.sort(tempList, idpOrgComparator);
 
 		if (engine == null) {
 			logger.warn("No engine set for script {}. Returning all IDPs", scriptEntity.getName());
