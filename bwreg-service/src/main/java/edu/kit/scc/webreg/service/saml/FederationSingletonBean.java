@@ -99,7 +99,9 @@ public class FederationSingletonBean {
 			Invocable invocable = (Invocable) engine;
 			
 			invocable.invokeFunction("filterIdps", tempList, targetList, logger);
-			
+
+			Collections.sort(targetList, idpOrgComparator);
+
 			return targetList;
 		} catch (ScriptException e) {
 			logger.warn("Script execution failed.", e);
@@ -114,18 +116,20 @@ public class FederationSingletonBean {
 		refreshCache();
 		
 		List<SamlIdpMetadataEntity> tempList = new ArrayList<SamlIdpMetadataEntity>(idpMap.values());
-		Collections.sort(tempList, new Comparator<SamlIdpMetadataEntity>() {
-
-			@Override
-			public int compare(SamlIdpMetadataEntity idp1, SamlIdpMetadataEntity idp2) {
-				if (idp1 != null && idp1.getOrgName() != null &&
-						idp2 != null && idp2.getOrgName() != null)
-					return idp1.getOrgName().compareTo(idp2.getOrgName());
-				else
-					return 0;
-			}
-			
-		});
+		Collections.sort(tempList, idpOrgComparator);
 		return tempList;
 	}
+	
+	private Comparator<SamlIdpMetadataEntity> idpOrgComparator = new Comparator<SamlIdpMetadataEntity>() {
+
+		@Override
+		public int compare(SamlIdpMetadataEntity idp1, SamlIdpMetadataEntity idp2) {
+			if (idp1 != null && idp1.getOrgName() != null &&
+					idp2 != null && idp2.getOrgName() != null)
+				return idp1.getOrgName().compareTo(idp2.getOrgName());
+			else
+				return 0;
+		}
+		
+	};
 }
