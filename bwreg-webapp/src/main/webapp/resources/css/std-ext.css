@@ -13,12 +13,11 @@ label.ui-helper-hidden {
 }
 
 .col-width-1 {
-	min-width: 30%;
-	max-width: 200px;
+	width: 25%;
 }
 
 .col-width-2 {
-	width: auto;
+	width: 75%;
 }
 
 .form {
