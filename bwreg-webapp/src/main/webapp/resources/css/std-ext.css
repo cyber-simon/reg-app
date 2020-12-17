@@ -23,3 +23,7 @@ label.ui-helper-hidden {
 .form {
 	font-size: 1.25rem;
 }
+
+.ui-state-highlight, .ui-widget-content .ui-state-highlight, .ui-widget-header .ui-state-highlight {
+	background-size: cover;
+}
