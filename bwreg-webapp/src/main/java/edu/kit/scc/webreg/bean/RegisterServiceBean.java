@@ -13,8 +13,6 @@ package edu.kit.scc.webreg.bean;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +42,7 @@ import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.exc.MisconfiguredServiceException;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
+import edu.kit.scc.webreg.service.PolicyService;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserService;
@@ -99,6 +98,9 @@ public class RegisterServiceBean implements Serializable {
     @Inject
     private RegisterUserService registerUserService;
     
+    @Inject
+    private PolicyService policyService;
+    
     @Inject 
     private SessionManager sessionManager;
 
@@ -128,7 +130,7 @@ public class RegisterServiceBean implements Serializable {
     			id = service.getId();
     		}
     		
-			service = serviceService.findByIdWithAttrs(id, "policies", "attributeSourceService", "serviceProps");
+			service = serviceService.findByIdWithAttrs(id, "attributeSourceService", "serviceProps");
 			
 			List<RegistryEntity> r = registryService.findByServiceAndIdentityAndNotStatus(service, getIdentity(), 
 					RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
@@ -151,13 +153,7 @@ public class RegisterServiceBean implements Serializable {
 			
 			policyHolderList = new ArrayList<RegisterServiceBean.PolicyHolder>();
 			
-			List<PolicyEntity> policiesTemp = new ArrayList<PolicyEntity>(service.getPolicies());
-			Collections.sort(policiesTemp, new Comparator<PolicyEntity>() {
-				@Override
-				public int compare(PolicyEntity p1, PolicyEntity p2) {
-					return p1.getId().compareTo(p2.getId());
-				}
-			});
+			List<PolicyEntity> policiesTemp = policyService.resolvePoliciesForService(service, selectedUserEntity);
 			
 			for (PolicyEntity policy : policiesTemp) {
 				PolicyHolder ph = new PolicyHolder();
@@ -294,7 +290,16 @@ public class RegisterServiceBean implements Serializable {
     	RegistryEntity registry;
     	
     	try {
-    		registry = registerUserService.registerUser(selectedUserEntity, service, "user-self");
+    		if (policyHolderList.size() == 0) {
+    			registry = registerUserService.registerUser(selectedUserEntity, service, "user-self");
+    		}
+    		else {
+    			List<Long> policyIdList = new ArrayList<Long>();
+    			for (PolicyHolder ph : policyHolderList) {
+    				policyIdList.add(ph.getPolicy().getId());
+    			}
+    			registry = registerUserService.registerUser(selectedUserEntity, service, policyIdList, "user-self");
+    		}
     		sessionManager.setUnregisteredServiceCreated(null);
     	} catch (RegisterException e) {
 			FacesContext.getCurrentInstance().addMessage("need_check", 

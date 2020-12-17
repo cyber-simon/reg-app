@@ -10,10 +10,16 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service;
 
+import java.util.List;
+
 import edu.kit.scc.webreg.entity.PolicyEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.UserEntity;
 
 public interface PolicyService extends BaseService<PolicyEntity, Long> {
 
 	PolicyEntity findWithAgreemets(Long id);
+	
+	List<PolicyEntity> resolvePoliciesForService(ServiceEntity service, UserEntity user);
 	
 }

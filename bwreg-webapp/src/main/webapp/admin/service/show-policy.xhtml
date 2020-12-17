@@ -33,6 +33,12 @@
 			
 			        <h:outputText value="#{messages.name}:"/>
 			        <h:outputText value="#{showPolicyBean.entity.name} (Service: #{showPolicyBean.entity.service.name})"/>
+
+					<h:outputText value="#{messages.hidden}:" />
+					<h:outputText value="#{showPolicyBean.entity.hidden ? messages.yes : messages.no}" />
+						
+					<h:outputText value="#{messages.show_only}:" />
+					<h:outputText value="#{showPolicyBean.entity.showOnly ? messages.yes : messages.no}" />
 						
 			        <h:outputText value="#{messages.actual_agreement}:"/>
 			        <h:outputText value="#{showPolicyBean.entity.actualAgreement.name}"/>

@@ -33,6 +33,16 @@
 			
 					<bw:inputText id="nameField" label="#{messages.name}"
 						value="#{editPolicyBean.entity.name}" required="true" />
+
+					<h:outputText value="#{messages.hidden}" />
+					<p:selectBooleanButton id="hiddenField" 
+							onLabel="#{messages.yes}" offLabel="#{messages.no}" 
+							value="#{editPolicyBean.entity.hidden}"/>
+
+					<h:outputText value="#{messages.show_only}" />
+					<p:selectBooleanButton id="onlyShowField" 
+							onLabel="#{messages.yes}" offLabel="#{messages.no}" 
+							value="#{editPolicyBean.entity.showOnly}"/>
 			
 			        <p:outputLabel for="selectAgreement" value="#{messages.actual_agreement}:"/>
 			        <h:selectOneMenu id="selectAgreement" value="#{editPolicyBean.selectedAgreement}"

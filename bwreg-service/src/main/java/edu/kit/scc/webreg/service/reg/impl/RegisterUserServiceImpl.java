@@ -10,6 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.reg.impl;
 
+import java.util.List;
 import java.util.Set;
 
 import javax.ejb.Asynchronous;
@@ -32,6 +33,12 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	private Registrator registrator;
 
 	@Override
+	public RegistryEntity registerUser(UserEntity user, ServiceEntity service, List<Long> policiesIdList, String executor)
+			throws RegisterException {
+		return registrator.registerUser(user, service, executor, policiesIdList, true, null);
+	}
+
+	@Override
 	public RegistryEntity registerUser(UserEntity user, ServiceEntity service, String executor)
 			throws RegisterException {
 		return registrator.registerUser(user, service, executor, true);
@@ -40,13 +47,13 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	@Override
 	public RegistryEntity registerUser(UserEntity user, ServiceEntity service, String executor, Boolean sendGroupUpdate)
 			throws RegisterException {
-		return registrator.registerUser(user, service, executor, sendGroupUpdate, null);
+		return registrator.registerUser(user, service, executor, null, sendGroupUpdate, null);
 	}
 
 	@Override
 	public RegistryEntity registerUser(UserEntity user, ServiceEntity service, String executor, Boolean sendGroupUpdate, Auditor parentAuditor)
 			throws RegisterException {
-		return registrator.registerUser(user, service, executor, sendGroupUpdate, parentAuditor);
+		return registrator.registerUser(user, service, executor, null, sendGroupUpdate, parentAuditor);
 	}
 	
 	@Override

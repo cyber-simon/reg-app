@@ -10,6 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.reg;
 
+import java.util.List;
 import java.util.Set;
 
 import edu.kit.scc.webreg.audit.Auditor;
@@ -28,6 +29,9 @@ public interface RegisterUserService {
 	RegistryEntity registerUser(UserEntity user, ServiceEntity service, String executor)
 			throws RegisterException;
 
+	RegistryEntity registerUser(UserEntity user, ServiceEntity service, List<Long> policiesIdList, String executor)
+			throws RegisterException;
+	
 	void reconsiliation(RegistryEntity registry, Boolean fullRecon,
 			String executor, Auditor parentAuditor) throws RegisterException;
 

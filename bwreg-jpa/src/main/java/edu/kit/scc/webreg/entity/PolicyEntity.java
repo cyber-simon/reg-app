@@ -34,20 +34,15 @@ public class PolicyEntity extends AbstractBaseEntity {
 	@OneToOne(targetEntity = AgreementTextEntity.class)
 	private AgreementTextEntity actualAgreement;
 	
-	@Column(name = "mandatory")
-	private Boolean mandatory;
+	@Column(name = "show_only")
+	private Boolean showOnly;
+	
+	@Column(name = "hidden")
+	private Boolean hidden;
 	
 	@Column(name = "name", length = 128)
 	private String name;
 	
-	public Boolean getMandatory() {
-		return mandatory;
-	}
-
-	public void setMandatory(Boolean mandatory) {
-		this.mandatory = mandatory;
-	}
-
 	public String getName() {
 		return name;
 	}
@@ -78,6 +73,22 @@ public class PolicyEntity extends AbstractBaseEntity {
 
 	public void setActualAgreement(AgreementTextEntity actualAgreement) {
 		this.actualAgreement = actualAgreement;
+	}
+
+	public Boolean getShowOnly() {
+		return showOnly;
+	}
+
+	public void setShowOnly(Boolean showOnly) {
+		this.showOnly = showOnly;
+	}
+
+	public Boolean getHidden() {
+		return hidden;
+	}
+
+	public void setHidden(Boolean hidden) {
+		this.hidden = hidden;
 	}
 
 }

@@ -31,6 +31,7 @@ import edu.kit.scc.webreg.audit.ServiceAuditor;
 import edu.kit.scc.webreg.audit.ServiceRegisterAuditor;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.GroupDao;
+import edu.kit.scc.webreg.dao.PolicyDao;
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
 import edu.kit.scc.webreg.dao.ServiceEventDao;
@@ -129,6 +130,9 @@ public class Registrator implements Serializable {
 	private ScriptingEnv scriptingEnv;
 
 	@Inject
+	private PolicyDao policyDao;
+	
+	@Inject
 	private Approvor approvor;
 
 	public RegistryEntity registerUser(UserEntity user, ServiceEntity service, String executor)
@@ -138,10 +142,10 @@ public class Registrator implements Serializable {
 
 	public RegistryEntity registerUser(UserEntity user, ServiceEntity service, String executor, Boolean sendGroupUpdate)
 			throws RegisterException {
-		return registerUser(user, service, executor, sendGroupUpdate, null);
+		return registerUser(user, service, executor, null, sendGroupUpdate, null);
 	}
 
-	public RegistryEntity registerUser(UserEntity user, ServiceEntity service, String executor, Boolean sendGroupUpdate, Auditor parentAuditor)
+	public RegistryEntity registerUser(UserEntity user, ServiceEntity service, String executor, List<Long> policiesIdList, Boolean sendGroupUpdate, Auditor parentAuditor)
 			throws RegisterException {
 
 		user = userDao.merge(user);
@@ -166,7 +170,7 @@ public class Registrator implements Serializable {
 					RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
 			if (r.size() == 0) {
 				logger.info("User {} is not registered with parent service {} yet", user.getEppn(), service.getParentService().getName());
-				registerUser(user, service.getParentService(), executor, true, auditor);
+				registerUser(user, service.getParentService(), executor, null, true, auditor);
 			}
 			else {
 				logger.debug("User {} is already registered with parent service {}", user.getEppn(), service.getParentService().getName());
@@ -177,12 +181,20 @@ public class Registrator implements Serializable {
 		
 		try {
 			ApproverRoleEntity approverRole = service.getApproverRole();
-			
+
 			Set<AgreementTextEntity> agrs = new HashSet<AgreementTextEntity>();
-			for (PolicyEntity policy : service.getPolicies())
-				agrs.add(policy.getActualAgreement());
+			if (policiesIdList == null) {
+				for (PolicyEntity policy : service.getPolicies())
+					agrs.add(policy.getActualAgreement());
+			}
+			else {
+				for (Long policyId : policiesIdList) {
+					agrs.add(policyDao.findById(policyId).getActualAgreement());
+				}
+			}
 			registry.setAgreedTexts(agrs);
 			registry.setAgreedTime(new Date());
+			
 			registry.setService(service);
 			registry.setUser(user);
 			registry.setIdentity(user.getIdentity());
