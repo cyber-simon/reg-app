@@ -19,6 +19,7 @@ import java.util.Set;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 
 import org.kie.api.KieServices;
 import org.kie.api.builder.ReleaseId;
@@ -153,7 +154,7 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 	
 	@Override
 	public List<ServiceEntity> checkServiceFilterRule(String unitId, UserEntity user, List<ServiceEntity> serviceList,
-			Set<GroupEntity> groups, Set<RoleEntity> roles) 
+			Set<GroupEntity> groups, Set<RoleEntity> roles, HttpServletRequest request) 
 			throws MisconfiguredServiceException {
 		
 		user = userDao.merge(user);
@@ -170,6 +171,7 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 		for (ServiceEntity service : serviceList)
 			ksession.insert(service);
 		ksession.insert(new Date());
+		ksession.insert(request);
 		
 		ksession.fireAllRules();
 

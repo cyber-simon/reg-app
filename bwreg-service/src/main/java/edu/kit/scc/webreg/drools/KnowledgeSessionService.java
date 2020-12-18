@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.kie.api.runtime.KieSession;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
@@ -59,6 +61,6 @@ public interface KnowledgeSessionService {
 
 	List<ServiceEntity> checkServiceFilterRule(String unitId, UserEntity user,
 			List<ServiceEntity> serviceList, Set<GroupEntity> groups,
-			Set<RoleEntity> roles) throws MisconfiguredServiceException;
+			Set<RoleEntity> roles, HttpServletRequest request) throws MisconfiguredServiceException;
 
 }

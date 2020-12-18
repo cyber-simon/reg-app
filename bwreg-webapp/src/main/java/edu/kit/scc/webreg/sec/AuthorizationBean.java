@@ -20,6 +20,7 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.servlet.http.HttpServletRequest;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.RegistryEntity;
@@ -49,12 +50,15 @@ public class AuthorizationBean implements Serializable {
     @Inject
     private RoleCache roleCache;
 
+    @Inject 
+    private HttpServletRequest request;
+    
     @PostConstruct
     private void init() {
     	if (sessionManager.getIdentityId() == null)
     		return;
     	
-    	userRegistryList = authService.loadAll(sessionManager, sessionManager.getIdentityId());
+    	userRegistryList = authService.loadAll(sessionManager, sessionManager.getIdentityId(), request);
 	}
 
     public Duration getLoggedInSince() {

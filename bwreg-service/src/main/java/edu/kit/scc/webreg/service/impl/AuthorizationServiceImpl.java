@@ -8,6 +8,7 @@ import java.util.Set;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 
@@ -63,7 +64,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     private ApplicationConfig appConfig;
 
 	@Override
-	public List<RegistryEntity> loadAll(SessionManager sessionManager, Long identityId) {
+	public List<RegistryEntity> loadAll(SessionManager sessionManager, Long identityId, HttpServletRequest request) {
 		IdentityEntity identity = identityDao.findById(identityId);
 
     	Long rolesTimeout;
@@ -171,7 +172,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 		    	for (UserEntity user : identity.getUsers()) {
 			    	tempList.addAll(knowledgeSessionService.checkServiceFilterRule(
 			    			serviceFilterRule, user, unregisteredServiceList,
-			    			sessionManager.getGroups(), sessionManager.getRoles()));
+			    			sessionManager.getGroups(), sessionManager.getRoles(), request));
 		    	}
 		    	
 		    	unregisteredServiceList = tempList;
