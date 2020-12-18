@@ -25,20 +25,20 @@
 
 	<ui:define name="content">
 
-	<div class="panel">
-		<p:panel header="#{messages.access_check}: #{checkAccessBean.service.name}" rendered="#{checkAccessBean.accessProblem}">
+		<p:panel header="#{messages.access_check}: #{checkAccessBean.service.name}" rendered="#{checkAccessBean.accessProblem}" 
+				styleClass="text full">
 			<div style="margin-top: 4px;">
 				<h:outputText value="#{messages.requirements_unsatisfied}" />
 			</div>
 			<p:messages id="messageBoxReqs" for="reqs" showDetail="true" />
 		</p:panel>	
-		<p:panel header="#{messages.access_check}: #{checkAccessBean.service.name}" rendered="#{not checkAccessBean.accessProblem}">
+		<p:panel header="#{messages.access_check}: #{checkAccessBean.service.name}" rendered="#{not checkAccessBean.accessProblem}"
+				styleClass="text full">
 			<div style="margin-top: 4px;">
 				<h:outputText value="#{messages.requirements_met}" />
 			</div>
 			<p:messages id="messageBoxReqsMet" for="reqs" showDetail="true" />
 		</p:panel>	
-	</div>
 		
 	</ui:define>
 </ui:composition>
