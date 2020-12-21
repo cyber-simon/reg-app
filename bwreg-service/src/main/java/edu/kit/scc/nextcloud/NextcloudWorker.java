@@ -56,6 +56,9 @@ public class NextcloudWorker {
 	private String apiUsername;
 	private String apiPassword;
 
+	private Integer connectionTimeout;
+	private Integer connectionRequestTimeout;
+	
 	public NextcloudWorker(PropertyReader prop) throws RegisterException {
 		this(prop, null);
 	}
@@ -68,6 +71,17 @@ public class NextcloudWorker {
 			apiUrl = prop.readProp("nc_api_url");
 			apiUsername = prop.readProp("nc_api_username");
 			apiPassword = prop.readProp("nc_api_password");
+			
+			if (prop.hasProp("ns_connection_timeout"))
+				connectionTimeout = Integer.parseInt(prop.readProp("ns_connection_timeout"));
+			else
+				connectionTimeout = 5000;
+
+			if (prop.hasProp("ns_connection_request_timeout"))
+				connectionRequestTimeout = Integer.parseInt(prop.readProp("ns_connection_request_timeout"));
+			else
+				connectionRequestTimeout = 5000;
+			
 		} catch (PropertyReaderException e) {
 			throw new RegisterException(e);
 		}
@@ -76,8 +90,8 @@ public class NextcloudWorker {
 	}
 
 	protected void buildClient() {
-		RequestConfig defaultRequestConfig = RequestConfig.custom().setConnectionRequestTimeout(5000)
-				.setConnectTimeout(5000).build();
+		RequestConfig defaultRequestConfig = RequestConfig.custom().setConnectionRequestTimeout(connectionRequestTimeout)
+				.setConnectTimeout(connectionTimeout).build();
 		httpClient = HttpClients.custom().setDefaultRequestConfig(defaultRequestConfig).build();
 	}
 
