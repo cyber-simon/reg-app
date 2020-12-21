@@ -55,10 +55,10 @@
 						<div style="margin-top: 1em;">
 							<h:outputText value="#{bbCodeConverter.convert(policyHolder.policy.actualAgreement.agreement)}" escape="false"/>
 						</div>
-						<div style="margin-top: 1em;">
+						<p:outputPanel rendered="#{not policyHolder.policy.showOnly}" style="margin-top: 1em;">
 							<h:selectBooleanCheckbox value="#{policyHolder.checked}" />
 							<h:outputText value="#{messages.accept_tou}" />
-						</div>
+						</p:outputPanel>
 					</ui:repeat>
 				</div>
 				
