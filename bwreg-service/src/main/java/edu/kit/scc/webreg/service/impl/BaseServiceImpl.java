@@ -14,6 +14,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+import org.primefaces.model.FilterMeta;
+
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.GenericSortOrder;
 import edu.kit.scc.webreg.entity.BaseEntity;
@@ -52,8 +54,8 @@ public abstract class BaseServiceImpl<T extends BaseEntity<PK>, PK extends Seria
 
 	@Override
 	public List<T> findAllPaging(int first, int pageSize, String sortField,
-			GenericSortOrder sortOrder, Map<String, Object> filterMap, String... attrs) {
-		return getDao().findAllPaging(first, pageSize, sortField, sortOrder, filterMap, attrs);
+			GenericSortOrder sortOrder, Map<String, Object> filterMap, Map<String, FilterMeta> additionalFilterMap, String... attrs) {
+		return getDao().findAllPaging(first, pageSize, sortField, sortOrder, filterMap, additionalFilterMap, attrs);
 	}
 	
 	@Override

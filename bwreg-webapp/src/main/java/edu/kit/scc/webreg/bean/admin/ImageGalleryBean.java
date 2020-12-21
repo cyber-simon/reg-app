@@ -101,7 +101,7 @@ public class ImageGalleryBean implements Serializable {
 			
 			image.setName(event.getFile().getFileName());
 			image.setImageType(ImageType.PNG);
-			image.getImageData().setData(IOUtils.toByteArray(event.getFile().getInputstream()));
+			image.getImageData().setData(IOUtils.toByteArray(event.getFile().getInputStream()));
 			imageService.save(image);
 			
 			imageList = imageService.findAll();

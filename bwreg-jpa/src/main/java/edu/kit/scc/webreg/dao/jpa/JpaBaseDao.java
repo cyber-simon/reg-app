@@ -30,6 +30,9 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.primefaces.model.FilterMeta;
+import org.primefaces.model.MatchMode;
+
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.GenericSortOrder;
 import edu.kit.scc.webreg.dao.ops.AndPredicate;
@@ -87,13 +90,14 @@ public abstract class JpaBaseDao<T extends BaseEntity<PK>, PK extends Serializab
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<T> findAllPaging(int first, int pageSize, String sortField,
-			GenericSortOrder sortOrder, Map<String, Object> filterMap, String... attrs) {
+			GenericSortOrder sortOrder, Map<String, Object> filterMap, Map<String, FilterMeta> additionalFilterMap, String... attrs) {
 
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<T> criteria = builder.createQuery(getEntityClass());
 		Root<T> root = criteria.from(getEntityClass());
 		
 		List<Predicate> predicates = predicatesFromFilterMap(builder, root, filterMap);
+		predicates.addAll(predicatesFromAdditionalFilterMap(builder, root, additionalFilterMap));
 		criteria.where(builder.and(predicates.toArray(new Predicate[predicates.size()])));
 		
 		criteria.select(root);
@@ -196,6 +200,45 @@ public abstract class JpaBaseDao<T extends BaseEntity<PK>, PK extends Serializab
 		
 		return predicates;
 		
+	}
+	
+	protected List<Predicate> predicatesFromAdditionalFilterMap(CriteriaBuilder builder, Root<T> root, Map<String, FilterMeta> additionalFilterMap) {
+		
+		List<Predicate> predicates = new ArrayList<Predicate>();
+
+		for (Entry<String, FilterMeta> entry : additionalFilterMap.entrySet()) {
+			if (entry.getValue() != null && entry.getValue().getFilterValue() != null) {
+				predicates.add(predicateFromFilterMeta(builder, root, entry.getKey(), entry.getValue()));
+			}
+		}
+		
+		return predicates;
+	}
+
+	protected Predicate predicateFromFilterMeta(CriteriaBuilder builder, Root<T> root, String path, FilterMeta filterMeta) {
+		if (filterMeta.getFilterMatchMode().equals(MatchMode.STARTS_WITH)) {
+			return builder.like(
+					builder.lower(this.<String>resolvePath(root, path)), 
+					filterMeta.getFilterValue().toString().toLowerCase() + "%");
+		}
+		else if (filterMeta.getFilterMatchMode().equals(MatchMode.ENDS_WITH)) {
+			return builder.like(
+					builder.lower(this.<String>resolvePath(root, path)), 
+					"%" + filterMeta.getFilterValue().toString().toLowerCase());
+		}
+		else if (filterMeta.getFilterMatchMode().equals(MatchMode.CONTAINS)) {
+			return builder.like(
+					builder.lower(this.<String>resolvePath(root, path)), 
+					"%" + filterMeta.getFilterValue().toString().toLowerCase() + "%");
+		}
+		else if (filterMeta.getFilterMatchMode().equals(MatchMode.EQUALS)) {
+			return builder.like(
+					builder.lower(this.<String>resolvePath(root, path)), 
+					filterMeta.getFilterValue().toString().toLowerCase());
+		}
+		else {
+			return builder.equal(resolvePath(root, path), filterMeta.getFilterValue());
+		}
 	}
 	
 	protected Predicate predicateFromObject(CriteriaBuilder builder, Root<T> root, String path, Object o) {

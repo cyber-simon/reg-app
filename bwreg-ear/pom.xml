@@ -112,6 +112,19 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.primefaces</groupId>
+			<artifactId>primefaces</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+		</dependency>
+
+		<dependency>
 			<artifactId>dom4j</artifactId>
 			<groupId>dom4j</groupId>
 			<scope>provided</scope>

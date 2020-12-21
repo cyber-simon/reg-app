@@ -97,7 +97,7 @@ public class TokenAdminIndexBean implements Serializable {
 				new PathObjectValue("surName", part),
 				new PathObjectValue("givenName", part)
 		));
-		return userService.findAllPaging(0, 10, "eppn", GenericSortOrder.ASC, filterMap);
+		return userService.findAllPaging(0, 10, "eppn", GenericSortOrder.ASC, filterMap, null);
 	}
 
 	public void enableToken(String serial) {

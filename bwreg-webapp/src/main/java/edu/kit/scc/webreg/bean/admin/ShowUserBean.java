@@ -24,6 +24,7 @@ import javax.inject.Inject;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.primefaces.event.TransferEvent;
 import org.primefaces.model.DualListModel;
+import org.primefaces.model.FilterMeta;
 import org.primefaces.model.LazyDataModel;
 import org.slf4j.Logger;
 

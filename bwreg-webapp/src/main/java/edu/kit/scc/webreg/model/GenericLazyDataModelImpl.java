@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+import org.primefaces.model.FilterMeta;
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.SortOrder;
 
@@ -29,7 +30,7 @@ public class GenericLazyDataModelImpl<E extends BaseEntity<PK>, T extends BaseSe
 
 	private T service;
 
-	private Map<String, Object> additionalFilterMap;
+	private Map<String, Object> filterMap;
 	private String[] attrs;
 	
 	public GenericLazyDataModelImpl(T service) {
@@ -37,14 +38,14 @@ public class GenericLazyDataModelImpl<E extends BaseEntity<PK>, T extends BaseSe
 		this.service = service;
 	}
 
-	public GenericLazyDataModelImpl(T service, Map<String, Object> additionalFilterMap) {
+	public GenericLazyDataModelImpl(T service, Map<String, Object> filterMap) {
 		this(service);
-		this.additionalFilterMap = additionalFilterMap;
+		this.filterMap = filterMap;
 	}
 
-	public GenericLazyDataModelImpl(T service, Map<String, Object> additionalFilterMap, String... attrs) {
+	public GenericLazyDataModelImpl(T service, Map<String, Object> filterMap, String... attrs) {
 		this(service);
-		this.additionalFilterMap = additionalFilterMap;
+		this.filterMap = filterMap;
 		this.attrs = attrs;
 	}
 
@@ -52,23 +53,19 @@ public class GenericLazyDataModelImpl<E extends BaseEntity<PK>, T extends BaseSe
 		this(service);
 		this.attrs = attrs;
 	}
-	
+
 	@Override
 	public List<E> load(int first, int pageSize, String sortField, 
-			SortOrder sortOrder, Map<String, Object> filterMap) {
-		
-		if (filterMap != null && additionalFilterMap != null) {
-			filterMap.putAll(additionalFilterMap);
-		}
+			SortOrder sortOrder, Map<String, FilterMeta> additionalFilterMap) {
 		
 		List<E> returnList;
 		
 		if (sortOrder == SortOrder.ASCENDING)
-			returnList = getService().findAllPaging(first, pageSize, sortField, GenericSortOrder.ASC, filterMap, attrs);
+			returnList = getService().findAllPaging(first, pageSize, sortField, GenericSortOrder.ASC, filterMap, additionalFilterMap, attrs);
 		else if (sortOrder == SortOrder.DESCENDING)
-			returnList = getService().findAllPaging(first, pageSize, sortField, GenericSortOrder.DESC, filterMap, attrs);
+			returnList = getService().findAllPaging(first, pageSize, sortField, GenericSortOrder.DESC, filterMap, additionalFilterMap, attrs);
 		else
-			returnList = getService().findAllPaging(first, pageSize, sortField, GenericSortOrder.NONE, filterMap, attrs);
+			returnList = getService().findAllPaging(first, pageSize, sortField, GenericSortOrder.NONE, filterMap, additionalFilterMap, attrs);
 		
 		setPageSize(pageSize);
 		

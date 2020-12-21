@@ -68,7 +68,7 @@
 			<dependency>
 				<groupId>org.primefaces</groupId>
 				<artifactId>primefaces</artifactId>
-				<version>7.0</version>
+				<version>8.0</version>
 			</dependency>
 			<dependency>
 				<groupId>org.primefaces.themes</groupId>
@@ -83,7 +83,7 @@
 			<dependency>
 				<groupId>commons-fileupload</groupId>
 				<artifactId>commons-fileupload</artifactId>
-				<version>1.2.2</version>
+				<version>1.4</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-io</groupId>
@@ -232,7 +232,7 @@
 				<bwreg.faces.stage>Production</bwreg.faces.stage>
 				<bwreg.hibernate.dialect>org.hibernate.dialect.PostgreSQLDialect</bwreg.hibernate.dialect>
 				<bwreg.hibernate.datasource>java:/ds/bwidmDS</bwreg.hibernate.datasource>
-				<bwreg.theme>aristo</bwreg.theme>
+				<bwreg.theme>kit-theme</bwreg.theme>
 				<bwreg.css>std.css</bwreg.css>
 				<bwreg.template>layout-template.xhtml</bwreg.template>
 				<bwreg.template.head-bar>head-bar.xhtml</bwreg.template.head-bar>
@@ -250,7 +250,7 @@
 				<bwreg.faces.stage>Development</bwreg.faces.stage>
 				<bwreg.hibernate.dialect>org.hibernate.dialect.PostgreSQLDialect</bwreg.hibernate.dialect>
 				<bwreg.hibernate.datasource>java:/ds/bwidmDS</bwreg.hibernate.datasource>
-				<bwreg.theme>aristo</bwreg.theme>
+				<bwreg.theme>kit-theme</bwreg.theme>
 				<bwreg.css>std.css</bwreg.css>
 				<bwreg.template>layout-template.xhtml</bwreg.template>
 				<bwreg.template.head-bar>head-bar.xhtml</bwreg.template.head-bar>
@@ -272,7 +272,7 @@
 				<bwreg.faces.stage>Production</bwreg.faces.stage>
 				<bwreg.hibernate.dialect>org.hibernate.dialect.PostgreSQLDialect</bwreg.hibernate.dialect>
 				<bwreg.hibernate.datasource>java:/ds/bwidmDS</bwreg.hibernate.datasource>
-				<bwreg.theme>aristo</bwreg.theme>
+				<bwreg.theme>kit-theme</bwreg.theme>
 				<bwreg.css>std.css</bwreg.css>
 				<bwreg.template>layout-template.xhtml</bwreg.template>
 				<bwreg.template.head-bar>head-bar.xhtml</bwreg.template.head-bar>
@@ -290,7 +290,7 @@
 				<bwreg.faces.stage>Development</bwreg.faces.stage>
 				<bwreg.hibernate.dialect>org.hibernate.dialect.PostgreSQLDialect</bwreg.hibernate.dialect>
 				<bwreg.hibernate.datasource>java:/ds/bwidmDS</bwreg.hibernate.datasource>
-				<bwreg.theme>aristo</bwreg.theme>
+				<bwreg.theme>kit-theme</bwreg.theme>
 				<bwreg.css>std.css</bwreg.css>
 				<bwreg.template>layout-template.xhtml</bwreg.template>
 				<bwreg.template.head-bar>head-bar.xhtml</bwreg.template.head-bar>
