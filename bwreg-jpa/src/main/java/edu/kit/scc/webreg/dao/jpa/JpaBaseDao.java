@@ -192,10 +192,12 @@ public abstract class JpaBaseDao<T extends BaseEntity<PK>, PK extends Serializab
 	
 	protected List<Predicate> predicatesFromFilterMap(CriteriaBuilder builder, Root<T> root, Map<String, Object> filterMap) {
 		
-		List<Predicate> predicates = new ArrayList<Predicate>(filterMap.size());
-		for (Entry<String, Object> entry : filterMap.entrySet()) {
-			
-			predicates.add(predicateFromObject(builder, root, entry.getKey(), entry.getValue()));
+		List<Predicate> predicates = new ArrayList<Predicate>();
+		if (filterMap != null) {
+			for (Entry<String, Object> entry : filterMap.entrySet()) {
+				
+				predicates.add(predicateFromObject(builder, root, entry.getKey(), entry.getValue()));
+			}
 		}
 		
 		return predicates;
@@ -206,9 +208,11 @@ public abstract class JpaBaseDao<T extends BaseEntity<PK>, PK extends Serializab
 		
 		List<Predicate> predicates = new ArrayList<Predicate>();
 
-		for (Entry<String, FilterMeta> entry : additionalFilterMap.entrySet()) {
-			if (entry.getValue() != null && entry.getValue().getFilterValue() != null) {
-				predicates.add(predicateFromFilterMeta(builder, root, entry.getKey(), entry.getValue()));
+		if (additionalFilterMap != null) {
+			for (Entry<String, FilterMeta> entry : additionalFilterMap.entrySet()) {
+				if (entry.getValue() != null && entry.getValue().getFilterValue() != null) {
+					predicates.add(predicateFromFilterMeta(builder, root, entry.getKey(), entry.getValue()));
+				}
 			}
 		}
 		
