@@ -76,6 +76,11 @@
 				<version>1.0.10</version>
 			</dependency>
 			<dependency>
+			     <groupId>org.webjars</groupId>
+			     <artifactId>font-awesome</artifactId>
+			     <version>5.12.0</version>
+			</dependency>
+			<dependency>
 				<groupId>org.omnifaces</groupId>
 				<artifactId>omnifaces</artifactId>
 				<version>3.6.1</version>

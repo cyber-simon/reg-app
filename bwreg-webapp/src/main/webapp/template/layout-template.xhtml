@@ -22,7 +22,9 @@
   </f:facet>
 
   <link rel="stylesheet" href="/resources/static/jquery.fancybox.min.css" />
-  <link rel="stylesheet" href="/resources/static/all.min.css" />
+  
+	<h:outputStylesheet library="webjars" name="font-awesome/5.12.0/css/all.min-jsf.css" />
+	<h:outputStylesheet library="webjars" name="font-awesome/5.12.0/css/v4-shims.min-jsf.css" />
   
   <link rel="stylesheet" href="#{headBarBean.overrideStdStylesheet}"/>
   <link rel="stylesheet" href="#{headBarBean.stylesheetExtended}"/>
@@ -46,27 +48,11 @@
     
         <section class="content-wrap">
     	    <div class="content">
-<!--     	    	<div class="ui-widget text form full fancy"> -->
 					<ui:insert name="content">Default content</ui:insert>
-<!-- 				</div> -->
 			</div>
 		</section>
 	</main>
     
-    <!-- 	    	
-	<div id="container">
-		<div id="sidebar">
-			<ui:insert name="left_sidebar">Default left side bar</ui:insert>
-		</div>
-		<div id="content" class="ui-widget text form full fancy">
-		</div>
-		<div class="clear"></div>
-		<div id="footer-container">
-			<div class="spacer"></div>
-			<ui:insert name="footer">Default footer</ui:insert>
-		</div>
-	</div>
- 	-->
 </h:body>
 
 </f:view>
