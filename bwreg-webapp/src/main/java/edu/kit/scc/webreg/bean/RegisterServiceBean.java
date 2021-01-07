@@ -277,9 +277,16 @@ public class RegisterServiceBean implements Serializable {
     	logger.debug("testing all checkboxes");
     	
     	for(PolicyHolder ph : policyHolderList) {
-    		if ((! ph.getPolicy().getShowOnly()) && (! ph.getChecked())) {
+    		if (ph.getPolicy() != null && ph.getPolicy().getShowOnly()) {
+    			logger.debug("Policy {} in Service {} is just for show", ph.getPolicy().getId(), service.getId());
+    		}
+    		else if (! ph.getChecked()) {
+    			logger.debug("Policy {} in Service {} is not checked", ph.getPolicy().getId(), service.getId());
         		messageGenerator.addWarningMessage("need_check", "Zustimmung fehlt!", "Sie müssen allen Nutzungbedingungen zustimmen.");
     			return null;
+    		}
+    		else {
+    			logger.debug("Policy {} in Service {} is checked", ph.getPolicy().getId(), service.getId());
     		}
     	}
     	
