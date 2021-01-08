@@ -11,34 +11,31 @@
 package edu.kit.scc.webreg.bean.admin.service;
 
 import java.io.Serializable;
-import java.util.List;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.RequestScoped;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ViewScoped;
 import javax.inject.Inject;
-import javax.inject.Named;
+
+import org.primefaces.model.LazyDataModel;
 
 import edu.kit.scc.webreg.entity.EmailTemplateEntity;
+import edu.kit.scc.webreg.model.GenericLazyDataModelImpl;
 import edu.kit.scc.webreg.service.EmailTemplateService;
 
-@Named("listEmailTemplateBean")
-@RequestScoped
+@ManagedBean
+@ViewScoped
 public class ListEmailTemplateBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<EmailTemplateEntity> list;
+	private LazyDataModel<EmailTemplateEntity> list;
     
     @Inject
     private EmailTemplateService service;
-
-    @PostConstruct
-    public void init() {
-		list = service.findAll();
-	}
 	
-    public List<EmailTemplateEntity> getList() {
+    public LazyDataModel<EmailTemplateEntity> getServiceEntityList() {
+    	if (list == null) 
+    		list = new GenericLazyDataModelImpl<EmailTemplateEntity, EmailTemplateService, Long>(service);
    		return list;
     }
-
 }

@@ -33,7 +33,7 @@
 				</f:facet>
 				<h:outputText value="#{user.id}" />
 			</p:column>
-			<p:column sortBy="#{user.username}" filterBy="#{user.username}">
+			<p:column sortBy="#{user.username}" filterBy="#{user.username}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.name}" />
 				</f:facet>

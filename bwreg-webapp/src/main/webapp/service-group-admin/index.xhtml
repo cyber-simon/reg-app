@@ -34,7 +34,7 @@
 				</f:facet>
 				<h:outputText value="#{groupFlag.group.id}" />
 			</p:column>
-			<p:column sortBy="#{groupFlag.group.name}" filterBy="#{groupFlag.group.name}">
+			<p:column sortBy="#{groupFlag.group.name}" filterBy="#{groupFlag.group.name}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.name}" />
 				</f:facet>

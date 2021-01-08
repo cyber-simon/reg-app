@@ -11,29 +11,31 @@
 package edu.kit.scc.webreg.bean.admin.role;
 
 import java.io.Serializable;
-import java.util.List;
 
-import javax.enterprise.context.RequestScoped;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ViewScoped;
 import javax.inject.Inject;
-import javax.inject.Named;
+
+import org.primefaces.model.LazyDataModel;
 
 import edu.kit.scc.webreg.entity.RoleEntity;
+import edu.kit.scc.webreg.model.GenericLazyDataModelImpl;
 import edu.kit.scc.webreg.service.RoleService;
 
-@Named("listRoleBean")
-@RequestScoped
+@ManagedBean
+@ViewScoped
 public class ListRoleBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<RoleEntity> list;
+	private LazyDataModel<RoleEntity> list;
     
     @Inject
     private RoleService service;
 
-    public List<RoleEntity> getRoleEntityList() {
+    public LazyDataModel<RoleEntity> getRoleEntityList() {
     	if (list == null) 
-    		list = service.findAll();
+    		list = new GenericLazyDataModelImpl<RoleEntity, RoleService, Long>(service);
         return list;
     }
 

@@ -17,14 +17,15 @@
 	
 	<h:form id="form">
 	
-		<p:dataTable id="dataTable" var="role" value="#{listRoleBean.roleEntityList}">
+		<p:dataTable id="dataTable" var="role" value="#{listRoleBean.roleEntityList}" paginator="true"
+					lazy="true" rows="15">
 			<p:column>
 				<f:facet name="header">
 					<h:outputText value="#{messages.id}" />
 				</f:facet>
 				<h:outputText value="#{role.id}" />
 			</p:column>
-			<p:column>
+			<p:column sortBy="#{role.name}" filterBy="#{role.name}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.name}" />
 				</f:facet>

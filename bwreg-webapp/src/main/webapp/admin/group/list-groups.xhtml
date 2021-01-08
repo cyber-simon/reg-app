@@ -33,13 +33,13 @@
 				</f:facet>
 				<h:outputText value="#{group.id}" />
 			</p:column>
-			<p:column sortBy="#{group.prefix}" filterBy="#{group.prefix}">
+			<p:column sortBy="#{group.prefix}" filterBy="#{group.prefix}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.prefix}" />
 				</f:facet>
 				<h:outputText value="#{group.prefix}" rendered="#{group.class.simpleName == 'HomeOrgGroupEntity'}" />
 			</p:column>			
-			<p:column sortBy="#{group.name}" filterBy="#{group.name}">
+			<p:column sortBy="#{group.name}" filterBy="#{group.name}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.name}" />
 				</f:facet>
