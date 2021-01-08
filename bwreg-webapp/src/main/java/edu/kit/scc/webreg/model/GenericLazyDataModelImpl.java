@@ -69,7 +69,7 @@ public class GenericLazyDataModelImpl<E extends BaseEntity<PK>, T extends BaseSe
 		
 		setPageSize(pageSize);
 		
-		Number n = getService().countAll(filterMap);
+		Number n = getService().countAll(filterMap, additionalFilterMap);
 		if (n != null)
 			setRowCount(n.intValue());
 		

@@ -31,7 +31,7 @@ public interface BaseDao<T extends BaseEntity<PK>, PK extends Serializable> {
     List<T> findAllPaging(int first, int pageSize, String sortField, GenericSortOrder sortOrder,
     		Map<String, Object> filterMap, Map<String, FilterMeta> additionalFilterMap, String... attrs);
     
-	Number countAll(Map<String, Object> filterMap);
+	Number countAll(Map<String, Object> filterMap, Map<String, FilterMeta> additionalFilterMap);
 
 	T findById(PK id);
 

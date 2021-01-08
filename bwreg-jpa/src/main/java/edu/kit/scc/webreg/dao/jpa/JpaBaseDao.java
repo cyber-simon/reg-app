@@ -119,13 +119,14 @@ public abstract class JpaBaseDao<T extends BaseEntity<PK>, PK extends Serializab
 	}
 
 	@Override
-	public Number countAll(Map<String, Object> filterMap) {
+	public Number countAll(Map<String, Object> filterMap, Map<String, FilterMeta> additionalFilterMap) {
 
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<Long> criteria = builder.createQuery(Long.class);
 		Root<T> root = criteria.from(getEntityClass());
 		
 		List<Predicate> predicates = predicatesFromFilterMap(builder, root, filterMap);
+		predicates.addAll(predicatesFromAdditionalFilterMap(builder, root, additionalFilterMap));
 		
 		criteria.select(builder.count(root));
 		criteria.where(builder.and(predicates.toArray(new Predicate[predicates.size()])));
@@ -133,7 +134,7 @@ public abstract class JpaBaseDao<T extends BaseEntity<PK>, PK extends Serializab
 		TypedQuery<Long> q = em.createQuery(criteria);
 		return q.getSingleResult();
 	}
-	
+		
 	@Override
 	public T findById(PK id) {
 		return em.find(getEntityClass(), id);

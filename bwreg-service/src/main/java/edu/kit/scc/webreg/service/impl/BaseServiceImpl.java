@@ -59,8 +59,8 @@ public abstract class BaseServiceImpl<T extends BaseEntity<PK>, PK extends Seria
 	}
 	
 	@Override
-	public Number countAll(Map<String, Object> filterMap) {
-		return getDao().countAll(filterMap);
+	public Number countAll(Map<String, Object> filterMap, Map<String, FilterMeta> additionalFilterMap) {
+		return getDao().countAll(filterMap, additionalFilterMap);
 	}
 	
 	@Override
