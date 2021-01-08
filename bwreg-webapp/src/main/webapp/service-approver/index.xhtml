@@ -29,19 +29,19 @@
 		<p:dataTable id="registeredTable" var="registry" 
 				value="#{approvalListBean.list}" style="width:auto; font-size: 1.2rem;" 
 				paginator="true" lazy="true" rows="15">
-			<p:column sortBy="#{registry.user.eppn}" filterBy="#{registry.user.eppn}">
+			<p:column sortBy="#{registry.user.eppn}" filterBy="#{registry.user.eppn}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.eppn}" />
 				</f:facet>
 				<h:outputText value="#{registry.user.eppn}" />
 			</p:column>
-			<p:column sortBy="#{registry.user.surName}" filterBy="#{registry.user.surName}">
+			<p:column sortBy="#{registry.user.surName}" filterBy="#{registry.user.surName}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.sur_name}" />
 				</f:facet>
 				<h:outputText value="#{registry.user.surName}" />
 			</p:column>
-			<p:column sortBy="#{registry.user.givenName}" filterBy="#{registry.user.givenName}">
+			<p:column sortBy="#{registry.user.givenName}" filterBy="#{registry.user.givenName}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.given_name}" />
 				</f:facet>

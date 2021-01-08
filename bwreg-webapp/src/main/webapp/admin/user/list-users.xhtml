@@ -33,19 +33,19 @@
 				</f:facet>
 				<h:outputText value="#{user.id}" />
 			</p:column>
-			<p:column sortBy="#{user.surName}" filterBy="#{user.surName}">
+			<p:column sortBy="#{user.surName}" filterBy="#{user.surName}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.sur_name}" />
 				</f:facet>
 				<h:outputText value="#{user.surName}" />
 			</p:column>			
-			<p:column sortBy="#{user.givenName}" filterBy="#{user.givenName}">
+			<p:column sortBy="#{user.givenName}" filterBy="#{user.givenName}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.given_name}" />
 				</f:facet>
 				<h:outputText value="#{user.givenName}" />
 			</p:column>			
-			<p:column sortBy="#{user.eppn}" filterBy="#{user.eppn}">
+			<p:column sortBy="#{user.eppn}" filterBy="#{user.eppn}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.eppn}" />
 				</f:facet>

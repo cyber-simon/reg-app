@@ -37,19 +37,19 @@
 						</f:facet>
 						<h:outputText value="#{key.id}" />
 					</p:column>
-					<p:column sortBy="#{key.registry.user.eppn}" filterBy="#{key.registry.user.eppn}">
+					<p:column sortBy="#{key.registry.user.eppn}" filterBy="#{key.registry.user.eppn}" filterMatchMode="contains">
 						<f:facet name="header">
 							<h:outputText value="#{messages.eppn}" />
 						</f:facet>
 						<h:outputText value="#{key.registry.user.eppn}" /> (<h:outputText value="#{key.registry.user.surName}" />, <h:outputText value="#{key.registry.user.givenName}" />)
 					</p:column>
-					<p:column sortBy="#{key.command}" filterBy="#{key.command}">
+					<p:column sortBy="#{key.command}" filterBy="#{key.command}" filterMatchMode="contains">
 						<f:facet name="header">
 							<h:outputText value="#{messages.command}" />
 						</f:facet>
 						<h:outputText value="#{key.command}" />
 					</p:column>
-					<p:column sortBy="#{key.from}" filterBy="#{key.from}">
+					<p:column sortBy="#{key.from}" filterBy="#{key.from}" filterMatchMode="contains">
 						<f:facet name="header">
 							<h:outputText value="#{messages.from}" />
 						</f:facet>

@@ -41,19 +41,19 @@
       				<f:param name="id" value="#{entity.id}"/>
     			</h:link>
 			</p:column>
-			<p:column sortBy="#{entity.detail}" filterBy="#{entity.detail}">
+			<p:column sortBy="#{entity.detail}" filterBy="#{entity.detail}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.audit_detail}" />
 				</f:facet>
 				<h:outputText value="#{entity.detail}" />
 			</p:column>			
-			<p:column sortBy="#{entity.name}" filterBy="#{entity.name}">
+			<p:column sortBy="#{entity.name}" filterBy="#{entity.name}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.name}" />
 				</f:facet>
 				<h:outputText value="#{entity.name}" />
 			</p:column>			
-			<p:column sortBy="#{entity.executor}" filterBy="#{entity.executor}">
+			<p:column sortBy="#{entity.executor}" filterBy="#{entity.executor}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.executor}" />
 				</f:facet>

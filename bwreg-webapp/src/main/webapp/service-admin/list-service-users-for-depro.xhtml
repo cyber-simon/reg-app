@@ -37,15 +37,15 @@
 					</f:facet>
 					<h:outputText value="#{registry.id}" />
 				</p:column>
-				<p:column sortBy="#{registry.user.eppn}" filterBy="#{registry.user.eppn}">
+				<p:column sortBy="#{registry.user.eppn}" filterBy="#{registry.user.eppn}" filterMatchMode="contains">
 					<f:facet name="header">
 						<h:outputText value="#{messages.eppn}" />
 					</f:facet>
-					<h:link outcome="show-service-registry.xhtml" value="#{registry.user.eppn}">
+					<h:link outcome="show-service-registry.xhtml" value="#{registry.user.eppn}" filterMatchMode="contains">
 	      				<f:param name="id" value="#{registry.id}"/>
 	    			</h:link>
 				</p:column>
-				<p:column sortBy="#{registry.user.uidNumber}" filterBy="#{registry.user.uidNumber}" filterStyle="width: 48px;">
+				<p:column sortBy="#{registry.user.uidNumber}" filterBy="#{registry.user.uidNumber}" filterStyle="width: 96px;" filterMatchMode="contains">
 					<f:facet name="header">
 						<h:outputText value="#{messages.uid_number}" />
 					</f:facet>
@@ -53,13 +53,13 @@
 	      				<f:param name="id" value="#{registry.id}"/>
 	    			</h:link>
 				</p:column>
-				<p:column sortBy="#{registry.user.surName}" filterBy="#{registry.user.surName}" filterStyle="width: 48px;">
+				<p:column sortBy="#{registry.user.surName}" filterBy="#{registry.user.surName}" filterMatchMode="contains">
 					<f:facet name="header">
 						<h:outputText value="#{messages.sur_name}" />
 					</f:facet>
 					<h:outputText value="#{registry.user.surName}" />
 				</p:column>
-				<p:column sortBy="#{registry.user.givenName}" filterBy="#{registry.user.givenName}" filterStyle="width: 48px;">
+				<p:column sortBy="#{registry.user.givenName}" filterBy="#{registry.user.givenName}" filterMatchMode="contains">
 					<f:facet name="header">
 						<h:outputText value="#{messages.given_name}" />
 					</f:facet>
