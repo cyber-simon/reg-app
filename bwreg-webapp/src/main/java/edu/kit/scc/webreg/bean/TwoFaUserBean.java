@@ -28,6 +28,7 @@ import edu.kit.scc.webreg.service.twofa.TwoFaService;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpGetBackupTanListResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpInitAuthenticatorTokenResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
+import edu.kit.scc.webreg.service.twofa.linotp.LinotpToken;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpTokenResultList;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
@@ -114,11 +115,12 @@ public class TwoFaUserBean implements Serializable {
 						}
 					}
 					
-					tokenList = twoFaService.findByIdentity(identity);
-					if (tokenList.size() == 1) {
+					if (! hasActiveToken()) {
 						// this was the first token. We have to set 2fa elevation
 						sessionManager.setTwoFaElevation(Instant.now());
 					}					
+
+					tokenList = twoFaService.findByIdentity(identity);
 				}
 				else {
 					messageGenerator.addResolvedWarningMessage("warn", "twofa_token_failed", true);
@@ -150,11 +152,12 @@ public class TwoFaUserBean implements Serializable {
 						
 					}
 					
-					tokenList = twoFaService.findByIdentity(identity);
-					if (tokenList.size() == 1) {
+					if (! hasActiveToken()) {
 						// this was the first token. We have to set 2fa elevation
 						sessionManager.setTwoFaElevation(Instant.now());
 					}					
+
+					tokenList = twoFaService.findByIdentity(identity);
 				}
 				else {
 					messageGenerator.addResolvedWarningMessage("warn", "twofa_token_failed", true);
@@ -193,11 +196,12 @@ public class TwoFaUserBean implements Serializable {
 					if (response.getResult() != null && response.getResult().isStatus() && response.getResult().isValue()) {
 						// success, Token stays active, set correct description
 						twoFaService.initToken(identity, serial, "identity-" + identity.getId());
-						tokenList = twoFaService.findByIdentity(identity);
-						if (tokenList.size() == 1) {
+						if (! hasActiveToken()) {
 							// this was the first token. We have to set 2fa elevation
 							sessionManager.setTwoFaElevation(Instant.now());
 						}
+
+						tokenList = twoFaService.findByIdentity(identity);
 						PrimeFaces.current().executeScript("PF('addTotpDlg').hide();");
 						createTokenResponse = null;
 						totpCode = "";
@@ -328,6 +332,22 @@ public class TwoFaUserBean implements Serializable {
 
 	public LinotpGetBackupTanListResponse getBackupTanList() {
 		return backupTanList;
+	}
+
+	private Boolean hasActiveToken() {
+		for (LinotpToken token : tokenList) {
+			if (token.getIsactive()) {
+				/*
+				 * filter token, that are not initialized
+				 */
+				if (token.getDescription() != null && token.getDescription().contains("INIT")) {
+					return false;
+				}
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 }
