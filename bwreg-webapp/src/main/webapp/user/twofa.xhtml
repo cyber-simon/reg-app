@@ -25,7 +25,7 @@
 
 	<ui:define name="content">
 	<h:form id="form" class="full fancy form">
-			<div><p:messages showDetail="true" /></div>
+		<p:messages id="messagePanel" showDetail="true" />
 
 		<p:outputPanel rendered="#{twoFaUserBean.reallyReadOnly}">
 			<h3>#{messages.twofa_list}</h3>
@@ -77,7 +77,7 @@
 			</p:dataGrid>
 		</p:outputPanel>
 
-		<p:dataGrid var="token" value="#{twoFaUserBean.tokenList}" columns="2" styleClass="whitefoot"
+		<p:dataGrid id="tokenDisplayPanel" var="token" value="#{twoFaUserBean.tokenList}" columns="2" styleClass="whitefoot"
 				layout="grid" style="margin-bottom: 16px;" rendered="#{! twoFaUserBean.readOnly}">
 	        <f:facet name="header">#{messages.twofa_list}</f:facet>
 	        <p:panel style="margin-bottom: 0px;">
@@ -161,13 +161,15 @@
 		<p:dialog header="#{messages.twofa_create_totp_token}" 
 					widgetVar="addTotpDlg" id="addTotpDlgId" modal="true" closable="true" closeOnEscape="true"
 					showEffect="fade" hideEffect="fade">
-			<p:ajax event="close" update="@form" />
+			<p:ajax event="close" update=":form:tokenDisplayPanel" />
 
 			<div class="panel" style="width:520px;">
 			    <h:outputText value="#{messages.twofa_create_totp_token_desc}" escape="false" />
 		    </div>
 
-			<p:panel id="totpResponsePanel" style="height: 260px;">
+
+			<p:panel id="totpResponsePanel" style="height: 300px;">
+				<p:messages id="totp_messages" showDetail="true"  />
 			    <p:commandButton id="totpStartButton" action="#{twoFaUserBean.createAuthenticatorToken()}" value="#{messages.start}"
 		    		update="totpResponsePanel" oncomplete="PF('addTotpDlg').initPosition()" rendered="#{empty twoFaUserBean.createTokenResponse}"/>
 				<h:panelGroup rendered="#{not empty twoFaUserBean.createTokenResponse}">
@@ -184,7 +186,7 @@
 								<p:inputText id="totpText" autocomplete="false" value="#{twoFaUserBean.totpCode}"/>
 							</h:panelGrid>
 							<p:commandButton id="checkTotpButton" action="#{twoFaUserBean.checkAuthenticatorToken()}" value="#{messages.check}"
-								update="totpResponsePanel" />
+								update="totpResponsePanel, :form:messagePanel" />
 							</p:outputPanel>
 							
 							<p:outputLabel for="@next" value="Seed:" />
@@ -198,7 +200,7 @@
 		<p:dialog header="#{messages.twofa_create_yubico_token}" 
 					widgetVar="addYubicoDlg" id="addYubicoDlgId" modal="true" closable="true" closeOnEscape="true"
 					showEffect="fade" hideEffect="fade">
-			<p:ajax event="close" update="@form" />
+			<p:ajax event="close" update=":form:tokenDisplayPanel" />
 			<div class="panel" style="width:360px;">
 			    <h:outputText value="#{messages.twofa_create_yubico_token_desc}" escape="false" />
 		    </div>
@@ -209,7 +211,7 @@
 					<p:inputText id="yubicoText" autocomplete="false" value="#{twoFaUserBean.yubicoCode}"/>
 				</h:panelGrid>
 			    <p:commandButton id="yubicoStartButton" action="#{twoFaUserBean.createYubicoToken()}" value="#{messages.start}"
-		    		update="yubicoResponsePanel"/>
+		    		update="yubicoResponsePanel, :form:messagePanel"/>
 			</p:panel>
 
 		</p:dialog>
@@ -217,14 +219,14 @@
 		<p:dialog header="#{messages.twofa_create_backup_tan_list}" 
 					widgetVar="addBackupTanDlg" id="addBackupTanDlgId" modal="true" closable="true" closeOnEscape="true"
 					showEffect="fade" hideEffect="fade">
-			<p:ajax event="close" update="@form" />
+			<p:ajax event="close" update=":form:tokenDisplayPanel" />
 			<div class="panel" style="width:360px;">
 			    <h:outputText value="#{messages.twofa_create_backup_tan_list_desc}" escape="false" />
 		    </div>
 		
 			<p:panel id="backupTanResponsePanel">
 			    <p:commandButton id="backupTanStartButton" action="#{twoFaUserBean.createBackupTanList()}" value="#{messages.start}"
-		    		update="backupTanResponsePanel"/>
+		    		update="backupTanResponsePanel, :form:messagePanel"/>
 			</p:panel>
 
 		</p:dialog>

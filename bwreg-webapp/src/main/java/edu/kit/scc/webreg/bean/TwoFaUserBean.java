@@ -76,7 +76,7 @@ public class TwoFaUserBean implements Serializable {
 	    	try {
 				tokenList = twoFaService.findByIdentity(identity);
 			} catch (TwoFaException e) {
-				messageGenerator.addErrorMessage("Error", e.toString());
+				messageGenerator.addErrorMessage("messagePanel", "Error", e.toString());
 				logger.debug("Exception happened", e);
 			}
 
@@ -108,10 +108,11 @@ public class TwoFaUserBean implements Serializable {
 								checkResponse.getResult().isValue())) {
 							// Token creating was successful, but check failed
 							twoFaService.deleteToken(identity, serial, "identity-" + identity.getId());
-							messageGenerator.addResolvedWarningMessage("warn", "twofa_token_failed", true);
+							messageGenerator.addResolvedWarningMessage("messagePanel", "warn", "twofa_token_init_code_wrong", true);
 						}
 						else {
 							twoFaService.initToken(identity, serial, "identity-" + identity.getId());
+							messageGenerator.addInfoMessage("messagePanel", "Info", "Token " + serial + " created");
 						}
 					}
 					
@@ -123,7 +124,7 @@ public class TwoFaUserBean implements Serializable {
 					tokenList = twoFaService.findByIdentity(identity);
 				}
 				else {
-					messageGenerator.addResolvedWarningMessage("warn", "twofa_token_failed", true);
+					messageGenerator.addResolvedWarningMessage("messagePanel", "warn", "twofa_token_failed", true);
 				}
 	
 				PrimeFaces.current().executeScript("PF('addYubicoDlg').hide();");
@@ -132,7 +133,7 @@ public class TwoFaUserBean implements Serializable {
 				
 			} catch (TwoFaException e) {
 				logger.warn("TwoFaException", e);
-				messageGenerator.addResolvedWarningMessage("warn", "twofa_token_failed", true);
+				messageGenerator.addResolvedWarningMessage("messagePanel", "warn", "twofa_token_failed", true);
 				PrimeFaces.current().executeScript("PF('addYubicoDlg').hide();");
 				createTokenResponse = null;
 				yubicoCode = "";
@@ -150,6 +151,7 @@ public class TwoFaUserBean implements Serializable {
 						String serial = response.getDetail().getSerial();
 						twoFaService.initToken(identity, serial, "identity-" + identity.getId());
 						
+						messageGenerator.addInfoMessage("messagePanel", "Info", "Token " + serial + " created");
 					}
 					
 					if (! hasActiveToken()) {
@@ -158,9 +160,10 @@ public class TwoFaUserBean implements Serializable {
 					}					
 
 					tokenList = twoFaService.findByIdentity(identity);
+					
 				}
 				else {
-					messageGenerator.addResolvedWarningMessage("warn", "twofa_token_failed", true);
+					messageGenerator.addResolvedWarningMessage("messagePanel", "warn", "twofa_token_failed", true);
 				}
 	
 				PrimeFaces.current().executeScript("PF('addBackupTanDlg').hide();");
@@ -201,6 +204,8 @@ public class TwoFaUserBean implements Serializable {
 							sessionManager.setTwoFaElevation(Instant.now());
 						}
 
+						messageGenerator.addInfoMessage("messagePanel", "Info", "Token " + serial + " created");
+
 						tokenList = twoFaService.findByIdentity(identity);
 						PrimeFaces.current().executeScript("PF('addTotpDlg').hide();");
 						createTokenResponse = null;
@@ -210,6 +215,7 @@ public class TwoFaUserBean implements Serializable {
 						// wrong code, disable token
 						response = twoFaService.disableToken(identity, serial, "identity-" + identity.getId());
 						totpCode = "";
+						messageGenerator.addResolvedWarningMessage("totp_messages", "warning", "twofa_token_init_code_wrong", true);
 					}
 				}
 			}
@@ -225,14 +231,14 @@ public class TwoFaUserBean implements Serializable {
 				tokenList = twoFaService.findByIdentity(identity);
 				if ((response.getResult() != null) && response.getResult().isStatus() &&
 						response.getResult().isValue()) {
-					messageGenerator.addInfoMessage("Info", "Token " + serial + " enabled");
+					messageGenerator.addInfoMessage("messagePanel", "Info", "Token " + serial + " enabled");
 				}
 				else {
-					messageGenerator.addWarningMessage("Warn", "Token " + serial + " could not be enabled");
+					messageGenerator.addWarningMessage("messagePanel", "Warn", "Token " + serial + " could not be enabled");
 				}
 			} catch (TwoFaException e) {
 				logger.warn("TwoFaException", e);
-				messageGenerator.addErrorMessage("Error", e.toString());
+				messageGenerator.addErrorMessage("messagePanel", "Error", e.toString());
 			}
 		}
 	}
@@ -244,14 +250,14 @@ public class TwoFaUserBean implements Serializable {
 				tokenList = twoFaService.findByIdentity(identity);
 				if ((response.getResult() != null) && response.getResult().isStatus() &&
 						response.getResult().isValue()) {
-					messageGenerator.addInfoMessage("Info", "Token " + serial + " disabled");
+					messageGenerator.addInfoMessage("messagePanel", "Info", "Token " + serial + " disabled");
 				}
 				else {
-					messageGenerator.addWarningMessage("Warn", "Token " + serial + " could not be disable");
+					messageGenerator.addWarningMessage("messagePanel", "Warn", "Token " + serial + " could not be disable");
 				}
 			} catch (TwoFaException e) {
 				logger.warn("TwoFaException", e);
-				messageGenerator.addErrorMessage("Error", e.toString());
+				messageGenerator.addErrorMessage("messagePanel", "Error", e.toString());
 			}
 		}
 	}
@@ -263,14 +269,14 @@ public class TwoFaUserBean implements Serializable {
 				tokenList = twoFaService.findByIdentity(identity);
 				if ((response.getResult() != null) && response.getResult().isStatus() &&
 						response.getResult().isValue()) {
-					messageGenerator.addInfoMessage("Info", "Token " + serial + " deleted");
+					messageGenerator.addInfoMessage("messagePanel", "Info", "Token " + serial + " deleted");
 				}
 				else {
-					messageGenerator.addWarningMessage("Warn", "Token " + serial + " could not be deleted");
+					messageGenerator.addWarningMessage("messagePanel", "Warn", "Token " + serial + " could not be deleted");
 				}
 			} catch (TwoFaException e) {
 				logger.warn("TwoFaException", e);
-				messageGenerator.addErrorMessage("Error", e.toString());
+				messageGenerator.addErrorMessage("messagePanel", "Error", e.toString());
 			}
 		}
 	}

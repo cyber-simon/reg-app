@@ -107,6 +107,7 @@ public class FacesMessageGenerator {
 	}	
 
 	public void addMessage(String msgName, Severity severity, String messageText, String detail) {
+		FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
 		FacesContext.getCurrentInstance().addMessage(msgName, 
 				new FacesMessage(severity, messageText, detail));				
 	}	
