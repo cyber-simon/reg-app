@@ -38,8 +38,8 @@ public class JpaProjectDao extends JpaBaseDao<ProjectEntity, Long> implements Pr
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ProjectEntity> findAdminByIdentity(IdentityEntity identity) {
-		return em.createQuery("select r.project from ProjectIdentityAdminEntity r where r.identity = :identity order by r.project.name")
+	public List<ProjectIdentityAdminEntity> findAdminByIdentity(IdentityEntity identity) {
+		return em.createQuery("select r from ProjectIdentityAdminEntity r where r.identity = :identity order by r.project.name")
 				.setParameter("identity", identity).getResultList();
 	}
 	

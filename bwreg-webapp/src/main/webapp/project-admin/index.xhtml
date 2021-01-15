@@ -21,31 +21,37 @@
 	<ui:param name="title" value="#{messages.title}"/>
 
 	<ui:define name="content">
-	<h:form id="form">
+	<h:form id="form" class="full form">
 
 		<h2><h:outputText value="#{messages.my_projects}"/></h2>
 
-		<p:dataTable id="dataTable" var="project" value="#{projectAdminListProjectBean.projectList}" paginator="true" rows="15">
+		<p:dataTable id="dataTable" var="pia" value="#{projectAdminListProjectBean.projectList}" paginator="true" rows="15">
 			<p:column>
 				<f:facet name="header">
 					<h:outputText value="#{messages.id}" />
 				</f:facet>
-				<h:outputText value="#{project.id}" />
+				<h:outputText value="#{pia.project.id}" />
 			</p:column>
 			<p:column>
 				<f:facet name="header">
 					<h:outputText value="#{messages.short_name}" />
 				</f:facet>
-				<h:outputText value="#{project.shortName}" />
+				<h:outputText value="#{pia.project.shortName}" />
 			</p:column>
-			<p:column sortBy="#{project.name}" filterBy="#{project.name}">
+			<p:column sortBy="#{pia.project.name}" filterBy="#{pia.project.name}">
 				<f:facet name="header">
 					<h:outputText value="#{messages.name}" />
 				</f:facet>
-				<h:link outcome="show-project.xhtml" value="#{project.name}">
-		      		<f:param name="projectId" value="#{project.id}"/>
+				<h:link outcome="show-project.xhtml" value="#{pia.project.name}">
+		      		<f:param name="projectId" value="#{pia.project.id}"/>
 				</h:link>
 			</p:column>			
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.type}" />
+				</f:facet>
+				<h:outputText value="#{pia.type}" />
+			</p:column>
 		</p:dataTable>
 		
 		<h:link outcome="add-project.xhtml" value="#{messages.add_project}" />

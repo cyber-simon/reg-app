@@ -29,6 +29,6 @@ public interface ProjectDao extends BaseDao<ProjectEntity, Long> {
 
 	ProjectIdentityAdminEntity addAdminToProject(ProjectEntity project, IdentityEntity identity, ProjectAdminType type);
 
-	List<ProjectEntity> findAdminByIdentity(IdentityEntity identity);
+	List<ProjectIdentityAdminEntity> findAdminByIdentity(IdentityEntity identity);
 
 }

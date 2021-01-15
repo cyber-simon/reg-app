@@ -13,16 +13,13 @@ package edu.kit.scc.webreg.service.project;
 import java.util.List;
 
 import edu.kit.scc.webreg.entity.ServiceEntity;
-import edu.kit.scc.webreg.entity.project.ProjectEntity;
-import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
+import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
 import edu.kit.scc.webreg.service.BaseService;
 
-public interface ProjectService extends BaseService<ProjectEntity, Long> {
+public interface LocalProjectService extends BaseService<LocalProjectEntity, Long> {
 
-	List<ProjectEntity> findByService(ServiceEntity service);
+	List<LocalProjectEntity> findByService(ServiceEntity service);
 
-	ProjectEntity save(ProjectEntity project, Long identityId);
-
-	List<ProjectIdentityAdminEntity> findAdminByUserId(Long identityId);
+	LocalProjectEntity save(LocalProjectEntity project, Long identityId);
 
 }

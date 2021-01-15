@@ -11,39 +11,51 @@
 package edu.kit.scc.webreg.bean.project;
 
 import java.io.Serializable;
-import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
-import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
-import edu.kit.scc.webreg.service.project.ProjectService;
+import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
+import edu.kit.scc.webreg.service.project.LocalProjectService;
 import edu.kit.scc.webreg.session.SessionManager;
 
 @ManagedBean
 @ViewScoped
-public class ProjectAdminListProjectBean implements Serializable {
+public class ProjectAdminShowProjectBean implements Serializable {
 
- 	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
- 	@Inject
- 	private SessionManager session;
- 	
- 	@Inject
- 	private ProjectService projectService;
- 	
-    private List<ProjectIdentityAdminEntity> projectList;
-    
-	public void preRenderView(ComponentSystemEvent ev) {
+	@Inject
+	private SessionManager session;
 	
+	@Inject
+	private LocalProjectService service;
+	
+	private LocalProjectEntity entity;
+
+	private Long projectId;
+	
+	public void preRenderView(ComponentSystemEvent ev) {
+		if (entity == null) {
+			entity = service.findById(projectId);
+		}
+	}
+	
+	public LocalProjectEntity getEntity() {
+		return entity;
 	}
 
-	public List<ProjectIdentityAdminEntity> getProjectList() {
-		if (projectList == null) {
-			projectList = projectService.findAdminByUserId(session.getIdentityId());
-		}
-		return projectList;
+	public void setEntity(LocalProjectEntity entity) {
+		this.entity = entity;
+	}
+
+	public Long getProjectId() {
+		return projectId;
+	}
+
+	public void setProjectId(Long projectId) {
+		this.projectId = projectId;
 	}
 }

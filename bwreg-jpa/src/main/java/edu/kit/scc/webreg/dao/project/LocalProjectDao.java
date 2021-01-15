@@ -8,21 +8,16 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.service.project;
+package edu.kit.scc.webreg.dao.project;
 
 import java.util.List;
 
+import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.entity.ServiceEntity;
-import edu.kit.scc.webreg.entity.project.ProjectEntity;
-import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
-import edu.kit.scc.webreg.service.BaseService;
+import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
 
-public interface ProjectService extends BaseService<ProjectEntity, Long> {
+public interface LocalProjectDao extends BaseDao<LocalProjectEntity, Long> {
 
-	List<ProjectEntity> findByService(ServiceEntity service);
-
-	ProjectEntity save(ProjectEntity project, Long identityId);
-
-	List<ProjectIdentityAdminEntity> findAdminByUserId(Long identityId);
+	List<LocalProjectEntity> findByService(ServiceEntity service);
 
 }
