@@ -85,6 +85,28 @@
 				<h:outputText value="#{admin.type}" />
 			</p:column>			
 		</p:dataTable>		
+
+		<p:dataTable id="dataTableService" var="service" value="#{projectAdminShowProjectBean.serviceList}" paginator="true"
+					rows="15">
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.id}" />
+				</f:facet>
+				<h:outputText value="#{service.service.id}" />
+			</p:column>			
+			<p:column sortBy="#{service.service.name}" filterBy="#{service.service.name}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.name}" />
+				</f:facet>
+				<h:outputText value="#{service.service.name}" />
+			</p:column>			
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.type}" />
+				</f:facet>
+				<h:outputText value="#{service.type}" />
+			</p:column>			
+		</p:dataTable>		
 		
 	</h:form>
 

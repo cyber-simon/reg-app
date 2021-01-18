@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
+import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
 import edu.kit.scc.webreg.service.project.LocalProjectService;
 import edu.kit.scc.webreg.service.project.ProjectService;
 import edu.kit.scc.webreg.session.SessionManager;
@@ -43,6 +44,7 @@ public class ProjectAdminShowProjectBean implements Serializable {
 	private LocalProjectEntity entity;
 	private List<ProjectMembershipEntity> memberList;
 	private List<ProjectIdentityAdminEntity> adminList;
+	private List<ProjectServiceEntity> serviceList;
 	
 	private Long projectId;
 	
@@ -80,5 +82,12 @@ public class ProjectAdminShowProjectBean implements Serializable {
 			adminList = projectService.findAdminsForProject(entity);
 		}
 		return adminList;
+	}
+
+	public List<ProjectServiceEntity> getServiceList() {
+		if (serviceList == null) {
+			serviceList = projectService.findServicesForProject(entity);
+		}
+		return serviceList;
 	}
 }

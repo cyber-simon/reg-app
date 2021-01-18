@@ -24,6 +24,7 @@ import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
+import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
 
 @Stateless
@@ -56,6 +57,11 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity, Long> imp
 	@Override
 	public List<ProjectMembershipEntity> findMembersForProject(ProjectEntity project) {
 		return dao.findMembersForProject(project);
+	}
+
+	@Override
+	public List<ProjectServiceEntity> findServicesForProject(ProjectEntity project) {
+		return dao.findServicesForProject(project);
 	}
 
 	@Override 

@@ -58,6 +58,13 @@ public class JpaProjectDao extends JpaBaseDao<ProjectEntity, Long> implements Pr
 				.setParameter("project", project).getResultList();
 	}
 	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ProjectServiceEntity> findServicesForProject(ProjectEntity project) {
+		return em.createQuery("select r from ProjectServiceEntity r where r.project = :project")
+				.setParameter("project", project).getResultList();
+	}
+	
 	@Override
 	public ProjectIdentityAdminEntity addAdminToProject(ProjectEntity project, IdentityEntity identity, ProjectAdminType type) {
 		ProjectIdentityAdminEntity entity = new ProjectIdentityAdminEntity();

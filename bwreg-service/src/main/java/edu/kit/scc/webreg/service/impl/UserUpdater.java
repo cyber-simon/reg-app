@@ -61,6 +61,7 @@ import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.SerialService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserServiceHook;
+import edu.kit.scc.webreg.service.identity.IdentityUpdater;
 import edu.kit.scc.webreg.service.reg.AttributeSourceQueryService;
 import edu.kit.scc.webreg.service.reg.impl.Registrator;
 import edu.kit.scc.webreg.service.saml.AttributeQueryHelper;
@@ -137,6 +138,9 @@ public class UserUpdater implements Serializable {
 
 	@Inject
 	private Registrator registrator;
+	
+	@Inject
+	private IdentityUpdater identityUpdater;
 	
 	public SamlUserEntity updateUser(SamlUserEntity user, Map<String, List<Object>> attributeMap, String executor)
 			throws UserUpdateException {
@@ -261,6 +265,8 @@ public class UserUpdater implements Serializable {
 			for (Entry<String, List<Object>> entry : attributeMap.entrySet()) {
 				attributeStore.put(entry.getKey(), attrHelper.attributeListToString(entry.getValue()));
 			}
+			
+			identityUpdater.updateIdentity(user);
 		}
 
 		for (ServiceEntity delayedService : delayedRegisterList) {

@@ -16,6 +16,7 @@ import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
+import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
 import edu.kit.scc.webreg.service.BaseService;
 
 public interface ProjectService extends BaseService<ProjectEntity, Long> {
@@ -29,4 +30,6 @@ public interface ProjectService extends BaseService<ProjectEntity, Long> {
 	List<ProjectMembershipEntity> findMembersForProject(ProjectEntity project);
 	
 	List<ProjectIdentityAdminEntity> findAdminsForProject(ProjectEntity project);
+	
+	List<ProjectServiceEntity> findServicesForProject(ProjectEntity project);
 }
