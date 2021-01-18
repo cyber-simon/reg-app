@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.bean.project;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
@@ -18,7 +19,10 @@ import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
+import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
+import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.service.project.LocalProjectService;
+import edu.kit.scc.webreg.service.project.ProjectService;
 import edu.kit.scc.webreg.session.SessionManager;
 
 @ManagedBean
@@ -32,9 +36,14 @@ public class ProjectAdminShowProjectBean implements Serializable {
 	
 	@Inject
 	private LocalProjectService service;
-	
-	private LocalProjectEntity entity;
 
+	@Inject
+	private ProjectService projectService;
+
+	private LocalProjectEntity entity;
+	private List<ProjectMembershipEntity> memberList;
+	private List<ProjectIdentityAdminEntity> adminList;
+	
 	private Long projectId;
 	
 	public void preRenderView(ComponentSystemEvent ev) {
@@ -57,5 +66,19 @@ public class ProjectAdminShowProjectBean implements Serializable {
 
 	public void setProjectId(Long projectId) {
 		this.projectId = projectId;
+	}
+
+	public List<ProjectMembershipEntity> getMemberList() {
+		if (memberList == null) {
+			memberList = projectService.findMembersForProject(entity);
+		}
+		return memberList;
+	}
+
+	public List<ProjectIdentityAdminEntity> getAdminList() {
+		if (adminList == null) {
+			adminList = projectService.findAdminsForProject(entity);
+		}
+		return adminList;
 	}
 }

@@ -12,5 +12,6 @@ package edu.kit.scc.webreg.entity.project;
 
 public enum ProjectServiceType {
 
-	AUTO_REGISTER,
+	AUTO_REGISTER_GROUP,
+	PASSIVE_GROUP
 }

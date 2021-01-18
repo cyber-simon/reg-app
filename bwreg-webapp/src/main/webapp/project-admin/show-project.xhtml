@@ -31,16 +31,61 @@
 			<h:outputText value="#{messages.id}:"/>
 			<h:outputText value="#{projectAdminShowProjectBean.entity.id}"/>
 			
-			<h:outputText value="#{messages.id}:"/>
+			<h:outputText value="#{messages.name}:"/>
 			<h:outputText value="#{projectAdminShowProjectBean.entity.name}"/>
 			
-			<h:outputText value="#{messages.id}:"/>
+			<h:outputText value="#{messages.short_name}:"/>
 			<h:outputText value="#{projectAdminShowProjectBean.entity.shortName}"/>
 
-			<h:outputText value="#{messages.id}:"/>
+			<h:outputText value="#{messages.description}:"/>
 			<h:outputText value="#{projectAdminShowProjectBean.entity.shortDescription}"/>
 			
 		</p:panelGrid>
+		
+		<p:dataTable id="dataTableMember" var="member" value="#{projectAdminShowProjectBean.memberList}" paginator="true"
+					rows="15">
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.id}" />
+				</f:facet>
+				<h:outputText value="#{member.identity.id}" />
+			</p:column>			
+			<p:column sortBy="#{member.identity.prefUser.eppn}" filterBy="#{member.identity.prefUser.eppn}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.name}" />
+				</f:facet>
+				<h:outputText value="#{member.identity.prefUser.eppn}" />
+			</p:column>			
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.type}" />
+				</f:facet>
+				<h:outputText value="#{member.type}" />
+			</p:column>			
+		</p:dataTable>		
+		
+		<p:dataTable id="dataTableAdmin" var="admin" value="#{projectAdminShowProjectBean.adminList}" paginator="true"
+					rows="15">
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.id}" />
+				</f:facet>
+				<h:outputText value="#{admin.identity.id}" />
+			</p:column>			
+			<p:column sortBy="#{admin.identity.prefUser.eppn}" filterBy="#{admin.identity.prefUser.eppn}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.name}" />
+				</f:facet>
+				<h:outputText value="#{admin.identity.prefUser.eppn}" />
+			</p:column>			
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.type}" />
+				</f:facet>
+				<h:outputText value="#{admin.type}" />
+			</p:column>			
+		</p:dataTable>		
+		
 	</h:form>
 
 	</ui:define>

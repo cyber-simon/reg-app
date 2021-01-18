@@ -23,6 +23,7 @@ import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
+import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
 
 @Stateless
@@ -45,6 +46,16 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity, Long> imp
 	public List<ProjectIdentityAdminEntity> findAdminByUserId(Long identityId) {
 		IdentityEntity identity = identityDao.findById(identityId);
 		return dao.findAdminByIdentity(identity);
+	}
+
+	@Override
+	public List<ProjectIdentityAdminEntity> findAdminsForProject(ProjectEntity project) {
+		return dao.findAdminsForProject(project);
+	}
+
+	@Override
+	public List<ProjectMembershipEntity> findMembersForProject(ProjectEntity project) {
+		return dao.findMembersForProject(project);
 	}
 
 	@Override 

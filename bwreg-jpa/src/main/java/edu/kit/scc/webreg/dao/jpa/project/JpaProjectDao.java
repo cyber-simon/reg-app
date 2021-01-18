@@ -22,6 +22,7 @@ import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
+import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
 import edu.kit.scc.webreg.entity.project.ProjectServiceType;
 
@@ -41,6 +42,20 @@ public class JpaProjectDao extends JpaBaseDao<ProjectEntity, Long> implements Pr
 	public List<ProjectIdentityAdminEntity> findAdminByIdentity(IdentityEntity identity) {
 		return em.createQuery("select r from ProjectIdentityAdminEntity r where r.identity = :identity order by r.project.name")
 				.setParameter("identity", identity).getResultList();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ProjectMembershipEntity> findMembersForProject(ProjectEntity project) {
+		return em.createQuery("select r from ProjectMembershipEntity r where r.project = :project")
+				.setParameter("project", project).getResultList();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ProjectIdentityAdminEntity> findAdminsForProject(ProjectEntity project) {
+		return em.createQuery("select r from ProjectIdentityAdminEntity r where r.project = :project")
+				.setParameter("project", project).getResultList();
 	}
 	
 	@Override

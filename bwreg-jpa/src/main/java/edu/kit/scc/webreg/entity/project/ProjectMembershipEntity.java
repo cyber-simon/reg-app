@@ -90,5 +90,13 @@ public class ProjectMembershipEntity implements Serializable {
 		} else if (!project.equals(other.project))
 			return false;
 		return true;
+	}
+
+	public IdentityEntity getIdentity() {
+		return identity;
+	}
+
+	public void setIdentity(IdentityEntity identity) {
+		this.identity = identity;
 	}	
 }

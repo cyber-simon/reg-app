@@ -18,6 +18,7 @@ import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
+import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
 import edu.kit.scc.webreg.entity.project.ProjectServiceType;
 
@@ -31,4 +32,7 @@ public interface ProjectDao extends BaseDao<ProjectEntity, Long> {
 
 	List<ProjectIdentityAdminEntity> findAdminByIdentity(IdentityEntity identity);
 
+	List<ProjectMembershipEntity> findMembersForProject(ProjectEntity project);
+	
+	List<ProjectIdentityAdminEntity> findAdminsForProject(ProjectEntity project);
 }
