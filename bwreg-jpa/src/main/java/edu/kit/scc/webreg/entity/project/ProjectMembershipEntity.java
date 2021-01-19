@@ -20,18 +20,17 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 
 @Entity(name = "ProjectMembershipEntity")
-@Table(name = "project_membership")
+@Table(name = "project_idty_membership")
 public class ProjectMembershipEntity implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
     @Id
-	@ManyToOne(targetEntity = UserEntity.class)
-    @JoinColumn(name = "user_id", nullable = false)
+	@ManyToOne(targetEntity = IdentityEntity.class)
+    @JoinColumn(name = "identity_id", nullable = false)
 	private IdentityEntity identity;
 	
     @Id

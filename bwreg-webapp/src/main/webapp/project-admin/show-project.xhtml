@@ -42,6 +42,12 @@
 			
 		</p:panelGrid>
 		
+		<h5><h:outputText value="#{messages.project_members}" /></h5>
+		<div>
+			<h:link outcome="edit-project-members.xhtml" value="#{messages.edit_members}">
+				<f:param name="projectId" value="#{projectAdminShowProjectBean.projectId}"/>
+			</h:link>
+		</div>
 		<p:dataTable id="dataTableMember" var="member" value="#{projectAdminShowProjectBean.memberList}" paginator="true"
 					rows="15">
 			<p:column>
@@ -60,7 +66,7 @@
 				<f:facet name="header">
 					<h:outputText value="#{messages.type}" />
 				</f:facet>
-				<h:outputText value="#{member.type}" />
+				<h:outputText value="#{member.membershipType}" />
 			</p:column>			
 		</p:dataTable>		
 		

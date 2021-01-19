@@ -23,6 +23,7 @@ import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
+import edu.kit.scc.webreg.entity.project.ProjectMembershipType;
 import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
 import edu.kit.scc.webreg.entity.project.ProjectServiceType;
 
@@ -83,6 +84,23 @@ public class JpaProjectDao extends JpaBaseDao<ProjectEntity, Long> implements Pr
 		entity.setType(type);
 		em.persist(entity);
 		return entity;
+	}
+
+	@Override
+	public ProjectMembershipEntity addMemberToProject(ProjectEntity project, IdentityEntity identity, ProjectMembershipType type) {
+		ProjectMembershipEntity entity = new ProjectMembershipEntity();
+		entity.setProject(project);
+		entity.setIdentity(identity);
+		entity.setMembershipType(type);
+		em.persist(entity);
+		return entity;
+	}
+
+	@Override
+	public void deleteMembership(ProjectMembershipEntity entity) {
+		if (! em.contains(entity))
+			entity = em.merge(entity);
+		em.remove(entity);
 	}
 	
 	@Override
