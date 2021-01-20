@@ -3,6 +3,7 @@ package edu.kit.scc.webreg.service.project;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -63,7 +64,7 @@ public class ProjectUpdater {
 	@Inject
 	private EventSubmitter eventSubmitter;
 
-	public void updateProjectMemberList(ProjectEntity project, List<IdentityEntity> memberList, String executor) {
+	public void updateProjectMemberList(ProjectEntity project, Set<IdentityEntity> memberList, String executor) {
 		// Save members first
 		List<ProjectMembershipEntity> oldMemberList = dao.findMembersForProject(project);
 		List<IdentityEntity> newMemberList = new ArrayList<IdentityEntity>(memberList);

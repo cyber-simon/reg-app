@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.service.project;
 
 import java.util.List;
+import java.util.Set;
 
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
@@ -22,7 +23,7 @@ import edu.kit.scc.webreg.service.BaseService;
 
 public interface ProjectService extends BaseService<ProjectEntity, Long> {
 
-	void updateProjectMemberList(ProjectEntity project, List<IdentityEntity> memberList, String executor);
+	void updateProjectMemberList(ProjectEntity project, Set<IdentityEntity> memberList, String executor);
 	
 	List<ProjectEntity> findByService(ServiceEntity service);
 

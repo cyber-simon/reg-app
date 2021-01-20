@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.service.project;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -42,7 +43,7 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity, Long> imp
 	private ProjectUpdater updater;
 	
 	@Override
-	public void updateProjectMemberList(ProjectEntity project, List<IdentityEntity> memberList, String executor) {
+	public void updateProjectMemberList(ProjectEntity project, Set<IdentityEntity> memberList, String executor) {
 		updater.updateProjectMemberList(project, memberList, executor);
 	}
 	

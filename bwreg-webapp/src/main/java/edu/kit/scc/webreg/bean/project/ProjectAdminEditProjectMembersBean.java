@@ -13,8 +13,10 @@ package edu.kit.scc.webreg.bean.project;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
@@ -61,7 +63,7 @@ public class ProjectAdminEditProjectMembersBean implements Serializable {
 	private FacesMessageGenerator messageGenerator;
 	
 	private LocalProjectEntity entity;
-	private List<IdentityEntity> memberList;
+	private Set<IdentityEntity> memberList;
 	private List<ProjectIdentityAdminEntity> adminList;
 	private List<ProjectServiceEntity> serviceList;
 	private LazyDataModel<UserEntity> allUserList;
@@ -130,10 +132,10 @@ public class ProjectAdminEditProjectMembersBean implements Serializable {
 		this.projectId = projectId;
 	}
 
-	public List<IdentityEntity> getMemberList() {
+	public Set<IdentityEntity> getMemberList() {
 		if (memberList == null) {
 			List<ProjectMembershipEntity> tempMemberList = projectService.findMembersForProject(entity);
-			memberList = new ArrayList<IdentityEntity>();
+			memberList = new HashSet<IdentityEntity>();
 			for (ProjectMembershipEntity pme : tempMemberList) {
 				memberList.add(pme.getIdentity());
 			}
