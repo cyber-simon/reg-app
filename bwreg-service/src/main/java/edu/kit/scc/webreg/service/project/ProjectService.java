@@ -24,6 +24,7 @@ import edu.kit.scc.webreg.service.BaseService;
 public interface ProjectService extends BaseService<ProjectEntity, Long> {
 
 	void updateProjectMemberList(ProjectEntity project, Set<IdentityEntity> memberList, String executor);
+	void updateServices(ProjectEntity project, Set<ServiceEntity> services, String executor);
 	
 	List<ProjectEntity> findByService(ServiceEntity service);
 

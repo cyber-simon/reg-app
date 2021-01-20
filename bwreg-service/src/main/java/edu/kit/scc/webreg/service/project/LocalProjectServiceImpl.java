@@ -18,7 +18,6 @@ import javax.inject.Inject;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.dao.project.LocalProjectDao;
-import edu.kit.scc.webreg.dao.project.ProjectDao;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
@@ -34,9 +33,6 @@ public class LocalProjectServiceImpl extends BaseServiceImpl<LocalProjectEntity,
 	
 	@Inject
 	private LocalProjectDao dao;
-	
-	@Inject
-	private ProjectDao projectDao;
 	
 	@Inject
 	private ProjectCreater creater;

@@ -48,6 +48,11 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity, Long> imp
 	}
 	
 	@Override
+	public void updateServices(ProjectEntity project, Set<ServiceEntity> services, String executor) {
+		updater.updateServices(project, services, executor);
+	}
+	
+	@Override
 	public List<ProjectEntity> findByService(ServiceEntity service) {
 		return dao.findByService(service);
 	}

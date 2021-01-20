@@ -34,11 +34,6 @@
 			<h:outputText value="#{messages.name}:"/>
 			<h:outputText value="#{projectAdminEditProjectServicesBean.entity.name}"/>
 			
-			<h:outputText value="#{messages.services}:"/>
-			<p:dataList var="service" value="#{projectAdminEditProjectServicesBean.serviceList}">
-				#{service.service.name}
-			</p:dataList>
-
 		</p:panelGrid>
 
 		<p:outputPanel id="btnPanel">

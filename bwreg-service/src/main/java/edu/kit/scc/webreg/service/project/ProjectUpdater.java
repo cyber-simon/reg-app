@@ -65,6 +65,8 @@ public class ProjectUpdater {
 	private EventSubmitter eventSubmitter;
 
 	public void updateProjectMemberList(ProjectEntity project, Set<IdentityEntity> memberList, String executor) {
+		project = dao.merge(project);
+		
 		// Save members first
 		List<ProjectMembershipEntity> oldMemberList = dao.findMembersForProject(project);
 		List<IdentityEntity> newMemberList = new ArrayList<IdentityEntity>(memberList);
@@ -72,6 +74,9 @@ public class ProjectUpdater {
 		for (ProjectMembershipEntity oldMember : oldMemberList) {
 			if (! memberList.contains(oldMember.getIdentity())) {
 				dao.deleteMembership(oldMember);
+				for (UserEntity user : oldMember.getIdentity().getUsers()) {
+					groupDao.removeUserGromGroup(user, project.getProjectGroup());
+				}
 			}
 			else {
 				newMemberList.remove(oldMember.getIdentity());
@@ -112,7 +117,7 @@ public class ProjectUpdater {
 		}		
 	}
 	
-	public void updateServices(ProjectEntity project, List<ServiceEntity> serviceList, String executor) {
+	public void updateServices(ProjectEntity project, Set<ServiceEntity> serviceList, String executor) {
 		List<ProjectServiceEntity> oldServiceList = dao.findServicesForProject(project);
 		List<ServiceEntity> newServiceList = new ArrayList<ServiceEntity>(serviceList);
 

@@ -11,8 +11,9 @@
 package edu.kit.scc.webreg.bean.project;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
@@ -22,14 +23,12 @@ import javax.inject.Inject;
 import org.primefaces.model.LazyDataModel;
 
 import edu.kit.scc.webreg.entity.ServiceEntity;
-import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
 import edu.kit.scc.webreg.model.GenericLazyDataModelImpl;
 import edu.kit.scc.webreg.service.ServiceService;
-import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.project.LocalProjectService;
 import edu.kit.scc.webreg.service.project.ProjectService;
 import edu.kit.scc.webreg.session.SessionManager;
@@ -58,7 +57,7 @@ public class ProjectAdminEditProjectServicesBean implements Serializable {
 	
 	private LocalProjectEntity entity;
 	private List<ProjectIdentityAdminEntity> adminList;
-	private List<ServiceEntity> serviceList;
+	private Set<ServiceEntity> serviceList;
 	private LazyDataModel<ServiceEntity> allServiceList;
     
 	private Long projectId;
@@ -100,6 +99,7 @@ public class ProjectAdminEditProjectServicesBean implements Serializable {
 	}
 	
 	public String save() {
+		projectService.updateServices(entity, getServiceList(), "idty-" + session.getIdentityId());
 		return "show-project.xhtml?faces-redirect=true&projectId=" + entity.getId();
 	}
 	
@@ -131,9 +131,9 @@ public class ProjectAdminEditProjectServicesBean implements Serializable {
 		return adminList;
 	}
 
-	public List<ServiceEntity> getServiceList() {
+	public Set<ServiceEntity> getServiceList() {
 		if (serviceList == null) {
-			serviceList = new ArrayList<ServiceEntity>();
+			serviceList = new HashSet<ServiceEntity>();
 			projectService.findServicesForProject(entity).forEach((ps) -> { serviceList.add(ps.getService()); } );
 		}
 		return serviceList;
