@@ -92,6 +92,13 @@
 			</p:column>			
 		</p:dataTable>		
 
+		<h5><h:outputText value="#{messages.project_services}" /></h5>
+		<div>
+			<h:link outcome="edit-project-services.xhtml" value="#{messages.edit_services}">
+				<f:param name="projectId" value="#{projectAdminShowProjectBean.projectId}"/>
+			</h:link>
+		</div>
+
 		<p:dataTable id="dataTableService" var="service" value="#{projectAdminShowProjectBean.serviceList}" paginator="true"
 					rows="15">
 			<p:column>
