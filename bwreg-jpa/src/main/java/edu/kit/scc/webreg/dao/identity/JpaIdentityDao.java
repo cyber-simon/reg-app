@@ -44,6 +44,12 @@ public class JpaIdentityDao extends JpaBaseDao<IdentityEntity, Long> implements 
 	}
 	
 	@Override
+    @SuppressWarnings({"unchecked"})
+	public List<IdentityEntity> findByMissingPrefferedUser(int limit) {
+		return em.createQuery("select e from IdentityEntity e where e.prefUser is null order by e.id").setMaxResults(limit).getResultList();
+	}
+	
+	@Override
 	public Class<IdentityEntity> getEntityClass() {
 		return IdentityEntity.class;
 	}

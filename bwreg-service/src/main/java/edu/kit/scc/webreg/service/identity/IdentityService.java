@@ -10,12 +10,14 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.identity;
 
+import java.util.List;
+
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.service.BaseService;
 
 public interface IdentityService extends BaseService<IdentityEntity, Long> {
 
 	void createMissingIdentities();
-
-
+	List<IdentityEntity> findByMissingPreferredUser(int limit);
+	void setPreferredUser(IdentityEntity identity);
 }

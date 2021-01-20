@@ -20,5 +20,5 @@ public interface IdentityDao extends BaseDao<IdentityEntity, Long> {
 	IdentityEntity findByUserId(Long userId);
 
 	List<IdentityEntity> findMissingTwoFaUserId();
-
+	List<IdentityEntity> findByMissingPrefferedUser(int limit);
 }

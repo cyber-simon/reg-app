@@ -10,6 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.identity;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -49,6 +50,29 @@ public class IdentityServiceImpl extends BaseServiceImpl<IdentityEntity, Long> i
 	
 	@Inject
 	private SshPubKeyDao sshPubKeyDao;
+	
+	@Override
+	public List<IdentityEntity> findByMissingPreferredUser(int limit) {
+		return dao.findByMissingPrefferedUser(limit);
+	}
+	
+	@Override
+	public void setPreferredUser(IdentityEntity identity) {
+		if (identity.getPrefUser() == null) {
+			identity = dao.merge(identity);
+			
+			UserEntity oldest = null;
+			Date date = new Date();
+			for (UserEntity user : identity.getUsers()) {
+				if (user.getCreatedAt().before(date)) {
+					date = user.getCreatedAt();
+					oldest = user;
+				}
+			}
+			logger.debug("Setting pref user {} for identity {}", oldest.getId(), identity.getId());
+			identity.setPrefUser(oldest);
+		}
+	}
 	
 	@Override
 	public void createMissingIdentities() {
