@@ -10,16 +10,22 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.entity.project;
 
+import java.util.Set;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
 import org.hibernate.annotations.Type;
 
@@ -38,7 +44,13 @@ public class ProjectEntity extends AbstractBaseEntity {
 	
 	@NotNull
 	@Column(name="short_name", length=32, nullable=false, unique=true)
+	@Pattern(regexp = "^[a-z]{1}[a-z0-9-_]{0,31}$")	
 	private String shortName;
+	
+	@NotNull
+	@Column(name="group_name", length=64, nullable=false, unique=true)
+	@Pattern(regexp = "^[a-z]{1}[a-z0-9-_]{0,63}$")
+	private String groupName;
 	
 	@ManyToOne(targetEntity = ProjectEntity.class)
 	private ProjectEntity parentProject;
@@ -60,6 +72,14 @@ public class ProjectEntity extends AbstractBaseEntity {
 	@Enumerated(EnumType.STRING)
 	private ProjectStatus projectStatus;	
 
+	@NotNull
+	@OneToOne(targetEntity = LocalProjectGroupEntity.class)
+    @JoinColumn(name = "group_id", nullable = false)
+	private LocalProjectGroupEntity projectGroup;
+	
+	@OneToMany(mappedBy = "project")
+	private Set<ProjectServiceEntity> projectServices;
+	
 	public String getName() {
 		return name;
 	}
@@ -122,5 +142,29 @@ public class ProjectEntity extends AbstractBaseEntity {
 
 	public void setProjectStatus(ProjectStatus projectStatus) {
 		this.projectStatus = projectStatus;
+	}
+
+	public LocalProjectGroupEntity getProjectGroup() {
+		return projectGroup;
+	}
+
+	public void setProjectGroup(LocalProjectGroupEntity projectGroup) {
+		this.projectGroup = projectGroup;
+	}
+
+	public String getGroupName() {
+		return groupName;
+	}
+
+	public void setGroupName(String groupName) {
+		this.groupName = groupName;
+	}
+
+	public Set<ProjectServiceEntity> getProjectServices() {
+		return projectServices;
+	}
+
+	public void setProjectServices(Set<ProjectServiceEntity> projectServices) {
+		this.projectServices = projectServices;
 	}
 }

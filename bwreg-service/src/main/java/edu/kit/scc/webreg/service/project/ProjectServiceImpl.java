@@ -10,7 +10,6 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.project;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.ejb.Stateless;
@@ -25,7 +24,6 @@ import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
-import edu.kit.scc.webreg.entity.project.ProjectMembershipType;
 import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
 
@@ -40,24 +38,12 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity, Long> imp
 	@Inject
 	private ProjectDao dao;
 	
+	@Inject
+	private ProjectUpdater updater;
+	
 	@Override
 	public void updateProjectMemberList(ProjectEntity project, List<IdentityEntity> memberList, String executor) {
-		//TODO
-		List<ProjectMembershipEntity> oldMemberList = dao.findMembersForProject(project);
-		List<IdentityEntity> newMemberList = new ArrayList<IdentityEntity>(memberList);
-		
-		for (ProjectMembershipEntity oldMember : oldMemberList) {
-			if (! memberList.contains(oldMember.getIdentity())) {
-				dao.deleteMembership(oldMember);
-			}
-			else {
-				newMemberList.remove(oldMember.getIdentity());
-			}
-		}
-		
-		for (IdentityEntity newMember : newMemberList) {
-			dao.addMemberToProject(project, newMember, ProjectMembershipType.MEMBER);
-		}
+		updater.updateProjectMemberList(project, memberList, executor);
 	}
 	
 	@Override

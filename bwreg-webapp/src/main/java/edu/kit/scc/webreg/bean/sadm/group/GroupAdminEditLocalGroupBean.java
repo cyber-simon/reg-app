@@ -129,7 +129,7 @@ public class GroupAdminEditLocalGroupBean implements Serializable {
 		gl.add(entity);
 		MultipleGroupEvent mge = new MultipleGroupEvent(gl);
 		try {
-			eventSubmitter.submit(mge, EventType.GROUP_UPDATE, "user-" + sessionManager.getIdentityId());
+			eventSubmitter.submit(mge, EventType.GROUP_UPDATE, "idty-" + sessionManager.getIdentityId());
 		} catch (EventSubmitException e) {
 			logger.warn("Exeption", e);
 		}

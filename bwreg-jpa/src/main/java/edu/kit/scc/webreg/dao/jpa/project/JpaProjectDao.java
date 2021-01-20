@@ -104,6 +104,13 @@ public class JpaProjectDao extends JpaBaseDao<ProjectEntity, Long> implements Pr
 	}
 	
 	@Override
+	public void deleteProjectService(ProjectServiceEntity entity) {
+		if (! em.contains(entity))
+			entity = em.merge(entity);
+		em.remove(entity);
+	}
+		
+	@Override
 	public Class<ProjectEntity> getEntityClass() {
 		return ProjectEntity.class;
 	}

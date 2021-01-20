@@ -22,7 +22,6 @@ import edu.kit.scc.webreg.dao.project.ProjectDao;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
-import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
 
 @Stateless
@@ -39,6 +38,9 @@ public class LocalProjectServiceImpl extends BaseServiceImpl<LocalProjectEntity,
 	@Inject
 	private ProjectDao projectDao;
 	
+	@Inject
+	private ProjectCreater creater;
+	
 	@Override
 	public List<LocalProjectEntity> findByService(ServiceEntity service) {
 		return dao.findByService(service);
@@ -48,9 +50,7 @@ public class LocalProjectServiceImpl extends BaseServiceImpl<LocalProjectEntity,
 	public LocalProjectEntity save(LocalProjectEntity project, Long identityId) {
 		IdentityEntity identity = identityDao.findById(identityId);
 		
-		project = dao.persist(project);
-		projectDao.addAdminToProject(project, identity, ProjectAdminType.OWNER);
-		return project;
+		return (LocalProjectEntity) creater.create(project, identity);
 	}
 		
 	@Override
