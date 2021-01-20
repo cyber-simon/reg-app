@@ -103,6 +103,7 @@ public class ProjectUpdater {
 		List<ProjectServiceEntity> pseList = dao.findServicesForProject(project);
 
 		for (ProjectServiceEntity pse : pseList) {
+			
 			RegistryEntity registry = registryDao.findByServiceAndIdentityAndStatus(pse.getService(), identity, RegistryStatus.ACTIVE);
 			if (registry == null) {
 				registry = registryDao.findByServiceAndIdentityAndStatus(pse.getService(), identity, RegistryStatus.LOST_ACCESS);
@@ -112,7 +113,9 @@ public class ProjectUpdater {
 				/*
 				 * if user is registered for service, also add it to group member list
 				 */
-				groupDao.addUserToGroup(registry.getUser(), project.getProjectGroup());
+				if (! groupDao.isUserInGroup(registry.getUser(), project.getProjectGroup())) {
+					groupDao.addUserToGroup(registry.getUser(), project.getProjectGroup());
+				}
 			}
 		}		
 	}

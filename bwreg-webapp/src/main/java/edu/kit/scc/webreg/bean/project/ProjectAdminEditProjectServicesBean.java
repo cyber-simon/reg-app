@@ -93,7 +93,7 @@ public class ProjectAdminEditProjectServicesBean implements Serializable {
 		getServiceList().add(service);
 	}
 	
-	public void removeMember(ServiceEntity service) {
+	public void removeService(ServiceEntity service) {
 		savePossible = true;
 		getServiceList().remove(service);
 	}
