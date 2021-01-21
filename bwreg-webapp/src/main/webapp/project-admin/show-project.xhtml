@@ -42,7 +42,7 @@
 			
 		</p:panelGrid>
 		
-		<h5><h:outputText value="#{messages.project_members}" /></h5>
+		<h5 style="margin-top: 1em;"><h:outputText value="#{messages.project_members}" /></h5>
 		<div>
 			<h:link outcome="edit-project-members.xhtml" value="#{messages.edit_members}">
 				<f:param name="projectId" value="#{projectAdminShowProjectBean.projectId}"/>
@@ -70,6 +70,12 @@
 			</p:column>			
 		</p:dataTable>		
 		
+		<h5 style="margin-top: 1em;"><h:outputText value="#{messages.project_admins}" /></h5>
+		<div>
+			<h:link outcome="edit-project-admins.xhtml" value="#{messages.edit_admins}">
+				<f:param name="projectId" value="#{projectAdminShowProjectBean.projectId}"/>
+			</h:link>
+		</div>
 		<p:dataTable id="dataTableAdmin" var="admin" value="#{projectAdminShowProjectBean.adminList}" paginator="true"
 					rows="15">
 			<p:column>
@@ -92,7 +98,7 @@
 			</p:column>			
 		</p:dataTable>		
 
-		<h5><h:outputText value="#{messages.project_services}" /></h5>
+		<h5 style="margin-top: 1em;"><h:outputText value="#{messages.project_services}" /></h5>
 		<div>
 			<h:link outcome="edit-project-services.xhtml" value="#{messages.edit_services}">
 				<f:param name="projectId" value="#{projectAdminShowProjectBean.projectId}"/>

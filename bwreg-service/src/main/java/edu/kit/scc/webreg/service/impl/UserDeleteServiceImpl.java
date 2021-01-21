@@ -12,6 +12,7 @@ package edu.kit.scc.webreg.service.impl;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -29,6 +30,7 @@ import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
 import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
+import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.RoleEntity;
@@ -37,6 +39,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
+import edu.kit.scc.webreg.entity.project.LocalProjectGroupEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.service.UserDeleteService;
 import edu.kit.scc.webreg.service.reg.impl.Approvor;
@@ -130,8 +133,13 @@ public class UserDeleteServiceImpl implements UserDeleteService {
 			
 			List<GroupEntity> groupList = groupDao.findByUser(user);
 			for (GroupEntity group : groupList) {
-				logger.info("Delete all personal user data: Remove user {} grom group {}", user.getId(), group.getId());
-				groupDao.removeUserGromGroup(user, group);
+				if (! (group instanceof LocalProjectGroupEntity)) {
+					logger.info("Delete all personal user data: Remove user {} grom group {}", user.getId(), group.getId());
+					groupDao.removeUserGromGroup(user, group);
+				}
+				else {
+					logger.info("Delete all personal user data: Not removing user {} from group {}. It's project group", user.getId(), group.getId());
+				}
 			}
 			
 			user.getGenericStore().clear();
@@ -162,7 +170,7 @@ public class UserDeleteServiceImpl implements UserDeleteService {
 			auditor.commitAuditTrail();
 		}
 		
-		identity.setTwoFaUserId(null);
-		identity.setTwoFaUserName(null);
+		identity.setTwoFaUserId("deleted-" + UUID.randomUUID().toString());
+		identity.setTwoFaUserName("deleted-" + UUID.randomUUID().toString());
 	}	
 }

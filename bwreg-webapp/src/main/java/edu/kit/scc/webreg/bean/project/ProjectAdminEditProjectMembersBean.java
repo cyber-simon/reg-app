@@ -169,4 +169,8 @@ public class ProjectAdminEditProjectMembersBean implements Serializable {
 	public Boolean getSavePossible() {
 		return savePossible;
 	}
+
+	public ProjectIdentityAdminEntity getAdminIdentity() {
+		return adminIdentity;
+	}
 }

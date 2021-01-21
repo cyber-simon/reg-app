@@ -11,26 +11,40 @@
 package edu.kit.scc.webreg.bean.project;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
+import org.primefaces.model.LazyDataModel;
+
+import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserStatus;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
+import edu.kit.scc.webreg.entity.project.ProjectAdminRoleEntity;
 import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
+import edu.kit.scc.webreg.model.GenericLazyDataModelImpl;
+import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.project.LocalProjectService;
 import edu.kit.scc.webreg.service.project.ProjectService;
 import edu.kit.scc.webreg.session.SessionManager;
+import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
 @ManagedBean
 @ViewScoped
-public class ProjectAdminShowProjectBean implements Serializable {
+public class ProjectAdminEditProjectAdminsBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -40,21 +54,29 @@ public class ProjectAdminShowProjectBean implements Serializable {
 	@Inject
 	private LocalProjectService service;
 
+    @Inject
+    private UserService userService;
+
 	@Inject
 	private ProjectService projectService;
 
+	@Inject
+	private FacesMessageGenerator messageGenerator;
+	
 	private LocalProjectEntity entity;
-	private List<ProjectMembershipEntity> memberList;
 	private List<ProjectIdentityAdminEntity> adminList;
 	private List<ProjectServiceEntity> serviceList;
+	private LazyDataModel<UserEntity> allUserList;
+    
+	private Long projectId;
 
 	private ProjectIdentityAdminEntity adminIdentity;
-
-	private Long projectId;
+	private ProjectAdminType selectedAdminType;
 	
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
 			entity = service.findById(projectId);
+			selectedAdminType = ProjectAdminType.READ_WRITE;
 		}
 		
 		for (ProjectIdentityAdminEntity a : getAdminList()) {
@@ -67,6 +89,25 @@ public class ProjectAdminShowProjectBean implements Serializable {
 		if (adminIdentity == null) {
 			throw new NotAuthorizedException("Nicht autorisiert");
 		}
+		else {
+			if (! (ProjectAdminType.ADMIN.equals(adminIdentity.getType()) || ProjectAdminType.OWNER.equals(adminIdentity.getType()))) {
+				throw new NotAuthorizedException("Nicht autorisiert");
+			}
+		}
+	}
+	
+	public void addAdmin(UserEntity user) {
+		projectService.addAdminToProject(entity, user.getIdentity(), getSelectedAdminType(), "idty-" + session.getIdentityId());
+		adminList = null;
+	}
+	
+	public void removeAdmin(ProjectIdentityAdminEntity pia) {
+		projectService.removeAdminFromProject(pia, "idty-" + session.getIdentityId());
+		adminList = null;
+	}
+	
+	public String cancel() {
+		return "show-project.xhtml?faces-redirect=true&projectId=" + entity.getId();
 	}
 	
 	public LocalProjectEntity getEntity() {
@@ -85,13 +126,6 @@ public class ProjectAdminShowProjectBean implements Serializable {
 		this.projectId = projectId;
 	}
 
-	public List<ProjectMembershipEntity> getMemberList() {
-		if (memberList == null) {
-			memberList = projectService.findMembersForProject(entity);
-		}
-		return memberList;
-	}
-
 	public List<ProjectIdentityAdminEntity> getAdminList() {
 		if (adminList == null) {
 			adminList = projectService.findAdminsForProject(entity);
@@ -106,7 +140,24 @@ public class ProjectAdminShowProjectBean implements Serializable {
 		return serviceList;
 	}
 
-	public ProjectIdentityAdminEntity getAdminIdentity() {
-		return adminIdentity;
+	public LazyDataModel<UserEntity> getAllUserList() {
+		if (allUserList == null) {
+			Map<String, Object> filterMap = new HashMap<String, Object>();
+			filterMap.put("userStatus", UserStatus.ACTIVE);
+			allUserList = new GenericLazyDataModelImpl<UserEntity, UserService, Long>(userService, filterMap);
+		}
+		return allUserList;
+	}
+
+	public ProjectAdminType getSelectedAdminType() {
+		return selectedAdminType;
+	}
+
+	public void setSelectedAdminType(ProjectAdminType selectedAdminType) {
+		this.selectedAdminType = selectedAdminType;
+	}
+	
+	public ProjectAdminType[] getAdminTypes() {
+		return ProjectAdminType.values();
 	}
 }

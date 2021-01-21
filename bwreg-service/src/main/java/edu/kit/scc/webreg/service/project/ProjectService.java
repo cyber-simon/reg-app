@@ -15,6 +15,7 @@ import java.util.Set;
 
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
@@ -25,6 +26,8 @@ public interface ProjectService extends BaseService<ProjectEntity, Long> {
 
 	void updateProjectMemberList(ProjectEntity project, Set<IdentityEntity> memberList, String executor);
 	void updateServices(ProjectEntity project, Set<ServiceEntity> services, String executor);
+	void addAdminToProject(ProjectEntity project, IdentityEntity identity, ProjectAdminType type, String executor);
+	void removeAdminFromProject(ProjectIdentityAdminEntity pia, String executor);
 	
 	List<ProjectEntity> findByService(ServiceEntity service);
 

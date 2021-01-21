@@ -78,6 +78,16 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity, Long> imp
 		return dao.findServicesForProject(project);
 	}
 
+	@Override
+	public void addAdminToProject(ProjectEntity project, IdentityEntity identity, ProjectAdminType type, String executor) {
+		dao.addAdminToProject(project, identity, type);
+	}
+
+	@Override
+	public void removeAdminFromProject(ProjectIdentityAdminEntity pia, String executor) {
+		dao.removeAdminFromProject(pia);
+	}
+
 	@Override 
 	public ProjectEntity save(ProjectEntity project, Long identityId) {
 		IdentityEntity identity = identityDao.findById(identityId);

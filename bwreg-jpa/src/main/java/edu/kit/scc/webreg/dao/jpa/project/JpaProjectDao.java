@@ -77,6 +77,12 @@ public class JpaProjectDao extends JpaBaseDao<ProjectEntity, Long> implements Pr
 	}
 
 	@Override
+	public void removeAdminFromProject(ProjectIdentityAdminEntity pia) {
+		pia = em.merge(pia);
+		em.remove(pia);
+	}
+
+	@Override
 	public ProjectServiceEntity addServiceToProject(ProjectEntity project, ServiceEntity service, ProjectServiceType type) {
 		ProjectServiceEntity entity = new ProjectServiceEntity();
 		entity.setProject(project);

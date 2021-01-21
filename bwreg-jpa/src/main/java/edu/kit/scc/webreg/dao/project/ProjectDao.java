@@ -30,6 +30,7 @@ public interface ProjectDao extends BaseDao<ProjectEntity, Long> {
 	ProjectServiceEntity addServiceToProject(ProjectEntity project, ServiceEntity service, ProjectServiceType type);
 
 	ProjectIdentityAdminEntity addAdminToProject(ProjectEntity project, IdentityEntity identity, ProjectAdminType type);
+	void removeAdminFromProject(ProjectIdentityAdminEntity pia);
 
 	ProjectMembershipEntity addMemberToProject(ProjectEntity project, IdentityEntity identity, ProjectMembershipType type);
 	

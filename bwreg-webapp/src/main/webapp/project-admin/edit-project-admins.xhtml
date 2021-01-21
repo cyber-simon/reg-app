@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="projectId" value="#{projectAdminEditProjectAdminsBean.projectId}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{projectAdminEditProjectAdminsBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form" styleClass="form full fancy">
+
+		<h2><h:outputText value="#{messages.edit_admins}: #{projectAdminEditProjectAdminsBean.entity.name}"/></h2>
+
+		<p:panelGrid id="baseData" columns="2">
+			
+			<h:outputText value="#{messages.id}:"/>
+			<h:outputText value="#{projectAdminEditProjectAdminsBean.entity.id}"/>
+			
+			<h:outputText value="#{messages.name}:"/>
+			<h:outputText value="#{projectAdminEditProjectAdminsBean.entity.name}"/>
+			
+		</p:panelGrid>
+
+		<p:outputPanel id="btnPanel">
+			<p:commandButton id="cancel" action="#{projectAdminEditProjectAdminsBean.cancel}" value="#{messages.back}"
+				immediate="true" icon="ui-icon-close" />
+		</p:outputPanel>
+
+		<p:outputPanel>
+	        <p:selectOneMenu value="#{projectAdminEditProjectAdminsBean.selectedAdminType}">
+            	<f:selectItems value="#{projectAdminEditProjectAdminsBean.adminTypes}" 
+            		var="et" itemLabel="#{et}" itemValue="#{et}"/>
+            </p:selectOneMenu>
+		</p:outputPanel>
+		
+		<p:dataTable id="dataTableAllUserList" var="user" value="#{projectAdminEditProjectMembersBean.allUserList}" paginator="true"
+					lazy="true" rows="15">
+			<p:column sortBy="#{user.id}" style="width:128px;">
+				<f:facet name="header">
+					<h:outputText value="#{messages.id}" />
+				</f:facet>
+				<h:outputText value="#{user.id}" />
+			</p:column>
+			<p:column sortBy="#{user.surName}" filterBy="#{user.surName}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.sur_name}" />
+				</f:facet>
+				<h:outputText value="#{user.surName}" />
+			</p:column>			
+			<p:column sortBy="#{user.givenName}" filterBy="#{user.givenName}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.given_name}" />
+				</f:facet>
+				<h:outputText value="#{user.givenName}" />
+			</p:column>			
+			<p:column sortBy="#{user.eppn}" filterBy="#{user.eppn}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.eppn}" />
+				</f:facet>
+				<h:outputText value="#{user.eppn != null ? user.eppn : 'nicht gesetzt'}" />
+			</p:column>
+			<p:column sortBy="#{user.userStatus}" style="width:96px;">
+				<f:facet name="header">
+					<h:outputText value="#{messages.status}" />
+				</f:facet>
+				<h:outputText value="#{user.userStatus}" />
+			</p:column>			
+			<p:column>
+				<p:commandLink action="#{projectAdminEditProjectAdminsBean.addAdmin(user)}" value="#{messages.add}"
+							update=":form:dataTableAdmins"/>
+			</p:column>	
+		</p:dataTable>
+
+		<p:dataTable id="dataTableAdmins" var="admin" value="#{projectAdminEditProjectAdminsBean.adminList}" paginator="true"
+					rows="15">
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.id}" />
+				</f:facet>
+				<h:outputText value="#{admin.identity.id}" />
+			</p:column>			
+			<p:column sortBy="#{admin.identity.prefUser.eppn}" filterBy="#{admin.identity.prefUser.eppn}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.name}" />
+				</f:facet>
+				<h:outputText value="#{admin.identity.prefUser.eppn}" />
+			</p:column>
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.type}" />
+				</f:facet>
+				<h:outputText value="#{admin.type}" />
+			</p:column>			
+			<p:column>
+				<p:commandLink action="#{projectAdminEditProjectAdminsBean.removeAdmin(admin)}" value="#{messages.remove}"
+							update=":form:dataTableAdmins"/>
+			</p:column>	
+		</p:dataTable>		
+		
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>
