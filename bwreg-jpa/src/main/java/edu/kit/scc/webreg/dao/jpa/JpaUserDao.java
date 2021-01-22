@@ -61,7 +61,7 @@ public class JpaUserDao extends JpaBaseDao<UserEntity, Long> implements UserDao,
     @Override
     @SuppressWarnings({"unchecked"})
 	public List<UserEntity> findOrderByFailedUpdateWithLimit(Date date, Integer limit) {
-		return em.createQuery("select e from UserEntity e where e.userStatus != :status and e.lastFailedUpdate < :date order by e.lastFailedUpdate asc")
+		return em.createQuery("select e from SamlUserEntity e where e.userStatus != :status and e.lastFailedUpdate < :date order by e.lastFailedUpdate asc")
 				.setParameter("date", date)
 				.setParameter("status", UserStatus.DEREGISTERED)
 				.setMaxResults(limit).getResultList();
