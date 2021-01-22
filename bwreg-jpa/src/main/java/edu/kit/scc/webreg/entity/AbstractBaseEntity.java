@@ -58,7 +58,7 @@ public abstract class AbstractBaseEntity implements BaseEntity<Long>, Serializab
 
 	@PrePersist
 	public void prePersist() {
-		setVersion(new Integer(0));
+		setVersion(Integer.valueOf(0));
 		Date d = new Date();
 		setCreatedAt(d);
 		setUpdatedAt(d);
@@ -67,7 +67,7 @@ public abstract class AbstractBaseEntity implements BaseEntity<Long>, Serializab
 	@PreUpdate
 	public void preUpdate() {
 		if (getVersion() == null)
-			setVersion(new Integer(0));
+			setVersion(Integer.valueOf(0));
 		
 		setVersion(getVersion() + 1);
 		setUpdatedAt(new Date());
