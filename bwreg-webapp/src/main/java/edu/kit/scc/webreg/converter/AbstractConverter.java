@@ -32,7 +32,7 @@ public abstract class AbstractConverter implements Converter, Serializable {
         if (value == null || value.length() == 0) {
             return null;
         }
-        Long id = Long.getLong(value);
+        Long id = Long.decode(value);
         Object o = getService().findById(id);
 		return o;
 	}
