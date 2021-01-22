@@ -87,6 +87,9 @@ public class UserEntity extends AbstractBaseEntity {
 	@Column(name = "last_update")
 	private Date lastUpdate;
 	
+	@Column(name = "scheduled_update")
+	private Date scheduledUpdate;
+	
 	@Column(name = "last_failed_update")
 	private Date lastFailedUpdate;
 	
@@ -263,5 +266,13 @@ public class UserEntity extends AbstractBaseEntity {
 
 	public void setIdentity(IdentityEntity identity) {
 		this.identity = identity;
+	}
+
+	public Date getScheduledUpdate() {
+		return scheduledUpdate;
+	}
+
+	public void setScheduledUpdate(Date scheduledUpdate) {
+		this.scheduledUpdate = scheduledUpdate;
 	}	
 }

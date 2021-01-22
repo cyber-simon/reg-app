@@ -86,6 +86,9 @@
 				        <h:outputText value="#{messages.last_failed_update}:"/>
 						<h:outputText value="#{of:formatDate(showUserBean.entity.lastFailedUpdate, 'dd.MM.yyyy HH:mm')}" />
 									
+				        <h:outputText value="#{messages.next_scheduled_update}:"/>
+						<h:outputText value="#{of:formatDate(showUserBean.entity.scheduledUpdate, 'dd.MM.yyyy HH:mm')}" />
+									
 					</p:panelGrid>
 				</p:tab>
 

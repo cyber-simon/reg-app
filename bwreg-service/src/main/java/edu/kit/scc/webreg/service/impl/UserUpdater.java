@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -280,7 +281,8 @@ public class UserUpdater implements Serializable {
 		
 		user.setLastUpdate(new Date());
 		user.setLastFailedUpdate(null);
-
+		user.setScheduledUpdate(getNextScheduledUpdate());
+		
 		if (changed) {
 			fireUserChangeEvent(user, auditor.getActualExecutor(), auditor);
 		}
@@ -292,6 +294,19 @@ public class UserUpdater implements Serializable {
 		return user;
 	}
 	
+	private Date getNextScheduledUpdate() {
+		Long futureMillis = 30L * 24L * 60L * 60L * 1000L;
+		if (appConfig.getConfigOptions().containsKey("update_schedule_future")) {
+			futureMillis = Long.decode(appConfig.getConfigValue("update_schedule_future"));
+		}
+		Integer futureMillisRandom = 6 * 60 * 60 * 1000;
+		if (appConfig.getConfigOptions().containsKey("update_schedule_future_random")) {
+			futureMillisRandom = Integer.decode(appConfig.getConfigValue("update_schedule_future_random"));
+		}
+		Random r = new Random();
+		return new Date(System.currentTimeMillis() + futureMillis + r.nextInt(futureMillisRandom));
+	}
+
 	public SamlUserEntity updateUser(SamlUserEntity user, Assertion assertion, String executor, ServiceEntity service)
 			throws UserUpdateException {
 	
@@ -432,6 +447,7 @@ public class UserUpdater implements Serializable {
 	
 	protected void updateFail(SamlUserEntity user) {
 		user.setLastFailedUpdate(new Date());
+		user.setScheduledUpdate(getNextScheduledUpdate());
 		user.setGroups(null);
 		user = userDao.persist(user);
 	}

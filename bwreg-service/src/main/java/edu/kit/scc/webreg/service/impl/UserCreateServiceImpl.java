@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Map.Entry;
 import java.util.UUID;
 
@@ -136,7 +137,8 @@ public class UserCreateServiceImpl implements UserCreateService {
 		}
 		
 		user.setLastUpdate(new Date());
-
+		user.setScheduledUpdate(getNextScheduledUpdate());
+		
     	if (! UserStatus.ACTIVE.equals(user.getUserStatus())) {
     		user.setUserStatus(UserStatus.ACTIVE);
     		user.setLastStatusChange(new Date());
@@ -179,4 +181,17 @@ public class UserCreateServiceImpl implements UserCreateService {
 		
 		return user;
 	}
+	
+	private Date getNextScheduledUpdate() {
+		Long futureMillis = 30L * 24L * 60L * 60L * 1000L;
+		if (appConfig.getConfigOptions().containsKey("update_schedule_future")) {
+			futureMillis = Long.decode(appConfig.getConfigValue("update_schedule_future"));
+		}
+		Integer futureMillisRandom = 6 * 60 * 60 * 1000;
+		if (appConfig.getConfigOptions().containsKey("update_schedule_future_random")) {
+			futureMillisRandom = Integer.decode(appConfig.getConfigValue("update_schedule_future_random"));
+		}
+		Random r = new Random();
+		return new Date(System.currentTimeMillis() + futureMillis + r.nextInt(futureMillisRandom));
+	}	
 }
