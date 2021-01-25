@@ -114,19 +114,6 @@ public class SamlSpPostServiceImpl implements SamlSpPostService {
 				MDC.put("userId", "" + user.getId());
 			}
 			
-			String userLoginRule = appConfig.getConfigValue("user_login_rule");
-			
-			if (userLoginRule != null && (! "".equals(userLoginRule))) {
-				logger.debug("Checking User login rule {}", userLoginRule);
-		    	long start = System.currentTimeMillis();
-
-				knowledgeSessionService.checkRule(userLoginRule, user, attributeMap, assertion, 
-						idpEntity, idpEntityDescriptor, spConfig);
-				
-		    	long end = System.currentTimeMillis();
-		    	logger.debug("Rule processing took {} ms", end - start);
-			}
-			
 			if (user == null) {
 				logger.info("New User detected, sending to register Page");
 
