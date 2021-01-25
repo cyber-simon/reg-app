@@ -128,7 +128,7 @@ public class HomeOrgGroupUpdater implements Serializable {
 				logger.warn("Script resolve method is missing: {}", e.getMessage());
 			}
 			long end = System.currentTimeMillis();
-			logger.debug("Eval homeorggroup_resolver tooke {} ms", (end-start));
+			logger.debug("Eval homeorggroup_resolver tooke {} ms. homeId: {}, primaryGroupName: {}", (end-start), homeId, primaryGroupName);
 		}
 		
 		HashSet<GroupEntity> changedGroups = new HashSet<GroupEntity>();
