@@ -43,6 +43,7 @@ import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.GroupServiceHook;
 import edu.kit.scc.webreg.service.SerialService;
+import edu.kit.scc.webreg.service.saml.HomeIdResolver;
 
 @ApplicationScoped
 public class HomeOrgGroupUpdater implements Serializable {
@@ -72,6 +73,9 @@ public class HomeOrgGroupUpdater implements Serializable {
 
 	@Inject 
 	private EventSubmitter eventSubmitter;
+	
+	@Inject
+	private HomeIdResolver homeIdResolver;
 
 	public Set<GroupEntity> updateGroupsForUser(SamlUserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor)
 			throws UserUpdateException {
@@ -135,15 +139,8 @@ public class HomeOrgGroupUpdater implements Serializable {
 		
 		if (completeOverrideHook == null) {
 			
-			String homeId = null;
+			String homeId = homeIdResolver.resolveHomeId(user, attributeMap);
 			
-			if (user.getIdp().getGenericStore().containsKey("prefix")) {
-				homeId = user.getIdp().getGenericStore().get("prefix");
-			}
-			else {
-				homeId = attrHelper.getSingleStringFirst(attributeMap, "http://bwidm.de/bwidmOrgId");
-			}
-	
 			if (homeId == null) {
 				logger.warn("No Home ID is set for User {}, resetting primary group", user.getEppn());
 			}
@@ -242,14 +239,7 @@ public class HomeOrgGroupUpdater implements Serializable {
 				
 		if (completeOverrideHook == null) {
 
-			String homeId = null;
-			
-			if (user.getIdp().getGenericStore().containsKey("prefix")) {
-				homeId = user.getIdp().getGenericStore().get("prefix");
-			}
-			else {
-				homeId = attrHelper.getSingleStringFirst(attributeMap, "http://bwidm.de/bwidmOrgId");
-			}
+			String homeId = homeIdResolver.resolveHomeId(user, attributeMap);
 	
 			List<String> groupList = new ArrayList<String>();
 
