@@ -8,8 +8,6 @@ import java.util.Map;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 
-import com.nimbusds.openid.connect.sdk.claims.UserInfo;
-
 import net.minidev.json.JSONAware;
 
 @Named("attributeMapHelper")
