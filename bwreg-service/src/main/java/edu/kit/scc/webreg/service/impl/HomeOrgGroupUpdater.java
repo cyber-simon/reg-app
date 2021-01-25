@@ -150,7 +150,7 @@ public class HomeOrgGroupUpdater implements Serializable {
 			else {
 				//Filter all non character from homeid
 				homeId = homeId.toLowerCase();
-				homeId = homeId.replaceAll("[^a-z]", "");
+				homeId = homeId.replaceAll("[^a-z0-9]", "");
 				
 				String groupName = attrHelper.getSingleStringFirst(attributeMap, "http://bwidm.de/bwidmCC");
 
@@ -164,7 +164,7 @@ public class HomeOrgGroupUpdater implements Serializable {
 					groupName = groupName.replaceAll("[^a-z0-9\\-_]", "");
 				}
 				
-				logger.info("Setting standard HomeID group for user {}", user.getEppn());
+				logger.info("Setting standard HomeID group {} for user {}", homeId, user.getEppn());
 				group = dao.findByNameAndPrefix(groupName, homeId);
 				
 				if (group == null) {
