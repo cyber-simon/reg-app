@@ -18,8 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.enterprise.context.RequestScoped;
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
@@ -37,7 +37,7 @@ import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
 
 @ManagedBean
-@RequestScoped
+@ViewScoped
 public class ShowIdpBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -60,14 +60,11 @@ public class ShowIdpBean implements Serializable {
 	
 	private Long id;
 	
+	private String newKey;
+	private String newValue;
+	
 	public void preRenderView(ComponentSystemEvent ev) {
-		if (entity == null) {
-			certMap = new HashMap<KeyDescriptor, List<java.security.cert.X509Certificate>>();
-			
-			entity = service.findByIdWithAll(id);
-			entityDescriptor = samlHelper.unmarshal(entity.getEntityDescriptor(), EntityDescriptor.class);
-			idpssoDescriptor = (IDPSSODescriptor) entityDescriptor.getRoleDescriptors(IDPSSODescriptor.DEFAULT_ELEMENT_NAME).get(0);
-		}
+
 	}
 
 	public List<java.security.cert.X509Certificate> getCert(KeyDescriptor kd) {
@@ -106,6 +103,19 @@ public class ShowIdpBean implements Serializable {
 		return certList;
 	}
 	
+	public void addGenericStore() {
+		getEntity().getGenericStore().put(newKey, newValue);
+		entity = service.save(getEntity());
+		newKey = "";
+		newValue = "";
+	}
+	
+	public void removeGenericStore(String key) {
+		newKey = key;
+		newValue = getEntity().getGenericStore().remove(key);
+		entity = service.save(getEntity());
+	}
+	
 	public Long getId() {
 		return id;
 	}
@@ -115,6 +125,14 @@ public class ShowIdpBean implements Serializable {
 	}
 
 	public SamlIdpMetadataEntity getEntity() {
+		if (entity == null) {
+			certMap = new HashMap<KeyDescriptor, List<java.security.cert.X509Certificate>>();
+			
+			entity = service.findByIdWithAll(id);
+			entityDescriptor = samlHelper.unmarshal(entity.getEntityDescriptor(), EntityDescriptor.class);
+			idpssoDescriptor = (IDPSSODescriptor) entityDescriptor.getRoleDescriptors(IDPSSODescriptor.DEFAULT_ELEMENT_NAME).get(0);
+		}
+
 		return entity;
 	}
 
@@ -128,5 +146,21 @@ public class ShowIdpBean implements Serializable {
 
 	public IDPSSODescriptor getIdpssoDescriptor() {
 		return idpssoDescriptor;
+	}
+
+	public String getNewKey() {
+		return newKey;
+	}
+
+	public void setNewKey(String newKey) {
+		this.newKey = newKey;
+	}
+
+	public String getNewValue() {
+		return newValue;
+	}
+
+	public void setNewValue(String newValue) {
+		this.newValue = newValue;
 	}
 }

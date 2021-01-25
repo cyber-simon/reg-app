@@ -64,10 +64,31 @@
 				        </ul>
 			        </h:panelGroup>
 
+			        <h:outputText value="#{messages.generic_store}:"/>
+			        <h:panelGroup>
+			        	<ul>
+			        		<ui:repeat var="key" value="#{showIdpBean.entity.genericStore.keySet().toArray()}">
+				        		<li>
+				        			<h:panelGrid id="newPropTable" columns="3" columnClasses="labelColumn, elementColumn">
+						        		<h:outputText value="#{key}:"/> 
+						        		<h:outputText value="#{showIdpBean.entity.genericStore.get(key)}"/> 
+					        			<h:commandLink value="(#{messages.delete})" action="#{showIdpBean.removeGenericStore(key)}">
+											<f:ajax render="@form" />
+										</h:commandLink>
+									</h:panelGrid>
+								</li>
+				        	</ui:repeat>
+				        </ul>
+						<h:panelGrid id="newPropTable" columns="3" columnClasses="labelColumn, elementColumn">
+					        <h:inputText id="key_input" value="#{showIdpBean.newKey}"/>
+			       			<h:inputText id="value_input" value="#{showIdpBean.newValue}"/>
+							<h:commandLink value="#{messages.add}" action="#{showIdpBean.addGenericStore()}">
+								<f:ajax execute="form" render="form" />
+							</h:commandLink>
+						</h:panelGrid>
+			        </h:panelGroup>
+
 				</p:panelGrid>
-				<h:link outcome="edit-idp.xhtml" value="#{messages.edit}">
-					<f:param name="id" value="#{showIdpBean.entity.id}"/>
-				</h:link>
 			</p:panel>
 		</div>
 
