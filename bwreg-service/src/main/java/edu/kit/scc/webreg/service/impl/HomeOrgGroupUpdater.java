@@ -21,15 +21,10 @@ import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.script.Invocable;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.audit.Auditor;
-import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.HomeOrgGroupDao;
 import edu.kit.scc.webreg.dao.ServiceGroupFlagDao;
@@ -37,7 +32,6 @@ import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
-import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.ServiceBasedGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupStatus;
@@ -47,7 +41,6 @@ import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.MultipleGroupEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
-import edu.kit.scc.webreg.script.ScriptingEnv;
 import edu.kit.scc.webreg.service.GroupServiceHook;
 import edu.kit.scc.webreg.service.SerialService;
 
@@ -80,61 +73,13 @@ public class HomeOrgGroupUpdater implements Serializable {
 	@Inject 
 	private EventSubmitter eventSubmitter;
 
-	@Inject
-	private ApplicationConfig appConfig;
-
-	@Inject
-	private ScriptingEnv scriptingEnv;
-
 	public Set<GroupEntity> updateGroupsForUser(SamlUserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor)
 			throws UserUpdateException {
 
-		String scriptName = appConfig.getConfigValue("homeorggroup_resolver");
-		String homeId = null;
-		String primaryGroupName = null;
-		
-		if (scriptName != null) {
-			long start = System.currentTimeMillis();
-			try {
-				ScriptEntity scriptEntity = scriptingEnv.getScriptDao().findByName(scriptName);
-				if (scriptEntity == null)
-					logger.warn("homeorggroup_resolver not configured properly. script is missing.");
-		
-				if (scriptEntity.getScriptType().equalsIgnoreCase("javascript")) {
-					ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
-		
-					if (engine == null)
-						logger.warn(
-								"homeorggroup_resolver not configured properly. engine not found: " + scriptEntity.getScriptEngine());
-		
-					engine.eval(scriptEntity.getScript());
-		
-					Invocable invocable = (Invocable) engine;
-		
-					Object homeIdObj = invocable.invokeFunction("resolveHomeId", scriptingEnv, user, attributeMap, logger);
-					if (homeIdObj instanceof String)
-						homeId = (String) homeIdObj;
-
-					Object primaryGroupNameObj = invocable.invokeFunction("resolvePrimaryGroup", scriptingEnv, user, attributeMap, logger);
-					if (primaryGroupNameObj instanceof String)
-						primaryGroupName = (String) primaryGroupNameObj;
-					
-				} else {
-					logger.warn("unkown script type: " + scriptEntity.getScriptType());
-				}
-			} catch (ScriptException e) {
-				logger.warn("Script threw error: {}", e.getMessage());
-			} catch (NoSuchMethodException e) {
-				logger.warn("Script resolve method is missing: {}", e.getMessage());
-			}
-			long end = System.currentTimeMillis();
-			logger.debug("Eval homeorggroup_resolver tooke {} ms. homeId: {}, primaryGroupName: {}", (end-start), homeId, primaryGroupName);
-		}
-		
 		HashSet<GroupEntity> changedGroups = new HashSet<GroupEntity>();
 		
-		changedGroups.addAll(updatePrimary(user, attributeMap, homeId, primaryGroupName, auditor));
-		changedGroups.addAll(updateSecondary(user, attributeMap, homeId, auditor));
+		changedGroups.addAll(updatePrimary(user, attributeMap, auditor));
+		changedGroups.addAll(updateSecondary(user, attributeMap, auditor));
 
 		// Also add parent groups, to reflect changes
 		HashSet<GroupEntity> allChangedGroups = new HashSet<GroupEntity>(changedGroups.size());
@@ -168,7 +113,7 @@ public class HomeOrgGroupUpdater implements Serializable {
 		return allChangedGroups;
 	}
 	
-	protected Set<GroupEntity> updatePrimary(SamlUserEntity user, Map<String, List<Object>> attributeMap, String homeId, String primaryGroupName, Auditor auditor)
+	protected Set<GroupEntity> updatePrimary(SamlUserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor)
 			throws UserUpdateException {
 		Set<GroupEntity> changedGroups = new HashSet<GroupEntity>();
 
@@ -190,8 +135,14 @@ public class HomeOrgGroupUpdater implements Serializable {
 		
 		if (completeOverrideHook == null) {
 			
-			if (homeId == null)
+			String homeId = null;
+			
+			if (user.getIdp().getGenericStore().containsKey("prefix")) {
+				homeId = user.getIdp().getGenericStore().get("prefix");
+			}
+			else {
 				homeId = attrHelper.getSingleStringFirst(attributeMap, "http://bwidm.de/bwidmOrgId");
+			}
 	
 			if (homeId == null) {
 				logger.warn("No Home ID is set for User {}, resetting primary group", user.getEppn());
@@ -201,13 +152,7 @@ public class HomeOrgGroupUpdater implements Serializable {
 				homeId = homeId.toLowerCase();
 				homeId = homeId.replaceAll("[^a-z]", "");
 				
-				String groupName;
-				if (primaryGroupName != null) {
-					groupName = primaryGroupName;
-				}
-				else {
-					groupName = attrHelper.getSingleStringFirst(attributeMap, "http://bwidm.de/bwidmCC");
-				}
+				String groupName = attrHelper.getSingleStringFirst(attributeMap, "http://bwidm.de/bwidmCC");
 
 				if (groupName == null) {
 					groupName = homeId;
@@ -277,7 +222,7 @@ public class HomeOrgGroupUpdater implements Serializable {
 		return changedGroups;
 	}	
 
-	protected Set<GroupEntity> updateSecondary(SamlUserEntity user, Map<String, List<Object>> attributeMap, String homeId, Auditor auditor)
+	protected Set<GroupEntity> updateSecondary(SamlUserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor)
 			throws UserUpdateException {
 		Set<GroupEntity> changedGroups = new HashSet<GroupEntity>();
 
@@ -297,10 +242,15 @@ public class HomeOrgGroupUpdater implements Serializable {
 				
 		if (completeOverrideHook == null) {
 
-			if (homeId == null) {
+			String homeId = null;
+			
+			if (user.getIdp().getGenericStore().containsKey("prefix")) {
+				homeId = user.getIdp().getGenericStore().get("prefix");
+			}
+			else {
 				homeId = attrHelper.getSingleStringFirst(attributeMap, "http://bwidm.de/bwidmOrgId");
 			}
-
+	
 			List<String> groupList = new ArrayList<String>();
 
 			if (homeId == null) {

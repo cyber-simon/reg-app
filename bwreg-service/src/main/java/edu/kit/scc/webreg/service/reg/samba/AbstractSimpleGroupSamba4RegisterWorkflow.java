@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.entity.GroupEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
@@ -56,8 +57,22 @@ public abstract class AbstractSimpleGroupSamba4RegisterWorkflow
 			Map<String, String> reconMap = new HashMap<String, String>();
 
 			for (UserEntity user : users) {
-				String homeId = user.getAttributeStore().get("http://bwidm.de/bwidmOrgId");
-				String homeUid = user.getAttributeStore().get("urn:oid:0.9.2342.19200300.100.1.1");
+				String homeId = null;
+				
+				if ((user instanceof SamlUserEntity) && ((SamlUserEntity) user).getIdp().getGenericStore().containsKey("prefix")) {
+					homeId = ((SamlUserEntity) user).getIdp().getGenericStore().get("prefix");
+				}
+				else {
+					homeId = user.getAttributeStore().get("http://bwidm.de/bwidmOrgId");
+				}
+
+				String homeUid = null;
+				if (user.getGenericStore().containsKey("uid")) {
+					homeUid = user.getGenericStore().get("uid");
+				}
+				else {
+					homeUid = user.getAttributeStore().get("urn:oid:0.9.2342.19200300.100.1.1");
+				}
 
 				//Skip group member with incomplete data
 				if (homeId != null && homeUid != null) {

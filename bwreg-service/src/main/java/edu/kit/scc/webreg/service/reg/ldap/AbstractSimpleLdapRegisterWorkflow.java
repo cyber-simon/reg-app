@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
@@ -78,13 +79,27 @@ public abstract class AbstractSimpleLdapRegisterWorkflow
 		 * a full reconsiliation
 		 */
 		Map<String, String> reconMap = new HashMap<String, String>();
+
+		String homeId = null;
 		
-		String homeId = user.getAttributeStore().get("http://bwidm.de/bwidmOrgId");
+		if ((user instanceof SamlUserEntity) && ((SamlUserEntity) user).getIdp().getGenericStore().containsKey("prefix")) {
+			homeId = ((SamlUserEntity) user).getIdp().getGenericStore().get("prefix");
+		}
+		else {
+			homeId = user.getAttributeStore().get("http://bwidm.de/bwidmOrgId");
+		}
+
 		if (prop.hasProp("tpl_home_id")) {
 			homeId = evalTemplate(prop.readPropOrNull("tpl_home_id"), user, reconMap, homeId, null);
 		}
 
-		String homeUid = user.getAttributeStore().get("urn:oid:0.9.2342.19200300.100.1.1");
+		String homeUid = null;
+		if (user.getGenericStore().containsKey("uid")) {
+			homeUid = user.getGenericStore().get("uid");
+		}
+		else {
+			homeUid = user.getAttributeStore().get("urn:oid:0.9.2342.19200300.100.1.1");
+		}
 		homeId = homeId.toLowerCase();
 		if (prop.hasProp("tpl_home_uid")) {
 			homeUid = evalTemplate(prop.readPropOrNull("tpl_home_uid"), user, reconMap, homeId, homeUid);

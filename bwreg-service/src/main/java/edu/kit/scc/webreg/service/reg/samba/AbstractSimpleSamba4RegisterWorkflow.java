@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
@@ -80,7 +81,15 @@ public abstract class AbstractSimpleSamba4RegisterWorkflow
 		 */
 		Map<String, String> reconMap = new HashMap<String, String>();
 		
-		String homeId = user.getAttributeStore().get("http://bwidm.de/bwidmOrgId");
+		String homeId = null;
+		
+		if ((user instanceof SamlUserEntity) && ((SamlUserEntity) user).getIdp().getGenericStore().containsKey("prefix")) {
+			homeId = ((SamlUserEntity) user).getIdp().getGenericStore().get("prefix");
+		}
+		else {
+			homeId = user.getAttributeStore().get("http://bwidm.de/bwidmOrgId");
+		}
+
 		if (prop.hasProp("tpl_home_id")) {
 			homeId = evalTemplate(prop.readPropOrNull("tpl_home_id"), user, reconMap, homeId, null);
 		}
