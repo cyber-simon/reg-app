@@ -277,7 +277,7 @@ public class RegisterServiceBean implements Serializable {
     	logger.debug("testing all checkboxes");
     	
     	for(PolicyHolder ph : policyHolderList) {
-    		if (ph.getPolicy() != null && ph.getPolicy().getShowOnly()) {
+    		if (ph.getPolicy() != null && ph.getPolicy().getShowOnly() != null && ph.getPolicy().getShowOnly()) {
     			logger.debug("Policy {} in Service {} is just for show", ph.getPolicy().getId(), service.getId());
     		}
     		else if (! ph.getChecked()) {
