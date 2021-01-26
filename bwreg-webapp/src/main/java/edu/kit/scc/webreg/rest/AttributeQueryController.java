@@ -64,6 +64,15 @@ public class AttributeQueryController {
 	}
 	
 	@GET
+	@Path("/uid-number/{service}/{uidNumber}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Map<String, String> attributeQueryUidNumber(@PathParam("uidNumber") Long uidNumber,
+			@PathParam("service") String serviceShortName, @Context HttpServletRequest request)
+			throws IOException, ServletException, RestInterfaceException {
+		return userUpdateService.updateUser(uidNumber, serviceShortName, request.getLocalName(), "rest-/attrq/uid-number/" + serviceShortName + "/" + uidNumber);
+	}
+	
+	@GET
 	@Path("/regid/{regid}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Map<String, String> attributeQuery(@PathParam("regid") Long regId, @Context HttpServletRequest request)

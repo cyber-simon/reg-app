@@ -63,6 +63,26 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 	private ApplicationConfig appConfig;
 	
 	@Override
+	public Map<String, String> updateUser(Long uidNumber,
+			String serviceShortName, String localHostName, String executor)
+			throws IOException, RestInterfaceException {
+
+		UserEntity user = findUser(uidNumber);
+		if (user == null)
+			throw new NoUserFoundException("no such user");
+		
+		ServiceEntity service = findService(serviceShortName);
+		if (service == null)
+			throw new NoServiceFoundException("no such service");
+		
+		RegistryEntity registry = findRegistry(user, service);
+		if (registry == null)
+			throw new NoRegistryFoundException("user not registered for service");
+		
+		return update(user, service, registry, localHostName, executor);
+	}
+	
+	@Override
 	public Map<String, String> updateUser(String eppn,
 			String serviceShortName, String localHostName, String executor)
 			throws IOException, RestInterfaceException {
@@ -270,6 +290,16 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 
 	private UserEntity findUser(String eppn) {
 		UserEntity user = userDao.findByEppn(eppn);
+
+		if (user != null) {
+			user = userDao.findByIdWithStore(user.getId());
+		}
+
+		return user;
+	}
+
+	private UserEntity findUser(Long uidNumber) {
+		UserEntity user = userDao.findByUidNumber(uidNumber);
 
 		if (user != null) {
 			user = userDao.findByIdWithStore(user.getId());

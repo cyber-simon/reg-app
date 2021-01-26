@@ -19,5 +19,8 @@ public interface UserUpdateService {
 
 	void updateUserAsync(String eppn, String localHostName, String executor);
 
+	Map<String, String> updateUser(Long uidNumber, String serviceShortName, String localHostName, String executor)
+			throws IOException, RestInterfaceException;
+
 
 }
