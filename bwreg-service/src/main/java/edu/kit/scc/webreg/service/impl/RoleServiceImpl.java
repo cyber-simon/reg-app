@@ -21,6 +21,7 @@ import edu.kit.scc.webreg.dao.RoleDao;
 import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
+import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.service.RoleService;
@@ -116,7 +117,12 @@ public class RoleServiceImpl extends BaseServiceImpl<RoleEntity, Long> implement
 	public List<GroupEntity> findGroupsForRole(RoleEntity role) {
 		return dao.findGroupsForRole(role);
 	}
-	
+
+	@Override
+	public List<SamlIdpMetadataEntity> findIdpsForRole(RoleEntity role) {
+		return dao.findIdpsForRole(role);
+	}
+
 	@Override
 	public RoleEntity findByName(String name) {
 		return dao.findByName(name);

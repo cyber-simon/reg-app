@@ -32,11 +32,14 @@ import org.opensaml.xmlsec.signature.X509Certificate;
 import org.opensaml.xmlsec.signature.X509Data;
 import org.slf4j.Logger;
 
+import edu.kit.scc.webreg.entity.SamlIdpAdminRoleEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserRoleEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
+import edu.kit.scc.webreg.service.RoleService;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.identity.IdentityService;
@@ -67,6 +70,9 @@ public class IdpAdminIndexBean implements Serializable {
 	@Inject
 	private SamlHelper samlHelper;
 
+	@Inject
+	private RoleService roleService;
+	
  	private IdentityEntity identity;
  	private List<UserEntity> userList;
  	private List<SamlIdpMetadataEntity> idpList;
@@ -82,8 +88,10 @@ public class IdpAdminIndexBean implements Serializable {
 		if (getIdpList().size() == 0) {
 			throw new NotAuthorizedException("Not authorized");
 		}
-		
-		selectedIdp = idpList.get(0);
+
+		if (selectedIdp == null) {
+			selectedIdp = idpList.get(0);
+		}
 	}
 
 	public IdentityEntity getIdentity() {
@@ -97,7 +105,7 @@ public class IdpAdminIndexBean implements Serializable {
 		if (userList == null) {
 			userList = new ArrayList<UserEntity>();
 			for (UserEntity user : userService.findByIdentity(getIdentity())) {
-				userList.add(userService.findByIdWithAttrs(user.getId(), "attributeStore"));
+				userList.add(userService.findByIdWithAttrs(user.getId(), "attributeStore", "roles"));
 			}
 		}
 		return userList;
@@ -112,6 +120,12 @@ public class IdpAdminIndexBean implements Serializable {
 						user.getAttributeStore().get("urn:oid:1.3.6.1.4.1.5923.1.1.1.7").contains("http://bwidm.scc.kit.edu/entitlement/idp-admin")) {
 					idpList.add(((SamlUserEntity) user).getIdp());
 				}
+				
+				for (UserRoleEntity role : user.getRoles()) {
+					if (role.getRole() instanceof SamlIdpAdminRoleEntity) {
+						idpList.addAll(roleService.findIdpsForRole(role.getRole()));
+					}
+				}
 			}
 		}		
 		return idpList;
@@ -122,12 +136,15 @@ public class IdpAdminIndexBean implements Serializable {
 	}
 
 	public void setSelectedIdp(SamlIdpMetadataEntity selectedIdp) {
-		this.selectedIdp = selectedIdp;
+		if (selectedIdp != null && (! selectedIdp.equals(this.selectedIdp))) {
+			idp = null;
+			this.selectedIdp = selectedIdp;
+		}
 	}
-
+	
 	public SamlIdpMetadataEntity getIdp() {
-		if (idp == null || (! idp.equals(selectedIdp))) {
-			idp = idpService.findByIdWithAll(selectedIdp.getId());
+		if (idp == null || (! idp.equals(getSelectedIdp()))) {
+			idp = idpService.findByIdWithAll(getSelectedIdp().getId());
 			certMap = new HashMap<KeyDescriptor, List<java.security.cert.X509Certificate>>();
 			
 			entityDescriptor = samlHelper.unmarshal(idp.getEntityDescriptor(), EntityDescriptor.class);

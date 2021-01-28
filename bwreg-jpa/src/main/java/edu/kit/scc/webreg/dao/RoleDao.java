@@ -16,6 +16,7 @@ import java.util.Set;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.RoleGroupEntity;
+import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserRoleEntity;
 
@@ -59,4 +60,5 @@ public interface RoleDao extends BaseDao<RoleEntity, Long> {
 
 	List<RoleEntity> findByIdentityId(Long identityId);
 	
+	List<SamlIdpMetadataEntity> findIdpsForRole(RoleEntity role);
 }

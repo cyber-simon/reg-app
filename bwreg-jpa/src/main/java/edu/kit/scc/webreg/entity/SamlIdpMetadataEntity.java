@@ -42,7 +42,11 @@ public class SamlIdpMetadataEntity extends SamlMetadataEntity {
 	@OneToMany(targetEntity = SamlIdpScopeEntity.class, 
 			mappedBy = "idp", cascade = CascadeType.REMOVE)
 	private Set<SamlIdpScopeEntity> scopes; 
-	
+
+	@OneToMany(targetEntity = SamlIdpMetadataAdminRoleEntity.class, 
+			mappedBy = "idp")
+	private Set<SamlIdpMetadataAdminRoleEntity> adminRoles; 
+
 	@ElementCollection
 	@JoinTable(name = "idp_entity_categories")
 	@Column(name = "value_data", length = 2048)
@@ -114,5 +118,13 @@ public class SamlIdpMetadataEntity extends SamlMetadataEntity {
 
 	public void setLastIdStatusChange(Date lastIdStatusChange) {
 		this.lastIdStatusChange = lastIdStatusChange;
+	}
+
+	public Set<SamlIdpMetadataAdminRoleEntity> getAdminRoles() {
+		return adminRoles;
+	}
+
+	public void setAdminRoles(Set<SamlIdpMetadataAdminRoleEntity> adminRoles) {
+		this.adminRoles = adminRoles;
 	}
 }

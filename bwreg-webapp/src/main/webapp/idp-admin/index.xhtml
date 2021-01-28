@@ -29,10 +29,10 @@
         	converter="#{samlIdpMetadataConverter}">
            	<f:selectItems value="#{idpAdminIndexBean.idpList}" 
            		var="idp" itemLabel="#{idp.entityId}" itemValue="#{idp}"/>
-           	<f:ajax render=":form:idpDetailPanel" />
+           	<f:ajax render=":form:idpDetailPanel" execute="@this" />
         </p:selectOneMenu>
 
-		<p:tabView id="idpDetailPanel" dynamic="true" cache="true">
+		<p:tabView id="idpDetailPanel" dynamic="true" cache="false">
 
 			<p:tab id="tab1" title="#{messages.overview}">
 				<p:panelGrid id="baseData" columns="2">

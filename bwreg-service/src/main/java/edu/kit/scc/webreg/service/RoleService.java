@@ -15,6 +15,7 @@ import java.util.Set;
 
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
+import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 
 public interface RoleService extends BaseService<RoleEntity, Long> {
@@ -50,5 +51,6 @@ public interface RoleService extends BaseService<RoleEntity, Long> {
 	List<RoleEntity> findByIdentityId(Long identityId);
 
 	Boolean checkIdentityInRole(Long identityId, String roleName);
-
+	
+	List<SamlIdpMetadataEntity> findIdpsForRole(RoleEntity role);
 }

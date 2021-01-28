@@ -28,6 +28,7 @@ import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.RoleGroupEntity;
+import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserRoleEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
@@ -153,6 +154,13 @@ public class JpaRoleDao extends JpaBaseDao<RoleEntity, Long> implements RoleDao 
 	@Override
 	public List<GroupEntity> findGroupsForRole(RoleEntity role) {
 		return em.createQuery("select g from GroupEntity g left join g.roles gr where gr.role = :role")
+				.setParameter("role", role).getResultList();
+	}
+
+    @SuppressWarnings("unchecked")
+	@Override
+	public List<SamlIdpMetadataEntity> findIdpsForRole(RoleEntity role) {
+		return em.createQuery("select g from SamlIdpMetadataEntity g left join g.adminRoles gr where gr.role = :role")
 				.setParameter("role", role).getResultList();
 	}
 
