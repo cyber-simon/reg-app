@@ -312,23 +312,21 @@ public class OidcUserUpdater implements Serializable {
 		}
 		
 		if (completeOverrideHook == null) {
-			changed |= compareAndChangeProperty(user, "email", attributeMap.get("urn:oid:0.9.2342.19200300.100.1.3"), auditor);
-			changed |= compareAndChangeProperty(user, "eppn", attributeMap.get("urn:oid:1.3.6.1.4.1.5923.1.1.1.6"), auditor);
-			changed |= compareAndChangeProperty(user, "givenName", attributeMap.get("urn:oid:2.5.4.42"), auditor);
-			changed |= compareAndChangeProperty(user, "surName", attributeMap.get("urn:oid:2.5.4.4"), auditor);
-
-			List<String> emailList = attrHelper.attributeListToStringList(attributeMap, "urn:oid:0.9.2342.19200300.100.1.3");
-			if (emailList != null && emailList.size() > 1) {
-				
-				if (user.getEmailAddresses() == null) {
-					user.setEmailAddresses(new HashSet<String>());
-				}
-				
-				for (int i=1; i<emailList.size(); i++) {
-					user.getEmailAddresses().add(emailList.get(i));
-				}
+			IDTokenClaimsSet claims = oidcTokenHelper.claimsFromMap(attributeMap);
+			if (claims == null) { 
+				throw new UserUpdateException("ID claims are missing in session");
 			}
-			
+
+			UserInfo userInfo = oidcTokenHelper.userInfoFromMap(attributeMap);
+			if (userInfo == null) { 
+				throw new UserUpdateException("User info is missing in session");
+			}
+
+			changed |= compareAndChangeProperty(user, "email", userInfo.getEmailAddress(), auditor);
+			changed |= compareAndChangeProperty(user, "eppn", userInfo.getStringClaim("eduPersonPrincipalName"), auditor);
+			changed |= compareAndChangeProperty(user, "givenName", userInfo.getGivenName(), auditor);
+			changed |= compareAndChangeProperty(user, "surName", userInfo.getFamilyName(), auditor);
+
 			if ((! withoutUidNumber) && (user.getUidNumber() == null)) {
 				user.setUidNumber(serialService.next("uid-number-serial").intValue());
 				logger.info("Setting UID Number {} for user {}", user.getUidNumber(), user.getEppn());
@@ -348,12 +346,9 @@ public class OidcUserUpdater implements Serializable {
 	}
 
 	
-	private boolean compareAndChangeProperty(UserEntity user, String property, List<Object> objectValue, Auditor auditor) {
+	private boolean compareAndChangeProperty(UserEntity user, String property, String value, Auditor auditor) {
 		String s = null;
 		String action = null;
-		
-		// In case of a List (multiple SAML Values), take the first value
-		String value = attrHelper.getSingleStringFirst(objectValue);
 		
 		try {
 			Object actualValue = PropertyUtils.getProperty(user, property);

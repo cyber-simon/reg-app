@@ -48,6 +48,7 @@ import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
 import edu.kit.scc.webreg.dao.SamlSpConfigurationDao;
 import edu.kit.scc.webreg.dao.SamlUserDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
+import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.UserLoginInfoDao;
 import edu.kit.scc.webreg.drools.OverrideAccess;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;
@@ -109,6 +110,9 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 
 	@Inject
 	private SamlUserDao samlUserDao;
+	
+	@Inject
+	private UserDao userDao;
 	
 	@Inject
 	private UserUpdater userUpdater;
@@ -272,6 +276,10 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			if (match) {
 				createLoginInfo(user, registry, UserLoginMethod.LOCAL, UserLoginInfoStatus.SUCCESS);
 
+				/*
+				 * Update user via AttributeQuery. 
+				 * TODO: Add exceptions for service, if AQ is not necessary
+				 */
 				updateUser(user, service, "login-with-service-password");
 
 				List<Object> objectList = checkRules(user, service, registry);

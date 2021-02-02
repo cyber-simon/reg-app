@@ -102,7 +102,7 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
 
 		UserInfo userInfo = tokenHelper.userInfoFromMap(attributeMap);
 		if (userInfo == null) { 
-			userInfo = (UserInfo) attributeMap.get("userInfo").get(0);
+			throw new UserUpdateException("User info is missing in session");
 		}
 
 		logger.debug("User {} from {} is being preCreated", claims.getSubject().getValue(), rpConfig.getName());
