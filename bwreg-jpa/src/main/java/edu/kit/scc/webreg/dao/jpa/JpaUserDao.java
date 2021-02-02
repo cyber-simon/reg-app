@@ -187,7 +187,7 @@ public class JpaUserDao extends JpaBaseDao<UserEntity, Long> implements UserDao,
 	@Override
     @SuppressWarnings({"unchecked"})
 	public List<UserEntity> findScheduledUsers(Integer limit) {
-		return em.createQuery("select e from UserEntity e where e.userStatus != :status and e.scheduledUpdate < :date or e.scheduledUpdate is null")
+		return em.createQuery("select e from UserEntity e where e.userStatus != :status and (e.scheduledUpdate < :date or e.scheduledUpdate is null)")
 				.setParameter("date", new Date())
 				.setParameter("status", UserStatus.DEREGISTERED)
 				.setMaxResults(limit).getResultList();
