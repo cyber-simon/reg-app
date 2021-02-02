@@ -200,6 +200,15 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 				MDC.put("userId", "" + user.getId());
 			}
 
+			/**
+			 * TODO check more states here!
+			 * Check session.getIdentityId. If it is set, user is already logged in. This should only happen with account linking
+			 * There are two possiblities for account linking: user is null and user is not null. Not null means, user 
+			 * already exists. 
+			 * 
+			 * Check account linkin pin
+			 */
+			
 			if (user == null) {
 				logger.info("New User detected, sending to register Page");
 

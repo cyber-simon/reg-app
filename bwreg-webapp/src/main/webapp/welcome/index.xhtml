@@ -82,7 +82,7 @@
 
 		<p:panel header="OIDC Test" rendered="#{'true'.equalsIgnoreCase(discoveryLoginBean.appConfig.getConfigValue('show_oidc_login'))}" styleClass="full">
 			<h:panelGrid id="oidcBaseData" columns="2" style="margin-top: 8px;">
-				<p:outputLabel value="#{messages.home_org}:" for="idpBox" />
+				<p:outputLabel value="#{messages.home_org}:" for="oidcBox" />
 				<p:selectOneListbox id="oidcBox" value="#{discoveryLoginBean.selectedOidcRp}" scrollHeight="120" style="width:300px;"
 						converter="#{oidcRpConfigurationConverter}">
 	            	<f:selectItems value="#{discoveryLoginBean.oidcRpList}" 

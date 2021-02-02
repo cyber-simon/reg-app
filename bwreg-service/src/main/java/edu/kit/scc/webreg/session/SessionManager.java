@@ -62,6 +62,8 @@ public class SessionManager implements Serializable {
 	// identityId of the actual user
 	private Long identityId;
 
+	private String accountLinkingPin;
+	
 	private Map<String, List<Object>> attributeMap;
 	
 	private String originalRequestPath;
@@ -351,5 +353,13 @@ public class SessionManager implements Serializable {
 
 	public void setOidcAuthnClientConfigId(Long oidcAuthnClientConfigId) {
 		this.oidcAuthnClientConfigId = oidcAuthnClientConfigId;
+	}
+
+	public String getAccountLinkingPin() {
+		return accountLinkingPin;
+	}
+
+	public void setAccountLinkingPin(String accountLinkingPin) {
+		this.accountLinkingPin = accountLinkingPin;
 	}
 }

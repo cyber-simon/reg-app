@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+
+<f:view>
+<f:metadata>
+	<f:event type="javax.faces.event.PreRenderViewEvent"
+           listener="#{connectAccountBean.preRenderView}" />
+</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form" prependId="false" class="full form">
+	
+		<h3><h:outputText value="#{messages.connect_account}" /></h3>
+	
+		<div>
+			<h:outputText value="#{messages.connect_account_text}" />
+		</div>
+		
+		<p:dataList var="user" value="#{connectAccountBean.userList}">
+			#{user.id}
+		</p:dataList>
+	
+		<h:panelGrid id="oidcBaseData" columns="3" style="margin-top: 8px;">
+			<p:outputLabel value="#{messages.home_org}:" for="oidcBox" />
+			<p:selectOneListbox id="oidcBox" value="#{connectAccountBean.selectedOidcRp}" scrollHeight="120" style="width:300px;"
+					converter="#{oidcRpConfigurationConverter}">
+            	<f:selectItems value="#{connectAccountBean.oidcRpList}" 
+            		var="rp" itemLabel="#{rp.displayName}" itemValue="#{rp}"/>
+			</p:selectOneListbox>
+			<p:message for="oidcBox"/>
+			
+			<p:outputLabel value="#{messages.connect_account_pin}" for="pinBox"/>
+			<p:inputText id="pinBox" value="#{connectAccountBean.pin}">
+				<f:validateLength minimum="4"/>
+				<f:validateRegex pattern="^[a-zA-Z0-9]{4,32}$"/>
+			</p:inputText>
+			<p:message for="pinBox"/>
+		</h:panelGrid>
+			
+		<p:commandButton id="oidcLogin" action="#{connectAccountBean.startConnect()}" value="#{messages.proceed}" 
+			validateClient="true" update=":form"/>
+	
+	</h:form>
+	</ui:define>
+</ui:composition>
+</f:view>
+</body>
+</html>
