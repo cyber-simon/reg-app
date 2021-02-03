@@ -30,7 +30,7 @@ public class HeadBarBean {
 	}
 
 	public String getOverrideStdStylesheet() {
-		return getApplicationBase() + getOrDefault(request.getServerName() + "override_std_css", "/resources/css/std.css");
+		return getApplicationBase() + getOrDefault(request.getServerName() + "_override_std_css", "/resources/css/std.css");
 	}
 	
 	public String getHeaderImage() {
