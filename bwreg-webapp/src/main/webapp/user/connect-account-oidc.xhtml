@@ -1,0 +1,64 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+
+<f:view>
+<f:metadata>
+	<f:event type="javax.faces.event.PreRenderViewEvent"
+           listener="#{connectAccountOidcBean.preRenderView}" />
+</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form" prependId="false" class="full form">
+	
+		<h3><h:outputText value="#{messages.connect_account}" /></h3>
+	
+		<div>
+			<h:outputText value="#{messages.connect_account_text}" />
+		</div>
+
+		<p:messages id="messageBox" showDetail="true" />
+		
+		<p:dataList var="user" value="#{connectAccountOidcBean.userList}">
+			#{user.id}
+		</p:dataList>
+	
+		<h3><h:outputText value="#{messages.my_data}:"/></h3>
+		<div class="panel">
+			<p:dataTable var="key" value="#{connectAccountOidcBean.printableAttributesList}">
+				<p:column headerText="#{messages.name}">
+					#{resourceBundleHelper.resolveMessage(key)}
+				</p:column>
+				<p:column headerText="#{messages.value}">
+					#{connectAccountOidcBean.printableAttributesMap[key]}
+				</p:column>
+			</p:dataTable>
+		</div>
+		<div class="panel">
+			<p:dataList var="key" value="#{connectAccountOidcBean.unprintableAttributesMap.keySet().toArray()}">
+				#{key}: #{connectAccountOidcBean.unprintableAttributesMap[key]}
+			</p:dataList>
+		</div>
+		<p:commandButton id="save" action="#{connectAccountOidcBean.save}" value="#{messages.confirm}" ajax="false" 
+			disabled="#{connectAccountOidcBean.errorState}"/>
+	
+	</h:form>
+	</ui:define>
+</ui:composition>
+</f:view>
+</body>
+</html>

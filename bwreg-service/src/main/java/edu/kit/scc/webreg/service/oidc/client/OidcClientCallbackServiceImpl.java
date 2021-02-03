@@ -206,9 +206,28 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 			 * There are two possiblities for account linking: user is null and user is not null. Not null means, user 
 			 * already exists. 
 			 * 
-			 * Check account linkin pin
+			 * Check account linking pin
 			 */
-			
+			if (session.getIdentityId() != null) {
+				/*
+				 * we are in account linking mode. Session with identity is established
+				 */
+				if (user != null) {
+					throw new OidcAuthenticationException("Linking two existing accounts is not supported yet");
+				}
+				else {
+					logger.info("New User for account linking to identity {} detected, sending to register Page", session.getIdentityId());
+
+					// Store OIDC Data temporarily in Session
+					logger.debug("Storing relevant Oidc data in session");
+					session.setSubjectId(claims.getSubject().getValue());
+					session.setAttributeMap(oidcTokenHelper.convertToAttributeMap(claims, userInfo));
+					
+					httpServletResponse.sendRedirect("/user/connect-account-oidc.xhtml");
+					return;
+				}
+			}
+
 			if (user == null) {
 				logger.info("New User detected, sending to register Page");
 
