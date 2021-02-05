@@ -10,6 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.identity;
 
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -136,14 +137,15 @@ public class IdentityServiceImpl extends BaseServiceImpl<IdentityEntity, Long> i
 			else if (users.size() == 0) {
 				logger.warn("Identity {} has no users", id.getId());
 			}
-			else if (users.size() == 1) {
-				for(UserEntity user : users) {
+			else {
+				UserEntity user = users
+					      .stream()
+					      .min(Comparator.comparing(UserEntity::getUidNumber))
+					      .orElse(null);
+				if (user != null) {
 					id.setUidNumber(user.getUidNumber());
 					logger.info("Add missing uidNumber {}", id.getUidNumber());
 				}
-			}
-			else {
-				logger.warn("Add missing uidNumber from identity with more than one account is not supported! Check identity {}", id.getId());
 			}
 		}
 		logger.info("Add missing uidNumbers done.");
