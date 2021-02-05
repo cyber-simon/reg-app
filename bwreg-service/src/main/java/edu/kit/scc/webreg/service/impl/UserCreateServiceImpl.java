@@ -159,7 +159,8 @@ public class UserCreateServiceImpl implements UserCreateService {
     	user = samlUserDao.persist(user);
 
     	id.setPrefUser(user);
-    	
+		id.setUidNumber(user.getUidNumber());
+
     	roleDao.addUserToRole(user, "User");
 
     	homeOrgGroupUpdater.updateGroupsForUser(user, attributeMap, auditor);

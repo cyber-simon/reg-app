@@ -122,17 +122,85 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
 
     	return entity;
 	}	
+
+	@Override
+	public OidcUserEntity createAndLinkUser(IdentityEntity identity, OidcUserEntity user,
+			Map<String, List<Object>> attributeMap, String executor)
+			throws UserUpdateException {
+		logger.debug("Creating and link user {} to identity {}", user.getSubjectId(), identity.getId());
+
+		identity = identityDao.merge(identity);
+		
+		UserCreateAuditor auditor = new UserCreateAuditor(auditDao, auditDetailDao, appConfig);
+		auditor.startAuditTrail(executor);
+		auditor.setName(getClass().getName() + "-OidcUserCreate-Audit");
+		auditor.setDetail("Create and link OIDC user " + user.getSubjectId());
+		
+		createUserInternal(user, attributeMap, executor, auditor);
+		user.setIdentity(identity);
+
+		postCreateUserInternal(user, attributeMap, executor, auditor);
+		auditor.logAction(user.getEppn(), "CREATE USER", null, null, AuditStatus.SUCCESS);
+		
+		auditor.finishAuditTrail();
+		auditor.commitAuditTrail();
+		
+		UserEvent userEvent = new UserEvent(user);
+
+		try {
+			eventSubmitter.submit(userEvent, EventType.USER_CREATE, executor);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}
+		
+		return user;
+	}
 	
 	@Override
 	public OidcUserEntity createUser(OidcUserEntity user,
 			Map<String, List<Object>> attributeMap, String executor)
 			throws UserUpdateException {
-		logger.debug("Creating user {}", user.getSubjectId());
 
 		UserCreateAuditor auditor = new UserCreateAuditor(auditDao, auditDetailDao, appConfig);
 		auditor.startAuditTrail(executor);
 		auditor.setName(getClass().getName() + "-OidcUserCreate-Audit");
 		auditor.setDetail("Create OIDC user " + user.getSubjectId());
+		
+		createUserInternal(user, attributeMap, executor, auditor);
+
+    	/**
+    	 * TODO: Apply mapping rules at this point. At the moment every account gets one
+    	 * identity. Should possibly be mapped to existing identity in some cases.
+    	 */
+		IdentityEntity id = identityDao.createNew();
+		id = identityDao.persist(id);
+		user.setIdentity(id);
+		
+		postCreateUserInternal(user, attributeMap, executor, auditor);
+
+		id.setUidNumber(user.getUidNumber());
+		
+		auditor.logAction(user.getEppn(), "CREATE USER", null, null, AuditStatus.SUCCESS);
+		
+		auditor.finishAuditTrail();
+		auditor.commitAuditTrail();
+		
+		UserEvent userEvent = new UserEvent(user);
+
+		try {
+			eventSubmitter.submit(userEvent, EventType.USER_CREATE, executor);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}		
+
+		return user;
+	}
+	
+	private void createUserInternal(OidcUserEntity user, Map<String, List<Object>> attributeMap, String executor,
+			UserCreateAuditor auditor)
+			throws UserUpdateException {
+		logger.debug("Creating user {}", user.getSubjectId());
+
 		
     	userUpdater.updateUserFromAttribute(user, attributeMap, true, auditor);
 		
@@ -155,15 +223,11 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
     		user.setUserStatus(UserStatus.ACTIVE);
     		user.setLastStatusChange(new Date());
     	}
-
-    	/**
-    	 * TODO: Apply mapping rules at this point. At the moment every account gets one
-    	 * identity. Should possibly be mapped to existing identity in some cases.
-    	 */
-		IdentityEntity id = identityDao.createNew();
-		id = identityDao.persist(id);
-		user.setIdentity(id);
-
+	}
+	
+	private void postCreateUserInternal(OidcUserEntity user, Map<String, List<Object>> attributeMap, String executor,
+			UserCreateAuditor auditor)
+			throws UserUpdateException {
     	user = oidcUserDao.persist(user);
 
     	roleDao.addUserToRole(user, "User");
@@ -172,19 +236,5 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
     			
 		auditor.setUser(user);
 		auditor.auditUserCreate();
-		auditor.logAction(user.getEppn(), "CREATE USER", null, null, AuditStatus.SUCCESS);
-		
-		auditor.finishAuditTrail();
-		auditor.commitAuditTrail();
-		
-		UserEvent userEvent = new UserEvent(user);
-
-		try {
-			eventSubmitter.submit(userEvent, EventType.USER_CREATE, executor);
-		} catch (EventSubmitException e) {
-			logger.warn("Could not submit event", e);
-		}
-		
-		return user;
 	}
 }

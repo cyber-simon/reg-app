@@ -43,7 +43,10 @@ public class IdentityEntity extends AbstractBaseEntity {
 	@ManyToOne(targetEntity = UserEntity.class)
     @JoinColumn(name = "pref_user_id")
 	private UserEntity prefUser;
-	
+
+	@Column(name = "uid_number")
+	private Integer uidNumber;
+
 	public Set<UserEntity> getUsers() {
 		return users;
 	}
@@ -82,5 +85,13 @@ public class IdentityEntity extends AbstractBaseEntity {
 
 	public void setPrefUser(UserEntity prefUser) {
 		this.prefUser = prefUser;
+	}
+
+	public Integer getUidNumber() {
+		return uidNumber;
+	}
+
+	public void setUidNumber(Integer uidNumber) {
+		this.uidNumber = uidNumber;
 	}
 }

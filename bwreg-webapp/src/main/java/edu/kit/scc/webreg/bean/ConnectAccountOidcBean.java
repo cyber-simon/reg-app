@@ -24,6 +24,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
@@ -46,6 +48,9 @@ public class ConnectAccountOidcBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	@Inject
+	private Logger logger;
+	
 	@Inject
 	private UserService userService;
     
@@ -72,7 +77,7 @@ public class ConnectAccountOidcBean implements Serializable {
 
     @Inject
     private UserService service;
-
+    
 	private IdentityEntity identity;
 	private List<UserEntity> userList;
 
@@ -122,11 +127,6 @@ public class ConnectAccountOidcBean implements Serializable {
 			return;
 		}
 
-    	if (service.findByEppn(entity.getEppn()) != null) {
-			errorState = true;
-			messageGenerator.addResolvedErrorMessage("eppn-blocked", "eppn-blocked-detail", true);
-    	}
-
 		IDTokenClaimsSet claims = tokenHelper.claimsFromMap(sessionManager.getAttributeMap());
 		UserInfo userInfo = tokenHelper.userInfoFromMap(sessionManager.getAttributeMap());
 
@@ -145,9 +145,29 @@ public class ConnectAccountOidcBean implements Serializable {
 
 	}
 	
-	public void save() {
-		ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+	public String save() {
+		logger.debug("Comparing pins {} <-> {}", sessionManager.getAccountLinkingPin(), pin);
 
+		if (sessionManager.getAccountLinkingPin() != null && sessionManager.getAccountLinkingPin().equals(pin)) {
+			/*
+			 * pin is correct, proceed
+			 */
+			
+			try {
+				entity = userCreateService.createAndLinkUser(identity, entity, sessionManager.getAttributeMap(), null);
+			} catch (UserUpdateException e) {
+				logger.warn("An error occured whilst creating user", e);
+				messageGenerator.addResolvedErrorMessage("error_msg", e.toString(), false);
+				return null;
+			}
+			
+			return "user/connect-account-success.xhtml";
+		}
+		else {
+			logger.warn("Pins for identity {} don't match: {} <-> {}", identity.getId(), sessionManager.getAccountLinkingPin(), pin);
+			messageGenerator.addResolvedErrorMessage("pin-wrong", "pin-wrong-detail", true);
+			return null;
+		}
 	}
 
 	public IdentityEntity getIdentity() {

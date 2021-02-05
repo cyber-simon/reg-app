@@ -125,6 +125,29 @@ public class IdentityServiceImpl extends BaseServiceImpl<IdentityEntity, Long> i
 		}
 		logger.info("Add missing 2fa userIds done.");
 		
+		logger.info("Add missing uidNumbers...");
+		idList = dao.findMissingUidNumber();
+		for (IdentityEntity id : idList) {
+			Set<UserEntity> users = id.getUsers();
+			
+			if (users == null) {
+				logger.warn("Identity {} has no users", id.getId());
+			}
+			else if (users.size() == 0) {
+				logger.warn("Identity {} has no users", id.getId());
+			}
+			else if (users.size() == 1) {
+				for(UserEntity user : users) {
+					id.setUidNumber(user.getUidNumber());
+					logger.info("Add missing uidNumber {}", id.getUidNumber());
+				}
+			}
+			else {
+				logger.warn("Add missing uidNumber from identity with more than one account is not supported! Check identity {}", id.getId());
+			}
+		}
+		logger.info("Add missing uidNumbers done.");
+		
 		logger.info("Migrate ssh pub keys from users to identities...");
 
 		List<SshPubKeyEntity> keyList = sshPubKeyDao.findMissingIdentity();

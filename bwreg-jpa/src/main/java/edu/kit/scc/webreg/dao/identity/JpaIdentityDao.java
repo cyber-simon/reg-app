@@ -42,7 +42,13 @@ public class JpaIdentityDao extends JpaBaseDao<IdentityEntity, Long> implements 
 	public List<IdentityEntity> findMissingTwoFaUserId() {
 		return em.createQuery("select e from IdentityEntity e where e.twoFaUserId is null or e.twoFaUserName is null").getResultList();
 	}
-	
+
+	@Override
+    @SuppressWarnings({"unchecked"})
+	public List<IdentityEntity> findMissingUidNumber() {
+		return em.createQuery("select e from IdentityEntity e where e.uidNumber is null").getResultList();
+	}
+
 	@Override
     @SuppressWarnings({"unchecked"})
 	public List<IdentityEntity> findByMissingPrefferedUser(int limit) {

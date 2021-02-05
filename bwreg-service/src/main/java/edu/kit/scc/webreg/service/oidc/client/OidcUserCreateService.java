@@ -13,6 +13,7 @@ package edu.kit.scc.webreg.service.oidc.client;
 import java.util.List;
 import java.util.Map;
 
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 
@@ -23,5 +24,8 @@ public interface OidcUserCreateService {
 
 	OidcUserEntity preCreateUser(Long rpConfigId,
 			String locale, Map<String, List<Object>> attributeMap) throws UserUpdateException;
-
+	
+	OidcUserEntity createAndLinkUser(IdentityEntity identity, OidcUserEntity user,
+			Map<String, List<Object>> attributeMap, String executor)
+			throws UserUpdateException;
 }
