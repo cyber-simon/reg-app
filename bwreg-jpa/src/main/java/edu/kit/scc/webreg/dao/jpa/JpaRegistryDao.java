@@ -137,7 +137,7 @@ public class JpaRegistryDao extends JpaBaseDao<RegistryEntity, Long> implements 
 	@Override
 	public List<RegistryEntity> findAllExternalBySsn(String serviceShortName) {
 		return em.createQuery("select r from RegistryEntity r where r.service.shortName = :ssn and "
-				+ " TYPE(r.user) = :class")
+				+ " TYPE(r.user.class) = :class")
 				.setParameter("ssn", serviceShortName)
 				.setParameter("class", ExternalUserEntity.class)
 				.getResultList();
