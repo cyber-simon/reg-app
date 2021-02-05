@@ -136,8 +136,8 @@ public class JpaRegistryDao extends JpaBaseDao<RegistryEntity, Long> implements 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<RegistryEntity> findAllExternalBySsn(String serviceShortName) {
-		return em.createQuery("select r from RegistryEntity r where r.service.shortName = :ssn and "
-				+ " TYPE(r.user.class) = :class")
+		return em.createQuery("select r from RegistryEntity r, UserEntity u where r.service.shortName = :ssn and "
+				+ "r.user = u and TYPE(u) = :class")
 				.setParameter("ssn", serviceShortName)
 				.setParameter("class", ExternalUserEntity.class)
 				.getResultList();
