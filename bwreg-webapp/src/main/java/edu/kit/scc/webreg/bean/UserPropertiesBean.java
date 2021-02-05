@@ -18,12 +18,12 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+
 import com.nimbusds.openid.connect.sdk.claims.ClaimsSet;
 
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
-import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
-import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
@@ -46,13 +46,14 @@ public class UserPropertiesBean implements Serializable {
 	private List<UserEntity> userList;
 	private UserEntity user;
 	
-	private SamlIdpMetadataEntity idpEntity;
-
 	private List<RoleEntity> roleList;
 
 	private List<GroupEntity> groupList;
 	
 	private ClaimsSet claims;
+	
+	@Inject
+	private Logger logger;
 	
 	@Inject
 	private UserService userService;
@@ -70,57 +71,61 @@ public class UserPropertiesBean implements Serializable {
     private SessionManager sessionManager;
     
 	public void preRenderView(ComponentSystemEvent ev) {
-		if (identity == null) {
-			identity = identityService.findById(sessionManager.getIdentityId());
-			userList = userService.findByIdentity(identity);
-			user = userService.findByIdWithStore(userList.get(0).getId());
-	    	roleList = roleService.findByUser(user);
-	    	groupList = groupService.findByUser(user);
 	    	
-	    	if (user instanceof SamlUserEntity) {
-	    		idpEntity = ((SamlUserEntity) user).getIdp();
-	    	}
-	    	else if (user instanceof OidcUserEntity) {
-	    		JSONParser parser = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
-				try {
-		    		JSONObject jo = parser.parse(user.getAttributeStore().get("claims"), JSONObject.class);
-		    		claims = new ClaimsSet(jo);
-				} catch (ParseException e) {
-					System.out.println("" + e);
-				}
-	    	}
-		}
 	}
 	
-	public SamlIdpMetadataEntity getIdpEntity() {
-		return idpEntity;
-	}
-
 	public List<RoleEntity> getRoleList() {
+    	roleList = roleService.findByUser(getUser());
 		return roleList;
 	}
 
 	public List<GroupEntity> getGroupList() {
+    	groupList = groupService.findByUser(getUser());
 		return groupList;
 	}
 
 	public IdentityEntity getIdentity() {
+		if (identity == null) {
+			identity = identityService.findById(sessionManager.getIdentityId());
+		}
 		return identity;
 	}
 
 	public List<UserEntity> getUserList() {
+		if (userList == null) {
+			userList = userService.findByIdentity(getIdentity());
+		}
 		return userList;
 	}
 
 	public UserEntity getUser() {
+		if (user == null) {
+			user = userService.findByIdWithStore(getUserList().get(0).getId());
+		}
 		return user;
 	}
 
 	public void setUser(UserEntity user) {
-		this.user = user;
+		if (user != null && (! user.equals(this.user))) {
+			this.user = userService.findByIdWithStore(user.getId());
+			claims = null;
+		}
 	}
 
 	public ClaimsSet getClaims() {
+		if (claims == null) {
+	    	if (getUser() instanceof OidcUserEntity) {
+	    		JSONParser parser = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
+				try {
+					if (getUser().getAttributeStore().containsKey("claims")) {
+			    		JSONObject jo = parser.parse(getUser().getAttributeStore().get("claims"), JSONObject.class);
+			    		claims = new ClaimsSet(jo);
+					}
+				} catch (ParseException e) {
+					logger.warn("Wrong JSON in claims attribute", e);
+				}
+	    	}
+		}
 		return claims;
 	}
 }

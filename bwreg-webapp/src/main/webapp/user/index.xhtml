@@ -27,14 +27,20 @@
 
 		<p:panel rendered="#{userPropertiesBean.userList.size() gt 1}">
 			<p:outputLabel for="@next" value="Choose account: " />
-			<p:selectOneMenu id="userSelect" value="#{userPropertiesBean.user}" converter="#{userConverter}">
+			<p:selectOneListbox id="userSelect" var="u" value="#{userPropertiesBean.user}" converter="#{userConverter}" class="full">
     	        <f:selectItems value="#{userPropertiesBean.userList}" var="user" itemLabel="#{user.eppn}" itemValue="#{user}" />
-	        </p:selectOneMenu>
+    	        <p:column>
+    	        	<h:outputText value="#{u.eppn} - " />
+    	        	<h:outputText value="#{u.idp.displayName}" rendered="#{u.class.simpleName eq 'SamlUserEntity'}" />
+    	        	<h:outputText value="#{u.issuer.displayName}" rendered="#{u.class.simpleName eq 'OidcUserEntity'}" />
+    	        </p:column>
+	           	<f:ajax render=":form:tabVw" execute="@this" />
+	        </p:selectOneListbox>
 		</p:panel>
-		<p:tabView id="tabVw" dynamic="true" cache="true">
-			<p:tab id="tab1" title="#{messages.my_data}">
+		<p:tabView id="tabVw" dynamic="true">
+			<p:tab id="tab1" title="#{messages.my_data}" rendered="#{userPropertiesBean.user.class.simpleName eq 'SamlUserEntity'}">
 				<div class="panel">#{messages.my_data_explanation}</div>
-				<div class="panel">#{messages.data_from}: <b>#{userPropertiesBean.idpEntity.orgName}</b></div>
+				<div class="panel">#{messages.data_from}: <b>#{userPropertiesBean.user.idp.orgName}</b></div>
 				<p:panelGrid id="baseData" columns="2">
 					<bw:outputText label="#{messages.name}" value="#{userPropertiesBean.user.surName}, #{userPropertiesBean.user.givenName}"/>
 					<bw:outputText label="#{messages.email}" value="#{userPropertiesBean.user.email}"/>
@@ -43,8 +49,8 @@
 					<bw:outputText label="#{messages.uid_number}" value="#{userPropertiesBean.user.uidNumber}"/>
 					<bw:outputText label="#{messages.primary_group}" value="#{userPropertiesBean.user.primaryGroup.name} (#{userPropertiesBean.user.primaryGroup.gidNumber})"/>
 					
-					<bw:outputText label="#{messages.idp}" value="#{userPropertiesBean.idpEntity.displayName}"
-						rendered="#{not empty userPropertiesBean.idpEntity and not empty userPropertiesBean.idpEntity.displayName}"/>
+					<bw:outputText label="#{messages.idp}" value="#{userPropertiesBean.user.idp.displayName}"
+						rendered="#{not empty userPropertiesBean.user.idp and not empty userPropertiesBean.user.idp.displayName}"/>
 					
 				</p:panelGrid>
 				<div style="margin-top: 0.8em;">#{messages.my_data_delete_all}
