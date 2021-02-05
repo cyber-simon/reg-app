@@ -74,5 +74,13 @@ public class ExternalRegistryController {
 		return registryDtoService.findByExternalId(externalId);
 	}
 
+	@Path(value = "/find/all/ssn/{ssn}")
+	@Produces({MediaType.APPLICATION_JSON})
+	@GET
+	public List<RegistryEntityDto> findAll(@PathParam("ssn") String ssn, @Context HttpServletRequest request)
+					throws IOException, RestInterfaceException, ServletException {
+		return registryDtoService.findAllExternalBySsn(ssn);
+	}
+
 
 }

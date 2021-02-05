@@ -28,6 +28,7 @@ import javax.persistence.criteria.Root;
 
 import edu.kit.scc.webreg.dao.GenericSortOrder;
 import edu.kit.scc.webreg.dao.RegistryDao;
+import edu.kit.scc.webreg.entity.ExternalUserEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity_;
 import edu.kit.scc.webreg.entity.RegistryStatus;
@@ -130,6 +131,16 @@ public class JpaRegistryDao extends JpaBaseDao<RegistryEntity, Long> implements 
 				+ " and lastStatusChange < :is order by lastStatusChange asc")
 				.setParameter("ssn", serviceShortName).setParameter("status", status).setParameter("is", date)
 				.setMaxResults(limit).getResultList();
+	}	
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<RegistryEntity> findAllExternalBySsn(String serviceShortName) {
+		return em.createQuery("select r from RegistryEntity r where r.service.shortName = :ssn and "
+				+ " TYPE(r.user) = :class")
+				.setParameter("ssn", serviceShortName)
+				.setParameter("class", ExternalUserEntity.class)
+				.getResultList();
 	}	
 
 	@SuppressWarnings("unchecked")

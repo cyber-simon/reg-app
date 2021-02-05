@@ -77,7 +77,19 @@ public class RegistryDtoServiceImpl extends BaseDtoServiceImpl<RegistryEntity, R
 		}
 		return dtoList;
 	}
-	
+
+	@Override
+	public List<RegistryEntityDto> findAllExternalBySsn(String ssn) {
+		List<RegistryEntity> regList = dao.findAllExternalBySsn(ssn);
+		List<RegistryEntityDto> dtoList = new ArrayList<RegistryEntityDto>(regList.size());
+		for (RegistryEntity reg : regList) {
+			RegistryEntityDto dto = createNewDto();
+			mapper.copyProperties(reg, dto);
+			dtoList.add(dto);
+		}
+		return dtoList;
+	}
+
 	@Override
 	public RegistryEntityDto register(String externalId, String ssn)
 			throws RegisterException {

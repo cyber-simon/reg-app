@@ -21,4 +21,5 @@ public interface RegistryDtoService extends BaseDtoService<RegistryEntity, Regis
 
 	List<RegistryEntityDto> findRegistriesByStatus(ServiceEntity service, RegistryStatus status);
 
+	List<RegistryEntityDto> findAllExternalBySsn(String ssn);
 }
