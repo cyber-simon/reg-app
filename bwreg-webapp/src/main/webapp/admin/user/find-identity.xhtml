@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+
+	<f:metadata>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{findIdentityBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	
+	<h:form id="form">
+
+		<p:messages id="messageBox" showDetail="true" escape="false" />		
+
+		<p:panelGrid columns="2">
+			<h:outputLabel value="Eppn" for="@next" />
+	        <p:autoComplete id="userAutocompl" multiple="false" value="#{findIdentityBean.selectedUser}" 
+	        		completeMethod="#{findIdentityBean.completeUser}" minQueryLength="2"
+	                var="u" itemLabel="#{u.eppn}" itemValue="#{u}" converter="#{userConverter}" 
+	                forceSelection="true">
+	            <p:column style="width:20%">
+	                <h:outputText value="#{u.id}" />
+	            </p:column>
+	            <p:column>
+	                <h:outputText value="#{u.eppn}" />
+	            </p:column>
+	            <p:column>
+	                <h:outputText value="#{u.surName}" />
+	            </p:column>
+	            <p:column>
+	                <h:outputText value="#{u.givenName}" />
+	            </p:column>
+	        </p:autoComplete>
+		</p:panelGrid>
+		<p:focus for="userAutocompl" />
+	
+		<p:outputPanel style="margin-bottom: 16px;">
+			<p:commandButton action="#{findIdentityBean.searchUser()}" value="Search" update="form"/>
+		</p:outputPanel>
+		
+	</h:form>
+
+	</ui:define>
+</ui:composition>		
+</f:view>
+</body>
+</html>

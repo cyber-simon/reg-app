@@ -11,37 +11,61 @@
 package edu.kit.scc.webreg.bean.admin;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
-import org.primefaces.model.LazyDataModel;
-
+import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
-import edu.kit.scc.webreg.model.GenericLazyDataModelImpl;
+import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.identity.IdentityService;
+import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
 @ManagedBean
 @ViewScoped
-public class ListIdentityBean implements Serializable {
+public class ShowAdminIdentityBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private LazyDataModel<IdentityEntity> list;
-    
+	@Inject
+	private FacesMessageGenerator messageGenerator;
+	
+	@Inject
+	private UserService userService;
+	
     @Inject
     private IdentityService service;
+
+    private IdentityEntity identity;
+    private List<UserEntity> userList;
+	private Long id;
 
 	public void preRenderView(ComponentSystemEvent ev) {
 	}
 
-    public LazyDataModel<IdentityEntity> getIdentityEntityList() {
-		if (list == null) {
-			list = new GenericLazyDataModelImpl<IdentityEntity, IdentityService, Long>(service, "users");
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public IdentityEntity getIdentity() {
+		if (identity == null) {
+			identity = service.findById(id);
 		}
-   		return list;
-    }
+		return identity;
+	}
+
+	public List<UserEntity> getUserList() {
+		if (userList == null) {
+			userList = userService.findByIdentity(getIdentity());
+		}
+		return userList;
+	}
 
 }

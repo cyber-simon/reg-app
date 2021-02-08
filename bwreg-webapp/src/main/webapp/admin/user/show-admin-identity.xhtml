@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+
+	<f:metadata>
+		<f:viewParam name="id" value="#{showAdminIdentityBean.id}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{showAdminIdentityBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	
+	<h:form id="form">
+
+		<h3>Show identity: <h:outputText value="#{showAdminIdentityBean.identity.id}" /></h3>
+
+		<p:panelGrid columns="2">
+			<bw:outputText label="#{messages.twofa_userid}" value="#{showAdminIdentityBean.identity.twoFaUserId}"/>
+			<bw:outputText label="#{messages.twofa_username}" value="#{showAdminIdentityBean.identity.twoFaUserName}"/>
+		</p:panelGrid>
+
+		<p:repeat var="user" value="#{showAdminIdentityBean.userList}">
+
+           	<p:panel rendered="#{user.class.simpleName eq 'SamlUserEntity'}">
+				<f:facet name="header">
+					#{user.id} - #{user.eppn} - (#{user.idp.displayName})
+				</f:facet>
+				<p:panelGrid columns="2">
+					<h:outputLabel value="#{messages.name}" for="@next"/>
+					<h:outputText value="#{user.surName}, #{user.givenName}" />
+					<h:outputLabel value="#{messages.email}" for="@next"/>
+					<h:outputText value="#{user.email}" />
+					<h:outputLabel value="#{messages.eppn}" for="@next"/>
+					<h:outputText value="#{user.eppn}" />
+					<h:outputLabel value="#{messages.persistent_id}" for="@next"/>
+					<h:outputText value="#{user.persistentId}" />
+					<h:outputLabel value="#{messages.uid_number}" for="@next"/>
+					<h:outputText value="#{user.uidNumber}" />
+					<h:outputLabel value="#{messages.primary_group}" for="@next"/>
+					<h:outputText value="#{user.primaryGroup.name} (#{user.primaryGroup.gidNumber})" />
+					<h:outputLabel value="#{messages.idp}" for="@next"/>
+					<h:outputText value="#{user.idp.displayName}" />
+				</p:panelGrid>
+           	</p:panel>
+
+           	<p:panel rendered="#{user.class.simpleName eq 'OidcUserEntity'}">
+				<f:facet name="header">
+					#{user.id} - #{user.eppn} - (#{user.issuer.displayName})
+				</f:facet>
+				<p:panelGrid columns="2">
+					<h:outputLabel value="#{messages.name}" for="@next"/>
+					<h:outputText value="#{user.surName}, #{user.givenName}" />
+					<h:outputLabel value="#{messages.email}" for="@next"/>
+					<h:outputText value="#{user.email}" />
+					<h:outputLabel value="#{messages.eppn}" for="@next"/>
+					<h:outputText value="#{user.eppn}" />
+					<h:outputLabel value="#{messages.subject_id}" for="@next"/>
+					<h:outputText value="#{user.subjectId}" />
+					<h:outputLabel value="#{messages.uid_number}" for="@next"/>
+					<h:outputText value="#{user.uidNumber}" />
+					<h:outputLabel value="#{messages.primary_group}" for="@next"/>
+					<h:outputText value="#{user.primaryGroup.name} (#{user.primaryGroup.gidNumber})" />
+					<h:outputLabel value="#{messages.issuer}" for="@next"/>
+					<h:outputText value="#{user.issuer.displayName}" />
+				</p:panelGrid>
+           	</p:panel>				
+
+		</p:repeat>
+
+	</h:form>
+
+	</ui:define>
+</ui:composition>		
+</f:view>
+</body>
+</html>
