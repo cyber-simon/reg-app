@@ -29,6 +29,9 @@ public class FederationEntity extends AbstractBaseEntity {
 	@Column(name = "federation_name", length = 128, unique = true)
 	private String name;
 
+	@Column(name = "short_name", length = 128, unique = true)
+	private String shortName;
+
 	@Column(name = "entity_id", length = 2048)
 	private String entityId;
 
@@ -168,5 +171,13 @@ public class FederationEntity extends AbstractBaseEntity {
 
 	public void setAas(Set<SamlAAMetadataEntity> aas) {
 		this.aas = aas;
+	}
+
+	public String getShortName() {
+		return shortName;
+	}
+
+	public void setShortName(String shortName) {
+		this.shortName = shortName;
 	}
 }

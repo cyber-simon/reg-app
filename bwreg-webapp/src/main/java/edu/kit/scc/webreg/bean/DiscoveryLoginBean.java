@@ -120,6 +120,16 @@ public class DiscoveryLoginBean implements Serializable {
 			}
 		}
 		
+		if (sessionManager.getOriginalFederationShortName() != null) {
+			FederationEntity f = federationBean.getFederationList().stream()
+					.filter(federation -> sessionManager.getOriginalFederationShortName().equals(federation.getShortName()))
+					.findFirst()
+					.orElse(null);
+			if (f != null) {
+				selectedFederation = f;
+			}
+		}
+
 		if (! initialized) {
 			federationList = federationBean.getFederationList();
 			if (federationList == null || federationList.size() == 0) {
