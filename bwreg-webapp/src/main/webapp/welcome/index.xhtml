@@ -57,7 +57,7 @@
 		        	converter="#{federationConverter}" >
 		        	<f:selectItem itemLabel="#{messages.all}" itemValue="#{null}"/>
 	            	<f:selectItems value="#{discoveryLoginBean.federationList}" 
-	            		var="federation" itemLabel="#{federation.name} (id #{federation.id})" itemValue="#{federation}"/>
+	            		var="federation" itemLabel="#{federation.name}" itemValue="#{federation}"/>
 	            	<f:ajax execute="@this" render="idpBox" event="change" />
 	            </p:selectOneMenu>
 	
