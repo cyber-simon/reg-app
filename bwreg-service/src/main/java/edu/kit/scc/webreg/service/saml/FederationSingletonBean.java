@@ -53,17 +53,22 @@ public class FederationSingletonBean {
 	public void refreshCache() {
 		if (System.currentTimeMillis() - lastRefresh > 1000L * 60L * 60L) {
 
-			sortedFederationList = federationDao.findAll();
-	
+			List<FederationEntity> tempFederationList = federationDao.findAll();
+			sortedFederationList = new ArrayList<FederationEntity>();
+			
 			idpMap.clear();
 			
-			for (FederationEntity federation : sortedFederationList) {
+			for (FederationEntity federation : tempFederationList) {
 				logger.info("Loading federation {} ({})", federation.getId(), federation.getEntityId());
 				
 				List<SamlIdpMetadataEntity> idpList = idpDao.findAllByFederationOrderByOrgname(federation);
 				federationCache.put(federation, idpList);
 				for (SamlIdpMetadataEntity idp : idpList) {
 					idpMap.put(idp.getEntityId(), idp);
+				}
+				
+				if (idpList.size() > 0) {
+					sortedFederationList.add(federation);
 				}
 			}
 			
