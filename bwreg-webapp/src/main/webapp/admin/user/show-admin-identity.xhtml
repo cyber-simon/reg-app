@@ -29,8 +29,12 @@
 		<h3>Show identity: <h:outputText value="#{showAdminIdentityBean.identity.id}" /></h3>
 
 		<p:panelGrid columns="2">
-			<bw:outputText label="#{messages.twofa_userid}" value="#{showAdminIdentityBean.identity.twoFaUserId}"/>
-			<bw:outputText label="#{messages.twofa_username}" value="#{showAdminIdentityBean.identity.twoFaUserName}"/>
+			<h:outputLabel value="#{messages.twofa_userid}" for="@next"/>
+			<h:outputText value="#{showAdminIdentityBean.identity.twoFaUserId}" />
+			<h:outputLabel value="#{messages.twofa_username}" for="@next"/>
+			<h:outputText value="#{showAdminIdentityBean.identity.twoFaUserName}" />
+			<h:outputLabel value="#{messages.uid_number}" for="@next"/>
+			<h:outputText value="#{showAdminIdentityBean.identity.uidNumber}" />
 		</p:panelGrid>
 
 		<p:repeat var="user" value="#{showAdminIdentityBean.userList}">
