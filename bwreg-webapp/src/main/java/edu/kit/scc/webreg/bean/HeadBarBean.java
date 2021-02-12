@@ -69,7 +69,7 @@ public class HeadBarBean {
 				+ "</svg></button>";
 	}
 	
-	private String getOrDefault(String key, String defaultString) {
+	public String getOrDefault(String key, String defaultString) {
 		if (appConfig.getConfigValue(key) != null) {
 			return appConfig.getConfigValue(key);
 		}

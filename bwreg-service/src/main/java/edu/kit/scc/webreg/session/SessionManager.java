@@ -61,7 +61,9 @@ public class SessionManager implements Serializable {
 
 	// identityId of the actual user
 	private Long identityId;
-
+	// List of logged in account (stored for logout)
+	private Set<Long> loggedInUserList;
+	
 	private String accountLinkingPin;
 	
 	private Map<String, List<Object>> attributeMap;
@@ -103,6 +105,7 @@ public class SessionManager implements Serializable {
 		groups = new HashSet<GroupEntity>();
 		groupNames = new HashSet<String>();
 		roles = new HashSet<RoleEntity>();
+		loggedInUserList = new HashSet<Long>();
 	}
 	
 	public void clearRoleList() {
@@ -370,5 +373,9 @@ public class SessionManager implements Serializable {
 
 	public void setOriginalFederationShortName(String originalFederationShortName) {
 		this.originalFederationShortName = originalFederationShortName;
+	}
+
+	public Set<Long> getLoggedInUserList() {
+		return loggedInUserList;
 	}
 }

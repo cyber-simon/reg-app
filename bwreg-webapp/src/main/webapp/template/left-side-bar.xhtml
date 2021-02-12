@@ -27,6 +27,11 @@
 						<li class="">
 							<h:link outcome="#{request.contextPath}/user/twofa.xhtml" value="#{messages.my_twofa}" />
 						</li>
+						<h:panelGroup rendered="#{headBarBean.getOrDefault('show_local_logout', 'false').equalsIgnoreCase('true')}">
+							<li class="">
+								<h:link outcome="#{request.contextPath}/user/local-logout.xhtml" value="#{messages.logout}" />
+							</li>
+						</h:panelGroup>
 					</ul>
 				</div>   			
    			</li>

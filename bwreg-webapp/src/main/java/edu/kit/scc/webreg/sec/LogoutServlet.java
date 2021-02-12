@@ -61,6 +61,8 @@ public class LogoutServlet implements Servlet {
 		if (redirect != null && (! redirect.equals(""))) {
 			if (redirect.equalsIgnoreCase("delete"))
 				response.sendRedirect(ViewIds.DELETE_ALL_PERSONAL_DATA_DONE);
+			else if (redirect.equalsIgnoreCase("local_logout"))
+				response.sendRedirect(ViewIds.LOCAL_LOGOUT_DONE);
 			else
 				response.sendRedirect(ViewIds.INDEX_USER);
 		}
