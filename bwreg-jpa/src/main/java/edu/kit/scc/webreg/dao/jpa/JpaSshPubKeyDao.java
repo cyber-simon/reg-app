@@ -10,6 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -71,6 +72,16 @@ public class JpaSshPubKeyDao extends JpaBaseDao<SshPubKeyEntity, Long> implement
 	public List<SshPubKeyEntity> findByKey(String encodedKey) {
 		return em.createQuery("select e from SshPubKeyEntity e where e.encodedKey = :encodedKey")
 				.setParameter("encodedKey", encodedKey)
+				.getResultList();	
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<SshPubKeyEntity> findKeysToExpire(int limit) {
+		return em.createQuery("select e from SshPubKeyEntity e where e.expiresAt < :dateNow and e.keyStatus != :keyStatus")
+				.setParameter("dateNow", new Date())
+				.setParameter("keyStatus", SshPubKeyStatus.ACTIVE)
+				.setMaxResults(limit)
 				.getResultList();	
 	}
 

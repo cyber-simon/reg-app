@@ -67,6 +67,29 @@ public class SshPubKeyServiceImpl extends BaseServiceImpl<SshPubKeyEntity, Long>
 	public List<SshPubKeyEntity> findByIdentityAndStatusWithRegs(Long identityId, SshPubKeyStatus keyStatus) {
 		return dao.findByIdentityAndStatusWithRegs(identityId, keyStatus);
 	}
+
+	@Override
+	public List<SshPubKeyEntity> findKeysToExpire(int limit) {
+		return dao.findKeysToExpire(limit);
+	}
+	
+	@Override
+	public SshPubKeyEntity expireKey(SshPubKeyEntity entity, String executor) {
+		entity = dao.merge(entity);
+		entity.setKeyStatus(SshPubKeyStatus.EXPIRED);
+
+		for (SshPubKeyRegistryEntity regKey : entity.getSshPubKeyRegistries()) {
+			sshPubKeyRegistryDao.delete(regKey);
+		}
+
+		SshPubKeyEvent event = new SshPubKeyEvent(entity);
+		try {
+			eventSubmitter.submit(event, EventType.SSH_KEY_EXPIRED, executor);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}
+		return entity;
+	}
 	
 	@Override
 	public SshPubKeyEntity deleteKey(SshPubKeyEntity entity, String executor) {

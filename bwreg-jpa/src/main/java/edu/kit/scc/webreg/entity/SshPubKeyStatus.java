@@ -14,5 +14,6 @@ public enum SshPubKeyStatus {
 
 	ACTIVE,
 	DELETED,
-
+	EXPIRED,
+	
 }

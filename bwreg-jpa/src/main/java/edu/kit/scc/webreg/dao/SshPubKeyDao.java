@@ -29,4 +29,6 @@ public interface SshPubKeyDao extends BaseDao<SshPubKeyEntity, Long> {
 
 	List<SshPubKeyEntity> findByIdentity(Long identityId);
 
+	List<SshPubKeyEntity> findKeysToExpire(int limit);
+
 }

@@ -51,6 +51,12 @@ public class SshPubKeyEntity extends AbstractBaseEntity {
 	@Column(name = "expires_at")
 	private Date expiresAt;
 
+	@Column(name = "expires_warn_sent_at")
+	private Date expireWarningSent;
+
+	@Column(name = "expired_sent_at")
+	private Date expiredSent;
+	
 	public UserEntity getUser() {
 		return user;
 	}
@@ -121,5 +127,21 @@ public class SshPubKeyEntity extends AbstractBaseEntity {
 
 	public void setIdentity(IdentityEntity identity) {
 		this.identity = identity;
+	}
+
+	public Date getExpireWarningSent() {
+		return expireWarningSent;
+	}
+
+	public void setExpireWarningSent(Date expireWarningSent) {
+		this.expireWarningSent = expireWarningSent;
+	}
+
+	public Date getExpiredSent() {
+		return expiredSent;
+	}
+
+	public void setExpiredSent(Date expiredSent) {
+		this.expiredSent = expiredSent;
 	}
 }
