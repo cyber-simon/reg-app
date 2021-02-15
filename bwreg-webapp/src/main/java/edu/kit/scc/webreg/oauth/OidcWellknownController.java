@@ -8,10 +8,13 @@ import java.util.List;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import org.slf4j.Logger;
@@ -41,17 +44,15 @@ public class OidcWellknownController {
 	@GET
 	@Path("/{realm}/.well-known/openid-configuration")
 	@Produces(MediaType.APPLICATION_JSON)
-	public JSONObject wellknown(@PathParam("realm") String realm)
+	public JSONObject wellknown(@PathParam("realm") String realm, @Context HttpServletRequest request, @Context HttpServletResponse response)
 			throws ServletException {
-		/*
-		 * TODO: Realm from configuration (database)
-		 */
-		OidcOpConfigurationEntity opConfig = opService.findByRealm(realm);
+
+		OidcOpConfigurationEntity opConfig = opService.findByRealmAndHost(realm, request.getLocalName());
 		
 		if (opConfig == null) {
 			throw new ServletException("No such realm");
 		}
-		
+			
 		try {
 			List<SubjectType> subjectTypeList = Arrays.asList(new SubjectType[] { SubjectType.PAIRWISE, SubjectType.PUBLIC });
 			OIDCProviderMetadata metadata = new OIDCProviderMetadata(new Issuer("https://" + opConfig.getHost() + "/oidc/realms/" + opConfig.getRealm()), 

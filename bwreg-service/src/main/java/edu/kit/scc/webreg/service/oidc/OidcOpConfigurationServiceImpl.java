@@ -30,6 +30,10 @@ public class OidcOpConfigurationServiceImpl extends BaseServiceImpl<OidcOpConfig
 		return dao.findByRealm(realm);
 	}
 	
+	public OidcOpConfigurationEntity findByRealmAndHost(String realm, String host) {
+		return dao.findByRealmAndHost(realm, host);
+	}
+	
 	@Override
 	protected BaseDao<OidcOpConfigurationEntity, Long> getDao() {
 		return dao;

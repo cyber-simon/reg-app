@@ -10,5 +10,6 @@ public abstract class OidcOpConfigurationEntity_ extends edu.kit.scc.webreg.enti
 
 	public static volatile SingularAttribute<OidcOpConfigurationEntity, String> realm;
 	public static volatile SingularAttribute<OidcOpConfigurationEntity, String> name;
+	public static volatile SingularAttribute<OidcOpConfigurationEntity, String> host;
 }
 

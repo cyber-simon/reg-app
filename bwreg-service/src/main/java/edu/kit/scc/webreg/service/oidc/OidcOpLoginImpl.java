@@ -104,10 +104,10 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			String state, String nonce, String clientId,
 			HttpServletRequest request, HttpServletResponse response) throws IOException, OidcAuthenticationException {
 
-		OidcOpConfigurationEntity opConfig = opDao.findByRealm(realm);
+		OidcOpConfigurationEntity opConfig = opDao.findByRealmAndHost(realm, request.getLocalName());
 		
 		if (opConfig == null) {
-			throw new OidcAuthenticationException("unknown realm");
+			throw new OidcAuthenticationException("unknown realm/host combination: " + realm + " / " + request.getLocalName());
 		}
 		
 		IdentityEntity identity = null;
@@ -153,10 +153,10 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	public String registerAuthRequestReturn(String realm, HttpServletRequest request, HttpServletResponse response)
 			throws IOException, OidcAuthenticationException {
 		
-		OidcOpConfigurationEntity opConfig = opDao.findByRealm(realm);
+		OidcOpConfigurationEntity opConfig = opDao.findByRealmAndHost(realm, request.getLocalName());
 		
 		if (opConfig == null) {
-			throw new OidcAuthenticationException("unknown realm");
+			throw new OidcAuthenticationException("unknown realm/host combination: " + realm + " / " + request.getLocalName());
 		}
 
 		IdentityEntity identity = null;
@@ -447,12 +447,12 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	}
 
 	@Override
-	public JSONObject serveUserJwt(String realm) throws OidcAuthenticationException {
+	public JSONObject serveUserJwt(String realm, HttpServletRequest request, HttpServletResponse response) throws OidcAuthenticationException {
 		
-		OidcOpConfigurationEntity opConfig = opDao.findByRealm(realm);
+		OidcOpConfigurationEntity opConfig = opDao.findByRealmAndHost(realm, request.getLocalName());
 		
 		if (opConfig == null) {
-			throw new OidcAuthenticationException("unknown realm");
+			throw new OidcAuthenticationException("unknown realm/host combination: " + realm + " / " + request.getLocalName());
 		}
 
 		if (session.isLoggedIn()) {

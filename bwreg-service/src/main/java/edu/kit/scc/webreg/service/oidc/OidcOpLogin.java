@@ -20,7 +20,7 @@ public interface OidcOpLogin {
 	String registerAuthRequestReturn(String realm, HttpServletRequest request, HttpServletResponse response)
 			throws IOException, OidcAuthenticationException;
 
-	JSONObject serveUserJwt(String realm) throws OidcAuthenticationException;
+	JSONObject serveUserJwt(String realm, HttpServletRequest request, HttpServletResponse response) throws OidcAuthenticationException;
 
 	JSONObject serveToken(String realm, String grantType, String code, String redirectUri, HttpServletRequest request,
 			HttpServletResponse response, String clientId, String clientSecret) throws OidcAuthenticationException;

@@ -41,6 +41,24 @@ public class JpaOidcOpConfigurationDao extends JpaBaseDao<OidcOpConfigurationEnt
 	}	
 	
 	@Override
+	public OidcOpConfigurationEntity findByRealmAndHost(String realm, String host) {
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<OidcOpConfigurationEntity> criteria = builder.createQuery(OidcOpConfigurationEntity.class);
+		Root<OidcOpConfigurationEntity> root = criteria.from(OidcOpConfigurationEntity.class);
+		criteria.where(builder.and(
+				builder.equal(root.get(OidcOpConfigurationEntity_.realm), realm),
+				builder.equal(root.get(OidcOpConfigurationEntity_.host), host)
+				));
+				
+		criteria.select(root);
+		try {
+			return em.createQuery(criteria).getSingleResult();
+		} catch (NoResultException e) {
+			return null;
+		}
+	}	
+	
+	@Override
 	public Class<OidcOpConfigurationEntity> getEntityClass() {
 		return OidcOpConfigurationEntity.class;
 	}
