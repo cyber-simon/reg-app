@@ -31,4 +31,5 @@ public interface SshPubKeyDao extends BaseDao<SshPubKeyEntity, Long> {
 
 	List<SshPubKeyEntity> findKeysToExpire(int limit);
 
+	List<SshPubKeyEntity> findKeysToExpiryWarning(int limit, int days);
 }

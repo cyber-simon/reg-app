@@ -10,6 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
@@ -78,8 +80,21 @@ public class JpaSshPubKeyDao extends JpaBaseDao<SshPubKeyEntity, Long> implement
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<SshPubKeyEntity> findKeysToExpire(int limit) {
-		return em.createQuery("select e from SshPubKeyEntity e where e.expiresAt < :dateNow and e.keyStatus != :keyStatus")
+		return em.createQuery("select e from SshPubKeyEntity e where e.expiresAt < :dateNow and e.keyStatus = :keyStatus")
 				.setParameter("dateNow", new Date())
+				.setParameter("keyStatus", SshPubKeyStatus.ACTIVE)
+				.setMaxResults(limit)
+				.getResultList();	
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<SshPubKeyEntity> findKeysToExpiryWarning(int limit, int days) {
+		Date dateDays = Date.from(LocalDateTime.now().plusDays(days).atZone(ZoneId.systemDefault()).toInstant());
+		return em.createQuery("select e from SshPubKeyEntity e where e.expireWarningSent = null and "
+				+ "e.expiresAt > :dateNow and e.expiresAt < :dateDays and e.keyStatus = :keyStatus")
+				.setParameter("dateNow", new Date())
+				.setParameter("dateDays", dateDays)
 				.setParameter("keyStatus", SshPubKeyStatus.ACTIVE)
 				.setMaxResults(limit)
 				.getResultList();	

@@ -10,6 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.ssh;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.ejb.Stateless;
@@ -72,13 +73,20 @@ public class SshPubKeyServiceImpl extends BaseServiceImpl<SshPubKeyEntity, Long>
 	public List<SshPubKeyEntity> findKeysToExpire(int limit) {
 		return dao.findKeysToExpire(limit);
 	}
+
+	@Override
+	public List<SshPubKeyEntity> findKeysToExpiryWarning(int limit, int days) {
+		return dao.findKeysToExpiryWarning(limit, days);
+	}
 	
 	@Override
 	public SshPubKeyEntity expireKey(SshPubKeyEntity entity, String executor) {
 		entity = dao.merge(entity);
 		entity.setKeyStatus(SshPubKeyStatus.EXPIRED);
+		logger.debug("Setting key {} to expired");
 
 		for (SshPubKeyRegistryEntity regKey : entity.getSshPubKeyRegistries()) {
+			logger.debug("Deleting registry connection {} for key {}", regKey.getId(), entity.getId());
 			sshPubKeyRegistryDao.delete(regKey);
 		}
 
@@ -90,15 +98,45 @@ public class SshPubKeyServiceImpl extends BaseServiceImpl<SshPubKeyEntity, Long>
 		}
 		return entity;
 	}
+
+	@Override
+	public SshPubKeyEntity expiryWarningKey(SshPubKeyEntity entity, String executor) {
+		entity = dao.merge(entity);
+		logger.debug("Send expiry warning event for key {}", entity.getId());
+
+		SshPubKeyEvent event = new SshPubKeyEvent(entity);
+		try {
+			eventSubmitter.submit(event, EventType.SSH_KEY_EXPIRY_WARNING, executor);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}
+		return entity;
+	}
+
+	@Override
+	public SshPubKeyEntity keyExpirySent(SshPubKeyEntity entity) {
+		entity = dao.merge(entity);
+		entity.setExpiredSent(new Date());
+		return entity;
+	}
+	
+	@Override
+	public SshPubKeyEntity keyExpiryWarningSent(SshPubKeyEntity entity) {
+		entity = dao.merge(entity);
+		entity.setExpireWarningSent(new Date());
+		return entity;
+	}
 	
 	@Override
 	public SshPubKeyEntity deleteKey(SshPubKeyEntity entity, String executor) {
 
 		entity = dao.merge(entity);
 		entity.setKeyStatus(SshPubKeyStatus.DELETED);
+		logger.debug("Setting key {} to deleted");
 
 		for (SshPubKeyRegistryEntity regKey : entity.getSshPubKeyRegistries()) {
 			sshPubKeyRegistryDao.delete(regKey);
+			logger.debug("Deleting registry connection {} for key {}", regKey.getId(), entity.getId());
 			SshPubKeyRegistryEvent event = new SshPubKeyRegistryEvent(regKey);
 			try {
 				eventSubmitter.submit(event, EventType.SSH_KEY_REGISTRY_DELETED, executor);

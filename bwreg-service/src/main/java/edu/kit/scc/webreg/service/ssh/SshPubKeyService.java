@@ -33,6 +33,15 @@ public interface SshPubKeyService extends BaseService<SshPubKeyEntity, Long> {
 	List<SshPubKeyEntity> findByIdentityAndStatusWithRegs(Long identityId, SshPubKeyStatus keyStatus);
 
 	SshPubKeyEntity expireKey(SshPubKeyEntity entity, String executor);
-	
+
+	SshPubKeyEntity expiryWarningKey(SshPubKeyEntity entity, String executor);
+
 	List<SshPubKeyEntity> findKeysToExpire(int limit);
+
+	SshPubKeyEntity keyExpirySent(SshPubKeyEntity entity);
+
+	SshPubKeyEntity keyExpiryWarningSent(SshPubKeyEntity entity);
+	
+	List<SshPubKeyEntity> findKeysToExpiryWarning(int limit, int days);
+	
 }

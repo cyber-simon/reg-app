@@ -19,27 +19,28 @@ import javax.naming.NamingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.kit.scc.webreg.entity.SshPubKeyRegistryEntity;
+import edu.kit.scc.webreg.entity.SshPubKeyEntity;
 import edu.kit.scc.webreg.service.mail.TemplateMailService;
+import edu.kit.scc.webreg.service.ssh.SshPubKeyService;
 
-public class SshPubKeyRegistrySendMailExecutor extends
-		AbstractEventExecutor<SshPubKeyRegistryEvent, SshPubKeyRegistryEntity> {
+public class SshPubKeyExpiredSendMailExecutor extends
+		AbstractEventExecutor<SshPubKeyEvent, SshPubKeyEntity> {
 
 	private static final long serialVersionUID = 1L;
 
-	public SshPubKeyRegistrySendMailExecutor() {
+	public SshPubKeyExpiredSendMailExecutor() {
 		super();
 	}
 
 	@Override
 	public void execute() {
-		Logger logger = LoggerFactory.getLogger(SshPubKeyRegistrySendMailExecutor.class);
+		Logger logger = LoggerFactory.getLogger(SshPubKeyExpiredSendMailExecutor.class);
 		logger.debug("Executing");
 		
 		String templateName = getJobStore().get("mail_template");
 
 		if (templateName == null) {
-			logger.warn("No template configured for SshPubKeyRegistrySendMailExecutor");
+			logger.warn("No template configured for SshPubKeyExpiredSendMailExecutor");
 			return;
 		}
 		
@@ -47,15 +48,16 @@ public class SshPubKeyRegistrySendMailExecutor extends
 			InitialContext ic = new InitialContext();
 			
 			TemplateMailService templateMailService = (TemplateMailService) ic.lookup("global/bwreg/bwreg-service/TemplateMailServiceImpl!edu.kit.scc.webreg.service.mail.TemplateMailService");
+			SshPubKeyService pubKeyService = (SshPubKeyService) ic.lookup("global/bwreg/bwreg-service/SshPubKeyServiceImpl!edu.kit.scc.webreg.service.ssh.SshPubKeyService");
 			
-			SshPubKeyRegistryEntity sshPubKeyRegistry = getEvent().getEntity();
+			SshPubKeyEntity sshPubKey = getEvent().getEntity();
+			
+			pubKeyService.keyExpirySent(sshPubKey);
+			
 			Map<String, Object> context = new HashMap<String, Object>(3);
-			context.put("sshPubKeyRegistry", sshPubKeyRegistry);
-			context.put("sshPubKey", sshPubKeyRegistry.getSshPubKey());
-			context.put("registry", sshPubKeyRegistry.getRegistry());
-			context.put("service", sshPubKeyRegistry.getRegistry().getService());
-			context.put("user", sshPubKeyRegistry.getSshPubKey().getUser());
-			context.put("identity", sshPubKeyRegistry.getSshPubKey().getIdentity());
+			context.put("sshPubKey", sshPubKey);
+			context.put("user", sshPubKey.getUser());
+			context.put("identity", sshPubKey.getIdentity());
 			
 			templateMailService.sendMail(templateName, context, true);
 			
