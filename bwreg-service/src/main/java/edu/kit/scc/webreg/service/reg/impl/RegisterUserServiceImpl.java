@@ -17,9 +17,13 @@ import javax.ejb.Asynchronous;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+
 import edu.kit.scc.webreg.audit.Auditor;
+import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
@@ -30,8 +34,14 @@ import edu.kit.scc.webreg.service.reg.RegisterUserWorkflow;
 public class RegisterUserServiceImpl implements RegisterUserService {
 
 	@Inject
+	private Logger logger;
+	
+	@Inject
 	private Registrator registrator;
 
+	@Inject
+	private RegistryDao registryDao;
+	
 	@Override
 	public RegistryEntity registerUser(UserEntity user, ServiceEntity service, List<Long> policiesIdList, String executor)
 			throws RegisterException {
@@ -64,6 +74,18 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	@Override
 	public void deleteGroup(GroupEntity group, ServiceEntity service, String executor) throws RegisterException {
 		registrator.deleteGroup(group, service, executor);
+	}
+
+	@Override
+	public void reconsiliationByUser(UserEntity user, Boolean fullRecon, String executor) throws RegisterException {
+		List<RegistryEntity> registryList = registryDao.findByIdentityAndStatus(user.getIdentity(), RegistryStatus.ACTIVE);
+		for (RegistryEntity registry : registryList) {
+			try {
+				registrator.reconsiliation(registry, fullRecon, executor, null);
+			} catch (RegisterException e) {
+				logger.warn("Could not recon registry {}: {}", registry.getId(), e);
+			}
+		}
 	}
 
 	@Override
