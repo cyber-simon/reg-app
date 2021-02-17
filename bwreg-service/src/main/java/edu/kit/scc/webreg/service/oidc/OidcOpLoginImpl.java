@@ -104,10 +104,10 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			String state, String nonce, String clientId,
 			HttpServletRequest request, HttpServletResponse response) throws IOException, OidcAuthenticationException {
 
-		OidcOpConfigurationEntity opConfig = opDao.findByRealmAndHost(realm, request.getLocalName());
+		OidcOpConfigurationEntity opConfig = opDao.findByRealmAndHost(realm, request.getServerName());
 		
 		if (opConfig == null) {
-			throw new OidcAuthenticationException("unknown realm/host combination: " + realm + " / " + request.getLocalName());
+			throw new OidcAuthenticationException("unknown realm/host combination: " + realm + " / " + request.getServerName());
 		}
 		
 		IdentityEntity identity = null;
@@ -153,10 +153,10 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	public String registerAuthRequestReturn(String realm, HttpServletRequest request, HttpServletResponse response)
 			throws IOException, OidcAuthenticationException {
 		
-		OidcOpConfigurationEntity opConfig = opDao.findByRealmAndHost(realm, request.getLocalName());
+		OidcOpConfigurationEntity opConfig = opDao.findByRealmAndHost(realm, request.getServerName());
 		
 		if (opConfig == null) {
-			throw new OidcAuthenticationException("unknown realm/host combination: " + realm + " / " + request.getLocalName());
+			throw new OidcAuthenticationException("unknown realm/host combination: " + realm + " / " + request.getServerName());
 		}
 
 		IdentityEntity identity = null;
@@ -449,10 +449,10 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	@Override
 	public JSONObject serveUserJwt(String realm, HttpServletRequest request, HttpServletResponse response) throws OidcAuthenticationException {
 		
-		OidcOpConfigurationEntity opConfig = opDao.findByRealmAndHost(realm, request.getLocalName());
+		OidcOpConfigurationEntity opConfig = opDao.findByRealmAndHost(realm, request.getServerName());
 		
 		if (opConfig == null) {
-			throw new OidcAuthenticationException("unknown realm/host combination: " + realm + " / " + request.getLocalName());
+			throw new OidcAuthenticationException("unknown realm/host combination: " + realm + " / " + request.getServerName());
 		}
 
 		if (session.isLoggedIn()) {

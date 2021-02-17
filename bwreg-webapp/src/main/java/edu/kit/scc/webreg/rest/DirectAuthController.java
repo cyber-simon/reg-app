@@ -72,7 +72,7 @@ public class DirectAuthController {
 		
 		String eppn = (String) request.getAttribute(SecurityFilter.DIRECT_USER_ID);
 		String password = (String) request.getAttribute(SecurityFilter.DIRECT_USER_PW);
-		return userLoginService.ecpLogin(eppn, serviceShortName, password, request.getLocalName());
+		return userLoginService.ecpLogin(eppn, serviceShortName, password, request.getServerName());
 	}
 
 	@Path("/eppn-xml/{service}")
@@ -89,7 +89,7 @@ public class DirectAuthController {
 			String eppn = (String) request.getAttribute(SecurityFilter.DIRECT_USER_ID);
 			String password = (String) request.getAttribute(SecurityFilter.DIRECT_USER_PW);
 
-			userLoginService.ecpLogin(eppn, serviceShortName, password, request.getLocalName());
+			userLoginService.ecpLogin(eppn, serviceShortName, password, request.getServerName());
 		}
 		catch (NoUserFoundException e) {
 			generateFailXml(response, 400, "ecp login failed", "user-not-found");

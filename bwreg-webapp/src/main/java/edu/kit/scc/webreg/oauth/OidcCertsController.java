@@ -48,7 +48,7 @@ public class OidcCertsController {
 		try {
 			logger.debug("certs called for {}", realm);
 
-			OidcOpConfigurationEntity opConfig = opService.findByRealmAndHost(realm, request.getLocalName());
+			OidcOpConfigurationEntity opConfig = opService.findByRealmAndHost(realm, request.getServerName());
 			
 			if (opConfig == null) {
 				throw new OidcAuthenticationException("No such realm");

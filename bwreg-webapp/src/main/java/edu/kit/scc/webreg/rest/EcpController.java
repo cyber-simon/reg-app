@@ -70,7 +70,7 @@ public class EcpController {
 			@FormParam("password") String password, @Context HttpServletRequest request)
 			throws IOException, ServletException, RestInterfaceException {
 
-		return userLoginService.ecpLogin(eppn, serviceShortName, password, request.getLocalName());
+		return userLoginService.ecpLogin(eppn, serviceShortName, password, request.getServerName());
 	}
 
 	@Path("/eppn-xml/{service}/{eppn}")
@@ -85,7 +85,7 @@ public class EcpController {
 		ECPResponse response = new ECPResponse();
 
 		try {
-			userLoginService.ecpLogin(eppn, serviceShortName, password, request.getLocalName());
+			userLoginService.ecpLogin(eppn, serviceShortName, password, request.getServerName());
 		}
 		catch (NoUserFoundException e) {
 			generateFailXml(response, 400, "ecp login failed", "user-not-found");
@@ -155,7 +155,7 @@ public class EcpController {
 			@FormParam("password") String password, @Context HttpServletRequest request)
 			throws IOException, ServletException, RestInterfaceException {
 		
-		return userLoginService.ecpLogin(regId, password, request.getLocalName());
+		return userLoginService.ecpLogin(regId, password, request.getServerName());
 	}
 
 	@Path("/regid-xml/{regid}")
@@ -169,7 +169,7 @@ public class EcpController {
 		ECPResponse response = new ECPResponse();
 
 		try {
-			userLoginService.ecpLogin(regId, password, request.getLocalName());
+			userLoginService.ecpLogin(regId, password, request.getServerName());
 		}
 		catch (NoUserFoundException e) {
 			generateFailXml(response, 400, "ecp login failed", "user-not-found");

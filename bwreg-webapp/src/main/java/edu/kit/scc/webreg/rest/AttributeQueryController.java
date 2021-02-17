@@ -60,7 +60,7 @@ public class AttributeQueryController {
 	public Map<String, String> attributeQuery(@PathParam("eppn") String eppn,
 			@PathParam("service") String serviceShortName, @Context HttpServletRequest request)
 			throws IOException, ServletException, RestInterfaceException {
-		return userUpdateService.updateUser(eppn, serviceShortName, request.getLocalName(), "rest-/attrq/eppn/" + serviceShortName + "/" + eppn);
+		return userUpdateService.updateUser(eppn, serviceShortName, request.getServerName(), "rest-/attrq/eppn/" + serviceShortName + "/" + eppn);
 	}
 	
 	@GET
@@ -69,7 +69,7 @@ public class AttributeQueryController {
 	public Map<String, String> attributeQueryUidNumber(@PathParam("uidNumber") Long uidNumber,
 			@PathParam("service") String serviceShortName, @Context HttpServletRequest request)
 			throws IOException, ServletException, RestInterfaceException {
-		return userUpdateService.updateUser(uidNumber, serviceShortName, request.getLocalName(), "rest-/attrq/uid-number/" + serviceShortName + "/" + uidNumber);
+		return userUpdateService.updateUser(uidNumber, serviceShortName, request.getServerName(), "rest-/attrq/uid-number/" + serviceShortName + "/" + uidNumber);
 	}
 	
 	@GET
@@ -77,7 +77,7 @@ public class AttributeQueryController {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Map<String, String> attributeQuery(@PathParam("regid") Long regId, @Context HttpServletRequest request)
 			throws IOException, ServletException, RestInterfaceException {
-		return userUpdateService.updateUser(regId, request.getLocalName(), "rest-/attrq/regid/" + regId);
+		return userUpdateService.updateUser(regId, request.getServerName(), "rest-/attrq/regid/" + regId);
 	}
 
 	@GET
@@ -89,7 +89,7 @@ public class AttributeQueryController {
 		AttributeQueryResponse response = new AttributeQueryResponse();
 		
 		try {
-			userUpdateService.updateUser(eppn, serviceShortName, request.getLocalName(), "rest-/attrq/eppn-xml/" + serviceShortName + "/" + eppn);
+			userUpdateService.updateUser(eppn, serviceShortName, request.getServerName(), "rest-/attrq/eppn-xml/" + serviceShortName + "/" + eppn);
 		}
 		catch (NoUserFoundException e) {
 			generateFailXml(response, 400, "ecp login failed", "user-not-found");
@@ -139,7 +139,7 @@ public class AttributeQueryController {
 		AttributeQueryResponse response = new AttributeQueryResponse();
 		
 		try {
-			userUpdateService.updateUser(regId, request.getLocalName(), "rest-/attrq/regid-xml/" + regId);
+			userUpdateService.updateUser(regId, request.getServerName(), "rest-/attrq/regid-xml/" + regId);
 		}
 		catch (NoUserFoundException e) {
 			generateFailXml(response, 400, "ecp login failed", "user-not-found");

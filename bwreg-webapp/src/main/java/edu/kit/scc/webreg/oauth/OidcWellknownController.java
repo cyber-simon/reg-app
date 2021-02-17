@@ -47,7 +47,7 @@ public class OidcWellknownController {
 	public JSONObject wellknown(@PathParam("realm") String realm, @Context HttpServletRequest request, @Context HttpServletResponse response)
 			throws ServletException {
 
-		OidcOpConfigurationEntity opConfig = opService.findByRealmAndHost(realm, request.getLocalName());
+		OidcOpConfigurationEntity opConfig = opService.findByRealmAndHost(realm, request.getServerName());
 		
 		if (opConfig == null) {
 			throw new ServletException("No such realm");
