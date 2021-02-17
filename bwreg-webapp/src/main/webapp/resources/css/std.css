@@ -27,12 +27,6 @@
     font-style: normal;
     font-display:block}
 
-.ui-widget {
-	font-family: "Roboto", sans-serif;
-	font-size: 1.25rem;
-	font-weight: 300;
-}
-
 .form .input-option.checkbox label span:before,.mediathek-teaser .teaser-element picture:after,.navigation-search .search-form button,.news-slider .swiper-button-next:before,.news-slider .swiper-button-prev:before,.page-footer .button.icon:after,.search-form-container .search-form button,.sidebar-contact .phone:before,.sidebar-media picture:after,.slider-small .swiper-button-next:before,.slider-small .swiper-button-prev:before,.social a:after,.stage-slider-tile p:after,.stage-slider .swiper-button-next:before,.stage-slider .swiper-button-prev:before,.to-top-button {
     font-family: "kit-icons"!important;
     speak: none;
@@ -250,6 +244,9 @@ optgroup {
     font-weight: bold
 }
 
+.text table {
+    table-layout: fixed;
+}
 table {
     border-collapse: collapse;
     border-spacing: 0
@@ -325,7 +322,12 @@ td,th {
 	.toggle-body {
 		display: block !important;
 	}
-
+	/* Firefox Druckausgabe */
+	@supports (-moz-appearance:none) {
+        .content {
+            display: block !important;
+        }
+    }
 }
 
 .swiper-container {
@@ -1468,7 +1470,7 @@ html {
     font-weight: 300
 }
 
-@media (max-width: 17100px) {
+@media (max-width: 1710px) {
     html {
         font-size:85%
     }
@@ -1522,7 +1524,8 @@ a:active,a:hover {
     text-decoration: underline;
 }
 
-a[target=_blank][href^=http]:not([href*='kit.edu']):after {
+/* a[target=_blank][href^=http]:not([href*='kit.edu']):after { */
+a[href^=http]:not([href*='kit.edu']):after {
     content: "";
     display: inline-block;
     margin-left: 5px;
@@ -1532,7 +1535,8 @@ a[target=_blank][href^=http]:not([href*='kit.edu']):after {
     font-weight: 300
 }
 
-a[target=_blank][href^=http]:not([href*='kit.edu']).button:after {
+/* a[target=_blank][href^=http]:not([href*='kit.edu']).button:after { */
+a[href^=http]:not([href*='kit.edu']).button:after {
     -webkit-transform: translateY(-1px);
     -ms-transform: translateY(-1px);
     transform: translateY(-1px);
@@ -1779,6 +1783,10 @@ input[type=date]:focus,input[type=datetime]:focus,input[type=datetime-local]:foc
     width: calc(66.66667% - 0.625rem);
     max-width: calc(66.66667% - 0.625rem)
 }
+.three-fourth {
+    width: calc(75% - 0.625rem);
+    max-width: calc(75% - 0.625rem)
+}
 
 @supports ((display: -ms-grid) or (display:grid)) {
     .two-third {
@@ -1787,6 +1795,27 @@ input[type=date]:focus,input[type=datetime]:focus,input[type=datetime-local]:foc
         width: auto;
         max-width: 100%
     }
+    .three-fourth {
+        -ms-grid-column-span:9;
+        grid-column: span 9;
+        width: auto;
+        max-width: 100%
+    }
+}
+@media (max-width: 900px) {
+    .picontact, .three-fourth {
+        width:100%;
+        max-width: 100%;
+        grid-column-end: unset !important;
+    }
+    @supports ((display: -ms-grid) or (display:grid)) {
+        .picontact, .three-fourth {
+            -ms-grid-column-span:12;
+            grid-column: span 12;
+            width: auto;
+            max-width: 100%
+        }
+	}
 }
 
 /* @media (max-width: 1280px) { */
@@ -1847,10 +1876,11 @@ main section>.content>* {
     margin-top: 1.875rem
 }
 
-/* main section>.content>.text:not(:first-child) .h2,main section>.content>.text:not(:first-child) h2 { */
+/* main section>.content>.text:not(:first-child) .h2,main section>.content>.text:not(:first-child) h2 { 
 main section>.content>.text .h2:not(:first-of-type),main section>.content>.text h2:not(:first-of-type) {
     margin-top: 5rem
 }
+*/
 
 main section .content {
     display: -webkit-box;
@@ -1943,10 +1973,11 @@ main section .sidebar {
 }
 
 @media (max-width: 1024px) {
-    /* main section>.content>.text:not(:first-child) .h2,main section>.content>.text:not(:first-child) h2 { */
+    /* main section>.content>.text:not(:first-child) .h2,main section>.content>.text:not(:first-child) h2 { 
     main section>.content>.text .h2:not(:first-of-type),main section>.content>.text h2:not(:first-of-type) {
         margin-top:2.5rem
     }
+    */
 
     .banner+section>.content>.text .h2,.banner+section>.content>.text h2 {
         margin-top: 2.5rem
@@ -1954,10 +1985,11 @@ main section .sidebar {
 }
 
 @media (max-width: 560px) {
-    /* main section>.content>.text:not(:first-child) .h2,main section>.content>.text:not(:first-child) h2 { */
+    /* main section>.content>.text:not(:first-child) .h2,main section>.content>.text:not(:first-child) h2 { 
     main section>.content>.text .h2:not(:first-of-type),main section>.content>.text h2:not(:first-of-type) {
         margin-top:1.875rem
     }
+    */
 
     .banner+section>.content>.text .h2,.banner+section>.content>.text h2 {
         margin-top: 1.875rem
@@ -2165,14 +2197,19 @@ body {
 }
 
 .page-header.scrolled {
-    height: 81px;
+    height: 91px;
     padding: 1.375rem 0
 }
-
+@media (max-width: 1710px) {
+	.page-header.scrolled {
+		height: 81px;
+	}
+}
+/*
 .page-header.scrolled .logo {
     width: 6.9375rem
 }
-
+*/
 .page-header.scrolled .logo a {
     padding-bottom: 35.68152%
 }
@@ -2374,6 +2411,24 @@ body {
         background-color: #00876c;
         border-bottom-left-radius: 8px
     }
+
+	.navigation-search .search-form input::-webkit-input-placeholder {
+		text-transform: uppercase;
+		color: #fff;
+		opacity: .5
+	}
+
+	.navigation-search .search-form input:-ms-input-placeholder {
+		text-transform: uppercase;
+		color: #fff;
+		opacity: .5
+	}
+
+	.navigation-search .search-form input::-ms-input-placeholder {
+		text-transform: uppercase;
+		color: #fff;
+		opacity: .5
+	}
 
     .navigation-search .search-form button {
         padding: 0.35em 0.75em 0.35em 0.9em;
@@ -2783,7 +2838,7 @@ body {
     }
 
     .scrolled .navigation .flyout:before {
-        top: 5.0625rem
+        top: 5.7625rem
     }
 
     .navigation .flyout .navigation-l3>li>a:hover {
@@ -2903,7 +2958,7 @@ body {
         text-decoration: underline
     }
 
-    .navigation-l5,.navigation-l6,.navigation-l7,.navigation-l8 {
+    .navigation-l4,.navigation-l5,.navigation-l6,.navigation-l7,.navigation-l8 {
         display: none
     }
 }
@@ -4239,11 +4294,11 @@ body {
     font-size: 16px
 }
 
-.breadcrumbs li:nth-child(n+4):after {
+.breadcrumbs li:nth-child(n+3):after {
     display: none
 }
 
-.breadcrumbs li:nth-child(n+5) {
+.breadcrumbs li:nth-child(n+4) {
     display: none
 }
 
@@ -4397,11 +4452,11 @@ body {
 }
 
 @media (max-width: 1024px) {
-    .breadcrumbs li:nth-child(n+4):after {
+    .breadcrumbs li:nth-child(n+3):after {
         display:inline-block
     }
 
-    .breadcrumbs li:nth-child(n+5) {
+    .breadcrumbs li:nth-child(n+4) {
         display: list-item
     }
 
@@ -5831,8 +5886,9 @@ body.oe-page .stage-small .logo {
 
 @media (max-width: 560px) {
     .stage-big img {
-        max-width:none;
-        height: 200px
+        max-width: 100%;
+        height: 200px;
+        object-fit: cover;
     }
 }
 
@@ -6142,7 +6198,7 @@ main .target-groups form button:after {
 }
 
 .info-container .info ul.bullets>li>span,.list>li>span,.text ol>li>span,.text ul>li>span {
-    display: block;
+    /* display: block; */
     font-size: 1.125rem;
     font-weight: 300;
     line-height: 1.2
@@ -6160,6 +6216,9 @@ main .target-groups form button:after {
 
 .text ol>li,ol.list>li {
     counter-increment: section
+}
+.text ol[reversed]>li,ol[reversed].list>li {
+	counter-increment: section -1;
 }
 
 .info-container .info ul.bullets>li,.list>li,.text ol>li,.text ul>li {
@@ -7262,6 +7321,14 @@ table tbody tr:nth-child(odd) {
     font-size: 1.14286em !important;
 }
 
+.social .whatsapp:after {
+	content: "\e926" !important;
+}
+
+.social .researchgate:after {
+	content: "\e927" !important;
+}
+
 .contact-oe img {
     max-width: 25rem
 }
@@ -7938,7 +8005,8 @@ body.oe-page .mediathek-teaser .teaser-element.download picture:after,body.oe-pa
 .service-tile figure picture:before {
     content: '';
     position: absolute;
-    top: 50%;
+    /* top: 50%; */
+    top: 33%;
     right: 0;
     bottom: 0;
     left: 0;
@@ -8158,6 +8226,82 @@ body.oe-page .mediathek-teaser .teaser-element.download picture:after,body.oe-pa
 
 /* EIGENE STYLES */
 /* !important bei .social [.youtube, etc.] hinzugefügt */
+
+.news-element a[href^=http]:not([href*='kit.edu']):after, figure a[href^=http]:not([href*='kit.edu']):after {
+    display:none
+}
+
+input[type=date], input[type=datetime], input[type=datetime-local], input[type=email], input[type=number], input[type=password], input[type=search], input[type=tel], input[type=text], input[type=url], textarea {
+	border: 1px solid #868686;
+	padding: 0.3125em 0.5em;
+}
+.collapseTableTextNarrow {
+	display: none;
+}
+@media (max-width: 900px) {
+	.collapseTableTextWide {
+		display: none;
+	}
+	.collapseTableTextNarrow {
+		display: inline;
+	}
+}
+table.transparent tr {
+	background-color: transparent !important;
+}
+.sidebar-media figure .container {
+    overflow: hidden
+}
+.sidebar-media figure .container picture {
+    display: block;
+    -webkit-transition: -webkit-transform .3s;
+    transition: -webkit-transform .3s;
+    -o-transition: transform .3s;
+    transition: transform .3s;
+    transition: transform .3s, -webkit-transform .3s
+}
+.sidebar-media figure .container:hover picture {
+    -webkit-transform: scale(1.03);
+    -ms-transform: scale(1.03);
+    transform: scale(1.03)
+}
+.newslist_date {
+    float: right;
+    font-size: 1rem;
+}
+figure.person_portrait {
+	position: relative;
+}
+figure.person_portrait figcaption {
+	position: absolute;
+    bottom: 3px;
+    right: 3px;
+    color: #fff;
+    text-shadow: -1px -1px 1px #404040, -1px 1px 1px #404040, 1px -1px 1px #404040, 1px 1px 1px #404040;
+    font-size: 0.9rem;
+}
+
+.vldesc>table tr td:first-child {
+    width: 25%;
+}
+
+.text img[align="right"],.text figure[style*="float: right"],.text figure[style*="float:right"]{
+	margin-left: 1.875rem;
+}
+.text img[align="left"],.text figure[style*="float: left"],.text figure[style*="float:left"]{
+	margin-right: 1.875rem;
+}
+
+/* für PIs */
+.bild-desc {
+	font-weight: 100;
+	font-size: 0.9em;
+	margin-top: 0 !important;
+}
+.piimage img {
+	width: 100%;
+}
+
 .outer_banner .img-container .copyright {
     position: absolute;
     bottom: 0;
@@ -8265,6 +8409,9 @@ body.oe-page .mediathek-teaser .teaser-element.download picture:after,body.oe-pa
 .infobox p.endline {
 	padding-bottom: 0.5em;
 	border-bottom: 1px solid #404040;
+}
+.news-element .headline a {
+	font-weight: 700;
 }
 .news-element a {
     color: #007755;
@@ -8477,7 +8624,6 @@ figure:not(.shadow) picture:before {
 	top: 0;
 	right: 0;
 	font-size: 1rem;
-	padding-top: 0.25rem;
 	max-width: calc(100% - 1rem);
 	overflow: hidden;
 	white-space: nowrap;
@@ -8519,6 +8665,7 @@ figure:not(.shadow) picture:before {
 .contact-box .fifty {
 	flex-basis: calc(50% - 0.5rem);
 }
+/*
 @media (max-width: 1024px) {
 	.third .fifty {
 		width: 100%;
@@ -8526,6 +8673,8 @@ figure:not(.shadow) picture:before {
 	}
 }
 @media (max-width: 768px) {
+*/
+@media (max-width: 1024px) {
 	.third .fifty {
 		flex-basis: calc(50% - 0.5rem);
 	}
@@ -8540,6 +8689,11 @@ figure:not(.shadow) picture:before {
 }
 .contact-box .headline {
 	font-weight: bold;
+}
+.contact-box .phone_block {
+    display: block;
+    text-indent: calc(-1em - 0.5rem);
+    padding-left: calc(1em + 0.5rem);
 }
 .contact-box .overflow_block {
 	display: block;
@@ -8670,7 +8824,7 @@ legend {
     white-space: nowrap;
     flex-wrap: wrap;
 }
-.breadcrumbs-big .list:nth-child(n+5) {
+.breadcrumbs-big .list:nth-child(n+4) {
     display:block;
 }
 .breadcrumbs-big .list {
@@ -8904,9 +9058,12 @@ figure .container,
 .infobox .foto {
 	min-width: 58px;
 }
+.formular table {
+	table-layout: fixed;
+}
 .formular td.form_desc, .formular td.form_values {
 	min-width: auto !important;
-	width: auto !important;
+	/* width: auto !important; */
 }
 .faq_question {
     margin-bottom: 4px;
@@ -8924,10 +9081,12 @@ figure .container,
 .text-column-three {
     -webkit-column-count: 3;
     column-count: 3;
+    column-gap: 1.875rem;
 }
 .text-column-two {
     -webkit-column-count: 2;
     column-count: 2;
+    column-gap: 1.875rem;
 }
 @media (max-width: 768px) {
     .text-column-three, .text-column-two {
@@ -9376,3 +9535,4 @@ div.kalender_frame ul li{
         margin: 0 0.625em 0 0;
     }
 }
+
