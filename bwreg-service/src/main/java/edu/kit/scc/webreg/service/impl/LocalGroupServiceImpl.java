@@ -15,10 +15,15 @@ import java.util.List;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.LocalGroupDao;
+import edu.kit.scc.webreg.dao.ServiceGroupFlagDao;
 import edu.kit.scc.webreg.entity.LocalGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
+import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.service.LocalGroupService;
 import edu.kit.scc.webreg.service.group.LocalGroupCreator;
@@ -29,14 +34,51 @@ public class LocalGroupServiceImpl extends BaseServiceImpl<LocalGroupEntity, Lon
 	private static final long serialVersionUID = 1L;
 
 	@Inject
+	private Logger logger;
+	
+	@Inject
 	private LocalGroupDao dao;
 	
 	@Inject
 	private LocalGroupCreator creator;
 	
+	@Inject
+	private ServiceGroupFlagDao groupFlagDao;
+	
 	@Override
 	public LocalGroupEntity createNew(ServiceEntity service) {
 		return creator.createNew(service);
+	}
+	
+	@Override
+	public void createServiceGroupFlagsBulk(ServiceEntity fromService, ServiceEntity toService, String filterRegex) {
+		List<ServiceGroupFlagEntity> fromFlagList = groupFlagDao.findLocalGroupsForService(fromService);
+		
+		for (ServiceGroupFlagEntity fromFlag : fromFlagList) {
+			if (fromFlag.getGroup() instanceof LocalGroupEntity) {
+				LocalGroupEntity group = (LocalGroupEntity) fromFlag.getGroup();
+				
+				if (group.getName().matches(filterRegex)) {
+					List<ServiceGroupFlagEntity> toFlagList = groupFlagDao.findByGroupAndService(group, toService);
+					
+					if (toFlagList.size() == 0) {
+						logger.info("Creating group flags for group {} and service {}", group.getName(), toService.getShortName());
+						ServiceGroupFlagEntity groupFlag = groupFlagDao.createNew();
+						groupFlag.setService(toService);
+						groupFlag.setGroup(group);
+						groupFlag.setStatus(ServiceGroupStatus.DIRTY);
+						
+						groupFlag = groupFlagDao.persist(groupFlag);
+					}
+					else {
+						logger.info("Skipping group flags for group {} and service {}, they already exist", group.getName(), toService.getShortName());
+					}
+				}
+				else {
+					logger.info("Skipping group {}. Doesn't match regex {}", group.getName(), filterRegex);
+				}
+			}
+		}
 	}
 	
 	@Override

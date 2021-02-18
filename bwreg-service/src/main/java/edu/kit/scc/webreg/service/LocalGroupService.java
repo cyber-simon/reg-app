@@ -30,4 +30,5 @@ public interface LocalGroupService extends BaseService<LocalGroupEntity, Long> {
 
 	LocalGroupEntity findWithUsersAndChildren(Long id);
 
+	void createServiceGroupFlagsBulk(ServiceEntity fromService, ServiceEntity toService, String filterRegex);
 }
