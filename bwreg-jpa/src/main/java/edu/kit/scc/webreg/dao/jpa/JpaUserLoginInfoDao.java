@@ -10,10 +10,12 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
+import javax.persistence.Query;
 
 import edu.kit.scc.webreg.dao.UserLoginInfoDao;
 import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
@@ -55,6 +57,13 @@ public class JpaUserLoginInfoDao extends JpaBaseDao<UserLoginInfoEntity, Long> i
 		}
 	}
 	
+	@Override
+	public void deleteLoginInfo(long millis) {
+		Query query = em.createQuery("delete from UserLoginInfoEntity where loginDate <= :loginDate");
+		query.setParameter("loginDate", new Date(System.currentTimeMillis() - millis));
+		query.executeUpdate();
+	}
+
 	@Override
     public Class<UserLoginInfoEntity> getEntityClass() {
 		return UserLoginInfoEntity.class;

@@ -8,21 +8,11 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.dao;
-
-import java.util.List;
+package edu.kit.scc.webreg.service;
 
 import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
-import edu.kit.scc.webreg.entity.UserLoginMethod;
 
-public interface UserLoginInfoDao extends BaseDao<UserLoginInfoEntity, Long> {
+public interface UserLoginInfoService extends BaseService<UserLoginInfoEntity, Long> {
 
-	List<UserLoginInfoEntity> findByUser(Long userId);
-
-	List<UserLoginInfoEntity> findByRegistry(Long registryId);
-
-	UserLoginInfoEntity findLastByRegistryAndMethod(Long registryId, UserLoginMethod method);
-	
 	void deleteLoginInfo(long millis);
-	
 }
