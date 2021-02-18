@@ -18,8 +18,10 @@ import javax.inject.Inject;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.LocalGroupDao;
 import edu.kit.scc.webreg.entity.LocalGroupEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.service.LocalGroupService;
+import edu.kit.scc.webreg.service.group.LocalGroupCreator;
 
 @Stateless
 public class LocalGroupServiceImpl extends BaseServiceImpl<LocalGroupEntity, Long> implements LocalGroupService {
@@ -28,6 +30,19 @@ public class LocalGroupServiceImpl extends BaseServiceImpl<LocalGroupEntity, Lon
 
 	@Inject
 	private LocalGroupDao dao;
+	
+	@Inject
+	private LocalGroupCreator creator;
+	
+	@Override
+	public LocalGroupEntity createNew(ServiceEntity service) {
+		return creator.createNew(service);
+	}
+	
+	@Override
+	public LocalGroupEntity save(LocalGroupEntity entity, ServiceEntity service) {
+		return creator.save(entity, service);
+	}
 	
 	@Override
 	public LocalGroupEntity findWithUsers(Long id) {

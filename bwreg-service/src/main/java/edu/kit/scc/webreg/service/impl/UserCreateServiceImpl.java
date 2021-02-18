@@ -45,6 +45,7 @@ import edu.kit.scc.webreg.event.UserEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.UserCreateService;
+import edu.kit.scc.webreg.service.group.HomeOrgGroupUpdater;
 
 @Stateless
 public class UserCreateServiceImpl implements UserCreateService {

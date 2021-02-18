@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.LocalGroupDao;
-import edu.kit.scc.webreg.dao.SerialDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
 import edu.kit.scc.webreg.dao.ServiceGroupFlagDao;
 import edu.kit.scc.webreg.dao.UserDao;
@@ -23,7 +22,6 @@ import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.GroupStatus;
 import edu.kit.scc.webreg.entity.LocalGroupEntity;
-import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.ServiceBasedGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
@@ -37,6 +35,7 @@ import edu.kit.scc.webreg.exc.NoServiceFoundException;
 import edu.kit.scc.webreg.exc.NoUserFoundException;
 import edu.kit.scc.webreg.exc.RestInterfaceException;
 import edu.kit.scc.webreg.exc.UnauthorizedException;
+import edu.kit.scc.webreg.service.group.LocalGroupCreator;
 
 @Stateless
 public class GroupDtoServiceImpl extends BaseDtoServiceImpl<GroupEntity, GroupEntityDto, Long> implements GroupDtoService {
@@ -65,7 +64,8 @@ public class GroupDtoServiceImpl extends BaseDtoServiceImpl<GroupEntity, GroupEn
 	private LocalGroupDao localGroupDao;
 
 	@Inject
-	private SerialDao serialDao;
+	private LocalGroupCreator localGroupCreator;
+
 	
 	@Inject
 	private ServiceGroupFlagDao groupFlagDao;
@@ -184,21 +184,8 @@ public class GroupDtoServiceImpl extends BaseDtoServiceImpl<GroupEntity, GroupEn
 		if (! accessChecker.checkAccess(service, userId))
 			throw new UnauthorizedException("Not authorized");
 		
-		entity = localGroupDao.createNew();
-		entity.setName(name);
-		entity.setAdminRoles(new HashSet<RoleEntity>());
-		entity.setParents(new HashSet<GroupEntity>());
-		entity.setChildren(new HashSet<GroupEntity>());
-		entity.getAdminRoles().add(service.getGroupAdminRole());
-		entity.setGidNumber(serialDao.next("gid-number-serial").intValue());
-		entity = localGroupDao.persist(entity);
-
-		ServiceGroupFlagEntity groupFlag = groupFlagDao.createNew();
-		groupFlag.setService(service);
-		groupFlag.setGroup(entity);
-		groupFlag.setStatus(ServiceGroupStatus.CLEAN);
-		
-		groupFlag = groupFlagDao.persist(groupFlag);
+		entity = localGroupCreator.createNew(name, service);
+		entity = localGroupCreator.save(entity, service);
 
 		GroupEntityDto dto = createNewDto();
 		mapper.copyProperties(entity, dto);

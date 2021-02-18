@@ -8,7 +8,7 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.service.impl;
+package edu.kit.scc.webreg.service.group;
 
 import java.io.Serializable;
 import java.text.Normalizer;
@@ -43,6 +43,8 @@ import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.GroupServiceHook;
 import edu.kit.scc.webreg.service.SerialService;
+import edu.kit.scc.webreg.service.impl.AttributeMapHelper;
+import edu.kit.scc.webreg.service.impl.HookManager;
 import edu.kit.scc.webreg.service.saml.HomeIdResolver;
 
 @ApplicationScoped

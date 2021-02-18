@@ -66,27 +66,14 @@ public class GroupAdminAddLocalGroupBean implements Serializable {
 			throw new NotAuthorizedException("Nicht autorisiert");
 		
 		if (entity == null)
-			entity = service.createNew();
+			entity = service.createNew(serviceEntity);
 
 	}
 	
 	public String save() {
-		entity.setGidNumber(serialService.next("gid-number-serial").intValue());
-		
-		if (entity.getAdminRoles() == null)
-			entity.setAdminRoles(new HashSet<RoleEntity>());
-		
-		entity.getAdminRoles().add(serviceEntity.getGroupAdminRole());
 
-		entity = service.save(entity);
+		entity = service.save(entity, serviceEntity);
 
-		ServiceGroupFlagEntity groupFlag = groupFlagService.createNew();
-		groupFlag.setService(serviceEntity);
-		groupFlag.setGroup(entity);
-		groupFlag.setStatus(ServiceGroupStatus.CLEAN);
-		
-		groupFlag = groupFlagService.save(groupFlag);
-		
 		return ViewIds.GROUP_ADMIN_INDEX + "?serviceId=" + serviceEntity.getId() + "&faces-redirect=true";
 	}
 

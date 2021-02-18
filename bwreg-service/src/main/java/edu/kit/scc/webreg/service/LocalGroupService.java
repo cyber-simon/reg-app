@@ -13,10 +13,15 @@ package edu.kit.scc.webreg.service;
 import java.util.List;
 
 import edu.kit.scc.webreg.entity.LocalGroupEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 
 public interface LocalGroupService extends BaseService<LocalGroupEntity, Long> {
 
+	LocalGroupEntity save(LocalGroupEntity entity, ServiceEntity service);
+	
+	LocalGroupEntity createNew(ServiceEntity service);
+	
 	LocalGroupEntity findByName(String name);
 
 	List<LocalGroupEntity> findByUser(UserEntity user);
