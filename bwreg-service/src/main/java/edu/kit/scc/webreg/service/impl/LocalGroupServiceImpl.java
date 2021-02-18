@@ -10,6 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.impl;
 
+import java.util.HashSet;
 import java.util.List;
 
 import javax.ejb.Stateless;
@@ -20,11 +21,16 @@ import org.slf4j.Logger;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.LocalGroupDao;
 import edu.kit.scc.webreg.dao.ServiceGroupFlagDao;
+import edu.kit.scc.webreg.entity.EventType;
+import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.LocalGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.event.EventSubmitter;
+import edu.kit.scc.webreg.event.MultipleGroupEvent;
+import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.service.LocalGroupService;
 import edu.kit.scc.webreg.service.group.LocalGroupCreator;
 
@@ -45,6 +51,9 @@ public class LocalGroupServiceImpl extends BaseServiceImpl<LocalGroupEntity, Lon
 	@Inject
 	private ServiceGroupFlagDao groupFlagDao;
 	
+	@Inject 
+	private EventSubmitter eventSubmitter;
+
 	@Override
 	public LocalGroupEntity createNew(ServiceEntity service) {
 		return creator.createNew(service);
@@ -53,6 +62,8 @@ public class LocalGroupServiceImpl extends BaseServiceImpl<LocalGroupEntity, Lon
 	@Override
 	public void createServiceGroupFlagsBulk(ServiceEntity fromService, ServiceEntity toService, String filterRegex) {
 		List<ServiceGroupFlagEntity> fromFlagList = groupFlagDao.findLocalGroupsForService(fromService);
+		
+		HashSet<GroupEntity> allChangedGroups = new HashSet<GroupEntity>();
 		
 		for (ServiceGroupFlagEntity fromFlag : fromFlagList) {
 			if (fromFlag.getGroup() instanceof LocalGroupEntity) {
@@ -69,6 +80,7 @@ public class LocalGroupServiceImpl extends BaseServiceImpl<LocalGroupEntity, Lon
 						groupFlag.setStatus(ServiceGroupStatus.DIRTY);
 						
 						groupFlag = groupFlagDao.persist(groupFlag);
+						allChangedGroups.add(group);
 					}
 					else {
 						logger.info("Skipping group flags for group {} and service {}, they already exist", group.getName(), toService.getShortName());
@@ -78,6 +90,13 @@ public class LocalGroupServiceImpl extends BaseServiceImpl<LocalGroupEntity, Lon
 					logger.info("Skipping group {}. Doesn't match regex {}", group.getName(), filterRegex);
 				}
 			}
+		}
+
+		MultipleGroupEvent mge = new MultipleGroupEvent(allChangedGroups);
+		try {
+			eventSubmitter.submit(mge, EventType.GROUP_UPDATE, "bulk-job");
+		} catch (EventSubmitException e) {
+			logger.warn("Exeption", e);
 		}
 	}
 	
