@@ -16,6 +16,7 @@ import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.GroupStatus;
 import edu.kit.scc.webreg.entity.LocalGroupEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
+import edu.kit.scc.webreg.entity.ServiceAutoconnectGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupStatus;
@@ -72,13 +73,15 @@ public class LocalGroupCreator implements Serializable {
 		groupFlag = groupFlagDao.persist(groupFlag);
 
 		if (service.getGroupAutoconnectServices() != null) {
-			for (ServiceEntity sink : service.getGroupAutoconnectServices()) {
-				groupFlag = groupFlagDao.createNew();
-				groupFlag.setService(sink);
-				groupFlag.setGroup(entity);
-				groupFlag.setStatus(ServiceGroupStatus.CLEAN);
-				
-				groupFlag = groupFlagDao.persist(groupFlag);
+			for (ServiceAutoconnectGroupEntity sink : service.getGroupAutoconnectServices()) {
+				if (entity.getName().matches(sink.getFilterRegex())) {
+					groupFlag = groupFlagDao.createNew();
+					groupFlag.setService(sink.getToService());
+					groupFlag.setGroup(entity);
+					groupFlag.setStatus(ServiceGroupStatus.CLEAN);
+					
+					groupFlag = groupFlagDao.persist(groupFlag);
+				}
 			}
 		}
 		

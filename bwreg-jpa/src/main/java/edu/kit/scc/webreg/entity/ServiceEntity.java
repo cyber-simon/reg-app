@@ -123,12 +123,8 @@ public class ServiceEntity extends AbstractBaseEntity {
 	@Column(name = "hidden")
 	private Boolean hidden;
 
-	@ManyToMany(targetEntity=ServiceEntity.class, cascade = CascadeType.ALL)
-	@JoinTable(name = "service_autoconnect_group",
-			joinColumns = @JoinColumn(name="from_service_id"),
-			inverseJoinColumns = @JoinColumn(name="to_service_id")
-	)
-	private Set<ServiceEntity> groupAutoconnectServices;
+	@OneToMany(targetEntity = ServiceAutoconnectGroupEntity.class, mappedBy = "fromService")
+	private Set<ServiceAutoconnectGroupEntity> groupAutoconnectServices;
 
 	public Set<PolicyEntity> getPolicies() {
 		return policies;
@@ -325,11 +321,12 @@ public class ServiceEntity extends AbstractBaseEntity {
 		this.sshPubKeyApproverRole = sshPubKeyApproverRole;
 	}
 
-	public Set<ServiceEntity> getGroupAutoconnectServices() {
+	public Set<ServiceAutoconnectGroupEntity> getGroupAutoconnectServices() {
 		return groupAutoconnectServices;
 	}
 
-	public void setGroupAutoconnectServices(Set<ServiceEntity> groupAutoconnectServices) {
+	public void setGroupAutoconnectServices(Set<ServiceAutoconnectGroupEntity> groupAutoconnectServices) {
 		this.groupAutoconnectServices = groupAutoconnectServices;
 	}
+
 }
