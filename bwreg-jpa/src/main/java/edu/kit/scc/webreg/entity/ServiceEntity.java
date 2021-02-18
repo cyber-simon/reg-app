@@ -13,12 +13,15 @@ package edu.kit.scc.webreg.entity;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
@@ -30,7 +33,6 @@ import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Type;
 
 import edu.kit.scc.webreg.entity.as.AttributeSourceServiceEntity;
-import edu.kit.scc.webreg.entity.project.ProjectAdminRoleEntity;
 
 @Entity(name = "ServiceEntity")
 @Table(name = "service")
@@ -120,7 +122,14 @@ public class ServiceEntity extends AbstractBaseEntity {
 	
 	@Column(name = "hidden")
 	private Boolean hidden;
-	
+
+	@ManyToMany(targetEntity=ServiceEntity.class, cascade = CascadeType.ALL)
+	@JoinTable(name = "service_autoconnect_group",
+			joinColumns = @JoinColumn(name="from_service_id"),
+			inverseJoinColumns = @JoinColumn(name="to_service_id")
+	)
+	private Set<ServiceEntity> groupAutoconnectServices;
+
 	public Set<PolicyEntity> getPolicies() {
 		return policies;
 	}
@@ -314,5 +323,13 @@ public class ServiceEntity extends AbstractBaseEntity {
 
 	public void setSshPubKeyApproverRole(SshPubKeyApproverRoleEntity sshPubKeyApproverRole) {
 		this.sshPubKeyApproverRole = sshPubKeyApproverRole;
+	}
+
+	public Set<ServiceEntity> getGroupAutoconnectServices() {
+		return groupAutoconnectServices;
+	}
+
+	public void setGroupAutoconnectServices(Set<ServiceEntity> groupAutoconnectServices) {
+		this.groupAutoconnectServices = groupAutoconnectServices;
 	}
 }

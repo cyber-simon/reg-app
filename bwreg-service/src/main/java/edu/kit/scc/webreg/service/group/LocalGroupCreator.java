@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dao.LocalGroupDao;
 import edu.kit.scc.webreg.dao.SerialDao;
+import edu.kit.scc.webreg.dao.ServiceDao;
 import edu.kit.scc.webreg.dao.ServiceGroupFlagDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.GroupStatus;
@@ -36,6 +37,9 @@ public class LocalGroupCreator implements Serializable {
 	@Inject
 	private SerialDao serialDao;
 
+	@Inject
+	private ServiceDao serviceDao;
+	
 	public LocalGroupEntity createNew(ServiceEntity service) {
 		return createNew(null, service);
 	}
@@ -53,6 +57,8 @@ public class LocalGroupCreator implements Serializable {
 	}
 	
 	public LocalGroupEntity save(LocalGroupEntity entity, ServiceEntity service) {
+		service = serviceDao.findById(service.getId());
+		
 		entity.setGidNumber(serialDao.next("gid-number-serial").intValue());
 		entity.setGroupStatus(GroupStatus.ACTIVE);
 		
@@ -65,6 +71,17 @@ public class LocalGroupCreator implements Serializable {
 		
 		groupFlag = groupFlagDao.persist(groupFlag);
 
+		if (service.getGroupAutoconnectServices() != null) {
+			for (ServiceEntity sink : service.getGroupAutoconnectServices()) {
+				groupFlag = groupFlagDao.createNew();
+				groupFlag.setService(sink);
+				groupFlag.setGroup(entity);
+				groupFlag.setStatus(ServiceGroupStatus.CLEAN);
+				
+				groupFlag = groupFlagDao.persist(groupFlag);
+			}
+		}
+		
 		return entity;
 	}
 }
