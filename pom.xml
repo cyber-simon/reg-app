@@ -166,6 +166,10 @@
 
 	<repositories>
 		<repository>
+			<id>central</id>
+			<url>http://repo1.maven.org/maven2/</url>
+    	</repository>	
+		<repository>
 			<id>java.net</id>
 			<name>Java.net Repository for Maven</name>
 			<url>https://maven.java.net/content/repositories/releases</url>
@@ -192,6 +196,13 @@
 		</repository>
 	</repositories>
 
+	<distributionManagement>
+		<repository>
+			<id>${deploy-repo.id}</id>
+			<url>${deploy-repo.url}</url>
+		</repository>
+	</distributionManagement>
+  
 	<build>
 		<defaultGoal>install</defaultGoal>
 		<pluginManagement>
@@ -305,50 +316,6 @@
 				<bwreg.jboss-singleton>org.wildfly.clustering.singleton</bwreg.jboss-singleton>
 				<bwreg.jboss-singleton-activator>edu.kit.scc.webreg.service.timer.WildflyClusterSingletonServiceActivator</bwreg.jboss-singleton-activator>
 			</properties>
-		</profile>
-
-		<profile>
-			<id>doc</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>com.agilejava.docbkx</groupId>
-						<artifactId>docbkx-maven-plugin</artifactId>
-						<version>2.0.15</version>
-						<executions>
-							<execution>
-								<goals>
-									<goal>generate-html</goal>
-									<goal>generate-pdf</goal>
-								</goals>
-								<phase>generate-sources</phase>
-							</execution>
-						</executions>
-						<dependencies>
-							<dependency>
-								<groupId>net.sf.docbook</groupId>
-								<artifactId>docbook-xml</artifactId>
-								<version>5.0-all</version>
-								<classifier>resources</classifier>
-								<type>zip</type>
-								<scope>runtime</scope>
-							</dependency>
-						</dependencies>
-						<configuration>
-							<sourceDirectory>documentation</sourceDirectory>
-							<targetDirectory>target/documentation</targetDirectory>
-							<xincludeSupported>true</xincludeSupported>
-							<useExtensions>1</useExtensions>
-							<highlightSource>1</highlightSource>
-							<highlightDefaultLanguage>java</highlightDefaultLanguage>
-							<calloutsExtension>1</calloutsExtension>
-							<paperType>A4</paperType>
-							<fop1Extensions>1</fop1Extensions>
-							<includes>index.xml</includes>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
 		</profile>
 
 	</profiles>
