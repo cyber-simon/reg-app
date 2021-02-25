@@ -52,7 +52,7 @@ public class SshPubKeyExpiryWarningSendMailExecutor extends
 			
 			SshPubKeyEntity sshPubKey = getEvent().getEntity();
 			
-			pubKeyService.keyExpirySent(sshPubKey);
+			pubKeyService.keyExpiryWarningSent(sshPubKey);
 			
 			Map<String, Object> context = new HashMap<String, Object>(3);
 			context.put("sshPubKey", sshPubKey);
