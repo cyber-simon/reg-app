@@ -19,7 +19,10 @@ import java.util.ResourceBundle;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -80,6 +83,44 @@ public class AttributeQueryController {
 		return userUpdateService.updateUser(regId, request.getServerName(), "rest-/attrq/regid/" + regId);
 	}
 
+	@GET
+	@Path("/generic/{service}/{key}/{value}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Map<String, String> attributeQueryByGeneric(@PathParam("key") String key, @PathParam("value") String value,
+			@PathParam("service") String serviceShortName, @Context HttpServletRequest request)
+			throws IOException, ServletException, RestInterfaceException {
+		return userUpdateService.updateUserByGenericStore(key, value, serviceShortName, request.getServerName(), "rest-/attrq/generic/" + serviceShortName + "/" + key + "/" + value);
+	}
+	
+	@POST
+	@Path("/generic-post/{service}")
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Map<String, String> attributeQueryByGenericPost(@FormParam("key") String key, @FormParam("value") String value,
+			@PathParam("service") String serviceShortName, @Context HttpServletRequest request)
+			throws IOException, ServletException, RestInterfaceException {
+		return userUpdateService.updateUserByGenericStore(key, value, serviceShortName, request.getServerName(), "rest-/attrq/generic/" + serviceShortName + "/" + key + "/" + value);
+	}
+	
+	@GET
+	@Path("/attribute/{service}/{key}/{value}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Map<String, String> attributeQueryByAttribute(@PathParam("key") String key, @PathParam("value") String value,
+			@PathParam("service") String serviceShortName, @Context HttpServletRequest request)
+			throws IOException, ServletException, RestInterfaceException {
+		return userUpdateService.updateUserByAttributeStore(key, value, serviceShortName, request.getServerName(), "rest-/attrq/generic/" + serviceShortName + "/" + key + "/" + value);
+	}
+
+	@POST
+	@Path("/attribute-post/{service}")
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Map<String, String> attributeQueryByAttributePost(@FormParam("key") String key, @FormParam("value") String value,
+			@PathParam("service") String serviceShortName, @Context HttpServletRequest request)
+			throws IOException, ServletException, RestInterfaceException {
+		return userUpdateService.updateUserByAttributeStore(key, value, serviceShortName, request.getServerName(), "rest-/attrq/generic/" + serviceShortName + "/" + key + "/" + value);
+	}
+	
 	@GET
 	@Path("/eppn-xml/{service}/{eppn}")
 	@Produces(MediaType.APPLICATION_XML)

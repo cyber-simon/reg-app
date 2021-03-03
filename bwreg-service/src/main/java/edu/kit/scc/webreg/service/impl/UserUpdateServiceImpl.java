@@ -32,6 +32,7 @@ import edu.kit.scc.webreg.exc.NoRegistryFoundException;
 import edu.kit.scc.webreg.exc.NoServiceFoundException;
 import edu.kit.scc.webreg.exc.NoUserFoundException;
 import edu.kit.scc.webreg.exc.RestInterfaceException;
+import edu.kit.scc.webreg.exc.UserNotUniqueException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.exc.UserUpdateFailedException;
 import edu.kit.scc.webreg.service.UserUpdateService;
@@ -161,6 +162,58 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 				}
 			}
 		}
+	}
+
+	@Override
+	public Map<String, String> updateUserByGenericStore(String key, String value, String serviceShortName, String localHostName, String executor)
+			throws IOException, RestInterfaceException {
+
+		List<UserEntity> userList = userDao.findByGeneric(key, value);
+
+		if (userList.size() > 1) {
+			throw new UserNotUniqueException("Found more than one user for key,value");
+		}
+		else if (userList.size() == 0) {
+			throw new NoUserFoundException("No user found for key,value");
+		}
+		
+		UserEntity user = userList.get(0);
+		
+		ServiceEntity service = findService(serviceShortName);
+		if (service == null)
+			throw new NoServiceFoundException("no such service");
+		
+		RegistryEntity registry = findRegistry(user, service);
+		if (registry == null)
+			throw new NoRegistryFoundException("user not registered for service");
+		
+		return update(user, service, registry, localHostName, executor);
+	}
+
+	@Override
+	public Map<String, String> updateUserByAttributeStore(String key, String value, String serviceShortName, String localHostName, String executor)
+			throws IOException, RestInterfaceException {
+
+		List<UserEntity> userList = userDao.findByAttribute(key, value);
+
+		if (userList.size() > 1) {
+			throw new UserNotUniqueException("Found more than one user for key,value");
+		}
+		else if (userList.size() == 0) {
+			throw new NoUserFoundException("No user found for key,value");
+		}
+		
+		UserEntity user = userList.get(0);
+		
+		ServiceEntity service = findService(serviceShortName);
+		if (service == null)
+			throw new NoServiceFoundException("no such service");
+		
+		RegistryEntity registry = findRegistry(user, service);
+		if (registry == null)
+			throw new NoRegistryFoundException("user not registered for service");
+		
+		return update(user, service, registry, localHostName, executor);
 	}
 
 	@Override

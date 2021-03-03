@@ -20,9 +20,11 @@ import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.MapJoin;
 import javax.persistence.criteria.Root;
 
 import edu.kit.scc.webreg.dao.UserDao;
+import edu.kit.scc.webreg.entity.ExternalUserEntity;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserEntity_;
@@ -74,6 +76,37 @@ public class JpaUserDao extends JpaBaseDao<UserEntity, Long> implements UserDao,
 				.setParameter("key", key).setMaxResults(limit).getResultList();
 	}
 
+
+	@Override
+	public List<UserEntity> findByAttribute(String key, String value) {
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<UserEntity> criteria = builder.createQuery(UserEntity.class);
+		Root<UserEntity> root = criteria.from(UserEntity.class);
+		criteria.select(root);
+		MapJoin<ExternalUserEntity, String, String> mapJoin = root.joinMap("attributeStore");
+		criteria.where(builder.and(
+				builder.equal(mapJoin.key(), key),
+				builder.equal(mapJoin.value(), value))
+		);
+
+		return em.createQuery(criteria).getResultList();
+	}
+
+	@Override
+	public List<UserEntity> findByGeneric(String key, String value) {
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<UserEntity> criteria = builder.createQuery(UserEntity.class);
+		Root<UserEntity> root = criteria.from(UserEntity.class);
+		criteria.select(root);
+		MapJoin<ExternalUserEntity, String, String> mapJoin = root.joinMap("genericStore");
+		criteria.where(builder.and(
+				builder.equal(mapJoin.key(), key),
+				builder.equal(mapJoin.value() , value))
+		);
+
+		return em.createQuery(criteria).getResultList();
+	}
+    
     @Override
     @SuppressWarnings({"unchecked"})
 	public List<UserEntity> findLegacyUsers() {

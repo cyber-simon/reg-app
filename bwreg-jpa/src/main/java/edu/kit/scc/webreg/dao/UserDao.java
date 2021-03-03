@@ -34,4 +34,6 @@ public interface UserDao extends BaseDao<UserEntity, Long> {
 	List<UserEntity> findMissingIdentity();
 	List<UserEntity> findByIdentity(IdentityEntity identity);
 	List<UserEntity> findScheduledUsers(Integer limit);
+	List<UserEntity> findByAttribute(String key, String value);
+	List<UserEntity> findByGeneric(String key, String value);
 }

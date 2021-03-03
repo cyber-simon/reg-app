@@ -22,5 +22,11 @@ public interface UserUpdateService {
 	Map<String, String> updateUser(Long uidNumber, String serviceShortName, String localHostName, String executor)
 			throws IOException, RestInterfaceException;
 
+	Map<String, String> updateUserByGenericStore(String key, String value, String serviceShortName,
+			String localHostName, String executor) throws IOException, RestInterfaceException;
+
+	Map<String, String> updateUserByAttributeStore(String key, String value, String serviceShortName,
+			String localHostName, String executor) throws IOException, RestInterfaceException;
+
 
 }
