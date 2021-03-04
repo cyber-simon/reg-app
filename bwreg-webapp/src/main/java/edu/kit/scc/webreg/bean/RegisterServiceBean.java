@@ -123,6 +123,9 @@ public class RegisterServiceBean implements Serializable {
 		if (getUserList().size() == 1) {
 			selectedUserEntity = getUserList().get(0);
 		}
+		else {
+			selectedUserEntity = getIdentity().getPrefUser();
+		}
 		
     	if (! initialzed) {
     		if (id == null && serviceShortName != null) {

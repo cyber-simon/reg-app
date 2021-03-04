@@ -27,6 +27,29 @@
 	<h:form id="form" class="full fancy form">
 		<h2><h:outputText value="#{messages.register}: #{registerServiceBean.service.name}"/></h2>
 
+		<p:panel rendered="#{registerServiceBean.userList.size() gt 1}">
+			<p:outputLabel for="@next" value="Choose account: " />
+			<p:selectOneListbox id="userSelect" var="u" value="#{registerServiceBean.selectedUserEntity}" converter="#{userConverter}" 
+					class="full">
+    	        <f:selectItems value="#{registerServiceBean.userList}" var="user" itemLabel="#{user.eppn}" itemValue="#{user}" />
+    	        <p:column>
+    	        	<p:outputPanel rendered="#{u.class.simpleName eq 'SamlUserEntity'}">
+    	        		<h:outputText value="#{u.eppn} - " rendered="#{u.eppn != null}"/>
+	    	        	<h:outputText value="#{u.email} - " rendered="#{u.eppn == null and u.email != null}"/>
+	    	        	<h:outputText value="#{u.persistentId} - " rendered="#{u.eppn == null and u.email == null}"/>
+	    	        	<h:outputText value="#{u.idp.displayName}" />
+    	        	</p:outputPanel>
+    	        	<p:outputPanel rendered="#{u.class.simpleName eq 'OidcUserEntity'}">
+    	        		<h:outputText value="#{u.eppn} - " rendered="#{u.eppn != null}"/>
+	    	        	<h:outputText value="#{u.email} - " rendered="#{u.eppn == null and u.email != null}"/>
+	    	        	<h:outputText value="#{u.subjectId} - " rendered="#{u.eppn == null and u.email == null}"/>
+	    	        	<h:outputText value="#{u.issuer.displayName}" />
+    	        	</p:outputPanel>
+    	        </p:column>
+    	        <p:ajax listener="#{registerServiceBean.checkUserAccess()}" update="mboxReq" />
+	        </p:selectOneListbox>
+		</p:panel>
+
 		<h:panelGroup rendered="#{registerServiceBean.errorState}">
 			<div class="panel">
 				<p:panel header="#{messages.error}">
@@ -35,12 +58,14 @@
 			</div>
 		</h:panelGroup>
 		
-		<h:panelGroup rendered="#{! registerServiceBean.errorState}">	
-			<p:panel rendered="#{! registerServiceBean.accessAllowed}">
-				<h:outputText value="#{messages.requirements_unsatisfied}" />
-				<p:messages id="messageBoxReqs" for="reqs" showDetail="true" escape="false" />
-			</p:panel>
-
+		<p:outputPanel rendered="#{! registerServiceBean.errorState}">	
+			<p:outputPanel id="mboxReq" >
+				<p:panel rendered="#{! registerServiceBean.accessAllowed}">
+					<h:outputText value="#{messages.requirements_unsatisfied}" />
+					<p:messages id="messageBoxReqs" for="reqs" showDetail="true" escape="false"/>
+				</p:panel>
+			</p:outputPanel>
+			
 			<p:panel id="blockPanel">
 				<p:outputPanel rendered="#{registerServiceBean.policyHolderList.size() gt 0}">
 					<b>Um sich für den Dienst zu registrieren, müssen Sie den folgenden Nutzungsbedingungen 
@@ -69,8 +94,8 @@
 			<p:blockUI block="blockPanel" trigger="save">  
        			<p:graphicImage value="#{resource['/img/ajax-loader.gif']}" alt="#{messages.loading}" />  
 			</p:blockUI>					
-		</h:panelGroup>
-
+		</p:outputPanel>
+		
 	<div class="text full" style="margin-top: 0.4em;">
 		<a href="../index.xhtml"><h:outputText value="#{messages.back}"/></a>
 	</div>		
