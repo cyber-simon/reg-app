@@ -103,7 +103,26 @@
 
 			<p:tab id="tab2" title="#{messages.shibboleth}" rendered="#{userPropertiesBean.user.class.simpleName eq 'SamlUserEntity'}">
 				<div class="panel">#{messages.my_data_from_saml} #{of:formatDate(userPropertiesBean.user.lastUpdate, 'dd.MM.yyyy HH:mm')}</div>
-				<p:dataTable id="attrData" style="min-width: 500px;" 
+				<p:dataTable style="min-width: 500px;" 
+						value="#{userPropertiesBean.user.attributeStore.keySet().toArray()}" var="key">
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.name}" />
+						</f:facet>
+						<h:outputText value="#{key}" style="font-size: 80%;" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.value}" />
+						</f:facet>
+						<h:outputText value="#{userPropertiesBean.user.attributeStore.get(key)}" />
+					</p:column>						
+				</p:dataTable>
+			</p:tab>
+
+			<p:tab id="tab2_1" title="#{messages.oidc}" rendered="#{userPropertiesBean.user.class.simpleName eq 'OidcUserEntity'}">
+				<div class="panel">#{messages.my_data_from_oidc} #{of:formatDate(userPropertiesBean.user.lastUpdate, 'dd.MM.yyyy HH:mm')}</div>
+				<p:dataTable style="min-width: 500px;" 
 						value="#{userPropertiesBean.user.attributeStore.keySet().toArray()}" var="key">
 					<p:column>
 						<f:facet name="header">
