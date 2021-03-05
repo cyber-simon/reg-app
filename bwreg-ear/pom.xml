@@ -28,6 +28,12 @@
 	<dependencies>
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
+			<artifactId>bwreg-entities</artifactId>
+			<version>2.7.2</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
 			<artifactId>bwreg-jpa</artifactId>
 			<version>2.7.2</version>
 			<type>ejb</type>
@@ -145,6 +151,12 @@
 					<applicationName>bwreg</applicationName>
 					<displayName>Registration Webapp</displayName>
 					<modules>
+						<jarModule>
+							<groupId>edu.kit.scc</groupId>
+							<artifactId>bwreg-entities</artifactId>
+							<bundleFileName>bwreg-entities.jar</bundleFileName>
+							<moduleId>bwreg-entities</moduleId>
+						</jarModule>
 						<ejbModule>
 							<groupId>edu.kit.scc</groupId>
 							<artifactId>bwreg-jpa</artifactId>
