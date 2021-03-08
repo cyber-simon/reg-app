@@ -11,11 +11,14 @@
 package edu.kit.scc.webreg.entity;
 
 import java.io.Serializable;
+import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
 @Entity(name = "UserGroupEntity")
@@ -34,6 +37,9 @@ public class UserGroupEntity implements Serializable {
     @JoinColumn(name = "group_id", nullable = false)
 	private GroupEntity group;
 
+	@Column(name = "created_at")
+	protected Date createdAt;
+
 	public UserEntity getUser() {
 		return user;
 	}
@@ -48,6 +54,12 @@ public class UserGroupEntity implements Serializable {
 
 	public void setGroup(GroupEntity group) {
 		this.group = group;
+	}
+
+	@PrePersist
+	public void prePersist() {
+		Date d = new Date();
+		setCreatedAt(d);
 	}
 
 	@Override
@@ -79,5 +91,13 @@ public class UserGroupEntity implements Serializable {
 		} else if (!user.equals(other.user))
 			return false;
 		return true;
+	}
+
+	public Date getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(Date createdAt) {
+		this.createdAt = createdAt;
 	}	
 }
