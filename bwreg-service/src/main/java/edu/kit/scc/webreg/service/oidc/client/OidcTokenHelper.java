@@ -7,13 +7,16 @@ import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import com.nimbusds.oauth2.sdk.token.AccessToken;
+import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
+import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
 @ApplicationScoped
 public class OidcTokenHelper {
 
-	public Map<String, List<Object>> convertToAttributeMap(IDTokenClaimsSet claims, UserInfo userInfo) {
+	public Map<String, List<Object>> convertToAttributeMap(IDTokenClaimsSet claims, UserInfo userInfo, RefreshToken refreshToken, BearerAccessToken bat) {
 		Map<String, List<Object>> attributeMap = new HashMap<String, List<Object>>();
 		
 		List<Object> tempList = new ArrayList<Object>();
@@ -23,6 +26,14 @@ public class OidcTokenHelper {
 		tempList = new ArrayList<Object>();
 		tempList.add(userInfo);
 		attributeMap.put("userInfo", tempList);
+
+		tempList = new ArrayList<Object>();
+		tempList.add(refreshToken);
+		attributeMap.put("refreshToken", tempList);
+
+		tempList = new ArrayList<Object>();
+		tempList.add(bat);
+		attributeMap.put("bearerAccessToken", tempList);
 
 		return attributeMap;
 	}

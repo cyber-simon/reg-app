@@ -8,8 +8,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -19,6 +19,8 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
+import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
+import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
@@ -258,10 +260,11 @@ public class OidcUserUpdater implements Serializable {
 		return user;
 	}
 	
-	public OidcUserEntity updateUser(OidcUserEntity user, IDTokenClaimsSet claims, UserInfo userInfo, String executor, ServiceEntity service)
+	public OidcUserEntity updateUser(OidcUserEntity user, IDTokenClaimsSet claims, UserInfo userInfo, 
+			RefreshToken refreshToken, BearerAccessToken bat, String executor, ServiceEntity service)
 			throws UserUpdateException {
 
-		Map<String, List<Object>> attributeMap = oidcTokenHelper.convertToAttributeMap(claims, userInfo);
+		Map<String, List<Object>> attributeMap = oidcTokenHelper.convertToAttributeMap(claims, userInfo, refreshToken, bat);
 
 		if (service != null)
 			return updateUser(user, attributeMap, executor, service);
@@ -269,10 +272,11 @@ public class OidcUserUpdater implements Serializable {
 			return updateUser(user, attributeMap, executor);
 	}
 
-	public OidcUserEntity updateUser(OidcUserEntity user, IDTokenClaimsSet claims, UserInfo userInfo, String executor)
+	public OidcUserEntity updateUser(OidcUserEntity user, IDTokenClaimsSet claims, UserInfo userInfo, 
+			RefreshToken refreshToken, BearerAccessToken bat, String executor)
 			throws UserUpdateException {
 		
-		return updateUser(user, claims, userInfo, executor, null);
+		return updateUser(user, claims, userInfo, refreshToken, bat, executor, null);
 	}
 	
 	protected void fireUserChangeEvent(UserEntity user, String executor, Auditor auditor) {

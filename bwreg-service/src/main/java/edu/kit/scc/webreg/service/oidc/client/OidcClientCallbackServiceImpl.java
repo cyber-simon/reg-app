@@ -5,8 +5,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -34,7 +32,6 @@ import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
-import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.Nonce;
@@ -44,8 +41,6 @@ import com.nimbusds.openid.connect.sdk.UserInfoRequest;
 import com.nimbusds.openid.connect.sdk.UserInfoResponse;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
-import com.nimbusds.openid.connect.sdk.op.OIDCProviderConfigurationRequest;
-import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import com.nimbusds.openid.connect.sdk.validators.IDTokenValidator;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
@@ -54,7 +49,6 @@ import edu.kit.scc.webreg.dao.oidc.OidcRpConfigurationDao;
 import edu.kit.scc.webreg.dao.oidc.OidcRpFlowStateDao;
 import edu.kit.scc.webreg.dao.oidc.OidcUserDao;
 import edu.kit.scc.webreg.drools.impl.KnowledgeSessionSingleton;
-import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
 import edu.kit.scc.webreg.entity.UserLoginInfoStatus;
 import edu.kit.scc.webreg.entity.UserLoginMethod;
@@ -63,7 +57,6 @@ import edu.kit.scc.webreg.entity.oidc.OidcRpFlowStateEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.saml.exc.OidcAuthenticationException;
-import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.session.SessionManager;
 
 @Stateless
@@ -174,12 +167,11 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 			    throw new OidcAuthenticationException("signature failed: " + e.getMessage());
 			} 
 					
-			AccessToken accessToken = oidcTokenResponse.getOIDCTokens().getAccessToken();
 			RefreshToken refreshToken = oidcTokenResponse.getOIDCTokens().getRefreshToken();
+			BearerAccessToken bearerAccessToken = oidcTokenResponse.getOIDCTokens().getBearerAccessToken();
 
-			BearerAccessToken bat = oidcTokenResponse.getOIDCTokens().getBearerAccessToken();
 			HTTPResponse httpResponse = new UserInfoRequest(
-					opMetadataBean.getUserInfoEndpointURI(rpConfig), bat)
+					opMetadataBean.getUserInfoEndpointURI(rpConfig), bearerAccessToken)
 				    .toHTTPRequest()
 				    .send();
 			
@@ -221,7 +213,7 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 					// Store OIDC Data temporarily in Session
 					logger.debug("Storing relevant Oidc data in session");
 					session.setSubjectId(claims.getSubject().getValue());
-					session.setAttributeMap(oidcTokenHelper.convertToAttributeMap(claims, userInfo));
+					session.setAttributeMap(oidcTokenHelper.convertToAttributeMap(claims, userInfo, refreshToken, bearerAccessToken));
 					
 					httpServletResponse.sendRedirect("/user/connect-account-oidc.xhtml");
 					return;
@@ -234,7 +226,7 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 				// Store OIDC Data temporarily in Session
 				logger.debug("Storing relevant Oidc data in session");
 				session.setSubjectId(claims.getSubject().getValue());
-				session.setAttributeMap(oidcTokenHelper.convertToAttributeMap(claims, userInfo));
+				session.setAttributeMap(oidcTokenHelper.convertToAttributeMap(claims, userInfo, refreshToken, bearerAccessToken));
 				
 				httpServletResponse.sendRedirect("/register/register-oidc.xhtml");
 				return;
@@ -243,7 +235,7 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 	    	logger.debug("Updating OIDC user {}", user.getSubjectId());
 			
 			try {
-				user = userUpdater.updateUser(user, claims, userInfo, "web-sso");
+				user = userUpdater.updateUser(user, claims, userInfo, refreshToken, bearerAccessToken, "web-sso");
 			} catch (UserUpdateException e) {
 				logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
 				throw new OidcAuthenticationException(e.getMessage());
