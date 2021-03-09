@@ -24,6 +24,7 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.oauth2.sdk.AuthorizationGrant;
 import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.ParseException;
@@ -161,7 +162,7 @@ public class OidcUserUpdater implements Serializable {
 			}
 			else {
 				OIDCTokenResponse oidcTokenResponse = (OIDCTokenResponse) tokenResponse.toSuccessResponse();
-				logger.debug("response: {}", oidcTokenResponse.toString());
+				logger.debug("response: {}", oidcTokenResponse.toJSONObject());
 
 				JWT idToken = oidcTokenResponse.getOIDCTokens().getIDToken();
 				IDTokenClaimsSet claims = null;
@@ -183,6 +184,14 @@ public class OidcUserUpdater implements Serializable {
 				}
 				
 				RefreshToken refreshToken = oidcTokenResponse.getOIDCTokens().getRefreshToken();
+				try {
+					JWT refreshJwt = JWTParser.parse(refreshToken.getValue());
+					// Well, what to do with this info? Check if refresh token is short or long lived? <1 day?
+					logger.info("refresh will expire at: {}", refreshJwt.getJWTClaimsSet().getExpirationTime());
+				} catch (java.text.ParseException e) {
+					logger.debug("Refresh token is no JWT");
+				}
+				
 				BearerAccessToken bearerAccessToken = oidcTokenResponse.getOIDCTokens().getBearerAccessToken();
 
 				HTTPResponse httpResponse = new UserInfoRequest(
