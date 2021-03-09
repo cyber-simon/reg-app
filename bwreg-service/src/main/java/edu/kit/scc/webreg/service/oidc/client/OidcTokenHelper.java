@@ -7,7 +7,6 @@ import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
@@ -19,22 +18,32 @@ public class OidcTokenHelper {
 	public Map<String, List<Object>> convertToAttributeMap(IDTokenClaimsSet claims, UserInfo userInfo, RefreshToken refreshToken, BearerAccessToken bat) {
 		Map<String, List<Object>> attributeMap = new HashMap<String, List<Object>>();
 		
-		List<Object> tempList = new ArrayList<Object>();
-		tempList.add(claims);
-		attributeMap.put("claims", tempList);
+		List<Object> tempList;
+		
+		if (claims != null) {
+			tempList = new ArrayList<Object>();
+			tempList.add(claims);
+			attributeMap.put("claims", tempList);
+		}
 
-		tempList = new ArrayList<Object>();
-		tempList.add(userInfo);
-		attributeMap.put("userInfo", tempList);
-
-		tempList = new ArrayList<Object>();
-		tempList.add(refreshToken);
-		attributeMap.put("refreshToken", tempList);
-
-		tempList = new ArrayList<Object>();
-		tempList.add(bat);
-		attributeMap.put("bearerAccessToken", tempList);
-
+		if (userInfo != null) {
+			tempList = new ArrayList<Object>();
+			tempList.add(userInfo);
+			attributeMap.put("userInfo", tempList);
+		}
+		
+		if (refreshToken != null) {
+			tempList = new ArrayList<Object>();
+			tempList.add(refreshToken.getValue());
+			attributeMap.put("refreshToken", tempList);
+		}
+		
+		if (bat != null) {
+			tempList = new ArrayList<Object>();
+			tempList.add(bat);
+			attributeMap.put("bearerAccessToken", tempList);
+		}
+		
 		return attributeMap;
 	}
 	

@@ -1,5 +1,6 @@
 package edu.kit.scc.webreg.service.oidc.client;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
@@ -19,10 +20,32 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.proc.BadJOSEException;
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.oauth2.sdk.AuthorizationGrant;
+import com.nimbusds.oauth2.sdk.ErrorObject;
+import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.RefreshTokenGrant;
+import com.nimbusds.oauth2.sdk.TokenErrorResponse;
+import com.nimbusds.oauth2.sdk.TokenRequest;
+import com.nimbusds.oauth2.sdk.TokenResponse;
+import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
+import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
+import com.nimbusds.oauth2.sdk.auth.Secret;
+import com.nimbusds.oauth2.sdk.http.HTTPResponse;
+import com.nimbusds.oauth2.sdk.id.ClientID;
+import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
+import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
+import com.nimbusds.openid.connect.sdk.OIDCTokenResponseParser;
+import com.nimbusds.openid.connect.sdk.UserInfoRequest;
+import com.nimbusds.openid.connect.sdk.UserInfoResponse;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
+import com.nimbusds.openid.connect.sdk.validators.IDTokenValidator;
 
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.audit.RegistryAuditor;
@@ -42,6 +65,7 @@ import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceServiceEntity;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
+import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.UserEvent;
@@ -106,15 +130,86 @@ public class OidcUserUpdater implements Serializable {
 	@Inject
 	private OidcTokenHelper oidcTokenHelper;
 	
-	public OidcUserEntity updateUserFromOP(OidcUserEntity user, String executor) {
+	@Inject
+	private OidcOpMetadataSingletonBean opMetadataBean;
+	
+	public OidcUserEntity updateUserFromOP(OidcUserEntity user, String executor) 
+			throws UserUpdateException {
 		user = userDao.merge(user);
-		
-		/**
-		 * TODO Implement refresh here
-		 */
-		
-		
-		user.setScheduledUpdate(getNextScheduledUpdate());
+
+		try {
+			/**
+			 * TODO Implement refresh here
+			 */
+			OidcRpConfigurationEntity rpConfig = user.getIssuer();
+			
+			RefreshToken token = new RefreshToken(user.getAttributeStore().get("refreshToken"));
+			AuthorizationGrant refreshTokenGrant = new RefreshTokenGrant(token);
+
+			ClientID clientID = new ClientID(user.getIssuer().getClientId());
+			Secret clientSecret = new Secret(user.getIssuer().getSecret());
+			ClientAuthentication clientAuth = new ClientSecretBasic(clientID, clientSecret);
+
+			TokenRequest tokenRequest = new TokenRequest(opMetadataBean.getTokenEndpointURI(user.getIssuer()), 
+							clientAuth, refreshTokenGrant);
+			TokenResponse tokenResponse = OIDCTokenResponseParser.parse(tokenRequest.toHTTPRequest().send());
+
+			if (! tokenResponse.indicatesSuccess()) {
+				TokenErrorResponse errorResponse = tokenResponse.toErrorResponse();
+				ErrorObject error = errorResponse.getErrorObject();
+				logger.info("Got error: code {}, desc {}, http-status {}, uri {}", error.getCode(), error.getDescription());
+			}
+			else {
+				OIDCTokenResponse oidcTokenResponse = (OIDCTokenResponse) tokenResponse.toSuccessResponse();
+				logger.debug("response: {}", oidcTokenResponse.toString());
+
+				JWT idToken = oidcTokenResponse.getOIDCTokens().getIDToken();
+				IDTokenClaimsSet claims = null;
+
+				if (idToken != null) {
+					IDTokenValidator validator = new IDTokenValidator(
+							new Issuer(rpConfig.getServiceUrl()), 
+							new ClientID(rpConfig.getClientId()), 
+							JWSAlgorithm.RS256, 
+							opMetadataBean.getJWKSetURI(rpConfig).toURL());
+	
+					
+					try {
+						claims = validator.validate(idToken, null);
+						logger.debug("Got signed claims verified from {}: {}", claims.getIssuer(), claims.getSubject());
+					} catch (BadJOSEException | JOSEException e) {
+					    throw new UserUpdateException("signature failed: " + e.getMessage());
+					} 
+				}
+				
+				RefreshToken refreshToken = oidcTokenResponse.getOIDCTokens().getRefreshToken();
+				BearerAccessToken bearerAccessToken = oidcTokenResponse.getOIDCTokens().getBearerAccessToken();
+
+				HTTPResponse httpResponse = new UserInfoRequest(
+						opMetadataBean.getUserInfoEndpointURI(rpConfig), bearerAccessToken)
+					    .toHTTPRequest()
+					    .send();
+				
+				UserInfoResponse userInfoResponse = UserInfoResponse.parse(httpResponse);
+
+				if (! userInfoResponse.indicatesSuccess()) {
+				    throw new UserUpdateException("got userinfo error response: " + 
+				    		userInfoResponse.toErrorResponse().getErrorObject().getDescription());
+				}
+				
+				UserInfo userInfo = userInfoResponse.toSuccessResponse().getUserInfo();
+				logger.info("userinfo {}, {}, {}", userInfo.getSubject(), userInfo.getPreferredUsername(), 
+						userInfo.getEmailAddress());
+
+		    	logger.debug("Updating OIDC user {}", user.getSubjectId());
+				
+				user = updateUser(user, claims, userInfo, refreshToken, bearerAccessToken, "web-sso");
+
+			}
+		}
+		catch (IOException | ParseException e) {
+			logger.warn("Exception!", e);
+		}
 		
 		return user;
 	}
@@ -230,7 +325,6 @@ public class OidcUserUpdater implements Serializable {
 			}
 			
 			Map<String, String> attributeStore = user.getAttributeStore();
-			attributeStore.clear();
 			for (Entry<String, List<Object>> entry : attributeMap.entrySet()) {
 				attributeStore.put(entry.getKey(), attrHelper.attributeListToString(entry.getValue()));
 			}
@@ -318,7 +412,7 @@ public class OidcUserUpdater implements Serializable {
 		if (completeOverrideHook == null) {
 			IDTokenClaimsSet claims = oidcTokenHelper.claimsFromMap(attributeMap);
 			if (claims == null) { 
-				throw new UserUpdateException("ID claims are missing in session");
+				logger.info("No claims set for user {}", user.getId());
 			}
 
 			UserInfo userInfo = oidcTokenHelper.userInfoFromMap(attributeMap);

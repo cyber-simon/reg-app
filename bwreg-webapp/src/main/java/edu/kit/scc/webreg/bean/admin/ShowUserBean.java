@@ -24,7 +24,6 @@ import javax.inject.Inject;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.primefaces.event.TransferEvent;
 import org.primefaces.model.DualListModel;
-import org.primefaces.model.FilterMeta;
 import org.primefaces.model.LazyDataModel;
 import org.slf4j.Logger;
 
@@ -40,6 +39,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 import edu.kit.scc.webreg.entity.audit.AuditUserEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.model.GenericLazyDataModelImpl;
 import edu.kit.scc.webreg.service.ASUserAttrService;
@@ -48,6 +48,7 @@ import edu.kit.scc.webreg.service.GroupService;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.RoleService;
 import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.service.oidc.client.OidcUserService;
 import edu.kit.scc.webreg.session.SessionManager;
 
 @ManagedBean
@@ -61,6 +62,9 @@ public class ShowUserBean implements Serializable {
 	
 	@Inject
 	private UserService userService;
+
+	@Inject
+	private OidcUserService oidcUserService;
 
 	@Inject
 	private RoleService roleService;
@@ -133,6 +137,28 @@ public class ShowUserBean implements Serializable {
 		if (user instanceof SamlUserEntity) {
 			try {
 				userService.updateUserFromIdp((SamlUserEntity) user, "identity-" + sessionManager.getIdentityId());
+			} catch (UserUpdateException e) {
+				logger.info("Exception while Querying IDP: {}", e.getMessage());
+				if (e.getCause() != null) {
+					logger.info("Cause is: {}", e.getCause().getMessage());
+					if (e.getCause().getCause() != null) {
+						logger.info("Inner Cause is: {}", e.getCause().getCause().getMessage());
+					}
+				}
+			}
+		}
+		else {
+			logger.info("No update method available for class {}", user.getClass().getName());
+		}
+	}
+
+	public void updateFromOp() {
+		user = userService.findByIdWithAll(user.getId());
+		logger.info("Trying user update for {}", user.getEppn());
+
+		if (user instanceof OidcUserEntity) {
+			try {
+				oidcUserService.updateUserFromOp((OidcUserEntity) user, "identity-" + sessionManager.getIdentityId());
 			} catch (UserUpdateException e) {
 				logger.info("Exception while Querying IDP: {}", e.getMessage());
 				if (e.getCause() != null) {
