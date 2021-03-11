@@ -1,8 +1,5 @@
 package edu.kit.scc.webreg.oauth;
 
-import java.util.Enumeration;
-import java.util.stream.Collectors;
-
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

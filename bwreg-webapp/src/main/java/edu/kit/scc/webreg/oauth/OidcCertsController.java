@@ -25,7 +25,6 @@ import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
 import edu.kit.scc.webreg.service.oidc.OidcOpConfigurationService;
 import edu.kit.scc.webreg.service.saml.CryptoHelper;
 import edu.kit.scc.webreg.service.saml.exc.OidcAuthenticationException;
-import net.minidev.json.JSONObject;
 
 @Path("/realms")
 public class OidcCertsController {
@@ -42,7 +41,7 @@ public class OidcCertsController {
 	@GET
 	@Path("/{realm}/protocol/openid-connect/certs")
 	@Produces(MediaType.APPLICATION_JSON)
-	public JSONObject auth(@PathParam("realm") String realm, @Context HttpServletRequest request, @Context HttpServletResponse response)
+	public String auth(@PathParam("realm") String realm, @Context HttpServletRequest request, @Context HttpServletResponse response)
 			throws IOException, OidcAuthenticationException {
 		
 		try {
@@ -68,7 +67,8 @@ public class OidcCertsController {
 			
 			JWKSet jwkSet = new JWKSet(jwkList);
 			
-			return jwkSet.toJSONObject(true);
+			return jwkSet.toString(true);
+			//return jwkSet.toJSONObject(true);
 		} catch (JOSEException e) {
 			throw new OidcAuthenticationException(e);
 		}

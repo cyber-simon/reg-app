@@ -48,8 +48,11 @@ public class OidcFlowStateEntity extends AbstractBaseEntity {
 	@Column(name = "redirect_uri", length = 1024)
 	private String redirectUri;
 	
-	@Column(name = "access_token", length = 256)
+	@Column(name = "access_token", length = 4096)
 	private String accessToken;
+
+	@Column(name = "refresh_token", length = 4096)
+	private String refreshToken;
 
 	@Column(name = "access_token_type", length = 32)
 	private String accessTokenType;
@@ -159,5 +162,13 @@ public class OidcFlowStateEntity extends AbstractBaseEntity {
 
 	public void setIdentity(IdentityEntity identity) {
 		this.identity = identity;
+	}
+
+	public String getRefreshToken() {
+		return refreshToken;
+	}
+
+	public void setRefreshToken(String refreshToken) {
+		this.refreshToken = refreshToken;
 	}
 }

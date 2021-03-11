@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 
 import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.RSASSASigner;
@@ -28,6 +29,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
+import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
@@ -315,7 +317,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		claimsBuilder.expirationTime(new Date(System.currentTimeMillis() + (60L * 60L * 1000L)))
 	      .issuer("https://" + opConfig.getHost() + "/oidc/realms/" + opConfig.getRealm())
 	      .claim("nonce", flowState.getNonce())
-	      .audience(flowState.getClientConfiguration().getName())
+	      .audience(clientConfig.getName())
 	      .issueTime(new Date())
 	      .subject(user.getEppn())
 	      .build();
@@ -347,30 +349,50 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		JWTClaimsSet claims =  claimsBuilder.build();
 
 		logger.debug("claims before signing: " + claims.toJSONObject());
-		
+
 		SignedJWT jwt;
+		
 		try {
 			//MACSigner macSigner = new MACSigner(clientConfig.getSecret());
 			
 			PrivateKey privateKey = cryptoHelper.getPrivateKey(opConfig.getPrivateKey());
 			X509Certificate certificate = cryptoHelper.getCertificate(opConfig.getCertificate());
+			
 			JWK jwk = JWK.parse(certificate);
+			JWSHeader header;
 			RSASSASigner rsaSigner = new RSASSASigner(privateKey);
-			JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.RS256).jwk(jwk).keyID(jwk.getKeyID()).build();
+			if (clientConfig.getGenericStore().containsKey("short_id_token_header") && 
+					clientConfig.getGenericStore().get("short_id_token_header").equalsIgnoreCase("true")) {
+				header = new JWSHeader.Builder(JWSAlgorithm.RS256).type(JOSEObjectType.JWT).keyID(jwk.getKeyID()).build();
+			}
+			else {
+				header = new JWSHeader.Builder(JWSAlgorithm.RS256).jwk(jwk).type(JOSEObjectType.JWT).keyID(jwk.getKeyID()).build();
+			}
 			jwt = new SignedJWT(header, claims);
 			jwt.sign(rsaSigner);
+
 		} catch (JOSEException | IOException e) {
 			throw new OidcAuthenticationException(e);
 		}
+
+		BearerAccessToken bat;
+		if (clientConfig.getGenericStore().containsKey("long_access_token") && 
+				clientConfig.getGenericStore().get("long_access_token").equalsIgnoreCase("true")) {
+			bat = new BearerAccessToken(jwt.serialize(), 3600, new Scope(opConfig.getHost()));
+		}
+		else {
+			bat = new BearerAccessToken(3600, new Scope(opConfig.getHost()));
+		}
 		
-		BearerAccessToken bat = new BearerAccessToken(3600, new Scope(opConfig.getHost()));
-		OIDCTokens tokens = new OIDCTokens(jwt, bat, null);
+		RefreshToken refreshToken = new RefreshToken();
+		OIDCTokens tokens = new OIDCTokens(jwt, bat, refreshToken);
 		OIDCTokenResponse tokenResponse = new OIDCTokenResponse(tokens);
 
 		logger.debug("tokenResponse: " + tokenResponse.toJSONObject());
 		
 		flowState.setAccessToken(bat.getValue());
 		flowState.setAccessTokenType("Bearer");
+		flowState.setRefreshToken(refreshToken.getValue());
 		flowState.setValidUntil(new Date(System.currentTimeMillis() + bat.getLifetime()));
 		
 		return tokenResponse.toJSONObject();

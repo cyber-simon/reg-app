@@ -1,8 +1,13 @@
 package edu.kit.scc.webreg.entity.oidc;
 
+import java.util.Map;
+
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
 
 import edu.kit.scc.webreg.entity.AbstractBaseEntity;
@@ -24,6 +29,12 @@ public class OidcClientConfigurationEntity extends AbstractBaseEntity {
 
 	@ManyToOne(targetEntity = OidcOpConfigurationEntity.class)
 	private OidcOpConfigurationEntity opConfiguration;
+
+	@ElementCollection
+	@JoinTable(name = "oidc_client_generic_store")
+    @MapKeyColumn(name = "key_data", length = 128)
+    @Column(name = "value_data", length = 2048)
+    private Map<String, String> genericStore; 
 
 	public String getName() {
 		return name;
@@ -55,5 +66,13 @@ public class OidcClientConfigurationEntity extends AbstractBaseEntity {
 
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
+	}
+
+	public Map<String, String> getGenericStore() {
+		return genericStore;
+	}
+
+	public void setGenericStore(Map<String, String> genericStore) {
+		this.genericStore = genericStore;
 	}
 }
