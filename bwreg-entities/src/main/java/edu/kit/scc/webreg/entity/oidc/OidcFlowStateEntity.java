@@ -42,6 +42,12 @@ public class OidcFlowStateEntity extends AbstractBaseEntity {
 	@Column(name = "code", length = 256)
 	private String code;
 
+	@Column(name = "code_challange", length = 512)
+	private String codeChallange;
+
+	@Column(name = "code_challange_method", length = 64)
+	private String codecodeChallangeMethod;
+
 	@Column(name = "response_type", length = 256)
 	private String responseType;
 
@@ -170,5 +176,21 @@ public class OidcFlowStateEntity extends AbstractBaseEntity {
 
 	public void setRefreshToken(String refreshToken) {
 		this.refreshToken = refreshToken;
+	}
+
+	public String getCodeChallange() {
+		return codeChallange;
+	}
+
+	public void setCodeChallange(String codeChallange) {
+		this.codeChallange = codeChallange;
+	}
+
+	public String getCodecodeChallangeMethod() {
+		return codecodeChallangeMethod;
+	}
+
+	public void setCodecodeChallangeMethod(String codecodeChallangeMethod) {
+		this.codecodeChallangeMethod = codecodeChallangeMethod;
 	}
 }

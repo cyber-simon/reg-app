@@ -1,9 +1,13 @@
 package edu.kit.scc.webreg.service.oidc;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -28,6 +32,7 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
@@ -104,8 +109,11 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	public String registerAuthRequest(String realm, String responseType,
 			String redirectUri, String scope,
 			String state, String nonce, String clientId,
+			String codeChallange, String codeChallangeMethod, 
 			HttpServletRequest request, HttpServletResponse response) throws IOException, OidcAuthenticationException {
 
+		checkCodeChallange(codeChallange, codeChallangeMethod);
+		
 		OidcOpConfigurationEntity opConfig = opDao.findByRealmAndHost(realm, request.getServerName());
 		
 		if (opConfig == null) {
@@ -123,6 +131,12 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			throw new OidcAuthenticationException("unknown client");
 		}
 		
+		if (clientConfig.getGenericStore().containsKey("redirect_uri_regex")) {
+			if (! redirectUri.matches(clientConfig.getGenericStore().get("redirect_uri_regex"))) {
+				throw new OidcAuthenticationException("invalid redirect uri");
+			}
+		}
+		
 		OidcFlowStateEntity flowState = flowStateDao.createNew();
 		flowState.setOpConfiguration(opConfig);
 		flowState.setNonce(nonce);
@@ -132,6 +146,8 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		flowState.setCode(UUID.randomUUID().toString());
 		flowState.setRedirectUri(redirectUri);
 		flowState.setValidUntil(new Date(System.currentTimeMillis() + (30L * 60L * 1000L)));
+		flowState.setCodeChallange(codeChallange);
+		flowState.setCodecodeChallangeMethod(codeChallangeMethod);
 		flowState = flowStateDao.persist(flowState);
 
 		session.setOidcFlowStateId(flowState.getId());
@@ -264,7 +280,8 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	@Override
 	public JSONObject serveToken(String realm, String grantType,
 			String code, String redirectUri,
-			HttpServletRequest request, HttpServletResponse response, String clientId, String clientSecret) throws OidcAuthenticationException {
+			HttpServletRequest request, HttpServletResponse response, 
+			String clientId, String clientSecret, String codeVerifier) throws OidcAuthenticationException {
 		
 		OidcFlowStateEntity flowState = flowStateDao.findByCode(code);
 
@@ -284,8 +301,30 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			throw new OidcAuthenticationException("unknown client");
 		}
 		
-		if ((! clientConfig.getName().equals(clientId)) || (! clientConfig.getSecret().equals(clientSecret))) {
+		if (! clientConfig.getName().equals(clientId)) {
 			throw new OidcAuthenticationException("unauthorized");
+		}
+
+		if (clientSecret != null && (! clientConfig.getSecret().equals(clientSecret))) {
+			// client_id and client_secret is set, but secret is wrong
+			throw new OidcAuthenticationException("unauthorized");
+		}
+		else if (codeVerifier != null) {
+			//check code verifier
+			// code_verifier must be SHA256(flowState.getCodeChallange)
+			
+			try {
+				MessageDigest digest = MessageDigest.getInstance("SHA-256");
+				byte[] encodedhash = digest.digest(
+						codeVerifier.getBytes(StandardCharsets.UTF_8));
+				String checkStr = new String(Base64.getUrlEncoder().withoutPadding().encode(encodedhash));
+				if (! checkStr.equals(flowState.getCodeChallange())) {
+					logger.debug("Code challange failed: {} <-> {}", checkStr, flowState.getCodeChallange());
+					throw new OidcAuthenticationException("code verification failed");
+				}
+			} catch (NoSuchAlgorithmException e) {
+				throw new OidcAuthenticationException("cannot create hash at the moment. This is bad.");
+			}
 		}
 	
 		IdentityEntity identity = flowState.getIdentity();
@@ -556,5 +595,19 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		}
 
 		return returnList;
-	}		
+	}
+	
+	private void checkCodeChallange(String codeChallange, String codeChallangeMethod)
+			throws OidcAuthenticationException {
+		if (codeChallange != null) {
+			if (codeChallange.length() > 511) {
+				throw new OidcAuthenticationException("Code challange is not acceptable");
+			}
+		}
+		if (codeChallangeMethod != null) {
+			if (! CodeChallengeMethod.S256.toString().equals(codeChallangeMethod)) {
+				throw new OidcAuthenticationException("Code challange method is not supported");
+			}
+		}
+	}
 }

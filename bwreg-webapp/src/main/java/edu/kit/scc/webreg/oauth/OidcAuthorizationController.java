@@ -25,10 +25,12 @@ public class OidcAuthorizationController {
 	public void auth(@PathParam("realm") String realm, @QueryParam("response_type") String responseType,
 			@QueryParam("redirect_uri") String redirectUri, @QueryParam("scope") String scope,
 			@QueryParam("state") String state, @QueryParam("nonce") String nonce, @QueryParam("client_id") String clientId,
+			@QueryParam("code_challenge") String codeChallange, @QueryParam("code_challenge_method") String codeChallangeMethod, 
 			@Context HttpServletRequest request, @Context HttpServletResponse response)
 			throws IOException, OidcAuthenticationException {
 		
-		String red = opLogin.registerAuthRequest(realm, responseType, redirectUri, scope, state, nonce, clientId, request, response);
+		String red = opLogin.registerAuthRequest(realm, responseType, redirectUri, scope, state, nonce, clientId, 
+				codeChallange, codeChallangeMethod, request, response);
 		
 		response.sendRedirect(red);
 	}
