@@ -326,7 +326,14 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 				throw new OidcAuthenticationException("cannot create hash at the moment. This is bad.");
 			}
 		}
-	
+
+		if (clientConfig.getGenericStore().containsKey("cors_allow_regex")) {
+			String origin = request.getHeader("Origin");
+			if (origin.matches(clientConfig.getGenericStore().get("cors_allow_regex"))) {
+				response.setHeader("Access-Control-Allow-Origin", origin);
+			}
+		}
+			
 		IdentityEntity identity = flowState.getIdentity();
 
 		if (identity == null) {

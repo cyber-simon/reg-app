@@ -47,6 +47,8 @@ public class OidcWellknownController {
 	public JSONObject wellknown(@PathParam("realm") String realm, @Context HttpServletRequest request, @Context HttpServletResponse response)
 			throws ServletException {
 
+		response.setHeader("Access-Control-Allow-Origin", "*");
+		
 		OidcOpConfigurationEntity opConfig = opService.findByRealmAndHost(realm, request.getServerName());
 		
 		if (opConfig == null) {

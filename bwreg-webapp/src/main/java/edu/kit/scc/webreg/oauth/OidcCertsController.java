@@ -51,6 +51,8 @@ public class OidcCertsController {
 	@Produces(MediaType.APPLICATION_JSON)
 	public String auth(@PathParam("realm") String realm, @Context HttpServletRequest request, @Context HttpServletResponse response)
 			throws IOException, OidcAuthenticationException {
+	
+		response.setHeader("Access-Control-Allow-Origin", "*");
 		
 		try {
 			logger.debug("certs called for {}", realm);
