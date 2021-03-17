@@ -57,6 +57,18 @@ public class HeadBarBean {
 		return getApplicationBase() + getOrDefault(request.getServerName() + "_app_link", "https://");
 	}
 	
+	public String getImpressum() {
+		return getApplicationBase() + getOrDefault(request.getServerName() + "_impressum", "<a href=\"https://www.scc.kit.edu/impressum.php\" target=\"_blank\">Impressum</a>");
+	}
+	
+	public String getDataProtection() {
+		return getApplicationBase() + getOrDefault(request.getServerName() + "_data_protection", "<a href=\"https://www.scc.kit.edu/datenschutz.php\" target=\"_blank\">Datenschutz</a>");
+	}
+	
+	public String getHomeLink() {
+		return getApplicationBase() + getOrDefault(request.getServerName() + "_home_link", "<a href=\"http://www.kit.edu\" target=\"_blank\"><span class=\"svg-icon\"><img src=\"/resources/img/kitlogo_nano.svg\" width=\"10px\"/></span><span>KIT</span></a>");
+	}
+	
 	public String getApplicationBase() {
 		return getOrDefault(request.getServerName() + "_app_base", "");
 	}

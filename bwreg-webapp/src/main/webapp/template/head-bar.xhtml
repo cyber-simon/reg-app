@@ -26,12 +26,9 @@
                     <!-- <button class="burger"><img src="#{resource['img/burger-icon.svg']}" class="burger-icon" /></button> -->
                     <div class="navigation-meta">
                         <ul class="navigation-meta-links">
-
-							<li><a accesskey="8" href="https://www.scc.kit.edu/impressum.php" target="_blank">Impressum</a></li>
-							<li><a href="https://www.scc.kit.edu/datenschutz.php" target="_blank">Datenschutz</a></li>
-
-                            
-                            <li><a href="http://www.kit.edu" target="_blank"><span class="svg-icon"><img src="#{resource['img/kitlogo_nano.svg']}" width="10px"/></span><span>KIT</span></a></li>
+							<li><h:outputText value="#{headBarBean.impressum}" escape="false" /></li>
+							<li><h:outputText value="#{headBarBean.dataProtection}" escape="false" /></li>
+                            <li><h:outputText value="#{headBarBean.homeLink}" escape="false" /></li>
                         </ul>
                         
 						<div class="navigation-language" style="display: none;"><ul><li></li></ul></div>
@@ -41,11 +38,8 @@
 						<ui:insert name="left_sidebar">Default left side bar</ui:insert>                    
 					</nav>
                     <ul class="side-widgets">
-                        <li class="meta"><a accesskey="1" href="/scc.php">Home</a></li>
-						<li class="meta"><a accesskey="3" href="/index.php">Sitemap</a></li>
-						<li class="meta"><a accesskey="8" href="/index.php">Impressum</a></li>
-						<li class="meta"><a href="/datenschutz.php">Datenschutz</a></li>
-
+						<li class="meta"><h:outputText value="#{headBarBean.impressum}" escape="false" /></li>
+						<li class="meta"><h:outputText value="#{headBarBean.dataProtection}" escape="false" /></li>
                    </ul>
                 </div>
             </div>
