@@ -7,7 +7,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>edu.kit.scc</groupId>
 	<artifactId>bwreg</artifactId>
-	<version>2.7.2</version>
+	<version>2.7.3</version>
 	<packaging>pom</packaging>
 	<name>bw Services Registration Webapp</name>
 
