@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.bean.admin.oidc;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
@@ -18,7 +19,9 @@ import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
 import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
+import edu.kit.scc.webreg.entity.oidc.ServiceOidcClientEntity;
 import edu.kit.scc.webreg.service.oidc.OidcClientConfigurationService;
+import edu.kit.scc.webreg.service.oidc.ServiceOidcClientService;
 
 @ManagedBean
 @ViewScoped
@@ -29,7 +32,11 @@ public class ShowOidcClientConfigurationBean implements Serializable {
 	@Inject
 	private OidcClientConfigurationService service;
 
+	@Inject
+	private ServiceOidcClientService serviceOidcClientService;
+	
 	private OidcClientConfigurationEntity entity;
+	private List<ServiceOidcClientEntity> serviceOidcClientList;
 	
 	private Long id;
 
@@ -37,9 +44,6 @@ public class ShowOidcClientConfigurationBean implements Serializable {
 	private String newValue;
 
 	public void preRenderView(ComponentSystemEvent ev) {
-		if (entity == null) {
-			entity = service.findByIdWithAttrs(id, "genericStore");
-		}
 	}
 	
 	public void addGenericStore() {
@@ -56,6 +60,9 @@ public class ShowOidcClientConfigurationBean implements Serializable {
 	}
 	
 	public OidcClientConfigurationEntity getEntity() {
+		if (entity == null) {
+			entity = service.findByIdWithAttrs(id, "genericStore");
+		}
 		return entity;
 	}
 
@@ -85,5 +92,11 @@ public class ShowOidcClientConfigurationBean implements Serializable {
 
 	public void setNewValue(String newValue) {
 		this.newValue = newValue;
+	}
+
+	public List<ServiceOidcClientEntity> getServiceOidcClientList() {
+		if (serviceOidcClientList == null)
+			serviceOidcClientList = serviceOidcClientService.findByClientConfig(getEntity());
+		return serviceOidcClientList;
 	}
 }

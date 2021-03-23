@@ -34,6 +34,7 @@ public class JpaServiceOidcClientDao extends JpaBaseDao<ServiceOidcClientEntity,
 		CriteriaQuery<ServiceOidcClientEntity> criteria = builder.createQuery(ServiceOidcClientEntity.class);
 		Root<ServiceOidcClientEntity> root = criteria.from(ServiceOidcClientEntity.class);
 		criteria.where(builder.equal(root.get(ServiceOidcClientEntity_.clientConfig), clientConfig));
+		criteria.orderBy(builder.asc(root.get(ServiceOidcClientEntity_.orderCriteria)));
 		criteria.select(root);
 		return em.createQuery(criteria).getResultList();
 	}

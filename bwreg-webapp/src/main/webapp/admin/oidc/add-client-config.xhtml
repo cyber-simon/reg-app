@@ -19,11 +19,11 @@
 		<h:panelGrid id="baseData" columns="2" columnClasses="labelColumn, elementColumn">
 
 			<h:outputText value="#{messages.name}:" />
-			<h:inputText value="#{addOidcRpConfigurationBean.entity.name}" />
+			<h:inputText value="#{addOidcClientConfigurationBean.entity.name}" />
 	
 		</h:panelGrid>
 
-		<h:commandButton id="save" action="#{addOidcRpConfigurationBean.save}" value="#{messages.save}"/>
+		<h:commandButton id="save" action="#{addOidcClientConfigurationBean.save}" value="#{messages.save}"/>
 		
 	</h:form>
 

@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.bean.admin.oidc;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
@@ -18,7 +19,9 @@ import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
 import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
 import edu.kit.scc.webreg.service.oidc.OidcClientConfigurationService;
+import edu.kit.scc.webreg.service.oidc.OidcOpConfigurationService;
 
 @ManagedBean
 @ViewScoped
@@ -29,9 +32,13 @@ public class EditOidcClientConfigurationBean implements Serializable {
 	@Inject
 	private OidcClientConfigurationService service;
 	
+	@Inject
+	private OidcOpConfigurationService opService;
+	
 	private OidcClientConfigurationEntity entity;
 	
 	private Long id;
+	private List<OidcOpConfigurationEntity> opList;
 	
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
@@ -58,5 +65,11 @@ public class EditOidcClientConfigurationBean implements Serializable {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public List<OidcOpConfigurationEntity> getOpList() {
+		if (opList == null)
+			opList = opService.findAll();
+		return opList;
 	}
 }

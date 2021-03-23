@@ -14,5 +14,6 @@ public abstract class ServiceOidcClientEntity_ extends edu.kit.scc.webreg.entity
 	public static volatile SingularAttribute<ServiceOidcClientEntity, ServiceEntity> service;
 	public static volatile SingularAttribute<ServiceOidcClientEntity, OidcClientConfigurationEntity> clientConfig;
 	public static volatile SingularAttribute<ServiceOidcClientEntity, ScriptEntity> script;
+	public static volatile SingularAttribute<ServiceOidcClientEntity, Integer> orderCriteria;
 }
 

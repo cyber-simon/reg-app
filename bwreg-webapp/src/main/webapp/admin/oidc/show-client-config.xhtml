@@ -24,56 +24,65 @@
 	<h:form id="form">
 		<h2><h:outputText value="#{messages.rp_config}: #{showOidcClientConfigurationBean.entity.name}"/></h2>
 	
-		<div id="panelInline">
-			<p:panel header="#{messages.rp_config}">
-				<p:panelGrid id="baseData" columns="2">
-				
-			        <h:outputText value="#{messages.id}:"/>
-			        <h:outputText value="#{showOidcClientConfigurationBean.entity.id}"/>
+		<p:panel header="#{messages.rp_config}">
+			<p:panelGrid id="baseData" columns="2">
 			
-			        <h:outputText value="#{messages.name}:"/>
-			        <h:outputText value="#{showOidcClientConfigurationBean.entity.name}"/>
+		        <h:outputText value="#{messages.id}:"/>
+		        <h:outputText value="#{showOidcClientConfigurationBean.entity.id}"/>
 		
-			        <h:outputText value="#{messages.display_name}:"/>
-			        <h:outputText value="#{showOidcClientConfigurationBean.entity.displayName}"/>
-		
-			        <h:outputText value="#{messages.secret}:"/>
-			        <h:outputText value="#{showOidcClientConfigurationBean.entity.secret}"/>
-		
-			        <h:outputText value="#{messages.oidc_op_configuration}:"/>
-			        <h:outputText value="#{showOidcClientConfigurationBean.entity.opConfiguration.name}"/>
+		        <h:outputText value="#{messages.name}:"/>
+		        <h:outputText value="#{showOidcClientConfigurationBean.entity.name}"/>
+	
+		        <h:outputText value="#{messages.display_name}:"/>
+		        <h:outputText value="#{showOidcClientConfigurationBean.entity.displayName}"/>
+	
+		        <h:outputText value="#{messages.secret}:"/>
+		        <h:outputText value="#{showOidcClientConfigurationBean.entity.secret}"/>
+	
+		        <h:outputText value="#{messages.op_config}:"/>
+		        <h:outputText value="#{showOidcClientConfigurationBean.entity.opConfiguration.name}"/>
 
-			        <h:outputText value="#{messages.generic_store}:"/>
-			        <h:panelGroup>
-			        	<ul>
-			        		<ui:repeat var="key" value="#{showOidcClientConfigurationBean.entity.genericStore.keySet().toArray()}">
-				        		<li>
-				        			<h:panelGrid id="newPropTable" columns="3" columnClasses="labelColumn, elementColumn">
-						        		<h:outputText value="#{key}:"/> 
-						        		<h:outputText value="#{showOidcClientConfigurationBean.entity.genericStore.get(key)}"/> 
-					        			<h:commandLink value="(#{messages.delete})" action="#{showOidcClientConfigurationBean.removeGenericStore(key)}">
-											<f:ajax render="@form" />
-										</h:commandLink>
-									</h:panelGrid>
-								</li>
-				        	</ui:repeat>
-				        </ul>
-						<h:panelGrid id="newPropTable" columns="3" columnClasses="labelColumn, elementColumn">
-					        <h:inputText id="key_input" value="#{showOidcClientConfigurationBean.newKey}"/>
-			       			<h:inputText id="value_input" value="#{showOidcClientConfigurationBean.newValue}"/>
-							<h:commandLink value="#{messages.add}" action="#{showOidcClientConfigurationBean.addGenericStore()}">
-								<f:ajax execute="form" render="form" />
-							</h:commandLink>
-						</h:panelGrid>
-			        </h:panelGroup>
-		
-				</p:panelGrid>
-		<h:link outcome="edit-client-config.xhtml" value="#{messages.edit}">
-			<f:param name="id" value="#{showOidcClientConfigurationBean.entity.id}"/>
-		</h:link>
+		        <h:outputText value="#{messages.generic_store}:"/>
+		        <h:panelGroup>
+		        	<ul>
+		        		<ui:repeat var="key" value="#{showOidcClientConfigurationBean.entity.genericStore.keySet().toArray()}">
+			        		<li>
+			        			<h:panelGrid id="newPropTable" columns="3" columnClasses="labelColumn, elementColumn">
+					        		<h:outputText value="#{key}:"/> 
+					        		<h:outputText value="#{showOidcClientConfigurationBean.entity.genericStore.get(key)}"/> 
+				        			<h:commandLink value="(#{messages.delete})" action="#{showOidcClientConfigurationBean.removeGenericStore(key)}">
+										<f:ajax render="@form" />
+									</h:commandLink>
+								</h:panelGrid>
+							</li>
+			        	</ui:repeat>
+			        </ul>
+					<h:panelGrid id="newPropTable" columns="3" columnClasses="labelColumn, elementColumn">
+				        <h:inputText id="key_input" value="#{showOidcClientConfigurationBean.newKey}"/>
+		       			<h:inputText id="value_input" value="#{showOidcClientConfigurationBean.newValue}"/>
+						<h:commandLink value="#{messages.add}" action="#{showOidcClientConfigurationBean.addGenericStore()}">
+							<f:ajax execute="form" render="form" />
+						</h:commandLink>
+					</h:panelGrid>
+		        </h:panelGroup>
+	
+			</p:panelGrid>
+			<h:link outcome="edit-client-config.xhtml" value="#{messages.edit}">
+				<f:param name="id" value="#{showOidcClientConfigurationBean.entity.id}"/>
+			</h:link>
 		
 		</p:panel>
-	</div>
+
+		<p:panel header="#{messages.attribute_scripts}">
+		
+			<ui:repeat var="scc" value="#{showOidcClientConfigurationBean.serviceOidcClientList}">
+				<h:outputText value="#{scc.script.name} (#{scc.script.id})" /> - 
+				<h:outputText value="#{scc.service.name}" />
+				<h:outputText value=" (wants elevation: #{scc.wantsElevation})" />
+				<h:outputText value=" (order criteria: #{scc.orderCriteria})" />
+			</ui:repeat>
+		
+		</p:panel>
 	</h:form>
 
 	</ui:define>

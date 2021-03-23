@@ -27,6 +27,9 @@ public class ServiceOidcClientEntity extends AbstractBaseEntity {
 	@Column(name = "wants_elevation")
 	private Boolean wantsElevation;
 	
+	@Column(name = "order_criteria")
+	private Integer orderCriteria;
+	
 	public ServiceEntity getService() {
 		return service;
 	}
@@ -56,5 +59,13 @@ public class ServiceOidcClientEntity extends AbstractBaseEntity {
 
 	public void setWantsElevation(Boolean wantsElevation) {
 		this.wantsElevation = wantsElevation;
+	}
+
+	public Integer getOrderCriteria() {
+		return orderCriteria;
+	}
+
+	public void setOrderCriteria(Integer orderCriteria) {
+		this.orderCriteria = orderCriteria;
 	}
 }

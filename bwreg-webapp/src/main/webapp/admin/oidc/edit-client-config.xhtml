@@ -39,6 +39,14 @@
 		
 					<bw:inputText id="secretField" label="#{messages.secret}"
 						value="#{editOidcClientConfigurationBean.entity.secret}" required="false" />
+
+			        <h:outputText value="#{messages.oidc_op_configuration}:"/>
+			        <h:selectOneMenu value="#{editOidcClientConfigurationBean.entity.opConfiguration}"
+			        	converter="#{oidcOpConfigurationConverter}">
+			        	<f:selectItem itemLabel="Kein Parent Service" itemValue="#{null}"/>
+		            	<f:selectItems value="#{editOidcClientConfigurationBean.opList}" 
+		            		var="op" itemLabel="#{op.name} (id #{op.id})" itemValue="#{op}"/>
+		            </h:selectOneMenu>
 		
 				</p:panelGrid>
 			<h:commandButton id="save" action="#{editOidcClientConfigurationBean.save}" value="#{messages.save}"/>
