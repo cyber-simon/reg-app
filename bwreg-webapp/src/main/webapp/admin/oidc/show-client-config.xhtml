@@ -97,7 +97,7 @@
 	            		var="script" itemLabel="#{script.name} (id #{script.id})" itemValue="#{script}"/>
 	            </h:selectOneMenu>
 
-				<h:outputText value="#{messages.sservice}" />
+				<h:outputText value="#{messages.service}" />
 		        <h:selectOneMenu value="#{showOidcClientConfigurationBean.newSoce.service}"
 		        	converter="#{serviceConverter}">
 		        	<f:selectItem itemLabel="Kein Service" itemValue="#{null}"/>
@@ -108,7 +108,7 @@
 				<h:outputText value="#{messages.wants_elevation}" />
 				<p:inputSwitch value="#{showOidcClientConfigurationBean.newSoce.wantsElevation}"/>
 
-				<h:outputText value="#{messages.orderCriteria}" />
+				<h:outputText value="#{messages.order_criteria}" />
 				<p:inputText value="#{showOidcClientConfigurationBean.newSoce.orderCriteria}"/>
 			</p:panelGrid>
 			
