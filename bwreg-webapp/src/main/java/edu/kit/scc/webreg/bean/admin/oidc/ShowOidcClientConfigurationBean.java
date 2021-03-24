@@ -18,8 +18,12 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
+import edu.kit.scc.webreg.entity.ScriptEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.ServiceOidcClientEntity;
+import edu.kit.scc.webreg.service.ScriptService;
+import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.oidc.OidcClientConfigurationService;
 import edu.kit.scc.webreg.service.oidc.ServiceOidcClientService;
 
@@ -35,14 +39,24 @@ public class ShowOidcClientConfigurationBean implements Serializable {
 	@Inject
 	private ServiceOidcClientService serviceOidcClientService;
 	
+	@Inject
+	private ScriptService scriptService;
+	
+	@Inject
+	private ServiceService serviceService;
+	
 	private OidcClientConfigurationEntity entity;
 	private List<ServiceOidcClientEntity> serviceOidcClientList;
+	private List<ScriptEntity> scriptList;
+	private List<ServiceEntity> serviceList;
 	
 	private Long id;
 
 	private String newKey;
 	private String newValue;
 
+	private ServiceOidcClientEntity newSoce;
+	
 	public void preRenderView(ComponentSystemEvent ev) {
 	}
 	
@@ -74,6 +88,18 @@ public class ShowOidcClientConfigurationBean implements Serializable {
 		return id;
 	}
 
+	public void addSoce() {
+		serviceOidcClientService.save(newSoce);
+		newSoce = null;
+		serviceOidcClientList = null;
+	}
+	
+	public void removeSoce(ServiceOidcClientEntity oldSoce) {
+		serviceOidcClientService.delete(oldSoce);
+		newSoce = oldSoce;
+		serviceOidcClientList = null;
+	}
+	
 	public void setId(Long id) {
 		this.id = id;
 	}
@@ -98,5 +124,29 @@ public class ShowOidcClientConfigurationBean implements Serializable {
 		if (serviceOidcClientList == null)
 			serviceOidcClientList = serviceOidcClientService.findByClientConfig(getEntity());
 		return serviceOidcClientList;
+	}
+
+	public ServiceOidcClientEntity getNewSoce() {
+		if (newSoce == null) {
+			newSoce = new ServiceOidcClientEntity();
+			newSoce.setClientConfig(getEntity());
+		}
+		return newSoce;
+	}
+
+	public void setNewSoce(ServiceOidcClientEntity newSoce) {
+		this.newSoce = newSoce;
+	}
+
+	public List<ScriptEntity> getScriptList() {
+		if (scriptList == null)
+			scriptList = scriptService.findAll();
+		return scriptList;
+	}
+
+	public List<ServiceEntity> getServiceList() {
+		if (serviceList == null)
+			serviceList = serviceService.findAll();
+		return serviceList;
 	}
 }

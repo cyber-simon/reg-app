@@ -24,7 +24,7 @@
 	<h:form id="form">
 		<h2><h:outputText value="#{messages.rp_config}: #{showOidcClientConfigurationBean.entity.name}"/></h2>
 	
-		<p:panel header="#{messages.rp_config}">
+		<p:panel id="mainPanel" header="#{messages.rp_config}">
 			<p:panelGrid id="baseData" columns="2">
 			
 		        <h:outputText value="#{messages.id}:"/>
@@ -51,7 +51,7 @@
 					        		<h:outputText value="#{key}:"/> 
 					        		<h:outputText value="#{showOidcClientConfigurationBean.entity.genericStore.get(key)}"/> 
 				        			<h:commandLink value="(#{messages.delete})" action="#{showOidcClientConfigurationBean.removeGenericStore(key)}">
-										<f:ajax render="@form" />
+										<f:ajax render=":form:mainPanel" />
 									</h:commandLink>
 								</h:panelGrid>
 							</li>
@@ -61,7 +61,7 @@
 				        <h:inputText id="key_input" value="#{showOidcClientConfigurationBean.newKey}"/>
 		       			<h:inputText id="value_input" value="#{showOidcClientConfigurationBean.newValue}"/>
 						<h:commandLink value="#{messages.add}" action="#{showOidcClientConfigurationBean.addGenericStore()}">
-							<f:ajax execute="form" render="form" />
+							<f:ajax execute=":form:mainPanel" render=":form:mainPanel" />
 						</h:commandLink>
 					</h:panelGrid>
 		        </h:panelGroup>
@@ -73,15 +73,48 @@
 		
 		</p:panel>
 
-		<p:panel header="#{messages.attribute_scripts}">
+		<p:panel id="scriptPanel" header="#{messages.attribute_scripts}">
 		
 			<ui:repeat var="scc" value="#{showOidcClientConfigurationBean.serviceOidcClientList}">
-				<h:outputText value="#{scc.script.name} (#{scc.script.id})" /> - 
-				<h:outputText value="#{scc.service.name}" />
-				<h:outputText value=" (wants elevation: #{scc.wantsElevation})" />
-				<h:outputText value=" (order criteria: #{scc.orderCriteria})" />
+				<p:outputPanel>
+					<h:outputText value="#{scc.script.name} (#{scc.script.id})" /> - 
+					<h:outputText value="#{scc.service.name}" rendered="#{scc.service != null}"/>
+					<h:outputText value="No service" rendered="#{scc.service == null}"/>
+					<h:outputText value=" (wants elevation: #{scc.wantsElevation})" />
+					<h:outputText value=" (order criteria: #{scc.orderCriteria}) " />
+					<h:commandLink value="#{messages.delete}" action="#{showOidcClientConfigurationBean.removeSoce(scc)}">
+						<f:ajax render=":form:scriptPanel" />
+					</h:commandLink>
+				</p:outputPanel>
 			</ui:repeat>
 		
+			<p:panelGrid columns="2">
+				<h:outputText value="#{messages.script}" />
+		        <h:selectOneMenu value="#{showOidcClientConfigurationBean.newSoce.script}"
+		        	converter="#{scriptConverter}">
+		        	<f:selectItem itemLabel="Kein Script" itemValue="#{null}"/>
+	            	<f:selectItems value="#{showOidcClientConfigurationBean.scriptList}" 
+	            		var="script" itemLabel="#{script.name} (id #{script.id})" itemValue="#{script}"/>
+	            </h:selectOneMenu>
+
+				<h:outputText value="#{messages.sservice}" />
+		        <h:selectOneMenu value="#{showOidcClientConfigurationBean.newSoce.service}"
+		        	converter="#{serviceConverter}">
+		        	<f:selectItem itemLabel="Kein Service" itemValue="#{null}"/>
+	            	<f:selectItems value="#{showOidcClientConfigurationBean.serviceList}" 
+	            		var="service" itemLabel="#{service.name} (id #{service.id})" itemValue="#{service}"/>
+	            </h:selectOneMenu>
+
+				<h:outputText value="#{messages.wants_elevation}" />
+				<p:inputSwitch value="#{showOidcClientConfigurationBean.newSoce.wantsElevation}"/>
+
+				<h:outputText value="#{messages.orderCriteria}" />
+				<p:inputText value="#{showOidcClientConfigurationBean.newSoce.orderCriteria}"/>
+			</p:panelGrid>
+			
+			<h:commandLink value="#{messages.add}" action="#{showOidcClientConfigurationBean.addSoce()}">
+				<f:ajax execute=":form:scriptPanel" render=":form:scriptPanel" />
+			</h:commandLink>
 		</p:panel>
 	</h:form>
 
