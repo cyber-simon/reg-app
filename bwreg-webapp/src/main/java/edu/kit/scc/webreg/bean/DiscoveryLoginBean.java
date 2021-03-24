@@ -22,6 +22,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
+import javax.servlet.http.Cookie;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.FederationEntity;
@@ -42,6 +43,7 @@ import edu.kit.scc.webreg.service.oidc.OidcOpConfigurationService;
 import edu.kit.scc.webreg.service.oidc.OidcRpConfigurationService;
 import edu.kit.scc.webreg.service.saml.FederationSingletonBean;
 import edu.kit.scc.webreg.session.SessionManager;
+import edu.kit.scc.webreg.util.CookieHelper;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
 @ManagedBean
@@ -83,11 +85,16 @@ public class DiscoveryLoginBean implements Serializable {
 	@Inject
 	private OidcClientConfigurationService oidcClientConfigService;
 	
+	@Inject
+	private CookieHelper cookieHelper;
+	
 	private List<FederationEntity> federationList;
 	private List<SamlIdpMetadataEntity> idpList;
 	private FederationEntity selectedFederation;
 	private SamlIdpMetadataEntity selectedIdp;
 
+	private Boolean storeIdpSelection;
+	
 	private List<OidcRpConfigurationEntity> oidcRpList;
 	private OidcRpConfigurationEntity selectedOidcRp;
 	
@@ -136,7 +143,18 @@ public class DiscoveryLoginBean implements Serializable {
 				messageGenerator.addErrorMessage("Das SAML Subsystem ist noch nicht konfiguriert");
 				return;
 			}
-			updateIdpList();		
+			updateIdpList();
+			Cookie idpCookie = cookieHelper.getCookie("preselect_idp");
+			if (idpCookie != null) {
+				Long idpId = Long.parseLong(idpCookie.getValue());
+				if (idpId != null) {
+					SamlIdpMetadataEntity idp = idpService.findById(idpId);
+					if (idp != null) {
+						selectedIdp = idp;
+						storeIdpSelection = true;
+					}										
+				}
+			}
 			initialized = true;
 		}
 	}
@@ -156,6 +174,12 @@ public class DiscoveryLoginBean implements Serializable {
 			
 			sessionManager.setSpId(spConfig.getId());
 			sessionManager.setIdpId(selectedIdp.getId());
+			if (storeIdpSelection) {
+				cookieHelper.setCookie("preselect_idp", selectedIdp.getId().toString(), 356 * 24 * 3600);
+			}
+			else {
+				cookieHelper.setCookie("preselect_idp", "", 0);
+			}
 			try {
 				externalContext.redirect("/Shibboleth.sso/Login");
 			} catch (IOException e) {
@@ -316,6 +340,14 @@ public class DiscoveryLoginBean implements Serializable {
 
 	public OidcClientConfigurationEntity getClientConfig() {
 		return clientConfig;
+	}
+
+	public Boolean getStoreIdpSelection() {
+		return storeIdpSelection;
+	}
+
+	public void setStoreIdpSelection(Boolean storeIdpSelection) {
+		this.storeIdpSelection = storeIdpSelection;
 	}
 
 }

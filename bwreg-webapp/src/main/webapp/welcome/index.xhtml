@@ -73,6 +73,9 @@
 	            		var="idp" itemLabel="#{idp.displayName == null ? idp.orgName : idp.displayName}" itemValue="#{idp}"/>
 					<p:ajax event="dblclick" listener="#{discoveryLoginBean.login}" update=":form" />	            		
 				</p:selectOneListbox>
+
+				<h:outputText value="#{messages.store_idp_selection}: " />
+				<h:selectBooleanCheckbox value="#{discoveryLoginBean.storeIdpSelection}" />
 				
 			</h:panelGrid>
 	
