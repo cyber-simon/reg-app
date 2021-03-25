@@ -138,6 +138,8 @@ public class DiscoveryLoginBean implements Serializable {
 		}
 
 		if (! initialized) {
+			storeIdpSelection = false;
+
 			federationList = federationBean.getFederationList();
 			if (federationList == null || federationList.size() == 0) {
 				messageGenerator.addErrorMessage("Das SAML Subsystem ist noch nicht konfiguriert");
@@ -174,7 +176,7 @@ public class DiscoveryLoginBean implements Serializable {
 			
 			sessionManager.setSpId(spConfig.getId());
 			sessionManager.setIdpId(selectedIdp.getId());
-			if (storeIdpSelection) {
+			if (storeIdpSelection != null && storeIdpSelection) {
 				cookieHelper.setCookie("preselect_idp", selectedIdp.getId().toString(), 356 * 24 * 3600);
 			}
 			else {
