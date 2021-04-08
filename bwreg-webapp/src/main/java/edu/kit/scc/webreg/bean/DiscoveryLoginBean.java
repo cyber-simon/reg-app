@@ -138,7 +138,13 @@ public class DiscoveryLoginBean implements Serializable {
 		}
 
 		if (! initialized) {
-			storeIdpSelection = false;
+			if (appConfig.getConfigValue("preselect_store_idp_select") != null &&
+					appConfig.getConfigValue("preselect_store_idp_select").equalsIgnoreCase("true")) {
+				storeIdpSelection = true;
+			}
+			else {
+				storeIdpSelection = false;
+			}
 
 			federationList = federationBean.getFederationList();
 			if (federationList == null || federationList.size() == 0) {
