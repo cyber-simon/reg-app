@@ -32,13 +32,10 @@ import org.opensaml.xmlsec.signature.X509Certificate;
 import org.opensaml.xmlsec.signature.X509Data;
 import org.slf4j.Logger;
 
-import edu.kit.scc.webreg.entity.SamlIdpAdminRoleEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.entity.UserRoleEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
-import edu.kit.scc.webreg.exc.NotAuthorizedException;
 import edu.kit.scc.webreg.service.RoleService;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.UserService;
@@ -48,7 +45,7 @@ import edu.kit.scc.webreg.session.SessionManager;
 
 @ManagedBean
 @ViewScoped
-public class IdpAdminIndexBean implements Serializable {
+public class IdpDebugIndexBean implements Serializable {
 
  	private static final long serialVersionUID = 1L;
 
@@ -85,10 +82,6 @@ public class IdpAdminIndexBean implements Serializable {
 	private Map<KeyDescriptor, List<java.security.cert.X509Certificate>> certMap;
  	
 	public void preRenderView(ComponentSystemEvent ev) {
-		if (getIdpList().size() == 0) {
-			throw new NotAuthorizedException("Not authorized");
-		}
-
 		if (selectedIdp == null) {
 			selectedIdp = getIdpList().get(0);
 		}
@@ -115,17 +108,9 @@ public class IdpAdminIndexBean implements Serializable {
 		if (idpList == null) {
 			idpList = new ArrayList<SamlIdpMetadataEntity>();
 			for (UserEntity user : getUserList()) {
-				if (user instanceof SamlUserEntity &&
-						user.getAttributeStore().containsKey("urn:oid:1.3.6.1.4.1.5923.1.1.1.7") &&
-						user.getAttributeStore().get("urn:oid:1.3.6.1.4.1.5923.1.1.1.7").contains("http://bwidm.scc.kit.edu/entitlement/idp-admin")) {
+				if (user instanceof SamlUserEntity) {
 					idpList.add(((SamlUserEntity) user).getIdp());
-				}
-				
-				for (UserRoleEntity role : user.getRoles()) {
-					if (role.getRole() instanceof SamlIdpAdminRoleEntity) {
-						idpList.addAll(roleService.findIdpsForRole(role.getRole()));
-					}
-				}
+				}				
 			}
 		}		
 		return idpList;

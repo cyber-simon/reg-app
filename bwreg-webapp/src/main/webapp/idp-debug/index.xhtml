@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<h:head>
+  <f:facet name="first">
+    <meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="theme-color" content="#009682" />
+	<meta http-equiv="cleartype" content="on" />
+	<title>IDP Debug Infos</title>
+  </f:facet>
+  <h:outputScript library="javax.faces" name="jsf.js" target="head"/>
+</h:head>
+<h:body>
+<f:view>
+	<f:metadata>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{idpDebugIndexBean.preRenderView}" />
+	</f:metadata>
+
+	<h:form id="form" class="full form">
+
+		<h2>IDP Debug Infos</h2>
+
+        <p:selectOneMenu value="#{idpDebugIndexBean.selectedIdp}"
+        	converter="#{samlIdpMetadataConverter}">
+           	<f:selectItems value="#{idpDebugIndexBean.idpList}" 
+           		var="idp" itemLabel="#{idp.entityId}" itemValue="#{idp}"/>
+           	<f:ajax render=":form:idpDetailPanel" execute="@this" />
+        </p:selectOneMenu>
+
+		<p:tabView id="idpDetailPanel" dynamic="true" cache="false">
+
+			<p:tab id="tab1" title="#{messages.overview}">
+				<p:panelGrid id="baseData" columns="2">
+		
+			        <h:outputText value="#{messages.entity_id}:"/>
+			        <h:outputText value="#{idpDebugIndexBean.idp.entityId}"/>
+						
+			        <h:outputText value="#{messages.status}:"/>
+			        <h:outputText value="#{idpDebugIndexBean.idp.status}"/>
+
+			        <h:outputText value="#{messages.name}:"/>
+			        <h:outputText value="#{idpDebugIndexBean.idp.displayName}"/>
+						
+			        <h:outputText value="#{messages.information_url}:"/>
+			        <h:outputText value="#{idpDebugIndexBean.idp.informationUrl}"/>
+						
+			        <h:outputText value="#{messages.org_name}:"/>
+			        <h:outputText value="#{idpDebugIndexBean.idp.orgName}"/>
+
+			        <h:outputText value="#{messages.description}:"/>
+			        <h:outputText value="#{idpDebugIndexBean.idp.description}"/>
+
+			        <h:outputText value="#{messages.scopes}:"/>
+			        <h:panelGroup>
+			        	<ul>
+			        		<ui:repeat var="s" value="#{idpDebugIndexBean.idp.scopes.toArray()}">
+				        		<li><h:outputText value="#{s.scope} (is regex: #{s.regex})"/></li>
+				        	</ui:repeat>
+				        </ul>
+			        </h:panelGroup>
+
+				</p:panelGrid>
+			</p:tab>
+		</p:tabView>
+		
+	</h:form>
+</f:view>
+</h:body>
+</html>
