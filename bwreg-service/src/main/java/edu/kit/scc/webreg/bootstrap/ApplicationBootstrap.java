@@ -102,6 +102,7 @@ public class ApplicationBootstrap {
     	checkRole("UserAdmin");
     	checkRole("GroupAdmin");
     	checkRole("ServiceAdmin");
+    	checkRole("RestAdmin");
     	checkRole("RestServiceAdmin");
     	checkRole("RestGroupAdmin");
     	checkRole("SamlAdmin");
