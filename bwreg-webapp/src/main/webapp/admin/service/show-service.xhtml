@@ -99,6 +99,9 @@
 					<h:outputText value="#{messages.published}:" />
 					<h:outputText value="#{showServiceBean.entity.published ? messages.yes : messages.no}" />
 
+					<h:outputText value="#{messages.ssh_pub_key_capable}:" />
+					<h:outputText value="#{showServiceBean.entity.sshPubKeyCapable ? messages.yes : messages.no}" />
+
 					<h:outputText value="#{messages.image}:" />
 					<h:panelGroup rendered="#{showServiceBean.entity.image != null}">
 						<p:graphicImage style="vertical-align:middle" 

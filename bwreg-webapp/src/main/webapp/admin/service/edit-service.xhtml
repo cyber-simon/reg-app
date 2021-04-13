@@ -113,7 +113,7 @@
 		            	<f:selectItems value="#{editServiceBean.rulePackageList}" 
 		            		var="rp" itemLabel="#{rp.knowledgeBaseName} (#{rp.packageName})" itemValue="#{rp}"/>
 		            </h:selectOneMenu>
-					
+
 			        <h:outputText value="#{messages.image}:"/>
 			        <h:selectOneMenu value="#{editServiceBean.selectedImage}"
 			        	converter="#{imageConverter}">
@@ -122,6 +122,11 @@
 		            		var="img" itemLabel="#{img.name} (id #{img.id})" itemValue="#{img}"/>
 		            </h:selectOneMenu>
 					
+					<h:outputText value="#{messages.ssh_pub_key_capable}" />
+					<p:selectBooleanButton id="sshPubKeyField" 
+							onLabel="#{messages.yes}" offLabel="#{messages.no}" 
+							value="#{editServiceBean.entity.sshPubKeyCapable}"/>
+			        
 					<h:outputText value="#{messages.published}" />
 					<p:selectBooleanButton id="pubField" 
 							onLabel="#{messages.yes}" offLabel="#{messages.no}" 
