@@ -16,6 +16,7 @@ import java.util.Map;
 
 import org.primefaces.model.FilterMeta;
 import org.primefaces.model.LazyDataModel;
+import org.primefaces.model.SelectableDataModel;
 import org.primefaces.model.SortOrder;
 
 import edu.kit.scc.webreg.dao.GenericSortOrder;
@@ -24,7 +25,7 @@ import edu.kit.scc.webreg.service.BaseService;
 
 public class GenericLazyDataModelImpl<E extends BaseEntity<PK>, T extends BaseService<E, PK>, PK extends Serializable>
 		extends LazyDataModel<E>
-		implements GenericLazyDataModel<E, T, PK> {
+		implements GenericLazyDataModel<E, T, PK>, SelectableDataModel<E> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -73,10 +74,25 @@ public class GenericLazyDataModelImpl<E extends BaseEntity<PK>, T extends BaseSe
 		if (n != null)
 			setRowCount(n.intValue());
 		
-		return returnList;		
+		return returnList;
 	}
 	
 	public T getService() {
 		return service;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public E getRowData(String rowKey) {
+		Long id = Long.parseLong(rowKey);
+		if (id instanceof Serializable) {
+			return getService().findById((PK) id);
+		}
+		return null;
+	}
+
+	@Override
+	public Object getRowKey(E object) {
+		return object.getId();
 	}
 }

@@ -40,11 +40,38 @@
 				</p:tab>
 				<p:tab id="usrListPanel" title="#{messages.users}">
 					<p:dataTable id="usrs" var="user" value="#{bulkRegisterBean.userList}"
-							rowKey="#{user.eppn}" paginator="true" rows="10" lazy="true"
+							paginator="true" rows="15" lazy="true"
 							selection="#{bulkRegisterBean.insertUser}" selectionMode="multiple">
-						<p:column headerText="#{messages.eppn}">#{user.eppn}</p:column>  
-						<p:column headerText="#{messages.given_name}">#{user.givenName}</p:column>  
-						<p:column headerText="#{messages.sur_name}">#{user.surName}</p:column>  
+						<p:column sortBy="#{user.id}" style="width:36px;">
+							<f:facet name="header">
+								<h:outputText value="#{messages.id}" />
+							</f:facet>
+							<h:outputText value="#{user.id}" />
+						</p:column>
+						<p:column sortBy="#{user.surName}" filterBy="#{user.surName}" filterMatchMode="contains">
+							<f:facet name="header">
+								<h:outputText value="#{messages.sur_name}" />
+							</f:facet>
+							<h:outputText value="#{user.surName}" />
+						</p:column>			
+						<p:column sortBy="#{user.givenName}" filterBy="#{user.givenName}" filterMatchMode="contains">
+							<f:facet name="header">
+								<h:outputText value="#{messages.given_name}" />
+							</f:facet>
+							<h:outputText value="#{user.givenName}" />
+						</p:column>			
+						<p:column sortBy="#{user.eppn}" filterBy="#{user.eppn}" filterMatchMode="contains">
+							<f:facet name="header">
+								<h:outputText value="#{messages.eppn}" />
+							</f:facet>
+							<h:outputText value="#{user.eppn != null ? user.eppn : 'null'}" />
+						</p:column>
+						<p:column sortBy="#{user.userStatus}" style="width:50px;">
+							<f:facet name="header">
+								<h:outputText value="#{messages.status}" />
+							</f:facet>
+							<h:outputText value="#{user.userStatus}" />
+						</p:column>			
 							
 					</p:dataTable>
 					<p:commandButton action="#{bulkRegisterBean.insert()}" value="Auswahl in Tabelle"
