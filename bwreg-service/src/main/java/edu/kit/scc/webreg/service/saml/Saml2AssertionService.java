@@ -38,6 +38,7 @@ import org.opensaml.xmlsec.encryption.support.ChainingEncryptedKeyResolver;
 import org.opensaml.xmlsec.encryption.support.DecryptionException;
 import org.opensaml.xmlsec.encryption.support.EncryptedKeyResolver;
 import org.opensaml.xmlsec.encryption.support.InlineEncryptedKeyResolver;
+import org.opensaml.xmlsec.encryption.support.SimpleKeyInfoReferenceEncryptedKeyResolver;
 import org.opensaml.xmlsec.encryption.support.SimpleRetrievalMethodEncryptedKeyResolver;
 import org.opensaml.xmlsec.keyinfo.KeyInfoCredentialResolver;
 import org.opensaml.xmlsec.keyinfo.impl.StaticKeyInfoCredentialResolver;
@@ -241,6 +242,8 @@ public class Saml2AssertionService {
 		final List<EncryptedKeyResolver> list = new ArrayList<>();
 		list.add(new InlineEncryptedKeyResolver());
 		list.add(new EncryptedElementTypeEncryptedKeyResolver());
+		list.add(new SimpleRetrievalMethodEncryptedKeyResolver());
+		list.add(new SimpleKeyInfoReferenceEncryptedKeyResolver());
 		list.add(new SimpleRetrievalMethodEncryptedKeyResolver());
 		ChainingEncryptedKeyResolver encryptionKeyResolver = new ChainingEncryptedKeyResolver(list);
 		// At this point, we have some missing methods to get the encrypted Key out of the xml
