@@ -30,11 +30,15 @@ import org.opensaml.saml.saml2.core.EncryptedID;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.encryption.Decrypter;
+import org.opensaml.saml.saml2.encryption.EncryptedElementTypeEncryptedKeyResolver;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.security.credential.Credential;
 import org.opensaml.security.x509.BasicX509Credential;
+import org.opensaml.xmlsec.encryption.support.ChainingEncryptedKeyResolver;
 import org.opensaml.xmlsec.encryption.support.DecryptionException;
+import org.opensaml.xmlsec.encryption.support.EncryptedKeyResolver;
 import org.opensaml.xmlsec.encryption.support.InlineEncryptedKeyResolver;
+import org.opensaml.xmlsec.encryption.support.SimpleRetrievalMethodEncryptedKeyResolver;
 import org.opensaml.xmlsec.keyinfo.KeyInfoCredentialResolver;
 import org.opensaml.xmlsec.keyinfo.impl.StaticKeyInfoCredentialResolver;
 import org.slf4j.Logger;
@@ -234,7 +238,14 @@ public class Saml2AssertionService {
 		}
 		
 		KeyInfoCredentialResolver keyResolver = new StaticKeyInfoCredentialResolver(decryptCredentialList);
-		InlineEncryptedKeyResolver encryptionKeyResolver = new InlineEncryptedKeyResolver();
+		final List<EncryptedKeyResolver> list = new ArrayList<>();
+		list.add(new InlineEncryptedKeyResolver());
+		list.add(new EncryptedElementTypeEncryptedKeyResolver());
+		list.add(new SimpleRetrievalMethodEncryptedKeyResolver());
+		ChainingEncryptedKeyResolver encryptionKeyResolver = new ChainingEncryptedKeyResolver(list);
+		// At this point, we have some missing methods to get the encrypted Key out of the xml
+		// This seems to be necessary with some IDPs
+		//InlineEncryptedKeyResolver encryptionKeyResolver = new InlineEncryptedKeyResolver();
 		Decrypter decrypter = new Decrypter(null, keyResolver, encryptionKeyResolver);
 		decrypter.setRootInNewDocument(true);
 		return decrypter;
