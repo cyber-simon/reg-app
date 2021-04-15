@@ -36,12 +36,14 @@ import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.RoleService;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
 import edu.kit.scc.webreg.session.SessionManager;
+import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
 @ManagedBean
 @ViewScoped
@@ -51,7 +53,10 @@ public class IdpDebugIndexBean implements Serializable {
 
  	@Inject
  	private Logger logger;
- 	
+
+	@Inject
+	private FacesMessageGenerator messageGenerator;
+
  	@Inject
  	private SessionManager session;
  	
@@ -74,7 +79,7 @@ public class IdpDebugIndexBean implements Serializable {
  	private List<UserEntity> userList;
  	private List<SamlIdpMetadataEntity> idpList;
  	
- 	private SamlIdpMetadataEntity selectedIdp;
+ 	private UserEntity selectedUser;
  	private SamlIdpMetadataEntity idp;
 	private EntityDescriptor entityDescriptor;
 	private IDPSSODescriptor idpssoDescriptor;
@@ -82,8 +87,8 @@ public class IdpDebugIndexBean implements Serializable {
 	private Map<KeyDescriptor, List<java.security.cert.X509Certificate>> certMap;
  	
 	public void preRenderView(ComponentSystemEvent ev) {
-		if (selectedIdp == null) {
-			selectedIdp = getIdpList().get(0);
+		if (selectedUser == null) {
+			selectedUser = getUserList().get(0);
 		}
 	}
 
@@ -116,29 +121,60 @@ public class IdpDebugIndexBean implements Serializable {
 		return idpList;
 	}
 
-	public SamlIdpMetadataEntity getSelectedIdp() {
-		return selectedIdp;
-	}
-
-	public void setSelectedIdp(SamlIdpMetadataEntity selectedIdp) {
-		if (selectedIdp != null && (! selectedIdp.equals(this.selectedIdp))) {
-			idp = null;
-			this.selectedIdp = selectedIdp;
-		}
-	}
-	
 	public SamlIdpMetadataEntity getIdp() {
-		if (idp == null || (! idp.equals(getSelectedIdp()))) {
-			idp = idpService.findByIdWithAll(getSelectedIdp().getId());
-			certMap = new HashMap<KeyDescriptor, List<java.security.cert.X509Certificate>>();
-			
-			entityDescriptor = samlHelper.unmarshal(idp.getEntityDescriptor(), EntityDescriptor.class);
-			idpssoDescriptor = (IDPSSODescriptor) entityDescriptor.getRoleDescriptors(IDPSSODescriptor.DEFAULT_ELEMENT_NAME).get(0);
-			
+		if (idp == null) {
+			if (getSelectedUser() instanceof SamlUserEntity) {
+				idp = idpService.findByIdWithAll(((SamlUserEntity) getSelectedUser()).getIdp().getId());
+				certMap = new HashMap<KeyDescriptor, List<java.security.cert.X509Certificate>>();
+				entityDescriptor = samlHelper.unmarshal(idp.getEntityDescriptor(), EntityDescriptor.class);
+				idpssoDescriptor = (IDPSSODescriptor) entityDescriptor.getRoleDescriptors(IDPSSODescriptor.DEFAULT_ELEMENT_NAME).get(0);
+			}
 		}
+		else {
+			if (getSelectedUser() instanceof SamlUserEntity) {
+				SamlUserEntity samlUser = (SamlUserEntity) getSelectedUser();
+				if (! samlUser.getIdp().equals(idp)) {
+					idp = idpService.findByIdWithAll(samlUser.getIdp().getId());
+					certMap = new HashMap<KeyDescriptor, List<java.security.cert.X509Certificate>>();
+					entityDescriptor = samlHelper.unmarshal(idp.getEntityDescriptor(), EntityDescriptor.class);
+					idpssoDescriptor = (IDPSSODescriptor) entityDescriptor.getRoleDescriptors(IDPSSODescriptor.DEFAULT_ELEMENT_NAME).get(0);
+				}
+			}
+			else {
+				idp = null;
+			}
+		}
+		
 		return idp;
 	}
 
+	public void updateFromIdp() {
+		logger.info("Trying user update for {}", getSelectedUser().getEppn());
+
+		if (getSelectedUser() instanceof SamlUserEntity) {
+			try {
+				userService.updateUserFromIdp((SamlUserEntity) getSelectedUser(), "user-" + session.getIdentityId());
+				messageGenerator.addInfoMessage("Info", "SAML AttributeQuery went through without errors");
+			} catch (UserUpdateException e) {
+				logger.info("Exception while Querying IDP: {}", e.getMessage());
+				String extendedInfo = "";
+				if (e.getCause() != null) {
+					logger.info("Cause is: {}", e.getCause().getMessage());
+					extendedInfo = "<br/>Cause: " + e.getCause().getMessage();
+					if (e.getCause().getCause() != null) {
+						logger.info("Inner Cause is: {}", e.getCause().getCause().getMessage());
+						extendedInfo = "<br/>Inner Cause: " + e.getCause().getCause().getMessage();
+					}
+				}
+				messageGenerator.addErrorMessage("Problem", "Exception while Querying IDP: " + e.getMessage() + extendedInfo);
+			}
+		}
+		else {
+			logger.info("No update method available for class {}", getSelectedUser().getClass().getName());
+			messageGenerator.addErrorMessage("Problem", "No update method available for class " + getSelectedUser().getClass().getName());
+		}
+	}
+	
 	public List<java.security.cert.X509Certificate> getCert(KeyDescriptor kd) {
 		if (kd == null)
 			return null;
@@ -181,6 +217,14 @@ public class IdpDebugIndexBean implements Serializable {
 
 	public IDPSSODescriptor getIdpssoDescriptor() {
 		return idpssoDescriptor;
+	}
+
+	public UserEntity getSelectedUser() {
+		return selectedUser;
+	}
+
+	public void setSelectedUser(UserEntity selectedUser) {
+		this.selectedUser = selectedUser;
 	}
 	
 }

@@ -29,16 +29,16 @@
 
 		<h2>IDP Debug Infos</h2>
 
-        <p:selectOneMenu value="#{idpDebugIndexBean.selectedIdp}"
-        	converter="#{samlIdpMetadataConverter}">
-           	<f:selectItems value="#{idpDebugIndexBean.idpList}" 
-           		var="idp" itemLabel="#{idp.entityId}" itemValue="#{idp}"/>
+        <p:selectOneMenu value="#{idpDebugIndexBean.selectedUser}"
+        	converter="#{userConverter}">
+           	<f:selectItems value="#{idpDebugIndexBean.userList}" 
+           		var="user" itemLabel="#{user.eppn}" itemValue="#{user}"/>
            	<f:ajax render=":form:idpDetailPanel" execute="@this" />
         </p:selectOneMenu>
 
 		<p:tabView id="idpDetailPanel" dynamic="true" cache="false">
 
-			<p:tab id="tab1" title="#{messages.overview}">
+			<p:tab id="tab1" title="IDP Data">
 				<p:panelGrid id="baseData" columns="2">
 		
 			        <h:outputText value="#{messages.entity_id}:"/>
@@ -69,6 +69,21 @@
 			        </h:panelGroup>
 
 				</p:panelGrid>
+			</p:tab>
+			<p:tab id="tab2" title="Attribute Query">
+				<div style="margin-top: 16px; margin-bottom: 16px;">
+					<p:commandButton value="#{messages.attr_query}" action="#{idpDebugIndexBean.updateFromIdp()}" update="@form" />
+					<p:ajaxStatus id="ajaxStatusPanel" style="display: inline-block; margin-left: 8px; vertical-align: baseline;">
+						<f:facet name="start">  
+							<h:graphicImage value="#{resource['/img/ajax-loader.gif']}" alt="#{messages.loading}"/>
+						</f:facet>  
+						<f:facet name="complete">  
+							<h:outputText value="" />
+						</f:facet>  				
+					</p:ajaxStatus>	 
+				</div>
+
+				<p:messages id="messageBox" showDetail="true" escape="false" />
 			</p:tab>
 		</p:tabView>
 		
