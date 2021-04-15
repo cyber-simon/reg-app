@@ -86,8 +86,14 @@ public class SamlSpPostServiceImpl implements SamlSpPostService {
 			try {
 				Response samlResponse = saml2DecoderService.decodePostMessage(request);
 
+				if (logger.isTraceEnabled())
+					logger.trace("{}", samlHelper.prettyPrint(samlResponse));
+
 				assertion = saml2AssertionService.processSamlResponse(samlResponse, idpEntity, idpEntityDescriptor, spConfig);
 				
+				if (logger.isTraceEnabled())
+					logger.trace("{}", samlHelper.prettyPrint(assertion));
+								
 				persistentId = saml2AssertionService.extractPersistentId(assertion, spConfig);
 			} catch (Exception e1) {
 				/*
