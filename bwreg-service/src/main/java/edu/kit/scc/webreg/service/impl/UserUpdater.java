@@ -363,6 +363,10 @@ public class UserUpdater implements Serializable {
 			 */
 			
 			samlResponse = attrQueryHelper.query(user, idpEntity, idpEntityDescriptor, spEntity);
+
+			if (logger.isTraceEnabled())
+				logger.trace("{}", samlHelper.prettyPrint(samlResponse));
+			
 		} catch (SOAPException e) {
 			/*
 			 * This exception is thrown if the certificate chain is incomplete e.g.
