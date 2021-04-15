@@ -244,7 +244,6 @@ public class Saml2AssertionService {
 		list.add(new EncryptedElementTypeEncryptedKeyResolver());
 		list.add(new SimpleRetrievalMethodEncryptedKeyResolver());
 		list.add(new SimpleKeyInfoReferenceEncryptedKeyResolver());
-		list.add(new SimpleRetrievalMethodEncryptedKeyResolver());
 		ChainingEncryptedKeyResolver encryptionKeyResolver = new ChainingEncryptedKeyResolver(list);
 		// At this point, we have some missing methods to get the encrypted Key out of the xml
 		// This seems to be necessary with some IDPs
