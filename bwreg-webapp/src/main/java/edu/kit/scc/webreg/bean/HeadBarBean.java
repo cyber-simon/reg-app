@@ -87,7 +87,6 @@ public class HeadBarBean {
 		}
 		else {
 			return defaultString;
-		}
-		
+		}		
 	}
 }

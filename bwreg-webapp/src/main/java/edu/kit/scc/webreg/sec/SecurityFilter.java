@@ -103,6 +103,12 @@ public class SecurityFilter implements Filter {
 		
 		HttpSession httpSession = request.getSession(false);
 		
+		Boolean templated = false;
+		if (appConfig.getConfigValue(request.getServerName() + "_templated") != null &&
+				appConfig.getConfigValue(request.getServerName() + "_templated").equalsIgnoreCase("true")) {
+			templated = true;
+		}
+		
 		if (logger.isTraceEnabled())
 			logger.trace("Prechain Session is: {}", httpSession);
 		
@@ -209,7 +215,12 @@ public class SecurityFilter implements Filter {
 	    				/*
 	    				 * Normal pages are handled here
 	    				 */
-	    				chain.doFilter(servletRequest, servletResponse);
+	    				if (templated) {
+	    					request.getServletContext().getRequestDispatcher("/tpl" + path).forward(servletRequest, servletResponse);
+	    				}
+	    				else {
+		    				chain.doFilter(servletRequest, servletResponse);
+	    				}
 	    			}
 				}
 				else

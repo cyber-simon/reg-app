@@ -4,13 +4,18 @@
 		xmlns:h="http://java.sun.com/jsf/html"
 		xmlns:ui="http://java.sun.com/jsf/facelets"
 		xmlns:p="http://primefaces.org/ui"
-		
+		xmlns:c="http://java.sun.com/jstl/core"
 		>
 <head>
 	<title>Head bar</title>
 </head>
 <body>
 	<ui:composition> 
+
+  <c:if test="#{templateBean.templated eq 'true'}">
+
+  </c:if>
+  <c:if test="#{templateBean.templated ne 'true'}">
 
         <header class="page-header">
             <div class="content-wrap">
@@ -44,6 +49,8 @@
                 </div>
             </div>
         </header>
+
+  </c:if>
 
 	</ui:composition>
 </body>

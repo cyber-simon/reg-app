@@ -4,55 +4,67 @@
 		xmlns:f="http://java.sun.com/jsf/core"
 		xmlns:h="http://java.sun.com/jsf/html"
 		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:c="http://java.sun.com/jstl/core"
 		class="no-js" lang="de-de">
 
 <f:view contentType="text/html" locale="#{sessionManager.locale != null ? sessionManager.locale : ''}">
 
 <h:head>
-  
-  <ui:insert name="metadata"/>
-  
-  <f:facet name="first">
-    <meta charset="utf-8" />
-	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<meta name="theme-color" content="#009682" />
-	<meta http-equiv="cleartype" content="on" />
-    <title>#{headBarBean.headerTitle}</title>
-  </f:facet>
+  <c:if test="#{templateBean.templated eq 'true'}">
 
-  <link rel="stylesheet" href="/resources/static/jquery.fancybox.min.css" />
-  
-	<h:outputStylesheet library="webjars" name="font-awesome/5.12.0/css/all.min-jsf.css" />
-	<h:outputStylesheet library="webjars" name="font-awesome/5.12.0/css/v4-shims.min-jsf.css" />
-  
-  <link rel="stylesheet" href="#{headBarBean.overrideStdStylesheet}"/>
-  <link rel="stylesheet" href="#{headBarBean.stylesheetExtended}"/>
-  <h:panelGroup rendered="#{not empty headBarBean.stylesheet}">
-    <link rel="stylesheet" href="#{headBarBean.stylesheet}"/>
-  </h:panelGroup>
-  
+  </c:if>
+  <c:if test="#{templateBean.templated ne 'true'}">
+	  <f:facet name="first">
+	    <meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="theme-color" content="#009682" />
+		<meta http-equiv="cleartype" content="on" />
+	    <title>#{headBarBean.headerTitle}</title>
+	  </f:facet>
+	
+	  <link rel="stylesheet" href="/resources/static/jquery.fancybox.min.css" />
+	  
+		<h:outputStylesheet library="webjars" name="font-awesome/5.12.0/css/all.min-jsf.css" />
+		<h:outputStylesheet library="webjars" name="font-awesome/5.12.0/css/v4-shims.min-jsf.css" />
+	  
+	  <link rel="stylesheet" href="#{headBarBean.overrideStdStylesheet}"/>
+	  <link rel="stylesheet" href="#{headBarBean.stylesheetExtended}"/>
+	  <h:panelGroup rendered="#{not empty headBarBean.stylesheet}">
+	    <link rel="stylesheet" href="#{headBarBean.stylesheet}"/>
+	  </h:panelGroup>
+	  
+	  <script src="/resources/static/main.js"></script>
+  </c:if>
+
   <h:outputScript library="javax.faces" name="jsf.js" target="head"/>
-  
-  <script src="/resources/static/main.js"></script>
-  
 </h:head>
 <h:body class="oe-page" vocab="http://schema.org/" typeof="WebPage">
 
 	<ui:insert name="header">Default header</ui:insert>
-	
-    <main>
-	    <section class="stage stage-small"><img src="#{headBarBean.appImage}" alt="#{headBarBean.appTitle}" loading="lazy"/>
-    	    <div class="content-wrap"><a href="#{headBarBean.appLink}">#{headBarBean.appTitle}</a></div>
-        </section>
-    
-        <section class="content-wrap">
-    	    <div class="content">
-					<ui:insert name="content">Default content</ui:insert>
-			</div>
-		</section>
-	</main>
-    <button class="to-top-button" aria-label="scroll back to top"></button>   
+
+	<c:if test="#{templateBean.templated eq 'true'}">
+		<ui:insert name="content">Default content</ui:insert>
+	</c:if>
+	<c:if test="#{templateBean.templated ne 'true'}">
+	    <main>
+		    <section class="stage stage-small"><img src="#{headBarBean.appImage}" alt="#{headBarBean.appTitle}" loading="lazy"/>
+	    	    <div class="content-wrap"><a href="#{headBarBean.appLink}">#{headBarBean.appTitle}</a></div>
+	        </section>
+	    
+	        <section class="content-wrap">
+	    	    <div class="content">
+						<ui:insert name="content">Default content</ui:insert>
+				</div>
+			</section>
+		</main>
+
+	    <button class="to-top-button" aria-label="scroll back to top"></button>
+		
+		<div class="footer-meta-navigation">
+			<ui:insert name="footer">Default footer</ui:insert>
+		</div>
+    </c:if>   
 </h:body>
 
 </f:view>
