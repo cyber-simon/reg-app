@@ -2,7 +2,7 @@ package edu.kit.scc.nextcloud;
 
 import java.util.ArrayList;
 
-import javax.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElement;
 
 public class NextcloudGroups {
 
