@@ -14,11 +14,6 @@
 <body>
 	<ui:composition>
 
-	<c:if test="#{templateBean.templated eq 'true'}">
-	
-	</c:if>
-	<c:if test="#{templateBean.templated ne 'true'}">
-	
 	  <ul class="navigation-l1">
 		<h:panelGroup rendered="#{sessionManager.isLoggedIn()}">
    			<li class="flyout"><a href="#{request.contextPath}/index.xhtml">#{messages.index}</a>
@@ -196,7 +191,6 @@
 		</h:panelGroup>
 	  </ul>
 
-    </c:if>
 	</ui:composition>
 </body>
 </html>

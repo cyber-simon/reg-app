@@ -10,32 +10,27 @@
 <f:view contentType="text/html" locale="#{sessionManager.locale != null ? sessionManager.locale : ''}">
 
 <h:head>
-  <c:if test="#{templateBean.templated eq 'true'}">
+  <f:facet name="first">
+    <meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="theme-color" content="#009682" />
+	<meta http-equiv="cleartype" content="on" />
+    <title>#{headBarBean.headerTitle}</title>
+  </f:facet>
 
-  </c:if>
-  <c:if test="#{templateBean.templated ne 'true'}">
-	  <f:facet name="first">
-	    <meta charset="utf-8" />
-		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<meta name="theme-color" content="#009682" />
-		<meta http-equiv="cleartype" content="on" />
-	    <title>#{headBarBean.headerTitle}</title>
-	  </f:facet>
-	
-	  <link rel="stylesheet" href="/resources/static/jquery.fancybox.min.css" />
-	  
-		<h:outputStylesheet library="webjars" name="font-awesome/5.12.0/css/all.min-jsf.css" />
-		<h:outputStylesheet library="webjars" name="font-awesome/5.12.0/css/v4-shims.min-jsf.css" />
-	  
-	  <link rel="stylesheet" href="#{headBarBean.overrideStdStylesheet}"/>
-	  <link rel="stylesheet" href="#{headBarBean.stylesheetExtended}"/>
-	  <h:panelGroup rendered="#{not empty headBarBean.stylesheet}">
-	    <link rel="stylesheet" href="#{headBarBean.stylesheet}"/>
-	  </h:panelGroup>
-	  
-	  <script src="/resources/static/main.js"></script>
-  </c:if>
+  <link rel="stylesheet" href="/resources/static/jquery.fancybox.min.css" />
+  
+	<h:outputStylesheet library="webjars" name="font-awesome/5.12.0/css/all.min-jsf.css" />
+	<h:outputStylesheet library="webjars" name="font-awesome/5.12.0/css/v4-shims.min-jsf.css" />
+  
+  <link rel="stylesheet" href="#{headBarBean.overrideStdStylesheet}"/>
+  <link rel="stylesheet" href="#{headBarBean.stylesheetExtended}"/>
+  <h:panelGroup rendered="#{not empty headBarBean.stylesheet}">
+    <link rel="stylesheet" href="#{headBarBean.stylesheet}"/>
+  </h:panelGroup>
+  
+  <script src="/resources/static/main.js"></script>
 
   <h:outputScript library="javax.faces" name="jsf.js" target="head"/>
 </h:head>
@@ -45,6 +40,7 @@
 
 	<c:if test="#{templateBean.templated eq 'true'}">
 		<ui:insert name="content">Default content</ui:insert>
+		<ui:insert name="footer">Default footer</ui:insert>
 	</c:if>
 	<c:if test="#{templateBean.templated ne 'true'}">
 	    <main>
