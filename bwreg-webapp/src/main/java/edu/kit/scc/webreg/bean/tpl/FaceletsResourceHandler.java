@@ -33,14 +33,16 @@ public class FaceletsResourceHandler extends ResourceHandlerWrapper {
         Object o = FacesContext.getCurrentInstance().getExternalContext().getRequest();
         if (o instanceof HttpServletRequest) {
         	HttpServletRequest request = (HttpServletRequest) o;
-            logger.debug("createViewResource called on hostname: {} with name {}", request.getLocalName(), name);
+			if (logger.isTraceEnabled())
+				logger.trace("createViewResource called on hostname: {} with name {}", request.getLocalName(), name);
 
             TemplateBean tplBean = BeanHelper.findBean("templateBean");
             if (tplBean.getTemplated().equalsIgnoreCase("true") &&
             		tplBean.isTemplated(request.getLocalName() + name)) {
                 try {
 	            	URL url = new URL("tpl://" + request.getLocalName() + name);
-	            	logger.debug("This ist a templated host and template exists! changing name to {}", url);
+	    			if (logger.isTraceEnabled())
+	    				logger.trace("This ist a templated host and template exists! changing name to {}", url);
 	                resource = new ViewResource() {
 	                    @Override
 	                    public URL getURL() {

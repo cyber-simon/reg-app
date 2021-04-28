@@ -33,7 +33,9 @@ public class TemplateUrlConnection extends URLConnection {
 			
 			templateService = (VelocityTemplateService) ic.lookup("global/bwreg/bwreg-service/VelocityTemplateServiceImpl!edu.kit.scc.webreg.service.tpl.VelocityTemplateService");
 
-			logger.debug("Looking up template for url {}", url);
+			if (logger.isTraceEnabled())
+				logger.trace("Looking up template for url {}", url);
+			
 			tpl = templateService.findByName(url.getHost() + url.getPath());
 			connected = true;
 		} catch (NamingException e) {
