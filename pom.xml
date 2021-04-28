@@ -27,15 +27,28 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>javax</groupId>
-				<artifactId>javaee-api</artifactId>
-				<version>6.0</version>
+				<groupId>org.wildfly.bom</groupId>
+    			<artifactId>wildfly-javaee8-with-tools</artifactId>
+    			<version>17.0.1.Final</version>
+    			<type>pom</type>
+				<scope>import</scope>
+				<optional>false</optional>
 			</dependency>
 			<dependency>
-				<groupId>org.hibernate</groupId>
-				<artifactId>hibernate-core</artifactId>
-				<version>4.0.1.Final</version>
+				<groupId>javax</groupId>
+				<artifactId>javaee-api</artifactId>
+				<version>8.0</version>
 			</dependency>
+			<dependency>
+				<groupId>jakarta.xml.bind</groupId>
+				<artifactId>jakarta.xml.bind-api</artifactId>
+				<version>3.0.0</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sun.xml.bind</groupId>
+				<artifactId>jaxb-impl</artifactId>
+				<version>3.0.0</version>
+			</dependency>			
 			<dependency>
 				<groupId>org.opensaml</groupId>
 				<artifactId>opensaml-saml-api</artifactId>

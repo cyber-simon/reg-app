@@ -10,6 +10,9 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.bootstrap;
 
+import java.lang.reflect.Field;
+import java.net.URL;
+import java.net.URLStreamHandlerFactory;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -39,6 +42,7 @@ import edu.kit.scc.webreg.service.impl.HookManager;
 import edu.kit.scc.webreg.service.mail.TemplateRenderer;
 import edu.kit.scc.webreg.service.timer.ClusterSchedulerManager;
 import edu.kit.scc.webreg.service.timer.StandardScheduler;
+import edu.kit.scc.webreg.service.tpl.TemplateUrlStreamHandlerFactory;
 
 @Singleton
 @Startup
@@ -88,6 +92,9 @@ public class ApplicationBootstrap {
 		
 		logger.info("Initializing Application Configuration");
 		appConfig.init();
+		
+		logger.info("Register Template URL Stream handler");
+		registerUrlHandler();
 		
 		logger.info("Initializing Serials");
 		checkSerial("uid-number-serial", 900000L);
@@ -154,6 +161,24 @@ public class ApplicationBootstrap {
         
         standardScheduler.initialize();
         clusterSchedulerManager.initialize();
+        
+	}
+
+	private void registerUrlHandler() {
+		try {
+			final Field factoryField = URL.class.getDeclaredField("factory");
+			factoryField.setAccessible(true);
+			final Field lockField = URL.class.getDeclaredField("streamHandlerLock");
+			lockField.setAccessible(true);
+
+			synchronized (lockField.get(null)) {
+				final URLStreamHandlerFactory urlStreamHandlerFactory = (URLStreamHandlerFactory) factoryField.get(null);
+				factoryField.set(null, null);
+				URL.setURLStreamHandlerFactory(new TemplateUrlStreamHandlerFactory(urlStreamHandlerFactory));
+			}
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			logger.warn("Could not register Template URL Stream Handler");
+		}
 	}
 	
     private void checkGroup(String name, Integer createActual) {

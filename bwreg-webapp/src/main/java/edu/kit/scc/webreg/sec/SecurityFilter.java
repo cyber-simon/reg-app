@@ -206,9 +206,6 @@ public class SecurityFilter implements Filter {
 
 	    			}
 	    			else {
-	    				/*
-	    				 * Normal pages are handled here
-	    				 */
 	    				chain.doFilter(servletRequest, servletResponse);
 	    			}
 				}

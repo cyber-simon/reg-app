@@ -4,14 +4,12 @@
 		xmlns:f="http://java.sun.com/jsf/core"
 		xmlns:h="http://java.sun.com/jsf/html"
 		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:c="http://java.sun.com/jstl/core"
 		class="no-js" lang="de-de">
 
 <f:view contentType="text/html" locale="#{sessionManager.locale != null ? sessionManager.locale : ''}">
 
 <h:head>
-  
-  <ui:insert name="metadata"/>
-  
   <f:facet name="first">
     <meta charset="utf-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -32,15 +30,14 @@
     <link rel="stylesheet" href="#{headBarBean.stylesheet}"/>
   </h:panelGroup>
   
-  <h:outputScript library="javax.faces" name="jsf.js" target="head"/>
-  
   <script src="/resources/static/main.js"></script>
-  
+
+  <h:outputScript library="javax.faces" name="jsf.js" target="head"/>
 </h:head>
 <h:body class="oe-page" vocab="http://schema.org/" typeof="WebPage">
 
 	<ui:insert name="header">Default header</ui:insert>
-	
+
     <main>
 	    <section class="stage stage-small"><img src="#{headBarBean.appImage}" alt="#{headBarBean.appTitle}" loading="lazy"/>
     	    <div class="content-wrap"><a href="#{headBarBean.appLink}">#{headBarBean.appTitle}</a></div>
@@ -52,7 +49,12 @@
 			</div>
 		</section>
 	</main>
-    <button class="to-top-button" aria-label="scroll back to top"></button>   
+
+    <button class="to-top-button" aria-label="scroll back to top"></button>
+	
+	<div class="footer-meta-navigation">
+		<ui:insert name="footer">Default footer</ui:insert>
+	</div>
 </h:body>
 
 </f:view>
