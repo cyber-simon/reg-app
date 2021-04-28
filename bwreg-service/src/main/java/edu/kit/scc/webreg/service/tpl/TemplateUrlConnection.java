@@ -1,5 +1,6 @@
 package edu.kit.scc.webreg.service.tpl;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -18,7 +19,9 @@ public class TemplateUrlConnection extends URLConnection {
 	private static final Logger logger = LoggerFactory.getLogger(TemplateUrlConnection.class);
 	
 	private VelocityTemplateService templateService;
-
+	
+	private VelocityTemplateEntity tpl;
+	
 	protected TemplateUrlConnection(URL url) {
 		super(url);
 	}
@@ -29,6 +32,10 @@ public class TemplateUrlConnection extends URLConnection {
 			InitialContext ic = new InitialContext();
 			
 			templateService = (VelocityTemplateService) ic.lookup("global/bwreg/bwreg-service/VelocityTemplateServiceImpl!edu.kit.scc.webreg.service.tpl.VelocityTemplateService");
+
+			logger.debug("Looking up template for url {}", url);
+			tpl = templateService.findByName(url.getHost() + url.getPath());
+			connected = true;
 		} catch (NamingException e) {
 			logger.warn("Could not load velocity template service: {}", e);
 		}
@@ -40,12 +47,26 @@ public class TemplateUrlConnection extends URLConnection {
 			connect();
 		}
 		
-		logger.debug("Looking up template for url {}", url);
-		VelocityTemplateEntity tpl = templateService.findByName(url.getHost() + url.getPath());
-		
 		if (tpl == null) {
 			throw new IOException("Template not found!");
 		}
-		return super.getInputStream();
+		return new ByteArrayInputStream(tpl.getTemplate().getBytes("UTF-8"));
+	}
+
+	@Override
+	public long getLastModified() {
+		if (! connected) {
+			try {
+				connect();
+			} catch (IOException e) {
+				return -1L;
+			}
+		}
+		
+		if (tpl == null) {
+			return -1L;
+		}
+		
+		return tpl.getUpdatedAt().getTime();
 	}
 }
