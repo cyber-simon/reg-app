@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.service.reg.impl;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -696,7 +697,7 @@ public class Registrator implements Serializable {
 	
 	public RegisterUserWorkflow getWorkflowInstance(String className) {
 		try {
-			Object o = Class.forName(className).newInstance();
+			Object o = Class.forName(className).getConstructor().newInstance();
 			if (o instanceof RegisterUserWorkflow) {
 				if (o instanceof ScriptingWorkflow)
 					((ScriptingWorkflow) o).setScriptingEnv(scriptingEnv);
@@ -707,13 +708,7 @@ public class Registrator implements Serializable {
 				logger.warn("Service Register bean misconfigured, Object not Type RegisterUserWorkflow but: {}", o.getClass());
 				return null;
 			}
-		} catch (InstantiationException e) {
-			logger.warn("Service Register bean misconfigured: {}", e.getMessage());
-			return null;
-		} catch (IllegalAccessException e) {
-			logger.warn("Service Register bean misconfigured: {}", e.getMessage());
-			return null;
-		} catch (ClassNotFoundException e) {
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException e) {
 			logger.warn("Service Register bean misconfigured: {}", e.getMessage());
 			return null;
 		}

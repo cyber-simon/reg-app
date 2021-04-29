@@ -1,6 +1,7 @@
 package edu.kit.scc.webreg.dto.service;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,10 +21,8 @@ public abstract class BaseDtoServiceImpl<T extends BaseEntity<PK>, E extends Bas
 	@Override
 	public E createNewDto() {
 		try {
-			return getMapper().getEntityDtoClass().newInstance();
-		} catch (InstantiationException e) {
-			return null;
-		} catch (IllegalAccessException e) {
+			return getMapper().getEntityDtoClass().getConstructor().newInstance();
+		} catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
 			return null;
 		}
 	}

@@ -1,5 +1,6 @@
 package edu.kit.scc.webreg.service.reg.impl;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 
 import javax.ejb.Stateless;
@@ -116,20 +117,14 @@ public class AttributeSourceQueryServiceImpl implements AttributeSourceQueryServ
 	
 	public AttributeSourceWorkflow getWorkflowInstance(String className) {
 		try {
-			Object o = Class.forName(className).newInstance();
+			Object o = Class.forName(className).getConstructor().newInstance();
 			if (o instanceof AttributeSourceWorkflow)
 				return (AttributeSourceWorkflow) o;
 			else {
 				logger.warn("AttributeSourceWorkflow bean misconfigured, Object not Type AttributeSourceWorkflow but: {}", o.getClass());
 				return null;
 			}
-		} catch (InstantiationException e) {
-			logger.warn("AttributeSourceWorkflow bean misconfigured: {}", e.getMessage());
-			return null;
-		} catch (IllegalAccessException e) {
-			logger.warn("AttributeSourceWorkflow bean misconfigured: {}", e.getMessage());
-			return null;
-		} catch (ClassNotFoundException e) {
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException e) {
 			logger.warn("AttributeSourceWorkflow bean misconfigured: {}", e.getMessage());
 			return null;
 		}

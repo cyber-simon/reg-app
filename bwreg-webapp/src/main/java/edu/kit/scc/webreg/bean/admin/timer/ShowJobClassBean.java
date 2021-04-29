@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.bean.admin.timer;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.enterprise.context.RequestScoped;
 import javax.faces.event.ComponentSystemEvent;
@@ -52,7 +53,7 @@ public class ShowJobClassBean implements Serializable {
 		logger.debug("Directly invoking: {} [{}]", entity.getName(), entity.getJobClassName());
 
 		try {
-			Object o = Class.forName(entity.getJobClassName()).newInstance();
+			Object o = Class.forName(entity.getJobClassName()).getConstructor().newInstance();
 			if (o instanceof ExecutableJob) {
 				ExecutableJob job = (ExecutableJob) o;
 				job.setJobStore(entity.getJobStore());
@@ -61,14 +62,9 @@ public class ShowJobClassBean implements Serializable {
 			else {
 				logger.warn("Could not execute job {} ({}): not instance of ExecutableJob", entity.getName(), entity.getJobClassName());
 			}
-		} catch (InstantiationException e) {
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException e) {
 			logger.warn("Could not execute job {} ({}): {}",  entity.getName(), entity.getJobClassName(), e.toString());
-		} catch (IllegalAccessException e) {
-			logger.warn("Could not execute job {} ({}): {}",  entity.getName(), entity.getJobClassName(), e.toString());
-		} catch (ClassNotFoundException e) {
-			logger.warn("Could not execute job {} ({}): {}",  entity.getName(), entity.getJobClassName(), e.toString());
-		}
-		
+		} 
 	}
 	
 	public JobClassEntity getEntity() {

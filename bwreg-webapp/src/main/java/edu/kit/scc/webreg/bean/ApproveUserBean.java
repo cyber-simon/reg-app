@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.bean;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.inject.Named;
 import javax.faces.view.ViewScoped;
@@ -118,20 +119,14 @@ public class ApproveUserBean implements Serializable {
 	
 	private ApproverRoleApprovalWorkflow getApprovalWorkflowInstance(String className) {
 		try {
-			Object o = Class.forName(className).newInstance();
+			Object o = Class.forName(className).getConstructor().newInstance();
 			if (o instanceof ApproverRoleApprovalWorkflow)
 				return (ApproverRoleApprovalWorkflow) o;
 			else {
 				logger.warn("Service Register bean misconfigured, Object not Type ApprovalWorkflow but: {}", o.getClass());
 				return null;
 			}
-		} catch (InstantiationException e) {
-			logger.warn("Service Register bean misconfigured: {}", e.getMessage());
-			return null;
-		} catch (IllegalAccessException e) {
-			logger.warn("Service Register bean misconfigured: {}", e.getMessage());
-			return null;
-		} catch (ClassNotFoundException e) {
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException e) {
 			logger.warn("Service Register bean misconfigured: {}", e.getMessage());
 			return null;
 		}

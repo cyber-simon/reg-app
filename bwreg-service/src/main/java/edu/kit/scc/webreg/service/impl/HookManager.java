@@ -10,6 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.impl;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -59,16 +60,12 @@ public class HookManager {
 				hook = hook.trim();
 				try {
 					logger.debug("installing hook {}", hook);
-					UserServiceHook h = (UserServiceHook) Class.forName(hook).newInstance();
+					UserServiceHook h = (UserServiceHook) Class.forName(hook).getConstructor().newInstance();
 					h.setAppConfig(appConfig);
 					newUserHooks.add(h);
-				} catch (InstantiationException e) {
+				} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException e) {
 					logger.warn("Could not spawn hook " + hook, e);
-				} catch (IllegalAccessException e) {
-					logger.warn("Could not spawn hook " + hook, e);
-				} catch (ClassNotFoundException e) {
-					logger.warn("Could not spawn hook " + hook, e);
-				}
+				} 
 			}
 		}
 		
@@ -86,16 +83,12 @@ public class HookManager {
 				hook = hook.trim();
 				try {
 					logger.debug("installing hook {}", hook);
-					GroupServiceHook h = (GroupServiceHook) Class.forName(hook).newInstance();
+					GroupServiceHook h = (GroupServiceHook) Class.forName(hook).getConstructor().newInstance();
 					h.setAppConfig(appConfig);
 					newGroupHooks.add(h);
-				} catch (InstantiationException e) {
+				} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException e) {
 					logger.warn("Could not spawn hook " + hook, e);
-				} catch (IllegalAccessException e) {
-					logger.warn("Could not spawn hook " + hook, e);
-				} catch (ClassNotFoundException e) {
-					logger.warn("Could not spawn hook " + hook, e);
-				}
+				} 
 			}
 		}
 		

@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.event;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,7 +60,7 @@ public class EventSubmitterImpl implements EventSubmitter {
 		for (EventEntity eventEntity : eventList) {
 			if (eventType.equals(eventEntity.getEventType())) {
 				try {
-					Object o = Class.forName(eventEntity.getJobClass().getJobClassName()).newInstance();
+					Object o = Class.forName(eventEntity.getJobClass().getJobClassName()).getConstructor().newInstance();
 					if (o instanceof EventExecutor<?, ?>) {
 						
 						@SuppressWarnings("unchecked")
@@ -84,16 +85,10 @@ public class EventSubmitterImpl implements EventSubmitter {
 						logger.warn("Could not execute job {} ({}): not instance of EventExecutor", 
 								eventEntity.getJobClass().getName(), eventEntity.getJobClass().getJobClassName());
 					}
-				} catch (InstantiationException e) {
+				} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException e) {
 					logger.warn("Failed spawning event executor", e);
 					throw new EventSubmitException("Failed spawning event executor", e);
-				} catch (IllegalAccessException e) {
-					logger.warn("Failed spawning event executor", e);
-					throw new EventSubmitException("Failed spawning event executor", e);
-				} catch (ClassNotFoundException e) {
-					logger.warn("Failed spawning event executor", e);
-					throw new EventSubmitException("Failed spawning event executor", e);
-				}
+				} 
 			}
 		}
 		

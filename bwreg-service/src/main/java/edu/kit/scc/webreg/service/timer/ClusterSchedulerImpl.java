@@ -10,6 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.timer;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 import java.util.List;
 
@@ -94,7 +95,7 @@ public class ClusterSchedulerImpl implements ClusterScheduler {
 		logger.debug("----ClusterScheduler invokes: {} [{}]", jobClass.getName(), jobClass.getJobClassName());
 
 		try {
-			Object o = Class.forName(jobClass.getJobClassName()).newInstance();
+			Object o = Class.forName(jobClass.getJobClassName()).getConstructor().newInstance();
 			if (o instanceof ExecutableJob) {
 				ExecutableJob job = (ExecutableJob) o;
 				job.setJobStore(jobClass.getJobStore());
@@ -103,13 +104,9 @@ public class ClusterSchedulerImpl implements ClusterScheduler {
 			else {
 				logger.warn("Could not execute job {} ({}): not instance of ExecutableJob", jobClass.getName(), jobClass.getJobClassName());
 			}
-		} catch (InstantiationException e) {
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException e) {
 			logger.warn("Could not execute job {} ({}): {}",  jobClass.getName(), jobClass.getJobClassName(), e.toString());
-		} catch (IllegalAccessException e) {
-			logger.warn("Could not execute job {} ({}): {}",  jobClass.getName(), jobClass.getJobClassName(), e.toString());
-		} catch (ClassNotFoundException e) {
-			logger.warn("Could not execute job {} ({}): {}",  jobClass.getName(), jobClass.getJobClassName(), e.toString());
-		}
+		} 
 	}
 
     @Override

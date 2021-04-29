@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.dao.jpa;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -53,10 +54,8 @@ public abstract class JpaBaseDao<T extends BaseEntity<PK>, PK extends Serializab
 	@Override
 	public T createNew() {
 		try {
-			return getEntityClass().newInstance();
-		} catch (InstantiationException e) {
-			return null;
-		} catch (IllegalAccessException e) {
+			return getEntityClass().getConstructor().newInstance();
+		} catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
 			return null;
 		}
 	}
