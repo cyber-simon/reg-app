@@ -139,6 +139,14 @@ public class ViewIds {
 	public static final String SHOW_ATTRIBUTE_SOURCE = "/admin/as/show-attribute-source.xhtml";	
 	
 	/*
+	 * Page Templates
+	 */
+	public static final String LIST_PAGE_TEMPLATES = "/admin/tpl/index.xhtml";	
+	public static final String ADD_PAGE_TEMPLATE = "/admin/tpl/add-template.xhtml";	
+	public static final String SHOW_PAGE_TEMPLATE = "/admin/tpl/show-template.xhtml";	
+	public static final String EDIT_PAGE_TEMPLATE = "/admin/tpl/edit-template.xhtml";	
+	
+	/*
 	 * Public 
 	 */
 	public static final String IMAGE_GALLERY = "/admin/image-gallery.xhtml";	
