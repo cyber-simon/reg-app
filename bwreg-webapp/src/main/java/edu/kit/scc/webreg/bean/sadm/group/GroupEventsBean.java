@@ -13,8 +13,8 @@ package edu.kit.scc.webreg.bean.sadm.group;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import javax.inject.Named;
+import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
@@ -24,7 +24,7 @@ import edu.kit.scc.webreg.entity.JobClassEntity;
 import edu.kit.scc.webreg.service.GroupEventService;
 import edu.kit.scc.webreg.service.JobClassService;
 
-@ManagedBean
+@Named
 @ViewScoped
 public class GroupEventsBean implements Serializable {
 

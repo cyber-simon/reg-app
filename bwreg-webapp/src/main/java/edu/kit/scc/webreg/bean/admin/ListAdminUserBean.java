@@ -12,8 +12,8 @@ package edu.kit.scc.webreg.bean.admin;
 
 import java.io.Serializable;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import javax.inject.Named;
+import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
@@ -23,7 +23,7 @@ import edu.kit.scc.webreg.entity.AdminUserEntity;
 import edu.kit.scc.webreg.model.GenericLazyDataModelImpl;
 import edu.kit.scc.webreg.service.AdminUserService;
 
-@ManagedBean
+@Named
 @ViewScoped
 public class ListAdminUserBean implements Serializable {
 

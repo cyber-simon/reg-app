@@ -13,8 +13,8 @@ package edu.kit.scc.webreg.bean.sadm.group;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import javax.inject.Named;
+import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
@@ -25,7 +25,7 @@ import edu.kit.scc.webreg.sec.AuthorizationBean;
 import edu.kit.scc.webreg.service.ServiceGroupFlagService;
 import edu.kit.scc.webreg.service.ServiceService;
 
-@ManagedBean
+@Named
 @ViewScoped
 public class GroupAdminListGroupsBean implements Serializable {
 

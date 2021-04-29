@@ -13,8 +13,8 @@ package edu.kit.scc.webreg.bean.admin.saml;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import javax.inject.Named;
+import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
@@ -27,7 +27,7 @@ import edu.kit.scc.webreg.service.SamlAAMetadataService;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.SamlSpMetadataService;
 
-@ManagedBean
+@Named
 @ViewScoped
 public class ShowFederationBean implements Serializable {
 

@@ -13,10 +13,10 @@ package edu.kit.scc.webreg.bean;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
@@ -38,7 +38,7 @@ import edu.kit.scc.webreg.service.ssh.SshPubKeyService;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
-@ManagedBean
+@Named
 @ViewScoped
 public class SetServiceSshPubKeyBean implements Serializable {
 

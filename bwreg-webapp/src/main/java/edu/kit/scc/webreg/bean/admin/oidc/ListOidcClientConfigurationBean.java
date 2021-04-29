@@ -13,8 +13,8 @@ package edu.kit.scc.webreg.bean.admin.oidc;
 import java.io.Serializable;
 
 import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import javax.inject.Named;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 
 import org.primefaces.model.LazyDataModel;
@@ -23,7 +23,7 @@ import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
 import edu.kit.scc.webreg.model.GenericLazyDataModelImpl;
 import edu.kit.scc.webreg.service.oidc.OidcClientConfigurationService;
 
-@ManagedBean
+@Named
 @ViewScoped
 public class ListOidcClientConfigurationBean implements Serializable {
 

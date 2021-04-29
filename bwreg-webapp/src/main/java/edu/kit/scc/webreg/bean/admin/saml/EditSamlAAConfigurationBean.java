@@ -14,15 +14,15 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import javax.inject.Named;
+import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
 import edu.kit.scc.webreg.entity.SamlAAConfigurationEntity;
 import edu.kit.scc.webreg.service.SamlAAConfigurationService;
 
-@ManagedBean
+@Named
 @ViewScoped
 public class EditSamlAAConfigurationBean implements Serializable {
 

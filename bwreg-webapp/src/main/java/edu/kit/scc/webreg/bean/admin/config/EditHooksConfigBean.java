@@ -13,8 +13,8 @@ package edu.kit.scc.webreg.bean.admin.config;
 import java.io.Serializable;
 import java.util.Set;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import javax.inject.Named;
+import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
@@ -24,7 +24,7 @@ import edu.kit.scc.webreg.service.UserServiceHook;
 import edu.kit.scc.webreg.service.impl.HookManager;
 import edu.kit.scc.webreg.util.ViewIds;
 
-@ManagedBean
+@Named
 @ViewScoped
 public class EditHooksConfigBean implements Serializable {
 

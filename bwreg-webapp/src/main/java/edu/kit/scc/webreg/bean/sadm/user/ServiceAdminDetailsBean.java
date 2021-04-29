@@ -12,8 +12,8 @@ package edu.kit.scc.webreg.bean.sadm.user;
 
 import java.io.Serializable;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import javax.inject.Named;
+import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
@@ -24,7 +24,7 @@ import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.util.BBCodeConverter;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
-@ManagedBean
+@Named
 @ViewScoped
 public class ServiceAdminDetailsBean implements Serializable {
 

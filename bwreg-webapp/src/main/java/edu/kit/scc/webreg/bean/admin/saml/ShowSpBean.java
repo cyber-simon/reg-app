@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.enterprise.context.RequestScoped;
-import javax.faces.bean.ManagedBean;
+import javax.inject.Named;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
@@ -36,7 +36,7 @@ import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 import edu.kit.scc.webreg.service.SamlSpMetadataService;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
 
-@ManagedBean
+@Named
 @RequestScoped
 public class ShowSpBean implements Serializable {
 

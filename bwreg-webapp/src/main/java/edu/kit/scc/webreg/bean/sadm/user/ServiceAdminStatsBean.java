@@ -14,8 +14,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import javax.inject.Named;
+import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
@@ -31,7 +31,7 @@ import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.StatisticsService;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
-@ManagedBean
+@Named
 @ViewScoped
 public class ServiceAdminStatsBean implements Serializable {
 

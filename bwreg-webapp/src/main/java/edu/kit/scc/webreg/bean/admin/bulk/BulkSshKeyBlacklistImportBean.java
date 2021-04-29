@@ -13,8 +13,8 @@ package edu.kit.scc.webreg.bean.admin.bulk;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import javax.inject.Named;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -26,7 +26,7 @@ import edu.kit.scc.webreg.ssh.OpenSshKeyDecoder;
 import edu.kit.scc.webreg.ssh.OpenSshPublicKey;
 import edu.kit.scc.webreg.ssh.UnsupportedKeyTypeException;
 
-@ManagedBean
+@Named
 @ViewScoped
 public class BulkSshKeyBlacklistImportBean implements Serializable {
 

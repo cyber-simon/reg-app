@@ -15,8 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import javax.inject.Named;
+import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
@@ -35,7 +35,7 @@ import edu.kit.scc.webreg.service.twofa.linotp.LinotpTokenResultList;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
-@ManagedBean
+@Named
 @ViewScoped
 public class TokenAdminIndexBean implements Serializable {
 

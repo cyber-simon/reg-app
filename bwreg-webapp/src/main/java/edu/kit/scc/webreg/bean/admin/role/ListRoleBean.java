@@ -12,8 +12,8 @@ package edu.kit.scc.webreg.bean.admin.role;
 
 import java.io.Serializable;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import javax.inject.Named;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 
 import org.primefaces.model.LazyDataModel;
@@ -22,7 +22,7 @@ import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.model.GenericLazyDataModelImpl;
 import edu.kit.scc.webreg.service.RoleService;
 
-@ManagedBean
+@Named
 @ViewScoped
 public class ListRoleBean implements Serializable {
 

@@ -14,8 +14,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import javax.inject.Named;
+import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
@@ -23,7 +23,7 @@ import edu.kit.scc.webreg.entity.JobClassEntity;
 import edu.kit.scc.webreg.service.JobClassService;
 import edu.kit.scc.webreg.util.ViewIds;
 
-@ManagedBean
+@Named
 @ViewScoped
 public class EditJobClassBean implements Serializable {
 

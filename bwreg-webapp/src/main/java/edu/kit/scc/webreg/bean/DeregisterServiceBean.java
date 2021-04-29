@@ -12,8 +12,8 @@ package edu.kit.scc.webreg.bean;
 
 import java.io.Serializable;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import javax.inject.Named;
+import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
@@ -33,7 +33,7 @@ import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.BBCodeConverter;
 import edu.kit.scc.webreg.util.ViewIds;
 
-@ManagedBean
+@Named
 @ViewScoped
 public class DeregisterServiceBean implements Serializable {
 

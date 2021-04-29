@@ -12,8 +12,8 @@ package edu.kit.scc.webreg.bean.admin.as;
 
 import java.io.Serializable;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import javax.inject.Named;
+import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
@@ -26,7 +26,7 @@ import edu.kit.scc.webreg.service.AttributeSourceService;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.reg.AttributeSourceQueryService;
 
-@ManagedBean
+@Named
 @ViewScoped
 public class ShowAttributeSourceBean implements Serializable {
 

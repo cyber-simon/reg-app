@@ -14,8 +14,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import javax.inject.Named;
+import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
@@ -29,7 +29,7 @@ import edu.kit.scc.webreg.sec.AuthorizationBean;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.ServiceService;
 
-@ManagedBean
+@Named
 @ViewScoped
 public class ApprovalListBean implements Serializable {
 

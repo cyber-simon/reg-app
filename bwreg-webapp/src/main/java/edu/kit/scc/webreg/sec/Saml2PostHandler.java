@@ -12,7 +12,7 @@ package edu.kit.scc.webreg.sec;
 
 import java.io.IOException;
 
-import javax.faces.bean.ApplicationScoped;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;

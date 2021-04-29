@@ -14,8 +14,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.time.Instant;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import javax.inject.Named;
+import javax.faces.view.ViewScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ComponentSystemEvent;
@@ -36,7 +36,7 @@ import edu.kit.scc.webreg.service.twofa.linotp.LinotpTokenResultList;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
-@ManagedBean
+@Named
 @ViewScoped
 public class TwoFaLoginBean implements Serializable {
 
