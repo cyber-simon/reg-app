@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dto.entity.ferest.IdpEntityDto;
 import edu.kit.scc.webreg.dto.service.ferest.IdpDtoService;
-import net.minidev.json.JSONObject;
 
 @Path("/idp-list")
 public class IdpListController {

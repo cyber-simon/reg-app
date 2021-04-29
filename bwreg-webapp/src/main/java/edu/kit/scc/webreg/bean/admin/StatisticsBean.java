@@ -21,7 +21,6 @@ import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
 import org.primefaces.model.chart.AxisType;
-import org.primefaces.model.chart.CategoryAxis;
 import org.primefaces.model.chart.ChartSeries;
 import org.primefaces.model.chart.DateAxis;
 import org.primefaces.model.chart.LineChartModel;

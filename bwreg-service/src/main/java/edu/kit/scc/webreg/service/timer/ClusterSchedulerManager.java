@@ -10,8 +10,6 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.timer;
 
-import edu.kit.scc.webreg.dao.ClusterMemberDao;
-
 public interface ClusterSchedulerManager {
 
 	void initialize();

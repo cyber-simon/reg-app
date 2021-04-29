@@ -15,7 +15,6 @@ import java.util.List;
 import edu.kit.scc.webreg.entity.FederationEntity;
 import edu.kit.scc.webreg.entity.SamlAAMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlMetadataEntityStatus;
-import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 
 public interface SamlAAMetadataDao extends BaseDao<SamlAAMetadataEntity, Long> {
 

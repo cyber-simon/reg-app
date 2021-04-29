@@ -10,7 +10,6 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.bean;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,8 +18,6 @@ import java.util.Map;
 
 import javax.inject.Named;
 import javax.faces.view.ViewScoped;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 

@@ -11,13 +11,9 @@
 package edu.kit.scc.webreg.bean.project;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import javax.inject.Named;
 import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
@@ -27,12 +23,9 @@ import org.primefaces.model.LazyDataModel;
 
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
-import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
-import edu.kit.scc.webreg.entity.project.ProjectAdminRoleEntity;
 import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
-import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
 import edu.kit.scc.webreg.model.GenericLazyDataModelImpl;

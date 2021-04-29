@@ -8,14 +8,12 @@ import java.util.Set;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.ServiceGroupFlagDao;
 import edu.kit.scc.webreg.dao.identity.IdentityDao;
-import edu.kit.scc.webreg.dao.project.LocalProjectDao;
 import edu.kit.scc.webreg.dao.project.LocalProjectGroupDao;
 import edu.kit.scc.webreg.dao.project.ProjectDao;
 import edu.kit.scc.webreg.entity.EventType;
@@ -27,7 +25,6 @@ import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
-import edu.kit.scc.webreg.entity.project.LocalProjectGroupEntity;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipType;

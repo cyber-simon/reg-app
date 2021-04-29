@@ -19,7 +19,6 @@ import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
-import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;

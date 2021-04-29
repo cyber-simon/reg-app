@@ -11,15 +11,12 @@
 package edu.kit.scc.webreg.dao.jpa;
 
 import java.util.Date;
-import java.util.List;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 import javax.persistence.NoResultException;
 
 import edu.kit.scc.webreg.dao.ApplicationConfigDao;
 import edu.kit.scc.webreg.entity.ApplicationConfigEntity;
-import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 
 @Named
 @ApplicationScoped

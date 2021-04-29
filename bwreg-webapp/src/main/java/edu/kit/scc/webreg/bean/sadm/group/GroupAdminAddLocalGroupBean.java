@@ -11,18 +11,13 @@
 package edu.kit.scc.webreg.bean.sadm.group;
 
 import java.io.Serializable;
-import java.util.HashSet;
-
 import javax.inject.Named;
 import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
 import edu.kit.scc.webreg.entity.LocalGroupEntity;
-import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
-import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
-import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
 import edu.kit.scc.webreg.sec.AuthorizationBean;
 import edu.kit.scc.webreg.service.LocalGroupService;

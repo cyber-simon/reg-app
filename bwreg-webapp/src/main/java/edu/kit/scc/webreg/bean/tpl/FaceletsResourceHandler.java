@@ -1,10 +1,8 @@
 package edu.kit.scc.webreg.bean.tpl;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import javax.faces.FacesException;
 import javax.faces.application.ResourceHandler;
 import javax.faces.application.ResourceHandlerWrapper;
 import javax.faces.application.ViewResource;

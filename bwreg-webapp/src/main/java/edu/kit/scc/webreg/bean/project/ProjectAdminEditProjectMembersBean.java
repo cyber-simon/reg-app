@@ -11,7 +11,6 @@
 package edu.kit.scc.webreg.bean.project;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;

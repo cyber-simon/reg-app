@@ -16,8 +16,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-
 import javax.inject.Named;
 import javax.faces.view.ViewScoped;
 import javax.faces.context.ExternalContext;
@@ -30,13 +28,9 @@ import org.slf4j.Logger;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
-import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
-import edu.kit.scc.webreg.entity.SamlUserEntity;
-import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
-import edu.kit.scc.webreg.service.UserCreateService;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.oidc.OidcRpConfigurationService;
 import edu.kit.scc.webreg.service.oidc.client.OidcTokenHelper;
