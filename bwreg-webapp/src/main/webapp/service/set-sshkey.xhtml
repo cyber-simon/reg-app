@@ -140,12 +140,23 @@
 								<h:outputText value="#{messages.ssh_pub_key_usage_command_help}" />
 							</div>
 							<p:panelGrid columns="2">
-								<p:outputLabel for="@next" value="#{messages.command}" />
-								<p:inputText value="#{setServiceSshPubKeyBean.newCommand}" />
+								<p:outputLabel for="newCommandInput" value="#{messages.command}" />
+							    <h:panelGroup>
+								    <p:inputText id="newCommandInput" size="50" value="#{setServiceSshPubKeyBean.newCommand}" required="true">
+								        <f:ajax event="blur" execute="@this" render="newCommandInput-message" />
+								    </p:inputText>
+								    <p:message id="newCommandInput-message" for="newCommandInput" />
+								</h:panelGroup>
 							
-								<p:outputLabel for="@next" value="#{messages.ssh_pub_key_from}" />
-								<p:inputText value="#{setServiceSshPubKeyBean.newFrom}" />
+								<p:outputLabel for="newFromInput" value="#{messages.ssh_pub_key_from}" />
+							    <h:panelGroup>
+								    <p:inputText id="newFromInput" size="50" value="#{setServiceSshPubKeyBean.newFrom}" required="true">
+								        <f:ajax event="blur" execute="@this" render="newFromInput-message" />
+								    </p:inputText>
+								    <p:message id="newFromInput-message" for="newFromInput" />
+								</h:panelGroup>
 							</p:panelGrid>
+							<h:outputText value="* #{messages.required}" />
 						</h:panelGroup>
 					</p:panel>
 
