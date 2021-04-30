@@ -53,6 +53,12 @@ public class SamlMetadataEntity extends AbstractBaseEntity {
 	@Column(name = "information_url", length = 1024)
 	private String informationUrl;
 	
+	@Column(name = "logo_url", length = 1024)
+	private String logoUrl;
+	
+	@Column(name = "logo_small_url", length = 1024)
+	private String logoSmallUrl;
+	
 	@Column(name = "entity_desc")
 	@Basic(fetch = FetchType.LAZY)
 	@Lob
@@ -153,5 +159,21 @@ public class SamlMetadataEntity extends AbstractBaseEntity {
 		} else if (!entityId.equals(other.entityId))
 			return false;
 		return true;
+	}
+
+	public String getLogoUrl() {
+		return logoUrl;
+	}
+
+	public void setLogoUrl(String logoUrl) {
+		this.logoUrl = logoUrl;
+	}
+
+	public String getLogoSmallUrl() {
+		return logoSmallUrl;
+	}
+
+	public void setLogoSmallUrl(String logoSmallUrl) {
+		this.logoSmallUrl = logoSmallUrl;
 	}
 }

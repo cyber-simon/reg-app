@@ -31,3 +31,7 @@ label.ui-helper-hidden {
 .ui-selectonelistbox .ui-selectlistbox-item, .ui-selectmanymenu .ui-selectlistbox-item, .ui-multiselectlistbox .ui-multiselectlistbox-item {
 	margin-top: 6px;
 }
+
+#opt1 .ui-radiobutton-box {
+	display: none;
+}

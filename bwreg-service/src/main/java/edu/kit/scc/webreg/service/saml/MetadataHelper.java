@@ -39,6 +39,7 @@ import org.opensaml.core.xml.io.UnmarshallingException;
 import org.opensaml.core.xml.schema.XSAny;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.ext.saml2mdattr.EntityAttributes;
+import org.opensaml.saml.ext.saml2mdui.Logo;
 import org.opensaml.saml.ext.saml2mdui.UIInfo;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.metadata.AttributeAuthorityDescriptor;
@@ -245,6 +246,44 @@ public class MetadataHelper implements Serializable {
 		}
 	}
 
+	public String getLogo(EntityDescriptor entityDesc) {
+		IDPSSODescriptor idpsso = entityDesc.getIDPSSODescriptor(SAMLConstants.SAML20P_NS);
+		if (idpsso != null) {
+			Extensions extensions = idpsso.getExtensions();
+			if (extensions != null) {
+				List<XMLObject> uiList = extensions.getUnknownXMLObjects(new QName("urn:oasis:names:tc:SAML:metadata:ui", "UIInfo"));
+				if ((uiList.size() == 1) && (uiList.get(0) instanceof UIInfo)) {
+					UIInfo uiInfo = (UIInfo) uiList.get(0);
+					for (Logo logo : uiInfo.getLogos()) {
+						if (logo.getHeight() > 32) {
+							return logo.getURL();
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	public String getLogoSmall(EntityDescriptor entityDesc) {
+		IDPSSODescriptor idpsso = entityDesc.getIDPSSODescriptor(SAMLConstants.SAML20P_NS);
+		if (idpsso != null) {
+			Extensions extensions = idpsso.getExtensions();
+			if (extensions != null) {
+				List<XMLObject> uiList = extensions.getUnknownXMLObjects(new QName("urn:oasis:names:tc:SAML:metadata:ui", "UIInfo"));
+				if ((uiList.size() == 1) && (uiList.get(0) instanceof UIInfo)) {
+					UIInfo uiInfo = (UIInfo) uiList.get(0);
+					for (Logo logo : uiInfo.getLogos()) {
+						if (logo.getHeight() <= 32) {
+							return logo.getURL();
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
 	public Set<SamlIdpScopeEntity> getScopes(EntityDescriptor entityDesc, SamlIdpMetadataEntity idp) {
 		Set<SamlIdpScopeEntity> scopeList = new HashSet<SamlIdpScopeEntity>();
 		

@@ -295,6 +295,8 @@ public class FederationServiceImpl extends BaseServiceImpl<FederationEntity, Lon
 			idp.setEntityId(ed.getEntityID());
 			idp.setEntityDescriptor(samlHelper.marshal(ed));
 			idp.setOrgName(metadataHelper.getOrganisation(ed));
+			idp.setLogoUrl(metadataHelper.getLogo(ed));
+			idp.setLogoSmallUrl(metadataHelper.getLogoSmall(ed));
 			idp.getFederations().add(entity);
 			idp.setStatus(SamlMetadataEntityStatus.ACTIVE);
 			

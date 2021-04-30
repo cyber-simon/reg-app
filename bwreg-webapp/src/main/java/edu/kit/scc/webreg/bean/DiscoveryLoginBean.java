@@ -24,6 +24,8 @@ import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 import javax.servlet.http.Cookie;
 
+import org.primefaces.PrimeFaces;
+
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.FederationEntity;
 import edu.kit.scc.webreg.entity.SamlIdpConfigurationEntity;
@@ -94,6 +96,7 @@ public class DiscoveryLoginBean implements Serializable {
 	private SamlIdpMetadataEntity selectedIdp;
 
 	private Boolean storeIdpSelection;
+	private Boolean preSelectedIdp;
 	
 	private List<OidcRpConfigurationEntity> oidcRpList;
 	private OidcRpConfigurationEntity selectedOidcRp;
@@ -138,6 +141,8 @@ public class DiscoveryLoginBean implements Serializable {
 		}
 
 		if (! initialized) {
+			preSelectedIdp = false;
+			
 			if (appConfig.getConfigValue("preselect_store_idp_select") != null &&
 					appConfig.getConfigValue("preselect_store_idp_select").equalsIgnoreCase("true")) {
 				storeIdpSelection = true;
@@ -160,6 +165,8 @@ public class DiscoveryLoginBean implements Serializable {
 					if (idp != null) {
 						selectedIdp = idp;
 						storeIdpSelection = true;
+						preSelectedIdp = true;
+						PrimeFaces.current().focus("quicklogin");
 					}										
 				}
 			}
@@ -256,6 +263,10 @@ public class DiscoveryLoginBean implements Serializable {
 		else {
 			idpList = federationBean.getIdpList(selectedFederation);
 		}
+	}
+	
+	public void chooseOther() {
+		setPreSelectedIdp(false);
 	}
 	
 	public List<FederationEntity> getFederationList() {
@@ -356,6 +367,14 @@ public class DiscoveryLoginBean implements Serializable {
 
 	public void setStoreIdpSelection(Boolean storeIdpSelection) {
 		this.storeIdpSelection = storeIdpSelection;
+	}
+
+	public Boolean getPreSelectedIdp() {
+		return preSelectedIdp;
+	}
+
+	public void setPreSelectedIdp(Boolean preSelectedIdp) {
+		this.preSelectedIdp = preSelectedIdp;
 	}
 
 }
