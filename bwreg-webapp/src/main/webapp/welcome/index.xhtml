@@ -28,7 +28,7 @@
 
 		<p:panel>
 			<p:outputPanel rendered="#{empty discoveryLoginBean.spMetadata and empty discoveryLoginBean.clientConfig}" style="margin-top: 8px;">
-				<h:outputText value="#{messages.welcome_disco}"/>
+				<h:outputText value="#{messages.welcome_disco}" escape="false"/>
 			</p:outputPanel>
 			
 			<p:outputPanel rendered="#{not empty discoveryLoginBean.spMetadata}" style="margin-top: 8px;">
@@ -52,10 +52,6 @@
 
 			<p:focus conext="quickLoginPanel" for="opt1" />
 
-			<p:outputPanel style="margin-top: 8px;">
-				<h:outputText value="#{messages.welcome_disco_preselected_idp}" />
-			</p:outputPanel>
-			
 			<p:panel id="quickLoginPanel">
 				<p:selectOneRadio id="quickLoginRadio" value="opt1" layout="custom">
 					<f:selectItem itemLabel="#{discoveryLoginBean.selectedIdp.displayName}" itemValue="opt1" />
