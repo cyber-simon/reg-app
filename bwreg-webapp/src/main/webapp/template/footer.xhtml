@@ -11,9 +11,26 @@
 </head>
 <body>
 	<ui:composition>
-		<div class="content-wrap">
-        	<span class="copyright">${project.artifactId}${bwreg.name.suffix}-${project.version}</span>
-        </div>	
+		<footer class="page-footer">
+            <div class="content-wrap">
+                <div class="column full">
+                    <div class="KIT_section column fourth" style="grid-row-start: 1;">                
+                        <ul class="social">
+							<li><a href="https://twitter.com/#!/SCC_KIT" class="twitter" title="Twitter Kanal" target="_blank"><span>Twitter Kanal</span></a></li> 
+                        </ul>
+                    </div>
+	                <span class="last_change" style="bottom: 48px;"></span>
+                </div>
+            </div>
+            <div class="footer-meta-navigation">
+                <div class="content-wrap">
+                    <span class="copyright">KIT – Die Forschungsuniversität in der Helmholtz-Gemeinschaft</span>
+                    <ul>
+                        <li><a href="https://git.scc.kit.edu/reg-app"><span>reg-app ${project.version}</span></a></li>
+                    </ul>
+                </div>
+            </div>
+        </footer>        
 	</ui:composition>
 </body>
 </html>
