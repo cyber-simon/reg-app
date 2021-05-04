@@ -18,10 +18,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Named;
-import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.commons.codec.binary.Base64;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
@@ -38,7 +38,6 @@ import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserRoleEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
-import edu.kit.scc.webreg.exc.NotAuthorizedException;
 import edu.kit.scc.webreg.service.RoleService;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.UserService;
@@ -85,10 +84,6 @@ public class IdpAdminIndexBean implements Serializable {
 	private Map<KeyDescriptor, List<java.security.cert.X509Certificate>> certMap;
  	
 	public void preRenderView(ComponentSystemEvent ev) {
-		if (getIdpList().size() == 0) {
-			throw new NotAuthorizedException("Not authorized");
-		}
-
 		if (selectedIdp == null && getIdpList().size() > 0) {
 			selectedIdp = getIdpList().get(0);
 		}
