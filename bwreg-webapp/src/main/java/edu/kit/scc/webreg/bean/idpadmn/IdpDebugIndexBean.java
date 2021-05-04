@@ -84,6 +84,8 @@ public class IdpDebugIndexBean implements Serializable {
 	private EntityDescriptor entityDescriptor;
 	private IDPSSODescriptor idpssoDescriptor;
 
+	private String debugLog;
+	
 	private Map<KeyDescriptor, List<java.security.cert.X509Certificate>> certMap;
  	
 	public void preRenderView(ComponentSystemEvent ev) {
@@ -153,8 +155,10 @@ public class IdpDebugIndexBean implements Serializable {
 
 		if (getSelectedUser() instanceof SamlUserEntity) {
 			try {
-				userService.updateUserFromIdp((SamlUserEntity) getSelectedUser(), "user-" + session.getIdentityId());
+				StringBuffer sb = new StringBuffer();
+				userService.updateUserFromIdp((SamlUserEntity) getSelectedUser(), "user-" + session.getIdentityId(), sb);
 				messageGenerator.addInfoMessage("Info", "SAML AttributeQuery went through without errors");
+				debugLog = sb.toString();
 			} catch (UserUpdateException e) {
 				logger.info("Exception while Querying IDP: {}", e.getMessage());
 				String extendedInfo = "";
@@ -225,6 +229,10 @@ public class IdpDebugIndexBean implements Serializable {
 
 	public void setSelectedUser(UserEntity selectedUser) {
 		this.selectedUser = selectedUser;
+	}
+
+	public String getDebugLog() {
+		return debugLog;
 	}
 	
 }

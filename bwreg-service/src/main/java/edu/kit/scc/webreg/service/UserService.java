@@ -66,4 +66,7 @@ public interface UserService extends BaseService<UserEntity, Long> {
 	UserLoginInfoEntity addLoginInfo(IdentityEntity identity, UserLoginMethod method, UserLoginInfoStatus status,
 			String from);
 
+	SamlUserEntity updateUserFromIdp(SamlUserEntity user, String executor, StringBuffer debugLog)
+			throws UserUpdateException;
+
 }

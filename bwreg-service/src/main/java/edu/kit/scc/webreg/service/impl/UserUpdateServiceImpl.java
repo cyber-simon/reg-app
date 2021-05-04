@@ -250,7 +250,7 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 				logger.info("Performing user update for {} with id {}", new Object[] {user.getEppn(), user.getId()}); 
 	
 				if (user instanceof SamlUserEntity)
-					user = userUpdater.updateUserFromIdp((SamlUserEntity) user, service, executor);
+					user = userUpdater.updateUserFromIdp((SamlUserEntity) user, service, executor, null);
 			}
 		} catch (UserUpdateException e) {
 			logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());

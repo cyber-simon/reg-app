@@ -52,13 +52,16 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceServiceEntity;
+import edu.kit.scc.webreg.entity.audit.AuditDetailEntity;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
+import edu.kit.scc.webreg.entity.audit.AuditUserUpdateEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.UserEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.MetadataException;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
+import edu.kit.scc.webreg.logging.LogHelper;
 import edu.kit.scc.webreg.service.SerialService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserServiceHook;
@@ -144,13 +147,16 @@ public class UserUpdater implements Serializable {
 	@Inject
 	private IdentityUpdater identityUpdater;
 	
-	public SamlUserEntity updateUser(SamlUserEntity user, Map<String, List<Object>> attributeMap, String executor)
+	@Inject
+	private LogHelper logHelper;
+	
+	public SamlUserEntity updateUser(SamlUserEntity user, Map<String, List<Object>> attributeMap, String executor, StringBuffer debugLog)
 			throws UserUpdateException {
-		return updateUser(user, attributeMap, executor, null);
+		return updateUser(user, attributeMap, executor, null, debugLog);
 	}
 	
 	public SamlUserEntity updateUser(SamlUserEntity user, Map<String, List<Object>> attributeMap, String executor, 
-			ServiceEntity service)
+			ServiceEntity service, StringBuffer debugLog)
 			throws UserUpdateException {
 		MDC.put("userId", "" + user.getId());
 		logger.debug("Updating user {}", user.getEppn());
@@ -276,7 +282,7 @@ public class UserUpdater implements Serializable {
 				registrator.registerUser(user, delayedService, 
 						"user-" + user.getId(), false);
 			} catch (RegisterException e) {
-				logger.warn("Parent registrytion didn't work out like it should", e);
+				logger.warn("Parent registration didn't work out like it should", e);
 			}
 		}
 		
@@ -291,6 +297,25 @@ public class UserUpdater implements Serializable {
 		auditor.setUser(user);
 		auditor.finishAuditTrail();
 		auditor.commitAuditTrail();
+		
+		if (debugLog != null) {
+			AuditUserUpdateEntity audit = auditor.getAudit();
+			debugLog.append("\n\nPrinting audit from user update process:\n\nName: ").append(audit.getName()).append("\nDetail: ")
+				.append(audit.getDetail()).append("\n");
+			for (AuditDetailEntity detail : audit.getAuditDetails()) {
+				debugLog.append(detail.getEndTime())
+					.append(" | ").append(detail.getSubject())
+					.append(" | ").append(detail.getObject())
+					.append(" | ").append(detail.getAction())
+					.append(" | ").append(detail.getLog())
+					.append(" | ").append(detail.getAuditStatus())
+					.append("\n");
+			}
+			
+			if (audit.getAuditDetails().size() == 0) {
+				debugLog.append("Nothing seems to have changed.\n");
+			}
+		}
 		
 		return user;
 	}
@@ -308,7 +333,7 @@ public class UserUpdater implements Serializable {
 		return new Date(System.currentTimeMillis() + futureMillis + r.nextInt(futureMillisRandom));
 	}
 
-	public SamlUserEntity updateUser(SamlUserEntity user, Assertion assertion, String executor, ServiceEntity service)
+	public SamlUserEntity updateUser(SamlUserEntity user, Assertion assertion, String executor, ServiceEntity service, StringBuffer debugLog)
 			throws UserUpdateException {
 	
 		if (assertion != null) {
@@ -323,24 +348,31 @@ public class UserUpdater implements Serializable {
 		
 		Map<String, List<Object>> attributeMap = saml2AssertionService.extractAttributes(assertion);
 
+		if (debugLog != null) {
+			debugLog.append("Extracted attributes from Assertion:\n");
+			for (Entry<String, List<Object>> entry : attributeMap.entrySet()) {
+				debugLog.append(entry.getKey()).append(":\t").append(entry.getValue()).append("\n");
+			}
+		}
+		
 		if (service != null)
-			return updateUser(user, attributeMap, executor, service);
+			return updateUser(user, attributeMap, executor, service, debugLog);
 		else
-			return updateUser(user, attributeMap, executor);
+			return updateUser(user, attributeMap, executor, debugLog);
 	}
 
 	public SamlUserEntity updateUser(SamlUserEntity user, Assertion assertion, String executor)
 			throws UserUpdateException {
 		
-		return updateUser(user, assertion, executor, null);
+		return updateUser(user, assertion, executor, null, null);
 	}
 	
 	public SamlUserEntity updateUserFromIdp(SamlUserEntity user, String executor) 
 			throws UserUpdateException {
-		return updateUserFromIdp(user, null, executor);
+		return updateUserFromIdp(user, null, executor, null);
 	}
 	
-	public SamlUserEntity updateUserFromIdp(SamlUserEntity user, ServiceEntity service, String executor) 
+	public SamlUserEntity updateUserFromIdp(SamlUserEntity user, ServiceEntity service, String executor, StringBuffer debugLog) 
 			throws UserUpdateException {
 
 		SamlSpConfigurationEntity spEntity = spDao.findByEntityId(user.getPersistentSpId());
@@ -362,29 +394,35 @@ public class UserUpdater implements Serializable {
 			 * If something goes wrong here, communication with the idp probably failed
 			 */
 			
-			samlResponse = attrQueryHelper.query(user, idpEntity, idpEntityDescriptor, spEntity);
+			samlResponse = attrQueryHelper.query(user, idpEntity, idpEntityDescriptor, spEntity, debugLog);
 
 			if (logger.isTraceEnabled())
 				logger.trace("{}", samlHelper.prettyPrint(samlResponse));
-			
+
+			if (debugLog != null) {
+				debugLog.append("\nIncoming SAML Response:\n\n")
+					.append(samlHelper.prettyPrint(samlResponse))
+					.append("\n");
+			}
+
 		} catch (SOAPException e) {
 			/*
 			 * This exception is thrown if the certificate chain is incomplete e.g.
 			 */
-			handleException(user, e, idpEntity, auditor);
+			handleException(user, e, idpEntity, auditor, debugLog);
 			throw new UserUpdateException(e);
 		} catch (MetadataException e) {
 			/*
 			 * is thrown if AttributeQuery location is missing in metadata, or something is wrong
 			 * with the sp certificate
 			 */
-			handleException(user, e, idpEntity, auditor);
+			handleException(user, e, idpEntity, auditor, debugLog);
 			throw new UserUpdateException(e);
 		} catch (SecurityException e) {
-			handleException(user, e, idpEntity, auditor);
+			handleException(user, e, idpEntity, auditor, debugLog);
 			throw new UserUpdateException(e);
 		} catch (Exception e) {
-			handleException(user, e, idpEntity, auditor);
+			handleException(user, e, idpEntity, auditor, debugLog);
 			throw new UserUpdateException(e);
 		} 
 		
@@ -394,12 +432,16 @@ public class UserUpdater implements Serializable {
 			 */
 			Assertion assertion;
 			try {
+				if (debugLog != null) {
+					debugLog.append("\nExtracting Assertion from SAML Response without signature check...\n");
+				}
+				
 				assertion = saml2AssertionService.processSamlResponse(samlResponse, idpEntity, 
 						idpEntityDescriptor, spEntity, false);
 				
 				if (logger.isTraceEnabled())
 					logger.trace("{}", samlHelper.prettyPrint(assertion));
-				
+
 			} catch (NoAssertionException e) {
 				if (user.getIdp() != null)
 					logger.warn("No assertion delivered for user {} from idp {}", user.getEppn(), user.getIdp().getEntityId());
@@ -416,23 +458,23 @@ public class UserUpdater implements Serializable {
 
 			updateIdpStatus(SamlIdpMetadataEntityStatus.GOOD, idpEntity);
 
-			return updateUser(user, assertion, "attribute-query", service);
+			return updateUser(user, assertion, "attribute-query", service, debugLog);
 		} catch (DecryptionException e) {
-			handleException(user, e, idpEntity, auditor);
+			handleException(user, e, idpEntity, auditor, debugLog);
 			throw new UserUpdateException(e);
 		} catch (IOException e) {
-			handleException(user, e, idpEntity, auditor);
+			handleException(user, e, idpEntity, auditor, debugLog);
 			throw new UserUpdateException(e);
 		} catch (SamlAuthenticationException e) {
 			/*
 			 * Thrown if i.e. the AttributeQuery profile is not configured correctly
 			 */
-			handleException(user, e, idpEntity, auditor);
+			handleException(user, e, idpEntity, auditor, debugLog);
 			throw new UserUpdateException(e);
 		}
 	}
 	
-	protected void handleException(SamlUserEntity user, Exception e, SamlIdpMetadataEntity idpEntity, Auditor auditor) {
+	protected void handleException(SamlUserEntity user, Exception e, SamlIdpMetadataEntity idpEntity, Auditor auditor, StringBuffer debugLog) {
 		updateFail(user);
 		String message = e.getMessage();
 		if (e.getCause() != null)
@@ -440,6 +482,16 @@ public class UserUpdater implements Serializable {
 		auditor.logAction(idpEntity.getEntityId(), "SAML ATTRIBUTE QUERY", user.getEppn(), message, AuditStatus.FAIL);
 		auditor.finishAuditTrail();
 		auditor.commitAuditTrail();
+		
+		if (debugLog != null) {
+			debugLog.append("Attribute Query failed: ")
+				.append(e.getMessage());
+			if (e.getCause() != null)
+				debugLog.append("Cause: ")
+					.append(e.getCause().getMessage());
+			debugLog.append(logHelper.convertStacktrace(e));
+		}
+		
 		updateIdpStatus(SamlIdpMetadataEntityStatus.FAULTY, idpEntity);
 	}
 	

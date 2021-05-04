@@ -569,7 +569,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 		}
 		
 		try {
-			user = userUpdater.updateUser(user, assertion, caller, service);
+			user = userUpdater.updateUser(user, assertion, caller, service, null);
 		} catch (UserUpdateException e) {
 			logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
 			throw new UserUpdateFailedException("user update failed: " + e.getMessage());
@@ -700,7 +700,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 				logger.info("Performing attributequery for {} with {}@{}", new Object[] {user.getEppn(), 
 						user.getPersistentId(), user.getIdp().getEntityId()});
 	
-				user = userUpdater.updateUserFromIdp(user, service, executor);
+				user = userUpdater.updateUserFromIdp(user, service, executor, null);
 			}
 		} catch (UserUpdateException e) {
 			logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());

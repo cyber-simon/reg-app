@@ -98,7 +98,14 @@ public class AttributeQueryHelper implements Serializable {
 	ApplicationConfig appConfig;
 
 	public Response query(String persistentId, SamlMetadataEntity idpEntity, 
-			EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity spEntity) throws Exception {
+			EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity spEntity, StringBuffer debugLog) throws Exception {
+		
+		if (debugLog != null) {
+			debugLog.append("Starting attribute query for")
+				.append(persistentId).append(" idp: ").append(idpEntity.getEntityId()).append(" sp: ")
+				.append(spEntity.getEntityId()).append("\n");
+		}
+		
 		AttributeService attributeService = metadataHelper.getAttributeService(idpEntityDescriptor);
 		if (attributeService == null || attributeService.getLocation() == null)
 			throw new MetadataException("No Attribute Service found for IDP " + idpEntity.getEntityId());
@@ -153,8 +160,20 @@ public class AttributeQueryHelper implements Serializable {
 		InOutOperationContext<SAMLObject, SAMLObject> inOutContext =
 				new InOutOperationContext<SAMLObject, SAMLObject>(inbound, outbound);
 		
+		if (debugLog != null) {
+			debugLog.append("\nOutgoing SAML Message before signing:\n\n")
+				.append(samlHelper.prettyPrint(outbound.getMessage()))
+				.append("\n");
+		}
+		
 		SAMLMessageSecuritySupport.signMessage(outbound);
-			
+
+		if (debugLog != null) {
+			debugLog.append("\nOutgoing SAML Message after signing:\n\n")
+				.append(samlHelper.prettyPrint(outbound.getMessage()))
+				.append("\n");
+		}
+
 		RequestConfig requestConfig = RequestConfig.custom()
 				.setSocketTimeout(getSocketTimeout())
 				.setConnectTimeout(getConnectTimeout())
@@ -192,10 +211,20 @@ public class AttributeQueryHelper implements Serializable {
 			client.close();
 		}
 	}
-		
+
+	public Response query(String persistentId, SamlMetadataEntity idpEntity, 
+			EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity spEntity) throws Exception {
+		return query(persistentId, idpEntity, idpEntityDescriptor, spEntity, null);	
+	}
+	
 	public Response query(SamlUserEntity entity, SamlMetadataEntity idpEntity, 
 			EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity spEntity) throws Exception {
-		return query(entity.getPersistentId(), idpEntity, idpEntityDescriptor, spEntity);	
+		return query(entity.getPersistentId(), idpEntity, idpEntityDescriptor, spEntity, null);	
+	}
+	
+	public Response query(SamlUserEntity entity, SamlMetadataEntity idpEntity, 
+			EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity spEntity, StringBuffer debugLog) throws Exception {
+		return query(entity.getPersistentId(), idpEntity, idpEntityDescriptor, spEntity, debugLog);	
 	}
 	
 	public Response getResponseFromEnvelope(Envelope envelope) {

@@ -149,9 +149,15 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity, Long> implement
 	}
 
 	@Override
+	public SamlUserEntity updateUserFromIdp(SamlUserEntity user, String executor, StringBuffer debugLog) 
+			throws UserUpdateException {
+		return userUpdater.updateUserFromIdp(user, null, executor, debugLog);
+	}
+
+	@Override
 	public SamlUserEntity updateUserFromIdp(SamlUserEntity user, String executor) 
 			throws UserUpdateException {
-		return userUpdater.updateUserFromIdp(user, null, executor);
+		return userUpdater.updateUserFromIdp(user, null, executor, null);
 	}
 
 	@Override
