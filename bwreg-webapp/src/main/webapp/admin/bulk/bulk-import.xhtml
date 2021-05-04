@@ -30,15 +30,15 @@
 					<bw:inputText id="idpEntityIdField" label="IDP #{messages.entity_id}"
 						value="#{bulkUserImportBean.idpEntityId}" required="true" />
 		
-					<bw:inputText id="saltField" label="Salt"
+					<bw:inputText id="saltField" label="#{messages.salt}"
 						value="#{bulkUserImportBean.salt}" required="true" />
 		
-					<h:outputLabel for="uidField" value="UIDs (eine pro Zeile)"/>
+					<h:outputLabel for="uidField" value="#{messages.bulk_uid}"/>
 					<p:inputTextarea id="uidField" rows="12" cols="80" autoResize="false"
 		            		value="#{bulkUserImportBean.uidField}"  required="true"/>
 				
 				</p:panelGrid>
-				<p:commandButton action="#{bulkUserImportBean.fillTable()}" value="Tabelle aufbauen"
+				<p:commandButton action="#{bulkUserImportBean.fillTable()}" value="#{messages.bulk_build_table}"
 					 update=":form:importPanel"/>
 			</p:panel>
 		</div>
@@ -48,12 +48,12 @@
 				<p:dataTable id="imports" var="importUser" value="#{bulkUserImportBean.importUserList}"
 						rowKey="#{importUser.uid}" selection="#{bulkUserImportBean.selectedImport}" selectionMode="multiple">
 				
-					<p:column headerText="Uid">#{importUser.uid}</p:column>  
-					<p:column headerText="PersistentId">#{importUser.persistentId}</p:column>  
-					<p:column headerText="Status">#{importUser.status}</p:column>  
+					<p:column headerText="#{messages.uid}">#{importUser.uid}</p:column>  
+					<p:column headerText="#{messages.persistent_id}">#{importUser.persistentId}</p:column>  
+					<p:column headerText="#{messages.status}">#{importUser.status}</p:column>  
 				
 				</p:dataTable>
-				<p:commandButton id="importBtn" action="#{bulkUserImportBean.processSelected()}" value="Auswahl Importieren"
+				<p:commandButton id="importBtn" action="#{bulkUserImportBean.processSelected()}" value="#{messages.bulk_start_import}"
 					 update=":form"/>
 			</p:panel>
 			<p:blockUI block="importPanel" trigger="importBtn">  

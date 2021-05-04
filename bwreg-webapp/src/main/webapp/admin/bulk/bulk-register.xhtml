@@ -30,12 +30,12 @@
 				<p:tab id="eppnPanel" title="#{messages.bulk_register}">
 					<p:panelGrid id="baseData" columns="2">
 					
-						<h:outputLabel for="eppnField" value="EPPNs (eine pro Zeile)"/>
+						<h:outputLabel for="eppnField" value="#{messages.bulk_eppn}"/>
 						<p:inputTextarea id="eppnField" rows="12" cols="80" autoResize="false"
 			            		value="#{bulkRegisterBean.eppnField}"  required="true"/>
 					
 					</p:panelGrid>
-					<p:commandButton action="#{bulkRegisterBean.fillTable()}" value="Tabelle aufbauen"
+					<p:commandButton action="#{bulkRegisterBean.fillTable()}" value="#{messages.bulk_build_table}"
 						 update=":form:registerPanel"/>
 				</p:tab>
 				<p:tab id="usrListPanel" title="#{messages.users}">
@@ -74,19 +74,19 @@
 						</p:column>			
 							
 					</p:dataTable>
-					<p:commandButton action="#{bulkRegisterBean.insert()}" value="Auswahl in Tabelle"
+					<p:commandButton action="#{bulkRegisterBean.insert()}" value="#{messages.bulk_build_table}"
 					 	update=":form:registerPanel"/>				
 				</p:tab>
 			</p:tabView>
 		</div>
-			
+
 		<div class="panel">
 			<p:panel id="registerPanel" header="Register Panel">
 				<p:dataTable id="regs" var="registerUser" value="#{bulkRegisterBean.registerUserList}"
 						rowKey="#{registerUser.eppn}" selection="#{bulkRegisterBean.selectedUsers}" selectionMode="multiple">
 				
-					<p:column headerText="EPPN">#{registerUser.eppn}</p:column>  
-					<p:column headerText="Status">#{registerUser.status}</p:column>  
+					<p:column headerText="#{messages.eppn}">#{registerUser.eppn}</p:column>  
+					<p:column headerText="#{messages.status}">#{registerUser.status}</p:column>
 				
 				</p:dataTable>
 		        <br/>
@@ -96,7 +96,7 @@
 	            		var="service" itemLabel="#{service.name} (id #{service.id})" itemValue="#{service}"/>
 	            </p:selectOneMenu>
 		        <br/>
-				<p:commandButton id="regBtn" action="#{bulkRegisterBean.processSelected()}" value="Auswahl registrieren"
+				<p:commandButton id="regBtn" action="#{bulkRegisterBean.processSelected()}" value="#{messages.bulk_start_register}"
 					 update=":form"/>
 			</p:panel>
 			<p:blockUI block="registerPanel" trigger="regBtn">  

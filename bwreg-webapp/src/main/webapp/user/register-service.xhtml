@@ -68,8 +68,7 @@
 			
 			<p:panel id="blockPanel">
 				<p:outputPanel rendered="#{registerServiceBean.policyHolderList.size() gt 0}">
-					<b>Um sich für den Dienst zu registrieren, müssen Sie den folgenden Nutzungsbedingungen 
-					zustimmen.</b>
+					<b><h:outputText value="#{messages.register_consent_mandatory}" /></b>
 				</p:outputPanel>
 
 				<p:messages id="messageBox" for="need_check" showDetail="true" escape="false" />
