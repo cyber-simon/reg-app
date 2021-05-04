@@ -89,7 +89,7 @@ public class IdpAdminIndexBean implements Serializable {
 			throw new NotAuthorizedException("Not authorized");
 		}
 
-		if (selectedIdp == null) {
+		if (selectedIdp == null && getIdpList().size() > 0) {
 			selectedIdp = getIdpList().get(0);
 		}
 	}
@@ -117,7 +117,7 @@ public class IdpAdminIndexBean implements Serializable {
 			for (UserEntity user : getUserList()) {
 				if (user instanceof SamlUserEntity &&
 						user.getAttributeStore().containsKey("urn:oid:1.3.6.1.4.1.5923.1.1.1.7") &&
-						user.getAttributeStore().get("urn:oid:1.3.6.1.4.1.5923.1.1.1.7").contains("http://bwidm.scc.kit.edu/entitlement/idp-admin")) {
+						user.getAttributeStore().get("urn:oid:1.3.6.1.4.1.5923.1.1.1.7").contains("urn:geant:kit.edu:res:fels:idp-admin")) {
 					idpList.add(((SamlUserEntity) user).getIdp());
 				}
 				

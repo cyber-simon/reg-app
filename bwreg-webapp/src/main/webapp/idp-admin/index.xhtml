@@ -7,197 +7,206 @@
 	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:of="http://omnifaces.org/functions">
-<head>
-<title></title>
-</head>
-<body>
+<h:head>
+  <f:facet name="first">
+    <meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="theme-color" content="#009682" />
+	<meta http-equiv="cleartype" content="on" />
+	<title>IDP Admin Infos</title>
+  </f:facet>
+  <h:outputScript library="javax.faces" name="jsf.js" target="head"/>
+</h:head>
+<h:body>
 <f:view>
 	<f:metadata>
 		<f:event type="javax.faces.event.PreRenderViewEvent"
             listener="#{idpAdminIndexBean.preRenderView}" />
 	</f:metadata>
 
-<ui:composition template="/template/default.xhtml">
-	<ui:param name="title" value="#{messages.title}"/>
-
-	<ui:define name="content">
 	<h:form id="form" class="full form">
 
-		<h2><h:outputText value="#{messages.idp_admin}"/></h2>
+		<h2>IDP Admin Info</h2>
 
-        <p:selectOneMenu value="#{idpAdminIndexBean.selectedIdp}"
-        	converter="#{samlIdpMetadataConverter}">
-           	<f:selectItems value="#{idpAdminIndexBean.idpList}" 
-           		var="idp" itemLabel="#{idp.entityId}" itemValue="#{idp}"/>
-           	<f:ajax render=":form:idpDetailPanel" execute="@this" />
-        </p:selectOneMenu>
+		<p:panel rendered="#{idpAdminIndexBean.idpList.size() == 0}">
+			In order to see IDP Infos here, you need to have a proper entitlement (urn:oid:1.3.6.1.4.1.5923.1.1.1.7) from your home organization: urn:geant:kit.edu:res:fels:idp-admin 
+		</p:panel>
 
-		<p:tabView id="idpDetailPanel" dynamic="true" cache="false">
+		<p:outputPanel rendered="#{idpAdminIndexBean.idpList.size() > 0}">
 
-			<p:tab id="tab1" title="#{messages.overview}">
-				<p:panelGrid id="baseData" columns="2">
-		
-			        <h:outputText value="#{messages.id}:"/>
-			        <h:outputText value="#{idpAdminIndexBean.idp.id}"/>
+	        <p:selectOneMenu value="#{idpAdminIndexBean.selectedIdp}"
+	        	converter="#{samlIdpMetadataConverter}">
+	           	<f:selectItems value="#{idpAdminIndexBean.idpList}" 
+	           		var="idp" itemLabel="#{idp.entityId}" itemValue="#{idp}"/>
+	           	<f:ajax render=":form:idpDetailPanel" execute="@this" />
+	        </p:selectOneMenu>
+	
+			<p:tabView id="idpDetailPanel" dynamic="true" cache="false">
+	
+				<p:tab id="tab1" title="Overview">
+					<p:panelGrid id="baseData" columns="2">
 			
-			        <h:outputText value="#{messages.entity_id}:"/>
-			        <h:outputText value="#{idpAdminIndexBean.idp.entityId}"/>
-						
-			        <h:outputText value="#{messages.status}:"/>
-			        <h:outputText value="#{idpAdminIndexBean.idp.status}"/>
-
-			        <h:outputText value="#{messages.artifact_resolution} #{messages.status}:"/>
-			        <h:outputText value="#{idpAdminIndexBean.idp.aqIdpStatus} (changed: #{idpAdminIndexBean.idp.lastAqStatusChange})"/>
-						
-			        <h:outputText value="#{messages.single_sign_on} #{messages.status}:"/>
-			        <h:outputText value="#{idpAdminIndexBean.idp.idIdpStatus} (changed: #{idpAdminIndexBean.idp.lastIdStatusChange})"/>
-												
-			        <h:outputText value="#{messages.name}:"/>
-			        <h:outputText value="#{idpAdminIndexBean.idp.displayName}"/>
-						
-			        <h:outputText value="#{messages.information_url}:"/>
-			        <h:outputText value="#{idpAdminIndexBean.idp.informationUrl}"/>
-						
-			        <h:outputText value="#{messages.org_name}:"/>
-			        <h:outputText value="#{idpAdminIndexBean.idp.orgName}"/>
-
-			        <h:outputText value="#{messages.description}:"/>
-			        <h:outputText value="#{idpAdminIndexBean.idp.description}"/>
-
-			        <h:outputText value="#{messages.scopes}:"/>
-			        <h:panelGroup>
-			        	<ul>
-			        		<ui:repeat var="s" value="#{idpAdminIndexBean.idp.scopes.toArray()}">
-				        		<li><h:outputText value="#{s.scope} (is regex: #{s.regex})"/></li>
-				        	</ui:repeat>
-				        </ul>
-			        </h:panelGroup>
-
-			        <h:outputText value="#{messages.generic_store}:"/>
-			        <h:panelGroup>
-			        	<ul>
-			        		<ui:repeat var="key" value="#{idpAdminIndexBean.idp.genericStore.keySet().toArray()}">
-				        		<li>
-				        			<h:panelGrid id="newPropTable" columns="2" columnClasses="labelColumn, elementColumn">
-						        		<h:outputText value="#{key}:"/> 
-						        		<h:outputText value="#{idpAdminIndexBean.idp.genericStore.get(key)}"/> 
-									</h:panelGrid>
-								</li>
-				        	</ui:repeat>
-				        </ul>
-			        </h:panelGroup>
-
-				</p:panelGrid>
-			</p:tab>
-						
-			<p:tab id="tab2" title="#{messages.saml_detail}">
-				<p:panelGrid columns="2">
-
-					<h:outputLabel value="#{messages.supported_protocols}" />
-					<h:panelGroup>
-						<ul>
-							<ui:repeat var="proto" value="#{idpAdminIndexBean.idpssoDescriptor.supportedProtocols}">
-								<li><h:outputText value="#{proto}"/></li>
-							</ui:repeat>
-						</ul>
-					</h:panelGroup>
-
-					<h:outputLabel value="#{messages.keys}" />
-					<h:panelGroup>
-						<ui:repeat var="key" value="#{idpAdminIndexBean.idpssoDescriptor.keyDescriptors}">
-							<p:panel header="#{key.use}" collapsed="true" toggleable="true">
-								<p:messages for="certMsg-#{key.hashCode()}" showDetail="true" />
-								<ui:repeat var="cert" value="#{idpAdminIndexBean.getCert(key)}">
-									<div style="max-width: 700px; max-height:400px; font-family: courier, monospace; font-size:10px; white-space: pre; overflow: scroll;">
-										<h:outputText value="#{cert}" />
-									</div>
+				        <h:outputText value="#{messages.id}:"/>
+				        <h:outputText value="#{idpAdminIndexBean.idp.id}"/>
+				
+				        <h:outputText value="#{messages.entity_id}:"/>
+				        <h:outputText value="#{idpAdminIndexBean.idp.entityId}"/>
+							
+				        <h:outputText value="#{messages.status}:"/>
+				        <h:outputText value="#{idpAdminIndexBean.idp.status}"/>
+	
+				        <h:outputText value="#{messages.artifact_resolution} #{messages.status}:"/>
+				        <h:outputText value="#{idpAdminIndexBean.idp.aqIdpStatus} (changed: #{idpAdminIndexBean.idp.lastAqStatusChange})"/>
+							
+				        <h:outputText value="#{messages.single_sign_on} #{messages.status}:"/>
+				        <h:outputText value="#{idpAdminIndexBean.idp.idIdpStatus} (changed: #{idpAdminIndexBean.idp.lastIdStatusChange})"/>
+													
+				        <h:outputText value="#{messages.name}:"/>
+				        <h:outputText value="#{idpAdminIndexBean.idp.displayName}"/>
+							
+				        <h:outputText value="#{messages.information_url}:"/>
+				        <h:outputText value="#{idpAdminIndexBean.idp.informationUrl}"/>
+							
+				        <h:outputText value="#{messages.org_name}:"/>
+				        <h:outputText value="#{idpAdminIndexBean.idp.orgName}"/>
+	
+				        <h:outputText value="#{messages.description}:"/>
+				        <h:outputText value="#{idpAdminIndexBean.idp.description}"/>
+	
+				        <h:outputText value="#{messages.scopes}:"/>
+				        <h:panelGroup>
+				        	<ul>
+				        		<ui:repeat var="s" value="#{idpAdminIndexBean.idp.scopes.toArray()}">
+					        		<li><h:outputText value="#{s.scope} (is regex: #{s.regex})"/></li>
+					        	</ui:repeat>
+					        </ul>
+				        </h:panelGroup>
+	
+				        <h:outputText value="#{messages.generic_store}:"/>
+				        <h:panelGroup>
+				        	<ul>
+				        		<ui:repeat var="key" value="#{idpAdminIndexBean.idp.genericStore.keySet().toArray()}">
+					        		<li>
+					        			<h:panelGrid id="newPropTable" columns="2" columnClasses="labelColumn, elementColumn">
+							        		<h:outputText value="#{key}:"/> 
+							        		<h:outputText value="#{idpAdminIndexBean.idp.genericStore.get(key)}"/> 
+										</h:panelGrid>
+									</li>
+					        	</ui:repeat>
+					        </ul>
+				        </h:panelGroup>
+	
+					</p:panelGrid>
+				</p:tab>
+							
+				<p:tab id="tab2" title="Metadata details">
+					<p:panelGrid columns="2">
+	
+						<h:outputLabel value="#{messages.supported_protocols}" />
+						<h:panelGroup>
+							<ul>
+								<ui:repeat var="proto" value="#{idpAdminIndexBean.idpssoDescriptor.supportedProtocols}">
+									<li><h:outputText value="#{proto}"/></li>
 								</ui:repeat>
-							</p:panel>
-						</ui:repeat>
-					</h:panelGroup>
-
-					<h:outputLabel value="#{messages.artifact_resolution}" />
-					<h:panelGroup>
-						<ul>
-							<ui:repeat var="endpoint" value="#{idpAdminIndexBean.idpssoDescriptor.artifactResolutionServices}">
-								<li><h:outputText value="#{endpoint.binding}"/> - <h:outputText value="#{endpoint.location}"/></li>
+							</ul>
+						</h:panelGroup>
+	
+						<h:outputLabel value="#{messages.keys}" />
+						<h:panelGroup>
+							<ui:repeat var="key" value="#{idpAdminIndexBean.idpssoDescriptor.keyDescriptors}">
+								<p:panel header="#{key.use}" collapsed="true" toggleable="true">
+									<p:messages for="certMsg-#{key.hashCode()}" showDetail="true" />
+									<ui:repeat var="cert" value="#{idpAdminIndexBean.getCert(key)}">
+										<div style="max-width: 700px; max-height:400px; font-family: courier, monospace; font-size:10px; white-space: pre; overflow: scroll;">
+											<h:outputText value="#{cert}" />
+										</div>
+									</ui:repeat>
+								</p:panel>
 							</ui:repeat>
-						</ul>
-					</h:panelGroup>
+						</h:panelGroup>
+	
+						<h:outputLabel value="#{messages.artifact_resolution}" />
+						<h:panelGroup>
+							<ul>
+								<ui:repeat var="endpoint" value="#{idpAdminIndexBean.idpssoDescriptor.artifactResolutionServices}">
+									<li><h:outputText value="#{endpoint.binding}"/> - <h:outputText value="#{endpoint.location}"/></li>
+								</ui:repeat>
+							</ul>
+						</h:panelGroup>
+	
+						<h:outputLabel value="#{messages.single_sign_on}" />
+						<h:panelGroup>
+							<ul>
+								<ui:repeat var="endpoint" value="#{idpAdminIndexBean.idpssoDescriptor.singleSignOnServices}">
+									<li><h:outputText value="#{endpoint.binding}"/> - <h:outputText value="#{endpoint.location}"/></li>
+								</ui:repeat>
+							</ul>
+						</h:panelGroup>
+	
+						<h:outputLabel value="#{messages.single_logout}" />
+						<h:panelGroup>
+							<ul>
+								<ui:repeat var="endpoint" value="#{idpAdminIndexBean.idpssoDescriptor.singleLogoutServices}">
+									<li><h:outputText value="#{endpoint.binding}"/> - <h:outputText value="#{endpoint.location}"/></li>
+								</ui:repeat>
+							</ul>
+						</h:panelGroup>
+	
+						<h:outputLabel value="#{messages.nameid_format}" />
+						<h:panelGroup>
+							<ul>
+								<ui:repeat var="nidf" value="#{idpAdminIndexBean.idpssoDescriptor.nameIDFormats}">
+									<li><h:outputText value="#{nidf.format}"/></li>
+								</ui:repeat>
+							</ul>
+						</h:panelGroup>
+	
+						<h:outputLabel value="#{messages.organisation}" />
+						<h:panelGroup>
+							<ul>
+								<ui:repeat var="org" value="#{idpAdminIndexBean.entityDescriptor.organization.organizationNames}">
+									<li>OrgName: <h:outputText value="#{org.value}"/> (<h:outputText value="#{org.XMLLang}"/>)</li>
+								</ui:repeat>
+							</ul>
+							<ul>
+								<ui:repeat var="org" value="#{idpAdminIndexBean.entityDescriptor.organization.displayNames}">
+									<li>DisplayName: <h:outputText value="#{org.value}"/> (<h:outputText value="#{org.XMLLang}"/>)</li>
+								</ui:repeat>
+							</ul>
+							<ul>
+								<ui:repeat var="org" value="#{idpAdminIndexBean.entityDescriptor.organization.URLs}">
+									<li>URL: <h:outputText value="#{org.value}"/> (<h:outputText value="#{org.XMLLang}"/>)</li>
+								</ui:repeat>
+							</ul>
+						</h:panelGroup>
+	
+						<h:outputLabel value="#{messages.contact_person}" />
+						<h:panelGroup>
+							<ul>
+								<ui:repeat var="person" value="#{idpAdminIndexBean.entityDescriptor.contactPersons}">
+									<li><h:outputText value="#{person.type}: #{person.surName.name}, #{person.givenName.name}"/>
+										<ul>
+											<ui:repeat var="email" value="#{person.emailAddresses}">
+												<li>Email: <h:outputText value="#{email.address}" /></li>
+											</ui:repeat>
+											<ui:repeat var="tel" value="#{person.telephoneNumbers}">
+												<li>Telefon: <h:outputText value="#{tel.number}" /></li>
+											</ui:repeat>
+										</ul>
+									</li>
+								</ui:repeat>
+							</ul>
+						</h:panelGroup>
+	
+					</p:panelGrid>
+				</p:tab>
+				
+			</p:tabView>
 
-					<h:outputLabel value="#{messages.single_sign_on}" />
-					<h:panelGroup>
-						<ul>
-							<ui:repeat var="endpoint" value="#{idpAdminIndexBean.idpssoDescriptor.singleSignOnServices}">
-								<li><h:outputText value="#{endpoint.binding}"/> - <h:outputText value="#{endpoint.location}"/></li>
-							</ui:repeat>
-						</ul>
-					</h:panelGroup>
+		</p:outputPanel>
 
-					<h:outputLabel value="#{messages.single_logout}" />
-					<h:panelGroup>
-						<ul>
-							<ui:repeat var="endpoint" value="#{idpAdminIndexBean.idpssoDescriptor.singleLogoutServices}">
-								<li><h:outputText value="#{endpoint.binding}"/> - <h:outputText value="#{endpoint.location}"/></li>
-							</ui:repeat>
-						</ul>
-					</h:panelGroup>
-
-					<h:outputLabel value="#{messages.nameid_format}" />
-					<h:panelGroup>
-						<ul>
-							<ui:repeat var="nidf" value="#{idpAdminIndexBean.idpssoDescriptor.nameIDFormats}">
-								<li><h:outputText value="#{nidf.format}"/></li>
-							</ui:repeat>
-						</ul>
-					</h:panelGroup>
-
-					<h:outputLabel value="#{messages.organisation}" />
-					<h:panelGroup>
-						<ul>
-							<ui:repeat var="org" value="#{idpAdminIndexBean.entityDescriptor.organization.organizationNames}">
-								<li>OrgName: <h:outputText value="#{org.value}"/> (<h:outputText value="#{org.XMLLang}"/>)</li>
-							</ui:repeat>
-						</ul>
-						<ul>
-							<ui:repeat var="org" value="#{idpAdminIndexBean.entityDescriptor.organization.displayNames}">
-								<li>DisplayName: <h:outputText value="#{org.value}"/> (<h:outputText value="#{org.XMLLang}"/>)</li>
-							</ui:repeat>
-						</ul>
-						<ul>
-							<ui:repeat var="org" value="#{idpAdminIndexBean.entityDescriptor.organization.URLs}">
-								<li>URL: <h:outputText value="#{org.value}"/> (<h:outputText value="#{org.XMLLang}"/>)</li>
-							</ui:repeat>
-						</ul>
-					</h:panelGroup>
-
-					<h:outputLabel value="#{messages.contact_person}" />
-					<h:panelGroup>
-						<ul>
-							<ui:repeat var="person" value="#{idpAdminIndexBean.entityDescriptor.contactPersons}">
-								<li><h:outputText value="#{person.type}: #{person.surName.name}, #{person.givenName.name}"/>
-									<ul>
-										<ui:repeat var="email" value="#{person.emailAddresses}">
-											<li>Email: <h:outputText value="#{email.address}" /></li>
-										</ui:repeat>
-										<ui:repeat var="tel" value="#{person.telephoneNumbers}">
-											<li>Telefon: <h:outputText value="#{tel.number}" /></li>
-										</ui:repeat>
-									</ul>
-								</li>
-							</ui:repeat>
-						</ul>
-					</h:panelGroup>
-
-				</p:panelGrid>
-			</p:tab>
-			
-		</p:tabView>
-
-		
 	</h:form>
-	</ui:define>
-</ui:composition>
 </f:view>
-</body>
+</h:body>
 </html>
