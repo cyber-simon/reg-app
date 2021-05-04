@@ -86,11 +86,11 @@
 					showEffect="fade" hideEffect="fade">
 			<p:ajax event="close" update="@form" />
 
-			<div class="panel" style="width:360px;">
+			<div class="panel text full" style="width:480px;">
 			    <h:outputText value="#{messages.add_ssh_pub_key_desc}" escape="false" />
 		    </div>
 
-			<p:panelGrid id="baseData" columns="2">
+			<p:panelGrid id="baseData" columns="2" style="margin-top: 0.8em;">
 		        <bw:inputText id="sshKeyName" label="#{messages.ssh_key_name}:" 
 			        	value="#{userSshKeyManagementBean.newName}" required="true"/>			
 
