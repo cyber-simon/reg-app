@@ -35,6 +35,7 @@ import edu.kit.scc.webreg.dao.TextPropertyDao;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;
 import edu.kit.scc.webreg.entity.TextPropertyEntity;
 import edu.kit.scc.webreg.exc.GenericRestInterfaceException;
+import edu.kit.scc.webreg.exc.LoginFailedException;
 import edu.kit.scc.webreg.exc.NoRegistryFoundException;
 import edu.kit.scc.webreg.exc.NoServiceFoundException;
 import edu.kit.scc.webreg.exc.NoUserFoundException;
@@ -155,6 +156,11 @@ public class AttributeQueryController {
 			for (UnauthorizedUser uu : e.getUnauthList()) {
 				addXmlError(response, uu.getMessage(), resolveString(uu.getMessage()));
 			}
+			return response;
+		}
+		catch (LoginFailedException e) {
+			generateFailXml(response, 405, "rules failed", e.getMessage());
+			return response;
 		}
 		catch (GenericRestInterfaceException e) {
 			generateFailXml(response, 500, "ecp login failed", "generic-error");
