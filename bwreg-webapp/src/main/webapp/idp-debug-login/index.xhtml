@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<h:head>
+  <f:facet name="first">
+    <meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="theme-color" content="#009682" />
+	<meta http-equiv="cleartype" content="on" />
+	<title>IDP Debug Login Process</title>
+  </f:facet>
+  <h:outputScript library="javax.faces" name="jsf.js" target="head"/>
+</h:head>
+<h:body>
+<f:view>
+	<f:metadata>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{idpDebugLoginBean.preRenderView}" />
+	</f:metadata>
+
+	<h:form id="form" class="full form">
+
+		<h2>IDP Debug Login Process</h2>
+
+		<p:messages id="messageBox" showDetail="true" escape="false" />
+		
+		<p:outputPanel>
+			<p:commandButton action="#{idpDebugLoginBean.retryLogin()}" value="Redo Login" />
+		</p:outputPanel>
+
+		<p:outputPanel rendered="#{empty idpDebugLoginBean.extraRedirect}">
+			<a href="/index.xhtml">To the index page</a>
+		</p:outputPanel>
+
+		<p:outputPanel rendered="#{not empty idpDebugLoginBean.extraRedirect}">
+			<a href="#{idpDebugLoginBean.extraRedirect}">New user. Continue to register page</a>
+		</p:outputPanel>
+		
+		<p:outputPanel rendered="#{empty idpDebugLoginBean.debugLog}">
+			This page only works directly after the login process.
+		</p:outputPanel>
+	
+		<p:outputPanel rendered="#{not empty idpDebugLoginBean.debugLog}">
+			<pre><h:outputText value="#{idpDebugLoginBean.debugLog}" style="font-size: 0.8rem;"/></pre>
+		</p:outputPanel>
+		
+	</h:form>
+</f:view>
+</h:body>
+</html>

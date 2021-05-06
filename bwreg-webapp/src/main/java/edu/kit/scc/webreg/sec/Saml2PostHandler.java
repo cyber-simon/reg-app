@@ -46,13 +46,36 @@ public class Saml2PostHandler {
 			return;
 		}
 		
+		StringBuffer debugLog = null;
+		if (session.getOriginalRequestPath() != null && session.getOriginalRequestPath().startsWith("/idp-debug-login/")) {
+			debugLog = new StringBuffer();
+			debugLog.append("Starting debug log for login process...\n");
+			logger.debug("attempAuthentication, Client debug is on");
+		}
+		
 		logger.debug("attempAuthentication, Consuming SAML Assertion");
 		
 		try {
-			spPostService.consumePost(request, response, spConfig);
+			spPostService.consumePost(request, response, spConfig, debugLog);
+	
+			if (debugLog != null) {
+				request.setAttribute("_debugLog", debugLog.toString());
+				request.getServletContext().getRequestDispatcher("/idp-debug-login/").forward(request, response);
+			}
 			
 		} catch (Exception e) {
-			throw new ServletException("Authentication problem", e);
+			if (debugLog != null) {
+				debugLog.append("Exception: ").append(e.getMessage()).append("\n");
+				if (e.getCause() != null) {
+					debugLog.append("Cause: ").append(e.getMessage()).append("\n");
+				}
+				
+				request.setAttribute("_debugLog", debugLog.toString());
+				request.getServletContext().getRequestDispatcher("/idp-debug-login/").forward(request, response);
+			}
+			else {
+				throw new ServletException("Authentication problem", e);
+			}
 		}
 	}
 }

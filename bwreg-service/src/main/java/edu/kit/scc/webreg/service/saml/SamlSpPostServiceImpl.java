@@ -75,105 +75,135 @@ public class SamlSpPostServiceImpl implements SamlSpPostService {
 	
 	@Override
 	public void consumePost(HttpServletRequest request, HttpServletResponse response, 
-			SamlSpConfigurationEntity spConfig) throws Exception {
-		try {
-			SamlIdpMetadataEntity idpEntity = idpDao.findById(session.getIdpId());
-			EntityDescriptor idpEntityDescriptor = samlHelper.unmarshal(
-					idpEntity.getEntityDescriptor(), EntityDescriptor.class);
+			SamlSpConfigurationEntity spConfig, StringBuffer debugLog) throws Exception {
 		
-			Assertion assertion;
-			String persistentId;
-			try {
-				Response samlResponse = saml2DecoderService.decodePostMessage(request);
+		SamlIdpMetadataEntity idpEntity = idpDao.findById(session.getIdpId());
+		EntityDescriptor idpEntityDescriptor = samlHelper.unmarshal(
+				idpEntity.getEntityDescriptor(), EntityDescriptor.class);
+	
+		if (debugLog != null) {
+			debugLog.append("Resolved IDP for login: ").append(idpEntity.getEntityId()).append("\n");
+		}
+		
+		Assertion assertion = null;
+		Response samlResponse = null;
+		String persistentId;
+		try {
 
-				if (logger.isTraceEnabled())
-					logger.trace("{}", samlHelper.prettyPrint(samlResponse));
-
-				assertion = saml2AssertionService.processSamlResponse(samlResponse, idpEntity, idpEntityDescriptor, spConfig);
-				
-				if (logger.isTraceEnabled())
-					logger.trace("{}", samlHelper.prettyPrint(assertion));
-								
-				persistentId = saml2AssertionService.extractPersistentId(assertion, spConfig);
-			} catch (Exception e1) {
-				/*
-				 * Catch Exception here for a probably faulty IDP. Register Exception and rethrow.
-				 */
-				if (! SamlIdpMetadataEntityStatus.FAULTY.equals(idpEntity.getIdIdpStatus())) {
-					idpEntity.setIdIdpStatus(SamlIdpMetadataEntityStatus.FAULTY);
-					idpEntity.setLastIdStatusChange(new Date());
-				}
-				throw e1;
+			if (debugLog != null) {
+				debugLog.append("Decoding SAML Response...\n");
 			}
+
+			samlResponse = saml2DecoderService.decodePostMessage(request);
+
+			if (logger.isTraceEnabled())
+				logger.trace("{}", samlHelper.prettyPrint(samlResponse));
+
+			if (debugLog != null) {
+				debugLog.append("Decoding SAML Assertion...\n");
+			}
+
+			assertion = saml2AssertionService.processSamlResponse(samlResponse, idpEntity, idpEntityDescriptor, spConfig);
 			
-			if (! SamlIdpMetadataEntityStatus.GOOD.equals(idpEntity.getIdIdpStatus())) {
-				idpEntity.setIdIdpStatus(SamlIdpMetadataEntityStatus.GOOD);
+			if (logger.isTraceEnabled())
+				logger.trace("{}", samlHelper.prettyPrint(assertion));
+							
+			if (debugLog != null) {
+				debugLog.append("Extract Persistent NameID...\n");
+			}
+
+			persistentId = saml2AssertionService.extractPersistentId(assertion, spConfig, debugLog);
+
+			if (debugLog != null) {
+				debugLog.append("Resulting Persistent NameID: ").append(persistentId).append("\n");
+			}
+		} catch (Exception e1) {
+			/*
+			 * Catch Exception here for a probably faulty IDP. Register Exception and rethrow.
+			 */
+			if (! SamlIdpMetadataEntityStatus.FAULTY.equals(idpEntity.getIdIdpStatus())) {
+				idpEntity.setIdIdpStatus(SamlIdpMetadataEntityStatus.FAULTY);
 				idpEntity.setLastIdStatusChange(new Date());
 			}
+			throw e1;
+		} finally {
+			if (debugLog != null) {
+				if (samlResponse != null) {
+					debugLog.append("\n\nSAML Response:\n\n")
+						.append(samlHelper.prettyPrint(samlResponse));
+				}
 
-			Map<String, List<Object>> attributeMap = saml2AssertionService.extractAttributes(assertion);
-
-			SamlUserEntity user = userDao.findByPersistent(spConfig.getEntityId(), 
-						idpEntity.getEntityId(), persistentId);
-
-			if (user != null) {
-				MDC.put("userId", "" + user.getId());
+				if (assertion != null) {
+					debugLog.append("\n\nSAML Assertion:\n\n")
+						.append(samlHelper.prettyPrint(assertion));
+				}
 			}
-			
-			if (user == null) {
-				logger.info("New User detected, sending to register Page");
+		}
+		
+		if (! SamlIdpMetadataEntityStatus.GOOD.equals(idpEntity.getIdIdpStatus())) {
+			idpEntity.setIdIdpStatus(SamlIdpMetadataEntityStatus.GOOD);
+			idpEntity.setLastIdStatusChange(new Date());
+		}
 
-				// Store SAML Data temporarily in Session
-				logger.debug("Storing relevant SAML data in session");
-				session.setPersistentId(persistentId);
-				session.setAttributeMap(attributeMap);				
-				
+		Map<String, List<Object>> attributeMap = saml2AssertionService.extractAttributes(assertion);
+
+		SamlUserEntity user = userDao.findByPersistent(spConfig.getEntityId(), 
+					idpEntity.getEntityId(), persistentId);
+
+		if (user != null) {
+			MDC.put("userId", "" + user.getId());
+		}
+		
+		if (user == null) {
+			logger.info("New User detected, sending to register Page");
+
+			// Store SAML Data temporarily in Session
+			logger.debug("Storing relevant SAML data in session");
+			session.setPersistentId(persistentId);
+			session.setAttributeMap(attributeMap);				
+
+			if (debugLog != null) {
+				request.setAttribute("_debugLogExtraRedirect", "/register/register.xhtml");
+				return;
+			}
+			else {
 				response.sendRedirect("/register/register.xhtml");
 				return;
 			}
-			
-	    	logger.debug("Updating user {}", persistentId);
-			
-			try {
-				user = userUpdater.updateUser(user, assertion, "web-sso");
-			} catch (UserUpdateException e) {
-				logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
-				throw new SamlAuthenticationException(e.getMessage());
-			}
-			
-			session.setIdentityId(user.getIdentity().getId());
-			session.setLoginTime(Instant.now());
-			session.setTheme(user.getTheme());
-			session.setLocale(user.getLocale());
-			
-			UserLoginInfoEntity loginInfo = userLoginInfoDao.createNew();
-			loginInfo.setUser(user);
-			loginInfo.setLoginDate(new Date());
-			loginInfo.setLoginMethod(UserLoginMethod.HOME_ORG);
-			loginInfo.setLoginStatus(UserLoginInfoStatus.SUCCESS);
-			loginInfo.setFrom(request.getRemoteAddr());
-			loginInfo = userLoginInfoDao.persist(loginInfo);
-			
-			if (session.getOriginalRequestPath() != null) {
-				String orig = session.getOriginalRequestPath();
-				session.setOriginalRequestPath(null);
-				response.sendRedirect(orig);
-			}
-			else
-				response.sendRedirect("/index.xhtml");
+		}
+		
+    	logger.debug("Updating user {}", persistentId);
+		
+		try {
+			user = userUpdater.updateUser(user, assertion, "web-sso");
+		} catch (UserUpdateException e) {
+			logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
+			throw new SamlAuthenticationException(e.getMessage());
+		}
+		
+		session.setIdentityId(user.getIdentity().getId());
+		session.setLoginTime(Instant.now());
+		session.setTheme(user.getTheme());
+		session.setLocale(user.getLocale());
+		
+		UserLoginInfoEntity loginInfo = userLoginInfoDao.createNew();
+		loginInfo.setUser(user);
+		loginInfo.setLoginDate(new Date());
+		loginInfo.setLoginMethod(UserLoginMethod.HOME_ORG);
+		loginInfo.setLoginStatus(UserLoginInfoStatus.SUCCESS);
+		loginInfo.setFrom(request.getRemoteAddr());
+		loginInfo = userLoginInfoDao.persist(loginInfo);
 
+		if (debugLog != null) {
 			return;
-
-		} catch (MessageDecodingException e) {
-			throw new ServletException("Authentication problem", e);
-		} catch (SecurityException e) {
-			throw new ServletException("Authentication problem", e);
-		} catch (DecryptionException e) {
-			throw new ServletException("Authentication problem", e);
-		} catch (SamlAuthenticationException e) {
-			throw new ServletException("Authentication problem", e);
-		} catch (ComponentInitializationException e) {
-			throw new ServletException("Authentication problem", e);
-		}		
+		}
+		else if (session.getOriginalRequestPath() != null) {
+			String orig = session.getOriginalRequestPath();
+			session.setOriginalRequestPath(null);
+			response.sendRedirect(orig);
+		}
+		else
+			response.sendRedirect("/index.xhtml");
+	
 	}
 }

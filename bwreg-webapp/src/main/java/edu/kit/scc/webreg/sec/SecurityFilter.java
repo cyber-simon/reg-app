@@ -136,6 +136,9 @@ public class SecurityFilter implements Filter {
 		else if (path.startsWith("/register/") && session != null && session.getIdentityId() == null) {
 			chain.doFilter(servletRequest, servletResponse);
 		}
+		else if (path.startsWith("/idp-debug-login/") && httpSession != null) {
+			chain.doFilter(servletRequest, servletResponse);
+		}
 		else if (session != null && session.isLoggedIn()) {
 
 			MDC.put("userId", "" + session.getIdentityId());

@@ -131,7 +131,7 @@ public class Saml2AssertionService {
 		return assertion;
 	}
 	
-	public String extractPersistentId(Assertion assertion, SamlSpConfigurationEntity spEntity) 
+	public String extractPersistentId(Assertion assertion, SamlSpConfigurationEntity spEntity, StringBuffer debugLog) 
 			throws IOException, DecryptionException, SamlAuthenticationException {
 		logger.debug("Fetching name Id from assertion");
 		String persistentId;
@@ -139,40 +139,62 @@ public class Saml2AssertionService {
 		/*
 		 * Assertion needs a Subject and a NameID, encrypted or not
 		 */
-		if (assertion.getSubject() == null)
+		if (assertion.getSubject() == null) {
+			if (debugLog != null)
+				debugLog.append("Subject in Assertion is missing. Cannot process assertion without subject.\n");
 			throw new SamlAuthenticationException("No Subject in assertion!");
+		}
 		
 		if (assertion.getSubject().getNameID() == null &&
-				assertion.getSubject().getEncryptedID() == null)
+				assertion.getSubject().getEncryptedID() == null) {
+			if (debugLog != null)
+				debugLog.append("NameID in Assertion/Subject is missing. Cannot process assertion without NameID.\n");
 			throw new SamlAuthenticationException("SAML2 NameID is missing.");
+		}
 
 		/*
 		 * If the NameID is encrypted, decrypt it
 		 */
 		NameID nid;
 		if (assertion.getSubject().getEncryptedID() != null) {
+			if (debugLog != null)
+				debugLog.append("NameID is encrypted Decrypting NameID...\n");
+
 			EncryptedID eid = assertion.getSubject().getEncryptedID();
 			SAMLObject samlObject = decryptNameID(eid, spEntity.getCertificate(), spEntity.getPrivateKey(), 
 					spEntity.getStandbyCertificate(), spEntity.getStandbyPrivateKey());
 			
 			if (samlObject instanceof NameID)
 				nid = (NameID) samlObject;
-			else
+			else {
+				if (debugLog != null)
+					debugLog.append("Only Encrypted NameIDs are supoorted. Encrypted BaseIDs or embedded Assertions are not supported.\n")
+						.append("NameID Type is: ").append(samlObject.getClass().getName()).append("\n");
 				throw new SamlAuthenticationException("Only Encrypted NameIDs are supoorted. Encrypted BaseIDs or embedded Assertions are not supported");
+			}
 		}
 		else
 			nid = assertion.getSubject().getNameID();
 		
+		if (debugLog != null)
+			debugLog.append("Resulting NameID (XML):\n").append(samlHelper.prettyPrint(nid)).append("\n");
+		
 		logger.debug("NameId format {} value {}", nid.getFormat(), nid.getValue());
 		if (nid.getFormat().equals(NameID.TRANSIENT)) {
+			if (debugLog != null)
+				debugLog.append("NameID is Transient. At the moment, only Persistent NameID is supported\n");
 			throw new SamlAuthenticationException("NameID is Transient but must be Persistent");
 		}
 		else if (nid.getFormat().equals(NameID.PERSISTENT)) {
 			persistentId = nid.getValue();
 		}
-		else
+		else {
+			if (debugLog != null)
+				debugLog.append("NameID is Unknown type (").append(nid.getClass().getName())
+					.append("). At the moment, only Persistent NameID is supported\n");
 			throw new SamlAuthenticationException("Unsupported SAML2 NameID Type");
-
+		}
+		
 		return persistentId;
 	}
 	

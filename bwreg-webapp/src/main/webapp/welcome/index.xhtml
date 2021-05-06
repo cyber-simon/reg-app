@@ -27,6 +27,10 @@
 		<h3><h:outputText value="#{messages.welcome}"/></h3>
 
 		<p:panel>
+			<p:panel rendered="#{sessionManager.originalRequestPath != null and sessionManager.originalRequestPath.startsWith('/idp-debug-login/')}">
+				<span style="color:red;">Login debugging is on. You will see a full log of your login process.</span>
+			</p:panel>
+		
 			<p:outputPanel rendered="#{empty discoveryLoginBean.spMetadata and empty discoveryLoginBean.clientConfig}" style="margin-top: 8px;">
 				<h:outputText value="#{messages.welcome_disco}" escape="false"/>
 			</p:outputPanel>

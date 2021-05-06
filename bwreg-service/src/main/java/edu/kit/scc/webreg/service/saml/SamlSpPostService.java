@@ -7,8 +7,9 @@ import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 
 public interface SamlSpPostService {
 
-	void consumePost(HttpServletRequest request, HttpServletResponse response, SamlSpConfigurationEntity spConfig)
-			throws Exception;
+	void consumePost(HttpServletRequest request, HttpServletResponse response, SamlSpConfigurationEntity spConfig,
+			StringBuffer debugLog)
+					throws Exception;
 
 
 	
