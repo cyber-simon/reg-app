@@ -35,12 +35,14 @@
 	    	        	<h:outputText value="#{u.email} - " rendered="#{u.eppn == null and u.email != null}"/>
 	    	        	<h:outputText value="#{u.persistentId} - " rendered="#{u.eppn == null and u.email == null}"/>
 	    	        	<h:outputText value="#{u.idp.displayName}" />
+    	        		<h:outputText value=" (#{messages.currently_logged_id})"  rendered="#{sessionManager.loggedInUserList.contains(u.id)}"/>
     	        	</p:outputPanel>
     	        	<p:outputPanel rendered="#{u.class.simpleName eq 'OidcUserEntity'}">
     	        		<h:outputText value="#{u.eppn} - " rendered="#{u.eppn != null}"/>
 	    	        	<h:outputText value="#{u.email} - " rendered="#{u.eppn == null and u.email != null}"/>
 	    	        	<h:outputText value="#{u.subjectId} - " rendered="#{u.eppn == null and u.email == null}"/>
 	    	        	<h:outputText value="#{u.issuer.displayName}" />
+    	        		<h:outputText value=" (#{messages.currently_logged_id})"  rendered="#{sessionManager.loggedInUserList.contains(u.id)}"/>
     	        	</p:outputPanel>
     	        </p:column>
 	           	<f:ajax render=":form:tabVw" execute="@this" />

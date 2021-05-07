@@ -26,6 +26,8 @@ import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 
+import edu.kit.scc.webreg.service.saml.SamlSpLogoutService;
+import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.ViewIds;
 
 @Named
@@ -35,6 +37,9 @@ public class LogoutServlet implements Servlet {
 	@Inject
 	private Logger logger;
 
+	@Inject
+	private SamlSpLogoutService samlSpLogoutService;
+	
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		
@@ -53,12 +58,14 @@ public class LogoutServlet implements Servlet {
 		
 		logger.debug("logout request context '{}' path '{}'", context, path);
 
-		HttpSession session = request.getSession(false);
-		if(session != null) {
-			session.invalidate();
-		}
 		String redirect = request.getParameter("redirect");
-		if (redirect != null && (! redirect.equals(""))) {
+		if (redirect == null) redirect = "";
+		
+		if (path.startsWith("/logout/local")) {
+			HttpSession session = request.getSession(false);
+			if(session != null) {
+				session.invalidate();
+			}
 			if (redirect.equalsIgnoreCase("delete"))
 				response.sendRedirect(ViewIds.DELETE_ALL_PERSONAL_DATA_DONE);
 			else if (redirect.equalsIgnoreCase("local_logout"))
@@ -67,10 +74,30 @@ public class LogoutServlet implements Servlet {
 				response.sendRedirect("/idp-debug-login/");
 			else
 				response.sendRedirect(ViewIds.INDEX_USER);
+
 		}
-		else {
-			response.sendRedirect(ViewIds.INDEX_USER);
+		else if (path.startsWith("/logout/saml")) {
+			
+			Long userId = Long.parseLong(request.getParameter("user_id"));
+			
+			if (userId != null) {
+				try {
+					samlSpLogoutService.redirectLogout(request, response, userId);
+				} catch (Exception e) {
+					logger.info("Could SAML Logout", e);
+				}
+			}
+/*			
+			HttpSession session = request.getSession(false);
+			if(session != null) {
+				session.invalidate();
+			}			
+
+			response.sendRedirect(ViewIds.ALL_LOGOUT_DONE);
+*/
 		}
+
+//		response.sendRedirect(ViewIds.INDEX_USER);
 	}
 	
 	@Override

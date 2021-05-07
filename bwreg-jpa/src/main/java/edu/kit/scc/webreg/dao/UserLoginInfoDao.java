@@ -12,15 +12,17 @@ package edu.kit.scc.webreg.dao;
 
 import java.util.List;
 
+import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
 import edu.kit.scc.webreg.entity.UserLoginMethod;
 
 public interface UserLoginInfoDao extends BaseDao<UserLoginInfoEntity, Long> {
 
 	List<UserLoginInfoEntity> findByUser(Long userId);
-
+	List<UserLoginInfoEntity> findByIdentity(Long identityId);
 	List<UserLoginInfoEntity> findByRegistry(Long registryId);
-
+	List<UserLoginInfoEntity> findByUserList(List<UserEntity> userList);
+	
 	UserLoginInfoEntity findLastByRegistryAndMethod(Long registryId, UserLoginMethod method);
 	
 	void deleteLoginInfo(long millis);

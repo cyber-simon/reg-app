@@ -18,6 +18,7 @@ import javax.inject.Named;
 import javax.persistence.Query;
 
 import edu.kit.scc.webreg.dao.UserLoginInfoDao;
+import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
 import edu.kit.scc.webreg.entity.UserLoginMethod;
 
@@ -30,6 +31,20 @@ public class JpaUserLoginInfoDao extends JpaBaseDao<UserLoginInfoEntity, Long> i
 	public List<UserLoginInfoEntity> findByUser(Long userId) {
 		return em.createQuery("select e from UserLoginInfoEntity e where e.user.id = :userId")
 				.setParameter("userId", userId).getResultList();	
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<UserLoginInfoEntity> findByUserList(List<UserEntity> userList) {
+		return em.createQuery("select e from UserLoginInfoEntity e where e.user in :userList")
+				.setParameter("userList", userList).getResultList();	
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<UserLoginInfoEntity> findByIdentity(Long identityId) {
+		return em.createQuery("select e from UserLoginInfoEntity e where e.identity.id = :identityId")
+				.setParameter("identityId", identityId).getResultList();	
 	}
 
 	@Override
