@@ -11,14 +11,15 @@
 </head>
 <body>
 	<ui:composition> 
-			<div id="header-logo">
-				<h:graphicImage value="#{resource['img/fels.png']}" alt="Fels Logo" />
+			<div id="header-logo" >
+				<h:graphicImage value="#{resource['img/fels_icon.svg']}" alt="Fels Logo" style="height: 120px; margin-left: 40px;" />
 			</div>
 			<div id="header-image">
-				<div id="header-right" class="ui-widget">
-					Header rechts
+				<div id="header-right" class="ui-widget">					
 				</div>
-				<div id="header-text" class="ui-widget">Federated Login Service Admin</div>
+				<div id="header-text" class="ui-widget">
+					<div style="position:absolute; bottom: 18px; left: 12px; width: 600px; font-size: 2.2em; color: #ffffff; font-weight: bold;">reg-app administration</div>
+				</div>
 			</div>
 	</ui:composition>
 </body>

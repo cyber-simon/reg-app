@@ -96,6 +96,8 @@ div#header-right {
 }
 
 div#header-text {
+	position: relative;
+	height: 108px;
 	float: left;
 }
 
