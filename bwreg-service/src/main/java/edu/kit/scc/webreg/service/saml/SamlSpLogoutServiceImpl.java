@@ -20,10 +20,13 @@ import org.opensaml.saml.common.messaging.context.SAMLEndpointContext;
 import org.opensaml.saml.common.messaging.context.SAMLPeerEntityContext;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.criterion.RoleDescriptorCriterion;
+import org.opensaml.saml.saml2.binding.decoding.impl.HTTPPostDecoder;
+import org.opensaml.saml.saml2.binding.decoding.impl.HTTPRedirectDeflateDecoder;
 import org.opensaml.saml.saml2.binding.encoding.impl.HTTPRedirectDeflateEncoder;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 import org.opensaml.saml.saml2.core.NameID;
+import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.SingleLogoutService;
 import org.opensaml.saml.security.impl.SAMLMetadataSignatureSigningParametersResolver;
@@ -45,6 +48,7 @@ import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
+import edu.kit.scc.webreg.service.saml.exc.SamlInvalidPostException;
 import edu.kit.scc.webreg.session.SessionManager;
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 
@@ -77,7 +81,20 @@ public class SamlSpLogoutServiceImpl implements SamlSpLogoutService {
 	
 	@Inject
 	private SessionManager session;
-	
+
+	@Override
+	public void consumeRedirectLogout(HttpServletRequest request, HttpServletResponse response, SamlSpConfigurationEntity spConfig)
+			throws Exception {
+		HTTPRedirectDeflateDecoder decoder = new HTTPRedirectDeflateDecoder();
+		decoder.setHttpServletRequest(request);
+
+		decoder.initialize();
+		decoder.decode();
+
+		SAMLObject obj = decoder.getMessageContext().getMessage();
+		logger.debug("Message decoded: {}", obj);
+	}
+
 	@Override
 	public void redirectLogout(HttpServletRequest request, HttpServletResponse response, Long userId)
 			throws Exception {
