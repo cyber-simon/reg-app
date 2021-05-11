@@ -1,9 +1,10 @@
 package edu.kit.scc.webreg.service.saml;
 
-import java.time.Instant;
-import java.util.Date;
+import java.io.IOException;
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -14,39 +15,38 @@ import org.joda.time.DateTime;
 import org.opensaml.messaging.context.MessageContext;
 import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.common.SAMLVersion;
+import org.opensaml.saml.common.messaging.SAMLMessageSecuritySupport;
 import org.opensaml.saml.common.messaging.context.SAMLEndpointContext;
 import org.opensaml.saml.common.messaging.context.SAMLPeerEntityContext;
 import org.opensaml.saml.common.xml.SAMLConstants;
+import org.opensaml.saml.criterion.RoleDescriptorCriterion;
 import org.opensaml.saml.saml2.binding.encoding.impl.HTTPRedirectDeflateEncoder;
-import org.opensaml.saml.saml2.core.Assertion;
-import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 import org.opensaml.saml.saml2.core.NameID;
-import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.SingleLogoutService;
-import org.opensaml.saml.saml2.metadata.SingleSignOnService;
+import org.opensaml.saml.security.impl.SAMLMetadataSignatureSigningParametersResolver;
+import org.opensaml.security.credential.Credential;
+import org.opensaml.security.x509.BasicX509Credential;
+import org.opensaml.xmlsec.SignatureSigningParameters;
+import org.opensaml.xmlsec.config.impl.DefaultSecurityConfigurationBootstrap;
+import org.opensaml.xmlsec.context.SecurityParametersContext;
+import org.opensaml.xmlsec.criterion.SignatureSigningConfigurationCriterion;
+import org.opensaml.xmlsec.impl.BasicSignatureSigningConfiguration;
 import org.slf4j.Logger;
-import org.slf4j.MDC;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
+import edu.kit.scc.webreg.dao.SamlSpConfigurationDao;
 import edu.kit.scc.webreg.dao.SamlUserDao;
-import edu.kit.scc.webreg.dao.UserLoginInfoDao;
-import edu.kit.scc.webreg.drools.impl.KnowledgeSessionSingleton;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
-import edu.kit.scc.webreg.entity.SamlIdpMetadataEntityStatus;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
-import edu.kit.scc.webreg.entity.UserLoginInfoStatus;
-import edu.kit.scc.webreg.entity.UserLoginMethod;
-import edu.kit.scc.webreg.exc.UserUpdateException;
-import edu.kit.scc.webreg.service.impl.UserUpdater;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.session.SessionManager;
+import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 
 @Stateless
 public class SamlSpLogoutServiceImpl implements SamlSpLogoutService {
@@ -58,6 +58,9 @@ public class SamlSpLogoutServiceImpl implements SamlSpLogoutService {
 	private SamlIdpMetadataDao idpDao;
 	
 	@Inject
+	private SamlSpConfigurationDao spConfigDao;
+	
+	@Inject
 	private SamlUserDao userDao;
 	
 	@Inject
@@ -65,6 +68,9 @@ public class SamlSpLogoutServiceImpl implements SamlSpLogoutService {
 	
 	@Inject
 	private MetadataHelper metadataHelper;
+	
+	@Inject
+	private CryptoHelper cryptoHelper;
 	
 	@Inject
 	private ApplicationConfig appConfig;
@@ -91,6 +97,7 @@ public class SamlSpLogoutServiceImpl implements SamlSpLogoutService {
 		
 		SamlUserEntity user = (SamlUserEntity) tempUser;
 		SamlIdpMetadataEntity idpEntity = user.getIdp();
+		SamlSpConfigurationEntity spEntity = spConfigDao.findByHostname(request.getLocalName());
 		
 		EntityDescriptor entityDesc = samlHelper.unmarshal(
 				idpEntity.getEntityDescriptor(), EntityDescriptor.class);
@@ -100,6 +107,7 @@ public class SamlSpLogoutServiceImpl implements SamlSpLogoutService {
 		logoutRequest.setID(samlHelper.getRandomId());
 		logoutRequest.setVersion(SAMLVersion.VERSION_20);
 		logoutRequest.setIssueInstant(new DateTime());
+		logoutRequest.setDestination(slo.getLocation());
 
 		NameID nameId = samlHelper.create(NameID.class, NameID.DEFAULT_ELEMENT_NAME);
 		nameId.setFormat(NameID.PERSISTENT);
@@ -112,10 +120,6 @@ public class SamlSpLogoutServiceImpl implements SamlSpLogoutService {
 		
 		logger.debug("Logout Request: {}", samlHelper.prettyPrint(logoutRequest));
 		
-		/**
-		 * Need to sign logout message. Doesn't get accepted unsigned.
-		 */
-		
 		MessageContext<SAMLObject> messageContext = new MessageContext<SAMLObject>();
 		messageContext.setMessage(logoutRequest);
 		SAMLPeerEntityContext entityContext = new SAMLPeerEntityContext();
@@ -124,6 +128,38 @@ public class SamlSpLogoutServiceImpl implements SamlSpLogoutService {
 		endpointContext.setEndpoint(slo);
 		entityContext.addSubcontext(endpointContext);
 		messageContext.addSubcontext(entityContext);
+
+		/**
+		 * Need to sign logout message. Doesn't get accepted unsigned.
+		 */
+
+		PrivateKey privateKey;
+		X509Certificate publicKey;
+		try {
+			privateKey = cryptoHelper.getPrivateKey(spEntity.getPrivateKey());
+			publicKey = cryptoHelper.getCertificate(spEntity.getCertificate());
+		} catch (IOException e) {
+			throw new SamlAuthenticationException("Private key is not set up properly", e);
+		}
+
+		BasicX509Credential credential = new BasicX509Credential(publicKey, privateKey);
+		List<Credential> credentialList = new ArrayList<Credential>();
+		credentialList.add(credential);
+		
+		BasicSignatureSigningConfiguration ssConfig = DefaultSecurityConfigurationBootstrap.buildDefaultSignatureSigningConfiguration();
+		ssConfig.setSigningCredentials(credentialList);
+		CriteriaSet criteriaSet = new CriteriaSet();
+		criteriaSet.add(new SignatureSigningConfigurationCriterion(ssConfig));
+		criteriaSet.add(new RoleDescriptorCriterion(entityDesc.getIDPSSODescriptor(SAMLConstants.SAML20P_NS)));
+		SAMLMetadataSignatureSigningParametersResolver smsspr = new SAMLMetadataSignatureSigningParametersResolver();
+		
+		SignatureSigningParameters ssp = smsspr.resolveSingle(criteriaSet);
+		logger.debug("Resolved algo {} for signing", ssp.getSignatureAlgorithm());
+		SecurityParametersContext securityContext = new SecurityParametersContext();
+		securityContext.setSignatureSigningParameters(ssp);
+		messageContext.addSubcontext(securityContext);
+
+		SAMLMessageSecuritySupport.signMessage(messageContext);
 		
 		HTTPRedirectDeflateEncoder encoder = new HTTPRedirectDeflateEncoder();
 		encoder.setHttpServletResponse(response);

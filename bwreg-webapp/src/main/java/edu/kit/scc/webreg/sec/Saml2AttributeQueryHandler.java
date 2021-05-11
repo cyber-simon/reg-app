@@ -12,9 +12,14 @@ package edu.kit.scc.webreg.sec;
 
 import java.io.IOException;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
+import javax.servlet.Servlet;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -43,6 +48,7 @@ import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.SamlAAConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.service.SamlAAConfigurationService;
 import edu.kit.scc.webreg.service.SamlSpMetadataService;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.saml.Saml2DecoderService;
@@ -52,8 +58,9 @@ import edu.kit.scc.webreg.service.saml.SsoHelper;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 
-@ApplicationScoped
-public class Saml2AttributeQueryHandler {
+@Named
+@WebServlet(urlPatterns = {"/Shibboleth.sso/SAML2/AttributeQuery", "/saml/sp/attribute-query"})
+public class Saml2AttributeQueryHandler implements Servlet {
 
 	@Inject
 	private Logger logger;
@@ -70,6 +77,9 @@ public class Saml2AttributeQueryHandler {
 	@Inject 
 	private SamlSpMetadataService spMetadataService;
 
+	@Inject 
+	private SamlAAConfigurationService aaConfigService;
+
 	@Inject
 	private UserService userService;
 	
@@ -79,7 +89,33 @@ public class Saml2AttributeQueryHandler {
 	@Inject
 	private ApplicationConfig appConfig;
 	
-	public void service(HttpServletRequest request, HttpServletResponse response, SamlAAConfigurationEntity aaConfig)
+	@Override
+	public void service(ServletRequest servletRequest, ServletResponse servletResponse)
+			throws ServletException, IOException {
+
+		HttpServletRequest request = (HttpServletRequest) servletRequest;
+		HttpServletResponse response = (HttpServletResponse) servletResponse;
+
+		String context = request.getServletContext().getContextPath();
+		String path = request.getRequestURI().substring(
+				context.length());
+		
+		logger.debug("Dispatching request context '{}' path '{}'", context, path);
+		
+		SamlAAConfigurationEntity aaConfig = aaConfigService.findByHostname(request.getServerName());
+		
+		if (aaConfig != null && aaConfig.getAq() != null &&
+				aaConfig.getAq().endsWith(context + path)) {
+			logger.debug("Executing AttributeQuery Handler for entity {}", aaConfig.getEntityId());
+			service(request, response, aaConfig);
+			return;
+		}
+
+		logger.info("No matching servlet for context '{}' path '{}'", context, path);
+		
+	}
+	
+	private void service(HttpServletRequest request, HttpServletResponse response, SamlAAConfigurationEntity aaConfig)
 			throws ServletException, IOException {
 
 		logger.debug("Consuming SAML AttributeQuery");
@@ -204,4 +240,23 @@ public class Saml2AttributeQueryHandler {
 		
 		return attribute;
 	}
+	
+	@Override
+	public void init(ServletConfig config) throws ServletException {
+		
+	}
+	
+	@Override
+	public ServletConfig getServletConfig() {
+		return null;
+	}
+
+	@Override
+	public String getServletInfo() {
+		return null;
+	}
+
+	@Override
+	public void destroy() {
+	}		
 }

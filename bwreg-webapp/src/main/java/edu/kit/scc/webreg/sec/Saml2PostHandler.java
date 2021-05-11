@@ -12,20 +12,27 @@ package edu.kit.scc.webreg.sec;
 
 import java.io.IOException;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
+import javax.servlet.Servlet;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
+import edu.kit.scc.webreg.service.SamlSpConfigurationService;
 import edu.kit.scc.webreg.service.saml.SamlSpPostService;
 import edu.kit.scc.webreg.session.SessionManager;
 
-@ApplicationScoped
-public class Saml2PostHandler {
+@Named
+@WebServlet(urlPatterns = {"/Shibboleth.sso/SAML2/POST", "/saml/sp/post"})
+public class Saml2PostHandler implements Servlet {
 
 	@Inject
 	private Logger logger;
@@ -33,10 +40,34 @@ public class Saml2PostHandler {
 	@Inject
 	private SessionManager session;
 
+	@Inject 
+	private SamlSpConfigurationService spConfigService;
+
 	@Inject
 	private SamlSpPostService spPostService;
+
+	@Override
+	public void service(ServletRequest servletRequest, ServletResponse servletResponse)
+			throws ServletException, IOException {
+
+		HttpServletRequest request = (HttpServletRequest) servletRequest;
+		HttpServletResponse response = (HttpServletResponse) servletResponse;
+
+		String context = request.getServletContext().getContextPath();
+		String path = request.getRequestURI().substring(
+				context.length());
+		
+		logger.debug("Dispatching request context '{}' path '{}'", context, path);
+		
+		SamlSpConfigurationEntity spConfig = spConfigService.findByHostname(request.getServerName());
+		
+		if (spConfig != null) {
+			logger.debug("Executing POST Handler for entity {}", spConfig.getEntityId());
+			service(request, response, spConfig);
+		}
+	}
 	
-	public void service(HttpServletRequest request, HttpServletResponse response, SamlSpConfigurationEntity spConfig)
+	private void service(HttpServletRequest request, HttpServletResponse response, SamlSpConfigurationEntity spConfig)
 			throws ServletException, IOException {
 
 		if (session == null || session.getIdpId() == null || session.getSpId() == null) {
@@ -78,4 +109,23 @@ public class Saml2PostHandler {
 			}
 		}
 	}
+
+	@Override
+	public void init(ServletConfig config) throws ServletException {
+		
+	}
+	
+	@Override
+	public ServletConfig getServletConfig() {
+		return null;
+	}
+
+	@Override
+	public String getServletInfo() {
+		return null;
+	}
+
+	@Override
+	public void destroy() {
+	}	
 }

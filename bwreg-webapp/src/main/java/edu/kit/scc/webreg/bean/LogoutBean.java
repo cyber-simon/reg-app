@@ -65,7 +65,7 @@ public class LogoutBean implements Serializable {
 
 	public void startLogout() {
 		try {
-			FacesContext.getCurrentInstance().getExternalContext().redirect("/logout/all");
+			FacesContext.getCurrentInstance().getExternalContext().redirect("/logout/saml?user_id=1009");
 		} catch (IOException e) {
 			logger.warn("Redirect failed", e);
 		}

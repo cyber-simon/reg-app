@@ -24,6 +24,7 @@
 	
 		<p:dataTable value="#{logoutBean.userLoginList}" var="userLogin">
 			<p:column>#{userLogin.id}</p:column>
+			<p:column><a href="/logout/saml?user_id=#{userLogin.id}">Logout</a></p:column>
 		</p:dataTable>
 	
 		<p:panel id="logoutPanel">
