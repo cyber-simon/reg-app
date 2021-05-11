@@ -185,6 +185,7 @@ public class SamlSpPostServiceImpl implements SamlSpPostService {
 		session.setLoginTime(Instant.now());
 		session.setTheme(user.getTheme());
 		session.setLocale(user.getLocale());
+		session.getLoggedInUserList().add(user.getId());
 		
 		UserLoginInfoEntity loginInfo = userLoginInfoDao.createNew();
 		loginInfo.setUser(user);

@@ -25,34 +25,26 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 
-import edu.kit.scc.webreg.entity.SamlAAConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
-import edu.kit.scc.webreg.service.SamlAAConfigurationService;
 import edu.kit.scc.webreg.service.SamlSpConfigurationService;
+import edu.kit.scc.webreg.service.saml.SamlSpLogoutService;
+import edu.kit.scc.webreg.session.SessionManager;
 
 @Named
-@WebServlet(urlPatterns = {"/Shibboleth.sso/*", "/saml/sp/*"})
-public class SamlSpDispatcherServlet implements Servlet {
+@WebServlet(urlPatterns = {"/Shibboleth.sso/SLO/Redirect", "/saml/sp/logout/redirect"})
+public class Saml2SpLogoutHandler implements Servlet {
 
 	@Inject
 	private Logger logger;
 
+	@Inject
+	private SessionManager session;
+
 	@Inject 
 	private SamlSpConfigurationService spConfigService;
 
-	@Inject 
-	private SamlAAConfigurationService aaConfigService;
-
 	@Inject
-	private Saml2AttributeQueryHandler attributeQueryServlet;
-	
-	@Inject
-	private Saml2PostHandler postHandler;
-	
-	@Override
-	public void init(ServletConfig config) throws ServletException {
-		
-	}
+	private SamlSpLogoutService samlLogoutService;
 
 	@Override
 	public void service(ServletRequest servletRequest, ServletResponse servletResponse)
@@ -69,23 +61,34 @@ public class SamlSpDispatcherServlet implements Servlet {
 		
 		SamlSpConfigurationEntity spConfig = spConfigService.findByHostname(request.getServerName());
 		
-		if (spConfig != null && spConfig.getAcs() != null &&
-				spConfig.getAcs().endsWith(context + path)) {
+		if (spConfig != null) {
 			logger.debug("Executing POST Handler for entity {}", spConfig.getEntityId());
-			postHandler.service(request, response, spConfig);
+			service(request, response, spConfig);
+		}
+	}
+	
+	private void service(HttpServletRequest request, HttpServletResponse response, SamlSpConfigurationEntity spConfig)
+			throws ServletException, IOException {
+
+		if (session == null || session.getIdpId() == null || session.getSpId() == null) {
+			logger.debug("Client session from {} not established. Sending client back to welcome page",
+					request.getRemoteAddr());
+			response.sendRedirect("/welcome/index.xhtml");
 			return;
 		}
-
-		SamlAAConfigurationEntity aaConfig = aaConfigService.findByHostname(request.getServerName());
 		
-		if (aaConfig != null && aaConfig.getAq() != null &&
-				aaConfig.getAq().endsWith(context + path)) {
-			logger.debug("Executing AttributeQuery Handler for entity {}", aaConfig.getEntityId());
-			attributeQueryServlet.service(request, response, aaConfig);
-			return;
+		logger.debug("attemp Logout, Consuming SAML Logout Request");
+		
+		try {
+			samlLogoutService.consumeRedirectLogout(request, response, spConfig);
+	
+		} catch (Exception e) {
+			throw new ServletException("Authentication problem", e);
 		}
+	}
 
-		logger.info("No matching servlet for context '{}' path '{}'", context, path);
+	@Override
+	public void init(ServletConfig config) throws ServletException {
 		
 	}
 	

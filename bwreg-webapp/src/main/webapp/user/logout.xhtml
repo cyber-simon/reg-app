@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form" prependId="false" class="full fancy form">
+
+		<h3 class="full">#{messages.logout_header}</h3>
+		<div class="full"><h:outputText value="#{messages.logout_text}"/></div>
+
+		<div class="full"><h:outputText value="#{logoutBean.identity.id}"/></div>
+	
+		<p:dataTable value="#{logoutBean.userLoginList}" var="userLogin">
+			<p:column>#{userLogin.id}</p:column>
+			<p:column><a href="/logout/saml?user_id=#{userLogin.id}">Logout</a></p:column>
+		</p:dataTable>
+	
+		<p:panel id="logoutPanel">
+			<p:commandButton id="logout" action="#{logoutBean.startLocalLogout()}" 
+					value="#{messages.local_logout}" />
+
+			<p:commandButton id="logoutAll" action="#{logoutBean.startLogout()}" 
+					value="#{messages.logout_all}" />
+		
+			<p:blockUI block="logoutPanel" trigger="logout,logoutAll">  
+		     			<p:graphicImage value="#{resource['/img/ajax-loader.gif']}" alt="#{messages.loading}" />  
+			</p:blockUI>					
+		</p:panel>
+	</h:form>	
+	</ui:define>
+</ui:composition>
+</body>
+</html>

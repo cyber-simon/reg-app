@@ -100,7 +100,12 @@ public class UserPropertiesBean implements Serializable {
 
 	public UserEntity getUser() {
 		if (user == null) {
-			user = userService.findByIdWithStore(getUserList().get(0).getId());
+			if (sessionManager.getLoggedInUserList().size() > 0) {
+				user = userService.findByIdWithStore(sessionManager.getLoggedInUserList().iterator().next());
+			}
+			else {
+				user = userService.findByIdWithStore(getUserList().get(0).getId());
+			}
 		}
 		return user;
 	}

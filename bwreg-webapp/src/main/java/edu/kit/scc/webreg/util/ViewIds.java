@@ -160,6 +160,7 @@ public class ViewIds {
 	public static final String DISCOVERY_LOGIN = "/welcome/index.xhtml";	
 	public static final String DELETE_ALL_PERSONAL_DATA_DONE = "/welcome/delete-all-personal-data-done.xhtml";	
 	public static final String LOCAL_LOGOUT_DONE = "/welcome/local-logout-done.xhtml";	
+	public static final String ALL_LOGOUT_DONE = "/welcome/logout-done.xhtml";	
 	public static final String APPROVE_USER = "/service-approver/approve-user.xhtml";	
 	
 }

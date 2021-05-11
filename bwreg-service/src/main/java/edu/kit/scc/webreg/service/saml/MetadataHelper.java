@@ -50,6 +50,7 @@ import org.opensaml.saml.saml2.metadata.Extensions;
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
 import org.opensaml.saml.saml2.metadata.OrganizationDisplayName;
 import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
+import org.opensaml.saml.saml2.metadata.SingleLogoutService;
 import org.opensaml.saml.saml2.metadata.SingleSignOnService;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
@@ -367,6 +368,19 @@ public class MetadataHelper implements Serializable {
 			for (SingleSignOnService sso : ssos) {
 				if (sso.getBinding().equals(binding)) {
 					return sso;
+				}
+			}
+		}
+		return null;
+	}
+	
+	public SingleLogoutService getSLO(EntityDescriptor entityDesc, String binding) {
+		IDPSSODescriptor idpSsoDesc = entityDesc.getIDPSSODescriptor(SAMLConstants.SAML20P_NS);
+		if (idpSsoDesc != null) {
+			List<SingleLogoutService> slos = idpSsoDesc.getSingleLogoutServices();
+			for (SingleLogoutService slo : slos) {
+				if (slo.getBinding().equals(binding)) {
+					return slo;
 				}
 			}
 		}
