@@ -24,8 +24,8 @@ public class UserGroupCallbackImpl implements UserGroupCallback {
 	
 	@Override
 	public boolean existsUser(String userId) {
-		UserEntity user = userService.findByEppn(userId);
-		if (user == null) {
+		List<UserEntity> user = userService.findByEppn(userId);
+		if (user.size() == 0) {
 			return false;
 		}
 		else {
@@ -47,15 +47,18 @@ public class UserGroupCallbackImpl implements UserGroupCallback {
 	@Override
 	public List<String> getGroupsForUser(String userId, List<String> groupIds,
 			List<String> allExistingGroupIds) {
-		UserEntity user = userService.findByEppn(userId);
-		if (user == null) {
+		List<UserEntity> userList = userService.findByEppn(userId);
+		if (userList.size() == 0) {
 			return null;
 		}
-		List<RoleEntity> roleEntityList = roleService.findByUser(user);
-		List<String> returnList = new ArrayList<String>(roleEntityList.size());
-		
-		for (RoleEntity role : roleEntityList) {
-			returnList.add(role.getName());
+		List<String> returnList = new ArrayList<String>();
+
+		for (UserEntity user : userList) {
+			List<RoleEntity> roleEntityList = roleService.findByUser(user);
+			
+			for (RoleEntity role : roleEntityList) {
+				returnList.add(role.getName());
+			}
 		}
 		
 		return returnList;

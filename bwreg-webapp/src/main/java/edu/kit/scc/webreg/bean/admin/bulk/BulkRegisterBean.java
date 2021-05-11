@@ -117,22 +117,27 @@ public class BulkRegisterBean implements Serializable {
 		for (RegisterUser registerUser : selectedUsers) {
 			try {
 				logger.debug("Processing user {} for service {}", registerUser.getEppn(), selectedService.getName());
-				UserEntity userEntity = userService.findByEppn(registerUser.getEppn());
-			
-				if (userEntity == null) {
+				List<UserEntity> userEntity = userService.findByEppn(registerUser.getEppn());
+
+				if (userEntity.size() == 0) {
 					registerUser.setStatus("User unkown");
 					continue;
 				}
 				
+				if (userEntity.size() > 1) {
+					registerUser.setStatus("User not unique");
+					continue;
+				}
+				
 				RegistryEntity registry = registryService.findByServiceAndUserAndStatus(
-						selectedService, userEntity, RegistryStatus.ACTIVE);
+						selectedService, userEntity.get(0), RegistryStatus.ACTIVE);
 				
 				if (registry != null) {
 					registerUser.setStatus("User already registered");
 					continue;
 				}
 				
-	    		registerUserService.registerUser(userEntity, service, "bulk-register");
+	    		registerUserService.registerUser(userEntity.get(0), service, "bulk-register");
 				registerUser.setStatus("Successfully registered");
 
 			} catch (Exception e) {

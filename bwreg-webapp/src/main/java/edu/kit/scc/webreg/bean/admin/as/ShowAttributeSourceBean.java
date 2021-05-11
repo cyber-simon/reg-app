@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.bean.admin.as;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.inject.Named;
 import javax.faces.view.ViewScoped;
@@ -57,15 +58,20 @@ public class ShowAttributeSourceBean implements Serializable {
 	}
 		
 	public void testSource() {
-		UserEntity user = userService.findByEppn(testUsername);
+		List<UserEntity> user = userService.findByEppn(testUsername);
 		
-		if (user == null) {
+		if (user.size() == 0) {
 			logger.info("User {} not found", testUsername);
 			return;
 		}
 		
+		if (user.size() > 1) {
+			logger.info("User {} not unique", testUsername);
+			return;
+		}
+		
 		try {
-			asQueryService.updateUserAttributes(user, entity, "test");
+			asQueryService.updateUserAttributes(user.get(0), entity, "test");
 		} catch (UserUpdateException e) {
 			logger.info("Exception!", e);
 		}

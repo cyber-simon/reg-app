@@ -129,7 +129,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity, Long> implement
 	}
 
 	@Override
-	public UserEntity findByEppn(String eppn) {
+	public List<UserEntity> findByEppn(String eppn) {
 		return dao.findByEppn(eppn);
 	}
 

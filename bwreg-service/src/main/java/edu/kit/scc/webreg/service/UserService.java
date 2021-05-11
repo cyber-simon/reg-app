@@ -31,7 +31,7 @@ public interface UserService extends BaseService<UserEntity, Long> {
 	SamlUserEntity findByPersistentWithRoles(String spId, String idpId,
 			String persistentId);
 	
-	UserEntity findByEppn(String eppn);
+	List<UserEntity> findByEppn(String eppn);
 	
 	UserEntity findByIdWithAll(Long id);
 	

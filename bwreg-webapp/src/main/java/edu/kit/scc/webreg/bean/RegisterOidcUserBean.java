@@ -107,7 +107,7 @@ public class RegisterOidcUserBean implements Serializable {
 			return;
 		}
 
-    	if (service.findByEppn(entity.getEppn()) != null) {
+    	if (service.findByEppn(entity.getEppn()) != null && service.findByEppn(entity.getEppn()).size() > 0) {
 			errorState = true;
 			messageGenerator.addResolvedErrorMessage("eppn-blocked", "eppn-blocked-detail", true);
     	}

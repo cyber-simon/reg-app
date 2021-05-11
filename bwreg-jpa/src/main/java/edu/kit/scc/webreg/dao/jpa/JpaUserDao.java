@@ -127,19 +127,14 @@ public class JpaUserDao extends JpaBaseDao<UserEntity, Long> implements UserDao,
 	}
     
 	@Override
-	public UserEntity findByEppn(String eppn) {
+	public List<UserEntity> findByEppn(String eppn) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<UserEntity> criteria = builder.createQuery(UserEntity.class);
 		Root<UserEntity> user = criteria.from(UserEntity.class);
 		criteria.where(builder.equal(user.get(UserEntity_.eppn), eppn));
 		criteria.select(user);
 		
-		try {
-			return em.createQuery(criteria).getSingleResult();
-		}
-		catch (NoResultException e) {
-			return null;
-		}
+		return em.createQuery(criteria).getResultList();
 	}	
 
 	@Override

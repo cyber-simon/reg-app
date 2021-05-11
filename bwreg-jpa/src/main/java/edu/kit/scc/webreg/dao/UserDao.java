@@ -20,7 +20,7 @@ import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 
 public interface UserDao extends BaseDao<UserEntity, Long> {
 
-	UserEntity findByEppn(String eppn);
+	List<UserEntity> findByEppn(String eppn);
 	UserEntity findByIdWithAll(Long id);
 	List<UserEntity> findLegacyUsers();
 	List<UserEntity> findByPrimaryGroup(GroupEntity group);

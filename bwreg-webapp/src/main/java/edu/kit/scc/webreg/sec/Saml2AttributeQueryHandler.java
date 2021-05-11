@@ -148,7 +148,7 @@ public class Saml2AttributeQueryHandler implements Servlet {
 				String nameIdValue = query.getSubject().getNameID().getValue();
 				String nameIdFormat = query.getSubject().getNameID().getFormat();
 				
-				UserEntity user = userService.findByEppn(nameIdValue);
+				UserEntity user = userService.findById(Long.parseLong(nameIdValue));
 				if (user != null) {
 					Assertion assertion = samlHelper.create(Assertion.class, Assertion.DEFAULT_ELEMENT_NAME);
 					assertion.setIssueInstant(new DateTime());
