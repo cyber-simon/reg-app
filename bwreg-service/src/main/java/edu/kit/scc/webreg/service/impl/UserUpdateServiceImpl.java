@@ -342,11 +342,14 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 	}
 
 	private UserEntity findUser(String eppn) {
-		UserEntity user = userDao.findByEppn(eppn);
+		List<UserEntity> userList = userDao.findByEppn(eppn);
+		if (userList.size() == 0)
+			return null;
+		else if (userList.size() > 1)
+			return null;
 
-		if (user != null) {
-			user = userDao.findByIdWithStore(user.getId());
-		}
+		UserEntity user = userList.get(0);
+		user = userDao.findByIdWithStore(user.getId());
 
 		return user;
 	}

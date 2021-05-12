@@ -63,9 +63,12 @@ public class TwoFaLoginServiceImpl implements TwoFaLoginService {
 		
 		if (eppn != null) {
 			if (eppn.contains("@")) {
-				user = userDao.findByEppn(eppn);
-				if (user == null)
+				List<UserEntity> userList = userDao.findByEppn(eppn);
+				if (userList.size() == 0)
 					throw new NoUserFoundException("no such user");
+				else if (userList.size() > 1)
+					throw new NoUserFoundException("user eppn not unique");
+				user = userList.get(0);
 				
 				registry = findRegistry(user, service);
 				if (registry == null)
