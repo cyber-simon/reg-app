@@ -21,12 +21,14 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
+import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.oidc.OidcRpConfigurationService;
+import edu.kit.scc.webreg.service.saml.FederationSingletonBean;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
@@ -49,6 +51,9 @@ public class ConnectAccountBean implements Serializable {
 	private OidcRpConfigurationService oidcRpService;
 
 	@Inject
+	private FederationSingletonBean federationBean;
+
+	@Inject
 	private FacesMessageGenerator messageGenerator;
 
 	private IdentityEntity identity;
@@ -56,6 +61,9 @@ public class ConnectAccountBean implements Serializable {
 	
 	private List<OidcRpConfigurationEntity> oidcRpList;
 	private OidcRpConfigurationEntity selectedOidcRp;
+	
+	private List<SamlIdpMetadataEntity> idpList;
+	private SamlIdpMetadataEntity selectedIdp;
 
 	private String pin;
 	
@@ -63,10 +71,12 @@ public class ConnectAccountBean implements Serializable {
 		if (identity == null) {
 			identity = identityService.findById(sessionManager.getIdentityId());
 			userList = userService.findByIdentity(identity);
+			
+			idpList = federationBean.getAllIdpList();
 		}
 	}
 	
-	public void startConnect() {
+	public void startConnectOidc() {
 		ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
 
 		if (selectedOidcRp != null && pin != null && pin.matches("^[a-zA-Z0-9]{4,32}$")) {
@@ -84,6 +94,12 @@ public class ConnectAccountBean implements Serializable {
 							"Bitte wählen Sie Ihre Heimatorganisation");
 		}
 
+	}
+
+	public void startConnectSaml() {
+		ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+
+		messageGenerator.addErrorMessage("Ein Fehler ist aufgetreten", "Fehler, nicht implementiert"); 
 	}
 
 	public IdentityEntity getIdentity() {
@@ -115,6 +131,18 @@ public class ConnectAccountBean implements Serializable {
 
 	public void setPin(String pin) {
 		this.pin = pin;
+	}
+
+	public List<SamlIdpMetadataEntity> getIdpList() {
+		return idpList;
+	}
+
+	public SamlIdpMetadataEntity getSelectedIdp() {
+		return selectedIdp;
+	}
+
+	public void setSelectedIdp(SamlIdpMetadataEntity selectedIdp) {
+		this.selectedIdp = selectedIdp;
 	}
 
 }

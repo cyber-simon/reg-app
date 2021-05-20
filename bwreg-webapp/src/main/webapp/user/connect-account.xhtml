@@ -35,7 +35,24 @@
 			#{user.id}
 		</p:dataList>
 	
+		<h:panelGrid id="samlBaseData" columns="3" style="margin-top: 8px;">
+		
+			<p:outputLabel value="#{messages.home_org}:" for="idpBox" />
+			<p:selectOneListbox id="idpBox" value="#{connectAccountBean.selectedIdp}" scrollHeight="360" style="width:auto;"
+					converter="#{samlIdpMetadataConverter}">
+            	<f:selectItems value="#{connectAccountBean.idpList}" 
+            		var="idp" itemLabel="#{idp.displayName == null ? idp.orgName : idp.displayName}" itemValue="#{idp}"/>
+				<p:ajax event="dblclick" listener="#{connectAccountBean.login}" update=":form" />	            		
+			</p:selectOneListbox>
+			<p:message for="idpBox"/>
+		
+		</h:panelGrid>
+
+		<p:commandButton id="samlLogin" action="#{connectAccountBean.startConnectSaml()}" value="#{messages.proceed}" 
+			validateClient="true" update=":form"/>
+				
 		<h:panelGrid id="oidcBaseData" columns="3" style="margin-top: 8px;">
+
 			<p:outputLabel value="#{messages.home_org}:" for="oidcBox" />
 			<p:selectOneListbox id="oidcBox" value="#{connectAccountBean.selectedOidcRp}" scrollHeight="120" style="width:300px;"
 					converter="#{oidcRpConfigurationConverter}">
@@ -52,7 +69,7 @@
 			<p:message for="pinBox"/>
 		</h:panelGrid>
 			
-		<p:commandButton id="oidcLogin" action="#{connectAccountBean.startConnect()}" value="#{messages.proceed}" 
+		<p:commandButton id="oidcLogin" action="#{connectAccountBean.startConnectOidc()}" value="#{messages.proceed}" 
 			validateClient="true" update=":form"/>
 	
 	</h:form>
