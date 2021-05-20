@@ -29,15 +29,17 @@
 		<div id="panelInline">
 			<p:tabView id="tabVw" dynamic="true" cache="false" >
 
-				<p:tab id="tab1" title="#{messages.active}">
-					<p:dataTable id="registeredTable1" var="registry" value="#{serviceAdminUserListBean.list}" paginator="true"
+				<p:tab id="tab0" title="#{messages.all}">
+					<p:dataTable id="registeredTable0" var="registry" value="#{serviceAdminUserListBean.allList}" paginator="true"
 						lazy="true" rows="15" style="width:auto; font-size: 1.2rem;">
 
 						<p:column sortBy="#{registry.id}">
 							<f:facet name="header">
 								<h:outputText value="#{messages.id}" />
 							</f:facet>
-							<h:outputText value="#{registry.id}" />
+							<h:link outcome="show-service-registry.xhtml" value="#{registry.id}" filterMatchMode="contains">
+			      				<f:param name="id" value="#{registry.id}"/>
+			    			</h:link>
 						</p:column>
 						<p:column sortBy="#{registry.user.eppn}" filterBy="#{registry.user.eppn}" filterMatchMode="contains">
 							<f:facet name="header">
@@ -71,10 +73,57 @@
 							</f:facet>
 							<h:outputText value="#{of:formatDate(registry.lastStatusChange, 'dd.MM.yyyy HH:mm')}" />
 						</p:column>
-					 	<p:column sortBy="#{registry.registryStatus}">
+					 	<p:column field="registryStatus" headerText="#{messages.status}" sortBy="#{registry.registryStatus}">
+							<h:outputText value="#{registry.registryStatus}" />
+						</p:column>
+					</p:dataTable>
+				</p:tab>
+
+				<p:tab id="tab1" title="#{messages.active}">
+					<p:dataTable id="registeredTable1" var="registry" value="#{serviceAdminUserListBean.list}" paginator="true"
+						lazy="true" rows="15" style="width:auto; font-size: 1.2rem;">
+
+						<p:column sortBy="#{registry.id}">
 							<f:facet name="header">
-								<h:outputText value="#{messages.status}" />
+								<h:outputText value="#{messages.id}" />
 							</f:facet>
+							<h:link outcome="show-service-registry.xhtml" value="#{registry.id}" filterMatchMode="contains">
+			      				<f:param name="id" value="#{registry.id}"/>
+			    			</h:link>
+						</p:column>
+						<p:column sortBy="#{registry.user.eppn}" filterBy="#{registry.user.eppn}" filterMatchMode="contains">
+							<f:facet name="header">
+								<h:outputText value="#{messages.eppn}" />
+							</f:facet>
+							<h:link outcome="show-service-registry.xhtml" value="#{registry.user.eppn}" filterMatchMode="contains">
+			      				<f:param name="id" value="#{registry.id}"/>
+			    			</h:link>
+						</p:column>
+						<p:column sortBy="#{registry.user.surName}" filterBy="#{registry.user.surName}" filterMatchMode="contains">
+							<f:facet name="header">
+								<h:outputText value="#{messages.sur_name}" />
+							</f:facet>
+							<h:outputText value="#{registry.user.surName}" />
+						</p:column>
+						<p:column sortBy="#{registry.user.givenName}" filterBy="#{registry.user.givenName}">
+							<f:facet name="header">
+								<h:outputText value="#{messages.given_name}" />
+							</f:facet>
+							<h:outputText value="#{registry.user.givenName}" />
+						</p:column>
+						<p:column sortBy="#{registry.agreedTime}">
+							<f:facet name="header">
+								<h:outputText value="#{messages.registered_time}" />
+							</f:facet>
+							<h:outputText value="#{of:formatDate(registry.agreedTime, 'dd.MM.yyyy HH:mm')}" />
+						</p:column>
+						<p:column sortBy="#{registry.lastStatusChange}">
+							<f:facet name="header">
+								<h:outputText value="#{messages.last_status_change}" />
+							</f:facet>
+							<h:outputText value="#{of:formatDate(registry.lastStatusChange, 'dd.MM.yyyy HH:mm')}" />
+						</p:column>
+					 	<p:column field="registryStatus" headerText="#{messages.status}" sortBy="#{registry.registryStatus}">
 							<h:outputText value="#{registry.registryStatus}" />
 						</p:column>
 					</p:dataTable>
@@ -87,7 +136,9 @@
 							<f:facet name="header">
 								<h:outputText value="#{messages.id}" />
 							</f:facet>
-							<h:outputText value="#{registry.id}" />
+							<h:link outcome="show-service-registry.xhtml" value="#{registry.id}" filterMatchMode="contains">
+			      				<f:param name="id" value="#{registry.id}"/>
+			    			</h:link>
 						</p:column>
 						<p:column sortBy="#{registry.user.eppn}" filterBy="#{registry.user.eppn}">
 							<f:facet name="header">
@@ -137,7 +188,9 @@
 							<f:facet name="header">
 								<h:outputText value="#{messages.id}" />
 							</f:facet>
-							<h:outputText value="#{registry.id}" />
+							<h:link outcome="show-service-registry.xhtml" value="#{registry.id}" filterMatchMode="contains">
+			      				<f:param name="id" value="#{registry.id}"/>
+			    			</h:link>
 						</p:column>
 						<p:column sortBy="#{registry.user.eppn}" filterBy="#{registry.user.eppn}">
 							<f:facet name="header">
@@ -187,7 +240,9 @@
 							<f:facet name="header">
 								<h:outputText value="#{messages.id}" />
 							</f:facet>
-							<h:outputText value="#{registry.id}" />
+							<h:link outcome="show-service-registry.xhtml" value="#{registry.id}" filterMatchMode="contains">
+			      				<f:param name="id" value="#{registry.id}"/>
+			    			</h:link>
 						</p:column>
 						<p:column sortBy="#{registry.user.eppn}" filterBy="#{registry.user.eppn}">
 							<f:facet name="header">

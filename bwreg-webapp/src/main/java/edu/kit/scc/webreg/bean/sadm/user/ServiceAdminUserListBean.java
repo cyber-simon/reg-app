@@ -37,6 +37,7 @@ public class ServiceAdminUserListBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private GenericLazyDataModel<RegistryEntity, RegistryService, Long> list;
+	private GenericLazyDataModel<RegistryEntity, RegistryService, Long> allList;
 	private GenericLazyDataModel<RegistryEntity, RegistryService, Long> otherList;
 	private GenericLazyDataModel<RegistryEntity, RegistryService, Long> deletedList;
 	private GenericLazyDataModel<RegistryEntity, RegistryService, Long> lostAccessList;
@@ -64,6 +65,10 @@ public class ServiceAdminUserListBean implements Serializable {
 			throw new NotAuthorizedException("Nicht autorisiert");		
 	}
 
+	public RegistryStatus[] getRegistryStatusList() {
+		return RegistryStatus.values();
+	}
+	
 	public ServiceEntity getServiceEntity() {
 		return serviceEntity;
 	}
@@ -88,6 +93,15 @@ public class ServiceAdminUserListBean implements Serializable {
 			list = new GenericLazyDataModelImpl<RegistryEntity, RegistryService, Long>(service, filterMap);
 		}
 		return list;
+	}
+
+	public GenericLazyDataModel<RegistryEntity, RegistryService, Long> getAllList() {
+		if (allList == null) {
+			Map<String, Object> filterMap = new HashMap<String, Object>();
+			filterMap.put("service", serviceEntity);
+			allList = new GenericLazyDataModelImpl<RegistryEntity, RegistryService, Long>(service, filterMap);
+		}
+		return allList;
 	}
 
 	public GenericLazyDataModel<RegistryEntity, RegistryService, Long> getOtherList() {
