@@ -628,7 +628,7 @@ public class Samba4Worker {
         attrs.put(AttributesFactory.createAttribute("samAccountName", cn));
                     
         // SS: ist das getestet mit Samba4 ?
-        attrs.put(AttributesFactory.createAttribute("sambaGroupType", "2"));    
+        //attrs.put(AttributesFactory.createAttribute("sambaGroupType", "2"));    
 
 		attrs.put(AttributesFactory.createAttribute("cn", cn));
 		attrs.put(AttributesFactory.createAttribute("gidNumber", gidNumber));
