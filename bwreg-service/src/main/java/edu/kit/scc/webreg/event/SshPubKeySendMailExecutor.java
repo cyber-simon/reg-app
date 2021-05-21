@@ -49,10 +49,11 @@ public class SshPubKeySendMailExecutor extends
 			TemplateMailService templateMailService = (TemplateMailService) ic.lookup("global/bwreg/bwreg-service/TemplateMailServiceImpl!edu.kit.scc.webreg.service.mail.TemplateMailService");
 			
 			SshPubKeyEntity sshPubKey = getEvent().getEntity();
-			Map<String, Object> context = new HashMap<String, Object>(3);
+			Map<String, Object> context = new HashMap<String, Object>();
 			context.put("sshPubKey", sshPubKey);
-			context.put("user", sshPubKey.getUser());
+			context.put("user", sshPubKey.getIdentity().getPrefUser());
 			context.put("identity", sshPubKey.getIdentity());
+			context.put("serverName", getEvent().getServerName());
 			
 			templateMailService.sendMail(templateName, context, true);
 			

@@ -15,6 +15,7 @@ import java.util.List;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 
@@ -48,6 +49,9 @@ public class SshPubKeyServiceImpl extends BaseServiceImpl<SshPubKeyEntity, Long>
 	
 	@Inject
 	private EventSubmitter eventSubmitter;
+	
+	@Inject 
+	private HttpServletRequest request;
 	
 	@Override
 	public List<SshPubKeyEntity> findByIdentity(Long identityId) {
@@ -138,6 +142,7 @@ public class SshPubKeyServiceImpl extends BaseServiceImpl<SshPubKeyEntity, Long>
 			sshPubKeyRegistryDao.delete(regKey);
 			logger.debug("Deleting registry connection {} for key {}", regKey.getId(), entity.getId());
 			SshPubKeyRegistryEvent event = new SshPubKeyRegistryEvent(regKey);
+			event.setServerName(request.getServerName());
 			try {
 				eventSubmitter.submit(event, EventType.SSH_KEY_REGISTRY_DELETED, executor);
 			} catch (EventSubmitException e) {
@@ -163,6 +168,7 @@ public class SshPubKeyServiceImpl extends BaseServiceImpl<SshPubKeyEntity, Long>
 			throw new SshPubKeyBlacklistedException("Key already used by user");
 		}
 		SshPubKeyEvent event = new SshPubKeyEvent(entity);
+		event.setServerName(request.getServerName());
 		try {
 			eventSubmitter.submit(event, EventType.SSH_KEY_DEPLOYED, executor);
 		} catch (EventSubmitException e) {

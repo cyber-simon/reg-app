@@ -16,6 +16,7 @@ import java.util.List;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 
@@ -52,6 +53,9 @@ public class SshPubKeyRegistryServiceImpl extends BaseServiceImpl<SshPubKeyRegis
 	@Inject
 	private EventSubmitter eventSubmitter;
 
+	@Inject 
+	private HttpServletRequest request;
+
 	@Override
 	public List<SshPubKeyRegistryEntity> findByUserAndService(Long userId, Long serviceId) {
 		return dao.findByUserAndService(userId, serviceId);
@@ -72,6 +76,7 @@ public class SshPubKeyRegistryServiceImpl extends BaseServiceImpl<SshPubKeyRegis
 		entity = dao.persist(entity);
 		
 		SshPubKeyRegistryEvent event = new SshPubKeyRegistryEvent(entity);
+		event.setServerName(request.getServerName());
 		try {
 			if (entity.getKeyStatus().equals(SshPubKeyRegistryStatus.PENDING)) {
 				eventSubmitter.submit(event, EventType.SSH_KEY_REGISTRY_APPROVAL, executor);
@@ -135,6 +140,7 @@ public class SshPubKeyRegistryServiceImpl extends BaseServiceImpl<SshPubKeyRegis
 		dao.delete(entity);
 		
 		SshPubKeyRegistryEvent event = new SshPubKeyRegistryEvent(entity);
+		event.setServerName(request.getServerName());
 		try {
 			eventSubmitter.submit(event, EventType.SSH_KEY_REGISTRY_DELETED, executor);
 
