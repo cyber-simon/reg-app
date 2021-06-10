@@ -232,7 +232,7 @@ public class OidcUserUpdater implements Serializable {
 			ServiceEntity service)
 			throws UserUpdateException {
 		MDC.put("userId", "" + user.getId());
-		logger.debug("Updating user {}", user.getEppn());
+		logger.debug("Updating OIDC user {}", user.getEppn());
 
 		user = userDao.merge(user);
 		
