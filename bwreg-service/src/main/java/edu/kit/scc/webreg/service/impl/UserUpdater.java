@@ -194,7 +194,7 @@ public class UserUpdater implements Serializable {
 
 		if (updateHook != null) {
 			try {
-				updateHook.preUpdateUser(user, user.getGenericStore(), attributeMap, executor, service, debugLog);
+				updateHook.preUpdateUser(user, user.getIdp().getGenericStore(), attributeMap, executor, service, debugLog);
 			} catch (UserUpdateHookException e) {
 				logger.warn("An exception happened while calling UserUpdateHook!", e);
 			}
@@ -318,7 +318,7 @@ public class UserUpdater implements Serializable {
 
 		if (updateHook != null) {
 			try {
-				updateHook.postUpdateUser(user, user.getGenericStore(), attributeMap, executor, service, debugLog);
+				updateHook.postUpdateUser(user, user.getIdp().getGenericStore(), attributeMap, executor, service, debugLog);
 			} catch (UserUpdateHookException e) {
 				logger.warn("An exception happened while calling UserUpdateHook!", e);
 			}

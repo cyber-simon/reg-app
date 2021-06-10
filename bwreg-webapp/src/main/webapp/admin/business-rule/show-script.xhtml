@@ -5,7 +5,8 @@
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
-	xmlns:p="http://primefaces.org/ui">
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions">
 <head>
 <title></title>
 </head>
@@ -41,12 +42,11 @@
 			        <h:outputText value="#{showScriptBean.entity.scriptType}"/>
 						
 			        <h:outputText value="#{messages.script}:"/>
-			        <h:panelGroup>
-			        	<div style="font-family: 'Courier New', monospace; white-space: pre; font-size: 70%;">
-			        		<h:outputText value="#{showScriptBean.entity.script}"/>
-			        	</div> 
-					</h:panelGroup>
-					
+			        <p:outputPanel style="width: 640px;">
+						<pe:codeMirror id="codeMirror" mode="javascript" theme="eclipse" 
+	    					value="#{showScriptBean.entity.script}" keyMap="default" lineNumbers="true"
+	    					matchBrackets="true" readonly="true" lineWrapping="true" />
+			        </p:outputPanel>					
 				</p:panelGrid>
 				
 				<h:link outcome="edit-script.xhtml" value="#{messages.edit}">

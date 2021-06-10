@@ -3,12 +3,12 @@ html {
 }
 
 body {
+	font-family: Verdana, Arial, Helvetica, sans-serif;	
 	height: 100%;
 	background: white;
 }
 
 * {
-	font-family: Verdana, Arial, Helvetica, sans-serif;	
 	margin: 0;
 	padding: 0;
 }
@@ -287,4 +287,8 @@ div.serviceBlockLink {
 
 .ui-panel {
 	margin-bottom: 16px;
+}
+
+.CodeMirror {
+	resize: both;
 }

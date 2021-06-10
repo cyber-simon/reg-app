@@ -5,7 +5,8 @@
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
-	xmlns:p="http://primefaces.org/ui">
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions">
 <head>
 <title></title>
 </head>
@@ -39,11 +40,15 @@
 
 					<bw:inputText id="scriptTypeField" label="#{messages.script_type}"
 						value="#{editScriptBean.entity.scriptType}" required="true" />					
-				
+						
 			        <h:outputText value="#{messages.script}:"/>
-			        <p:inputTextarea value="#{editScriptBean.entity.script}" style="width: 600px; height: 300px;" 
-			        	autoResize="false" />
-				
+			        <p:outputPanel style="width: 600px;">
+						<pe:codeMirror id="codeMirror" mode="javascript" theme="eclipse" 
+	    					value="#{editScriptBean.entity.script}" keyMap="default" lineNumbers="true"
+	    					matchBrackets="true"
+	    					extraKeys="{ 'Ctrl-Space': function(cm) {CodeMirror.showHint(cm, CodeMirror.hint.javascriptHint);}}" />
+			        </p:outputPanel>
+    					
 				</p:panelGrid>
 				<p:commandButton id="save" action="#{editScriptBean.save}" value="#{messages.save}"/>
 				<p:commandButton id="cancel" action="#{editScriptBean.cancel}" value="#{messages.cancel}" immediate="true"/>
