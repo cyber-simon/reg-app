@@ -17,9 +17,8 @@ import java.util.Map;
 import org.primefaces.model.FilterMeta;
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.SelectableDataModel;
-import org.primefaces.model.SortOrder;
+import org.primefaces.model.SortMeta;
 
-import edu.kit.scc.webreg.dao.GenericSortOrder;
 import edu.kit.scc.webreg.entity.BaseEntity;
 import edu.kit.scc.webreg.service.BaseService;
 
@@ -56,17 +55,12 @@ public class GenericLazyDataModelImpl<E extends BaseEntity<PK>, T extends BaseSe
 	}
 
 	@Override
-	public List<E> load(int first, int pageSize, String sortField, 
-			SortOrder sortOrder, Map<String, FilterMeta> additionalFilterMap) {
+	public List<E> load(int first, int pageSize,
+			Map<String, SortMeta> sortBy, Map<String, FilterMeta> additionalFilterMap) {
 		
 		List<E> returnList;
 		
-		if (sortOrder == SortOrder.ASCENDING)
-			returnList = getService().findAllPaging(first, pageSize, sortField, GenericSortOrder.ASC, filterMap, additionalFilterMap, attrs);
-		else if (sortOrder == SortOrder.DESCENDING)
-			returnList = getService().findAllPaging(first, pageSize, sortField, GenericSortOrder.DESC, filterMap, additionalFilterMap, attrs);
-		else
-			returnList = getService().findAllPaging(first, pageSize, sortField, GenericSortOrder.NONE, filterMap, additionalFilterMap, attrs);
+		returnList = getService().findAllPaging(first, pageSize, sortBy, filterMap, additionalFilterMap, attrs);
 		
 		setPageSize(pageSize);
 		
@@ -92,7 +86,7 @@ public class GenericLazyDataModelImpl<E extends BaseEntity<PK>, T extends BaseSe
 	}
 
 	@Override
-	public Object getRowKey(E object) {
-		return object.getId();
+	public String getRowKey(E object) {
+		return object.getId().toString();
 	}
 }

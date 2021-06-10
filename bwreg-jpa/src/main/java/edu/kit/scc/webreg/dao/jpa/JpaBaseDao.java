@@ -33,6 +33,7 @@ import javax.persistence.criteria.Root;
 
 import org.primefaces.model.FilterMeta;
 import org.primefaces.model.MatchMode;
+import org.primefaces.model.SortMeta;
 
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.GenericSortOrder;
@@ -84,6 +85,40 @@ public abstract class JpaBaseDao<T extends BaseEntity<PK>, PK extends Serializab
 	@Override
 	public List<T> findAll() {
 		return em.createQuery("select e from " + getEntityClass().getSimpleName() + " e").getResultList();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<T> findAllPaging(int first, int pageSize, Map<String, SortMeta> sortBy,
+			Map<String, Object> filterMap, Map<String, FilterMeta> additionalFilterMap, String... attrs) {
+
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<T> criteria = builder.createQuery(getEntityClass());
+		Root<T> root = criteria.from(getEntityClass());
+		
+		List<Predicate> predicates = predicatesFromFilterMap(builder, root, filterMap);
+		predicates.addAll(predicatesFromAdditionalFilterMap(builder, root, additionalFilterMap));
+		criteria.where(builder.and(predicates.toArray(new Predicate[predicates.size()])));
+		
+		criteria.select(root);
+		if (attrs != null) {
+			criteria.distinct(true);
+			
+			for (String attr : attrs)
+				root.fetch(attr, JoinType.LEFT);			
+		}
+
+		/**
+		 * TODO Sort order here 
+		 */
+//		if (sortField != null && sortOrder != null && sortOrder != GenericSortOrder.NONE) {
+//			criteria.orderBy(getSortOrder(builder, root, sortField, sortOrder));
+//		}
+		
+		Query q = em.createQuery(criteria);
+		q.setFirstResult(first).setMaxResults(pageSize);
+		
+		return q.getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -220,22 +255,22 @@ public abstract class JpaBaseDao<T extends BaseEntity<PK>, PK extends Serializab
 	}
 
 	protected Predicate predicateFromFilterMeta(CriteriaBuilder builder, Root<T> root, String path, FilterMeta filterMeta) {
-		if (filterMeta.getFilterMatchMode().equals(MatchMode.STARTS_WITH)) {
+		if (filterMeta.getMatchMode().equals(MatchMode.STARTS_WITH)) {
 			return builder.like(
 					builder.lower(this.<String>resolvePath(root, path)), 
 					filterMeta.getFilterValue().toString().toLowerCase() + "%");
 		}
-		else if (filterMeta.getFilterMatchMode().equals(MatchMode.ENDS_WITH)) {
+		else if (filterMeta.getMatchMode().equals(MatchMode.ENDS_WITH)) {
 			return builder.like(
 					builder.lower(this.<String>resolvePath(root, path)), 
 					"%" + filterMeta.getFilterValue().toString().toLowerCase());
 		}
-		else if (filterMeta.getFilterMatchMode().equals(MatchMode.CONTAINS)) {
+		else if (filterMeta.getMatchMode().equals(MatchMode.CONTAINS)) {
 			return builder.like(
 					builder.lower(this.<String>resolvePath(root, path)), 
 					"%" + filterMeta.getFilterValue().toString().toLowerCase() + "%");
 		}
-		else if (filterMeta.getFilterMatchMode().equals(MatchMode.EQUALS)) {
+		else if (filterMeta.getMatchMode().equals(MatchMode.EQUALS)) {
 			return builder.like(
 					builder.lower(this.<String>resolvePath(root, path)), 
 					filterMeta.getFilterValue().toString().toLowerCase());

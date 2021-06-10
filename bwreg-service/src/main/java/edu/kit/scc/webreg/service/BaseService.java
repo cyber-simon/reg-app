@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.primefaces.model.FilterMeta;
+import org.primefaces.model.SortMeta;
 
 import edu.kit.scc.webreg.dao.GenericSortOrder;
 import edu.kit.scc.webreg.entity.BaseEntity;
@@ -34,6 +35,9 @@ public interface BaseService<T extends BaseEntity<PK>, PK extends Serializable> 
     T findById(PK id);
 
     T findByIdWithAttrs(PK id, String... attrs);
+
+	List<T> findAllPaging(int first, int pageSize, Map<String, SortMeta> sortBy,
+			Map<String, Object> filterMap, Map<String, FilterMeta> additionalFilterMap, String... attrs);
 
 	List<T> findAllPaging(int first, int pageSize, String sortField,
 			GenericSortOrder sortOrder, Map<String, Object> filterMap, Map<String, FilterMeta> additionalFilterMap, String... attrs);
