@@ -35,12 +35,11 @@ public class EditScriptBean implements Serializable {
 	private Long id;
 	
 	public void preRenderView(ComponentSystemEvent ev) {
-		entity = service.findById(id);
 	}
 	
 	public String save() {
 		service.save(entity);
-		return ViewIds.SHOW_SCRIPT + "?faces-redirect=true&scriptId=" + entity.getId();
+		return ViewIds.SHOW_SCRIPT + "?faces-redirect=true&scriptId=" + getEntity().getId();
 	}
 
 	public String cancel() {
@@ -48,6 +47,10 @@ public class EditScriptBean implements Serializable {
 	}
 
 	public ScriptEntity getEntity() {
+		if (entity == null) {
+			entity = service.findById(id);
+		}
+		
 		return entity;
 	}
 
