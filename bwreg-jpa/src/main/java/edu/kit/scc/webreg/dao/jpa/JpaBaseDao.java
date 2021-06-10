@@ -34,6 +34,7 @@ import javax.persistence.criteria.Root;
 import org.primefaces.model.FilterMeta;
 import org.primefaces.model.MatchMode;
 import org.primefaces.model.SortMeta;
+import org.primefaces.model.SortOrder;
 
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.GenericSortOrder;
@@ -114,6 +115,8 @@ public abstract class JpaBaseDao<T extends BaseEntity<PK>, PK extends Serializab
 //		if (sortField != null && sortOrder != null && sortOrder != GenericSortOrder.NONE) {
 //			criteria.orderBy(getSortOrder(builder, root, sortField, sortOrder));
 //		}
+		
+		criteria.orderBy(getSortOrder(builder, root, sortBy));
 		
 		Query q = em.createQuery(criteria);
 		q.setFirstResult(first).setMaxResults(pageSize);
@@ -332,6 +335,24 @@ public abstract class JpaBaseDao<T extends BaseEntity<PK>, PK extends Serializab
 			
 			return path;
 		}		
+	}
+		
+	protected List<Order> getSortOrder(CriteriaBuilder builder, Root<T> root, Map<String, SortMeta> sortBy) {
+
+		List<Order> orderList = new ArrayList<Order>();
+
+		if (sortBy != null) {
+			for (Entry<String, SortMeta> entry : sortBy.entrySet()) {
+				if (entry.getValue() != null && entry.getValue().getOrder() != null && entry.getValue().getField() != null) {
+					if (entry.getValue().getOrder().equals(SortOrder.ASCENDING))
+						orderList.add(builder.asc(resolvePath(root, entry.getValue().getField())));
+					else if (entry.getValue().getOrder().equals(SortOrder.DESCENDING))
+						orderList.add(builder.desc(resolvePath(root, entry.getValue().getField())));
+				}
+			}
+		}
+		
+		return orderList;
 	}
 	
 	protected Order getSortOrder(CriteriaBuilder builder, Root<T> root, String sortField, GenericSortOrder sortOrder) {
