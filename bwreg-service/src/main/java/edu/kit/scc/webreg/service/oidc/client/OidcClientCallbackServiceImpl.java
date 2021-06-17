@@ -29,6 +29,7 @@ import com.nimbusds.oauth2.sdk.TokenResponse;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
 import com.nimbusds.oauth2.sdk.auth.Secret;
+import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
@@ -118,6 +119,17 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 
 			OidcRpConfigurationEntity rpConfig = flowState.getRpConfiguration();
 			
+			int connectTimeout = 10 * 1000;
+			int readTimeout = 10 * 1000;
+
+			if (rpConfig.getGenericStore().containsKey("connect_timeout")) {
+				connectTimeout = Integer.parseInt(rpConfig.getGenericStore().get("connect_timeout"));
+			}
+			
+			if (rpConfig.getGenericStore().containsKey("read_timeout")) {
+				readTimeout = Integer.parseInt(rpConfig.getGenericStore().get("read_timeout"));
+			}
+			
 			AuthorizationCode code = successResponse.getAuthorizationCode();
 			flowState.setCode(code.getValue());
 
@@ -142,7 +154,10 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 			// Make the token request
 			TokenRequest tokenRequest = new TokenRequest(opMetadataBean.getTokenEndpointURI(rpConfig), 
 					clientAuth, codeGrant);
-			TokenResponse tokenResponse = OIDCTokenResponseParser.parse(tokenRequest.toHTTPRequest().send());
+			HTTPRequest httpRequest = tokenRequest.toHTTPRequest();
+			httpRequest.setConnectTimeout(connectTimeout);
+			httpRequest.setReadTimeout(readTimeout);
+			TokenResponse tokenResponse = OIDCTokenResponseParser.parse(httpRequest.send());
 
 			if (! tokenResponse.indicatesSuccess()) {
 			    throw new OidcAuthenticationException("got token error response: " + tokenResponse.toErrorResponse().getErrorObject().getDescription());
@@ -170,10 +185,12 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 			RefreshToken refreshToken = oidcTokenResponse.getOIDCTokens().getRefreshToken();
 			BearerAccessToken bearerAccessToken = oidcTokenResponse.getOIDCTokens().getBearerAccessToken();
 
-			HTTPResponse httpResponse = new UserInfoRequest(
-					opMetadataBean.getUserInfoEndpointURI(rpConfig), bearerAccessToken)
-				    .toHTTPRequest()
-				    .send();
+			httpRequest = new UserInfoRequest(opMetadataBean.getUserInfoEndpointURI(rpConfig), bearerAccessToken)
+				    .toHTTPRequest();
+			httpRequest.setConnectTimeout(connectTimeout);
+			httpRequest.setReadTimeout(readTimeout);
+
+			HTTPResponse httpResponse = httpRequest.send();
 			
 			UserInfoResponse userInfoResponse = UserInfoResponse.parse(httpResponse);
 
