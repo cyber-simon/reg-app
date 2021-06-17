@@ -24,41 +24,64 @@
 	<h:form id="form">
 		<h2><h:outputText value="#{messages.rp_config}: #{showOidcRpConfigurationBean.entity.name}"/></h2>
 	
-		<div id="panelInline">
-			<p:panel header="#{messages.rp_config}">
-				<p:panelGrid id="baseData" columns="2">
-				
-			        <h:outputText value="#{messages.id}:"/>
-			        <h:outputText value="#{showOidcRpConfigurationBean.entity.id}"/>
+		<p:panel header="#{messages.rp_config}" id="mainPanel">
+			<p:panelGrid id="baseData" columns="2">
 			
-			        <h:outputText value="#{messages.name}:"/>
-			        <h:outputText value="#{showOidcRpConfigurationBean.entity.name}"/>
+		        <h:outputText value="#{messages.id}:"/>
+		        <h:outputText value="#{showOidcRpConfigurationBean.entity.id}"/>
 		
-			        <h:outputText value="#{messages.displayName}:"/>
-			        <h:outputText value="#{showOidcRpConfigurationBean.entity.displayName}"/>
-		
-			        <h:outputText value="#{messages.clientId}:"/>
-			        <h:outputText value="#{showOidcRpConfigurationBean.entity.clientId}"/>
-		
-			        <h:outputText value="#{messages.secret}:"/>
-			        <h:outputText value="#{showOidcRpConfigurationBean.entity.secret}"/>
-		
-			        <h:outputText value="#{messages.scopes}:"/>
-			        <h:outputText value="#{showOidcRpConfigurationBean.entity.scopes}"/>
-		
-			        <h:outputText value="#{messages.serviceUrl}:"/>
-			        <h:outputText value="#{showOidcRpConfigurationBean.entity.serviceUrl}"/>
-		
-			        <h:outputText value="#{messages.callbackUrl}:"/>
-			        <h:outputText value="#{showOidcRpConfigurationBean.entity.callbackUrl}"/>
-		
-				</p:panelGrid>
-		<h:link outcome="edit-rp-config.xhtml" value="#{messages.edit}">
-			<f:param name="id" value="#{showOidcRpConfigurationBean.entity.id}"/>
-		</h:link>
-		
-		</p:panel>
-	</div>
+		        <h:outputText value="#{messages.name}:"/>
+		        <h:outputText value="#{showOidcRpConfigurationBean.entity.name}"/>
+	
+		        <h:outputText value="#{messages.displayName}:"/>
+		        <h:outputText value="#{showOidcRpConfigurationBean.entity.displayName}"/>
+	
+		        <h:outputText value="#{messages.clientId}:"/>
+		        <h:outputText value="#{showOidcRpConfigurationBean.entity.clientId}"/>
+	
+		        <h:outputText value="#{messages.secret}:"/>
+		        <h:outputText value="#{showOidcRpConfigurationBean.entity.secret}"/>
+	
+		        <h:outputText value="#{messages.scopes}:"/>
+		        <h:outputText value="#{showOidcRpConfigurationBean.entity.scopes}"/>
+	
+		        <h:outputText value="#{messages.serviceUrl}:"/>
+		        <h:outputText value="#{showOidcRpConfigurationBean.entity.serviceUrl}"/>
+	
+		        <h:outputText value="#{messages.callbackUrl}:"/>
+		        <h:outputText value="#{showOidcRpConfigurationBean.entity.callbackUrl}"/>
+
+				<h:outputText value="#{messages.generic_store}:"/>
+		        <h:panelGroup>
+		        	<ul>
+		        		<ui:repeat var="key" value="#{showOidcRpConfigurationBean.entity.genericStore.keySet().toArray()}">
+			        		<li>
+			        			<h:panelGrid id="newPropTable" columns="3" columnClasses="labelColumn, elementColumn">
+					        		<h:outputText value="#{key}:"/> 
+					        		<h:outputText value="#{showOidcRpConfigurationBean.entity.genericStore.get(key)}"/> 
+				        			<h:commandLink value="(#{messages.delete})" action="#{showOidcRpConfigurationBean.removeGenericStore(key)}">
+										<f:ajax render=":form:mainPanel" />
+									</h:commandLink>
+								</h:panelGrid>
+							</li>
+			        	</ui:repeat>
+			        </ul>
+					<h:panelGrid id="newPropTable" columns="3" columnClasses="labelColumn, elementColumn">
+				        <h:inputText id="key_input" value="#{showOidcRpConfigurationBean.newKey}"/>
+		       			<h:inputText id="value_input" value="#{showOidcRpConfigurationBean.newValue}"/>
+						<h:commandLink value="#{messages.add}" action="#{showOidcRpConfigurationBean.addGenericStore()}">
+							<f:ajax execute=":form:mainPanel" render=":form:mainPanel" />
+						</h:commandLink>
+					</h:panelGrid>
+		        </h:panelGroup>
+	
+			</p:panelGrid>
+	<h:link outcome="edit-rp-config.xhtml" value="#{messages.edit}">
+		<f:param name="id" value="#{showOidcRpConfigurationBean.entity.id}"/>
+	</h:link>
+	
+	</p:panel>
+
 	</h:form>
 
 	</ui:define>

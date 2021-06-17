@@ -12,13 +12,10 @@ package edu.kit.scc.webreg.bean.admin.oidc;
 
 import java.io.Serializable;
 
-import javax.inject.Named;
-import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.inject.Named;
 
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
 import edu.kit.scc.webreg.service.oidc.OidcRpConfigurationService;
@@ -29,8 +26,6 @@ public class ShowOidcRpConfigurationBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = LoggerFactory.getLogger(ShowOidcRpConfigurationBean.class);
-	
 	@Inject
 	private OidcRpConfigurationService service;
 
@@ -38,13 +33,29 @@ public class ShowOidcRpConfigurationBean implements Serializable {
 	
 	private Long id;
 
+	private String newKey;
+	private String newValue;
+
 	public void preRenderView(ComponentSystemEvent ev) {
-		if (entity == null) {
-			entity = service.findById(id);
-		}
+	}
+
+	public void addGenericStore() {
+		getEntity().getGenericStore().put(newKey, newValue);
+		entity = service.save(getEntity());
+		newKey = "";
+		newValue = "";
 	}
 	
+	public void removeGenericStore(String key) {
+		newKey = key;
+		newValue = getEntity().getGenericStore().remove(key);
+		entity = service.save(getEntity());
+	}
+
 	public OidcRpConfigurationEntity getEntity() {
+		if (entity == null) {
+			entity = service.findByIdWithAttrs(id, "genericStore");
+		}
 		return entity;
 	}
 
@@ -58,5 +69,21 @@ public class ShowOidcRpConfigurationBean implements Serializable {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public String getNewKey() {
+		return newKey;
+	}
+
+	public void setNewKey(String newKey) {
+		this.newKey = newKey;
+	}
+
+	public String getNewValue() {
+		return newValue;
+	}
+
+	public void setNewValue(String newValue) {
+		this.newValue = newValue;
 	}
 }

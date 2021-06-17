@@ -1,7 +1,12 @@
 package edu.kit.scc.webreg.entity.oidc;
 
+import java.util.Map;
+
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.JoinTable;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
 
 import edu.kit.scc.webreg.entity.AbstractBaseEntity;
@@ -32,6 +37,12 @@ public class OidcRpConfigurationEntity extends AbstractBaseEntity {
 
 	@Column(name = "callback_url", length = 1024)
 	private String callbackUrl;
+
+	@ElementCollection
+	@JoinTable(name = "oidc_rp_configuration_generic_store")
+    @MapKeyColumn(name = "key_data", length = 128)
+    @Column(name = "value_data", length = 2048)
+    private Map<String, String> genericStore; 
 
 	public String getName() {
 		return name;
@@ -87,5 +98,13 @@ public class OidcRpConfigurationEntity extends AbstractBaseEntity {
 
 	public void setCallbackUrl(String callbackUrl) {
 		this.callbackUrl = callbackUrl;
+	}
+
+	public Map<String, String> getGenericStore() {
+		return genericStore;
+	}
+
+	public void setGenericStore(Map<String, String> genericStore) {
+		this.genericStore = genericStore;
 	}
 }

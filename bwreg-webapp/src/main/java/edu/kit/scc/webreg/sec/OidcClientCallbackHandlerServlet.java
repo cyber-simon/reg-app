@@ -71,6 +71,7 @@ public class OidcClientCallbackHandlerServlet implements Servlet {
 		try {
 			callbackService.callback(requestURL.toString(), request, response);
 		} catch (OidcAuthenticationException e) {
+			logger.info("Problems encountered, while OIDC login", e);
 			throw new ServletException("Problems encountered: " + e.getMessage());
 		}
 	}
