@@ -1,5 +1,7 @@
 package edu.kit.scc.webreg.service.project;
 
+import java.util.UUID;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -9,6 +11,7 @@ import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.project.LocalProjectGroupDao;
 import edu.kit.scc.webreg.dao.project.ProjectDao;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+import edu.kit.scc.webreg.entity.project.ExternalOidcProjectEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectGroupEntity;
 import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
@@ -45,4 +48,22 @@ public class ProjectCreater {
 		return project;
 	}
 	
+	public ExternalOidcProjectEntity createExternalOidcProject(String projectName, String externalName, String groupName, String shortName) {
+		ExternalOidcProjectEntity project = new ExternalOidcProjectEntity();
+		
+		LocalProjectGroupEntity projectGroup = projectGroupDao.createNew();
+		projectGroup.setName(groupName);
+		projectGroup.setGidNumber(groupDao.getNextGID().intValue());
+		projectGroup = projectGroupDao.persist(projectGroup);
+		project.setProjectGroup(projectGroup);
+		
+		project.setName(projectName);
+		project.setGroupName(groupName);
+		project.setExternalName(externalName);
+		project.setShortName(shortName);
+		
+		project = (ExternalOidcProjectEntity) projectDao.persist(project);
+		
+		return project;
+	}
 }

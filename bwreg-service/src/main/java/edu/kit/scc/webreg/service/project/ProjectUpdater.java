@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -25,6 +26,9 @@ import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
+import edu.kit.scc.webreg.entity.project.ExternalOidcProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipType;
@@ -61,6 +65,35 @@ public class ProjectUpdater {
 	@Inject
 	private EventSubmitter eventSubmitter;
 
+	@Inject
+	private ProjectCreater projectCreater;
+	
+	public void syncExternalOidcProject(String projectName, String externalName, String groupName, String shortName, OidcUserEntity user) {
+		OidcRpConfigurationEntity rpConfig = user.getIssuer();
+		
+		logger.debug("Inspecting {}", projectName);
+		ExternalOidcProjectEntity project = dao.findByExternalNameOidc(externalName, rpConfig);
+		
+		if (shortName == null) {
+			// generate short name, if none is set
+			shortName = "p_" + (UUID.randomUUID().toString().replaceAll("-", "").substring(0, 24));
+		}
+		
+		if (project == null) {
+			project = projectCreater.createExternalOidcProject(projectName, externalName, groupName, shortName);
+		}
+
+		project.setName(projectName);
+		project.setGroupName(groupName);
+		project.getProjectGroup().setName(groupName);
+		project.setShortName(shortName);
+		project.setRpConfig(rpConfig);
+		
+		dao.addMemberToProject(project, user.getIdentity(), ProjectMembershipType.MEMBER);
+		syncAllMembersToGroup(project, "idty-" + user.getIdentity());
+		triggerGroupUpdate(project, "idty-" + user.getIdentity());
+	}
+	
 	public void updateProjectMemberList(ProjectEntity project, Set<IdentityEntity> memberList, String executor) {
 		project = dao.merge(project);
 		

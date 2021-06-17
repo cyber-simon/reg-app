@@ -14,11 +14,15 @@ import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
+import javax.persistence.NoResultException;
 
 import edu.kit.scc.webreg.dao.jpa.JpaBaseDao;
 import edu.kit.scc.webreg.dao.project.ProjectDao;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
+import edu.kit.scc.webreg.entity.project.ExternalOidcProjectEntity;
+import edu.kit.scc.webreg.entity.project.ExternalProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
@@ -65,7 +69,27 @@ public class JpaProjectDao extends JpaBaseDao<ProjectEntity, Long> implements Pr
 		return em.createQuery("select r from ProjectServiceEntity r where r.project = :project")
 				.setParameter("project", project).getResultList();
 	}
-	
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ExternalProjectEntity> findByExternalName(String externalName) {
+		return em.createQuery("select r from ExternalProjectEntity r where r.externalName = :externalName order by r.name")
+			.setParameter("externalName", externalName).getResultList();
+	}
+
+	@Override
+	public ExternalOidcProjectEntity findByExternalNameOidc(String externalName, OidcRpConfigurationEntity rpConfig) {
+		try {
+			return (ExternalOidcProjectEntity) em.createQuery("select r from ExternalOidcProjectEntity r "
+					+ "where r.externalName = :externalName and r.rpConfig = :rpConfig order by r.name")
+					.setParameter("externalName", externalName)
+					.setParameter("rpConfig", rpConfig)
+					.getSingleResult();
+		} catch (NoResultException e) {
+			return null;
+		}
+	}
+
 	@Override
 	public ProjectIdentityAdminEntity addAdminToProject(ProjectEntity project, IdentityEntity identity, ProjectAdminType type) {
 		ProjectIdentityAdminEntity entity = new ProjectIdentityAdminEntity();

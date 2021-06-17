@@ -15,6 +15,9 @@ import java.util.List;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
+import edu.kit.scc.webreg.entity.project.ExternalOidcProjectEntity;
+import edu.kit.scc.webreg.entity.project.ExternalProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
@@ -44,4 +47,8 @@ public interface ProjectDao extends BaseDao<ProjectEntity, Long> {
 	List<ProjectIdentityAdminEntity> findAdminsForProject(ProjectEntity project);
 	
 	List<ProjectServiceEntity> findServicesForProject(ProjectEntity project);
+
+	List<ExternalProjectEntity> findByExternalName(String externalName);
+
+	ExternalOidcProjectEntity findByExternalNameOidc(String externalName, OidcRpConfigurationEntity rpConfig);
 }

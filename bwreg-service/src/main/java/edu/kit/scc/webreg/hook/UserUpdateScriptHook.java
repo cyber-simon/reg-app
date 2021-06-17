@@ -47,7 +47,7 @@ public class UserUpdateScriptHook implements UserUpdateHook, ScriptingWorkflow {
 		Invocable invocable = resolveScript(genericStore);
 
 		try {
-			invocable.invokeFunction("preUpdateUser", scriptingEnv, user, genericStore, attributeMap, service, logger, debugLog);
+			invocable.invokeFunction("postUpdateUser", scriptingEnv, user, genericStore, attributeMap, service, logger, debugLog);
 		} catch (NoSuchMethodException e) {
 			logger.info("No preUpdateUser Method. Skipping execution.");
 		} catch (ScriptException e) {
