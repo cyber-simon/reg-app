@@ -8,18 +8,18 @@
 	<title>Default page</title>
 </head>
 <body>
-	<ui:composition template="layout-template-admin.xhtml">
+	<ui:composition template="/template/layout-template-admin.xhtml">
 
 		<ui:define name="header">
-			<ui:include src="head-bar-admin.xhtml"/>
+			<ui:include src="/template/head-bar-admin.xhtml"/>
 		</ui:define>
 
 		<ui:define name="left_sidebar">
-			<ui:include src="left-side-bar-admin.xhtml"/>
+			<ui:include src="/template/left-side-bar-admin.xhtml"/>
 		</ui:define>
 		
 		<ui:define name="footer">
-			<ui:include src="footer-admin.xhtml"/>
+			<ui:include src="/template/footer-admin.xhtml"/>
 		</ui:define>
 		
 	</ui:composition>

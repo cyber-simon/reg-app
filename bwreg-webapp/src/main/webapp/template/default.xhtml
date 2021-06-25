@@ -9,18 +9,18 @@
 	<title>Default page</title>
 </head>
 <body>
-	<ui:composition template="layout-template.xhtml">
+	<ui:composition template="/template/layout-template.xhtml">
 
 		<ui:define name="header">
-			<ui:include src="head-bar.xhtml"/>
+			<ui:include src="/template/head-bar.xhtml"/>
 		</ui:define>
 
 		<ui:define name="left_sidebar">
-			<ui:include src="left-side-bar.xhtml"/>
+			<ui:include src="/template/left-side-bar.xhtml"/>
 		</ui:define>
 		
 		<ui:define name="footer">
-			<ui:include src="footer.xhtml"/>
+			<ui:include src="/template/footer.xhtml"/>
 		</ui:define>
 	</ui:composition>
 </body>
