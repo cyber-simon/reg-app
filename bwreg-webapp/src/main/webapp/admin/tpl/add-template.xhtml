@@ -19,17 +19,17 @@
 
 	<ui:define name="content">
 	<h:form id="form">
-		<h2><h:outputText value="#{addPolicyBean.service.name}: #{messages.add_policy}"/></h2>
+		<h2><h:outputText value="#{addTemplateBean.entity.name}: #{messages.add_template}"/></h2>
 	
 		<div id="panelInline">
 			<p:panel header="#{messages.policy}">
 				<p:panelGrid id="baseData" columns="2">
 		
 					<bw:inputText id="nameField" label="#{messages.name}"
-						value="#{addPolicyBean.entity.name}" required="true" />
+						value="#{addTemplateBean.entity.name}" required="true" />
 			
 				</p:panelGrid>
-				<p:commandButton id="save" action="#{addPolicyBean.save}" value="#{messages.save}"/>
+				<p:commandButton id="save" action="#{addTemplateBean.save}" value="#{messages.save}"/>
 			</p:panel>
 		</div>
 
