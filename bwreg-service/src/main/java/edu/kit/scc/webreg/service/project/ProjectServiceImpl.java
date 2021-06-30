@@ -64,6 +64,11 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity, Long> imp
 	}
 
 	@Override
+	public List<ProjectMembershipEntity> findByIdentity(IdentityEntity identity) {
+		return dao.findByIdentity(identity);
+	}
+	
+	@Override
 	public List<ProjectIdentityAdminEntity> findAdminsForProject(ProjectEntity project) {
 		return dao.findAdminsForProject(project);
 	}

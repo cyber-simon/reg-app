@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{userProjectIndexBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form" class="full form">
+
+		<h2><h:outputText value="#{messages.my_projects}"/></h2>
+
+		<p:dataTable id="dataTable" var="p" value="#{userProjectIndexBean.projectList}" paginator="true" rows="15">
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.id}" />
+				</f:facet>
+				<h:outputText value="#{p.project.id}" />
+			</p:column>
+			<p:column sortBy="#{p.project.name}" filterBy="#{p.project.name}">
+				<f:facet name="header">
+					<h:outputText value="#{messages.name}" />
+				</f:facet>
+				<p:outputPanel rendered="#{p.project.class.simpleName == 'ExternalOidcProjectEntity'}">
+					<h:outputText value="#{p.project.name}" /> (<h:outputText value="#{p.project.rpConfig.displayName}" />)
+					<h:outputText value="#{p.project.externalName}" />
+				</p:outputPanel>
+				<p:outputPanel rendered="#{p.project.class.simpleName == 'LocalProjectEntity'}">
+					<h:link outcome="show-project.xhtml" value="#{p.project.name}">
+			      		<f:param name="projectId" value="#{p.project.id}"/>
+					</h:link>
+				</p:outputPanel>
+			</p:column>			
+		</p:dataTable>
+		
+	</h:form>
+	</ui:define>
+</ui:composition>
+</f:view>
+</body>
+</html>

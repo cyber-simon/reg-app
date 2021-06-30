@@ -56,6 +56,13 @@ public class JpaProjectDao extends JpaBaseDao<ProjectEntity, Long> implements Pr
 				.setParameter("project", project).getResultList();
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ProjectMembershipEntity> findByIdentity(IdentityEntity identity) {
+		return em.createQuery("select r from ProjectMembershipEntity r where r.identity = :identity")
+				.setParameter("identity", identity).getResultList();
+	}
+
 	@Override
 	public ProjectMembershipEntity findByIdentityAndProject(IdentityEntity identity, ProjectEntity project) {
 		try {
