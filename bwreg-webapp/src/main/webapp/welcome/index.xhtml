@@ -62,13 +62,18 @@
 				</p:selectOneRadio>
 				<h:panelGroup>
 	                <p:radioButton id="opt1" for="quickLoginRadio" itemIndex="0"/>
-	                <p:outputPanel rendered="#{empty discoveryLoginBean.selectedIdp.logoSmallUrl}">
-		                <h:outputLabel for="opt1" value="#{discoveryLoginBean.selectedIdp.displayName}" style="font-size: 1.4rem;"/>
+	                <p:outputPanel rendered="#{discoveryLoginBean.selectedIdp.class.simpleName == 'SamlIdpMetadataEntity'}">
+		                <p:outputPanel rendered="#{empty discoveryLoginBean.selectedIdp.logoSmallUrl}">
+			                <h:outputLabel for="opt1" value="#{discoveryLoginBean.selectedIdp.displayName}" style="font-size: 1.4rem;"/>
+		                </p:outputPanel>
+						<p:outputPanel rendered="#{not empty discoveryLoginBean.selectedIdp.logoSmallUrl}">
+							<span style="float:left; margin-right: 0.5em;"><img src="#{discoveryLoginBean.selectedIdp.logoSmallUrl}" /></span>
+			                <h:outputLabel for="opt1" value="#{discoveryLoginBean.selectedIdp.displayName}" style="font-size: 1.4rem; vertical-align: middle;"/>
+						</p:outputPanel>
 	                </p:outputPanel>
-					<p:outputPanel rendered="#{not empty discoveryLoginBean.selectedIdp.logoSmallUrl}">
-						<span style="float:left; margin-right: 0.5em;"><img src="#{discoveryLoginBean.selectedIdp.logoSmallUrl}" /></span>
+	                <p:outputPanel rendered="#{discoveryLoginBean.selectedIdp.class.simpleName == 'OidcRpConfigurationEntity'}">
 		                <h:outputLabel for="opt1" value="#{discoveryLoginBean.selectedIdp.displayName}" style="font-size: 1.4rem; vertical-align: middle;"/>
-					</p:outputPanel>
+	                </p:outputPanel>
                 </h:panelGroup>
 			</p:panel>
 			

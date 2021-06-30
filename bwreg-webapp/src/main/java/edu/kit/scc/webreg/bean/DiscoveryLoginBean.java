@@ -167,8 +167,30 @@ public class DiscoveryLoginBean implements Serializable {
 			
 			Cookie idpCookie = cookieHelper.getCookie("preselect_idp");
 			if (idpCookie != null) {
-				Long idpId = Long.parseLong(idpCookie.getValue());
-				if (idpId != null) {
+				String cookieValue = idpCookie.getValue();
+				
+				if (cookieValue.startsWith("i_")) {
+					Long idpId = Long.parseLong(cookieValue.substring(2));
+					SamlIdpMetadataEntity idp = idpService.findById(idpId);
+					if (idp != null) {
+						selectedIdp = idp;
+						storeIdpSelection = true;
+						preSelectedIdp = true;
+						PrimeFaces.current().focus("quicklogin");
+					}										
+				}
+				else if (cookieValue.startsWith("o_")) {
+					Long opId = Long.parseLong(cookieValue.substring(2));
+					OidcRpConfigurationEntity op = oidcRpService.findById(opId);
+					if (op != null) {
+						selectedIdp = op;
+						storeIdpSelection = true;
+						preSelectedIdp = true;
+						PrimeFaces.current().focus("quicklogin");
+					}											
+				}
+				else if (cookieValue.matches("^[0-9]{1,}$")) {
+					Long idpId = Long.parseLong(cookieValue);
 					SamlIdpMetadataEntity idp = idpService.findById(idpId);
 					if (idp != null) {
 						selectedIdp = idp;
@@ -201,7 +223,7 @@ public class DiscoveryLoginBean implements Serializable {
 				sessionManager.setSpId(spConfig.getId());
 				sessionManager.setIdpId(idp.getId());
 				if (storeIdpSelection != null && storeIdpSelection) {
-					cookieHelper.setCookie("preselect_idp", idp.getId().toString(), 356 * 24 * 3600);
+					cookieHelper.setCookie("preselect_idp", "i_" + idp.getId().toString(), 356 * 24 * 3600);
 				}
 				else {
 					cookieHelper.setCookie("preselect_idp", "", 0);
@@ -216,6 +238,14 @@ public class DiscoveryLoginBean implements Serializable {
 			else if (selectedIdp instanceof OidcRpConfigurationEntity) {
 				OidcRpConfigurationEntity rp = (OidcRpConfigurationEntity) selectedIdp;
 				sessionManager.setOidcRelyingPartyId(rp.getId());
+
+				if (storeIdpSelection != null && storeIdpSelection) {
+					cookieHelper.setCookie("preselect_idp", "o_" + rp.getId().toString(), 356 * 24 * 3600);
+				}
+				else {
+					cookieHelper.setCookie("preselect_idp", "", 0);
+				}
+
 				try {
 					externalContext.redirect("/rpoidc/login");
 				} catch (IOException e) {
