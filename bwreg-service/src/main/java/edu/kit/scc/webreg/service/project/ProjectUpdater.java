@@ -89,7 +89,10 @@ public class ProjectUpdater {
 		project.setShortName(shortName);
 		project.setRpConfig(rpConfig);
 		
-		dao.addMemberToProject(project, user.getIdentity(), ProjectMembershipType.MEMBER);
+		if (dao.findByIdentityAndProject(user.getIdentity(), project) == null) {
+			dao.addMemberToProject(project, user.getIdentity(), ProjectMembershipType.MEMBER);
+		}
+		
 		syncAllMembersToGroup(project, "idty-" + user.getIdentity());
 		triggerGroupUpdate(project, "idty-" + user.getIdentity());
 	}

@@ -1,7 +1,5 @@
 package edu.kit.scc.webreg.service.project;
 
-import java.util.UUID;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 

@@ -51,4 +51,6 @@ public interface ProjectDao extends BaseDao<ProjectEntity, Long> {
 	List<ExternalProjectEntity> findByExternalName(String externalName);
 
 	ExternalOidcProjectEntity findByExternalNameOidc(String externalName, OidcRpConfigurationEntity rpConfig);
+
+	ProjectMembershipEntity findByIdentityAndProject(IdentityEntity identity, ProjectEntity project);
 }
