@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -174,8 +175,12 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
     	 */
 		IdentityEntity id = identityDao.createNew();
 		id = identityDao.persist(id);
+
+		id.setTwoFaUserId("idty-" + id.getId());
+		id.setTwoFaUserName(UUID.randomUUID().toString());
+
 		user.setIdentity(id);
-		
+
 		postCreateUserInternal(user, attributeMap, executor, auditor);
 
 		id.setUidNumber(user.getUidNumber());
