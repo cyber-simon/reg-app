@@ -107,7 +107,7 @@
 				
 				<p:outputLabel value="#{messages.home_org}:" for="idpBox" />
 				<p:selectOneListbox id="idpBox" value="#{discoveryLoginBean.selectedIdp}" scrollHeight="360" style="width:auto;"
-						converter="#{samlIdpMetadataConverter}">
+						converter="#{loginObjectConverter}">
 	            	<f:selectItems value="#{discoveryLoginBean.idpList}" 
 	            		var="idp" itemLabel="#{idp.displayName == null ? idp.orgName : idp.displayName}" itemValue="#{idp}"/>
 					<p:ajax event="dblclick" listener="#{discoveryLoginBean.login}" update=":form" />	            		
@@ -118,21 +118,6 @@
 			<p:commandButton id="login" action="#{discoveryLoginBean.login}" value="#{messages.proceed}"
 				update=":form" />
 		</p:panel>
-
-		<p:panel header="OIDC Test" rendered="#{'true'.equalsIgnoreCase(discoveryLoginBean.appConfig.getConfigValue('show_oidc_login'))}" styleClass="full">
-			<h:panelGrid id="oidcBaseData" columns="2" style="margin-top: 8px;">
-				<p:outputLabel value="#{messages.home_org}:" for="oidcBox" />
-				<p:selectOneListbox id="oidcBox" value="#{discoveryLoginBean.selectedOidcRp}" scrollHeight="120" style="width:300px;"
-						converter="#{oidcRpConfigurationConverter}">
-	            	<f:selectItems value="#{discoveryLoginBean.oidcRpList}" 
-	            		var="rp" itemLabel="#{rp.displayName}" itemValue="#{rp}"/>
-					<p:ajax event="dblclick" listener="#{discoveryLoginBean.oidcLogin()}" update=":form" />	            		
-				</p:selectOneListbox>
-			</h:panelGrid>
-				
-			<p:commandButton id="oidcLogin" action="#{discoveryLoginBean.oidcLogin()}" value="#{messages.proceed}" 
-				update=":form"/>
-		</p:panel>		
 	</h:form>
 	
 	</ui:define>

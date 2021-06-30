@@ -79,6 +79,15 @@ public class ApplicationConfig implements Serializable {
 		return appConfig.getConfigOptions().get(key);
 	}
 	
+	public String getConfigValueOrDefault(String key, String defaultValue) {
+		if (appConfig.getConfigOptions().containsKey(key)) {
+			return getConfigValue(key);
+		}
+		else {
+			return defaultValue;
+		}
+	}
+	
 	public String deleteConfigValue(String key) {
 		String value = appConfig.getConfigOptions().remove(key);
 		appConfig = dao.persist(appConfig);
