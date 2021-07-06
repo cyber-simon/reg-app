@@ -17,24 +17,24 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
-import edu.kit.scc.webreg.service.SamlSpConfigurationService;
+import edu.kit.scc.webreg.entity.SamlAAConfigurationEntity;
+import edu.kit.scc.webreg.service.SamlAAConfigurationService;
 
 @Named
 @ViewScoped
-public class ListSamlConfigurationBean implements Serializable {
+public class ListAaConfigurationBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<SamlSpConfigurationEntity> spList;
+	private List<SamlAAConfigurationEntity> aaList;
 
     @Inject
-    private SamlSpConfigurationService spService;
+    private SamlAAConfigurationService aaService;
 
-	public List<SamlSpConfigurationEntity> getSpList() {
-		if (spList == null) {
-			spList = spService.findAll();
+	public List<SamlAAConfigurationEntity> getAaList() {
+		if (aaList == null) {
+			aaList = aaService.findAll();
 		}
-		return spList;
+		return aaList;
 	}
 }

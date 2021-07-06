@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	
+	<h:form id="form">
+
+		<p:dataTable id="idpDataTable" var="entity" value="#{listIdpConfigurationBean.idpList}">
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.id}" />
+				</f:facet>
+				<h:outputText value="#{entity.id}" />
+			</p:column>
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.entity_id}" />
+				</f:facet>
+				<h:link outcome="show-idp-config.xhtml" value="#{entity.entityId}">
+      				<f:param name="id" value="#{entity.id}"/>
+    			</h:link>
+			</p:column>		
+		</p:dataTable>
+
+        <h:link outcome="add-idp-config.xhtml" value="#{messages.add_idp_config}"/>
+
+		<p:dataTable id="spDataTable" var="entity" value="#{listIdpConfigurationBean.serviceSpList}">
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.id}" />
+				</f:facet>
+				<h:link outcome="edit-saml-service-sp.xhtml" value="#{entity.id}">
+      				<f:param name="id" value="#{entity.id}"/>
+    			</h:link>
+			</p:column>
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.idp}" />
+				</f:facet>
+				<h:outputText value="#{(empty entity.idp.entityId ? 'All IDPs' : entity.idp.entityId)}" />
+			</p:column>		
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.service}" />
+				</f:facet>
+				<h:outputText value="#{entity.service.name}" />
+			</p:column>		
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.script}" />
+				</f:facet>
+				<h:outputText value="#{entity.script.name}" />
+			</p:column>		
+		</p:dataTable>
+	
+	</h:form>
+
+	</ui:define>
+</ui:composition>		
+</body>
+</html>
