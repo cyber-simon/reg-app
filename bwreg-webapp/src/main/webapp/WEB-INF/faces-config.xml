@@ -7,8 +7,10 @@
 
 	<application>
 		<locale-config>
-			<supported-locale>de</supported-locale>
+			<default-locale>en</default-locale>
 			<supported-locale>en</supported-locale>
+			<supported-locale>de</supported-locale>
+			<supported-locale>fr</supported-locale>
 		</locale-config>
 		<resource-bundle>
 			<base-name>edu.kit.scc.webreg.res.DbMessageBundle</base-name>
