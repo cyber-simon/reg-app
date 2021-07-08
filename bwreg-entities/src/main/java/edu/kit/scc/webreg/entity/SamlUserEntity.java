@@ -60,4 +60,12 @@ public class SamlUserEntity extends UserEntity {
 	public void setIdp(SamlIdpMetadataEntity idp) {
 		this.idp = idp;
 	}
+
+	public Set<SamlAssertionEntity> getAssertions() {
+		return assertions;
+	}
+
+	public void setAssertions(Set<SamlAssertionEntity> assertions) {
+		this.assertions = assertions;
+	}
 }

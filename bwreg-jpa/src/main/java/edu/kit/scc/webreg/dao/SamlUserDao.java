@@ -10,10 +10,13 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao;
 
+import java.util.List;
+
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 
 public interface SamlUserDao extends BaseDao<SamlUserEntity, Long> {
 
+	List<SamlUserEntity> findUsersForPseudo(Long onHoldSince, int limit);
 	SamlUserEntity findByPersistentWithRoles(String spId, String idpId,
 			String persistentId);
 	SamlUserEntity findByEppn(String eppn);

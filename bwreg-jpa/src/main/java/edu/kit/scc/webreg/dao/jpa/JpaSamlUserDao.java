@@ -11,6 +11,8 @@
 package edu.kit.scc.webreg.dao.jpa;
 
 import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
@@ -22,13 +24,33 @@ import javax.persistence.criteria.Root;
 
 import edu.kit.scc.webreg.dao.SamlUserDao;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
+import edu.kit.scc.webreg.entity.UserStatus;
 
 @Named
 @ApplicationScoped
 public class JpaSamlUserDao extends JpaBaseDao<SamlUserEntity, Long> implements SamlUserDao, Serializable {
 
 	private static final long serialVersionUID = 1L;
-    
+
+	@Override
+	public List<SamlUserEntity> findUsersForPseudo(Long onHoldSince, int limit) {
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<SamlUserEntity> criteria = builder.createQuery(SamlUserEntity.class);
+		Root<SamlUserEntity> user = criteria.from(SamlUserEntity.class);
+		criteria.where(builder.and(
+				builder.equal(user.get("userStatus"), UserStatus.ON_HOLD),
+				builder.lessThanOrEqualTo(user.<Date>get("lastStatusChange"), new Date(System.currentTimeMillis() - onHoldSince)),
+				builder.isNotNull(user.get("eppn")),
+				builder.isNotNull(user.get("email")),
+				builder.isNotNull(user.get("givenName")),
+				builder.isNotNull(user.get("surName"))
+				));
+		criteria.select(user);
+		criteria.orderBy(builder.asc(user.<Date>get("lastStatusChange")));
+		
+		return em.createQuery(criteria).setMaxResults(limit).getResultList();
+	}	
+
 	@Override
 	public SamlUserEntity findByPersistentWithRoles(String spId, String idpId, String persistentId) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
