@@ -171,16 +171,16 @@ public class Saml2AssertionService {
 		}
 		
 		/*
-		 * prefer subject-id over pairwise-id over persistent
+		 * prefer pairwise-id over persistent over subject-id
 		 */
-		if (samlIdentifier.getSubjectId() != null) {
-			return samlIdentifier.getSubjectId();
-		}
-		else if (samlIdentifier.getPairwiseId() != null) {
+		if (samlIdentifier.getPairwiseId() != null) {
 			return samlIdentifier.getPairwiseId();
 		}
 		else if (samlIdentifier.getPersistentId() != null) {
 			return samlIdentifier.getPersistentId();
+		}
+		else if (samlIdentifier.getSubjectId() != null) {
+			return samlIdentifier.getSubjectId();
 		}
 		else {
 			throw new SamlAuthenticationException("No usable identifier found. Acceptable identifiers are Pairwise-ID, Subject-ID or Persistent ID");

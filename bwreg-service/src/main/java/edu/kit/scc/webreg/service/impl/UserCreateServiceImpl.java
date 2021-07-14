@@ -95,7 +95,6 @@ public class UserCreateServiceImpl implements UserCreateService {
 		
 		SamlUserEntity entity = samlUserDao.createNew();
 		entity.setIdp(idpEntity);
-    	entity.setPersistentIdpId(idpEntity.getEntityId());
     	entity.setPersistentSpId(spConfigEntity.getEntityId());
     	entity.setPersistentId(persistentId);
     	entity.setRoles(new HashSet<UserRoleEntity>());

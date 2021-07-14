@@ -14,13 +14,13 @@ public class SamlUserEntity extends UserEntity {
 
 	@Column(name = "persistent_id", length = 1024)
 	private String persistentId;
-	
+
+	@Column(name = "saml_subject_id", length = 1024)
+	private String subjectId;
+
 	@Column(name = "persistent_spid", length = 1024)
 	private String persistentSpId;
 	
-	@Column(name = "persistent_idpid", length = 1024)
-	private String persistentIdpId;
-
 	@ManyToOne(targetEntity = SamlIdpMetadataEntity.class)
 	private SamlIdpMetadataEntity idp;
 	
@@ -43,16 +43,6 @@ public class SamlUserEntity extends UserEntity {
 		this.persistentSpId = persistentSpId;
 	}
 
-	@Deprecated
-	public String getPersistentIdpId() {
-		return persistentIdpId;
-	}
-
-	@Deprecated
-	public void setPersistentIdpId(String persistentIdpId) {
-		this.persistentIdpId = persistentIdpId;
-	}
-
 	public SamlIdpMetadataEntity getIdp() {
 		return idp;
 	}
@@ -67,5 +57,13 @@ public class SamlUserEntity extends UserEntity {
 
 	public void setAssertions(Set<SamlAssertionEntity> assertions) {
 		this.assertions = assertions;
+	}
+
+	public String getSubjectId() {
+		return subjectId;
+	}
+
+	public void setSubjectId(String subjectId) {
+		this.subjectId = subjectId;
 	}
 }

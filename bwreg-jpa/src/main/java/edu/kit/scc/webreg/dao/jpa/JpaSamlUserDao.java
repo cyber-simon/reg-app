@@ -17,6 +17,7 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.JoinType;
@@ -78,18 +79,13 @@ public class JpaSamlUserDao extends JpaBaseDao<SamlUserEntity, Long> implements 
 
 	@Override
 	public SamlUserEntity findByPersistent(String spId, String idpId, String persistentId) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<SamlUserEntity> criteria = builder.createQuery(SamlUserEntity.class);
-		Root<SamlUserEntity> user = criteria.from(SamlUserEntity.class);
-		criteria.where(builder.and(
-				builder.equal(user.get("persistentSpId"), spId),
-				builder.equal(user.get("persistentIdpId"), idpId),
-				builder.equal(user.get("persistentId"), persistentId)
-				));
-		criteria.select(user);
+		
+		TypedQuery<SamlUserEntity> query = em.createQuery("select u from SamlUserEntity u where u.persistentSpId = :spId and u.idp.entityId = :idpId and "
+				+ "u.persistentId = :persistentId", SamlUserEntity.class).setParameter("spId", spId)
+				.setParameter("idpId", idpId).setParameter("persistentId", persistentId);
 		
 		try {
-			return em.createQuery(criteria).getSingleResult();
+			return query.getSingleResult();
 		}
 		catch (NoResultException e) {
 			return null;
