@@ -561,14 +561,13 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 		Assertion assertion = saml2AssertionService.processSamlResponse(samlResponse, idp, idpEntityDescriptor, spEntity);
 
 		SamlIdentifier samlIdentifier = saml2AssertionService.extractPersistentId(idp, assertion, spEntity, null);
-		String persistentId = saml2AssertionService.resolveIdentifier(samlIdentifier, idp, null);
+		SamlUserEntity user = saml2AssertionService.resolveUser(samlIdentifier, idp, spEntity.getEntityId(), null);
 		
-		SamlUserEntity user = samlUserDao.findByPersistent(spEntity.getEntityId(), 
-				idp.getEntityId(), persistentId);
-	
 		if (user == null) {
 			throw new UserNotRegisteredException("user not registered in webapp");
 		}
+		
+		saml2AssertionService.updateUserIdentifier(samlIdentifier, user, spEntity.getEntityId(), null);
 		
 		try {
 			user = userUpdater.updateUser(user, assertion, caller, service, null);

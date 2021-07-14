@@ -8,9 +8,11 @@ import javax.inject.Named;
 
 import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.RegistryDao;
+import edu.kit.scc.webreg.dao.SamlUserDao;
 import edu.kit.scc.webreg.dao.ScriptDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
 import edu.kit.scc.webreg.dao.UserDao;
+import edu.kit.scc.webreg.dao.oidc.OidcUserDao;
 import edu.kit.scc.webreg.dao.project.ProjectDao;
 import edu.kit.scc.webreg.service.project.ProjectCreater;
 import edu.kit.scc.webreg.service.project.ProjectUpdater;
@@ -27,6 +29,12 @@ public class ScriptingEnv implements Serializable {
 	
 	@Inject
 	private UserDao userDao;
+
+	@Inject
+	private SamlUserDao samlUserDao;
+	
+	@Inject
+	private OidcUserDao oidcUserDao;
 	
 	@Inject
 	private GroupDao groupDao;
@@ -53,72 +61,43 @@ public class ScriptingEnv implements Serializable {
 		return userDao;
 	}
 
-	public void setUserDao(UserDao userDao) {
-		this.userDao = userDao;
-	}
-
 	public GroupDao getGroupDao() {
 		return groupDao;
-	}
-
-	public void setGroupDao(GroupDao groupDao) {
-		this.groupDao = groupDao;
 	}
 
 	public ServiceDao getServiceDao() {
 		return serviceDao;
 	}
 
-	public void setServiceDao(ServiceDao serviceDao) {
-		this.serviceDao = serviceDao;
-	}
-
 	public RegistryDao getRegistryDao() {
 		return registryDao;
-	}
-
-	public void setRegistryDao(RegistryDao registryDao) {
-		this.registryDao = registryDao;
 	}
 
 	public ScriptDao getScriptDao() {
 		return scriptDao;
 	}
 
-	public void setScriptDao(ScriptDao scriptDao) {
-		this.scriptDao = scriptDao;
-	}
-
 	public SsoHelper getSsoHelper() {
 		return ssoHelper;
-	}
-
-	public void setSsoHelper(SsoHelper ssoHelper) {
-		this.ssoHelper = ssoHelper;
 	}
 
 	public ProjectDao getProjectDao() {
 		return projectDao;
 	}
 
-	public void setProjectDao(ProjectDao projectDao) {
-		this.projectDao = projectDao;
-	}
-
 	public ProjectCreater getProjectCreater() {
 		return projectCreater;
-	}
-
-	public void setProjectCreater(ProjectCreater projectCreater) {
-		this.projectCreater = projectCreater;
 	}
 
 	public ProjectUpdater getProjectUpdater() {
 		return projectUpdater;
 	}
 
-	public void setProjectUpdater(ProjectUpdater projectUpdater) {
-		this.projectUpdater = projectUpdater;
+	public SamlUserDao getSamlUserDao() {
+		return samlUserDao;
 	}
-	
+
+	public OidcUserDao getOidcUserDao() {
+		return oidcUserDao;
+	}
 }

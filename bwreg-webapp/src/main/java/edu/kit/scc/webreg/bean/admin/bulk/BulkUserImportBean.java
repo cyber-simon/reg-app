@@ -40,6 +40,7 @@ import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.saml.AttributeQueryHelper;
 import edu.kit.scc.webreg.service.saml.Saml2AssertionService;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
+import edu.kit.scc.webreg.service.saml.SamlIdentifier;
 
 @Named
 @ViewScoped
@@ -129,7 +130,8 @@ public class BulkUserImportBean implements Serializable {
 				
 				try {
 					Map<String, List<Object>> attributeMap = new HashMap<String, List<Object>>();
-					userEntity = userCreateService.preCreateUser(idpEntity, spEntity, importUser.getPersistentId(), null, attributeMap);
+					userEntity = userCreateService.preCreateUser(idpEntity, spEntity, 
+							new SamlIdentifier(importUser.getPersistentId(), null, null, null), null, attributeMap);
 
 					Response samlResponse = attrQueryHelper.query(userEntity, idpEntity, idpEntityDescriptor, spEntity);
 					

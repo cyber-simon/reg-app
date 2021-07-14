@@ -17,13 +17,14 @@ import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
+import edu.kit.scc.webreg.service.saml.SamlIdentifier;
 
 public interface UserCreateService {
 
 	SamlUserEntity createUser(SamlUserEntity user, Map<String, List<Object>> attributeMap, String executor)
 			throws UserUpdateException;
 
-	SamlUserEntity preCreateUser(SamlIdpMetadataEntity idpEntity, SamlSpConfigurationEntity spEntity, String persistentId,
+	SamlUserEntity preCreateUser(SamlIdpMetadataEntity idpEntity, SamlSpConfigurationEntity spEntity, SamlIdentifier samlIdentifier,
 			String locale, Map<String, List<Object>> attributeMap) throws UserUpdateException;
 
 }

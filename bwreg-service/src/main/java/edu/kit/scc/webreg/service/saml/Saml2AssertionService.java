@@ -26,6 +26,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
@@ -53,8 +54,8 @@ import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlIdpScopeEntity;
 import edu.kit.scc.webreg.entity.SamlMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ScriptEntity;
-import edu.kit.scc.webreg.hook.UserUpdateHookException;
 import edu.kit.scc.webreg.script.ScriptingEnv;
 import edu.kit.scc.webreg.service.saml.exc.NoAssertionException;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
@@ -144,10 +145,10 @@ public class Saml2AssertionService {
 		return assertion;
 	}
 	
-	public String resolveIdentifier(SamlIdentifier samlIdentifier, SamlIdpMetadataEntity idpEntity, StringBuffer debugLog)
+	public SamlUserEntity resolveUser(SamlIdentifier samlIdentifier, SamlIdpMetadataEntity idpEntity, String samlSpEntityId, StringBuffer debugLog)
 			throws SamlAuthenticationException {
-		if (idpEntity.getGenericStore().containsKey("extract_id_script")) {
-			String scriptName = idpEntity.getGenericStore().get("extract_id_script");
+		if (idpEntity.getGenericStore().containsKey("resolve_user_script")) {
+			String scriptName = idpEntity.getGenericStore().get("resolve_user_script");
 
 			ScriptEntity scriptEntity = scriptingEnv.getScriptDao().findByName(scriptName);
 			
@@ -159,9 +160,9 @@ public class Saml2AssertionService {
 						engine.eval(scriptEntity.getScript());
 						
 						Invocable invocable = (Invocable) engine;
-						Object o = invocable.invokeFunction("extractId", scriptingEnv, samlIdentifier, logger, debugLog);
-						if (o != null) {
-							return o.toString();
+						Object o = invocable.invokeFunction("resolveUser", scriptingEnv, samlIdentifier, idpEntity, samlSpEntityId, logger, debugLog);
+						if ((o != null) && (o instanceof SamlUserEntity)) {
+							return (SamlUserEntity) o;
 						}
 					} catch (NoSuchMethodException | ScriptException e) {
 						logger.warn("Script execution failed", e);
@@ -174,19 +175,54 @@ public class Saml2AssertionService {
 		 * prefer pairwise-id over persistent over subject-id
 		 */
 		if (samlIdentifier.getPairwiseId() != null) {
-			return samlIdentifier.getPairwiseId();
+			return scriptingEnv.getSamlUserDao().findByPersistent(samlSpEntityId, idpEntity.getEntityId(), samlIdentifier.getPairwiseId());
 		}
 		else if (samlIdentifier.getPersistentId() != null) {
-			return samlIdentifier.getPersistentId();
+			return scriptingEnv.getSamlUserDao().findByPersistent(samlSpEntityId, idpEntity.getEntityId(), samlIdentifier.getPersistentId());
 		}
 		else if (samlIdentifier.getSubjectId() != null) {
-			return samlIdentifier.getSubjectId();
+			throw new NotImplementedException("Not implemented yet");
 		}
 		else {
 			throw new SamlAuthenticationException("No usable identifier found. Acceptable identifiers are Pairwise-ID, Subject-ID or Persistent ID");
 		}		
 	}
-	
+
+	public void updateUserIdentifier(SamlIdentifier samlIdentifier, SamlUserEntity user, String samlSpEntityId, StringBuffer debugLog) {
+		if (user.getIdp().getGenericStore().containsKey("resolve_user_script")) {
+			String scriptName = user.getIdp().getGenericStore().get("resolve_user_script");
+
+			ScriptEntity scriptEntity = scriptingEnv.getScriptDao().findByName(scriptName);
+			
+			if (scriptEntity != null && scriptEntity.getScriptType().equalsIgnoreCase("javascript")) {
+				ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
+
+				if (engine != null) {
+					try {
+						engine.eval(scriptEntity.getScript());
+						
+						Invocable invocable = (Invocable) engine;
+						invocable.invokeFunction("updateIdentifier", scriptingEnv, samlIdentifier, user, logger, debugLog);
+					} catch (NoSuchMethodException | ScriptException e) {
+						logger.warn("Script execution failed", e);
+					}
+				}
+			}
+		}
+		else {
+			if (samlIdentifier.getPairwiseId() != null) {
+				user.setPersistentId(samlIdentifier.getPairwiseId());
+			}
+			else if (samlIdentifier.getPersistentId() != null) {
+				user.setPersistentId(samlIdentifier.getPersistentId());
+			}
+			
+			if (samlIdentifier.getSubjectId() != null) {
+				user.setSubjectId(samlIdentifier.getSubjectId());
+			}
+		}
+	}
+
 	public SamlIdentifier extractPersistentId(SamlIdpMetadataEntity idpEntity, Assertion assertion, SamlSpConfigurationEntity spEntity, StringBuffer debugLog) 
 			throws IOException, DecryptionException, SamlAuthenticationException {
 		logger.debug("Fetching name Id from assertion");

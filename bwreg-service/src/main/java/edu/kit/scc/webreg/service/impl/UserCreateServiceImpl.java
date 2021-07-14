@@ -44,8 +44,11 @@ import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.UserEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
+import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.UserCreateService;
 import edu.kit.scc.webreg.service.group.HomeOrgGroupUpdater;
+import edu.kit.scc.webreg.service.saml.Saml2AssertionService;
+import edu.kit.scc.webreg.service.saml.SamlIdentifier;
 
 @Stateless
 public class UserCreateServiceImpl implements UserCreateService {
@@ -86,17 +89,25 @@ public class UserCreateServiceImpl implements UserCreateService {
 	@Inject
 	private ApplicationConfig appConfig;
 	
+	@Inject
+	private Saml2AssertionService saml2AssertionService;
+	
+	@Inject
+	private SamlIdpMetadataService idpMetadataService;
+	
 	@Override
-	public SamlUserEntity preCreateUser(SamlIdpMetadataEntity idpEntity, SamlSpConfigurationEntity spConfigEntity, String persistentId,
+	public SamlUserEntity preCreateUser(SamlIdpMetadataEntity idpEntity, SamlSpConfigurationEntity spConfigEntity, SamlIdentifier samlIdentifier,
 			String locale, Map<String, List<Object>> attributeMap)
 			throws UserUpdateException {
 		
-		logger.debug("User {} from {} is being preCreated", persistentId, idpEntity.getEntityId());
+		logger.debug("User ({},{},{}) from {} is being preCreated", samlIdentifier.getPersistentId(), 
+				samlIdentifier.getPairwiseId(), samlIdentifier.getSubjectId(), idpEntity.getEntityId());
+		
+		idpEntity = idpMetadataService.findById(idpEntity.getId());
 		
 		SamlUserEntity entity = samlUserDao.createNew();
 		entity.setIdp(idpEntity);
     	entity.setPersistentSpId(spConfigEntity.getEntityId());
-    	entity.setPersistentId(persistentId);
     	entity.setRoles(new HashSet<UserRoleEntity>());
     	entity.setAttributeStore(new HashMap<String, String>());
     	entity.setGenericStore(new HashMap<String, String>());
@@ -106,7 +117,9 @@ public class UserCreateServiceImpl implements UserCreateService {
 		entity.setEppn(attrHelper.getSingleStringFirst(attributeMap, "urn:oid:1.3.6.1.4.1.5923.1.1.1.6"));
 		entity.setGivenName(attrHelper.getSingleStringFirst(attributeMap, "urn:oid:2.5.4.42"));
 		entity.setSurName(attrHelper.getSingleStringFirst(attributeMap, "urn:oid:2.5.4.4"));
-    	
+
+		saml2AssertionService.updateUserIdentifier(samlIdentifier, entity, spConfigEntity.getEntityId(), null);
+		
     	return entity;
 	}	
 	

@@ -85,7 +85,7 @@ public class RegisterUserBean implements Serializable {
     	spConfigEntity = spService.findById(sessionManager.getSpId());
     	
     	try {
-        	entity = userCreateService.preCreateUser(idpEntity, spConfigEntity, sessionManager.getPersistentId(),
+        	entity = userCreateService.preCreateUser(idpEntity, spConfigEntity, sessionManager.getSamlIdentifier(),
         			sessionManager.getLocale(), sessionManager.getAttributeMap());
         	
 		} catch (UserUpdateException e) {

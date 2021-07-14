@@ -25,6 +25,7 @@ import javax.inject.Named;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.service.saml.SamlIdentifier;
 
 @Named("sessionManager")
 @SessionScoped
@@ -52,6 +53,7 @@ public class SessionManager implements Serializable {
 	private Long idpId;
 	private Long spId;
 	private String persistentId;
+	private SamlIdentifier samlIdentifier;
 
 	/*
 	 * For Local logins to home org OIDC OP
@@ -377,5 +379,13 @@ public class SessionManager implements Serializable {
 
 	public Set<Long> getLoggedInUserList() {
 		return loggedInUserList;
+	}
+
+	public SamlIdentifier getSamlIdentifier() {
+		return samlIdentifier;
+	}
+
+	public void setSamlIdentifier(SamlIdentifier samlIdentifier) {
+		this.samlIdentifier = samlIdentifier;
 	}
 }

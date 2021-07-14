@@ -114,11 +114,14 @@ public class SamlSpPostServiceImpl implements SamlSpPostService {
 			}
 	
 			samlIdentifier = saml2AssertionService.extractPersistentId(idpEntity, assertion, spConfig, debugLog);
-			persistentId = saml2AssertionService.resolveIdentifier(samlIdentifier, idpEntity, debugLog);
 
 			if (debugLog != null) {
-				debugLog.append("Resulting Persistent NameID: ").append(persistentId).append("\n");
+				debugLog.append("Resulting IDs (persistent, pairwise, subject): (")
+				.append(samlIdentifier.getPersistentId()).append(", ")
+				.append(samlIdentifier.getPairwiseId()).append(", ")
+				.append(samlIdentifier.getSubjectId()).append(")\n");
 			}
+
 		} catch (Exception e1) {
 			/*
 			 * Catch Exception here for a probably faulty IDP. Register Exception and rethrow.
@@ -149,9 +152,8 @@ public class SamlSpPostServiceImpl implements SamlSpPostService {
 
 		Map<String, List<Object>> attributeMap = saml2AssertionService.extractAttributes(assertion);
 
-		SamlUserEntity user = userDao.findByPersistent(spConfig.getEntityId(), 
-					idpEntity.getEntityId(), persistentId);
-
+		SamlUserEntity user = saml2AssertionService.resolveUser(samlIdentifier, idpEntity, spConfig.getEntityId(), null);
+		
 		if (user != null) {
 			MDC.put("userId", "" + user.getId());
 		}
@@ -161,7 +163,7 @@ public class SamlSpPostServiceImpl implements SamlSpPostService {
 
 			// Store SAML Data temporarily in Session
 			logger.debug("Storing relevant SAML data in session");
-			session.setPersistentId(persistentId);
+			session.setSamlIdentifier(samlIdentifier);
 			session.setAttributeMap(attributeMap);				
 
 			if (debugLog != null) {
@@ -174,8 +176,10 @@ public class SamlSpPostServiceImpl implements SamlSpPostService {
 			}
 		}
 		
-    	logger.debug("Updating user {}", persistentId);
-		
+    	logger.debug("Updating user {}", user.getId());
+
+		saml2AssertionService.updateUserIdentifier(samlIdentifier, user, spConfig.getEntityId(), debugLog);
+
 		try {
 			user = userUpdater.updateUser(user, assertion, "web-sso");
 		} catch (UserUpdateException e) {
