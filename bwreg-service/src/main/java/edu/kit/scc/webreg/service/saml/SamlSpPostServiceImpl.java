@@ -87,6 +87,7 @@ public class SamlSpPostServiceImpl implements SamlSpPostService {
 		
 		Assertion assertion = null;
 		Response samlResponse = null;
+		SamlIdentifier samlIdentifier;
 		String persistentId;
 		try {
 
@@ -111,8 +112,9 @@ public class SamlSpPostServiceImpl implements SamlSpPostService {
 			if (debugLog != null) {
 				debugLog.append("Extract Persistent NameID...\n");
 			}
-
-			persistentId = saml2AssertionService.extractPersistentId(assertion, spConfig, debugLog);
+	
+			samlIdentifier = saml2AssertionService.extractPersistentId(idpEntity, assertion, spConfig, debugLog);
+			persistentId = saml2AssertionService.resolveIdentifier(samlIdentifier, idpEntity, debugLog);
 
 			if (debugLog != null) {
 				debugLog.append("Resulting Persistent NameID: ").append(persistentId).append("\n");

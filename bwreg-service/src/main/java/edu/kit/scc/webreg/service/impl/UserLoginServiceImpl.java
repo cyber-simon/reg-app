@@ -91,6 +91,7 @@ import edu.kit.scc.webreg.service.saml.MetadataHelper;
 import edu.kit.scc.webreg.service.saml.Saml2AssertionService;
 import edu.kit.scc.webreg.service.saml.Saml2ResponseValidationService;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
+import edu.kit.scc.webreg.service.saml.SamlIdentifier;
 import edu.kit.scc.webreg.service.saml.SsoHelper;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.service.twofa.TwoFaException;
@@ -559,8 +560,9 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 		
 		Assertion assertion = saml2AssertionService.processSamlResponse(samlResponse, idp, idpEntityDescriptor, spEntity);
 
-		String persistentId = saml2AssertionService.extractPersistentId(assertion, spEntity, null);
-
+		SamlIdentifier samlIdentifier = saml2AssertionService.extractPersistentId(idp, assertion, spEntity, null);
+		String persistentId = saml2AssertionService.resolveIdentifier(samlIdentifier, idp, null);
+		
 		SamlUserEntity user = samlUserDao.findByPersistent(spEntity.getEntityId(), 
 				idp.getEntityId(), persistentId);
 	

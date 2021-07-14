@@ -21,10 +21,15 @@ import java.util.Map.Entry;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
 import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
+import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.EncryptedID;
 import org.opensaml.saml.saml2.core.NameID;
@@ -44,8 +49,13 @@ import org.opensaml.xmlsec.keyinfo.KeyInfoCredentialResolver;
 import org.opensaml.xmlsec.keyinfo.impl.StaticKeyInfoCredentialResolver;
 import org.slf4j.Logger;
 
+import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
+import edu.kit.scc.webreg.entity.SamlIdpScopeEntity;
 import edu.kit.scc.webreg.entity.SamlMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
+import edu.kit.scc.webreg.entity.ScriptEntity;
+import edu.kit.scc.webreg.hook.UserUpdateHookException;
+import edu.kit.scc.webreg.script.ScriptingEnv;
 import edu.kit.scc.webreg.service.saml.exc.NoAssertionException;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 
@@ -63,6 +73,9 @@ public class Saml2AssertionService {
 	
 	@Inject
 	private Saml2ResponseValidationService saml2ValidationService;
+	
+	@Inject
+	private ScriptingEnv scriptingEnv;
 	
 	public Assertion processSamlResponse(Response samlResponse, SamlMetadataEntity idpEntity, 
 			EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity spEntity) 
@@ -131,10 +144,84 @@ public class Saml2AssertionService {
 		return assertion;
 	}
 	
-	public String extractPersistentId(Assertion assertion, SamlSpConfigurationEntity spEntity, StringBuffer debugLog) 
+	public String resolveIdentifier(SamlIdentifier samlIdentifier, SamlIdpMetadataEntity idpEntity, StringBuffer debugLog)
+			throws SamlAuthenticationException {
+		if (idpEntity.getGenericStore().containsKey("extract_id_script")) {
+			String scriptName = idpEntity.getGenericStore().get("extract_id_script");
+
+			ScriptEntity scriptEntity = scriptingEnv.getScriptDao().findByName(scriptName);
+			
+			if (scriptEntity != null && scriptEntity.getScriptType().equalsIgnoreCase("javascript")) {
+				ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
+
+				if (engine != null) {
+					try {
+						engine.eval(scriptEntity.getScript());
+						
+						Invocable invocable = (Invocable) engine;
+						Object o = invocable.invokeFunction("extractId", scriptingEnv, samlIdentifier, logger, debugLog);
+						if (o != null) {
+							return o.toString();
+						}
+					} catch (NoSuchMethodException | ScriptException e) {
+						logger.warn("Script execution failed", e);
+					}
+				}
+			}
+		}
+		
+		/*
+		 * prefer subject-id over pairwise-id over persistent
+		 */
+		if (samlIdentifier.getSubjectId() != null) {
+			return samlIdentifier.getSubjectId();
+		}
+		else if (samlIdentifier.getPairwiseId() != null) {
+			return samlIdentifier.getPairwiseId();
+		}
+		else if (samlIdentifier.getPersistentId() != null) {
+			return samlIdentifier.getPersistentId();
+		}
+		else {
+			throw new SamlAuthenticationException("No usable identifier found. Acceptable identifiers are Pairwise-ID, Subject-ID or Persistent ID");
+		}		
+	}
+	
+	public SamlIdentifier extractPersistentId(SamlIdpMetadataEntity idpEntity, Assertion assertion, SamlSpConfigurationEntity spEntity, StringBuffer debugLog) 
 			throws IOException, DecryptionException, SamlAuthenticationException {
 		logger.debug("Fetching name Id from assertion");
-		String persistentId;
+		String persistentId = null;
+		String pairwiseId = null;
+		String subjectId = null;
+		String transientId = null;
+		
+		logger.debug("Looking up pairwise ID\n");
+		
+		for (AttributeStatement as : assertion.getAttributeStatements()) {
+			for (Attribute attribute : as.getAttributes()) {
+				if (debugLog != null)
+					debugLog.append("Check " + attribute.getName());
+				
+				if (attribute.getName().equals("urn:oasis:names:tc:SAML:attribute:pairwise-id")) {
+					pairwiseId = getIdFromAttribute(idpEntity, attribute, debugLog);
+				}
+				else if (attribute.getName().equals("urn:oasis:names:tc:SAML:attribute:subject-id")) {
+					subjectId = getIdFromAttribute(idpEntity, attribute, debugLog);
+				}
+
+				if (debugLog != null)
+					debugLog.append("\n");
+			}
+			
+			if (debugLog != null && as.getEncryptedAttributes() != null && as.getEncryptedAttributes().size() > 0) {
+				debugLog.append("EncryptedAttributes are not supported\n");
+			}
+		}
+		
+		if (pairwiseId != null) {
+			if (debugLog != null)
+				debugLog.append("\nResulting pairwise ID: " + pairwiseId + "\n\n");
+		}
 		
 		/*
 		 * Assertion needs a Subject and a NameID, encrypted or not
@@ -180,10 +267,9 @@ public class Saml2AssertionService {
 			debugLog.append("Resulting NameID (XML):\n").append(samlHelper.prettyPrint(nid)).append("\n");
 		
 		logger.debug("NameId format {} value {}", nid.getFormat(), nid.getValue());
+		
 		if (nid.getFormat().equals(NameID.TRANSIENT)) {
-			if (debugLog != null)
-				debugLog.append("NameID is Transient. At the moment, only Persistent NameID is supported\n");
-			throw new SamlAuthenticationException("NameID is Transient but must be Persistent");
+			transientId = nid.getValue();
 		}
 		else if (nid.getFormat().equals(NameID.PERSISTENT)) {
 			persistentId = nid.getValue();
@@ -194,8 +280,66 @@ public class Saml2AssertionService {
 					.append("). At the moment, only Persistent NameID is supported\n");
 			throw new SamlAuthenticationException("Unsupported SAML2 NameID Type");
 		}
+
+		return new SamlIdentifier(persistentId, pairwiseId, subjectId, transientId);
+	}
+	
+	protected String getIdFromAttribute(SamlIdpMetadataEntity idpEntity, Attribute attribute, StringBuffer debugLog) {
 		
-		return persistentId;
+		String id = null;
+		
+		if (debugLog != null) {
+			debugLog.append(" ...found:\n");
+			debugLog.append(samlHelper.prettyPrint(attribute) + "\n");
+		}
+		
+		List<Object> attributeList = samlHelper.getAttribute(attribute);
+		if (attributeList.size() == 1) {
+			Object o = attributeList.get(0);
+			if (o.toString().contains("@")) {
+				String[] s = o.toString().split("@");
+				if (s.length != 2 && debugLog != null) 
+					debugLog.append("Pairwise ID contains more than one '@'\n");
+				else {
+					String p = s[0];
+					String scope = s[1];
+					boolean scopeMatch = false;
+					for (SamlIdpScopeEntity idpScope : idpEntity.getScopes()) {
+						if (idpScope.getRegex()) {
+							if (scope.matches(idpScope.getScope())) {
+								scopeMatch = true;
+								break;
+							}
+						}
+						else {
+							if (idpScope.getScope().equals(scope)) {
+								scopeMatch = true;
+								break;
+							}
+						}
+					}
+					if ((! scopeMatch) && debugLog != null) {
+						debugLog.append("Scope " + scope + " is NOT matching IDP " + idpEntity.getEntityId() + "\n");
+						debugLog.append("Not using pairwise ID!\n");
+					}
+					else {
+						if (debugLog != null)
+							debugLog.append("Scope " + scope + " is matching IDP " + idpEntity.getEntityId() + "\n");
+						id = p;
+					}
+				}
+			}
+			else {
+				if (debugLog != null) 
+					debugLog.append("Pairwise ID is not scoped. Can't use it. Looking for persistent ID.\n");
+			}
+		}
+		else {
+			if (debugLog != null) 
+				debugLog.append("Pairwise ID does not contain exactly one value. Can't use it. Looking for persistent ID.\n");
+		}
+		
+		return id;
 	}
 	
 	public Assertion decryptAssertion(EncryptedAssertion encryptedAssertion,
