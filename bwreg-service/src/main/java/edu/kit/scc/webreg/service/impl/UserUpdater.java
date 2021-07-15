@@ -290,12 +290,10 @@ public class UserUpdater implements Serializable {
 				}
 			}
 			
-			if (user instanceof SamlUserEntity) {
-				Set<GroupEntity> changedGroups = homeOrgGroupUpdater.updateGroupsForUser((SamlUserEntity) user, attributeMap, auditor);
+			Set<GroupEntity> changedGroups = homeOrgGroupUpdater.updateGroupsForUser(user, attributeMap, auditor);
 
-				if (changedGroups.size() > 0) {
-					changed = true;
-				}
+			if (changedGroups.size() > 0) {
+				changed = true;
 			}
 			
 			Map<String, String> attributeStore = user.getAttributeStore();

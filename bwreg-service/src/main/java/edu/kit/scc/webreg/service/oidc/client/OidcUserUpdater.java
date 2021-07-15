@@ -58,6 +58,7 @@ import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
 import edu.kit.scc.webreg.dao.oidc.OidcUserDao;
 import edu.kit.scc.webreg.entity.EventType;
+import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
@@ -113,6 +114,9 @@ public class OidcUserUpdater implements Serializable {
 	
 	@Inject
 	private HookManager hookManager;
+	
+	@Inject
+	private OidcGroupUpdater oidcGroupUpdater;
 	
 	@Inject
 	private ASUserAttrDao asUserAttrDao;
@@ -363,6 +367,12 @@ public class OidcUserUpdater implements Serializable {
 				}
 			}
 			
+			Set<GroupEntity> changedGroups = oidcGroupUpdater.updateGroupsForUser(user, attributeMap, auditor);
+
+			if (changedGroups.size() > 0) {
+				changed = true;
+			}
+
 			Map<String, String> attributeStore = user.getAttributeStore();
 			for (Entry<String, List<Object>> entry : attributeMap.entrySet()) {
 				attributeStore.put(entry.getKey(), attrHelper.attributeListToString(entry.getValue()));

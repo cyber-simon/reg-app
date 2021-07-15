@@ -85,6 +85,9 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
 	@Inject
 	private ApplicationConfig appConfig;
 	
+	@Inject
+	private OidcGroupUpdater oidcGroupUpdater;
+	
 	@Override
 	public OidcUserEntity preCreateUser(Long rpConfigId,
 			String locale, Map<String, List<Object>> attributeMap)
@@ -237,7 +240,7 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
 
     	roleDao.addUserToRole(user, "User");
 
-//    	homeOrgGroupUpdater.updateGroupsForUser(user, attributeMap, auditor);
+    	oidcGroupUpdater.updateGroupsForUser(user, attributeMap, auditor);
     			
 		auditor.setUser(user);
 		auditor.auditUserCreate();
