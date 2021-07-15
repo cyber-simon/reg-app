@@ -65,6 +65,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
 import edu.kit.scc.webreg.entity.UserLoginInfoStatus;
 import edu.kit.scc.webreg.entity.UserLoginMethod;
+import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.exc.AssertionException;
 import edu.kit.scc.webreg.exc.GenericRestInterfaceException;
 import edu.kit.scc.webreg.exc.LoginFailedException;
@@ -198,20 +199,28 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			logger.info("No registry found for id {}", regId);
 			throw new NoRegistryFoundException("registry unknown");
 		}
+
+		/**
+		 * TODO also cover OIDC users here
+		 */
+		if (registry.getUser() instanceof SamlUserEntity) {
 		
-		if (! (registry.getUser() instanceof SamlUserEntity)) {
-			logger.info("Registry {} is not connected with a SAML User", regId);
-			throw new NoRegistryFoundException("not a saml user");
+			if (password != null && (password.toLowerCase().startsWith("<?xml version") ||
+					password.startsWith("<saml2:Assertion "))) {
+				return delegateLogin((SamlUserEntity) registry.getUser(), registry.getService(), registry,
+						password, localHostName);
+			}
+			else {
+				return ecp((SamlUserEntity) registry.getUser(), registry.getService(), registry,
+					password, localHostName);
+			}
 		}
-		
-		if (password != null && (password.toLowerCase().startsWith("<?xml version") ||
-				password.startsWith("<saml2:Assertion "))) {
-			return delegateLogin((SamlUserEntity) registry.getUser(), registry.getService(), registry,
+		else if (registry.getUser() instanceof OidcUserEntity) {
+			return ecp((OidcUserEntity) registry.getUser(), registry.getService(), registry,
 					password, localHostName);
 		}
 		else {
-			return ecp((SamlUserEntity) registry.getUser(), registry.getService(), registry,
-				password, localHostName);
+			throw new NoUserFoundException("user type is not implemented");
 		}
 	}
 
@@ -224,15 +233,15 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 		loginInfo.setLoginStatus(status);
 		userLoginInfoDao.persist(loginInfo);
 	}
-	
-	private Map<String, String> ecp(SamlUserEntity user, ServiceEntity service, RegistryEntity registry,
+
+	private Map<String, String> localLogin(UserEntity user, ServiceEntity service, RegistryEntity registry,
 			String password, String localHostName) throws RestInterfaceException {
 
 		if (password == null || password.equals("")) {
 			createLoginInfo(user, registry, UserLoginMethod.LOCAL, UserLoginInfoStatus.FAILED);
 			throw new LoginFailedException("Password blank");
 		}
-		
+
 		if (service.getServiceProps().containsKey("twofa") && 
 				service.getServiceProps().get("twofa").equalsIgnoreCase("enabled")) {
 			
@@ -281,7 +290,10 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 				 * Update user via AttributeQuery. 
 				 * TODO: Add exceptions for service, if AQ is not necessary
 				 */
-				updateUser(user, service, "login-with-service-password");
+				if (user instanceof SamlUserEntity)
+					updateSamlUser((SamlUserEntity) user, service, "login-with-service-password");
+				else if (user instanceof OidcUserEntity)
+					updateOidcUser((OidcUserEntity) user, service, "login-with-service-password");
 
 				List<Object> objectList = checkRules(user, service, registry);
 				List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
@@ -300,11 +312,37 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 				return map;				
 			}
 		}
+
+		return null;
+	}
+
+	
+	private Map<String, String> ecp(OidcUserEntity user, ServiceEntity service, RegistryEntity registry,
+			String password, String localHostName) throws RestInterfaceException {
+
+		Map<String, String> attributeMap = localLogin(user, service, registry, password, localHostName);
+
+		if (attributeMap == null) {
+			createLoginInfo(user, registry, UserLoginMethod.LOCAL, UserLoginInfoStatus.FAILED);
+			throw new LoginFailedException("Local authentication failed (oidc user)");
+		}
+		
+		return attributeMap;
+	}
+	
+	private Map<String, String> ecp(SamlUserEntity user, ServiceEntity service, RegistryEntity registry,
+			String password, String localHostName) throws RestInterfaceException {
+
+		Map<String, String> attributeMap = localLogin(user, service, registry, password, localHostName);
+
+		if (attributeMap != null) {
+			return attributeMap;
+		}
 		
 		if (service.getServiceProps().containsKey("ecp") && 
 				service.getServiceProps().get("ecp").equalsIgnoreCase("disabled")) {
 			createLoginInfo(user, registry, UserLoginMethod.LOCAL, UserLoginInfoStatus.FAILED);
-			throw new LoginFailedException("Local authentication failed and ecp is disabled");
+			throw new LoginFailedException("Local authentication failed and ecp is disabled (saml user)");
 		}
 		
 		logger.debug("Attempting ECP Authentication for {} and service {} (regId {})", user.getEppn(), service.getShortName(), registry.getId());
@@ -684,7 +722,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 		return returnList;
 	}	
 	
-	private void updateUser(SamlUserEntity user, ServiceEntity service, String executor) throws UserUpdateFailedException {
+	private void updateSamlUser(SamlUserEntity user, ServiceEntity service, String executor) throws UserUpdateFailedException {
 		// Default expiry Time after which an attrq is issued to IDP in millis
 		Long expireTime = 10000L;
 		
@@ -707,6 +745,11 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
 			throw new UserUpdateFailedException("user update failed: " + e.getMessage());
 		}		
+	}
+	
+	private void updateOidcUser(OidcUserEntity user, ServiceEntity service, String executor) throws UserUpdateFailedException {
+
+		logger.info("No update implemented yet for oidc user {} ({})", user.getSubjectId(), user.getIssuer().getName());
 	}
 	
 	protected void updateIdpStatus(SamlIdpMetadataEntityStatus status, SamlIdpMetadataEntity idpEntity) {
