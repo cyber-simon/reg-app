@@ -20,7 +20,13 @@ public class SamlUserEntity extends UserEntity {
 
 	@Column(name = "persistent_spid", length = 1024)
 	private String persistentSpId;
-	
+
+	@Column(name = "attr_src_id", length = 1024)
+	private String attributeSourcedId;
+
+	@Column(name = "attr_src_id_name", length = 1024)
+	private String attributeSourcedIdName;
+
 	@ManyToOne(targetEntity = SamlIdpMetadataEntity.class)
 	private SamlIdpMetadataEntity idp;
 	
@@ -65,5 +71,21 @@ public class SamlUserEntity extends UserEntity {
 
 	public void setSubjectId(String subjectId) {
 		this.subjectId = subjectId;
+	}
+
+	public String getAttributeSourcedId() {
+		return attributeSourcedId;
+	}
+
+	public void setAttributeSourcedId(String attributeSourcedId) {
+		this.attributeSourcedId = attributeSourcedId;
+	}
+
+	public String getAttributeSourcedIdName() {
+		return attributeSourcedIdName;
+	}
+
+	public void setAttributeSourcedIdName(String attributeSourcedIdName) {
+		this.attributeSourcedIdName = attributeSourcedIdName;
 	}
 }

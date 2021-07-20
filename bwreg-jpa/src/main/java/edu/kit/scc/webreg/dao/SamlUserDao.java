@@ -22,4 +22,5 @@ public interface SamlUserDao extends BaseDao<SamlUserEntity, Long> {
 	SamlUserEntity findByEppn(String eppn);
 	SamlUserEntity findByIdWithStore(Long id);
 	SamlUserEntity findByPersistent(String spId, String idpId, String persistentId);
+	SamlUserEntity findByAttributeSourcedId(String spId, String idpId, String attributeSourcedIdName, String attributeSourcedId);
 }

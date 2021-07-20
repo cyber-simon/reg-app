@@ -93,6 +93,22 @@ public class JpaSamlUserDao extends JpaBaseDao<SamlUserEntity, Long> implements 
 	}	
 	
 	@Override
+	public SamlUserEntity findByAttributeSourcedId(String spId, String idpId, String attributeSourcedIdName, String attributeSourcedId) {
+		
+		TypedQuery<SamlUserEntity> query = em.createQuery("select u from SamlUserEntity u where u.persistentSpId = :spId and u.idp.entityId = :idpId and "
+				+ "u.attributeSourcedIdName = :attributeSourcedIdName and u.attributeSourcedId = :attributeSourcedId", SamlUserEntity.class)
+				.setParameter("spId", spId).setParameter("idpId", idpId)
+				.setParameter("attributeSourcedIdName", attributeSourcedIdName).setParameter("attributeSourcedId", attributeSourcedId);
+		
+		try {
+			return query.getSingleResult();
+		}
+		catch (NoResultException e) {
+			return null;
+		}			
+	}	
+	
+	@Override
 	public SamlUserEntity findByEppn(String eppn) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<SamlUserEntity> criteria = builder.createQuery(SamlUserEntity.class);

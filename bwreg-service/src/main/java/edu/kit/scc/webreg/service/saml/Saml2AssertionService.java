@@ -50,6 +50,7 @@ import org.opensaml.xmlsec.keyinfo.KeyInfoCredentialResolver;
 import org.opensaml.xmlsec.keyinfo.impl.StaticKeyInfoCredentialResolver;
 import org.slf4j.Logger;
 
+import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlIdpScopeEntity;
 import edu.kit.scc.webreg.entity.SamlMetadataEntity;
@@ -77,6 +78,9 @@ public class Saml2AssertionService {
 	
 	@Inject
 	private ScriptingEnv scriptingEnv;
+	
+	@Inject
+	private ApplicationConfig appConfig;
 	
 	public Assertion processSamlResponse(Response samlResponse, SamlMetadataEntity idpEntity, 
 			EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity spEntity) 
@@ -171,6 +175,28 @@ public class Saml2AssertionService {
 			}
 		}
 		
+		String identifier = null;
+		
+		if (appConfig.getConfigValue("saml_id_attribute") != null) {
+			identifier = appConfig.getConfigValue("saml_id_attribute");
+		}
+		if (idpEntity.getGenericStore().containsKey("saml_id_attribute")) {
+			identifier = idpEntity.getGenericStore().get("saml_id_attribute");
+		}
+		if (identifier != null) {
+			String idValue = samlIdentifier.getAttributeMap().get(identifier);
+			
+			samlIdentifier.setAttributeSourcedIdName(identifier);
+			samlIdentifier.setAttributeSourcedId(idValue);
+
+			if (idValue != null) {
+				return scriptingEnv.getSamlUserDao().findByAttributeSourcedId(samlSpEntityId, idpEntity.getEntityId(), identifier, idValue);
+			}
+			else {
+				throw new SamlAuthenticationException("Identifier not found. Global configured identifier is: " + identifier);
+			}
+		}
+		
 		/*
 		 * prefer pairwise-id over persistent over subject-id
 		 */
@@ -220,6 +246,12 @@ public class Saml2AssertionService {
 			if (samlIdentifier.getSubjectId() != null) {
 				user.setSubjectId(samlIdentifier.getSubjectId());
 			}
+			
+			if (samlIdentifier.getAttributeSourcedId() != null && samlIdentifier.getAttributeSourcedIdName() != null) {
+				user.setAttributeSourcedId(samlIdentifier.getAttributeSourcedId());
+				user.setAttributeSourcedIdName(samlIdentifier.getAttributeSourcedIdName());
+			}
+			
 		}
 	}
 
@@ -230,6 +262,7 @@ public class Saml2AssertionService {
 		String pairwiseId = null;
 		String subjectId = null;
 		String transientId = null;
+		Map<String, String> attributeMap = new HashMap<String, String>();
 		
 		logger.debug("Looking up pairwise ID\n");
 		
@@ -243,6 +276,12 @@ public class Saml2AssertionService {
 				}
 				else if (attribute.getName().equals("urn:oasis:names:tc:SAML:attribute:subject-id")) {
 					subjectId = getIdFromAttribute(idpEntity, attribute, debugLog);
+				}
+				else {
+					if (attribute.getAttributeValues().size() == 1) {
+						Object o = attribute.getAttributeValues().get(0);
+						attributeMap.put(attribute.getName(), o.toString());
+					}
 				}
 
 				if (debugLog != null)
@@ -317,7 +356,7 @@ public class Saml2AssertionService {
 			throw new SamlAuthenticationException("Unsupported SAML2 NameID Type");
 		}
 
-		return new SamlIdentifier(persistentId, pairwiseId, subjectId, transientId);
+		return new SamlIdentifier(persistentId, pairwiseId, subjectId, transientId, attributeMap);
 	}
 	
 	protected String getIdFromAttribute(SamlIdpMetadataEntity idpEntity, Attribute attribute, StringBuffer debugLog) {
