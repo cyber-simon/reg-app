@@ -70,7 +70,7 @@
 						
 				        <h:outputText value="#{messages.persistent_id}:"/>
 				        <h:panelGroup>
-				        	<h:outputText value="#{showUserBean.entity.persistentId} (#{showUserBean.entity.persistentSpId}, #{showUserBean.entity.persistentIdpId})" rendered="#{showUserBean.entity.class.simpleName == 'SamlUserEntity'}"/>
+				        	<h:outputText value="#{showUserBean.entity.persistentId} (#{showUserBean.entity.persistentSpId}, #{showUserBean.entity.idp.entityId})" rendered="#{showUserBean.entity.class.simpleName == 'SamlUserEntity'}"/>
 				        	<h:outputText value="#{showUserBean.entity.externalId} (externalId)" rendered="#{showUserBean.entity.class.simpleName == 'ExternalUserEntity'}"/>
 						</h:panelGroup>
 						
