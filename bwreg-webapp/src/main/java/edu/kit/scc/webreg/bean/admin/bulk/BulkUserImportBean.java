@@ -131,7 +131,7 @@ public class BulkUserImportBean implements Serializable {
 				try {
 					Map<String, List<Object>> attributeMap = new HashMap<String, List<Object>>();
 					userEntity = userCreateService.preCreateUser(idpEntity, spEntity, 
-							new SamlIdentifier(importUser.getPersistentId(), null, null, null), null, attributeMap);
+							new SamlIdentifier(importUser.getPersistentId(), null, null, null, new HashMap<String, String>()), null, attributeMap);
 
 					Response samlResponse = attrQueryHelper.query(userEntity, idpEntity, idpEntityDescriptor, spEntity);
 					
