@@ -278,8 +278,9 @@ public class Saml2AssertionService {
 					subjectId = getIdFromAttribute(idpEntity, attribute, debugLog);
 				}
 				else {
-					if (attribute.getAttributeValues().size() == 1) {
-						Object o = attribute.getAttributeValues().get(0);
+					List<Object> attributeList = samlHelper.getAttribute(attribute);
+					if (attributeList.size() == 1) {
+						Object o = attributeList.get(0);
 						attributeMap.put(attribute.getName(), o.toString());
 					}
 				}
