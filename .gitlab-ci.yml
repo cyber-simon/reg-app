@@ -3,7 +3,7 @@ image: maven:3-jdk-11
 cache:
   paths:
     - .m2/
-    - target/
+    - bwreg-ear/target/
 
 build:
   stage: build
