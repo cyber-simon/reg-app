@@ -17,7 +17,6 @@ import edu.kit.scc.webreg.dao.ServiceGroupFlagDao;
 import edu.kit.scc.webreg.dao.oidc.OidcGroupDao;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.GroupEntity;
-import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceBasedGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupStatus;
@@ -169,7 +168,19 @@ public class OidcGroupUpdater implements Serializable {
 
 		/**
 		 * TODO implement secondary groups for OIDC
+		 * 
+		 * if needed. Not sure, which attribute to take
 		 */
+		//String homeId = homeIdResolver.resolveHomeId(user, attributeMap);
+
+		/*
+		 * Add Primary group to secondary as well
+		 */
+		if (user.getPrimaryGroup() != null && (! groupDao.isUserInGroup(user, user.getPrimaryGroup()))) {
+			logger.debug("Adding user {} to his primary group {} as secondary", user.getEppn(), user.getPrimaryGroup().getName());
+			groupDao.addUserToGroup(user, user.getPrimaryGroup());
+			changedGroups.add(user.getPrimaryGroup());
+		}
 		
 		return changedGroups;
 	}
