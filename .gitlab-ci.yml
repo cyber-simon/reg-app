@@ -1,7 +1,4 @@
-image: maven:latest
-
-variables:
-  MAVEN_CLI_OPTS: "-s maven/settings.xml --batch-mode"
+image: maven:3-jdk-11
 
 cache:
   paths:
@@ -11,4 +8,4 @@ cache:
 build:
   stage: build
   script:
-    mvn $MAVEN_CLI_OPTS package
+    mvn -s maven/settings.xml -B package
