@@ -20,7 +20,7 @@
 <img src="#{headBarBean.headerImage}" />
 </a>
 </div>
-            
+
                 <div class="navigation">
                     <h:outputText value="#{headBarBean.burgerIcon}" escape="false" />
                     <!-- <button class="burger"><img src="#{resource['img/burger-icon.svg']}" class="burger-icon" /></button> -->
@@ -30,8 +30,10 @@
 							<li><h:outputText value="#{headBarBean.dataProtection}" escape="false" /></li>
                             <li><h:outputText value="#{headBarBean.homeLink}" escape="false" /></li>
                         </ul>
-                        
-						<div class="navigation-language" style="display: none;"><ul><li></li></ul></div>
+                        <div class="navigation-language"><ul><h:form id="nav_bar_form">
+                       		<ui:fragment rendered="#{facesContext.viewRoot.locale != 'de'}"><li><h:commandLink action="#{sessionManager.setLocale('de')}" immediate="true" value="DE "/></li></ui:fragment>
+                        	<ui:fragment rendered="#{facesContext.viewRoot.locale != 'en'}"><li><h:commandLink action="#{sessionManager.setLocale('en')}" immediate="true" value="EN "/></li></ui:fragment>
+                        </h:form></ul></div>
                         
                       </div>
                     <nav class="navigation-main current">

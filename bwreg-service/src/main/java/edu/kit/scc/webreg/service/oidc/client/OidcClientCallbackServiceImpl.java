@@ -261,7 +261,6 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 			session.setIdentityId(user.getIdentity().getId());
 			session.setLoginTime(Instant.now());
 			session.setTheme(user.getTheme());
-			session.setLocale(user.getLocale());
 			session.getLoggedInUserList().add(user.getId());
 			
 			UserLoginInfoEntity loginInfo = userLoginInfoDao.createNew();
