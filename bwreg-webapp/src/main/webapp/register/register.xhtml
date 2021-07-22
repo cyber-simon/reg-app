@@ -41,7 +41,8 @@
 				</p:column>
 			</p:dataTable>
 	
-			<p:dataList var="key" value="#{registerUserBean.unprintableAttributesMap.keySet().toArray()}">
+			<p:dataList var="key" value="#{registerUserBean.unprintableAttributesMap.keySet().toArray()}"
+				rendered="#{not registerUserBean.unprintableAttributesMap.isEmpty()}">
 				#{key}: #{registerUserBean.unprintableAttributesMap[key]}
 			</p:dataList>
 	

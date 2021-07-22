@@ -42,7 +42,8 @@
 						</p:dataTable>
 					</div>
 					<div class="panel">
-						<p:dataList var="key" value="#{registerOidcUserBean.unprintableAttributesMap.keySet().toArray()}">
+						<p:dataList var="key" value="#{registerOidcUserBean.unprintableAttributesMap.keySet().toArray()}"
+							rendered="#{not registerOidcUserBean.unprintableAttributesMap.isEmpty()}">
 							#{key}: #{registerOidcUserBean.unprintableAttributesMap[key]}
 						</p:dataList>
 					</div>

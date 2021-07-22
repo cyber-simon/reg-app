@@ -160,6 +160,22 @@ public class RegisterUserBean implements Serializable {
     			printableAttributesList.add("epuid");
     			printableAttributesMap.put("epuid", attrHelper.attributeListToString(entry.getValue(), ", "));
     		}
+    		else if (entry.getKey().equals("urn:oasis:names:tc:SAML:attribute:pairwise-id")){
+    			printableAttributesList.add("pairwise_id");
+    			printableAttributesMap.put("pairwise_id", attrHelper.attributeListToString(entry.getValue(), ", "));
+    		}
+    		else if (entry.getKey().equals("urn:oasis:names:tc:SAML:attribute:subject-id")){
+    			printableAttributesList.add("subject_id");
+    			printableAttributesMap.put("subject_id", attrHelper.attributeListToString(entry.getValue(), ", "));
+    		}
+    		else if (entry.getKey().equals("urn:oid:1.3.6.1.4.1.57378.1.1")){
+    			printableAttributesList.add("bwcard_number");
+    			printableAttributesMap.put("bwcard_number", attrHelper.attributeListToString(entry.getValue(), ", "));
+    		}
+    		else if (entry.getKey().equals("urn:oid:1.3.6.1.4.1.57378.1.1")){
+    			printableAttributesList.add("bwcard_chip_id");
+    			printableAttributesMap.put("bwcard_chip_id", attrHelper.attributeListToString(entry.getValue(), ", "));
+    		}
     		else {
     			unprintableAttributesMap.put(entry.getKey(), attrHelper.attributeListToString(entry.getValue(), ", "));
     		}

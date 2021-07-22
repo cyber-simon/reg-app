@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 import javax.ejb.Stateless;
@@ -45,6 +46,7 @@ import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.UserEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
+import edu.kit.scc.webreg.service.impl.AttributeMapHelper;
 
 @Stateless
 public class OidcUserCreateServiceImpl implements OidcUserCreateService {
@@ -87,7 +89,10 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
 	
 	@Inject
 	private OidcGroupUpdater oidcGroupUpdater;
-	
+
+	@Inject
+	private AttributeMapHelper attrHelper;
+
 	@Override
 	public OidcUserEntity preCreateUser(Long rpConfigId,
 			String locale, Map<String, List<Object>> attributeMap)
@@ -220,10 +225,10 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
 			logger.info("Setting UID Number {} for user {}", user.getUidNumber(), user.getEppn());
 		}
 
-//		Map<String, String> attributeStore = user.getAttributeStore();
-//		for (Entry<String, List<Object>> entry : attributeMap.entrySet()) {
-//			attributeStore.put(entry.getKey(), attrHelper.attributeListToString(entry.getValue()));
-//		}
+		Map<String, String> attributeStore = user.getAttributeStore();
+		for (Entry<String, List<Object>> entry : attributeMap.entrySet()) {
+			attributeStore.put(entry.getKey(), attrHelper.attributeListToString(entry.getValue()));
+		}
 		
 		user.setLastUpdate(new Date());
 
