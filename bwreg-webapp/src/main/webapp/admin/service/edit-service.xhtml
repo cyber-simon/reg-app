@@ -132,6 +132,11 @@
 							onLabel="#{messages.yes}" offLabel="#{messages.no}" 
 							value="#{editServiceBean.entity.published}"/>
 			        
+					<h:outputText value="#{messages.hidden}" />
+					<p:selectBooleanButton id="hiddenField" 
+							onLabel="#{messages.yes}" offLabel="#{messages.no}" 
+							value="#{editServiceBean.entity.hidden}"/>
+			        
 			        <h:outputText value="#{messages.properties}:"/>
 					<p:dataTable id="propTable" var="key" style="min-width: 500px;"
 						value="#{editServiceBean.propertyMap.keySet().toArray()}">
