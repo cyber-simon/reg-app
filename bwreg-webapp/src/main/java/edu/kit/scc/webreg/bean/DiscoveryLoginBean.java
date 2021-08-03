@@ -161,10 +161,6 @@ public class DiscoveryLoginBean implements Serializable {
 
 			updateIdpList();
 
-			if (appConfig.getConfigValueOrDefault("show_oidc_login", "false").equalsIgnoreCase("true")) {
-				idpList.addAll(oidcRpService.findAll());
-			}
-			
 			Cookie idpCookie = cookieHelper.getCookie("preselect_idp");
 			if (idpCookie != null) {
 				String cookieValue = idpCookie.getValue();
@@ -279,11 +275,17 @@ public class DiscoveryLoginBean implements Serializable {
 				/*
 				 * reg-app login directly called
 				 */
+				getIdpList().clear();
 				getIdpList().addAll(federationBean.getAllIdpList());
+
+				if (appConfig.getConfigValueOrDefault("show_oidc_login", "false").equalsIgnoreCase("true")) {
+					idpList.addAll(oidcRpService.findAll());
+				}
 			}
 		}
 		else {
 			if (selectedFederation instanceof FederationEntity) {
+				getIdpList().clear();
 				getIdpList().addAll(federationBean.getIdpList((FederationEntity) selectedFederation));
 			}
 		}
