@@ -277,11 +277,11 @@ public class DiscoveryLoginBean implements Serializable {
 				 */
 				getIdpList().clear();
 				getIdpList().addAll(federationBean.getAllIdpList());
-
-				if (appConfig.getConfigValueOrDefault("show_oidc_login", "false").equalsIgnoreCase("true")) {
-					idpList.addAll(oidcRpService.findAll());
-				}
 			}
+
+			if (appConfig.getConfigValueOrDefault("show_oidc_login", "false").equalsIgnoreCase("true")) {
+				idpList.addAll(oidcRpService.findAll());
+			}			
 		}
 		else {
 			if (selectedFederation instanceof FederationEntity) {
