@@ -57,16 +57,21 @@ public class EditSamlServiceSpBean implements Serializable {
 	
 	public String save() {
 		entity = service.save(entity);
-		return "list-idp-configs.xhtml";
+		return "list-idp-configs.xhtml?faces-redirect=true";
 	}
 
 	public String cancel() {
-		return "list-idp-configs.xhtml";
+		return "list-idp-configs.xhtml?faces-redirect=true";
 	}
 
 	public ServiceSamlSpEntity getEntity() {
 		if (entity == null) {
-			entity = service.findById(id);
+			if (getId() == null) {
+				entity = service.createNew();
+			}
+			else {
+				entity = service.findById(id);
+			}
 		}
 		return entity;
 	}

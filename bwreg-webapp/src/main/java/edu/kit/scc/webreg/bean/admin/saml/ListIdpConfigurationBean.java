@@ -51,4 +51,8 @@ public class ListIdpConfigurationBean implements Serializable {
 		return serviceSpList;
 	}
 
+	public void delete(ServiceSamlSpEntity serviceSamlSpEntity) {
+		serviceSamlSpService.delete(serviceSamlSpEntity);
+		serviceSpList = null;
+	}	
 }
