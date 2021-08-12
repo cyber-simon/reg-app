@@ -252,7 +252,7 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 	    	logger.debug("Updating OIDC user {}", user.getSubjectId());
 			
 			try {
-				user = userUpdater.updateUser(user, claims, userInfo, refreshToken, bearerAccessToken, "web-sso");
+				user = userUpdater.updateUser(user, claims, userInfo, refreshToken, bearerAccessToken, "web-sso", null);
 			} catch (UserUpdateException e) {
 				logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
 				throw new OidcAuthenticationException(e.getMessage());

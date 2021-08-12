@@ -34,7 +34,7 @@ public class OidcUserServiceImpl extends BaseServiceImpl<OidcUserEntity, Long> i
 	
 	@Override
 	public OidcUserEntity updateUserFromOp(OidcUserEntity user, String executor) throws UserUpdateException {
-		return userUpdater.updateUserFromOP(user, executor);
+		return userUpdater.updateUserFromOP(user, executor, null);
 	}
 
 	@Override

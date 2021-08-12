@@ -60,7 +60,7 @@ public class UserUpdateFromHomeOrgServiceImpl implements UserUpdateFromHomeOrgSe
 				userUpdater.updateUserFromIdp((SamlUserEntity) user, "update-all-users-from-idp-job");
 			}
 			else if (user instanceof OidcUserEntity) {
-				oidcUserUpdate.updateUserFromOP((OidcUserEntity) user, "update-all-users-from-idp-job");
+				oidcUserUpdate.updateUserFromOP((OidcUserEntity) user, "update-all-users-from-idp-job", null);
 			}
 			else {
 				logger.warn("Don't know how to update user {} from class {}. Rescheduling in 14 days", user.getId(), user.getClass().getName());

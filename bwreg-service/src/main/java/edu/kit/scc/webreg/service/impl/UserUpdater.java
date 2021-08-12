@@ -1,7 +1,6 @@
 package edu.kit.scc.webreg.service.impl;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -9,8 +8,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -81,7 +80,7 @@ import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.service.saml.exc.SamlUnknownPrincipalException;
 
 @ApplicationScoped
-public class UserUpdater implements Serializable {
+public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 
 	private static final long serialVersionUID = 1L;
 

@@ -1,7 +1,6 @@
 package edu.kit.scc.webreg.service.oidc.client;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -80,6 +79,7 @@ import edu.kit.scc.webreg.script.ScriptingEnv;
 import edu.kit.scc.webreg.service.SerialService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserServiceHook;
+import edu.kit.scc.webreg.service.impl.AbstractUserUpdater;
 import edu.kit.scc.webreg.service.impl.AttributeMapHelper;
 import edu.kit.scc.webreg.service.impl.HookManager;
 import edu.kit.scc.webreg.service.reg.AttributeSourceQueryService;
@@ -87,7 +87,7 @@ import edu.kit.scc.webreg.service.reg.ScriptingWorkflow;
 import edu.kit.scc.webreg.service.reg.impl.Registrator;
 
 @ApplicationScoped
-public class OidcUserUpdater implements Serializable {
+public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -145,7 +145,7 @@ public class OidcUserUpdater implements Serializable {
 	@Inject
 	private ScriptingEnv scriptingEnv;
 
-	public OidcUserEntity updateUserFromOP(OidcUserEntity user, String executor) 
+	public OidcUserEntity updateUserFromOP(OidcUserEntity user, String executor, StringBuffer debugLog) 
 			throws UserUpdateException {
 		user = userDao.merge(user);
 
@@ -223,7 +223,7 @@ public class OidcUserUpdater implements Serializable {
 
 		    	logger.debug("Updating OIDC user {}", user.getSubjectId());
 				
-				user = updateUser(user, claims, userInfo, refreshToken, bearerAccessToken, "web-sso");
+				user = updateUser(user, claims, userInfo, refreshToken, bearerAccessToken, "web-sso", debugLog);
 
 			}
 		}
@@ -234,13 +234,13 @@ public class OidcUserUpdater implements Serializable {
 		return user;
 	}
 	
-	public OidcUserEntity updateUser(OidcUserEntity user, Map<String, List<Object>> attributeMap, String executor)
+	public OidcUserEntity updateUser(OidcUserEntity user, Map<String, List<Object>> attributeMap, String executor, StringBuffer debugLog)
 			throws UserUpdateException {
-		return updateUser(user, attributeMap, executor, null);
+		return updateUser(user, attributeMap, executor, null, null);
 	}
 	
 	public OidcUserEntity updateUser(OidcUserEntity user, Map<String, List<Object>> attributeMap, String executor, 
-			ServiceEntity service)
+			ServiceEntity service, StringBuffer debugLog)
 			throws UserUpdateException {
 		MDC.put("userId", "" + user.getId());
 		logger.debug("Updating OIDC user {}", user.getEppn());
@@ -412,22 +412,22 @@ public class OidcUserUpdater implements Serializable {
 	}
 	
 	public OidcUserEntity updateUser(OidcUserEntity user, IDTokenClaimsSet claims, UserInfo userInfo, 
-			RefreshToken refreshToken, BearerAccessToken bat, String executor, ServiceEntity service)
+			RefreshToken refreshToken, BearerAccessToken bat, String executor, ServiceEntity service, StringBuffer debugLog)
 			throws UserUpdateException {
 
 		Map<String, List<Object>> attributeMap = oidcTokenHelper.convertToAttributeMap(claims, userInfo, refreshToken, bat);
 
 		if (service != null)
-			return updateUser(user, attributeMap, executor, service);
+			return updateUser(user, attributeMap, executor, service, debugLog);
 		else
-			return updateUser(user, attributeMap, executor);
+			return updateUser(user, attributeMap, executor, debugLog);
 	}
 
 	public OidcUserEntity updateUser(OidcUserEntity user, IDTokenClaimsSet claims, UserInfo userInfo, 
-			RefreshToken refreshToken, BearerAccessToken bat, String executor)
+			RefreshToken refreshToken, BearerAccessToken bat, String executor, StringBuffer debugLog)
 			throws UserUpdateException {
 		
-		return updateUser(user, claims, userInfo, refreshToken, bat, executor, null);
+		return updateUser(user, claims, userInfo, refreshToken, bat, executor, null, debugLog);
 	}
 	
 	protected void fireUserChangeEvent(UserEntity user, String executor, Auditor auditor) {
