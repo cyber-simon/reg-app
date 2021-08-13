@@ -73,9 +73,6 @@ import edu.kit.scc.webreg.event.UserEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
-import edu.kit.scc.webreg.hook.UserUpdateHook;
-import edu.kit.scc.webreg.hook.UserUpdateHookException;
-import edu.kit.scc.webreg.script.ScriptingEnv;
 import edu.kit.scc.webreg.service.SerialService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserServiceHook;
@@ -83,7 +80,6 @@ import edu.kit.scc.webreg.service.impl.AbstractUserUpdater;
 import edu.kit.scc.webreg.service.impl.AttributeMapHelper;
 import edu.kit.scc.webreg.service.impl.HookManager;
 import edu.kit.scc.webreg.service.reg.AttributeSourceQueryService;
-import edu.kit.scc.webreg.service.reg.ScriptingWorkflow;
 import edu.kit.scc.webreg.service.reg.impl.Registrator;
 
 @ApplicationScoped
@@ -142,9 +138,6 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 	@Inject
 	private OidcOpMetadataSingletonBean opMetadataBean;
 	
-	@Inject
-	private ScriptingEnv scriptingEnv;
-
 	public OidcUserEntity updateUserFromOP(OidcUserEntity user, String executor, StringBuffer debugLog) 
 			throws UserUpdateException {
 		user = userDao.merge(user);
@@ -254,28 +247,7 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 		auditor.setName(getClass().getName() + "-UserUpdate-Audit");
 		auditor.setDetail("Update OIDC user " + user.getSubjectId());
 
-		UserUpdateHook updateHook = null;
-		if (user.getIssuer().getGenericStore().containsKey("user_update_hook")) {
-			String hookClass = user.getIssuer().getGenericStore().get("user_update_hook");
-			try {
-				updateHook = (UserUpdateHook) Class.forName(hookClass).getDeclaredConstructor().newInstance();
-				if (updateHook instanceof ScriptingWorkflow)
-					((ScriptingWorkflow) updateHook).setScriptingEnv(scriptingEnv);
-
-			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-					| InvocationTargetException | NoSuchMethodException | SecurityException
-					| ClassNotFoundException e) {
-				logger.warn("Cannot instantiate updateHook class. This is probably a misconfiguration.");
-			}
-		}
-
-		if (updateHook != null) {
-			try {
-				updateHook.preUpdateUser(user, user.getIssuer().getGenericStore(), attributeMap, executor, service, null);
-			} catch (UserUpdateHookException e) {
-				logger.warn("An exception happened while calling UserUpdateHook!", e);
-			}
-		}
+		changed |= preUpdateUser(user, attributeMap, user.getIssuer().getGenericStore(), executor, service, debugLog);
 		
 		// List to store parent services, that are not registered. Need to be registered
 		// later, when attribute map is populated
@@ -388,14 +360,8 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 			}
 		}
 
-		if (updateHook != null) {
-			try {
-				updateHook.postUpdateUser(user, user.getIssuer().getGenericStore(), attributeMap, executor, service, null);
-			} catch (UserUpdateHookException e) {
-				logger.warn("An exception happened while calling UserUpdateHook!", e);
-			}
-		}
-
+		changed |= postUpdateUser(user, attributeMap, user.getIssuer().getGenericStore(), executor, service, debugLog);
+		
 		user.setLastUpdate(new Date());
 		user.setLastFailedUpdate(null);
 		user.setScheduledUpdate(getNextScheduledUpdate());

@@ -14,15 +14,17 @@ public class UserUpdateNullHook implements UserUpdateHook {
 	private static final Logger logger = LoggerFactory.getLogger(UserUpdateNullHook.class);
 	
 	@Override
-	public void preUpdateUser(UserEntity user, Map<String, String> genericStore, Map<String, List<Object>> attributeMap, String executor,
+	public boolean preUpdateUser(UserEntity user, Map<String, String> genericStore, Map<String, List<Object>> attributeMap, String executor,
 			ServiceEntity service, StringBuffer debugLog) {
 		logger.info("UserUpdateNullHook preUpdateUser called");
+		return false;
 	}
 
 	@Override
-	public void postUpdateUser(UserEntity user, Map<String, String> genericStore, Map<String, List<Object>> attributeMap, String executor,
+	public boolean postUpdateUser(UserEntity user, Map<String, String> genericStore, Map<String, List<Object>> attributeMap, String executor,
 			ServiceEntity service, StringBuffer debugLog) {
 		logger.info("UserUpdateNullHook postUpdateUser called");
+		return false;
 	}
 
 }

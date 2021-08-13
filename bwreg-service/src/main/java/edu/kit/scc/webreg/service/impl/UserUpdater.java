@@ -60,17 +60,13 @@ import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.MetadataException;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
-import edu.kit.scc.webreg.hook.UserUpdateHook;
-import edu.kit.scc.webreg.hook.UserUpdateHookException;
 import edu.kit.scc.webreg.logging.LogHelper;
-import edu.kit.scc.webreg.script.ScriptingEnv;
 import edu.kit.scc.webreg.service.SerialService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserServiceHook;
 import edu.kit.scc.webreg.service.group.HomeOrgGroupUpdater;
 import edu.kit.scc.webreg.service.identity.IdentityUpdater;
 import edu.kit.scc.webreg.service.reg.AttributeSourceQueryService;
-import edu.kit.scc.webreg.service.reg.ScriptingWorkflow;
 import edu.kit.scc.webreg.service.reg.impl.Registrator;
 import edu.kit.scc.webreg.service.saml.AttributeQueryHelper;
 import edu.kit.scc.webreg.service.saml.Saml2AssertionService;
@@ -153,9 +149,6 @@ public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 	@Inject
 	private LogHelper logHelper;
 	
-	@Inject
-	private ScriptingEnv scriptingEnv;
-	
 	public SamlUserEntity updateUser(SamlUserEntity user, Map<String, List<Object>> attributeMap, String executor, StringBuffer debugLog)
 			throws UserUpdateException {
 		return updateUser(user, attributeMap, executor, null, debugLog);
@@ -176,28 +169,7 @@ public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 		auditor.setName(getClass().getName() + "-UserUpdate-Audit");
 		auditor.setDetail("Update user " + user.getEppn());
 
-		UserUpdateHook updateHook = null;
-		if (user.getIdp().getGenericStore().containsKey("user_update_hook")) {
-			String hookClass = user.getIdp().getGenericStore().get("user_update_hook");
-			try {
-				updateHook = (UserUpdateHook) Class.forName(hookClass).getDeclaredConstructor().newInstance();
-				if (updateHook instanceof ScriptingWorkflow)
-					((ScriptingWorkflow) updateHook).setScriptingEnv(scriptingEnv);
-
-			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-					| InvocationTargetException | NoSuchMethodException | SecurityException
-					| ClassNotFoundException e) {
-				logger.warn("Cannot instantiate updateHook class. This is probably a misconfiguration.");
-			}
-		}
-
-		if (updateHook != null) {
-			try {
-				updateHook.preUpdateUser(user, user.getIdp().getGenericStore(), attributeMap, executor, service, debugLog);
-			} catch (UserUpdateHookException e) {
-				logger.warn("An exception happened while calling UserUpdateHook!", e);
-			}
-		}
+		changed |= preUpdateUser(user, attributeMap, user.getIdp().getGenericStore(), executor, service, debugLog);
 		
 		// List to store parent services, that are not registered. Need to be registered
 		// later, when attribute map is populated
@@ -313,13 +285,7 @@ public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 			}
 		}
 
-		if (updateHook != null) {
-			try {
-				updateHook.postUpdateUser(user, user.getIdp().getGenericStore(), attributeMap, executor, service, debugLog);
-			} catch (UserUpdateHookException e) {
-				logger.warn("An exception happened while calling UserUpdateHook!", e);
-			}
-		}
+		changed |= postUpdateUser(user, attributeMap, user.getIdp().getGenericStore(), executor, service, debugLog);
 
 		user.setLastUpdate(new Date());
 		user.setLastFailedUpdate(null);

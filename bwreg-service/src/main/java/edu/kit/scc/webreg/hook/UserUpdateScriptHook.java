@@ -24,35 +24,43 @@ public class UserUpdateScriptHook implements UserUpdateHook, ScriptingWorkflow {
 	protected ScriptingEnv scriptingEnv;
 	
 	@Override
-	public void preUpdateUser(UserEntity user, Map<String, String> genericStore, Map<String, List<Object>> attributeMap, String executor,
+	public boolean preUpdateUser(UserEntity user, Map<String, String> genericStore, Map<String, List<Object>> attributeMap, String executor,
 			ServiceEntity service, StringBuffer debugLog) throws UserUpdateHookException {
 		logger.debug("UserUpdateScriptHook preUpdateUser called");
 
 		Invocable invocable = resolveScript(genericStore);
 
 		try {
-			invocable.invokeFunction("preUpdateUser", scriptingEnv, user, genericStore, attributeMap, service, logger, debugLog);
+			Object o = invocable.invokeFunction("preUpdateUser", scriptingEnv, user, genericStore, attributeMap, service, logger, debugLog);
+			if (o instanceof Boolean) {
+				return (Boolean) o;
+			}
 		} catch (NoSuchMethodException e) {
 			logger.info("No preUpdateUser Method. Skipping execution.");
 		} catch (ScriptException e) {
 			throw new UserUpdateHookException(e);
 		}
+		return false;
 	}
 
 	@Override
-	public void postUpdateUser(UserEntity user, Map<String, String> genericStore, Map<String, List<Object>> attributeMap, String executor,
+	public boolean postUpdateUser(UserEntity user, Map<String, String> genericStore, Map<String, List<Object>> attributeMap, String executor,
 			ServiceEntity service, StringBuffer debugLog) throws UserUpdateHookException {
 		logger.debug("UserUpdateScriptHook postUpdateUser called");
 
 		Invocable invocable = resolveScript(genericStore);
 
 		try {
-			invocable.invokeFunction("postUpdateUser", scriptingEnv, user, genericStore, attributeMap, service, logger, debugLog);
+			Object o = invocable.invokeFunction("postUpdateUser", scriptingEnv, user, genericStore, attributeMap, service, logger, debugLog);
+			if (o instanceof Boolean) {
+				return (Boolean) o;
+			}
 		} catch (NoSuchMethodException e) {
 			logger.info("No preUpdateUser Method. Skipping execution.");
 		} catch (ScriptException e) {
 			throw new UserUpdateHookException(e);
 		}
+		return false;
 	}
 
 	@Override
