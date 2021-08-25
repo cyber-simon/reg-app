@@ -157,7 +157,7 @@
 					
 			        <h:outputText value="#{messages.persistent_id}:"/>
 			        <h:panelGroup>
-			        	<h:outputText value="#{serviceAdminUserDetailBean.user.persistentId} (#{serviceAdminUserDetailBean.user.persistentSpId}, #{serviceAdminUserDetailBean.user.persistentIdpId})" rendered="#{serviceAdminUserDetailBean.user.class.simpleName == 'SamlUserEntity'}"/>
+			        	<h:outputText value="#{serviceAdminUserDetailBean.user.persistentId} (#{serviceAdminUserDetailBean.user.persistentSpId}, #{serviceAdminUserDetailBean.user.idp.entityId})" rendered="#{serviceAdminUserDetailBean.user.class.simpleName == 'SamlUserEntity'}"/>
 			        	<h:outputText value="#{serviceAdminUserDetailBean.user.externalId} (externalId)" rendered="#{serviceAdminUserDetailBean.user.class.simpleName == 'ExternalUserEntity'}"/>
 					</h:panelGroup>
 					
