@@ -52,7 +52,8 @@
 					<f:facet name="header">
 						<h:outputText value="#{messages.idp}" />
 					</f:facet>
-					<h:outputText value="#{(empty entity.idp.entityId ? 'All IDPs' : entity.idp.entityId)}" />
+					<h:outputText value="#{(empty entity.idp.entityId ? 'All IDPs' : entity.idp.entityId)}" /><br/>
+					<h:outputText value="#{(empty entity.sp.entityId ? 'No SP set' : entity.sp.entityId)}" />
 				</p:column>		
 				<p:column>
 					<f:facet name="header">

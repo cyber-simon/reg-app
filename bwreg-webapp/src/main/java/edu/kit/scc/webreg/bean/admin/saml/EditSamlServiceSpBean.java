@@ -19,10 +19,12 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import edu.kit.scc.webreg.entity.SamlIdpConfigurationEntity;
+import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceSamlSpEntity;
 import edu.kit.scc.webreg.service.SamlIdpConfigurationService;
+import edu.kit.scc.webreg.service.SamlSpMetadataService;
 import edu.kit.scc.webreg.service.ScriptService;
 import edu.kit.scc.webreg.service.ServiceSamlSpService;
 import edu.kit.scc.webreg.service.ServiceService;
@@ -40,6 +42,9 @@ public class EditSamlServiceSpBean implements Serializable {
 	private SamlIdpConfigurationService idpConfigurationService;
 	
 	@Inject
+	private SamlSpMetadataService spMetadataService;
+	
+	@Inject
 	private ServiceService serviceService;
 	
 	@Inject
@@ -49,6 +54,7 @@ public class EditSamlServiceSpBean implements Serializable {
 	private List<SamlIdpConfigurationEntity> idpList;
 	private List<ServiceEntity> serviceList;
 	private List<ScriptEntity> scriptList;
+	private List<SamlSpMetadataEntity> samlSpList;
 	
 	private Long id;
 
@@ -56,7 +62,7 @@ public class EditSamlServiceSpBean implements Serializable {
 	}
 	
 	public String save() {
-		entity = service.save(entity);
+		entity = service.save(getEntity());
 		return "list-idp-configs.xhtml?faces-redirect=true";
 	}
 
@@ -119,6 +125,17 @@ public class EditSamlServiceSpBean implements Serializable {
 
 	public void setScriptList(List<ScriptEntity> scriptList) {
 		this.scriptList = scriptList;
+	}
+
+	public List<SamlSpMetadataEntity> getSamlSpList() {
+		if (samlSpList == null) {
+			samlSpList = spMetadataService.findAll();
+		}
+		return samlSpList;
+	}
+
+	public void setSamlSpList(List<SamlSpMetadataEntity> samlSpList) {
+		this.samlSpList = samlSpList;
 	}
 
 }

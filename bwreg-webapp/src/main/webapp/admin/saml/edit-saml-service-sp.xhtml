@@ -38,6 +38,14 @@
 	            		var="idp" itemLabel="#{idp.entityId} (id #{idp.id})" itemValue="#{idp}"/>
 	            </p:selectOneMenu>
 
+		        <h:outputText value="#{messages.sp}:"/>
+		        <p:selectOneMenu value="#{editSamlServiceSpBean.entity.sp}"
+		        	converter="#{samlSpMetadataConverter}">
+		        	<f:selectItem itemLabel="No SP set" itemValue="#{null}"/>
+	            	<f:selectItems value="#{editSamlServiceSpBean.samlSpList}" 
+	            		var="sp" itemLabel="#{sp.entityId} (id #{sp.id})" itemValue="#{sp}"/>
+	            </p:selectOneMenu>
+
 		        <h:outputText value="#{messages.service}:"/>
 		        <p:selectOneMenu value="#{editSamlServiceSpBean.entity.service}"
 		        	converter="#{serviceConverter}">
@@ -56,8 +64,8 @@
 
 			</p:panelGrid>
 		
-			<p:commandButton id="cancel" action="#{editSamlServiceSpBean.cancel}" value="#{messages.cancel}"/>
-			<p:commandButton id="save" action="#{editSamlServiceSpBean.save}" value="#{messages.save}"/>
+			<p:commandButton id="cancel" action="#{editSamlServiceSpBean.cancel()}" value="#{messages.cancel}" immediate="true"/>
+			<p:commandButton id="save" action="#{editSamlServiceSpBean.save()}" value="#{messages.save}" ajax="false"/>
 		</p:panel>
 
 	</h:form>
