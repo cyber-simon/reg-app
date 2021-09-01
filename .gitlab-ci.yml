@@ -7,5 +7,7 @@ cache:
 
 build:
   stage: build
+  tags:
+    - mvn-docker
   script:
     mvn -s maven/settings.xml -B package
