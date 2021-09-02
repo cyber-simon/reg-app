@@ -21,6 +21,7 @@ import java.util.UUID;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 
@@ -95,6 +96,9 @@ public class UserCreateServiceImpl implements UserCreateService {
 	@Inject
 	private SamlIdpMetadataService idpMetadataService;
 	
+	@Inject
+	private HttpServletRequest httpRequest;
+
 	@Override
 	public SamlUserEntity preCreateUser(SamlIdpMetadataEntity idpEntity, SamlSpConfigurationEntity spConfigEntity, SamlIdentifier samlIdentifier,
 			String locale, Map<String, List<Object>> attributeMap)
@@ -149,6 +153,8 @@ public class UserCreateServiceImpl implements UserCreateService {
 			attributeStore.put(entry.getKey(), attrHelper.attributeListToString(entry.getValue()));
 		}
 		
+		user.setLastLoginHost(httpRequest.getLocalName());
+
 		user.setLastUpdate(new Date());
 		user.setScheduledUpdate(getNextScheduledUpdate());
 		

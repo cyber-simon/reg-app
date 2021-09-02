@@ -20,6 +20,7 @@ import java.util.UUID;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 
@@ -92,6 +93,9 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
 
 	@Inject
 	private AttributeMapHelper attrHelper;
+
+	@Inject
+	private HttpServletRequest httpRequest;
 
 	@Override
 	public OidcUserEntity preCreateUser(Long rpConfigId,
@@ -229,6 +233,8 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
 		for (Entry<String, List<Object>> entry : attributeMap.entrySet()) {
 			attributeStore.put(entry.getKey(), attrHelper.attributeListToString(entry.getValue()));
 		}
+		
+		user.setLastLoginHost(httpRequest.getLocalName());
 		
 		user.setLastUpdate(new Date());
 

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 
@@ -26,6 +27,9 @@ public abstract class AbstractUserUpdater<T extends UserEntity> implements Seria
 
 	@Inject
 	private ScriptingEnv scriptingEnv;
+	
+	@Inject
+	private HttpServletRequest httpRequest;
 
 	public abstract T updateUser(T user, Map<String, List<Object>> attributeMap, String executor, StringBuffer debugLog)
 			throws UserUpdateException;
@@ -52,6 +56,8 @@ public abstract class AbstractUserUpdater<T extends UserEntity> implements Seria
 	protected boolean postUpdateUser(UserEntity user, Map<String, List<Object>> attributeMap, Map<String,String> homeOrgGenericStore, 
 				String executor, ServiceEntity service, StringBuffer debugLog)
 			throws UserUpdateException {
+		
+		user.setLastLoginHost(httpRequest.getLocalName());
 		
 		UserUpdateHook updateHook = resolveUpdateHook(homeOrgGenericStore);
 
