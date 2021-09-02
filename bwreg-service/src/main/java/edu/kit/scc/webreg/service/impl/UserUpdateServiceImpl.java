@@ -3,6 +3,7 @@ package edu.kit.scc.webreg.service.impl;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,11 +23,15 @@ import edu.kit.scc.webreg.drools.OverrideAccess;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;
 import edu.kit.scc.webreg.drools.impl.KnowledgeSessionSingleton;
 import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
+import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.event.EventSubmitter;
+import edu.kit.scc.webreg.event.ServiceRegisterEvent;
+import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.LoginFailedException;
 import edu.kit.scc.webreg.exc.NoRegistryFoundException;
 import edu.kit.scc.webreg.exc.NoServiceFoundException;
@@ -62,6 +67,9 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 	
 	@Inject
 	private ApplicationConfig appConfig;
+	
+	@Inject
+	private EventSubmitter eventSubmitter;
 	
 	@Override
 	public Map<String, String> updateUser(Long uidNumber,
@@ -235,31 +243,92 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 		MDC.put("userId", "" + user.getId());
 		
 		// Default expiry Time after which an attrq is issued to IDP in millis
-		Long expireTime = 10000L;
-		
+		Long expireTime = 10L * 1000L;
 		if (service.getServiceProps() != null && service.getServiceProps().containsKey("attrq_expire_time")) {
 			expireTime = Long.parseLong(service.getServiceProps().get("attrq_expire_time"));
 		}
+
+		// Time for last user update. If null, last user update is not checked
+		Long lastUserUpdate = null;
+		if (service.getServiceProps() != null && service.getServiceProps().containsKey("attrq_last_user_update")) {
+			lastUserUpdate = Long.parseLong(service.getServiceProps().get("attrq_last_user_update"));
+		}
+
+		String checkMethod = "standard";
+		if (service.getServiceProps() != null && service.getServiceProps().containsKey("attrq_check_method")) {
+			checkMethod = service.getServiceProps().get("attrq_check_method");
+		}
 		
-		try {
-			if ((user.getLastUpdate() != null) &&
-					((System.currentTimeMillis() - user.getLastUpdate().getTime()) < expireTime)) {
-				logger.info("Skipping user update for {} with id {}", new Object[] {user.getEppn(), user.getId()});
-			}
-			else {
-				logger.info("Performing user update for {} with id {}", new Object[] {user.getEppn(), user.getId()}); 
-	
-				if (user instanceof SamlUserEntity)
-					user = userUpdater.updateUserFromIdp((SamlUserEntity) user, service, executor, null);
-			}
-		} catch (UserUpdateException e) {
-			logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
-			throw new UserUpdateFailedException("user update failed: " + e.getMessage());
-		}		
+		if (checkMethod.equalsIgnoreCase("no_attrq")) {
+			/*
+			 * Don't perform any user update per attribute query or refresh token, if this is set
+			 */
+
+			logger.info("Performing no user update for {} with id {}, as configuration with service", new Object[] {user.getEppn(), user.getId()});
+		}
+		else if (checkMethod.equalsIgnoreCase("attrq_optional")) {
+			/*
+			 * Perform user update per attribute query or refresh token, but proceed if it failed
+			 */
+			try {
+				if ((user.getLastUpdate() != null) &&
+						((System.currentTimeMillis() - user.getLastUpdate().getTime()) < expireTime)) {
+					logger.info("Skipping user update for {} with id {}", new Object[] {user.getEppn(), user.getId()});
+				}
+				else {
+					logger.info("Performing user update for {} with id {}", new Object[] {user.getEppn(), user.getId()}); 
 		
+					//TODO check for OIDC user entity (refresh token?)
+					if (user instanceof SamlUserEntity)
+						user = userUpdater.updateUserFromIdp((SamlUserEntity) user, service, executor, null);
+				}
+			} catch (UserUpdateException e) {
+				logger.warn("Could not update user (attrq is optional, continue with login process) {}: {}", e.getMessage(), user.getEppn());
+			}		
+		}
+		else {
+			/*
+			 * This is the standard case, where attribute query or refresh token is mandatory
+			 */
+			try {
+				if ((user.getLastUpdate() != null) &&
+						((System.currentTimeMillis() - user.getLastUpdate().getTime()) < expireTime)) {
+					logger.info("Skipping user update for {} with id {}", new Object[] {user.getEppn(), user.getId()});
+				}
+				else {
+					logger.info("Performing user update for {} with id {}", new Object[] {user.getEppn(), user.getId()}); 
+		
+					//TODO check for OIDC user entity (refresh token?)
+					if (user instanceof SamlUserEntity)
+						user = userUpdater.updateUserFromIdp((SamlUserEntity) user, service, executor, null);
+				}
+			} catch (UserUpdateException e) {
+				logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
+				throw new UserUpdateFailedException("user update failed: " + e.getMessage());
+			}		
+		}
+
 		if (registry == null)
 			throw new NoRegistryFoundException("No such registry");
-		
+
+		if ((user.getLastUpdate() == null) || ((lastUserUpdate != null) &&
+				((System.currentTimeMillis() - user.getLastUpdate().getTime()) > lastUserUpdate))) {
+			logger.info("Last user update is due for {} with id {}. Setting to LOST_ACCESS.", new Object[] {user.getEppn(), user.getId()});
+
+			registry.setRegistryStatus(RegistryStatus.LOST_ACCESS);
+			registry.setLastStatusChange(new Date());
+
+			ServiceRegisterEvent registerEvent = new ServiceRegisterEvent(registry);
+			
+			try {
+				eventSubmitter.submit(registerEvent, EventType.REGISTRY_UPDATE, executor);
+			} catch (EventSubmitException e) {
+				logger.warn("Could not submit event", e);
+			}
+
+			throw new LoginFailedException("last user update is too long ago\n" + user.getLastUpdate());
+		}
+
 		List<Object> objectList = checkRules(user, service, registry);
 		
 		StringBuilder sb = new StringBuilder();
@@ -287,7 +356,7 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 		map.put("email", user.getEmail());
 		map.put("last_update",  df.format(user.getLastUpdate()));
 		
-		return map;
+		return map;		
 	}
 	
 	private List<Object> checkRules(UserEntity user, ServiceEntity service, RegistryEntity registry) {
@@ -363,5 +432,4 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 
 		return user;
 	}
-
 }
