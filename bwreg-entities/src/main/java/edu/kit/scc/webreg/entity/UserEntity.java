@@ -54,6 +54,9 @@ public class UserEntity extends AbstractBaseEntity {
 	@Column(name = "sur_name", length = 256)
 	private String surName;
 
+	@Column(name = "last_login_host", length = 1024)
+	private String lastLoginHost;
+
 	@Column(name = "uid_number", unique = true, nullable = false)
 	private Integer uidNumber;
 	
@@ -274,5 +277,13 @@ public class UserEntity extends AbstractBaseEntity {
 
 	public void setScheduledUpdate(Date scheduledUpdate) {
 		this.scheduledUpdate = scheduledUpdate;
+	}
+
+	public String getLastLoginHost() {
+		return lastLoginHost;
+	}
+
+	public void setLastLoginHost(String lastLoginHost) {
+		this.lastLoginHost = lastLoginHost;
 	}	
 }
