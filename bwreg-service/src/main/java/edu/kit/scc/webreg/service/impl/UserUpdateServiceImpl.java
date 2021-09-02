@@ -321,7 +321,7 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 			ServiceRegisterEvent registerEvent = new ServiceRegisterEvent(registry);
 			
 			try {
-				eventSubmitter.submit(registerEvent, EventType.REGISTRY_UPDATE, executor);
+				eventSubmitter.submit(registerEvent, EventType.USER_LOST_ACCESS, executor);
 			} catch (EventSubmitException e) {
 				logger.warn("Could not submit event", e);
 			}
