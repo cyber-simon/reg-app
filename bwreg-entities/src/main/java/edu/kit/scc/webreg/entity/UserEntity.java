@@ -84,6 +84,9 @@ public class UserEntity extends AbstractBaseEntity {
 	@OneToMany(targetEntity = SshPubKeyEntity.class, mappedBy="user")
 	private Set<SshPubKeyEntity> sshPubKeys;
 		
+	@OneToMany(targetEntity = RegistryEntity.class, mappedBy="user")
+	private Set<RegistryEntity> registries;
+		
 	@Enumerated(EnumType.STRING)
 	private UserStatus userStatus;
 	
@@ -285,5 +288,13 @@ public class UserEntity extends AbstractBaseEntity {
 
 	public void setLastLoginHost(String lastLoginHost) {
 		this.lastLoginHost = lastLoginHost;
+	}
+
+	public Set<RegistryEntity> getRegistries() {
+		return registries;
+	}
+
+	public void setRegistries(Set<RegistryEntity> registries) {
+		this.registries = registries;
 	}	
 }
