@@ -185,6 +185,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity, Long> implement
 			for (RegistryEntity registry : registryList) {
 				logger.debug("Setting registry {} (user {}) ON_HOLD", registry.getId(), user.getEppn()); 
 				registry.setRegistryStatus(RegistryStatus.ON_HOLD);
+				registry.setStatusMessage("user-on-hold");
 				registry.setLastStatusChange(new Date());
 			}			
 		}

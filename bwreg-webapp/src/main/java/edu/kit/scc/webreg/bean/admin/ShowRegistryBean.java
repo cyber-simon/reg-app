@@ -57,7 +57,7 @@ public class ShowRegistryBean implements Serializable {
 	public void deregister() {
 		try {
 			logger.info("Deregister registry {} via AdminRegistry page", registry.getId());
-			registerUserService.deregisterUser(registry, "identity-" + sessionManager.getIdentityId());
+			registerUserService.deregisterUser(registry, "identity-" + sessionManager.getIdentityId(), "deregister-by-admin");
 		} catch (RegisterException e) {
 			logger.warn("Could not deregister User", e);
 		}

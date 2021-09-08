@@ -279,7 +279,7 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 				List<RegistryEntity> registryList = registryDao.findByUserAndStatus(user, 
 						RegistryStatus.ACTIVE, RegistryStatus.LOST_ACCESS, RegistryStatus.INVALID);
 				for (RegistryEntity registry : registryList) {
-					changeRegistryStatus(registry, RegistryStatus.ON_HOLD, auditor);
+					changeRegistryStatus(registry, RegistryStatus.ON_HOLD, "user-on-hold", auditor);
 				}
 			}
 		}
@@ -300,7 +300,7 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 				List<RegistryEntity> registryList = registryDao.findByUserAndStatus(user, 
 						RegistryStatus.ON_HOLD);
 				for (RegistryEntity registry : registryList) {
-					changeRegistryStatus(registry, RegistryStatus.LOST_ACCESS, auditor);
+					changeRegistryStatus(registry, RegistryStatus.LOST_ACCESS, "user-reactivated", auditor);
 					
 					/*
 					 * check if parent registry is missing
@@ -523,9 +523,10 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 				"Change status " + fromStatus + " -> " + toStatus, AuditStatus.SUCCESS);
 	}
 	
-	protected void changeRegistryStatus(RegistryEntity registry, RegistryStatus toStatus, Auditor parentAuditor) {
+	protected void changeRegistryStatus(RegistryEntity registry, RegistryStatus toStatus, String statusMessage, Auditor parentAuditor) {
 		RegistryStatus fromStatus = registry.getRegistryStatus();
 		registry.setRegistryStatus(toStatus);
+		registry.setStatusMessage(statusMessage);
 		registry.setLastStatusChange(new Date());
 
 		logger.debug("{} {} {}: change registry status from {} to {}", new Object[] { 

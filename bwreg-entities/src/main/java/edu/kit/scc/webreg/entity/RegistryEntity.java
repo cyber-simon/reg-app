@@ -42,6 +42,9 @@ public class RegistryEntity extends AbstractBaseEntity {
 	@Enumerated(EnumType.STRING)
 	private RegistryStatus registryStatus;
 	
+	@Column(name="status_messages", length=1024)
+	private String statusMessage;
+	
 	@ManyToOne(targetEntity = IdentityEntity.class)
 	private IdentityEntity identity;
 	
@@ -189,5 +192,13 @@ public class RegistryEntity extends AbstractBaseEntity {
 
 	public void setIdentity(IdentityEntity identity) {
 		this.identity = identity;
+	}
+
+	public String getStatusMessage() {
+		return statusMessage;
+	}
+
+	public void setStatusMessage(String statusMessage) {
+		this.statusMessage = statusMessage;
 	}
 }

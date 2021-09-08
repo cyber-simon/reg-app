@@ -459,6 +459,7 @@ public class Registrator implements Serializable {
 				logger.info("Missing mandatory values! Skipping update (user: {}, service: {}, registry: {})", userEntity.getEppn(), serviceEntity.getName(), registry.getId());
 				if (RegistryStatus.ACTIVE.equals(registry.getRegistryStatus())) {
 					registry.setRegistryStatus(RegistryStatus.INVALID);
+					registry.setStatusMessage("missing-mandatory-values");
 					registry.setLastStatusChange(new Date());
 				}
 			}
@@ -467,6 +468,7 @@ public class Registrator implements Serializable {
 
 				if (RegistryStatus.INVALID.equals(registry.getRegistryStatus())) {
 					registry.setRegistryStatus(RegistryStatus.ACTIVE);
+					registry.setStatusMessage(null);
 					registry.setLastStatusChange(new Date());
 				}
 
@@ -495,11 +497,11 @@ public class Registrator implements Serializable {
 		}    	
 	}
 
-	public void deregisterUser(RegistryEntity registry, String executor) throws RegisterException {
-		deregisterUser(registry, executor, null);
+	public void deregisterUser(RegistryEntity registry, String executor, String statusMessage) throws RegisterException {
+		deregisterUser(registry, executor, null, statusMessage);
 	}
 	
-	public void deregisterUser(RegistryEntity registry, String executor, Auditor parentAuditor) throws RegisterException {
+	public void deregisterUser(RegistryEntity registry, String executor, Auditor parentAuditor, String statusMessage) throws RegisterException {
 		
 		registry = registryDao.merge(registry);
 		
@@ -523,6 +525,7 @@ public class Registrator implements Serializable {
 			workflow.deregisterUser(userEntity, serviceEntity, registry, auditor);
 
 			registry.setRegistryStatus(RegistryStatus.DELETED);
+			registry.setStatusMessage(null);
 			registry.setLastStatusChange(new Date());
 			registry = registryDao.persist(registry);
 
@@ -596,7 +599,7 @@ public class Registrator implements Serializable {
 							RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
 
 					for (RegistryEntity parentRegistry : parentRegistryList) {
-						deregisterUser(parentRegistry, executor, parentAuditor);
+						deregisterUser(parentRegistry, executor, parentAuditor, "all-child-deregistered");
 					}
 				}
 			}
@@ -813,6 +816,7 @@ public class Registrator implements Serializable {
 		auditor.setRegistry(registry);
 		
 		registry.setRegistryStatus(RegistryStatus.DEPROVISIONED);
+		registry.setStatusMessage(null);
 		registry.setLastStatusChange(new Date());
 		registry = registryDao.persist(registry);
 
@@ -829,7 +833,7 @@ public class Registrator implements Serializable {
 			/*
 			 * Deregister user first, if the registration is somewhat active
 			 */
-			deregisterUser(registry, executor);
+			deregisterUser(registry, executor, "purged");
 		}
 		
 		List<AuditServiceRegisterEntity> auditList = auditDao.findAllServiceRegister(registry);

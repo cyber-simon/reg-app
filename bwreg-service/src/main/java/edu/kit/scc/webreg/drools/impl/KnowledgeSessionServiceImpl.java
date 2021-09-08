@@ -273,6 +273,7 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 					logger.debug("{} {} {}: registry status changed from {} to ACTIVE", new Object[] {user.getEppn(), 
 							service.getShortName(), registry.getId(), registry.getRegistryStatus()});
 					registry.setRegistryStatus(RegistryStatus.ACTIVE);
+					registry.setStatusMessage(null);
 					registry.setLastStatusChange(new Date());
 					auditAccessChange(user, service, registry, false, executor);
 					try {
@@ -295,6 +296,7 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 					logger.debug("{} {} {}: registry status changed from {} to LOST_ACCESS", new Object[] {user.getEppn(), 
 							service.getShortName(), registry.getId(), registry.getRegistryStatus()});
 					registry.setRegistryStatus(RegistryStatus.LOST_ACCESS);
+					registry.setStatusMessage(accessToString(objectList));
 					registry.setLastStatusChange(new Date());
 					auditAccessChange(user, service, registry, true, executor);
 					try {
@@ -360,6 +362,17 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 			}
 		}
 		return true;
+	}
+	
+	private String accessToString(List<Object> objectList) {
+		StringBuffer sb = new StringBuffer();
+		for (Object o : objectList) {
+			if (o instanceof UnauthorizedUser) {
+				sb.append(((UnauthorizedUser)o).getMessage());
+				sb.append("\n");
+			}
+		}
+		return sb.toString();
 	}
 	
 	private void auditAccessChange(UserEntity user, ServiceEntity service,

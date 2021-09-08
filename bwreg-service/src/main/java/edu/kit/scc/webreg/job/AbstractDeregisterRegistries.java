@@ -89,7 +89,7 @@ public abstract class AbstractDeregisterRegistries extends AbstractExecutableJob
 						knowledgeSessionService.checkRules(tempRegistryList, identity, auditName, false);
 						
 						if (registryStatus.equals(registry.getRegistryStatus())) {
-							registerUserService.deregisterUser(registry, auditName);
+							registerUserService.deregisterUser(registry, auditName, "abstract-dereg-job");
 						}
 					}
 				} catch (RegisterException e) {

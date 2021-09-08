@@ -110,7 +110,7 @@ public class UserDeleteServiceImpl implements UserDeleteService {
 						(RegistryStatus.LOST_ACCESS == registry.getRegistryStatus()) ||
 						(RegistryStatus.ON_HOLD == registry.getRegistryStatus())) {
 					try {
-						registrator.deregisterUser(registry, executor, auditor);
+						registrator.deregisterUser(registry, executor, auditor, "delete-all-user-data");
 					} catch (RegisterException e) {
 						logger.warn("Exception while deregister user", e);
 					}

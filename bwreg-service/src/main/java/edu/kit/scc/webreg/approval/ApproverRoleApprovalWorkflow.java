@@ -20,6 +20,7 @@ public class ApproverRoleApprovalWorkflow extends AbstractApprovalWorkflow {
 	@Override
 	public void startWorkflow(RegistryEntity registry) throws RegisterException {
 		registry.setRegistryStatus(RegistryStatus.PENDING);
+		registry.setStatusMessage(null);
 		registry.setLastStatusChange(new Date());
 	}
 

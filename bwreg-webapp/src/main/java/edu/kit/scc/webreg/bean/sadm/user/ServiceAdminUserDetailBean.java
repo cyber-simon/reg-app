@@ -198,7 +198,7 @@ public class ServiceAdminUserDetailBean implements Serializable {
 	public void deregister() {
 		try {
 			logger.info("Deregister registry {} via AdminRegistry page", entity.getId());
-			registerUserService.deregisterUser(entity, "service-admin-" + sessionManager.getIdentityId());
+			registerUserService.deregisterUser(entity, "service-admin-" + sessionManager.getIdentityId(), "deregistered-by-service-admin");
 		} catch (RegisterException e) {
 			logger.warn("Could not deregister User", e);
 		}

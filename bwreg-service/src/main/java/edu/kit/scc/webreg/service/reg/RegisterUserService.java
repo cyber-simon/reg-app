@@ -35,10 +35,10 @@ public interface RegisterUserService {
 	void reconsiliation(RegistryEntity registry, Boolean fullRecon,
 			String executor, Auditor parentAuditor) throws RegisterException;
 
-	void deregisterUser(RegistryEntity registry, String executor, Auditor parentAuditor)
+	void deregisterUser(RegistryEntity registry, String executor, Auditor parentAuditor, String statusMessage)
 			throws RegisterException;
 
-	void deregisterUser(RegistryEntity registry, String executor)
+	void deregisterUser(RegistryEntity registry, String executor, String statusMessage)
 			throws RegisterException;
 
 	void deprovision(RegistryEntity registry, String executor) throws RegisterException;

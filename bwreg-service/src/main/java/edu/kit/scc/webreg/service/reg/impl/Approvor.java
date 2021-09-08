@@ -110,7 +110,7 @@ public class Approvor implements Serializable {
 		auditor.setRegistry(registry);
 
 		registry.setRegistryStatus(RegistryStatus.DELETED);
-
+		registry.setStatusMessage("approval-denied");
 		auditor.logAction(registry.getUser().getEppn(), "DENY APPROVAL", "registry-" + registry.getId(), "User is denied acces for service", AuditStatus.SUCCESS);
 		
 		ServiceRegisterEvent serviceRegisterEvent = new ServiceRegisterEvent(registry, auditor.getAudit());
@@ -156,6 +156,7 @@ public class Approvor implements Serializable {
 			workflow.registerUser(userEntity, serviceEntity, registry, auditor);
 
 			registry.setRegistryStatus(RegistryStatus.ACTIVE);
+			registry.setStatusMessage(null);
 			registry.setLastStatusChange(new Date());
 			registry.setLastReconcile(new Date());
 

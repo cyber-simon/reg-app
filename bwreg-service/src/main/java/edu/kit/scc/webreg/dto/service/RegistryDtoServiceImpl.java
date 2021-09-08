@@ -129,7 +129,7 @@ public class RegistryDtoServiceImpl extends BaseDtoServiceImpl<RegistryEntity, R
 				RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
 		
 		for (RegistryEntity registry : registryList) {
-			registerUserService.deregisterUser(registry, "external");
+			registerUserService.deregisterUser(registry, "external", "deregister-via-api");
 		}
 	}
 	

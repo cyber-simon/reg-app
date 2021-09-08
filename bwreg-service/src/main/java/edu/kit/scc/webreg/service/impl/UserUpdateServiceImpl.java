@@ -316,6 +316,7 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 			logger.info("Last user update is due for {} with id {}. Setting to LOST_ACCESS.", new Object[] {user.getEppn(), user.getId()});
 
 			registry.setRegistryStatus(RegistryStatus.LOST_ACCESS);
+			registry.setStatusMessage("update-due");
 			registry.setLastStatusChange(new Date());
 
 			ServiceRegisterEvent registerEvent = new ServiceRegisterEvent(registry);

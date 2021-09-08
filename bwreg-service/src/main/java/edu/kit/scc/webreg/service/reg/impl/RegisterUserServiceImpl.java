@@ -99,13 +99,13 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	}
 
 	@Override
-	public void deregisterUser(RegistryEntity registry, String executor) throws RegisterException {
-		registrator.deregisterUser(registry, executor, null);
+	public void deregisterUser(RegistryEntity registry, String executor, String statusMessage) throws RegisterException {
+		registrator.deregisterUser(registry, executor, statusMessage);
 	}
 	
 	@Override
-	public void deregisterUser(RegistryEntity registry, String executor, Auditor parentAuditor) throws RegisterException {
-		registrator.deregisterUser(registry, executor, parentAuditor);
+	public void deregisterUser(RegistryEntity registry, String executor, Auditor parentAuditor, String statusMessage) throws RegisterException {
+		registrator.deregisterUser(registry, executor, parentAuditor, statusMessage);
 	}
 	
 	@Override
