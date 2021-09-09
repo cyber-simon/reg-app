@@ -12,7 +12,6 @@ import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
 import edu.kit.scc.webreg.exc.UserUpdateException;
-import edu.kit.scc.webreg.service.UserServiceHook;
 import edu.kit.scc.webreg.service.impl.AttributeMapHelper;
 
 public class UidNumberFromAssertionUserHook implements UserServiceHook {

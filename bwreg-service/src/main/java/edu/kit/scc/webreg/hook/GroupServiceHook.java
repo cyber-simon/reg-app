@@ -8,7 +8,7 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.service;
+package edu.kit.scc.webreg.hook;
 
 import java.util.List;
 import java.util.Map;

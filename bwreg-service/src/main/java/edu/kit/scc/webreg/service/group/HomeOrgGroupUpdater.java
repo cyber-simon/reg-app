@@ -41,7 +41,7 @@ import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.MultipleGroupEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
-import edu.kit.scc.webreg.service.GroupServiceHook;
+import edu.kit.scc.webreg.hook.GroupServiceHook;
 import edu.kit.scc.webreg.service.SerialService;
 import edu.kit.scc.webreg.service.impl.AttributeMapHelper;
 import edu.kit.scc.webreg.service.impl.HookManager;

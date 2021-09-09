@@ -21,8 +21,8 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
-import edu.kit.scc.webreg.service.GroupServiceHook;
-import edu.kit.scc.webreg.service.UserServiceHook;
+import edu.kit.scc.webreg.hook.GroupServiceHook;
+import edu.kit.scc.webreg.hook.UserServiceHook;
 
 @Singleton
 public class HookManager {

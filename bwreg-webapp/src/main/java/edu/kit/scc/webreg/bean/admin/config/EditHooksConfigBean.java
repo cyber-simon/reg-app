@@ -19,8 +19,8 @@ import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
-import edu.kit.scc.webreg.service.GroupServiceHook;
-import edu.kit.scc.webreg.service.UserServiceHook;
+import edu.kit.scc.webreg.hook.GroupServiceHook;
+import edu.kit.scc.webreg.hook.UserServiceHook;
 import edu.kit.scc.webreg.service.impl.HookManager;
 import edu.kit.scc.webreg.util.ViewIds;
 

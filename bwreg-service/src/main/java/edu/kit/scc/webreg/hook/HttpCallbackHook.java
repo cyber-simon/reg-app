@@ -39,7 +39,6 @@ import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
-import edu.kit.scc.webreg.service.UserServiceHook;
 
 public class HttpCallbackHook implements UserServiceHook {
 
