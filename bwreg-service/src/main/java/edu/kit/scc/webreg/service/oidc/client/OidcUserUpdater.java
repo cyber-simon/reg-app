@@ -189,7 +189,7 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 				
 				RefreshToken refreshToken = null;
 				
-				if (oidcTokenResponse.getOIDCTokens().getRefreshToken() == null) {
+				if (oidcTokenResponse.getOIDCTokens().getRefreshToken() != null) {
 				
 					refreshToken = oidcTokenResponse.getOIDCTokens().getRefreshToken();
 					try {
@@ -201,7 +201,7 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 					}
 				}
 				else {
-					logger.info("Answer contains no new refresh token");
+					logger.info("Answer contains no new refresh token, keeping old one");
 				}
 				
 				BearerAccessToken bearerAccessToken = oidcTokenResponse.getOIDCTokens().getBearerAccessToken();

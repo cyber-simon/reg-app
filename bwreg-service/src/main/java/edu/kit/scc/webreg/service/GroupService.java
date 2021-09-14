@@ -29,9 +29,9 @@ public interface GroupService extends BaseService<GroupEntity, Long> {
 
 	void updateGroupMembers(GroupEntity group, Set<UserEntity> newMembers);
 
-	void addUserToGroup(UserEntity user, GroupEntity group);
+	void addUserToGroup(UserEntity user, GroupEntity group, boolean emitUpdate);
 
-	void removeUserGromGroup(UserEntity user, GroupEntity group);
+	void removeUserGromGroup(UserEntity user, GroupEntity group, boolean emitUpdate);
 
 	Set<GroupEntity> findByUserWithChildren(UserEntity user);
 

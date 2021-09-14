@@ -130,24 +130,14 @@ public class ShowLocalGroupBean implements Serializable {
 	}
 
 	public void addUserToGroup(UserEntity user) {
-		allGroupService.addUserToGroup(user, entity);
+		allGroupService.addUserToGroup(user, entity, false);
 		
-		for (ServiceGroupFlagEntity flag : groupFlagList) {
-			flag.setStatus(ServiceGroupStatus.DIRTY);
-			groupFlagService.save(flag);
-		}
-
 		entity = groupService.findWithUsersAndChildren(id);
 		effectiveMemberList = new ArrayList<UserEntity>(allGroupService.getEffectiveMembers(entity));
 	}
 		
 	public void removeUserFromGroup(UserEntity user) {
-		allGroupService.removeUserGromGroup(user, entity);
-
-		for (ServiceGroupFlagEntity flag : groupFlagList) {
-			flag.setStatus(ServiceGroupStatus.DIRTY);
-			groupFlagService.save(flag);
-		}
+		allGroupService.removeUserGromGroup(user, entity, false);
 
 		entity = groupService.findWithUsersAndChildren(id);
 		effectiveMemberList = new ArrayList<UserEntity>(allGroupService.getEffectiveMembers(entity));

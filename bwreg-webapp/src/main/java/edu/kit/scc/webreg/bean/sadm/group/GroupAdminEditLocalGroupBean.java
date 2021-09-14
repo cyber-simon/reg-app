@@ -15,24 +15,18 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import javax.inject.Named;
-import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.primefaces.model.LazyDataModel;
-import org.slf4j.Logger;
 
-import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.LocalGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
-import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.event.EventSubmitter;
-import edu.kit.scc.webreg.event.MultipleGroupEvent;
-import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
 import edu.kit.scc.webreg.model.GenericLazyDataModelImpl;
 import edu.kit.scc.webreg.sec.AuthorizationBean;
@@ -41,7 +35,6 @@ import edu.kit.scc.webreg.service.LocalGroupService;
 import edu.kit.scc.webreg.service.ServiceGroupFlagService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserService;
-import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 import edu.kit.scc.webreg.util.ViewIds;
 
@@ -51,9 +44,6 @@ public class GroupAdminEditLocalGroupBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@Inject
-	private Logger logger;
-	
 	@Inject
 	private LocalGroupService service;
 	
@@ -70,16 +60,10 @@ public class GroupAdminEditLocalGroupBean implements Serializable {
     private AuthorizationBean authBean;
 	
 	@Inject
-	private SessionManager sessionManager;
-	
-	@Inject
 	private FacesMessageGenerator messageGenerator;
 
 	@Inject
 	private UserService userService;
-	
-	@Inject
-	private EventSubmitter eventSubmitter;
 	
 	private LocalGroupEntity entity;
 
@@ -119,20 +103,6 @@ public class GroupAdminEditLocalGroupBean implements Serializable {
 	
 	public String save() {
 		allGroupService.updateGroupMembers(entity, new HashSet<UserEntity>(usersInGroup));
-		
-		for (ServiceGroupFlagEntity flag : groupFlagList) {
-			flag.setStatus(ServiceGroupStatus.DIRTY);
-			flag = groupFlagService.save(flag);
-		}
-		
-		HashSet<GroupEntity> gl = new HashSet<GroupEntity>();
-		gl.add(entity);
-		MultipleGroupEvent mge = new MultipleGroupEvent(gl);
-		try {
-			eventSubmitter.submit(mge, EventType.GROUP_UPDATE, "idty-" + sessionManager.getIdentityId());
-		} catch (EventSubmitException e) {
-			logger.warn("Exeption", e);
-		}
 		
 		messageGenerator.addResolvedInfoMessage("item_saved", "item_saved_long", true);
 		
