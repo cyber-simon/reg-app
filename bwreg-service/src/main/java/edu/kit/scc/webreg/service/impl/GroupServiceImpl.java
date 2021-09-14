@@ -10,7 +10,6 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.impl;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -96,23 +95,9 @@ public class GroupServiceImpl extends BaseServiceImpl<GroupEntity, Long> impleme
 
 	@Override
 	public Set<GroupEntity> findByUserWithChildren(UserEntity user) {
-		Set<GroupEntity> groups = new HashSet<GroupEntity>(groupDao.findByUser(user));
-		Set<GroupEntity> targetGroups = new HashSet<GroupEntity>();
-		rollChildren(targetGroups, groups, 0, 3);
-		return targetGroups;
+		return groupDao.findByUserWithChildren(user);
 	}	
 
-	private void rollChildren(Set<GroupEntity> targetGroups, Set<GroupEntity> groups, int depth, int maxDepth) {
-		if (depth <= maxDepth) {
-			for (GroupEntity group : groups) {
-				if (logger.isTraceEnabled())
-					logger.trace("Inspecting group {} with children count {}", group.getName(), group.getParents().size());
-				rollChildren(targetGroups, group.getParents(), depth + 1, maxDepth);
-				targetGroups.add(group);
-			}		
-		}
-	}
-	
 	@Override
 	protected BaseDao<GroupEntity, Long> getDao() {
 		return groupDao;

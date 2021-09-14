@@ -10,6 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -218,6 +219,23 @@ public class JpaGroupDao extends JpaBaseDao<GroupEntity, Long> implements GroupD
 		}
 		catch (NoResultException e) {
 			return null;
+		}
+	}
+
+	@Override
+	public Set<GroupEntity> findByUserWithChildren(UserEntity user) {
+		Set<GroupEntity> groups = new HashSet<GroupEntity>(findByUser(user));
+		Set<GroupEntity> targetGroups = new HashSet<GroupEntity>();
+		rollChildren(targetGroups, groups, 0, 3);
+		return targetGroups;
+	}	
+
+	private void rollChildren(Set<GroupEntity> targetGroups, Set<GroupEntity> groups, int depth, int maxDepth) {
+		if (depth <= maxDepth) {
+			for (GroupEntity group : groups) {
+				rollChildren(targetGroups, group.getParents(), depth + 1, maxDepth);
+				targetGroups.add(group);
+			}		
 		}
 	}
 
