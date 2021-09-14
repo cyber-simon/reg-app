@@ -187,13 +187,21 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 					} 
 				}
 				
-				RefreshToken refreshToken = oidcTokenResponse.getOIDCTokens().getRefreshToken();
-				try {
-					JWT refreshJwt = JWTParser.parse(refreshToken.getValue());
-					// Well, what to do with this info? Check if refresh token is short or long lived? <1 day?
-					logger.info("refresh will expire at: {}", refreshJwt.getJWTClaimsSet().getExpirationTime());
-				} catch (java.text.ParseException e) {
-					logger.debug("Refresh token is no JWT");
+				RefreshToken refreshToken = null;
+				
+				if (oidcTokenResponse.getOIDCTokens().getRefreshToken() == null) {
+				
+					refreshToken = oidcTokenResponse.getOIDCTokens().getRefreshToken();
+					try {
+						JWT refreshJwt = JWTParser.parse(refreshToken.getValue());
+						// Well, what to do with this info? Check if refresh token is short or long lived? <1 day?
+						logger.info("refresh will expire at: {}", refreshJwt.getJWTClaimsSet().getExpirationTime());
+					} catch (java.text.ParseException e) {
+						logger.debug("Refresh token is no JWT");
+					}
+				}
+				else {
+					logger.info("Answer contains no new refresh token");
 				}
 				
 				BearerAccessToken bearerAccessToken = oidcTokenResponse.getOIDCTokens().getBearerAccessToken();
