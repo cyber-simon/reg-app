@@ -14,6 +14,7 @@ import edu.kit.scc.webreg.dao.ServiceDao;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.oidc.OidcUserDao;
 import edu.kit.scc.webreg.dao.project.ProjectDao;
+import edu.kit.scc.webreg.service.group.GroupUpdater;
 import edu.kit.scc.webreg.service.project.ProjectCreater;
 import edu.kit.scc.webreg.service.project.ProjectUpdater;
 import edu.kit.scc.webreg.service.saml.SsoHelper;
@@ -38,6 +39,9 @@ public class ScriptingEnv implements Serializable {
 	
 	@Inject
 	private GroupDao groupDao;
+	
+	@Inject
+	private GroupUpdater groupUpdater;
 	
 	@Inject
 	private ProjectDao projectDao;
@@ -99,5 +103,9 @@ public class ScriptingEnv implements Serializable {
 
 	public OidcUserDao getOidcUserDao() {
 		return oidcUserDao;
+	}
+
+	public GroupUpdater getGroupUpdater() {
+		return groupUpdater;
 	}
 }

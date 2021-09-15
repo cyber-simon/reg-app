@@ -27,7 +27,6 @@ import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.HomeOrgGroupDao;
 import edu.kit.scc.webreg.dao.LocalGroupDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
-import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;
 import edu.kit.scc.webreg.entity.LocalGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceBasedGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
@@ -52,8 +51,8 @@ public class UserStoreLocalGroupHook implements GroupServiceHook {
 	}
 
 	@Override
-	public HomeOrgGroupEntity preUpdateUserPrimaryGroupFromAttribute(
-			HomeOrgGroupDao dao, GroupDao groupDao, HomeOrgGroupEntity group,
+	public GroupEntity preUpdateUserPrimaryGroupFromAttribute(
+			HomeOrgGroupDao dao, GroupDao groupDao, GroupEntity group,
 			UserEntity user, Map<String, List<Object>> attributeMap,
 			Auditor auditor, Set<GroupEntity> changedGroups)
 			throws UserUpdateException {
@@ -61,8 +60,8 @@ public class UserStoreLocalGroupHook implements GroupServiceHook {
 	}
 
 	@Override
-	public HomeOrgGroupEntity postUpdateUserPrimaryGroupFromAttribute(
-			HomeOrgGroupDao dao, GroupDao groupDao, HomeOrgGroupEntity group,
+	public GroupEntity postUpdateUserPrimaryGroupFromAttribute(
+			HomeOrgGroupDao dao, GroupDao groupDao, GroupEntity group,
 			UserEntity user, Map<String, List<Object>> attributeMap,
 			Auditor auditor, Set<GroupEntity> changedGroups)
 			throws UserUpdateException {

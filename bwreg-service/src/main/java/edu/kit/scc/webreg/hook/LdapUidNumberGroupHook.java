@@ -48,7 +48,7 @@ public class LdapUidNumberGroupHook implements GroupServiceHook {
 	}
 	
 	@Override
-	public HomeOrgGroupEntity preUpdateUserPrimaryGroupFromAttribute(HomeOrgGroupDao dao, GroupDao groupDao, HomeOrgGroupEntity group, UserEntity genericUser,
+	public GroupEntity preUpdateUserPrimaryGroupFromAttribute(HomeOrgGroupDao dao, GroupDao groupDao, GroupEntity group, UserEntity genericUser,
 			Map<String, List<Object>> attributeMap, Auditor auditor, Set<GroupEntity> changedGroups) throws UserUpdateException {
 
 		if (! (genericUser instanceof SamlUserEntity)) {
@@ -112,17 +112,17 @@ public class LdapUidNumberGroupHook implements GroupServiceHook {
 		if (group == null) {
 			if (groupNameFromLdap == null) {
 				logger.warn("Group with GID {} not available in LDAP. Creating one with GID as name", gid);
-				group = dao.createNew();
-				group.setUsers(new HashSet<UserGroupEntity>());
-				group.setParents(new HashSet<GroupEntity>());
-				group.setGidNumber(gid);
-				group.setName("noname_" + gid);
-				group.setPrefix("ka");
-				group.setIdp(user.getIdp());
-				group = (HomeOrgGroupEntity) groupDao.persistWithServiceFlags(group);
+				HomeOrgGroupEntity homeGroup = dao.createNew();
+				homeGroup.setUsers(new HashSet<UserGroupEntity>());
+				homeGroup.setParents(new HashSet<GroupEntity>());
+				homeGroup.setGidNumber(gid);
+				homeGroup.setName("noname_" + gid);
+				homeGroup.setPrefix("ka");
+				homeGroup.setIdp(user.getIdp());
+				group = groupDao.persistWithServiceFlags(homeGroup);
 				auditor.logAction(group.getName(), "SET FIELD (LDAP)", "idpEntityId", "" + user.getIdp().getEntityId(), AuditStatus.SUCCESS);
 				auditor.logAction(group.getName(), "SET FIELD (LDAP)", "name", group.getName(), AuditStatus.SUCCESS);
-				auditor.logAction(group.getName(), "SET FIELD (LDAP)", "prefix", group.getPrefix(), AuditStatus.SUCCESS);
+				auditor.logAction(group.getName(), "SET FIELD (LDAP)", "prefix", homeGroup.getPrefix(), AuditStatus.SUCCESS);
 				auditor.logAction(group.getName(), "SET FIELD (LDAP)", "gidNumber", "" + group.getGidNumber(), AuditStatus.SUCCESS);
 				auditor.logAction(group.getName(), "CREATE GROUP (LDAP)", null, "Group created", AuditStatus.SUCCESS);
 				
@@ -130,17 +130,17 @@ public class LdapUidNumberGroupHook implements GroupServiceHook {
 			}
 			else {
 				logger.info("Group with GID {} not found, creating (Name: {})", gid, groupNameFromLdap);
-				group = dao.createNew();
-				group.setUsers(new HashSet<UserGroupEntity>());
-				group.setParents(new HashSet<GroupEntity>());
-				group.setGidNumber(gid);
-				group.setName(groupNameFromLdap);
-				group.setPrefix("ka");
-				group.setIdp(user.getIdp());
-				group = (HomeOrgGroupEntity) groupDao.persistWithServiceFlags(group);
+				HomeOrgGroupEntity homeGroup = dao.createNew();
+				homeGroup.setUsers(new HashSet<UserGroupEntity>());
+				homeGroup.setParents(new HashSet<GroupEntity>());
+				homeGroup.setGidNumber(gid);
+				homeGroup.setName(groupNameFromLdap);
+				homeGroup.setPrefix("ka");
+				homeGroup.setIdp(user.getIdp());
+				group = groupDao.persistWithServiceFlags(homeGroup);
 				auditor.logAction(group.getName(), "SET FIELD (LDAP)", "idpEntityId", "" + user.getIdp().getEntityId(), AuditStatus.SUCCESS);
 				auditor.logAction(group.getName(), "SET FIELD (LDAP)", "name", group.getName(), AuditStatus.SUCCESS);
-				auditor.logAction(group.getName(), "SET FIELD (LDAP)", "prefix", group.getPrefix(), AuditStatus.SUCCESS);
+				auditor.logAction(group.getName(), "SET FIELD (LDAP)", "prefix", homeGroup.getPrefix(), AuditStatus.SUCCESS);
 				auditor.logAction(group.getName(), "SET FIELD (LDAP)", "gidNumber", "" + group.getGidNumber(), AuditStatus.SUCCESS);
 				auditor.logAction(group.getName(), "CREATE GROUP (LDAP)", null, "Group created", AuditStatus.SUCCESS);
 
@@ -155,7 +155,7 @@ public class LdapUidNumberGroupHook implements GroupServiceHook {
 				if (! group.getName().equals(groupNameFromLdap)){
 					logger.warn("Updating Groupname {} to {}", group.getName(), groupNameFromLdap);
 					group.setName(groupNameFromLdap);
-					group = dao.persist(group);
+					group = groupDao.persist(group);
 					auditor.logAction(group.getName(), "SET FIELD (LDAP)", "name", "" + group.getName(), AuditStatus.SUCCESS);
 				}
 				else {
@@ -168,7 +168,7 @@ public class LdapUidNumberGroupHook implements GroupServiceHook {
 	}
 
 	@Override
-	public HomeOrgGroupEntity postUpdateUserPrimaryGroupFromAttribute(HomeOrgGroupDao dao, GroupDao groupDao, HomeOrgGroupEntity group, UserEntity user,
+	public GroupEntity postUpdateUserPrimaryGroupFromAttribute(HomeOrgGroupDao dao, GroupDao groupDao, GroupEntity group, UserEntity user,
 			Map<String, List<Object>> attributeMap, Auditor auditor, Set<GroupEntity> changedGroups) throws UserUpdateException {
 		return group;
 	}
