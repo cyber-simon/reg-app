@@ -23,6 +23,8 @@ import org.slf4j.Logger;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.hook.GroupServiceHook;
 import edu.kit.scc.webreg.hook.UserServiceHook;
+import edu.kit.scc.webreg.script.ScriptingEnv;
+import edu.kit.scc.webreg.service.reg.ScriptingWorkflow;
 
 @Singleton
 public class HookManager {
@@ -32,6 +34,9 @@ public class HookManager {
 	
 	@Inject
 	private ApplicationConfig appConfig;
+
+	@Inject
+	private ScriptingEnv scriptingEnv;
 
 	private Set<UserServiceHook> userHooks;
 	private Set<GroupServiceHook> groupHooks;
@@ -61,6 +66,9 @@ public class HookManager {
 				try {
 					logger.debug("installing hook {}", hook);
 					UserServiceHook h = (UserServiceHook) Class.forName(hook).getConstructor().newInstance();
+					if (h instanceof ScriptingWorkflow) {
+						((ScriptingWorkflow) h).setScriptingEnv(scriptingEnv);
+					}
 					h.setAppConfig(appConfig);
 					newUserHooks.add(h);
 				} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException e) {
@@ -84,6 +92,9 @@ public class HookManager {
 				try {
 					logger.debug("installing hook {}", hook);
 					GroupServiceHook h = (GroupServiceHook) Class.forName(hook).getConstructor().newInstance();
+					if (h instanceof ScriptingWorkflow) {
+						((ScriptingWorkflow) h).setScriptingEnv(scriptingEnv);
+					}
 					h.setAppConfig(appConfig);
 					newGroupHooks.add(h);
 				} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException e) {

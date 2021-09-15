@@ -19,7 +19,6 @@ import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.HomeOrgGroupDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
-import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 
@@ -27,10 +26,10 @@ public interface GroupServiceHook {
 
 	void setAppConfig(ApplicationConfig appConfig);
 	
-	HomeOrgGroupEntity preUpdateUserPrimaryGroupFromAttribute(HomeOrgGroupDao dao, GroupDao groupDao, HomeOrgGroupEntity group, UserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor, Set<GroupEntity> changedGroups) 
+	GroupEntity preUpdateUserPrimaryGroupFromAttribute(HomeOrgGroupDao dao, GroupDao groupDao, GroupEntity group, UserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor, Set<GroupEntity> changedGroups) 
 			throws UserUpdateException;
 
-	HomeOrgGroupEntity postUpdateUserPrimaryGroupFromAttribute(HomeOrgGroupDao dao, GroupDao groupDao, HomeOrgGroupEntity group, UserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor, Set<GroupEntity> changedGroups) 
+	GroupEntity postUpdateUserPrimaryGroupFromAttribute(HomeOrgGroupDao dao, GroupDao groupDao, GroupEntity group, UserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor, Set<GroupEntity> changedGroups) 
 			throws UserUpdateException;
 
 	void preUpdateUserSecondaryGroupFromAttribute(HomeOrgGroupDao dao, GroupDao groupDao, UserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor, Set<GroupEntity> changedGroups) 

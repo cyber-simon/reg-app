@@ -10,7 +10,6 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.impl;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -26,6 +25,7 @@ import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.ServiceBasedGroupEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.service.GroupService;
+import edu.kit.scc.webreg.service.group.GroupUpdater;
 import edu.kit.scc.webreg.service.reg.GroupUtil;
 
 @Stateless
@@ -45,39 +45,26 @@ public class GroupServiceImpl extends BaseServiceImpl<GroupEntity, Long> impleme
 	@Inject
 	private UserDao userDao;
 	
+	@Inject
+	private GroupUpdater groupUpdater;
+	
 	@Override
 	public void updateGroupMembers(GroupEntity group, Set<UserEntity> newMembers) {
-		Set<UserEntity> oldMembers = new HashSet<UserEntity>(userDao.findByGroup(group));
-
-		Set<UserEntity> usersToAdd = new HashSet<UserEntity>(newMembers);
-		usersToAdd.removeAll(oldMembers);
-		for (UserEntity user : usersToAdd) {
-			user = userDao.merge(user);
-			group = groupDao.merge(group);
-			groupDao.addUserToGroup(user, group);
-		}
-		
-		Set<UserEntity> usersToRemove = new HashSet<UserEntity>(oldMembers);
-		usersToRemove.removeAll(newMembers);
-		for (UserEntity user : usersToRemove) { 
-			user = userDao.merge(user);
-			group = groupDao.merge(group);
-			groupDao.removeUserGromGroup(user, group);
-		}
+		groupUpdater.updateGroupMembers(group, newMembers);
 	}
 	
 	@Override
-	public void addUserToGroup(UserEntity user, GroupEntity group) {
+	public void addUserToGroup(UserEntity user, GroupEntity group, boolean emitUpdate) {
 		group = groupDao.merge(group);
 		user = userDao.merge(user);
-		groupDao.addUserToGroup(user, group);
+		groupUpdater.addUserToGroup(user, group, emitUpdate);
 	}	
 	
 	@Override
-	public void removeUserGromGroup(UserEntity user, GroupEntity group) {
+	public void removeUserGromGroup(UserEntity user, GroupEntity group, boolean emitUpdate) {
 		group = groupDao.merge(group);
 		user = userDao.merge(user);
-		groupDao.removeUserGromGroup(user, group);
+		groupUpdater.removeUserFromGroup(user, group, emitUpdate);
 	}	
 	
 	@Override
@@ -108,23 +95,9 @@ public class GroupServiceImpl extends BaseServiceImpl<GroupEntity, Long> impleme
 
 	@Override
 	public Set<GroupEntity> findByUserWithChildren(UserEntity user) {
-		Set<GroupEntity> groups = new HashSet<GroupEntity>(groupDao.findByUser(user));
-		Set<GroupEntity> targetGroups = new HashSet<GroupEntity>();
-		rollChildren(targetGroups, groups, 0, 3);
-		return targetGroups;
+		return groupDao.findByUserWithChildren(user);
 	}	
 
-	private void rollChildren(Set<GroupEntity> targetGroups, Set<GroupEntity> groups, int depth, int maxDepth) {
-		if (depth <= maxDepth) {
-			for (GroupEntity group : groups) {
-				if (logger.isTraceEnabled())
-					logger.trace("Inspecting group {} with children count {}", group.getName(), group.getParents().size());
-				rollChildren(targetGroups, group.getParents(), depth + 1, maxDepth);
-				targetGroups.add(group);
-			}		
-		}
-	}
-	
 	@Override
 	protected BaseDao<GroupEntity, Long> getDao() {
 		return groupDao;

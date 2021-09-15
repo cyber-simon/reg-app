@@ -78,7 +78,7 @@ public class HomeOrgGroupUpdater implements Serializable {
 	
 	@Inject
 	private HomeIdResolver homeIdResolver;
-
+	
 	public Set<GroupEntity> updateGroupsForUser(SamlUserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor)
 			throws UserUpdateException {
 
@@ -126,7 +126,7 @@ public class HomeOrgGroupUpdater implements Serializable {
 		GroupServiceHook completeOverrideHook = null;
 		Set<GroupServiceHook> activeHooks = new HashSet<GroupServiceHook>();
 
-		HomeOrgGroupEntity group = null;
+		GroupEntity group = null;
 
 		for (GroupServiceHook hook : hookManager.getGroupHooks()) {
 			if (hook.isPrimaryResponsible(user, attributeMap)) {
@@ -167,17 +167,17 @@ public class HomeOrgGroupUpdater implements Serializable {
 				group = dao.findByNameAndPrefix(groupName, homeId);
 				
 				if (group == null) {
-					group = dao.createNew();
-					group.setUsers(new HashSet<UserGroupEntity>());
-					group.setName(groupName);
-					auditor.logAction(group.getName(), "SET FIELD", "name", group.getName(), AuditStatus.SUCCESS);
-					group.setPrefix(homeId);
-					auditor.logAction(group.getName(), "SET FIELD", "prefix", group.getPrefix(), AuditStatus.SUCCESS);
-					group.setGidNumber(serialService.next("gid-number-serial").intValue());
-					auditor.logAction(group.getName(), "SET FIELD", "gidNumber", "" + group.getGidNumber(), AuditStatus.SUCCESS);
-					group.setIdp(user.getIdp());
-					auditor.logAction(group.getName(), "SET FIELD", "idpEntityId", "" + user.getIdp().getEntityId(), AuditStatus.SUCCESS);
-					group = (HomeOrgGroupEntity) groupDao.persistWithServiceFlags(group);
+					HomeOrgGroupEntity homeGroup = dao.createNew();
+					homeGroup.setUsers(new HashSet<UserGroupEntity>());
+					homeGroup.setName(groupName);
+					auditor.logAction(homeGroup.getName(), "SET FIELD", "name", homeGroup.getName(), AuditStatus.SUCCESS);
+					homeGroup.setPrefix(homeId);
+					auditor.logAction(homeGroup.getName(), "SET FIELD", "prefix", homeGroup.getPrefix(), AuditStatus.SUCCESS);
+					homeGroup.setGidNumber(serialService.next("gid-number-serial").intValue());
+					auditor.logAction(homeGroup.getName(), "SET FIELD", "gidNumber", "" + homeGroup.getGidNumber(), AuditStatus.SUCCESS);
+					homeGroup.setIdp(user.getIdp());
+					auditor.logAction(homeGroup.getName(), "SET FIELD", "idpEntityId", "" + user.getIdp().getEntityId(), AuditStatus.SUCCESS);
+					group = groupDao.persistWithServiceFlags(homeGroup);
 					auditor.logAction(group.getName(), "CREATE GROUP", null, "Group created", AuditStatus.SUCCESS);
 					
 					changedGroups.add(group);
@@ -360,7 +360,7 @@ public class HomeOrgGroupUpdater implements Serializable {
 			logger.info("Overriding standard Secondary Group Update Mechanism! Activator: {}", completeOverrideHook.getClass().getName());
 		}
 			
-		for (GroupServiceHook hook : hookManager.getGroupHooks()) {
+		for (GroupServiceHook hook : activeHooks) {
 			hook.postUpdateUserSecondaryGroupFromAttribute(dao, groupDao, user, attributeMap, auditor, changedGroups);
 		}
 		

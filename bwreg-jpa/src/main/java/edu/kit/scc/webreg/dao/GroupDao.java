@@ -52,6 +52,8 @@ public interface GroupDao extends BaseDao<GroupEntity, Long> {
 
 	AttributeSourceGroupDao getAttributeSourceGroupDao();
 
+	Set<GroupEntity> findByUserWithChildren(UserEntity user);
+	
 	Long getNextGID();
 
 	ServiceBasedGroupEntity persistWithServiceFlags(
