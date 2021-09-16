@@ -80,6 +80,7 @@ public class SsoHelper implements Serializable {
 		response.setInResponseTo(authnRequest.getID());
 		response.setVersion(SAMLVersion.VERSION_20);
 		response.setIssueInstant(new DateTime());
+		response.setDestination(authnRequest.getAssertionConsumerServiceURL());
 		
 		Issuer issuer = samlHelper.create(Issuer.class, Issuer.DEFAULT_ELEMENT_NAME);
 		issuer.setValue(spEntityId);
@@ -101,7 +102,7 @@ public class SsoHelper implements Serializable {
 	}
 	
 	public Subject buildSubject(SamlIdpConfigurationEntity idpConfig, SamlSpMetadataEntity spMetadata, 
-			String nameIdValue, String nameIdType, String inResponseTo) {
+			String nameIdValue, String nameIdType, String inResponseTo, String acs) {
 		NameID nameId = samlHelper.create(NameID.class, NameID.DEFAULT_ELEMENT_NAME);
 		nameId.setFormat(nameIdType);
 		nameId.setValue(nameIdValue);
@@ -111,6 +112,7 @@ public class SsoHelper implements Serializable {
 		SubjectConfirmationData scd = samlHelper.create(SubjectConfirmationData.class, SubjectConfirmationData.DEFAULT_ELEMENT_NAME);
 		scd.setNotOnOrAfter(new DateTime(System.currentTimeMillis() + (5L * 60L * 1000L)));
 		scd.setInResponseTo(inResponseTo);
+		scd.setRecipient(acs);
 		
 		SubjectConfirmation sc = samlHelper.create(SubjectConfirmation.class, SubjectConfirmation.DEFAULT_ELEMENT_NAME);
 		sc.setMethod(SubjectConfirmation.METHOD_BEARER);
@@ -160,6 +162,7 @@ public class SsoHelper implements Serializable {
 	
 	public AuthnStatement buildAuthnStatement(long validityInterval) {
 		AuthnContextClassRef accr = samlHelper.create(AuthnContextClassRef.class, AuthnContextClassRef.DEFAULT_ELEMENT_NAME);
+		accr.setAuthnContextClassRef(AuthnContext.PASSWORD_AUTHN_CTX);
 		AuthnContext ac = samlHelper.create(AuthnContext.class, AuthnContext.DEFAULT_ELEMENT_NAME);
 		ac.setAuthnContextClassRef(accr);
 		AuthnStatement as = samlHelper.create(AuthnStatement.class, AuthnStatement.DEFAULT_ELEMENT_NAME);
