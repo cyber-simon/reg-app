@@ -18,8 +18,11 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import edu.kit.scc.webreg.entity.SamlIdpConfigurationEntity;
+import edu.kit.scc.webreg.entity.SamlMetadataEntityStatus;
+import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 import edu.kit.scc.webreg.entity.ServiceSamlSpEntity;
 import edu.kit.scc.webreg.service.SamlIdpConfigurationService;
+import edu.kit.scc.webreg.service.SamlSpMetadataService;
 import edu.kit.scc.webreg.service.ServiceSamlSpService;
 
 @Named
@@ -30,13 +33,17 @@ public class ListIdpConfigurationBean implements Serializable {
 
 	private List<SamlIdpConfigurationEntity> idpList;
 	private List<ServiceSamlSpEntity> serviceSpList;
-    
+	private List<SamlSpMetadataEntity> spList;
+	
     @Inject
     private SamlIdpConfigurationService idpService;
 
     @Inject
     private ServiceSamlSpService serviceSamlSpService;
-    
+
+	@Inject
+	private SamlSpMetadataService spService;
+
 	public List<SamlIdpConfigurationEntity> getIdpList() {
 		if (idpList == null) {
 			idpList = idpService.findAll();
@@ -54,5 +61,12 @@ public class ListIdpConfigurationBean implements Serializable {
 	public void delete(ServiceSamlSpEntity serviceSamlSpEntity) {
 		serviceSamlSpService.delete(serviceSamlSpEntity);
 		serviceSpList = null;
+	}
+
+	public List<SamlSpMetadataEntity> getSpList() {
+		if (spList == null) {
+			spList = spService.findAllByStatusOrderedByOrgname(SamlMetadataEntityStatus.ACTIVE);
+		}
+		return spList;
 	}	
 }

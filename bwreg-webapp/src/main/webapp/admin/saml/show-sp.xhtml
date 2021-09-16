@@ -22,7 +22,7 @@
 
 	<ui:define name="content">
 	<h:form id="form">
-		<h2><h:outputText value="#{messages.idp}: #{showSpBean.entity.entityId}"/></h2>
+		<h2><h:outputText value="#{messages.sp}: #{showSpBean.entity.entityId}"/></h2>
 	
 		<div id="panelInline">
 			<p:panel header="#{messages.federation}">
@@ -37,12 +37,6 @@
 			        <h:outputText value="#{messages.status}:"/>
 			        <h:outputText value="#{showSpBean.entity.status}"/>
 
-			        <h:outputText value="#{messages.artifact_resolution} #{messages.status}:"/>
-			        <h:outputText value="#{showSpBean.entity.aqIdpStatus} (changed: #{showSpBean.entity.lastAqStatusChange})"/>
-						
-			        <h:outputText value="#{messages.single_sign_on} #{messages.status}:"/>
-			        <h:outputText value="#{showSpBean.entity.idIdpStatus} (changed: #{showSpBean.entity.lastIdStatusChange})"/>
-												
 			        <h:outputText value="#{messages.name}:"/>
 			        <h:outputText value="#{showSpBean.entity.displayName}"/>
 						
@@ -55,17 +49,17 @@
 			        <h:outputText value="#{messages.description}:"/>
 			        <h:outputText value="#{showSpBean.entity.description}"/>
 
-			        <h:outputText value="#{messages.scopes}:"/>
-			        <h:panelGroup>
-			        	<ul>
-			        		<ui:repeat var="s" value="#{showSpBean.entity.scopes.toArray()}">
-				        		<li><h:outputText value="#{s.scope} (is regex: #{s.regex})"/></li>
-				        	</ui:repeat>
-				        </ul>
-			        </h:panelGroup>
+					<h:outputLabel value="#{messages.federation}" />
+					<h:panelGroup>
+						<ul>
+							<ui:repeat var="fed" value="#{showSpBean.entity.federations}">
+								<li><h:outputText value="#{fed.name}"/></li>
+							</ui:repeat>
+						</ul>
+					</h:panelGroup>
 
 				</p:panelGrid>
-				<h:link outcome="edit-idp.xhtml" value="#{messages.edit}">
+				<h:link outcome="edit-sp.xhtml" value="#{messages.edit}" rendered="#{showSpBean.entity.managedInteral}">
 					<f:param name="id" value="#{showSpBean.entity.id}"/>
 				</h:link>
 			</p:panel>
@@ -80,7 +74,7 @@
 					<h:outputLabel value="#{messages.supported_protocols}" />
 					<h:panelGroup>
 						<ul>
-							<ui:repeat var="proto" value="#{showSpBean.idpssoDescriptor.supportedProtocols}">
+							<ui:repeat var="proto" value="#{showSpBean.spssoDescriptor.supportedProtocols}">
 								<li><h:outputText value="#{proto}"/></li>
 							</ui:repeat>
 						</ul>
@@ -88,7 +82,7 @@
 
 					<h:outputLabel value="#{messages.keys}" />
 					<h:panelGroup>
-						<ui:repeat var="key" value="#{showSpBean.idpssoDescriptor.keyDescriptors}">
+						<ui:repeat var="key" value="#{showSpBean.spssoDescriptor.keyDescriptors}">
 							<p:panel header="#{key.use}" collapsed="true" toggleable="true">
 								<p:messages for="certMsg-#{key.hashCode()}" showDetail="true" />
 								<ui:repeat var="cert" value="#{showSpBean.getCert(key)}">
@@ -103,16 +97,16 @@
 					<h:outputLabel value="#{messages.artifact_resolution}" />
 					<h:panelGroup>
 						<ul>
-							<ui:repeat var="endpoint" value="#{showSpBean.idpssoDescriptor.artifactResolutionServices}">
+							<ui:repeat var="endpoint" value="#{showSpBean.spssoDescriptor.artifactResolutionServices}">
 								<li><h:outputText value="#{endpoint.binding}"/> - <h:outputText value="#{endpoint.location}"/></li>
 							</ui:repeat>
 						</ul>
 					</h:panelGroup>
 
-					<h:outputLabel value="#{messages.single_sign_on}" />
+					<h:outputLabel value="#{messages.assertion_consumer_service}" />
 					<h:panelGroup>
 						<ul>
-							<ui:repeat var="endpoint" value="#{showSpBean.idpssoDescriptor.singleSignOnServices}">
+							<ui:repeat var="endpoint" value="#{showSpBean.spssoDescriptor.assertionConsumerServices}">
 								<li><h:outputText value="#{endpoint.binding}"/> - <h:outputText value="#{endpoint.location}"/></li>
 							</ui:repeat>
 						</ul>
@@ -121,7 +115,7 @@
 					<h:outputLabel value="#{messages.single_logout}" />
 					<h:panelGroup>
 						<ul>
-							<ui:repeat var="endpoint" value="#{showSpBean.idpssoDescriptor.singleLogoutServices}">
+							<ui:repeat var="endpoint" value="#{showSpBean.spssoDescriptor.singleLogoutServices}">
 								<li><h:outputText value="#{endpoint.binding}"/> - <h:outputText value="#{endpoint.location}"/></li>
 							</ui:repeat>
 						</ul>
@@ -130,7 +124,7 @@
 					<h:outputLabel value="#{messages.nameid_format}" />
 					<h:panelGroup>
 						<ul>
-							<ui:repeat var="nidf" value="#{showSpBean.idpssoDescriptor.nameIDFormats}">
+							<ui:repeat var="nidf" value="#{showSpBean.spssoDescriptor.nameIDFormats}">
 								<li><h:outputText value="#{nidf.format}"/></li>
 							</ui:repeat>
 						</ul>

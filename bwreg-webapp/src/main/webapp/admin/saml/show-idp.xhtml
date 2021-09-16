@@ -55,6 +55,15 @@
 			        <h:outputText value="#{messages.description}:"/>
 			        <h:outputText value="#{showIdpBean.entity.description}"/>
 
+					<h:outputLabel value="#{messages.federation}" />
+					<h:panelGroup>
+						<ul>
+							<ui:repeat var="fed" value="#{showIdpBean.entity.federations}">
+								<li><h:outputText value="#{fed.name}"/></li>
+							</ui:repeat>
+						</ul>
+					</h:panelGroup>
+
 			        <h:outputText value="#{messages.scopes}:"/>
 			        <h:panelGroup>
 			        	<ul>

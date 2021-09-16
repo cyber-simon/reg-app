@@ -167,13 +167,14 @@ public class SamlHelper implements Serializable {
 		return unmarshal(s, c, null);
 	}
 	
-	@SuppressWarnings("unchecked")
+	public <T extends XMLObject> T unmarshalThrow(String s, Class<T> c) 
+			throws XMLParserException, UnmarshallingException {
+		return unmarshalThrow(s, c, null);
+	}
+	
 	public <T extends XMLObject> T unmarshal(String s, Class<T> c, Auditor auditor) {
 		try {
-			Document document = basicParserPool.parse(new StringReader(s));
-			Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(document.getDocumentElement());
-			XMLObject xmlObject = unmarshaller.unmarshall(document.getDocumentElement());
-			return (T) xmlObject;
+			return (T) unmarshalThrow(s, c, auditor);
 		} catch (XMLParserException e) {
 			logger.error("No Unmarshalling possible", e);
 			if (auditor != null) {
@@ -188,7 +189,16 @@ public class SamlHelper implements Serializable {
 			return null;
 		}
 	}
-	
+
+	@SuppressWarnings("unchecked")
+	public <T extends XMLObject> T unmarshalThrow(String s, Class<T> c, Auditor auditor) 
+			throws XMLParserException, UnmarshallingException {
+		Document document = basicParserPool.parse(new StringReader(s));
+		Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(document.getDocumentElement());
+		XMLObject xmlObject = unmarshaller.unmarshall(document.getDocumentElement());
+		return (T) xmlObject;
+	}
+
 	public Map<String, Attribute> assertionToAttributeMap(Assertion assertion) {
 		Map<String, Attribute> attrMap = new HashMap<String, Attribute>();
 		
