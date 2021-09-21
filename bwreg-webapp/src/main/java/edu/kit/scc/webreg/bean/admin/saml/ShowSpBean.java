@@ -27,6 +27,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
 import org.opensaml.saml.saml2.metadata.KeyDescriptor;
+import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
 import org.opensaml.xmlsec.signature.KeyInfo;
 import org.opensaml.xmlsec.signature.X509Certificate;
 import org.opensaml.xmlsec.signature.X509Data;
@@ -54,7 +55,7 @@ public class ShowSpBean implements Serializable {
 	private SamlSpMetadataEntity entity;
 	
 	private EntityDescriptor entityDescriptor;
-	private IDPSSODescriptor idpssoDescriptor;
+	private SPSSODescriptor spssoDescriptor;
 
 	private Map<KeyDescriptor, List<java.security.cert.X509Certificate>> certMap;
 	
@@ -64,9 +65,11 @@ public class ShowSpBean implements Serializable {
 		if (entity == null) {
 			certMap = new HashMap<KeyDescriptor, List<java.security.cert.X509Certificate>>();
 			
-			entity = service.findByIdWithAll(id);
-			entityDescriptor = samlHelper.unmarshal(entity.getEntityDescriptor(), EntityDescriptor.class);
-			idpssoDescriptor = (IDPSSODescriptor) entityDescriptor.getRoleDescriptors(IDPSSODescriptor.DEFAULT_ELEMENT_NAME).get(0);
+			entity = service.findByIdWithAttrs(id, "genericStore", "federations");
+			if (entity.getEntityDescriptor() != null) {
+				entityDescriptor = samlHelper.unmarshal(entity.getEntityDescriptor(), EntityDescriptor.class);
+				spssoDescriptor = (SPSSODescriptor) entityDescriptor.getRoleDescriptors(SPSSODescriptor.DEFAULT_ELEMENT_NAME).get(0);
+			}
 		}
 	}
 
@@ -126,7 +129,7 @@ public class ShowSpBean implements Serializable {
 		return entityDescriptor;
 	}
 
-	public IDPSSODescriptor getIdpssoDescriptor() {
-		return idpssoDescriptor;
+	public SPSSODescriptor getSpssoDescriptor() {
+		return spssoDescriptor;
 	}
 }

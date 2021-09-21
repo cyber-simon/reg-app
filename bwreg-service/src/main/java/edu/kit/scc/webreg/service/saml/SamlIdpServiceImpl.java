@@ -186,7 +186,7 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 				if (matchService(serviceSamlSpEntity.getScript(), user, serviceSamlSpEntity)) {
 					logger.debug("SP matches: {}", service.getId());
 					
-					registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.ACTIVE);
+					registry = registryDao.findByServiceAndIdentityAndStatus(service, identity, RegistryStatus.ACTIVE);
 					if (registry != null) {
 						List<Object> objectList = checkRules(user, service, registry);
 						List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
@@ -199,7 +199,7 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 						filteredServiceSamlSpEntityList.add(serviceSamlSpEntity);
 					}
 					else {
-						registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.LOST_ACCESS);
+						registry = registryDao.findByServiceAndIdentityAndStatus(service, identity, RegistryStatus.LOST_ACCESS);
 						
 						if (registry != null) {
 							logger.info("Registration for user {} and service {} in state LOST_ACCESS, checking again", 
@@ -230,13 +230,16 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 			
 		}
 		
+		// Redefine user to match registry
+		user = registry.getUser();
+		
 		Response samlResponse = ssoHelper.buildAuthnResponse(authnRequest, idpConfig.getEntityId());
 		
 		Assertion assertion = samlHelper.create(Assertion.class, Assertion.DEFAULT_ELEMENT_NAME);
 		assertion.setID(samlHelper.getRandomId());
 		assertion.setIssueInstant(new DateTime());
 		assertion.setIssuer(ssoHelper.buildIssuser(idpConfig.getEntityId()));
-		assertion.setSubject(ssoHelper.buildSubject(idpConfig, spMetadata, samlHelper.getRandomId(), NameID.TRANSIENT, authnRequest.getID()));
+		assertion.setSubject(ssoHelper.buildSubject(idpConfig, spMetadata, samlHelper.getRandomId(), NameID.TRANSIENT, authnRequest.getID(), authnRequest.getAssertionConsumerServiceURL()));
 		assertion.setConditions(ssoHelper.buildConditions(spMetadata));
 		assertion.getAttributeStatements().add(buildAttributeStatement(user, filteredServiceSamlSpEntityList, registry));
 		assertion.getAuthnStatements().add(ssoHelper.buildAuthnStatement((5L * 60L * 1000L)));

@@ -291,4 +291,5 @@ div.serviceBlockLink {
 
 .CodeMirror {
 	resize: both;
+    height: 100% !important;
 }

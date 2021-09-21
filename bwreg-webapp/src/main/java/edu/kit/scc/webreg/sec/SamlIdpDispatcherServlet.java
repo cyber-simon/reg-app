@@ -28,6 +28,9 @@ public class SamlIdpDispatcherServlet implements Servlet {
 	@Inject
 	private Saml2IdpRedirectResponseHandler redirectResponseHandler;
 
+	@Inject
+	private Saml2IdpMetadataHandler metadataHandler;
+	
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		
@@ -54,6 +57,11 @@ public class SamlIdpDispatcherServlet implements Servlet {
 		else if (path != null && path.endsWith("/redirect/response")) {
 			logger.debug("Executing Redirect Response Handler");
 			redirectResponseHandler.service(request, response);
+			return;
+		}
+		else if (path != null && path.endsWith("/metadata")) {
+			logger.debug("Executing Metadata Handler");
+			metadataHandler.service(request, response);
 			return;
 		}
 

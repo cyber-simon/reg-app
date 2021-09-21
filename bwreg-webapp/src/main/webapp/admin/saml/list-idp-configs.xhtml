@@ -87,6 +87,37 @@
 		        <p:commandButton value="#{messages.no}" type="button" styleClass="ui-confirmdialog-no"/>
 		    </p:confirmDialog>    
 		</p:panel>
+		
+		<p:panel header="#{messages.saml_sp}">
+			<p:dataTable id="spAllDataTable" var="entity" value="#{listIdpConfigurationBean.spList}">
+				<p:column width="10%">
+					<f:facet name="header">
+						<h:outputText value="#{messages.id}" />
+					</f:facet>
+					<h:link outcome="show-sp.xhtml" value="#{entity.id}">
+	      				<f:param name="id" value="#{entity.id}"/>
+	    			</h:link>
+				</p:column>
+				<p:column>
+					<f:facet name="header">
+						<h:outputText value="#{messages.entity_id}" />
+					</f:facet>
+					<h:link outcome="show-sp.xhtml" value="#{entity.entityId}">
+	      				<f:param name="id" value="#{entity.id}"/>
+	    			</h:link>
+				</p:column>		
+				<p:column width="10%">
+					<f:facet name="header">
+						<h:outputText value="#{messages.internal}" />
+					</f:facet>
+					<h:outputText value="#{entity.managedInteral}" />
+				</p:column>
+			</p:dataTable>
+
+	        <h:link outcome="add-sp.xhtml" value="#{messages.add_sp}"/>
+			
+		</p:panel>
+		
 	</h:form>
 
 	</ui:define>

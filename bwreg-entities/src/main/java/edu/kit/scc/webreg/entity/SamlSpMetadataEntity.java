@@ -32,12 +32,22 @@ public class SamlSpMetadataEntity extends SamlMetadataEntity {
 			inverseJoinColumns = @JoinColumn(name = "federation_id"))			
 	private Set<FederationEntity> federations;
 
+	private Boolean managedInteral;
+	
 	public Set<FederationEntity> getFederations() {
 		return federations;
 	}
 
 	public void setFederations(Set<FederationEntity> federations) {
 		this.federations = federations;
+	}
+
+	public Boolean getManagedInteral() {
+		return managedInteral;
+	}
+
+	public void setManagedInteral(Boolean managedInteral) {
+		this.managedInteral = managedInteral;
 	}
 	
 }
