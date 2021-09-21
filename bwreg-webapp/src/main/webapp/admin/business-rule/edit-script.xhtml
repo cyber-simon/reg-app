@@ -41,15 +41,15 @@
 					<bw:inputText id="scriptTypeField" label="#{messages.script_type}"
 						value="#{editScriptBean.entity.scriptType}" required="true" />					
 						
-			        <h:outputText value="#{messages.script}:"/>
-			        <p:outputPanel style="width: 600px;">
-						<pe:codeMirror id="codeMirror" mode="javascript" theme="eclipse" 
-	    					value="#{editScriptBean.entity.script}" keyMap="default" lineNumbers="true"
-	    					matchBrackets="true"
-	    					extraKeys="{ 'Ctrl-Space': function(cm) {CodeMirror.showHint(cm, CodeMirror.hint.javascriptHint);}}" />
-			        </p:outputPanel>
-    					
 				</p:panelGrid>
+
+		        <p:outputPanel style="width: 740px; height: 400px; margin: 1em 0 1em 0;">
+					<pe:codeMirror id="codeMirror" mode="javascript" theme="eclipse" 
+    					value="#{editScriptBean.entity.script}" keyMap="default" lineNumbers="true"
+    					matchBrackets="true"
+    					extraKeys="{ 'Ctrl-Space': function(cm) {CodeMirror.showHint(cm, CodeMirror.hint.javascriptHint);}}" />
+		        </p:outputPanel>
+
 				<p:commandButton id="save" action="#{editScriptBean.save}" value="#{messages.save}"/>
 				<p:commandButton id="cancel" action="#{editScriptBean.cancel}" value="#{messages.cancel}" immediate="true"/>
 			</p:panel>

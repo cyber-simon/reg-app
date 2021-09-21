@@ -40,14 +40,14 @@
 						
 			        <h:outputText value="#{messages.script_type}:"/>
 			        <h:outputText value="#{showScriptBean.entity.scriptType}"/>
-						
-			        <h:outputText value="#{messages.script}:"/>
-			        <p:outputPanel style="width: 640px;">
-						<pe:codeMirror id="codeMirror" mode="javascript" theme="eclipse" 
-	    					value="#{showScriptBean.entity.script}" keyMap="default" lineNumbers="true"
-	    					matchBrackets="true" readonly="true" lineWrapping="true" />
-			        </p:outputPanel>					
+
 				</p:panelGrid>
+
+		        <p:outputPanel style="width: 740px; height: 400px; margin: 1em 0 1em 0;">
+					<pe:codeMirror id="codeMirror" mode="javascript" theme="eclipse" 
+    					value="#{showScriptBean.entity.script}" keyMap="default" lineNumbers="true"
+    					matchBrackets="true" readonly="true" lineWrapping="true" />
+		        </p:outputPanel>					
 				
 				<h:link outcome="edit-script.xhtml" value="#{messages.edit}">
 					<f:param name="scriptId" value="#{showScriptBean.entity.id}"/>

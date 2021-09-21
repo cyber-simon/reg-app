@@ -5,7 +5,8 @@
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
-	xmlns:p="http://primefaces.org/ui">
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions">
 <head>
 <title></title>
 </head>
@@ -31,12 +32,14 @@
 	
 		        <h:outputText value="#{messages.id}:"/>
 		        <h:outputText value="#{editSamlSpBean.entity.id}"/>
-	
-				<h:outputLabel for="private_key" value="#{messages.entity_desc}:"/>
-				<p:inputTextarea id="private_key" rows="12" cols="80" autoResize="false"
-	            		value="#{editSamlSpBean.entity.entityDescriptor}"/>
 
 			</p:panelGrid>
+
+	        <p:outputPanel style="width: 740px; height: 640px; margin: 1em 0 1em 0;" id="ent_desc">
+				<pe:codeMirror id="codeMirror" mode="xml" theme="eclipse" 
+   					value="#{editSamlSpBean.entity.entityDescriptor}" keyMap="default" lineNumbers="true" />
+	        </p:outputPanel>					
+
 		<p:commandButton id="save" action="#{editSamlSpBean.save}" value="#{messages.save}" update="errorMsg"/>
 		</p:panel>
 		
