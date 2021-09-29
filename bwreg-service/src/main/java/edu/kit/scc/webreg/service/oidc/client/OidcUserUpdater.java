@@ -137,7 +137,7 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 	
 	@Inject
 	private OidcOpMetadataSingletonBean opMetadataBean;
-	
+
 	public OidcUserEntity updateUserFromOP(OidcUserEntity user, String executor, StringBuffer debugLog) 
 			throws UserUpdateException {
 		user = userDao.merge(user);

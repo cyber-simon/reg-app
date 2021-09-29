@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 
@@ -17,6 +16,7 @@ import edu.kit.scc.webreg.hook.UserUpdateHook;
 import edu.kit.scc.webreg.hook.UserUpdateHookException;
 import edu.kit.scc.webreg.script.ScriptingEnv;
 import edu.kit.scc.webreg.service.reg.ScriptingWorkflow;
+import edu.kit.scc.webreg.session.HttpRequestContext;
 
 public abstract class AbstractUserUpdater<T extends UserEntity> implements Serializable {
 
@@ -29,8 +29,8 @@ public abstract class AbstractUserUpdater<T extends UserEntity> implements Seria
 	private ScriptingEnv scriptingEnv;
 	
 	@Inject
-	private HttpServletRequest httpRequest;
-
+	private HttpRequestContext httpRequest;
+	
 	public abstract T updateUser(T user, Map<String, List<Object>> attributeMap, String executor, StringBuffer debugLog)
 			throws UserUpdateException;
 
@@ -57,7 +57,9 @@ public abstract class AbstractUserUpdater<T extends UserEntity> implements Seria
 				String executor, ServiceEntity service, StringBuffer debugLog)
 			throws UserUpdateException {
 		
-		user.setLastLoginHost(httpRequest.getLocalName());
+		if (httpRequest != null && httpRequest.getHttpServletRequest() != null) {
+		    user.setLastLoginHost(httpRequest.getHttpServletRequest().getLocalName());
+		}
 		
 		UserUpdateHook updateHook = resolveUpdateHook(homeOrgGenericStore);
 

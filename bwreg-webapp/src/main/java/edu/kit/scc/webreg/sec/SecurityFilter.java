@@ -42,6 +42,7 @@ import edu.kit.scc.webreg.service.RoleService;
 import edu.kit.scc.webreg.service.reg.PasswordUtil;
 import edu.kit.scc.webreg.service.twofa.TwoFaException;
 import edu.kit.scc.webreg.service.twofa.TwoFaService;
+import edu.kit.scc.webreg.session.HttpRequestContext;
 import edu.kit.scc.webreg.session.SessionManager;
 
 @Named
@@ -80,6 +81,9 @@ public class SecurityFilter implements Filter {
 	@Inject
 	private RedirectMap redirectMap;
 	
+	@Inject
+	private HttpRequestContext httpRequestContext;
+	
 	@Override
 	public void destroy() {
 	}
@@ -90,6 +94,8 @@ public class SecurityFilter implements Filter {
 
 		HttpServletRequest request = (HttpServletRequest) servletRequest;
 		HttpServletResponse response = (HttpServletResponse) servletResponse;
+		
+		httpRequestContext.setHttpServletRequest(request);
 		
 		if (request.getCharacterEncoding() == null) {
 		    request.setCharacterEncoding("UTF-8");
