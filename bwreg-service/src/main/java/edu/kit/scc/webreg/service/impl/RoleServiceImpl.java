@@ -94,6 +94,9 @@ public class RoleServiceImpl extends BaseServiceImpl<RoleEntity, Long> implement
 			if (dao.checkAdminUserInRole(user.getId(), roleName)) {
 				return true;
 			}
+			if (dao.checkUserInRole(user.getId(), roleName)) {
+				return true;
+			}
 		}
 		return false;
 	}
