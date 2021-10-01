@@ -29,6 +29,7 @@ import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import net.shibboleth.utilities.java.support.xml.SerializeSupport;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.XMLObjectBuilder;
@@ -93,7 +94,7 @@ public class SamlHelper implements Serializable {
 	}
 	
 	public String getRandomId() {
-		return UUID.randomUUID().toString();
+		return RandomStringUtils.randomAlphabetic(1).toLowerCase() +  UUID.randomUUID().toString();
 	}
 
 	@SuppressWarnings ("unchecked")
