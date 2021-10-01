@@ -72,7 +72,15 @@ public class HeadBarBean {
 	public String getApplicationBase() {
 		return getOrDefault(request.getServerName() + "_app_base", "");
 	}
-	
+
+	public String getFooterLeft() {
+		return getApplicationBase() + getOrDefault(request.getServerName() + "_footer_left", "KIT - The Research University in the Helmholtz Association");
+	}
+
+	public String getSocial() {
+		return getOrDefault(request.getServerName() + "_social", "<li><a href=\"https://twitter.com/#!/SCC_KIT\" class=\"twitter\" title=\"Twitter Kanal\" target=\"_blank\"><span>Twitter Kanal</span></a></li>");
+	}
+
 	public String getBurgerIcon() {
 		return "<button class=\"burger\"><svg class=\"burger-icon\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" x=\"0px\" y=\"0px\" viewBox=\"0 0 300 274.5\" width=\"300px\" height=\"274.5px\">\n"
 				+ "    <rect class=\"burger-top\" y=\"214.4\" width=\"300\" height=\"60.1\"/>\n"

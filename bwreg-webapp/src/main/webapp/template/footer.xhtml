@@ -11,20 +11,19 @@
 </head>
 <body>
 	<ui:composition>
-		<footer class="page-footer" style="background-color: #ffffff; border-top: 0px;">
+		<footer class="page-footer">
             <div class="content-wrap">
                 <div class="column full">
                     <div class="KIT_section column fourth" style="grid-row-start: 1;">                
                         <ul class="social">
-							<li><a href="https://twitter.com/#!/SCC_KIT" class="twitter" title="Twitter Kanal" target="_blank"><span>Twitter Kanal</span></a></li> 
+							<h:outputText value="#{headBarBean.social}" escape="false" />
                         </ul>
                     </div>
-	                <span class="last_change" style="bottom: 48px;"></span>
                 </div>
             </div>
             <div class="footer-meta-navigation">
                 <div class="content-wrap">
-                    <span class="copyright">KIT – Die Forschungsuniversität in der Helmholtz-Gemeinschaft</span>
+                    <span class="copyright"><h:outputText value="#{headBarBean.footerLeft}" escape="false" /></span>
                     <ul>
                         <li><a href="https://git.scc.kit.edu/reg-app"><span>reg-app ${project.version}</span></a></li>
                     </ul>

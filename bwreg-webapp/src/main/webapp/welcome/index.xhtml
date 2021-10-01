@@ -31,11 +31,11 @@
 				<span style="color:red;">Login debugging is on. You will see a full log of your login process.</span>
 			</p:panel>
 		
-			<p:outputPanel rendered="#{empty discoveryLoginBean.spMetadata and empty discoveryLoginBean.clientConfig}" style="margin-top: 8px;">
+			<p:outputPanel rendered="#{empty discoveryLoginBean.spMetadata and empty discoveryLoginBean.clientConfig}">
 				<h:outputText value="#{messages.welcome_disco}" escape="false"/>
 			</p:outputPanel>
 			
-			<p:outputPanel rendered="#{not empty discoveryLoginBean.spMetadata}" style="margin-top: 8px;">
+			<p:outputPanel rendered="#{not empty discoveryLoginBean.spMetadata}">
 				<h:outputText value="#{messages.welcome_redirected}" /><br/>
 				<b>
 					<h:outputText value="#{discoveryLoginBean.spMetadata.displayName}" rendered="#{not empty discoveryLoginBean.spMetadata.displayName}" />
@@ -43,7 +43,7 @@
 				</b>			
 			</p:outputPanel>
 
-			<p:outputPanel rendered="#{not empty discoveryLoginBean.clientConfig}" style="margin-top: 8px;">
+			<p:outputPanel rendered="#{not empty discoveryLoginBean.clientConfig}">
 				<h:outputText value="#{messages.welcome_redirected}" /><br/> 
 				<b> 
 					<h:outputText value="#{discoveryLoginBean.clientConfig.displayName}" rendered="#{not empty discoveryLoginBean.clientConfig.displayName}" />
@@ -91,7 +91,7 @@
 
 			<p:focus conext="baseData" for="filterText" />
 
-			<h:panelGrid id="baseData" columns="2" style="margin-top: 8px;" columnClasses="col-width-1,col-width-2">	
+			<h:panelGrid id="baseData" columns="2" columnClasses="col-width-1,col-width-2">	
 
 				<p:outputLabel value="#{messages.store_idp_selection}: " />
 				<h:selectBooleanCheckbox value="#{discoveryLoginBean.storeIdpSelection}" />				
@@ -111,7 +111,7 @@
 				</p:inputText>
 				
 				<p:outputLabel value="#{messages.home_org}:" for="idpBox" />
-				<p:selectOneListbox id="idpBox" value="#{discoveryLoginBean.selectedIdp}" scrollHeight="360" style="width:auto;"
+				<p:selectOneListbox id="idpBox" value="#{discoveryLoginBean.selectedIdp}" 
 						converter="#{loginObjectConverter}">
 	            	<f:selectItems value="#{discoveryLoginBean.idpList}" 
 	            		var="idp" itemLabel="#{idp.displayName == null ? idp.orgName : idp.displayName}" itemValue="#{idp}"/>

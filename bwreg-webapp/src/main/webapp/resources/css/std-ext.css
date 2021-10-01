@@ -32,6 +32,19 @@ label.ui-helper-hidden {
 	margin-top: 6px;
 }
 
+.ui-selectlistbox-listcontainer {
+	height: 360px !important;
+}
+
+#idpBox {
+	width: auto;
+}
+
 #opt1 .ui-radiobutton-box {
 	display: none;
+}
+
+.page-footer {
+	background-color: #ffffff;
+	border-top: 0px;
 }
