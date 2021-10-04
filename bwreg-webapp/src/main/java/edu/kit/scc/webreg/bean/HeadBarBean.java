@@ -1,6 +1,5 @@
 package edu.kit.scc.webreg.bean;
 
-import java.util.Locale;
 import java.util.Map.Entry;
 
 import javax.enterprise.context.RequestScoped;
@@ -85,7 +84,12 @@ public class HeadBarBean {
 	public String getFooterLeft() {
 		return getApplicationBase() + getOrDefault(request.getServerName() + "_footer_left", "KIT - The Research University in the Helmholtz Association");
 	}
-
+	
+	public String getFooterRight() {
+		String std = "<a href=\"https://git.scc.kit.edu/reg-app\"><span>reg-app by KIT</span></a>" ;
+		return getApplicationBase() + getOrDefault(request.getServerName() + "_footer_right", std);
+	}
+	
 	public String getSocial() {
 		return getOrDefault(request.getServerName() + "_social", "<li><a href=\"https://twitter.com/#!/SCC_KIT\" class=\"twitter\" title=\"Twitter Kanal\" target=\"_blank\"><span>Twitter Kanal</span></a></li>");
 	}
