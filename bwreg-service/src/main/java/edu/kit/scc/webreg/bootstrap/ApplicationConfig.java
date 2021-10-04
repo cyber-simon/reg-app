@@ -38,6 +38,8 @@ public class ApplicationConfig implements Serializable {
 	
 	private Date lastLoad;
 	
+	private Map<String, String> localeMap;
+	
 	public void init() {
 		logger.debug("Checking for Active Configuration");
 		appConfig = dao.findActive();
@@ -53,6 +55,11 @@ public class ApplicationConfig implements Serializable {
 		}
 		
 		lastLoad = new Date();
+		
+		localeMap = new HashMap<String, String>();
+		localeMap.put("en", "English");
+		localeMap.put("de", "Deutsch");
+		localeMap.put("fr", "Francais");
 	}
 	
 	public boolean reload() {
@@ -109,5 +116,9 @@ public class ApplicationConfig implements Serializable {
 	
 	public Date getNextScheduledReload() {
 		return appConfig.getDirtyStamp();
+	}
+
+	public Map<String, String> getLocaleMap() {
+		return localeMap;
 	}
 }

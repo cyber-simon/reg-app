@@ -31,8 +31,9 @@
                             <li><h:outputText value="#{headBarBean.homeLink}" escape="false" /></li>
                         </ul>
                         <div class="navigation-language"><ul><h:form id="nav_bar_form">
-                       		<ui:fragment rendered="#{facesContext.viewRoot.locale != 'de'}"><li><h:commandLink action="#{sessionManager.setLocale('de')}" immediate="true" value="DE "/></li></ui:fragment>
-                        	<ui:fragment rendered="#{facesContext.viewRoot.locale != 'en'}"><li><h:commandLink action="#{sessionManager.setLocale('en')}" immediate="true" value="EN "/></li></ui:fragment>
+                        	<p:selectOneMenu id="lang_select" value="#{headBarBean.locale}" onchange="submit()" >
+                        		<f:selectItems value="#{headBarBean.locales}"/>
+                        	</p:selectOneMenu>
                         </h:form></ul></div>
                         
                       </div>

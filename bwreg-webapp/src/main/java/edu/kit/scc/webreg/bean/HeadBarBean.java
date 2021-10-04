@@ -1,11 +1,17 @@
 package edu.kit.scc.webreg.bean;
 
+import java.util.Locale;
+import java.util.Map.Entry;
+
 import javax.enterprise.context.RequestScoped;
+import javax.faces.context.FacesContext;
+import javax.faces.model.SelectItem;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
+import edu.kit.scc.webreg.session.SessionManager;
 
 @Named("headBarBean")
 @RequestScoped
@@ -16,6 +22,9 @@ public class HeadBarBean {
 
 	@Inject 
 	private HttpServletRequest request;
+	
+	@Inject
+	private SessionManager session;
 	
 	public ApplicationConfig getAppConfig() {
 		return appConfig;
@@ -81,6 +90,27 @@ public class HeadBarBean {
 		return getOrDefault(request.getServerName() + "_social", "<li><a href=\"https://twitter.com/#!/SCC_KIT\" class=\"twitter\" title=\"Twitter Kanal\" target=\"_blank\"><span>Twitter Kanal</span></a></li>");
 	}
 
+	public String getLocale() {
+		if (session.getLocale() == null) {
+			return FacesContext.getCurrentInstance().getViewRoot().getLocale().getLanguage();
+		}
+		return session.getLocale();
+	}
+	
+	public void setLocale(String locale) {
+		session.setLocale(locale);
+	}
+	
+	public SelectItem[] getLocales() {
+		SelectItem[] selectItems = new SelectItem[appConfig.getLocaleMap().size()];
+		int i = 0;
+		for (Entry<String, String> entry : appConfig.getLocaleMap().entrySet()) {
+			selectItems[i] = new SelectItem(entry.getKey(), entry.getValue());
+			i++;
+		}
+		return selectItems;
+	}
+	
 	public String getBurgerIcon() {
 		return "<button class=\"burger\"><svg class=\"burger-icon\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" x=\"0px\" y=\"0px\" viewBox=\"0 0 300 274.5\" width=\"300px\" height=\"274.5px\">\n"
 				+ "    <rect class=\"burger-top\" y=\"214.4\" width=\"300\" height=\"60.1\"/>\n"

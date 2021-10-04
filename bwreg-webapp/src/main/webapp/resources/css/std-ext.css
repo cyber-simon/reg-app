@@ -48,3 +48,19 @@ label.ui-helper-hidden {
 	background-color: #ffffff;
 	border-top: 0px;
 }
+
+#nav_bar_form .ui-state-default {
+	font-size: 1.0rem;
+	font-weight: 300;
+	background: none;
+	border: none;
+}
+
+nav_bar_form .ui-selectonemenu {
+	vertical-align: bottom;
+
+ }
+ 
+#nav_bar_form .ui-inputfield {
+	padding: 0;
+}
