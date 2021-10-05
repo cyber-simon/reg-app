@@ -10,4 +10,4 @@ build:
   tags:
     - mvn-docker
   script:
-    mvn -s maven/settings.xml -B clean package
+    mvn -s maven/settings.xml -Dmaven.repo.local=.m2/repository -B clean package
