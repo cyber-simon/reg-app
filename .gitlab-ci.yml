@@ -1,13 +1,8 @@
 image: maven:3-jdk-11
 
-cache:
-  paths:
-    - .m2/
-    - bwreg-ear/target/
-
 build:
   stage: build
   tags:
     - mvn-docker
   script:
-    mvn -s maven/settings.xml -Dmaven.repo.local=.m2/repository -B clean package
+    mvn -s maven/settings.xml -Dmaven.repo.local=/cache/.m2/repository -B clean package
