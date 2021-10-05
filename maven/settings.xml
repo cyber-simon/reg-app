@@ -8,7 +8,38 @@
 	<offline />
 	<pluginGroups />
 	<servers />
-	<mirrors />
+	<mirrors>
+	    <mirror>
+	      <id>scc-idp-mgmt-01_central</id>
+	      <name>scc-idp-mgmt-01 Nexus Mirror</name>
+	      <mirrorOf>central</mirrorOf>
+	      <url>https://scc-idp-mgmt-01.scc.kit.edu/nexus/repository/maven-central</url>
+	    </mirror>		
+	    <mirror>
+	      <id>scc-idp-mgmt-01_java.net</id>
+	      <name>scc-idp-mgmt-01 Nexus Mirror</name>
+	      <mirrorOf>java.net</mirrorOf>
+	      <url>https://scc-idp-mgmt-01.scc.kit.edu/nexus/repository/java.net</url>
+	    </mirror>		
+	    <mirror>
+	      <id>scc-idp-mgmt-01_maven2-repository.jboss.com</id>
+	      <name>scc-idp-mgmt-01 Nexus Mirror</name>
+	      <mirrorOf>maven2-repository.jboss.com</mirrorOf>
+	      <url>https://scc-idp-mgmt-01.scc.kit.edu/nexus/repository/maven2-repository.jboss.com</url>
+	    </mirror>		
+	    <mirror>
+	      <id>scc-idp-mgmt-01_prime-repo</id>
+	      <name>scc-idp-mgmt-01 Nexus Mirror</name>
+	      <mirrorOf>prime-repo</mirrorOf>
+	      <url>https://scc-idp-mgmt-01.scc.kit.edu/nexus/repository/prime-repo</url>
+	    </mirror>		
+	    <mirror>
+	      <id>scc-idp-mgmt-01_shibboleth.internet2.edu</id>
+	      <name>scc-idp-mgmt-01 Nexus Mirror</name>
+	      <mirrorOf>shibboleth.internet2.edu</mirrorOf>
+	      <url>https://scc-idp-mgmt-01.scc.kit.edu/nexus/repository/shibboleth.internet2.edu</url>
+	    </mirror>		
+	</mirrors>
 	<proxies />
 	<profiles />
 </settings>
