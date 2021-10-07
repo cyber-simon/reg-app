@@ -171,5 +171,6 @@ public class UserDeleteServiceImpl implements UserDeleteService {
 		
 		identity.setTwoFaUserId("deleted-" + UUID.randomUUID().toString());
 		identity.setTwoFaUserName("deleted-" + UUID.randomUUID().toString());
+		identity.setUidNumber(null);
 	}	
 }
