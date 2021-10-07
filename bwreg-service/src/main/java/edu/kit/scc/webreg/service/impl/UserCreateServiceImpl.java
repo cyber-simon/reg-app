@@ -48,6 +48,7 @@ import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.UserCreateService;
 import edu.kit.scc.webreg.service.group.HomeOrgGroupUpdater;
+import edu.kit.scc.webreg.service.identity.IdentityCreater;
 import edu.kit.scc.webreg.service.saml.Saml2AssertionService;
 import edu.kit.scc.webreg.service.saml.SamlIdentifier;
 
@@ -76,8 +77,8 @@ public class UserCreateServiceImpl implements UserCreateService {
 	private RoleDao roleDao;
 
 	@Inject
-	private IdentityDao identityDao;
-
+	private IdentityCreater identityCreater;
+	
 	@Inject
 	private SerialDao serialDao;
 
@@ -129,7 +130,7 @@ public class UserCreateServiceImpl implements UserCreateService {
 	
 	@Override
 	public SamlUserEntity createUser(SamlUserEntity user,
-			Map<String, List<Object>> attributeMap, String executor)
+			Map<String, List<Object>> attributeMap, String executor, StringBuffer debugLog)
 			throws UserUpdateException {
 		logger.debug("Creating user {}", user.getEppn());
 
@@ -138,7 +139,7 @@ public class UserCreateServiceImpl implements UserCreateService {
 		auditor.setName(getClass().getName() + "-UserCreate-Audit");
 		auditor.setDetail("Create user " + user.getEppn());
 		
-    	userUpdater.updateUserFromAttribute(user, attributeMap, true, auditor);
+    	userUpdater.updateUserNew(user, attributeMap, executor, auditor, debugLog);
 		
     	/** 
     	 * if user has no uid number yet, generate one
@@ -163,22 +164,12 @@ public class UserCreateServiceImpl implements UserCreateService {
     		user.setLastStatusChange(new Date());
     	}
 
-    	/**
-    	 * TODO: Apply mapping rules at this point. At the moment every account gets one
-    	 * identity. Should possibly be mapped to existing identity in some cases.
-    	 */
-		IdentityEntity id = identityDao.createNew();
-		id = identityDao.persist(id);
+		IdentityEntity identity = identityCreater.preCreateIdentity();
 
-		id.setTwoFaUserId("idty-" + id.getId());
-		id.setTwoFaUserName(UUID.randomUUID().toString());
-		
-		user.setIdentity(id);
-
+		user.setIdentity(identity);
     	user = samlUserDao.persist(user);
 
-    	id.setPrefUser(user);
-		id.setUidNumber(user.getUidNumber());
+    	identityCreater.postCreateIdentity(identity, user);
 
     	roleDao.addUserToRole(user, "User");
 

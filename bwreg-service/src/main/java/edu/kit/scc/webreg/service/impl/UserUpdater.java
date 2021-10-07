@@ -153,7 +153,7 @@ public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 			throws UserUpdateException {
 		return updateUser(user, attributeMap, executor, null, debugLog);
 	}
-	
+
 	public SamlUserEntity updateUser(SamlUserEntity user, Map<String, List<Object>> attributeMap, String executor, 
 			ServiceEntity service, StringBuffer debugLog)
 			throws UserUpdateException {
@@ -170,7 +170,7 @@ public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 		auditor.setDetail("Update user " + user.getEppn());
 
 		changed |= preUpdateUser(user, attributeMap, user.getIdp().getGenericStore(), executor, service, debugLog);
-		
+
 		// List to store parent services, that are not registered. Need to be registered
 		// later, when attribute map is populated
 		List<ServiceEntity> delayedRegisterList = new ArrayList<ServiceEntity>();
@@ -521,16 +521,28 @@ public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 		}
 	}
 
-	public boolean updateUserFromAttribute(UserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor) 
+	public boolean updateUserNew(SamlUserEntity user, Map<String, List<Object>> attributeMap, String executor, 
+			Auditor auditor, StringBuffer debugLog)
+			throws UserUpdateException {
+		boolean changed = false;
+		
+		changed |= preUpdateUser(user, attributeMap, user.getIdp().getGenericStore(), executor, null, debugLog);
+		changed |= updateUserFromAttribute(user, attributeMap, auditor);
+		changed |= postUpdateUser(user, attributeMap, user.getIdp().getGenericStore(), executor, null, debugLog);
+		
+		return changed;
+	}
+
+	public boolean updateUserFromAttribute(SamlUserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor) 
 				throws UserUpdateException {
 		return updateUserFromAttribute(user, attributeMap, false, auditor);
 	}
 
-	public boolean updateUserFromAttribute(UserEntity user, Map<String, List<Object>> attributeMap, boolean withoutUidNumber, Auditor auditor) 
+	public boolean updateUserFromAttribute(SamlUserEntity user, Map<String, List<Object>> attributeMap, boolean withoutUidNumber, Auditor auditor) 
 				throws UserUpdateException {
 
 		boolean changed = false;
-		
+
 		UserServiceHook completeOverrideHook = null;
 		Set<UserServiceHook> activeHooks = new HashSet<UserServiceHook>();
 		

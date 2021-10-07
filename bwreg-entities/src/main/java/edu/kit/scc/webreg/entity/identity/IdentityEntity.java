@@ -46,6 +46,12 @@ public class IdentityEntity extends AbstractBaseEntity {
 
 	@Column(name = "uid_number")
 	private Integer uidNumber;
+	
+	@Column(name = "generated_local_username", length = 32, unique = true)
+	private String generatedLocalUsername;
+
+	@Column(name = "chosen_local_username", length = 32, unique = true)
+	private String chosenLocalUsername;
 
 	public Set<UserEntity> getUsers() {
 		return users;
@@ -93,5 +99,21 @@ public class IdentityEntity extends AbstractBaseEntity {
 
 	public void setUidNumber(Integer uidNumber) {
 		this.uidNumber = uidNumber;
+	}
+
+	public String getGeneratedLocalUsername() {
+		return generatedLocalUsername;
+	}
+
+	public void setGeneratedLocalUsername(String generatedLocalUsername) {
+		this.generatedLocalUsername = generatedLocalUsername;
+	}
+
+	public String getChosenLocalUsername() {
+		return chosenLocalUsername;
+	}
+
+	public void setChosenLocalUsername(String chosenLocalUsername) {
+		this.chosenLocalUsername = chosenLocalUsername;
 	}
 }

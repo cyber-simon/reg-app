@@ -41,22 +41,27 @@ public abstract class AbstractUserUpdater<T extends UserEntity> implements Seria
 				String executor, ServiceEntity service, StringBuffer debugLog)
 			throws UserUpdateException {
 
+		boolean returnValue = false;
+		
 		UserUpdateHook updateHook = resolveUpdateHook(homeOrgGenericStore);
 		
 		if (updateHook != null) {
 			try {
-				return updateHook.preUpdateUser(user, homeOrgGenericStore, attributeMap, executor, service, null);
+				returnValue |= updateHook.preUpdateUser(user, homeOrgGenericStore, attributeMap, executor, service, null);
 			} catch (UserUpdateHookException e) {
 				logger.warn("An exception happened while calling UserUpdateHook!", e);
 			}
 		}
-		return false;
+				
+		return returnValue;
 	}
 
 	protected boolean postUpdateUser(UserEntity user, Map<String, List<Object>> attributeMap, Map<String,String> homeOrgGenericStore, 
 				String executor, ServiceEntity service, StringBuffer debugLog)
 			throws UserUpdateException {
-		
+
+		boolean returnValue = false;
+
 		if (httpRequest != null && httpRequest.getHttpServletRequest() != null) {
 		    user.setLastLoginHost(httpRequest.getHttpServletRequest().getLocalName());
 		}
@@ -65,12 +70,12 @@ public abstract class AbstractUserUpdater<T extends UserEntity> implements Seria
 
 		if (updateHook != null) {
 			try {
-				return updateHook.postUpdateUser(user, homeOrgGenericStore, attributeMap, executor, service, null);
+				returnValue |= updateHook.postUpdateUser(user, homeOrgGenericStore, attributeMap, executor, service, null);
 			} catch (UserUpdateHookException e) {
 				logger.warn("An exception happened while calling UserUpdateHook!", e);
 			}
 		}
-		return false;
+		return returnValue;
 	}
 
 	private UserUpdateHook resolveUpdateHook(Map<String,String> homeOrgGenericStore) {

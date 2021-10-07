@@ -21,7 +21,7 @@ import edu.kit.scc.webreg.service.saml.SamlIdentifier;
 
 public interface UserCreateService {
 
-	SamlUserEntity createUser(SamlUserEntity user, Map<String, List<Object>> attributeMap, String executor)
+	SamlUserEntity createUser(SamlUserEntity user, Map<String, List<Object>> attributeMap, String executor, StringBuffer debugLog)
 			throws UserUpdateException;
 
 	SamlUserEntity preCreateUser(SamlIdpMetadataEntity idpEntity, SamlSpConfigurationEntity spEntity, SamlIdentifier samlIdentifier,

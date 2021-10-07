@@ -29,6 +29,30 @@
 
 		<p:messages id="messageBox" showDetail="true" />
 
+		<h:panelGroup rendered="#{registerUserBean.eppnError}">
+			<h3 style="margin-top: 0.4em;">#{messages.eppn_blocked}</h3>
+			<h:outputText value="#{messages.eppn_blocked_detail}" escape="false"/>
+			<br/><br/>
+			<p:dataList var="user" value="#{registerUserBean.oldUserList}">
+				<h:panelGroup rendered="#{user.class.simpleName eq 'SamlUserEntity'}">
+					<h:outputText value="#{user.idp.displayName}" />: 
+					<h:outputText value="#{user.persistentId}" rendered="#{user.persistentId != null}"/>
+					<h:outputText value="#{user.subjectId}" rendered="#{user.subjectId != null}"/>
+					-- <h:outputText value="#{user.eppn}" />
+				</h:panelGroup>
+				<h:panelGroup rendered="#{user.class.simpleName eq 'OidcUserEntity'}">
+					<h:outputText value="#{user.issuer.displayName}" />: <h:outputText value="#{user.subjectId}" /> -- <h:outputText value="#{user.eppn}" />
+				</h:panelGroup>
+			</p:dataList>
+			<br/><br/>
+			<h:outputText value="#{messages.eppn_blocked_detail_2}" escape="false"/>
+			<br/><br/>
+			<p:selectBooleanCheckbox id="eppn_override_checkbox" value="#{registerUserBean.eppnOverride}"
+					itemLabel="#{messages.eppn_blocked_override}" immediate="true">
+				<p:ajax update="save" />
+			</p:selectBooleanCheckbox>
+		</h:panelGroup>
+
 		<h3 style="margin-top: 0.4em;"><h:outputText value="#{messages.my_data}:"/></h3>
 
 		<p:panel>
@@ -47,7 +71,7 @@
 			</p:dataList>
 	
 			<p:commandButton id="save" action="#{registerUserBean.save}" value="#{messages.confirm}" ajax="false" 
-					disabled="#{registerUserBean.errorState}"/>
+					disabled="#{registerUserBean.errorState or (registerUserBean.eppnError and (! registerUserBean.eppnOverride))}"/>
 		</p:panel>
 	</h:form>
 	

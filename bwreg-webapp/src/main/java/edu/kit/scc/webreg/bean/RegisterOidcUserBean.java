@@ -69,7 +69,9 @@ public class RegisterOidcUserBean implements Serializable {
 	private OidcRpConfigurationEntity rpConfig;
 	
 	private Boolean errorState = false;
-	
+	private Boolean eppnError = false;
+	private Boolean eppnOverride = false;
+
 	private Map<String, String> printableAttributesMap;
 	private Map<String, String> unprintableAttributesMap;
 	private List<String> printableAttributesList;
@@ -108,7 +110,7 @@ public class RegisterOidcUserBean implements Serializable {
 		}
 
     	if (service.findByEppn(entity.getEppn()) != null && service.findByEppn(entity.getEppn()).size() > 0) {
-			errorState = true;
+			eppnError = true;
 			messageGenerator.addResolvedErrorMessage("eppn-blocked", "eppn-blocked-detail", true);
     	}
 
@@ -206,6 +208,19 @@ public class RegisterOidcUserBean implements Serializable {
 
     public String save() {
 
+		if (errorState) {
+			/*
+			 * There are unresolved errors. Cannot persist user.
+			 */
+			return null;
+		}
+		else if (eppnError && (! eppnOverride)) {
+			/*
+			 * EPPN is already in system, but not aknowledged
+			 */
+			return null;
+		}
+
 		try {
 			entity = userCreateService.createUser(entity, sessionManager.getAttributeMap(), null);
 		} catch (UserUpdateException e) {
@@ -262,6 +277,22 @@ public class RegisterOidcUserBean implements Serializable {
 
 	public OidcRpConfigurationEntity getRpConfig() {
 		return rpConfig;
+	}
+
+	public Boolean getEppnOverride() {
+		return eppnOverride;
+	}
+
+	public void setEppnOverride(Boolean eppnOverride) {
+		this.eppnOverride = eppnOverride;
+	}
+
+	public Boolean getEppnError() {
+		return eppnError;
+	}
+
+	public void setEppnError(Boolean eppnError) {
+		this.eppnError = eppnError;
 	}
 
 	

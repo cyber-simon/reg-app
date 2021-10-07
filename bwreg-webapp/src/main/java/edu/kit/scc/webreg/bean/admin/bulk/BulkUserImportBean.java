@@ -139,7 +139,7 @@ public class BulkUserImportBean implements Serializable {
 	
 					attributeMap = saml2AssertionService.extractAttributes(assertion);
 					
-					userEntity = userCreateService.createUser(userEntity, attributeMap, "bulk-import");
+					userEntity = userCreateService.createUser(userEntity, attributeMap, "bulk-import", null);
 					logger.debug("Done Updating/Importing user {}", userEntity.getEppn());
 
 					importUser.setStatus("Erfolgreich importiert/upgedated");
