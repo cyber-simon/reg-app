@@ -16,7 +16,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.UUID;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -47,6 +46,7 @@ import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.UserEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
+import edu.kit.scc.webreg.service.identity.IdentityCreater;
 import edu.kit.scc.webreg.service.impl.AttributeMapHelper;
 
 @Stateless
@@ -96,6 +96,9 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
 
 	@Inject
 	private HttpServletRequest httpRequest;
+	
+	@Inject
+	private IdentityCreater identityCreater;
 
 	@Override
 	public OidcUserEntity preCreateUser(Long rpConfigId,
@@ -181,22 +184,13 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
 		
 		createUserInternal(user, attributeMap, executor, auditor);
 
-    	/**
-    	 * TODO: Apply mapping rules at this point. At the moment every account gets one
-    	 * identity. Should possibly be mapped to existing identity in some cases.
-    	 */
-		IdentityEntity id = identityDao.createNew();
-		id = identityDao.persist(id);
+		IdentityEntity identity = identityCreater.preCreateIdentity();
 
-		id.setTwoFaUserId("idty-" + id.getId());
-		id.setTwoFaUserName(UUID.randomUUID().toString());
+		user.setIdentity(identity);
 
-		user.setIdentity(id);
+		user = postCreateUserInternal(user, attributeMap, executor, auditor);
+    	identityCreater.postCreateIdentity(identity, user);
 
-		postCreateUserInternal(user, attributeMap, executor, auditor);
-
-		id.setUidNumber(user.getUidNumber());
-		
 		auditor.logAction(user.getEppn(), "CREATE USER", null, null, AuditStatus.SUCCESS);
 		
 		auditor.finishAuditTrail();
@@ -244,7 +238,7 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
     	}
 	}
 	
-	private void postCreateUserInternal(OidcUserEntity user, Map<String, List<Object>> attributeMap, String executor,
+	private OidcUserEntity postCreateUserInternal(OidcUserEntity user, Map<String, List<Object>> attributeMap, String executor,
 			UserCreateAuditor auditor)
 			throws UserUpdateException {
     	user = oidcUserDao.persist(user);
@@ -255,5 +249,7 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
     			
 		auditor.setUser(user);
 		auditor.auditUserCreate();
+		
+		return user;
 	}
 }

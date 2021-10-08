@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
+import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
@@ -66,6 +67,7 @@ public class RegisterOidcUserBean implements Serializable {
 	private FacesMessageGenerator messageGenerator;
 	
 	private OidcUserEntity entity;
+	private List<UserEntity> oldUserList;
 	private OidcRpConfigurationEntity rpConfig;
 	
 	private Boolean errorState = false;
@@ -77,59 +79,61 @@ public class RegisterOidcUserBean implements Serializable {
 	private List<String> printableAttributesList;
 	
     public void preRenderView(ComponentSystemEvent ev) {
-    	if (sessionManager.getOidcRelyingPartyId() == null) {
-			errorState = true;
-			messageGenerator.addResolvedErrorMessage("page-not-directly-accessible", "page-not-directly-accessible-text", true);
-			return;    		
-    	}
-    	
-    	rpConfig = rpConfigService.findById(sessionManager.getOidcRelyingPartyId());
-
-    	if (rpConfig == null) {
-			errorState = true;
-			messageGenerator.addResolvedErrorMessage("page-not-directly-accessible", "page-not-directly-accessible-text", true);
-			return;    		
-    	}
-
-    	printableAttributesMap = new HashMap<String, String>();
-    	unprintableAttributesMap = new HashMap<String, String>();
-    	printableAttributesList = new ArrayList<String>();
-
-    	if (sessionManager.getAttributeMap() != null) {
+    	if (entity == null) {
     		
-    	}
-    	
-    	try {
-        	entity = userCreateService.preCreateUser(rpConfig.getId(),
-        			sessionManager.getLocale(), sessionManager.getAttributeMap());
-        	
-		} catch (UserUpdateException e) {
-			errorState = true;
-			messageGenerator.addResolvedErrorMessage("missing-mandatory-attributes", e.getMessage(), true);
-			return;
-		}
+	    	if (sessionManager.getOidcRelyingPartyId() == null) {
+				errorState = true;
+				messageGenerator.addResolvedErrorMessage("page-not-directly-accessible", "page-not-directly-accessible-text", true);
+				return;    		
+	    	}
+	    	
+	    	rpConfig = rpConfigService.findById(sessionManager.getOidcRelyingPartyId());
+	
+	    	if (rpConfig == null) {
+				errorState = true;
+				messageGenerator.addResolvedErrorMessage("page-not-directly-accessible", "page-not-directly-accessible-text", true);
+				return;    		
+	    	}
+	
+	    	printableAttributesMap = new HashMap<String, String>();
+	    	unprintableAttributesMap = new HashMap<String, String>();
+	    	printableAttributesList = new ArrayList<String>();
+	
+	    	if (sessionManager.getAttributeMap() != null) {
+	    		
+	    	}
+	    	
+	    	try {
+	        	entity = userCreateService.preCreateUser(rpConfig.getId(),
+	        			sessionManager.getLocale(), sessionManager.getAttributeMap());
+	        	
+			} catch (UserUpdateException e) {
+				errorState = true;
+				messageGenerator.addResolvedErrorMessage("missing-mandatory-attributes", e.getMessage(), true);
+				return;
+			}
 
-    	if (service.findByEppn(entity.getEppn()) != null && service.findByEppn(entity.getEppn()).size() > 0) {
-			eppnError = true;
-			messageGenerator.addResolvedErrorMessage("eppn-blocked", "eppn-blocked-detail", true);
-    	}
+	    	oldUserList = service.findByEppn(entity.getEppn());
+	    	if (oldUserList.size() > 0) {
+				eppnError = true;
+	    	}
 
-		IDTokenClaimsSet claims = tokenHelper.claimsFromMap(sessionManager.getAttributeMap());
-		UserInfo userInfo = tokenHelper.userInfoFromMap(sessionManager.getAttributeMap());
-
-		printableAttributesList.add("eppn");
-		printableAttributesMap.put("eppn", entity.getEppn());
-		printableAttributesList.add("email");
-		printableAttributesMap.put("email", entity.getEmail());
-		printableAttributesList.add("sur_name");
-		printableAttributesMap.put("sur_name", entity.getSurName());
-		printableAttributesList.add("given_name");
-		printableAttributesMap.put("given_name", entity.getGivenName());
-		printableAttributesList.add("subject_id");
-		printableAttributesMap.put("subject_id", entity.getSubjectId());
-		printableAttributesList.add("issuer");
-		printableAttributesMap.put("issuer", rpConfig.getServiceUrl());
-		
+			IDTokenClaimsSet claims = tokenHelper.claimsFromMap(sessionManager.getAttributeMap());
+			UserInfo userInfo = tokenHelper.userInfoFromMap(sessionManager.getAttributeMap());
+	
+			printableAttributesList.add("eppn");
+			printableAttributesMap.put("eppn", entity.getEppn());
+			printableAttributesList.add("email");
+			printableAttributesMap.put("email", entity.getEmail());
+			printableAttributesList.add("sur_name");
+			printableAttributesMap.put("sur_name", entity.getSurName());
+			printableAttributesList.add("given_name");
+			printableAttributesMap.put("given_name", entity.getGivenName());
+			printableAttributesList.add("subject_id");
+			printableAttributesMap.put("subject_id", entity.getSubjectId());
+			printableAttributesList.add("issuer");
+			printableAttributesMap.put("issuer", rpConfig.getServiceUrl());
+			
 		
     	/*    	
 
@@ -204,6 +208,7 @@ public class RegisterOidcUserBean implements Serializable {
     		}
     	}
 */
+    	}
 	}
 
     public String save() {
@@ -293,6 +298,10 @@ public class RegisterOidcUserBean implements Serializable {
 
 	public void setEppnError(Boolean eppnError) {
 		this.eppnError = eppnError;
+	}
+
+	public List<UserEntity> getOldUserList() {
+		return oldUserList;
 	}
 
 	

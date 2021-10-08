@@ -23,35 +23,56 @@
 
 	<h:form id="form" styleClass="form full fancy">
 
-		<div class="panel">
-			<p:panel header="#{messages.welcome_head}">
-				<div><h:outputText value="#{messages.welcome_register}" escape="false"/></div>
+		<h3>#{messages.welcome_head}</h3>
+
+		<div><h:outputText value="#{messages.welcome_register}" escape="false"/></div>
+
+		<p:messages id="messageBox" showDetail="true" />
+
+		<h:panelGroup rendered="#{registerOidcUserBean.eppnError}">
+			<h3 style="margin-top: 0.4em;">#{messages.eppn_blocked}</h3>
+			<h:outputText value="#{messages.eppn_blocked_detail}" escape="false"/>
+			<br/><br/>
+			<p:dataList var="user" value="#{registerOidcUserBean.oldUserList}">
+				<h:panelGroup rendered="#{user.class.simpleName eq 'SamlUserEntity'}">
+					<h:outputText value="#{user.idp.displayName}" />: 
+					<h:outputText value="#{user.persistentId}" rendered="#{user.persistentId != null}"/>
+					<h:outputText value="#{user.subjectId}" rendered="#{user.subjectId != null}"/>
+					-- <h:outputText value="#{user.eppn}" />
+				</h:panelGroup>
+				<h:panelGroup rendered="#{user.class.simpleName eq 'OidcUserEntity'}">
+					<h:outputText value="#{user.issuer.displayName}" />: <h:outputText value="#{user.subjectId}" /> -- <h:outputText value="#{user.eppn}" />
+				</h:panelGroup>
+			</p:dataList>
+			<br/><br/>
+			<h:outputText value="#{messages.eppn_blocked_detail_2}" escape="false"/>
+			<br/><br/>
+			<p:selectBooleanCheckbox id="eppn_override_checkbox" value="#{registerOidcUserBean.eppnOverride}"
+					itemLabel="#{messages.eppn_blocked_override}" immediate="true">
+				<p:ajax update="save" />
+			</p:selectBooleanCheckbox>
+		</h:panelGroup>
 		
-				<p:messages id="messageBox" showDetail="true" />
-		
-				<div class="panel">
-					<h3><h:outputText value="#{messages.my_data}:"/></h3>
-					<div class="panel">
-						<p:dataTable var="key" value="#{registerOidcUserBean.printableAttributesList}">
-							<p:column headerText="#{messages.name}">
-								#{resourceBundleHelper.resolveMessage(key)}
-							</p:column>
-							<p:column headerText="#{messages.value}">
-								#{registerOidcUserBean.printableAttributesMap[key]}
-							</p:column>
-						</p:dataTable>
-					</div>
-					<div class="panel">
-						<p:dataList var="key" value="#{registerOidcUserBean.unprintableAttributesMap.keySet().toArray()}"
-							rendered="#{not registerOidcUserBean.unprintableAttributesMap.isEmpty()}">
-							#{key}: #{registerOidcUserBean.unprintableAttributesMap[key]}
-						</p:dataList>
-					</div>
-					<p:commandButton id="save" action="#{registerOidcUserBean.save}" value="#{messages.confirm}" ajax="false" 
-						disabled="#{registerOidcUserBean.errorState}"/>
-				</div>
-			</p:panel>
-		</div>
+		<h3 style="margin-top: 0.4em;"><h:outputText value="#{messages.my_data}:"/></h3>
+
+		<p:panel>
+			<p:dataTable var="key" value="#{registerOidcUserBean.printableAttributesList}">
+				<p:column headerText="#{messages.name}">
+					#{resourceBundleHelper.resolveMessage(key)}
+				</p:column>
+				<p:column headerText="#{messages.value}">
+					#{registerOidcUserBean.printableAttributesMap[key]}
+				</p:column>
+			</p:dataTable>
+
+			<p:dataList var="key" value="#{registerOidcUserBean.unprintableAttributesMap.keySet().toArray()}"
+				rendered="#{not registerOidcUserBean.unprintableAttributesMap.isEmpty()}">
+				#{key}: #{registerOidcUserBean.unprintableAttributesMap[key]}
+			</p:dataList>
+
+			<p:commandButton id="save" action="#{registerOidcUserBean.save}" value="#{messages.confirm}" ajax="false" 
+				disabled="#{registerOidcUserBean.errorState or (registerOidcUserBean.eppnError and (! registerOidcUserBean.eppnOverride))}"/>
+		</p:panel>
 	</h:form>
 	
 	</ui:define>
