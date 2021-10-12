@@ -24,6 +24,7 @@ import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.RoleDao;
+import edu.kit.scc.webreg.dao.SamlAssertionDao;
 import edu.kit.scc.webreg.dao.SerialDao;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
@@ -82,6 +83,9 @@ public class UserDeleteServiceImpl implements UserDeleteService {
 	
 	@Inject
 	private ApplicationConfig appConfig;
+	
+	@Inject
+	private SamlAssertionDao samlAssertionDao;
 
 	@Override
 	public void deleteUserData(IdentityEntity identity, String executor) {
@@ -149,8 +153,13 @@ public class UserDeleteServiceImpl implements UserDeleteService {
 			user.setEppn(null);
 			user.setGivenName(null);
 			user.setSurName(null);
-			if (user instanceof SamlUserEntity)
+			if (user instanceof SamlUserEntity) {
 				((SamlUserEntity) user).setPersistentId(null);
+				((SamlUserEntity) user).setAttributeSourcedId(null);
+				((SamlUserEntity) user).setAttributeSourcedIdName(null);
+				((SamlUserEntity) user).setSubjectId(null);
+				samlAssertionDao.deleteAssertionForUser((SamlUserEntity) user);
+			}
 			if (user instanceof OidcUserEntity) {
 				((OidcUserEntity) user).setSubjectId(null);
 				((OidcUserEntity) user).setIssuer(null);
