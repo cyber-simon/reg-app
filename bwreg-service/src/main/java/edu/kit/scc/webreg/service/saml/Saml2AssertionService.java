@@ -177,6 +177,9 @@ public class Saml2AssertionService {
 		
 		String identifier = null;
 		
+		/*
+		 * prefer attribute sourced id over others
+		 */
 		if (appConfig.getConfigValue("saml_id_attribute") != null) {
 			identifier = appConfig.getConfigValue("saml_id_attribute");
 		}
@@ -250,8 +253,7 @@ public class Saml2AssertionService {
 			if (samlIdentifier.getAttributeSourcedId() != null && samlIdentifier.getAttributeSourcedIdName() != null) {
 				user.setAttributeSourcedId(samlIdentifier.getAttributeSourcedId());
 				user.setAttributeSourcedIdName(samlIdentifier.getAttributeSourcedIdName());
-			}
-			
+			}			
 		}
 	}
 
@@ -300,7 +302,7 @@ public class Saml2AssertionService {
 		}
 		
 		/*
-		 * Assertion needs a Subject and a NameID, encrypted or not
+		 * Assertion needs a Subject
 		 */
 		if (assertion.getSubject() == null) {
 			if (debugLog != null)
@@ -308,53 +310,53 @@ public class Saml2AssertionService {
 			throw new SamlAuthenticationException("No Subject in assertion!");
 		}
 		
-		if (assertion.getSubject().getNameID() == null &&
-				assertion.getSubject().getEncryptedID() == null) {
-			if (debugLog != null)
-				debugLog.append("NameID in Assertion/Subject is missing. Cannot process assertion without NameID.\n");
-			throw new SamlAuthenticationException("SAML2 NameID is missing.");
-		}
+		if (assertion.getSubject().getNameID() != null ||
+				assertion.getSubject().getEncryptedID() != null) {
 
-		/*
-		 * If the NameID is encrypted, decrypt it
-		 */
-		NameID nid;
-		if (assertion.getSubject().getEncryptedID() != null) {
-			if (debugLog != null)
-				debugLog.append("NameID is encrypted Decrypting NameID...\n");
-
-			EncryptedID eid = assertion.getSubject().getEncryptedID();
-			SAMLObject samlObject = decryptNameID(eid, spEntity.getCertificate(), spEntity.getPrivateKey(), 
-					spEntity.getStandbyCertificate(), spEntity.getStandbyPrivateKey());
+			/*
+			 * If the NameID is encrypted, decrypt it
+			 */
+			NameID nid;
+			if (assertion.getSubject().getEncryptedID() != null) {
+				if (debugLog != null)
+					debugLog.append("NameID is encrypted Decrypting NameID...\n");
+	
+				EncryptedID eid = assertion.getSubject().getEncryptedID();
+				SAMLObject samlObject = decryptNameID(eid, spEntity.getCertificate(), spEntity.getPrivateKey(), 
+						spEntity.getStandbyCertificate(), spEntity.getStandbyPrivateKey());
+				
+				if (samlObject instanceof NameID)
+					nid = (NameID) samlObject;
+				else {
+					if (debugLog != null)
+						debugLog.append("Only Encrypted NameIDs are supoorted. Encrypted BaseIDs or embedded Assertions are not supported.\n")
+							.append("NameID Type is: ").append(samlObject.getClass().getName()).append("\n");
+					throw new SamlAuthenticationException("Only Encrypted NameIDs are supoorted. Encrypted BaseIDs or embedded Assertions are not supported");
+				}
+			}
+			else
+				nid = assertion.getSubject().getNameID();
 			
-			if (samlObject instanceof NameID)
-				nid = (NameID) samlObject;
+			if (debugLog != null)
+				debugLog.append("Resulting NameID (XML):\n").append(samlHelper.prettyPrint(nid)).append("\n");
+			
+			logger.debug("NameId format {} value {}", nid.getFormat(), nid.getValue());
+			
+			if (nid.getFormat().equals(NameID.TRANSIENT)) {
+				transientId = nid.getValue();
+			}
+			else if (nid.getFormat().equals(NameID.PERSISTENT)) {
+				persistentId = nid.getValue();
+			}
 			else {
 				if (debugLog != null)
-					debugLog.append("Only Encrypted NameIDs are supoorted. Encrypted BaseIDs or embedded Assertions are not supported.\n")
-						.append("NameID Type is: ").append(samlObject.getClass().getName()).append("\n");
-				throw new SamlAuthenticationException("Only Encrypted NameIDs are supoorted. Encrypted BaseIDs or embedded Assertions are not supported");
+					debugLog.append("NameID is Unknown type (").append(nid.getClass().getName())
+						.append("). This is not a problem, as long as a pairwise or subject ID is set\n");
 			}
-		}
-		else
-			nid = assertion.getSubject().getNameID();
-		
-		if (debugLog != null)
-			debugLog.append("Resulting NameID (XML):\n").append(samlHelper.prettyPrint(nid)).append("\n");
-		
-		logger.debug("NameId format {} value {}", nid.getFormat(), nid.getValue());
-		
-		if (nid.getFormat().equals(NameID.TRANSIENT)) {
-			transientId = nid.getValue();
-		}
-		else if (nid.getFormat().equals(NameID.PERSISTENT)) {
-			persistentId = nid.getValue();
 		}
 		else {
 			if (debugLog != null)
-				debugLog.append("NameID is Unknown type (").append(nid.getClass().getName())
-					.append("). At the moment, only Persistent NameID is supported\n");
-			throw new SamlAuthenticationException("Unsupported SAML2 NameID Type");
+				debugLog.append("There is no NameID or EncryptedNameID. This is not a problem, as long as a pairwise or subject ID is set\n");
 		}
 
 		return new SamlIdentifier(persistentId, pairwiseId, subjectId, transientId, attributeMap);

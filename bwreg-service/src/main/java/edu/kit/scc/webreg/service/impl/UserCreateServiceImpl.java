@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
-import java.util.UUID;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -32,7 +31,6 @@ import edu.kit.scc.webreg.dao.SamlUserDao;
 import edu.kit.scc.webreg.dao.SerialDao;
 import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
-import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
@@ -105,8 +103,9 @@ public class UserCreateServiceImpl implements UserCreateService {
 			String locale, Map<String, List<Object>> attributeMap)
 			throws UserUpdateException {
 		
-		logger.debug("User ({},{},{}) from {} is being preCreated", samlIdentifier.getPersistentId(), 
-				samlIdentifier.getPairwiseId(), samlIdentifier.getSubjectId(), idpEntity.getEntityId());
+		logger.debug("User ({}, {}, {}, {}, {}) from {} is being preCreated", samlIdentifier.getPersistentId(), 
+				samlIdentifier.getPairwiseId(), samlIdentifier.getSubjectId(), samlIdentifier.getAttributeSourcedIdName(),
+				samlIdentifier.getAttributeSourcedId(), idpEntity.getEntityId());
 		
 		idpEntity = idpMetadataService.findById(idpEntity.getId());
 		
