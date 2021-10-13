@@ -51,7 +51,7 @@ public class Saml2IdpRedirectResponseHandler {
 		
 		try {
 			String redirect = samlIdpService.resumeAuthnRequest(session.getAuthnRequestId(), session.getIdentityId(), 
-								session.getAuthnRequestIdpConfigId(), response);
+								session.getAuthnRequestIdpConfigId(), session.getAuthnRequestRelayState(), response);
 			
 			if (redirect != null) {
 				session.setOriginalRequestPath(request.getRequestURI());

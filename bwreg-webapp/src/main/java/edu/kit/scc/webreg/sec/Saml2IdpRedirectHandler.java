@@ -99,7 +99,9 @@ public class Saml2IdpRedirectHandler {
 		if (spMetadata == null) {
 			throw new ServletException("Issuer is not known here");
 		}
-		
+
+		String relayState = request.getParameter("RelayState");
+
 		logger.debug("Corresponding SP found in Metadata: {}", spMetadata.getEntityId());
 		
 		if (session == null || session.getIdpId() == null || session.getSpId() == null) {
@@ -107,6 +109,7 @@ public class Saml2IdpRedirectHandler {
 					request.getRemoteAddr());
 			long id = samlIdpService.registerAuthnRequest(authnRequest);
 			session.setAuthnRequestId(id);
+			session.setAuthnRequestRelayState(relayState);
 			session.setAuthnRequestIdpConfigId(idpConfig.getId());
 			session.setAuthnRequestSpMetadataId(spMetadata.getId());
 			session.setOriginalRequestPath(idpConfig.getRedirect() + "/response");
@@ -116,6 +119,7 @@ public class Saml2IdpRedirectHandler {
 		
 		long id = samlIdpService.registerAuthnRequest(authnRequest);
 		session.setAuthnRequestId(id);
+		session.setAuthnRequestRelayState(relayState);
 		session.setAuthnRequestIdpConfigId(idpConfig.getId());
 		session.setAuthnRequestSpMetadataId(spMetadata.getId());
 		response.sendRedirect(request.getRequestURI() + "/response");

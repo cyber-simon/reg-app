@@ -11,6 +11,6 @@ public interface SamlIdpService {
 	long registerAuthnRequest(AuthnRequest authnRequest);
 
 	String resumeAuthnRequest(Long authnRequestId, Long userId, Long authnRequestIdpConfigId,
-			HttpServletResponse resonse) throws SamlAuthenticationException;
+			String relayState, HttpServletResponse resonse) throws SamlAuthenticationException;
 
 }

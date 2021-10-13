@@ -39,6 +39,7 @@ public class SessionManager implements Serializable {
 	private Long authnRequestId;
 	private Long authnRequestIdpConfigId;
 	private Long authnRequestSpMetadataId;
+	private String authnRequestRelayState;
 
 	/*
 	 * For OIDC OP logins triggered by RP
@@ -387,5 +388,13 @@ public class SessionManager implements Serializable {
 
 	public void setSamlIdentifier(SamlIdentifier samlIdentifier) {
 		this.samlIdentifier = samlIdentifier;
+	}
+
+	public String getAuthnRequestRelayState() {
+		return authnRequestRelayState;
+	}
+
+	public void setAuthnRequestRelayState(String authnRequestRelayState) {
+		this.authnRequestRelayState = authnRequestRelayState;
 	}
 }

@@ -27,6 +27,7 @@ import org.opensaml.messaging.context.MessageContext;
 import org.opensaml.messaging.encoder.MessageEncodingException;
 import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.common.messaging.SAMLMessageSecuritySupport;
+import org.opensaml.saml.common.messaging.context.SAMLBindingContext;
 import org.opensaml.saml.common.messaging.context.SAMLEndpointContext;
 import org.opensaml.saml.common.messaging.context.SAMLPeerEntityContext;
 import org.opensaml.saml.common.xml.SAMLConstants;
@@ -145,8 +146,8 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 	}
 
 	@Override
-	public String resumeAuthnRequest(Long authnRequestId, Long identityId, 
-			Long authnRequestIdpConfigId, HttpServletResponse response) throws SamlAuthenticationException {
+	public String resumeAuthnRequest(Long authnRequestId, Long identityId, Long authnRequestIdpConfigId,
+			String relayState, HttpServletResponse response) throws SamlAuthenticationException {
 		
 		SamlIdpConfigurationEntity idpConfig = idpConfigDao.findById(authnRequestIdpConfigId);
 		logger.debug("IDP Config loaded: {}", idpConfig.getEntityId());
@@ -280,6 +281,10 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 			SAMLMessageSecuritySupport.signMessage(messageContext);
 		} catch (SecurityException | MarshallingException | SignatureException e) {
 			throw new SamlAuthenticationException(e);
+		}
+		
+		if (relayState != null) {
+			messageContext.getSubcontext(SAMLBindingContext.class, true).setRelayState(relayState);
 		}
 		
 		postEncoder.setMessageContext(messageContext);
