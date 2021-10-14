@@ -10,10 +10,13 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.bean;
 
+import java.io.IOException;
 import java.io.Serializable;
 
 import javax.inject.Named;
 import javax.faces.view.ViewScoped;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
@@ -68,6 +71,7 @@ public class SetServicePasswordBean implements Serializable {
 	
 	private Long id;
 	private String serviceShortName;
+	private String navOptions; 
 	
 	private String password1, password2;
 	
@@ -143,6 +147,13 @@ public class SetServicePasswordBean implements Serializable {
 		else
 			messageGenerator.addResolvedErrorMessage("pw_error", "error", "service_password_cannot_be_set", true);
 
+		if (navOptions.equalsIgnoreCase("created")) {
+    		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+			try {
+				context.redirect("../service/registry-detail.xhtml?regId=" + registryEntity.getId());
+			} catch (IOException e) { }
+		}
+
 		return null;
 	}
 	
@@ -202,5 +213,13 @@ public class SetServicePasswordBean implements Serializable {
 
 	public void setServiceShortName(String serviceShortName) {
 		this.serviceShortName = serviceShortName;
+	}
+
+	public String getNavOptions() {
+		return navOptions;
+	}
+
+	public void setNavOptions(String navOptions) {
+		this.navOptions = navOptions;
 	}
 }

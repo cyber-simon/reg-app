@@ -333,7 +333,7 @@ public class RegisterServiceBean implements Serializable {
 	    	else if (service.getServiceProps().containsKey("ecp") &&
 	    			service.getServiceProps().get("ecp").equalsIgnoreCase("disabled")) {
 	    		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-				context.redirect("../service/set-password.xhtml?registryId=" + registry.getId());
+				context.redirect("../service/set-password.xhtml?registryId=" + registry.getId() + "&no=created");
 				return null;
 	    	}
 	    	else if (sessionManager.getOriginalRequestPath() != null) {
@@ -346,7 +346,7 @@ public class RegisterServiceBean implements Serializable {
 			logger.info("Could not redirect client", e);
 		}
     	
-    	return ViewIds.INDEX_USER + "?faces-redirect=true";
+    	return "../service/registry-detail.xhtml?regId=" + registry.getId() + "&faces-redirect=true";
     }
     
 	public Long getId() {

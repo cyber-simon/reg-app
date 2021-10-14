@@ -24,54 +24,42 @@
 	<ui:param name="title" value="#{messages.title}"/>
 
 	<ui:define name="content">
-	<h:form id="form">
+	<h:form id="form" class="form full">
 
-	<h3 class="full"><h:outputText value="#{messages.registry_details}: #{registryDetailBean.entity.service.name}" /></h3>
+	<h3><h:outputText value="#{messages.registry_details}: #{registryDetailBean.entity.service.name}" /></h3>
 
-	<p:panelGrid id="baseData" columns="2" styleClass="full" style="margin-top: 1em;">
-        <h:outputText value="#{messages.registered_time}:"/>
-        <h:outputText value="#{of:formatDate(registryDetailBean.entity.agreedTime, 'dd.MM.yyyy HH:mm')}"/>
-
-        <h:outputText value="#{messages.status}:"/>
-        <h:outputText value="#{registryDetailBean.entity.registryStatus}"/>
-	</p:panelGrid>
-
-	<p:dataTable id="attrData" style="min-width: 500px; margin-top: 1em;" styleClass="full" 
-				value="#{registryDetailBean.entity.registryValues.keySet().toArray()}" var="key">
-		<p:column>
-			<f:facet name="header">
-				<h:outputText value="#{messages.name}" />
-			</f:facet>
-			<h:outputText value="#{key}" />
-		</p:column>
-		<p:column>
-			<f:facet name="header">
-				<h:outputText value="#{messages.value}" />
-			</f:facet>
-			<h:outputText value="#{registryDetailBean.entity.registryValues.get(key)}" 
-				rendered="#{key != 'userPassword'}"/>
-			<h:outputText value="set" 
-				rendered="#{key == 'userPassword'}"/>
-		</p:column>						
-	</p:dataTable>
-
-	<h3 class="full" style="margin-top: 1em;"><h:outputText value="#{messages.more_properties}: #{registryDetailBean.entity.service.name}" /></h3>
-
-	<div class="firstline full" style="margin-top: 1em;">
-		<h:outputText value="#{registryDetailBean.infotainment.message}" />
-	</div>
-	<p:treeTable rendered="#{not empty registryDetailBean.infotainmentRoot}" styleClass="full" style="margin-top: 0.5em;"
-				value="#{registryDetailBean.infotainmentRoot}" var="node">
-		<p:column>  
-        	<f:facet name="header">Name</f:facet>  
-        	<h:outputText value="#{node.nodeName}" />  
-    	</p:column>  
-		<p:column>  
-			<f:facet name="header">Message</f:facet>  
-			<h:outputText value="#{node.message}" />  
-		</p:column>  
-	</p:treeTable>
+	<p:outputPanel rendered="#{registryDetailBean.newRegistry}" style="margin-top: 1em;">
+		<h:outputText value="#{messages.registry_new_registry}" /> 
+	</p:outputPanel>
 	
+	<p:outputPanel style="margin-top: 1em;">
+		<h:outputText value="#{messages.registry_details_when_1}" /> 
+		<h:outputText value="#{of:formatDate(registryDetailBean.entity.agreedTime, 'dd.MM.yyyy HH:mm')}"/> 
+		<h:outputText value="#{messages.registry_details_when_2}" /> 
+	</p:outputPanel>
+
+	<p:outputPanel>
+		<h:outputText value="#{messages.registry_details_status}" /> 
+        <h:outputText value="#{registryDetailBean.entity.registryStatus}"/>
+	</p:outputPanel>
+
+	<p:panel>
+		<p:outputPanel style="margin-top: 1em;" rendered="#{registryDetailBean.serviceEntity.serviceProps.containsKey('info_login_host')}">
+			<b><h:outputText value="#{messages.registry_details_login_host}" /></b> 
+			<h:outputText value="#{registryDetailBean.serviceEntity.serviceProps['info_login_host']}" /> 
+		</p:outputPanel>
+	
+		<p:outputPanel rendered="#{registryDetailBean.serviceEntity.serviceProps.containsKey('info_login_protocols')}">
+			<b><h:outputText value="#{messages.registry_details_protocols}" /></b> 
+			<h:outputText value="#{registryDetailBean.serviceEntity.serviceProps['info_login_protocols']}" /> 
+		</p:outputPanel>
+	
+		<p:outputPanel rendered="#{registryDetailBean.entity.registryValues.containsKey('localUid')}">
+			<b><h:outputText value="#{messages.registry_login_username}" /></b> 
+			<h:outputText value="#{registryDetailBean.entity.registryValues['localUid']}" /> 
+		</p:outputPanel>
+	</p:panel>
+
 	<h:panelGroup rendered="#{registryDetailBean.entity.registryStatus == 'ACTIVE'}">
 		<h3 class="full" style="margin-top: 1em;"><h:outputText value="#{messages.deregister}: #{registryDetailBean.entity.service.name}" /></h3>
 		<div class="firstline full" style="margin-top: 1em;">
@@ -84,9 +72,49 @@
 		</div>
 	</h:panelGroup>
 	
-		<div class="text full" style="margin-top: 2em;">
-			<a href="../index.xhtml"><h:outputText value="#{messages.back}"/></a>
-		</div>		
+	<div class="text full" style="margin-top: 2em;">
+		<a href="../index.xhtml"><h:outputText value="#{messages.back}"/></a>
+	</div>		
+
+	<p:panel collapsed="true" toggleable="true" style="margin-top: 2em;">
+		<f:facet name="header">#{messages.registry_details_nerds}</f:facet>
+		<p:dataTable id="attrData" style="margin-top: 1em;" 
+					value="#{registryDetailBean.entity.registryValues.keySet().toArray()}" var="key">
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.name}" />
+				</f:facet>
+				<h:outputText value="#{key}" />
+			</p:column>
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.value}" />
+				</f:facet>
+				<h:outputText value="#{registryDetailBean.entity.registryValues.get(key)}" 
+					rendered="#{key != 'userPassword'}"/>
+				<h:outputText value="set" 
+					rendered="#{key == 'userPassword'}"/>
+			</p:column>						
+		</p:dataTable>
+		<h3 class="full" style="margin-top: 1em;"><h:outputText value="#{messages.more_properties}: #{registryDetailBean.entity.service.name}" /></h3>
+	
+		<div class="firstline full" style="margin-top: 1em;">
+			<h:outputText value="#{registryDetailBean.infotainment.message}" />
+		</div>
+		<p:treeTable rendered="#{not empty registryDetailBean.infotainmentRoot}" styleClass="full" style="margin-top: 0.5em;"
+					value="#{registryDetailBean.infotainmentRoot}" var="node">
+			<p:column>  
+	        	<f:facet name="header">Name</f:facet>  
+	        	<h:outputText value="#{node.nodeName}" />  
+	    	</p:column>  
+			<p:column>  
+				<f:facet name="header">Message</f:facet>  
+				<h:outputText value="#{node.message}" />  
+			</p:column>  
+		</p:treeTable>		
+	</p:panel>
+
+	
 	
 	</h:form>
 	</ui:define>

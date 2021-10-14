@@ -72,10 +72,15 @@ public class RegistryDetailBean implements Serializable {
 	private TreeNode infotainmentRoot;
 	
 	private Long id;
+	private Boolean newRegistry = false;
 	
 	public void preRenderView(ComponentSystemEvent ev) {
     	if (! initialzed) {
 			entity = service.findById(id);
+			
+			if ((System.currentTimeMillis() - entity.getAgreedTime().getTime()) < 5L * 60L * 1000L) {
+				newRegistry = true;
+			}
 			
 			if (entity == null)
 				throw new NotAuthorizedException("No such item");
@@ -147,5 +152,9 @@ public class RegistryDetailBean implements Serializable {
 
 	public void setInfotainmentRoot(TreeNode infotainmentRoot) {
 		this.infotainmentRoot = infotainmentRoot;
+	}
+
+	public Boolean getNewRegistry() {
+		return newRegistry;
 	}
 }
