@@ -14,13 +14,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import javax.inject.Named;
-import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.primefaces.model.LazyDataModel;
 import org.slf4j.Logger;
@@ -58,9 +59,9 @@ public class BulkRegisterBean implements Serializable {
 	
 	private String eppnField = "user1@org2.de\nuser2@org1.edu";
 	
-	private List<RegisterUser> registerUserList;
+	private Set<RegisterUser> registerUserList;
 
-	private RegisterUser[] selectedUsers;
+	private List<RegisterUser> selectedUsers;
 	
 	private List<ServiceEntity> serviceList;
 	
@@ -68,7 +69,7 @@ public class BulkRegisterBean implements Serializable {
 	
 	private LazyDataModel<UserEntity> userList;
 	
-	private UserEntity[] insertUser;
+	private List<UserEntity> insertUser;
 	
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (serviceList == null) 
@@ -77,18 +78,17 @@ public class BulkRegisterBean implements Serializable {
 	
 	public void fillTable() {
 		if (registerUserList == null)
-			registerUserList = new ArrayList<RegisterUser>();
+			registerUserList = new HashSet<RegisterUser>();
 
 		try {
 			BufferedReader reader = new BufferedReader(new StringReader(eppnField));
 			String line;
 			while ((line = reader.readLine()) != null) {
 				String eppn = line.trim();
-				RegisterUser registerUser = new RegisterUser();
-				registerUser.setEppn(eppn);
-				if (! registerUserList.contains(registerUser)) {
-					registerUserList.add(registerUser);
-					logger.debug("Adding user {} for registry", eppn);
+				List<UserEntity> ul = userService.findByEppn(eppn);
+				for (UserEntity u : ul) {
+					logger.debug("Adding user {} for registry", u.getId());
+					registerUserList.add(new RegisterUser(u));
 				}
 			}
 			
@@ -99,50 +99,36 @@ public class BulkRegisterBean implements Serializable {
 
 	public void insert() {
 		if (registerUserList == null)
-			registerUserList = new ArrayList<RegisterUser>();
+			registerUserList = new HashSet<RegisterUser>();
 
 		for (UserEntity u : insertUser) {
-			RegisterUser registerUser = new RegisterUser();
-			registerUser.setEppn(u.getEppn());
-			if (! registerUserList.contains(registerUser)) {
-				registerUserList.add(registerUser);
-				logger.debug("Adding user {} for registry", u.getEppn());
-			}
+			registerUserList.add(new RegisterUser(u));
+			logger.debug("Adding user {} for registry", u.getEppn());
 		}
 	}
 
 	public void processSelected() {
 		ServiceEntity service = serviceSerivce.findWithPolicies(selectedService.getId());
 		
-		for (RegisterUser registerUser : selectedUsers) {
+		for (RegisterUser ru : selectedUsers) {
+			UserEntity u = ru.getUser();
 			try {
-				logger.debug("Processing user {} for service {}", registerUser.getEppn(), selectedService.getName());
-				List<UserEntity> userEntity = userService.findByEppn(registerUser.getEppn());
-
-				if (userEntity.size() == 0) {
-					registerUser.setStatus("User unkown");
-					continue;
-				}
-				
-				if (userEntity.size() > 1) {
-					registerUser.setStatus("User not unique");
-					continue;
-				}
+				logger.debug("Processing user {} for service {}", u.getId(), selectedService.getName());
 				
 				RegistryEntity registry = registryService.findByServiceAndUserAndStatus(
-						selectedService, userEntity.get(0), RegistryStatus.ACTIVE);
+						selectedService, u, RegistryStatus.ACTIVE);
 				
 				if (registry != null) {
-					registerUser.setStatus("User already registered");
+					ru.setStatus("User already registered");
 					continue;
 				}
 				
-	    		registerUserService.registerUser(userEntity.get(0), service, "bulk-register");
-				registerUser.setStatus("Successfully registered");
+	    		registerUserService.registerUser(u, service, "bulk-register");
+				ru.setStatus("Successfully registered");
 
 			} catch (Exception e) {
 				logger.warn("Register failed", e);
-				registerUser.setStatus("Fehler: " + e.getMessage());
+				ru.setStatus("Fehler: " + e.getMessage());
 			}
 		}
 	}
@@ -155,19 +141,19 @@ public class BulkRegisterBean implements Serializable {
 		this.eppnField = eppnField;
 	}
 
-	public List<RegisterUser> getRegisterUserList() {
+	public Set<RegisterUser> getRegisterUserList() {
 		return registerUserList;
 	}
 
-	public void setRegisterUserList(List<RegisterUser> registerUserList) {
+	public void setRegisterUserList(Set<RegisterUser> registerUserList) {
 		this.registerUserList = registerUserList;
 	}
 
-	public RegisterUser[] getSelectedUsers() {
+	public List<RegisterUser> getSelectedUsers() {
 		return selectedUsers;
 	}
 
-	public void setSelectedUsers(RegisterUser[] selectedUsers) {
+	public void setSelectedUsers(List<RegisterUser> selectedUsers) {
 		this.selectedUsers = selectedUsers;
 	}
 
@@ -193,11 +179,11 @@ public class BulkRegisterBean implements Serializable {
 		return userList;
 	}
 
-	public UserEntity[] getInsertUser() {
+	public List<UserEntity> getInsertUser() {
 		return insertUser;
 	}
 
-	public void setInsertUser(UserEntity[] insertUser) {
+	public void setInsertUser(List<UserEntity> insertUser) {
 		this.insertUser = insertUser;
 	}
 

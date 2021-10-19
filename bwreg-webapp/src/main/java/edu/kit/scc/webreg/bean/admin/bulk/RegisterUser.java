@@ -12,14 +12,19 @@ package edu.kit.scc.webreg.bean.admin.bulk;
 
 import java.io.Serializable;
 
+import edu.kit.scc.webreg.entity.UserEntity;
+
 public class RegisterUser implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private String eppn;
+	private UserEntity user;
 	private String status;
-	
 
+	public RegisterUser(UserEntity user) {
+		this.user = user;
+	}
+	
 	public String getStatus() {
 		return status;
 	}
@@ -28,19 +33,16 @@ public class RegisterUser implements Serializable {
 		this.status = status;
 	}
 
-	public String getEppn() {
-		return eppn;
-	}
-
-	public void setEppn(String eppn) {
-		this.eppn = eppn;
+	public UserEntity getUser() {
+		return user;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((eppn == null) ? 0 : eppn.hashCode());
+		result = prime * result + ((status == null) ? 0 : status.hashCode());
+		result = prime * result + ((user == null) ? 0 : user.hashCode());
 		return result;
 	}
 
@@ -53,10 +55,15 @@ public class RegisterUser implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		RegisterUser other = (RegisterUser) obj;
-		if (eppn == null) {
-			if (other.eppn != null)
+		if (status == null) {
+			if (other.status != null)
 				return false;
-		} else if (!eppn.equals(other.eppn))
+		} else if (!status.equals(other.status))
+			return false;
+		if (user == null) {
+			if (other.user != null)
+				return false;
+		} else if (!user.equals(other.user))
 			return false;
 		return true;
 	}

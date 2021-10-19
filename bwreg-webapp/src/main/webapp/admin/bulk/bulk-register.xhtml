@@ -83,10 +83,13 @@
 		<div class="panel">
 			<p:panel id="registerPanel" header="Register Panel">
 				<p:dataTable id="regs" var="registerUser" value="#{bulkRegisterBean.registerUserList}"
-						rowKey="#{registerUser.eppn}" selection="#{bulkRegisterBean.selectedUsers}" selectionMode="multiple">
+						rowKey="#{registerUser.user.id}"
+						selection="#{bulkRegisterBean.selectedUsers}" selectionMode="multiple">
 				
-					<p:column headerText="#{messages.eppn}">#{registerUser.eppn}</p:column>  
-					<p:column headerText="#{messages.status}">#{registerUser.status}</p:column>
+					<p:column headerText="#{messages.id}">#{registerUser.user.id}</p:column>  
+					<p:column headerText="#{messages.eppn}">#{registerUser.user.eppn}</p:column>  
+					<p:column headerText="#{messages.status}">#{registerUser.user.userStatus}</p:column>  
+					<p:column headerText="#{messages.status}">#{registerUser.status}</p:column>  
 				
 				</p:dataTable>
 		        <br/>
