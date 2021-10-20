@@ -13,6 +13,6 @@ package edu.kit.scc.webreg.audit;
 import edu.kit.scc.webreg.entity.audit.AuditUserEntity;
 import edu.kit.scc.webreg.service.BaseService;
 
-public interface AuditUserEntryService extends BaseService<AuditUserEntity, Long> {
+public interface AuditUserEntryService extends BaseService<AuditUserEntity> {
 
 }

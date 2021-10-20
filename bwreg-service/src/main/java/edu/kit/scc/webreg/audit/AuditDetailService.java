@@ -16,7 +16,7 @@ import edu.kit.scc.webreg.entity.audit.AuditDetailEntity;
 import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
 import edu.kit.scc.webreg.service.BaseService;
 
-public interface AuditDetailService extends BaseService<AuditDetailEntity, Long> {
+public interface AuditDetailService extends BaseService<AuditDetailEntity> {
 
 	List<AuditDetailEntity> findNewestFailed(int limit);
 
