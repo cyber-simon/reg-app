@@ -13,12 +13,12 @@ package edu.kit.scc.webreg.converter;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import edu.kit.scc.webreg.entity.BaseEntity;
+import edu.kit.scc.webreg.entity.GroupAdminRoleEntity;
 import edu.kit.scc.webreg.service.BaseService;
 import edu.kit.scc.webreg.service.GroupAdminRoleService;
 
 @Named("groupAdminRoleConverter")
-public class GroupAdminRoleConverter extends AbstractConverter {
+public class GroupAdminRoleConverter extends AbstractConverter<GroupAdminRoleEntity> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -26,7 +26,7 @@ public class GroupAdminRoleConverter extends AbstractConverter {
 	private GroupAdminRoleService service;
 
 	@Override
-	protected BaseService<? extends BaseEntity<Long>, Long> getService() {
+	protected BaseService<GroupAdminRoleEntity, Long> getService() {
 		return service;
 	}
 	

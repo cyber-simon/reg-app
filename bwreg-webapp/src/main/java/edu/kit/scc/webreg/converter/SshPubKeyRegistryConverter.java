@@ -13,12 +13,12 @@ package edu.kit.scc.webreg.converter;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import edu.kit.scc.webreg.entity.BaseEntity;
+import edu.kit.scc.webreg.entity.SshPubKeyRegistryEntity;
 import edu.kit.scc.webreg.service.BaseService;
 import edu.kit.scc.webreg.service.ssh.SshPubKeyRegistryService;
 
 @Named("sshPubKeyRegistryConverter")
-public class SshPubKeyRegistryConverter extends AbstractConverter {
+public class SshPubKeyRegistryConverter extends AbstractConverter<SshPubKeyRegistryEntity> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -26,7 +26,7 @@ public class SshPubKeyRegistryConverter extends AbstractConverter {
 	private SshPubKeyRegistryService service;
 
 	@Override
-	protected BaseService<? extends BaseEntity<Long>, Long> getService() {
+	protected BaseService<SshPubKeyRegistryEntity, Long> getService() {
 		return service;
 	}
 	

@@ -20,30 +20,30 @@ import javax.faces.convert.ConverterException;
 import edu.kit.scc.webreg.entity.BaseEntity;
 import edu.kit.scc.webreg.service.BaseService;
 
-public abstract class AbstractConverter implements Converter, Serializable {
+public abstract class AbstractConverter<T extends BaseEntity<Long>> implements Converter<T>, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	protected abstract BaseService<? extends BaseEntity<Long>, Long> getService();
 	
+	@SuppressWarnings("unchecked")
 	@Override
-	public Object getAsObject(FacesContext ctx, UIComponent component, String value)
+	public T getAsObject(FacesContext ctx, UIComponent component, String value)
 			throws ConverterException {
         if (value == null || value.length() == 0) {
             return null;
         }
         Long id = Long.decode(value);
-        Object o = getService().findById(id);
+        T o = (T) getService().findById(id);
 		return o;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public String getAsString(FacesContext ctx, UIComponent component, Object value)
+	public String getAsString(FacesContext ctx, UIComponent component, T value)
 			throws ConverterException {
         if (value == null) {
             return "";
         }
-        return ((BaseEntity<Long>)value).getId().toString();
+        return value.getId().toString();
 	}	
 }

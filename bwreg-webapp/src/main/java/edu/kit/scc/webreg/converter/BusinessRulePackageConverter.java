@@ -13,12 +13,12 @@ package edu.kit.scc.webreg.converter;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import edu.kit.scc.webreg.entity.BaseEntity;
+import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.service.BaseService;
 import edu.kit.scc.webreg.service.BusinessRulePackageService;
 
 @Named("businessRulePackageConverter")
-public class BusinessRulePackageConverter extends AbstractConverter {
+public class BusinessRulePackageConverter extends AbstractConverter<BusinessRulePackageEntity> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -26,7 +26,7 @@ public class BusinessRulePackageConverter extends AbstractConverter {
 	private BusinessRulePackageService service;
 
 	@Override
-	protected BaseService<? extends BaseEntity<Long>, Long> getService() {
+	protected BaseService<BusinessRulePackageEntity, Long> getService() {
 		return service;
 	}
 	

@@ -13,12 +13,12 @@ package edu.kit.scc.webreg.converter;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import edu.kit.scc.webreg.entity.BaseEntity;
+import edu.kit.scc.webreg.entity.JobClassEntity;
 import edu.kit.scc.webreg.service.BaseService;
 import edu.kit.scc.webreg.service.JobClassService;
 
 @Named("jobClassConverter")
-public class JobClassConverter extends AbstractConverter {
+public class JobClassConverter extends AbstractConverter<JobClassEntity> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -26,7 +26,7 @@ public class JobClassConverter extends AbstractConverter {
 	private JobClassService service;
 
 	@Override
-	protected BaseService<? extends BaseEntity<Long>, Long> getService() {
+	protected BaseService<JobClassEntity, Long> getService() {
 		return service;
 	}
 	

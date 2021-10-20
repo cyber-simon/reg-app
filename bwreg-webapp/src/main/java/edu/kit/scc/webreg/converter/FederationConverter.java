@@ -13,12 +13,12 @@ package edu.kit.scc.webreg.converter;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import edu.kit.scc.webreg.entity.BaseEntity;
+import edu.kit.scc.webreg.entity.FederationEntity;
 import edu.kit.scc.webreg.service.BaseService;
 import edu.kit.scc.webreg.service.FederationService;
 
 @Named("federationConverter")
-public class FederationConverter extends AbstractConverter {
+public class FederationConverter extends AbstractConverter<FederationEntity> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -26,7 +26,7 @@ public class FederationConverter extends AbstractConverter {
 	private FederationService service;
 
 	@Override
-	protected BaseService<? extends BaseEntity<Long>, Long> getService() {
+	protected BaseService<FederationEntity, Long> getService() {
 		return service;
 	}
 	

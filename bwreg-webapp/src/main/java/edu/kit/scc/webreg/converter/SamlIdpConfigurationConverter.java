@@ -13,12 +13,12 @@ package edu.kit.scc.webreg.converter;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import edu.kit.scc.webreg.entity.BaseEntity;
+import edu.kit.scc.webreg.entity.SamlIdpConfigurationEntity;
 import edu.kit.scc.webreg.service.BaseService;
 import edu.kit.scc.webreg.service.SamlIdpConfigurationService;
 
 @Named("samlIdpConfigurationConverter")
-public class SamlIdpConfigurationConverter extends AbstractConverter {
+public class SamlIdpConfigurationConverter extends AbstractConverter<SamlIdpConfigurationEntity> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -26,7 +26,7 @@ public class SamlIdpConfigurationConverter extends AbstractConverter {
 	private SamlIdpConfigurationService service;
 
 	@Override
-	protected BaseService<? extends BaseEntity<Long>, Long> getService() {
+	protected BaseService<SamlIdpConfigurationEntity, Long> getService() {
 		return service;
 	}
 	

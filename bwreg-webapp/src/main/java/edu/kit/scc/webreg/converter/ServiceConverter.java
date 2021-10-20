@@ -14,11 +14,12 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import edu.kit.scc.webreg.entity.BaseEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.service.BaseService;
 import edu.kit.scc.webreg.service.ServiceService;
 
 @Named("serviceConverter")
-public class ServiceConverter extends AbstractConverter {
+public class ServiceConverter extends AbstractConverter<ServiceEntity> {
 
 	private static final long serialVersionUID = 1L;
 

@@ -13,12 +13,12 @@ package edu.kit.scc.webreg.converter;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import edu.kit.scc.webreg.entity.BaseEntity;
+import edu.kit.scc.webreg.entity.EmailTemplateEntity;
 import edu.kit.scc.webreg.service.BaseService;
 import edu.kit.scc.webreg.service.EmailTemplateService;
 
 @Named("emailTemplateConverter")
-public class EmailTemplateConverter extends AbstractConverter {
+public class EmailTemplateConverter extends AbstractConverter<EmailTemplateEntity> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -26,7 +26,7 @@ public class EmailTemplateConverter extends AbstractConverter {
 	private EmailTemplateService service;
 
 	@Override
-	protected BaseService<? extends BaseEntity<Long>, Long> getService() {
+	protected BaseService<EmailTemplateEntity, Long> getService() {
 		return service;
 	}
 	

@@ -13,12 +13,12 @@ package edu.kit.scc.webreg.converter;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import edu.kit.scc.webreg.entity.BaseEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
 import edu.kit.scc.webreg.service.BaseService;
 import edu.kit.scc.webreg.service.oidc.OidcOpConfigurationService;
 
 @Named("oidcOpConfigurationConverter")
-public class OidcOpConfigurationConverter extends AbstractConverter {
+public class OidcOpConfigurationConverter extends AbstractConverter<OidcOpConfigurationEntity> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -26,7 +26,7 @@ public class OidcOpConfigurationConverter extends AbstractConverter {
 	private OidcOpConfigurationService service;
 
 	@Override
-	protected BaseService<? extends BaseEntity<Long>, Long> getService() {
+	protected BaseService<OidcOpConfigurationEntity, Long> getService() {
 		return service;
 	}
 	

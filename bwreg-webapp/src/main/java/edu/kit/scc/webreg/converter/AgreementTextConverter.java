@@ -13,12 +13,12 @@ package edu.kit.scc.webreg.converter;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import edu.kit.scc.webreg.entity.BaseEntity;
+import edu.kit.scc.webreg.entity.AgreementTextEntity;
 import edu.kit.scc.webreg.service.AgreementTextService;
 import edu.kit.scc.webreg.service.BaseService;
 
 @Named("agreementTextConverter")
-public class AgreementTextConverter extends AbstractConverter {
+public class AgreementTextConverter extends AbstractConverter<AgreementTextEntity> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -26,7 +26,7 @@ public class AgreementTextConverter extends AbstractConverter {
 	private AgreementTextService service;
 
 	@Override
-	protected BaseService<? extends BaseEntity<Long>, Long> getService() {
+	protected BaseService<AgreementTextEntity, Long> getService() {
 		return service;
 	}
 	

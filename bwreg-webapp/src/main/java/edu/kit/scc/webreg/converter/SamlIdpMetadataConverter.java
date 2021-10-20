@@ -13,12 +13,12 @@ package edu.kit.scc.webreg.converter;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import edu.kit.scc.webreg.entity.BaseEntity;
+import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.service.BaseService;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 
 @Named("samlIdpMetadataConverter")
-public class SamlIdpMetadataConverter extends AbstractConverter {
+public class SamlIdpMetadataConverter extends AbstractConverter<SamlIdpMetadataEntity> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -26,7 +26,7 @@ public class SamlIdpMetadataConverter extends AbstractConverter {
 	private SamlIdpMetadataService service;
 
 	@Override
-	protected BaseService<? extends BaseEntity<Long>, Long> getService() {
+	protected BaseService<SamlIdpMetadataEntity, Long> getService() {
 		return service;
 	}
 	

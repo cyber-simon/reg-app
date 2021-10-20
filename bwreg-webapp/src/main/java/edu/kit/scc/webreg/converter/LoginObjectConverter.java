@@ -25,7 +25,7 @@ import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.oidc.OidcRpConfigurationService;
 
 @Named("loginObjectConverter")
-public class LoginObjectConverter implements Converter, Serializable {
+public class LoginObjectConverter implements Converter<Object>, Serializable {
 
 	private static final long serialVersionUID = 1L;
 

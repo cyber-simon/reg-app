@@ -13,12 +13,12 @@ package edu.kit.scc.webreg.converter;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import edu.kit.scc.webreg.entity.BaseEntity;
+import edu.kit.scc.webreg.entity.ApproverRoleEntity;
 import edu.kit.scc.webreg.service.ApproverRoleService;
 import edu.kit.scc.webreg.service.BaseService;
 
 @Named("approverRoleConverter")
-public class ApproverRoleConverter extends AbstractConverter {
+public class ApproverRoleConverter extends AbstractConverter<ApproverRoleEntity> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -26,7 +26,7 @@ public class ApproverRoleConverter extends AbstractConverter {
 	private ApproverRoleService service;
 
 	@Override
-	protected BaseService<? extends BaseEntity<Long>, Long> getService() {
+	protected BaseService<ApproverRoleEntity, Long> getService() {
 		return service;
 	}
 	

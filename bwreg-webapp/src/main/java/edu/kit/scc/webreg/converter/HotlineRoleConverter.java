@@ -13,12 +13,12 @@ package edu.kit.scc.webreg.converter;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import edu.kit.scc.webreg.entity.BaseEntity;
+import edu.kit.scc.webreg.entity.AdminRoleEntity;
 import edu.kit.scc.webreg.service.AdminRoleService;
 import edu.kit.scc.webreg.service.BaseService;
 
 @Named("hotlineRoleConverter")
-public class HotlineRoleConverter extends AbstractConverter {
+public class HotlineRoleConverter extends AbstractConverter<AdminRoleEntity> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -26,7 +26,7 @@ public class HotlineRoleConverter extends AbstractConverter {
 	private AdminRoleService service;
 
 	@Override
-	protected BaseService<? extends BaseEntity<Long>, Long> getService() {
+	protected BaseService<AdminRoleEntity, Long> getService() {
 		return service;
 	}
 	

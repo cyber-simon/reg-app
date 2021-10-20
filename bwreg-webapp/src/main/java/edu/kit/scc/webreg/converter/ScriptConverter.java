@@ -14,11 +14,12 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import edu.kit.scc.webreg.entity.BaseEntity;
+import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.service.BaseService;
 import edu.kit.scc.webreg.service.ScriptService;
 
 @Named("scriptConverter")
-public class ScriptConverter extends AbstractConverter {
+public class ScriptConverter extends AbstractConverter<ScriptEntity> {
 
 	private static final long serialVersionUID = 1L;
 
