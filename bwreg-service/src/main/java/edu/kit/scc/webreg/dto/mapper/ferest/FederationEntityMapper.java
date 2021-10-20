@@ -7,7 +7,7 @@ import edu.kit.scc.webreg.dto.mapper.AbstractBaseEntityMapper;
 import edu.kit.scc.webreg.entity.FederationEntity;
 
 @ApplicationScoped
-public class FederationEntityMapper extends AbstractBaseEntityMapper<FederationEntity, FederationEntityDto, Long> {
+public class FederationEntityMapper extends AbstractBaseEntityMapper<FederationEntity, FederationEntityDto> {
 
 	private static final long serialVersionUID = 1L;
 

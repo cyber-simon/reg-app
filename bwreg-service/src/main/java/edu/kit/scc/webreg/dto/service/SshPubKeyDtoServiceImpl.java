@@ -18,7 +18,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.RestInterfaceException;
 
 @Stateless
-public class SshPubKeyDtoServiceImpl extends BaseDtoServiceImpl<SshPubKeyEntity, SshPubKeyEntityDto, Long> implements SshPubKeyDtoService {
+public class SshPubKeyDtoServiceImpl extends BaseDtoServiceImpl<SshPubKeyEntity, SshPubKeyEntityDto> implements SshPubKeyDtoService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -62,12 +62,12 @@ public class SshPubKeyDtoServiceImpl extends BaseDtoServiceImpl<SshPubKeyEntity,
 	}
 	
 	@Override
-	protected BaseEntityMapper<SshPubKeyEntity, SshPubKeyEntityDto, Long> getMapper() {
+	protected BaseEntityMapper<SshPubKeyEntity, SshPubKeyEntityDto> getMapper() {
 		return mapper;
 	}
 
 	@Override
-	protected BaseDao<SshPubKeyEntity, Long> getDao() {
+	protected BaseDao<SshPubKeyEntity> getDao() {
 		return dao;
 	}
 

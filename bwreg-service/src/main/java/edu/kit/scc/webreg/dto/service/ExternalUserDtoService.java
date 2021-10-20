@@ -8,7 +8,7 @@ import edu.kit.scc.webreg.entity.ExternalUserEntity;
 import edu.kit.scc.webreg.exc.NoUserFoundException;
 import edu.kit.scc.webreg.exc.RestInterfaceException;
 
-public interface ExternalUserDtoService extends BaseDtoService<ExternalUserEntity, ExternalUserEntityDto, Long> {
+public interface ExternalUserDtoService extends BaseDtoService<ExternalUserEntity, ExternalUserEntityDto> {
 
 	ExternalUserEntityDto findByExternalId(String externalId) throws RestInterfaceException ;
 

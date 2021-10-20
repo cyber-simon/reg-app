@@ -12,7 +12,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserGroupEntity;
 
 @ApplicationScoped
-public class UserEntityMapper extends AbstractBaseEntityMapper<UserEntity, UserEntityDto, Long> {
+public class UserEntityMapper extends AbstractBaseEntityMapper<UserEntity, UserEntityDto> {
 
 	private static final long serialVersionUID = 1L;
 

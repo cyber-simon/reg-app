@@ -9,8 +9,8 @@ import edu.kit.scc.webreg.dto.entity.BaseEntityDto;
 import edu.kit.scc.webreg.entity.BaseEntity;
 import edu.kit.scc.webreg.exc.RestInterfaceException;
 
-public abstract class AbstractBaseReverseEntityMapper<E extends BaseEntityDto<PK>, T extends BaseEntity<PK>, PK extends Serializable>
-		implements BaseReverseEntityMapper<E, T, PK>, Serializable {
+public abstract class AbstractBaseReverseEntityMapper<E extends BaseEntityDto, T extends BaseEntity>
+		implements BaseReverseEntityMapper<E, T>, Serializable {
 
 	private static final long serialVersionUID = 1L;
 

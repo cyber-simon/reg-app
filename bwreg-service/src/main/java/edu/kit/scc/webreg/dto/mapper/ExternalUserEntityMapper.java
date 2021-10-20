@@ -7,7 +7,7 @@ import edu.kit.scc.webreg.dto.entity.ExternalUserEntityDto;
 import edu.kit.scc.webreg.entity.ExternalUserEntity;
 
 @ApplicationScoped
-public class ExternalUserEntityMapper extends AbstractBaseEntityMapper<ExternalUserEntity, ExternalUserEntityDto, Long> {
+public class ExternalUserEntityMapper extends AbstractBaseEntityMapper<ExternalUserEntity, ExternalUserEntityDto> {
 
 	private static final long serialVersionUID = 1L;
 

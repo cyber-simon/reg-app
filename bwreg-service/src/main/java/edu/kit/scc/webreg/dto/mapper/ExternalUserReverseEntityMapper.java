@@ -14,7 +14,7 @@ import edu.kit.scc.webreg.exc.NoUserFoundException;
 import edu.kit.scc.webreg.exc.RestInterfaceException;
 
 @ApplicationScoped
-public class ExternalUserReverseEntityMapper extends AbstractBaseReverseEntityMapper<ExternalUserEntityDto, ExternalUserEntity, Long> {
+public class ExternalUserReverseEntityMapper extends AbstractBaseReverseEntityMapper<ExternalUserEntityDto, ExternalUserEntity> {
 
 	private static final long serialVersionUID = 1L;
 

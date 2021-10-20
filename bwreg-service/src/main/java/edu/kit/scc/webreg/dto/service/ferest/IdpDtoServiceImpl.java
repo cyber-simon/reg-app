@@ -12,7 +12,7 @@ import edu.kit.scc.webreg.dto.service.BaseDtoServiceImpl;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 
 @Stateless
-public class IdpDtoServiceImpl extends BaseDtoServiceImpl<SamlIdpMetadataEntity, IdpEntityDto, Long> implements IdpDtoService {
+public class IdpDtoServiceImpl extends BaseDtoServiceImpl<SamlIdpMetadataEntity, IdpEntityDto> implements IdpDtoService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -23,12 +23,12 @@ public class IdpDtoServiceImpl extends BaseDtoServiceImpl<SamlIdpMetadataEntity,
 	private SamlIdpMetadataDao dao;
 	
 	@Override
-	protected BaseEntityMapper<SamlIdpMetadataEntity, IdpEntityDto, Long> getMapper() {
+	protected BaseEntityMapper<SamlIdpMetadataEntity, IdpEntityDto> getMapper() {
 		return mapper;
 	}
 
 	@Override
-	protected BaseDao<SamlIdpMetadataEntity, Long> getDao() {
+	protected BaseDao<SamlIdpMetadataEntity> getDao() {
 		return dao;
 	}
 

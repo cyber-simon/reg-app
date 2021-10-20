@@ -9,7 +9,7 @@ import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.exc.RestInterfaceException;
 
-public interface RegistryDtoService extends BaseDtoService<RegistryEntity, RegistryEntityDto, Long> {
+public interface RegistryDtoService extends BaseDtoService<RegistryEntity, RegistryEntityDto> {
 
 	List<RegistryEntityDto> findRegistriesForDepro(String serviceShortName) throws RestInterfaceException;
 

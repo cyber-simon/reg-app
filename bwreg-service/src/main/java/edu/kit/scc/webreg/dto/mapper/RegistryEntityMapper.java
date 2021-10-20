@@ -8,7 +8,7 @@ import edu.kit.scc.webreg.dto.entity.RegistryEntityDto;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 
 @ApplicationScoped
-public class RegistryEntityMapper extends AbstractBaseEntityMapper<RegistryEntity, RegistryEntityDto, Long> {
+public class RegistryEntityMapper extends AbstractBaseEntityMapper<RegistryEntity, RegistryEntityDto> {
 
 	private static final long serialVersionUID = 1L;
 
