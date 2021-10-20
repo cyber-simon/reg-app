@@ -24,7 +24,7 @@ import edu.kit.scc.webreg.entity.UserLoginMethod;
 
 @Named
 @ApplicationScoped
-public class JpaUserLoginInfoDao extends JpaBaseDao<UserLoginInfoEntity, Long> implements UserLoginInfoDao {
+public class JpaUserLoginInfoDao extends JpaBaseDao<UserLoginInfoEntity> implements UserLoginInfoDao {
 
 	@Override
 	@SuppressWarnings("unchecked")

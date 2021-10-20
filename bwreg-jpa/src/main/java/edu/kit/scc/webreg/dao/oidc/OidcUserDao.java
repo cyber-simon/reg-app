@@ -14,7 +14,7 @@ import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 
-public interface OidcUserDao extends BaseDao<OidcUserEntity, Long> {
+public interface OidcUserDao extends BaseDao<OidcUserEntity> {
 
 	OidcUserEntity findByIssuerAndSub(OidcRpConfigurationEntity issuer, String subjectId);
 }

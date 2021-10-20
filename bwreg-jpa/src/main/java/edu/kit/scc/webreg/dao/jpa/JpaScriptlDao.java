@@ -19,7 +19,7 @@ import edu.kit.scc.webreg.entity.ScriptEntity;
 
 @Named
 @ApplicationScoped
-public class JpaScriptlDao extends JpaBaseDao<ScriptEntity, Long> implements ScriptDao {
+public class JpaScriptlDao extends JpaBaseDao<ScriptEntity> implements ScriptDao {
 
     @Override
 	public ScriptEntity findByName(String name) {

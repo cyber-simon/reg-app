@@ -15,7 +15,7 @@ import java.util.List;
 import edu.kit.scc.webreg.entity.AdminRoleEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 
-public interface AdminRoleDao extends BaseDao<AdminRoleEntity, Long> {
+public interface AdminRoleDao extends BaseDao<AdminRoleEntity> {
 
 	AdminRoleEntity findByName(String name);
 

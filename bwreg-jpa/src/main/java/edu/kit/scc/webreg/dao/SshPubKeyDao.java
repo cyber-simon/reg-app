@@ -15,7 +15,7 @@ import java.util.List;
 import edu.kit.scc.webreg.entity.SshPubKeyEntity;
 import edu.kit.scc.webreg.entity.SshPubKeyStatus;
 
-public interface SshPubKeyDao extends BaseDao<SshPubKeyEntity, Long> {
+public interface SshPubKeyDao extends BaseDao<SshPubKeyEntity> {
 
 	List<SshPubKeyEntity> findByKey(String encodedKey);
 

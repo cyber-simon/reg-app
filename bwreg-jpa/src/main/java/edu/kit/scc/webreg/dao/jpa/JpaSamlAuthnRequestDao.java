@@ -22,7 +22,7 @@ import edu.kit.scc.webreg.entity.SamlAuthnRequestEntity;
 
 @Named
 @ApplicationScoped
-public class JpaSamlAuthnRequestDao extends JpaBaseDao<SamlAuthnRequestEntity, Long> implements SamlAuthnRequestDao, Serializable {
+public class JpaSamlAuthnRequestDao extends JpaBaseDao<SamlAuthnRequestEntity> implements SamlAuthnRequestDao, Serializable {
 
 	private static final long serialVersionUID = 1L;
     

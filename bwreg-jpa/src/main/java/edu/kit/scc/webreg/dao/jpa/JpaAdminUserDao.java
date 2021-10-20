@@ -22,7 +22,7 @@ import edu.kit.scc.webreg.entity.RoleEntity;
 
 @Named
 @ApplicationScoped
-public class JpaAdminUserDao extends JpaBaseDao<AdminUserEntity, Long> implements AdminUserDao {
+public class JpaAdminUserDao extends JpaBaseDao<AdminUserEntity> implements AdminUserDao {
 
 	@Override
 	public AdminUserEntity findByUsernameAndPassword(String username, String password) {

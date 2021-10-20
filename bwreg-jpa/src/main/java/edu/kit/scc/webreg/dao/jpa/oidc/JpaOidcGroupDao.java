@@ -30,7 +30,7 @@ import edu.kit.scc.webreg.entity.oidc.OidcGroupEntity;
 
 @Named
 @ApplicationScoped
-public class JpaOidcGroupDao extends JpaBaseDao<OidcGroupEntity, Long> implements OidcGroupDao {
+public class JpaOidcGroupDao extends JpaBaseDao<OidcGroupEntity> implements OidcGroupDao {
 
     @Override
 	public List<OidcGroupEntity> findByUser(UserEntity user) {

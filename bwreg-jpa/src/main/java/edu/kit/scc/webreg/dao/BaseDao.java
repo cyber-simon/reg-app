@@ -10,7 +10,6 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +18,7 @@ import org.primefaces.model.SortMeta;
 
 import edu.kit.scc.webreg.entity.BaseEntity;
 
-public interface BaseDao<T extends BaseEntity<PK>, PK extends Serializable> {
+public interface BaseDao<T extends BaseEntity> {
 
     T createNew();
     
@@ -37,15 +36,15 @@ public interface BaseDao<T extends BaseEntity<PK>, PK extends Serializable> {
     
 	Number countAll(Map<String, Object> filterMap, Map<String, FilterMeta> additionalFilterMap);
 
-	T findById(PK id);
+	T findById(Long id);
 
     void delete(T entity);
 
 	boolean isPersisted(T entity);
 
-	T findByIdWithAttrs(PK id, String... attrs);
+	T findByIdWithAttrs(Long id, String... attrs);
 
 	void refresh(T entity);
 
-	List<T> findByMultipleId(List<PK> ids);
+	List<T> findByMultipleId(List<Long> ids);
 }

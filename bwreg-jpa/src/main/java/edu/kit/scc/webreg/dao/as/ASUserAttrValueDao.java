@@ -19,7 +19,7 @@ import edu.kit.scc.webreg.entity.as.ASUserAttrValueEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrValueLongEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrValueStringEntity;
 
-public interface ASUserAttrValueDao extends BaseDao<ASUserAttrValueEntity, Long> {
+public interface ASUserAttrValueDao extends BaseDao<ASUserAttrValueEntity> {
 
 	ASUserAttrValueDateEntity createNewDate();
 

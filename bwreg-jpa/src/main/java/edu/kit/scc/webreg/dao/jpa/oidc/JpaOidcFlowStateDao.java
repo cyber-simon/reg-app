@@ -27,7 +27,7 @@ import edu.kit.scc.webreg.entity.oidc.OidcFlowStateEntity_;
 
 @Named
 @ApplicationScoped
-public class JpaOidcFlowStateDao extends JpaBaseDao<OidcFlowStateEntity, Long> implements OidcFlowStateDao {
+public class JpaOidcFlowStateDao extends JpaBaseDao<OidcFlowStateEntity> implements OidcFlowStateDao {
 
 	@Override
 	public OidcFlowStateEntity findByCode(String code) {

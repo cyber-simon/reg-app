@@ -13,7 +13,7 @@ package edu.kit.scc.webreg.dao;
 import edu.kit.scc.webreg.entity.SamlAssertionEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 
-public interface SamlAssertionDao extends BaseDao<SamlAssertionEntity, Long> {
+public interface SamlAssertionDao extends BaseDao<SamlAssertionEntity> {
 
 	void deleteAssertionForUser(UserEntity user);
 

@@ -21,7 +21,7 @@ import edu.kit.scc.webreg.entity.JobScheduleEntity;
 
 @Named
 @ApplicationScoped
-public class JpaJobScheduleDao extends JpaBaseDao<JobScheduleEntity, Long> implements JobScheduleDao {
+public class JpaJobScheduleDao extends JpaBaseDao<JobScheduleEntity> implements JobScheduleDao {
 
     @Override
     @SuppressWarnings({"unchecked"})

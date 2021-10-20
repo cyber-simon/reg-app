@@ -26,7 +26,7 @@ import edu.kit.scc.webreg.entity.project.ProjectMembershipType;
 import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
 import edu.kit.scc.webreg.entity.project.ProjectServiceType;
 
-public abstract class JpaBaseProjectDao<T extends ProjectEntity> extends JpaBaseDao<T, Long> implements BaseProjectDao<T> {
+public abstract class JpaBaseProjectDao<T extends ProjectEntity> extends JpaBaseDao<T> implements BaseProjectDao<T> {
 
 	public abstract List<T> findByService(ServiceEntity service);
 	

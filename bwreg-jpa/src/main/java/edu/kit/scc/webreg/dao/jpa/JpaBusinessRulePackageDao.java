@@ -22,7 +22,7 @@ import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 
 @Named
 @ApplicationScoped
-public class JpaBusinessRulePackageDao extends JpaBaseDao<BusinessRulePackageEntity, Long> implements BusinessRulePackageDao {
+public class JpaBusinessRulePackageDao extends JpaBaseDao<BusinessRulePackageEntity> implements BusinessRulePackageDao {
 
     @Override
     @SuppressWarnings({"unchecked"})

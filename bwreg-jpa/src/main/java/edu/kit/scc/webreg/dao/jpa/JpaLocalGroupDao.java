@@ -28,7 +28,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 
 @Named
 @ApplicationScoped
-public class JpaLocalGroupDao extends JpaBaseDao<LocalGroupEntity, Long> implements LocalGroupDao {
+public class JpaLocalGroupDao extends JpaBaseDao<LocalGroupEntity> implements LocalGroupDao {
 
     @Override
 	public List<LocalGroupEntity> findByUser(UserEntity user) {

@@ -18,7 +18,7 @@ import edu.kit.scc.webreg.entity.AgreementTextEntity;
 
 @Named
 @ApplicationScoped
-public class JpaAgreementTextDao extends JpaBaseDao<AgreementTextEntity, Long> implements AgreementTextDao {
+public class JpaAgreementTextDao extends JpaBaseDao<AgreementTextEntity> implements AgreementTextDao {
 
     @Override
 	public Class<AgreementTextEntity> getEntityClass() {

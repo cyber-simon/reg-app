@@ -16,7 +16,7 @@ import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcGroupEntity;
 
-public interface OidcGroupDao extends BaseDao<OidcGroupEntity, Long> {
+public interface OidcGroupDao extends BaseDao<OidcGroupEntity> {
 
 	OidcGroupEntity findByGidNumber(Integer gid);
 

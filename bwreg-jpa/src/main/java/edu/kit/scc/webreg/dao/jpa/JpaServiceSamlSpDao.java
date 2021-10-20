@@ -26,7 +26,7 @@ import edu.kit.scc.webreg.entity.ServiceSamlSpEntity;
 
 @Named
 @ApplicationScoped
-public class JpaServiceSamlSpDao extends JpaBaseDao<ServiceSamlSpEntity, Long> implements ServiceSamlSpDao {
+public class JpaServiceSamlSpDao extends JpaBaseDao<ServiceSamlSpEntity> implements ServiceSamlSpDao {
 
     @Override
 	public List<ServiceSamlSpEntity> findByService(ServiceEntity service) {

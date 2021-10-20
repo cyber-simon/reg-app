@@ -10,7 +10,6 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
-import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +44,7 @@ import edu.kit.scc.webreg.dao.ops.PathObjectValue;
 import edu.kit.scc.webreg.ds.DefaultDatasource;
 import edu.kit.scc.webreg.entity.BaseEntity;
 
-public abstract class JpaBaseDao<T extends BaseEntity<PK>, PK extends Serializable> implements BaseDao<T, PK> {
+public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 
 	@Inject
 	@DefaultDatasource
@@ -173,7 +172,7 @@ public abstract class JpaBaseDao<T extends BaseEntity<PK>, PK extends Serializab
 	}
 		
 	@Override
-	public T findById(PK id) {
+	public T findById(Long id) {
 		return em.find(getEntityClass(), id);
 	}
 
@@ -189,7 +188,7 @@ public abstract class JpaBaseDao<T extends BaseEntity<PK>, PK extends Serializab
 	}
 	
 	@Override
-	public List<T> findByMultipleId(List<PK> ids) {
+	public List<T> findByMultipleId(List<Long> ids) {
 		if (ids.size() == 0)
 			return new ArrayList<T>();
 		
@@ -207,7 +206,7 @@ public abstract class JpaBaseDao<T extends BaseEntity<PK>, PK extends Serializab
 	}
 	
 	@Override
-	public T findByIdWithAttrs(PK id, String... attrs) {
+	public T findByIdWithAttrs(Long id, String... attrs) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<T> criteria = builder.createQuery(getEntityClass());
 		Root<T> entity = criteria.from(getEntityClass());

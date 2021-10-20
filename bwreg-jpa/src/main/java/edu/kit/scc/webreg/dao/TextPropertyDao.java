@@ -12,7 +12,7 @@ package edu.kit.scc.webreg.dao;
 
 import edu.kit.scc.webreg.entity.TextPropertyEntity;
 
-public interface TextPropertyDao extends BaseDao<TextPropertyEntity, Long> {
+public interface TextPropertyDao extends BaseDao<TextPropertyEntity> {
 
 	TextPropertyEntity findByKeyAndLang(String key, String language);
 

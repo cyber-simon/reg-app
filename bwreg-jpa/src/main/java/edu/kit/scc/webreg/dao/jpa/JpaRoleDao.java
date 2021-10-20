@@ -35,7 +35,7 @@ import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 
 @Named
 @ApplicationScoped
-public class JpaRoleDao extends JpaBaseDao<RoleEntity, Long> implements RoleDao {
+public class JpaRoleDao extends JpaBaseDao<RoleEntity> implements RoleDao {
 
 	@Inject
 	private IdentityDao identityDao;

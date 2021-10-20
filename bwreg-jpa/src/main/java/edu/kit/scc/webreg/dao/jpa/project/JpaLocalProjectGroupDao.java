@@ -19,7 +19,7 @@ import edu.kit.scc.webreg.entity.project.LocalProjectGroupEntity;
 
 @Named
 @ApplicationScoped
-public class JpaLocalProjectGroupDao extends JpaBaseDao<LocalProjectGroupEntity, Long> implements LocalProjectGroupDao {
+public class JpaLocalProjectGroupDao extends JpaBaseDao<LocalProjectGroupEntity> implements LocalProjectGroupDao {
 
 	@Override
 	public Class<LocalProjectGroupEntity> getEntityClass() {

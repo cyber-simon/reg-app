@@ -19,7 +19,7 @@ import edu.kit.scc.webreg.entity.EmailTemplateEntity;
 
 @Named
 @ApplicationScoped
-public class JpaEmailTemplateDao extends JpaBaseDao<EmailTemplateEntity, Long> implements EmailTemplateDao {
+public class JpaEmailTemplateDao extends JpaBaseDao<EmailTemplateEntity> implements EmailTemplateDao {
 
     @Override
 	public EmailTemplateEntity findByName(String name) {

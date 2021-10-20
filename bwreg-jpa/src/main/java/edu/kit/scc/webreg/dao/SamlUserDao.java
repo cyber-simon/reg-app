@@ -14,7 +14,7 @@ import java.util.List;
 
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 
-public interface SamlUserDao extends BaseDao<SamlUserEntity, Long> {
+public interface SamlUserDao extends BaseDao<SamlUserEntity> {
 
 	List<SamlUserEntity> findUsersForPseudo(Long onHoldSince, int limit);
 	SamlUserEntity findByPersistentWithRoles(String spId, String idpId,

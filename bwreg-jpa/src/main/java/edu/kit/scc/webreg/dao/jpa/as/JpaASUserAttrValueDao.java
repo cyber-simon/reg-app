@@ -26,7 +26,7 @@ import edu.kit.scc.webreg.entity.as.ASUserAttrValueStringEntity;
 
 @Named
 @ApplicationScoped
-public class JpaASUserAttrValueDao extends JpaBaseDao<ASUserAttrValueEntity, Long> implements ASUserAttrValueDao {
+public class JpaASUserAttrValueDao extends JpaBaseDao<ASUserAttrValueEntity> implements ASUserAttrValueDao {
 
 	@Override
 	public ASUserAttrValueStringEntity createNewString() {

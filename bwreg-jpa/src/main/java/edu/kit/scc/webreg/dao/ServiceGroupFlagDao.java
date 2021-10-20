@@ -17,7 +17,7 @@ import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 
-public interface ServiceGroupFlagDao extends BaseDao<ServiceGroupFlagEntity, Long> {
+public interface ServiceGroupFlagDao extends BaseDao<ServiceGroupFlagEntity> {
 
 	List<ServiceGroupFlagEntity> findByGroup(ServiceBasedGroupEntity group);
 

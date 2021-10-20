@@ -15,7 +15,7 @@ import java.util.List;
 
 import edu.kit.scc.webreg.entity.JobScheduleEntity;
 
-public interface JobScheduleDao extends BaseDao<JobScheduleEntity, Long> {
+public interface JobScheduleDao extends BaseDao<JobScheduleEntity> {
 
 	List<JobScheduleEntity> findAllBySingleton(Boolean singleton,
 			Boolean disabled);

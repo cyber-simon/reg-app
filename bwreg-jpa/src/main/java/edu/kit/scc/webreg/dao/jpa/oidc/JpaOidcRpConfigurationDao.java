@@ -19,7 +19,7 @@ import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
 
 @Named
 @ApplicationScoped
-public class JpaOidcRpConfigurationDao extends JpaBaseDao<OidcRpConfigurationEntity, Long> implements OidcRpConfigurationDao {
+public class JpaOidcRpConfigurationDao extends JpaBaseDao<OidcRpConfigurationEntity> implements OidcRpConfigurationDao {
 
 	@Override
 	public Class<OidcRpConfigurationEntity> getEntityClass() {

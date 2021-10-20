@@ -19,7 +19,7 @@ import edu.kit.scc.webreg.entity.audit.AuditUserEntity;
 
 @Named
 @ApplicationScoped
-public class JpaAuditUserEntryDao extends JpaBaseDao<AuditUserEntity, Long> implements AuditUserEntryDao {
+public class JpaAuditUserEntryDao extends JpaBaseDao<AuditUserEntity> implements AuditUserEntryDao {
 
 	@Override
 	public Class<AuditUserEntity> getEntityClass() {

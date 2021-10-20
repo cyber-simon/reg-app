@@ -14,7 +14,7 @@ import java.util.List;
 
 import edu.kit.scc.webreg.entity.SshPubKeyRegistryEntity;
 
-public interface SshPubKeyRegistryDao extends BaseDao<SshPubKeyRegistryEntity, Long> {
+public interface SshPubKeyRegistryDao extends BaseDao<SshPubKeyRegistryEntity> {
 
 	List<SshPubKeyRegistryEntity> findByUserAndService(Long userId, Long serviceId);
 

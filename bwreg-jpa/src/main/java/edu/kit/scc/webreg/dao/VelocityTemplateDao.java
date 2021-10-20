@@ -12,7 +12,7 @@ package edu.kit.scc.webreg.dao;
 
 import edu.kit.scc.webreg.entity.VelocityTemplateEntity;
 
-public interface VelocityTemplateDao extends BaseDao<VelocityTemplateEntity, Long> {
+public interface VelocityTemplateDao extends BaseDao<VelocityTemplateEntity> {
 
 	VelocityTemplateEntity findByName(String name);
 

@@ -25,7 +25,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 
 @Named
 @ApplicationScoped
-public class JpaApproverRoleDao extends JpaBaseDao<ApproverRoleEntity, Long> implements ApproverRoleDao {
+public class JpaApproverRoleDao extends JpaBaseDao<ApproverRoleEntity> implements ApproverRoleDao {
 
     @Override
 	public List<ApproverRoleEntity> findWithServices(UserEntity user) {

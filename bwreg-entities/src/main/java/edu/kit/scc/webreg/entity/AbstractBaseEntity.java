@@ -22,7 +22,7 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 
 @MappedSuperclass
-public abstract class AbstractBaseEntity implements BaseEntity<Long>, Serializable {
+public abstract class AbstractBaseEntity implements BaseEntity, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -40,13 +40,12 @@ public abstract class AbstractBaseEntity implements BaseEntity<Long>, Serializab
 	@Column(name = "version")
 	protected Integer version;
 	
-	@SuppressWarnings("unchecked")
 	public boolean equals(Object other) {
 		if (other == null) return false;
 		
 	    return this.getClass().equals(other.getClass()) && 
 	    		(getId() != null) 
-	         ? getId().equals(((BaseEntity<Long>) other).getId()) 
+	         ? getId().equals(((BaseEntity) other).getId()) 
 	         : (other == this);
 	}
 

@@ -24,7 +24,7 @@ import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 
 @Named
 @ApplicationScoped
-public class JpaASUserAttrDao extends JpaBaseDao<ASUserAttrEntity, Long> implements ASUserAttrDao {
+public class JpaASUserAttrDao extends JpaBaseDao<ASUserAttrEntity> implements ASUserAttrDao {
 
 	@Override 
 	public ASUserAttrEntity findASUserAttr(UserEntity user, AttributeSourceEntity attributeSource) {

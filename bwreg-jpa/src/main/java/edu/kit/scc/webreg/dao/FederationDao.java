@@ -14,7 +14,7 @@ import java.util.List;
 
 import edu.kit.scc.webreg.entity.FederationEntity;
 
-public interface FederationDao extends BaseDao<FederationEntity, Long> {
+public interface FederationDao extends BaseDao<FederationEntity> {
 
 	FederationEntity findWithIdpEntities(Long id);
 

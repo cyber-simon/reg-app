@@ -14,7 +14,7 @@ import java.util.List;
 
 import edu.kit.scc.webreg.entity.SamlIdpConfigurationEntity;
 
-public interface SamlIdpConfigurationDao extends BaseDao<SamlIdpConfigurationEntity, Long> {
+public interface SamlIdpConfigurationDao extends BaseDao<SamlIdpConfigurationEntity> {
 
 	List<SamlIdpConfigurationEntity> findByHostname(String hostname);
 

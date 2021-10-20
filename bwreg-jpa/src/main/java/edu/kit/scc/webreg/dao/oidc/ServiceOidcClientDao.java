@@ -16,7 +16,7 @@ import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.ServiceOidcClientEntity;
 
-public interface ServiceOidcClientDao extends BaseDao<ServiceOidcClientEntity, Long> {
+public interface ServiceOidcClientDao extends BaseDao<ServiceOidcClientEntity> {
 
 	List<ServiceOidcClientEntity> findByClientConfig(OidcClientConfigurationEntity clientConfig);
 }

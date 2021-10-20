@@ -19,7 +19,7 @@ import edu.kit.scc.webreg.entity.ExternalGroupEntity;
 
 @Named
 @ApplicationScoped
-public class JpaExternalGroupDao extends JpaBaseDao<ExternalGroupEntity, Long> implements ExternalGroupDao {
+public class JpaExternalGroupDao extends JpaBaseDao<ExternalGroupEntity> implements ExternalGroupDao {
 
 	@Override
 	public ExternalGroupEntity findByName(String name) {

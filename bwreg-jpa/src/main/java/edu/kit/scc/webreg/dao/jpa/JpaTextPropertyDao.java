@@ -19,7 +19,7 @@ import edu.kit.scc.webreg.entity.TextPropertyEntity;
 
 @Named
 @ApplicationScoped
-public class JpaTextPropertyDao extends JpaBaseDao<TextPropertyEntity, Long> implements TextPropertyDao {
+public class JpaTextPropertyDao extends JpaBaseDao<TextPropertyEntity> implements TextPropertyDao {
 
     @Override
 	public TextPropertyEntity findByKeyAndLang(String key, String language) {

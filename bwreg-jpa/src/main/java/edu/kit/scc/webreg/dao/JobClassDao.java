@@ -12,6 +12,6 @@ package edu.kit.scc.webreg.dao;
 
 import edu.kit.scc.webreg.entity.JobClassEntity;
 
-public interface JobClassDao extends BaseDao<JobClassEntity, Long> {
+public interface JobClassDao extends BaseDao<JobClassEntity> {
 
 }

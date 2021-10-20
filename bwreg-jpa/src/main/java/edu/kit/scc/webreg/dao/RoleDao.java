@@ -20,7 +20,7 @@ import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserRoleEntity;
 
-public interface RoleDao extends BaseDao<RoleEntity, Long> {
+public interface RoleDao extends BaseDao<RoleEntity> {
 
 	RoleEntity findByName(String name);
 

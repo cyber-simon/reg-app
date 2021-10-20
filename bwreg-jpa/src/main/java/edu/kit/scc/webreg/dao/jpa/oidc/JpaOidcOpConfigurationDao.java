@@ -24,7 +24,7 @@ import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity_;
 
 @Named
 @ApplicationScoped
-public class JpaOidcOpConfigurationDao extends JpaBaseDao<OidcOpConfigurationEntity, Long> implements OidcOpConfigurationDao {
+public class JpaOidcOpConfigurationDao extends JpaBaseDao<OidcOpConfigurationEntity> implements OidcOpConfigurationDao {
 
 	@Override
 	public OidcOpConfigurationEntity findByRealm(String realm) {

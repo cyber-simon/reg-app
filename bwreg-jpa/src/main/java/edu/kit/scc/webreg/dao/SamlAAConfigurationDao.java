@@ -12,7 +12,7 @@ package edu.kit.scc.webreg.dao;
 
 import edu.kit.scc.webreg.entity.SamlAAConfigurationEntity;
 
-public interface SamlAAConfigurationDao extends BaseDao<SamlAAConfigurationEntity, Long> {
+public interface SamlAAConfigurationDao extends BaseDao<SamlAAConfigurationEntity> {
 
 	SamlAAConfigurationEntity findByHostname(String hostname);
 

@@ -15,7 +15,7 @@ import java.util.List;
 import edu.kit.scc.webreg.entity.ApproverRoleEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 
-public interface ApproverRoleDao extends BaseDao<ApproverRoleEntity, Long> {
+public interface ApproverRoleDao extends BaseDao<ApproverRoleEntity> {
 
 	ApproverRoleEntity findByName(String name);
 

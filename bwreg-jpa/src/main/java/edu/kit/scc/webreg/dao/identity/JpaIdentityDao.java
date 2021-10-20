@@ -23,7 +23,7 @@ import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 
 @Named
 @ApplicationScoped
-public class JpaIdentityDao extends JpaBaseDao<IdentityEntity, Long> implements IdentityDao {
+public class JpaIdentityDao extends JpaBaseDao<IdentityEntity> implements IdentityDao {
 
 	@Inject
 	private UserDao userDao;

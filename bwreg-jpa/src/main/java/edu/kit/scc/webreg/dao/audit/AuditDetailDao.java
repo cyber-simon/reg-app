@@ -17,7 +17,7 @@ import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.entity.audit.AuditDetailEntity;
 import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
 
-public interface AuditDetailDao extends BaseDao<AuditDetailEntity, Long> {
+public interface AuditDetailDao extends BaseDao<AuditDetailEntity> {
 
 	List<AuditDetailEntity> findNewestFailed(int limit);
 

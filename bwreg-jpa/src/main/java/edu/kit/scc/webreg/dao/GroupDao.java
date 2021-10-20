@@ -22,7 +22,7 @@ import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserGroupEntity;
 
-public interface GroupDao extends BaseDao<GroupEntity, Long> {
+public interface GroupDao extends BaseDao<GroupEntity> {
 
 	GroupEntity findByGidNumber(Integer gid);
 

@@ -13,7 +13,7 @@ package edu.kit.scc.webreg.dao.project;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.entity.project.LocalProjectGroupEntity;
 
-public interface LocalProjectGroupDao extends BaseDao<LocalProjectGroupEntity, Long> {
+public interface LocalProjectGroupDao extends BaseDao<LocalProjectGroupEntity> {
 
 
 }

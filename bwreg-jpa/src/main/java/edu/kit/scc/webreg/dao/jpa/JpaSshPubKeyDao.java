@@ -24,7 +24,7 @@ import edu.kit.scc.webreg.entity.SshPubKeyStatus;
 
 @Named
 @ApplicationScoped
-public class JpaSshPubKeyDao extends JpaBaseDao<SshPubKeyEntity, Long> implements SshPubKeyDao {
+public class JpaSshPubKeyDao extends JpaBaseDao<SshPubKeyEntity> implements SshPubKeyDao {
 
 	@Override
 	@SuppressWarnings("unchecked")
