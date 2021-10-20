@@ -6,8 +6,8 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dao.GroupDao;
+import edu.kit.scc.webreg.dao.project.ExternalOidcProjectDao;
 import edu.kit.scc.webreg.dao.project.LocalProjectGroupDao;
-import edu.kit.scc.webreg.dao.project.ProjectDao;
 import edu.kit.scc.webreg.entity.project.ExternalOidcProjectEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectGroupEntity;
 
@@ -20,7 +20,7 @@ public class ExternalOidcProjectCreater extends AbstractProjectCreater<ExternalO
 	private Logger logger;
 	
 	@Inject
-	private ProjectDao projectDao;
+	private ExternalOidcProjectDao dao;
 
 	@Inject
 	private LocalProjectGroupDao projectGroupDao;
@@ -42,7 +42,7 @@ public class ExternalOidcProjectCreater extends AbstractProjectCreater<ExternalO
 		project.setExternalName(externalName);
 		project.setShortName(shortName);
 		
-		project = (ExternalOidcProjectEntity) projectDao.persist(project);
+		project = (ExternalOidcProjectEntity) dao.persist(project);
 		
 		return project;
 	}

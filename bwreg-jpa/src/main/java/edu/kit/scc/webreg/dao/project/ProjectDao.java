@@ -10,49 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.project;
 
-import java.util.List;
-
-import edu.kit.scc.webreg.dao.BaseDao;
-import edu.kit.scc.webreg.entity.ServiceEntity;
-import edu.kit.scc.webreg.entity.identity.IdentityEntity;
-import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
-import edu.kit.scc.webreg.entity.project.ExternalOidcProjectEntity;
-import edu.kit.scc.webreg.entity.project.ExternalProjectEntity;
-import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
-import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
-import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
-import edu.kit.scc.webreg.entity.project.ProjectMembershipType;
-import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
-import edu.kit.scc.webreg.entity.project.ProjectServiceType;
 
-public interface ProjectDao extends BaseDao<ProjectEntity, Long> {
+public interface ProjectDao extends BaseProjectDao<ProjectEntity> {
 
-	List<ProjectEntity> findByService(ServiceEntity service);
-
-	ProjectServiceEntity addServiceToProject(ProjectEntity project, ServiceEntity service, ProjectServiceType type);
-
-	ProjectIdentityAdminEntity addAdminToProject(ProjectEntity project, IdentityEntity identity, ProjectAdminType type);
-	void removeAdminFromProject(ProjectIdentityAdminEntity pia);
-
-	ProjectMembershipEntity addMemberToProject(ProjectEntity project, IdentityEntity identity, ProjectMembershipType type);
-	
-	void deleteMembership(ProjectMembershipEntity entity);
-	void deleteProjectService(ProjectServiceEntity entity);
-	
-	List<ProjectIdentityAdminEntity> findAdminByIdentity(IdentityEntity identity);
-
-	List<ProjectMembershipEntity> findMembersForProject(ProjectEntity project);
-	
-	List<ProjectIdentityAdminEntity> findAdminsForProject(ProjectEntity project);
-	
-	List<ProjectServiceEntity> findServicesForProject(ProjectEntity project);
-
-	List<ExternalProjectEntity> findByExternalName(String externalName);
-
-	ExternalOidcProjectEntity findByExternalNameOidc(String externalName, OidcRpConfigurationEntity rpConfig);
-
-	ProjectMembershipEntity findByIdentityAndProject(IdentityEntity identity, ProjectEntity project);
-	
-	List<ProjectMembershipEntity> findByIdentity(IdentityEntity identity);
 }

@@ -15,14 +15,13 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 
-import edu.kit.scc.webreg.dao.jpa.JpaBaseDao;
 import edu.kit.scc.webreg.dao.project.LocalProjectDao;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
 
 @Named
 @ApplicationScoped
-public class JpaLocalProjectDao extends JpaBaseDao<LocalProjectEntity, Long> implements LocalProjectDao {
+public class JpaLocalProjectDao extends JpaBaseProjectDao<LocalProjectEntity> implements LocalProjectDao {
 
 	@SuppressWarnings("unchecked")
 	@Override

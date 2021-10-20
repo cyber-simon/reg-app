@@ -13,6 +13,7 @@ import edu.kit.scc.webreg.dao.ScriptDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.oidc.OidcUserDao;
+import edu.kit.scc.webreg.dao.project.BaseProjectDao;
 import edu.kit.scc.webreg.dao.project.ProjectDao;
 import edu.kit.scc.webreg.service.group.GroupUpdater;
 import edu.kit.scc.webreg.service.project.LocalProjectCreater;

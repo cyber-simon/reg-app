@@ -51,7 +51,7 @@ public abstract class JpaBaseDao<T extends BaseEntity<PK>, PK extends Serializab
 	@DefaultDatasource
     protected EntityManager em;
 
-    public abstract Class<T> getEntityClass(); 
+    public abstract Class<T> getEntityClass();
     
 	@Override
 	public T createNew() {

@@ -10,8 +10,12 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.project;
 
-import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
+import java.util.List;
 
-public interface LocalProjectDao extends BaseProjectDao<LocalProjectEntity> {
+import edu.kit.scc.webreg.entity.project.ExternalProjectEntity;
+
+public interface ExternalProjectDao<T extends ExternalProjectEntity> extends BaseProjectDao<T> {
+
+	List<T> findByExternalName(String externalName);
 
 }

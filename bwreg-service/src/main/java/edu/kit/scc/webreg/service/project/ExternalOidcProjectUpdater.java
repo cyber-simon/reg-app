@@ -7,7 +7,8 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 
-import edu.kit.scc.webreg.dao.project.ProjectDao;
+import edu.kit.scc.webreg.dao.project.ExternalOidcProjectDao;
+import edu.kit.scc.webreg.dao.project.BaseProjectDao;
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.entity.project.ExternalOidcProjectEntity;
@@ -15,7 +16,7 @@ import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipType;
 
 @ApplicationScoped
-public class ExternalOidcProjectUpdater extends AbstractProjectUpdater<LocalProjectEntity> {
+public class ExternalOidcProjectUpdater extends AbstractProjectUpdater<ExternalOidcProjectEntity> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -23,7 +24,7 @@ public class ExternalOidcProjectUpdater extends AbstractProjectUpdater<LocalProj
 	private Logger logger;
 	
 	@Inject
-	private ProjectDao dao;
+	private ExternalOidcProjectDao dao;
 
 	@Inject
 	private ExternalOidcProjectCreater projectCreater;
@@ -55,5 +56,10 @@ public class ExternalOidcProjectUpdater extends AbstractProjectUpdater<LocalProj
 		
 		syncAllMembersToGroup(project, "idty-" + user.getIdentity());
 		triggerGroupUpdate(project, "idty-" + user.getIdentity());
+	}
+
+	@Override
+	protected BaseProjectDao<ExternalOidcProjectEntity> getDao() {
+		return dao;
 	}
 }

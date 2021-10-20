@@ -10,8 +10,11 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.project;
 
-import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
+import edu.kit.scc.webreg.entity.project.ExternalOidcProjectEntity;
 
-public interface LocalProjectDao extends BaseProjectDao<LocalProjectEntity> {
+public interface ExternalOidcProjectDao extends BaseProjectDao<ExternalOidcProjectEntity> {
+
+	ExternalOidcProjectEntity findByExternalNameOidc(String externalName, OidcRpConfigurationEntity rpConfig);
 
 }

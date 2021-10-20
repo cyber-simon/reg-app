@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.ServiceGroupFlagDao;
-import edu.kit.scc.webreg.dao.project.ProjectDao;
+import edu.kit.scc.webreg.dao.project.BaseProjectDao;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
@@ -32,15 +32,12 @@ import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.MultipleGroupEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
 
-public class AbstractProjectUpdater<T extends ProjectEntity> implements Serializable {
+public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	@Inject
 	private Logger logger;
-
-	@Inject
-	private ProjectDao dao;
 
 	@Inject
 	private GroupDao groupDao;
@@ -54,16 +51,17 @@ public class AbstractProjectUpdater<T extends ProjectEntity> implements Serializ
 	@Inject
 	private EventSubmitter eventSubmitter;
 
+	protected abstract BaseProjectDao<T> getDao();
+	
 	public void updateProjectMemberList(ProjectEntity project, Set<IdentityEntity> memberList, String executor) {
-		project = dao.merge(project);
 		
 		// Save members first
-		List<ProjectMembershipEntity> oldMemberList = dao.findMembersForProject(project);
+		List<ProjectMembershipEntity> oldMemberList = getDao().findMembersForProject(project);
 		List<IdentityEntity> newMemberList = new ArrayList<IdentityEntity>(memberList);
 		
 		for (ProjectMembershipEntity oldMember : oldMemberList) {
 			if (! memberList.contains(oldMember.getIdentity())) {
-				dao.deleteMembership(oldMember);
+				getDao().deleteMembership(oldMember);
 				for (UserEntity user : oldMember.getIdentity().getUsers()) {
 					groupDao.removeUserGromGroup(user, project.getProjectGroup());
 				}
@@ -74,7 +72,7 @@ public class AbstractProjectUpdater<T extends ProjectEntity> implements Serializ
 		}
 		
 		for (IdentityEntity newMember : newMemberList) {
-			dao.addMemberToProject(project, newMember, ProjectMembershipType.MEMBER);
+			getDao().addMemberToProject(project, newMember, ProjectMembershipType.MEMBER);
 		}
 		
 		syncAllMembersToGroup(project, executor);
@@ -82,7 +80,7 @@ public class AbstractProjectUpdater<T extends ProjectEntity> implements Serializ
 	}
 
 	public void syncAllMembersToGroup(ProjectEntity project, String executor) {
-		List<ProjectMembershipEntity> memberList = dao.findMembersForProject(project);
+		List<ProjectMembershipEntity> memberList = getDao().findMembersForProject(project);
 
 		for (ProjectMembershipEntity pme : memberList) {
 			syncMemberToGroup(project, pme.getIdentity(), executor);
@@ -90,7 +88,7 @@ public class AbstractProjectUpdater<T extends ProjectEntity> implements Serializ
 	}
 	
 	public void syncMemberToGroup(ProjectEntity project, IdentityEntity identity, String executor) {
-		List<ProjectServiceEntity> pseList = dao.findServicesForProject(project);
+		List<ProjectServiceEntity> pseList = getDao().findServicesForProject(project);
 
 		for (ProjectServiceEntity pse : pseList) {
 			
@@ -111,12 +109,12 @@ public class AbstractProjectUpdater<T extends ProjectEntity> implements Serializ
 	}
 	
 	public void updateServices(ProjectEntity project, Set<ServiceEntity> serviceList, String executor) {
-		List<ProjectServiceEntity> oldServiceList = dao.findServicesForProject(project);
+		List<ProjectServiceEntity> oldServiceList = getDao().findServicesForProject(project);
 		List<ServiceEntity> newServiceList = new ArrayList<ServiceEntity>(serviceList);
 
 		for (ProjectServiceEntity oldService : oldServiceList) {
 			if (! serviceList.contains(oldService.getService())) {
-				dao.deleteProjectService(oldService);
+				getDao().deleteProjectService(oldService);
 				List<ServiceGroupFlagEntity> groupFlagList = groupFlagDao.findByGroupAndService(project.getProjectGroup(), oldService.getService());
 				for (ServiceGroupFlagEntity groupFlag : groupFlagList) {
 					groupFlag.setStatus(ServiceGroupStatus.TO_DELETE);
@@ -128,7 +126,7 @@ public class AbstractProjectUpdater<T extends ProjectEntity> implements Serializ
 		}
 		
 		for (ServiceEntity newService : newServiceList) {
-			dao.addServiceToProject(project, newService, ProjectServiceType.PASSIVE_GROUP);
+			getDao().addServiceToProject(project, newService, ProjectServiceType.PASSIVE_GROUP);
 			ServiceGroupFlagEntity groupFlag = groupFlagDao.createNew();
 			groupFlag.setGroup(project.getProjectGroup());
 			groupFlag.setService(newService);
