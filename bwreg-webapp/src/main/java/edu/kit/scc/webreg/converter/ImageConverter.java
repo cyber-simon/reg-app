@@ -26,7 +26,7 @@ public class ImageConverter extends AbstractConverter<ImageEntity> {
 	private ImageService service;
 
 	@Override
-	protected BaseService<ImageEntity, Long> getService() {
+	protected BaseService<ImageEntity> getService() {
 		return service;
 	}
 	

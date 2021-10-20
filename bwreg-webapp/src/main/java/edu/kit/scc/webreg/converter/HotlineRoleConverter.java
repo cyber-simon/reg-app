@@ -26,7 +26,7 @@ public class HotlineRoleConverter extends AbstractConverter<AdminRoleEntity> {
 	private AdminRoleService service;
 
 	@Override
-	protected BaseService<AdminRoleEntity, Long> getService() {
+	protected BaseService<AdminRoleEntity> getService() {
 		return service;
 	}
 	

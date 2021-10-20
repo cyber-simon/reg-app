@@ -26,7 +26,7 @@ public class EmailTemplateConverter extends AbstractConverter<EmailTemplateEntit
 	private EmailTemplateService service;
 
 	@Override
-	protected BaseService<EmailTemplateEntity, Long> getService() {
+	protected BaseService<EmailTemplateEntity> getService() {
 		return service;
 	}
 	

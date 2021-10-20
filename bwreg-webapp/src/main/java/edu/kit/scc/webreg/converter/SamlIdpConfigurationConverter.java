@@ -26,7 +26,7 @@ public class SamlIdpConfigurationConverter extends AbstractConverter<SamlIdpConf
 	private SamlIdpConfigurationService service;
 
 	@Override
-	protected BaseService<SamlIdpConfigurationEntity, Long> getService() {
+	protected BaseService<SamlIdpConfigurationEntity> getService() {
 		return service;
 	}
 	

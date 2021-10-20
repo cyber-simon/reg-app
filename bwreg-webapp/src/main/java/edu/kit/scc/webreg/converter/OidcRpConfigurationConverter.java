@@ -26,7 +26,7 @@ public class OidcRpConfigurationConverter extends AbstractConverter<OidcRpConfig
 	private OidcRpConfigurationService service;
 
 	@Override
-	protected BaseService<OidcRpConfigurationEntity, Long> getService() {
+	protected BaseService<OidcRpConfigurationEntity> getService() {
 		return service;
 	}
 	

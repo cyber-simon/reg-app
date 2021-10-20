@@ -26,7 +26,7 @@ public class SshPubKeyApproverRoleConverter extends AbstractConverter<SshPubKeyA
 	private SshPubKeyApproverRoleService service;
 
 	@Override
-	protected BaseService<SshPubKeyApproverRoleEntity, Long> getService() {
+	protected BaseService<SshPubKeyApproverRoleEntity> getService() {
 		return service;
 	}
 	

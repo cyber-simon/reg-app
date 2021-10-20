@@ -26,7 +26,7 @@ public class SamlIdpMetadataConverter extends AbstractConverter<SamlIdpMetadataE
 	private SamlIdpMetadataService service;
 
 	@Override
-	protected BaseService<SamlIdpMetadataEntity, Long> getService() {
+	protected BaseService<SamlIdpMetadataEntity> getService() {
 		return service;
 	}
 	

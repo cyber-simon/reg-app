@@ -26,7 +26,7 @@ public class FederationConverter extends AbstractConverter<FederationEntity> {
 	private FederationService service;
 
 	@Override
-	protected BaseService<FederationEntity, Long> getService() {
+	protected BaseService<FederationEntity> getService() {
 		return service;
 	}
 	

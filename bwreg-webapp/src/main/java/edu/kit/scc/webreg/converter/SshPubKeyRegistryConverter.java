@@ -26,7 +26,7 @@ public class SshPubKeyRegistryConverter extends AbstractConverter<SshPubKeyRegis
 	private SshPubKeyRegistryService service;
 
 	@Override
-	protected BaseService<SshPubKeyRegistryEntity, Long> getService() {
+	protected BaseService<SshPubKeyRegistryEntity> getService() {
 		return service;
 	}
 	

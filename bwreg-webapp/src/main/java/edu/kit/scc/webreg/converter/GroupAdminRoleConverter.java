@@ -26,7 +26,7 @@ public class GroupAdminRoleConverter extends AbstractConverter<GroupAdminRoleEnt
 	private GroupAdminRoleService service;
 
 	@Override
-	protected BaseService<GroupAdminRoleEntity, Long> getService() {
+	protected BaseService<GroupAdminRoleEntity> getService() {
 		return service;
 	}
 	
