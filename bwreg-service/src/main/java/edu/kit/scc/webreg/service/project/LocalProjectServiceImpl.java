@@ -35,7 +35,7 @@ public class LocalProjectServiceImpl extends BaseServiceImpl<LocalProjectEntity,
 	private LocalProjectDao dao;
 	
 	@Inject
-	private ProjectCreater creater;
+	private LocalProjectCreater creater;
 	
 	@Override
 	public List<LocalProjectEntity> findByService(ServiceEntity service) {

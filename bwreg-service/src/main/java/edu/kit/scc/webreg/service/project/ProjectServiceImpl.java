@@ -40,7 +40,7 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity, Long> imp
 	private ProjectDao dao;
 	
 	@Inject
-	private ProjectUpdater updater;
+	private LocalProjectUpdater updater;
 	
 	@Override
 	public void updateProjectMemberList(ProjectEntity project, Set<IdentityEntity> memberList, String executor) {

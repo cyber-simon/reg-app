@@ -15,8 +15,8 @@ import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.oidc.OidcUserDao;
 import edu.kit.scc.webreg.dao.project.ProjectDao;
 import edu.kit.scc.webreg.service.group.GroupUpdater;
-import edu.kit.scc.webreg.service.project.ProjectCreater;
-import edu.kit.scc.webreg.service.project.ProjectUpdater;
+import edu.kit.scc.webreg.service.project.LocalProjectCreater;
+import edu.kit.scc.webreg.service.project.LocalProjectUpdater;
 import edu.kit.scc.webreg.service.saml.SsoHelper;
 
 @Named
@@ -47,10 +47,10 @@ public class ScriptingEnv implements Serializable {
 	private ProjectDao projectDao;
 	
 	@Inject
-	private ProjectCreater projectCreater;
+	private LocalProjectCreater projectCreater;
 	
 	@Inject
-	private ProjectUpdater projectUpdater;
+	private LocalProjectUpdater projectUpdater;
 	
 	@Inject
 	private ServiceDao serviceDao;
@@ -89,11 +89,11 @@ public class ScriptingEnv implements Serializable {
 		return projectDao;
 	}
 
-	public ProjectCreater getProjectCreater() {
+	public LocalProjectCreater getProjectCreater() {
 		return projectCreater;
 	}
 
-	public ProjectUpdater getProjectUpdater() {
+	public LocalProjectUpdater getProjectUpdater() {
 		return projectUpdater;
 	}
 
