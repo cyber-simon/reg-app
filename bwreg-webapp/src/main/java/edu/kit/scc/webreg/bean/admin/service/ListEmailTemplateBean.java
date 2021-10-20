@@ -39,7 +39,7 @@ public class ListEmailTemplateBean implements Serializable {
 
 	public LazyDataModel<EmailTemplateEntity> getList() {
     	if (list == null) 
-    		list = new GenericLazyDataModelImpl<EmailTemplateEntity, EmailTemplateService, Long>(service);
+    		list = new GenericLazyDataModelImpl<EmailTemplateEntity, EmailTemplateService>(service);
 		return list;
 	}
 }

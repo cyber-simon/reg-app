@@ -175,7 +175,7 @@ public class BulkRegisterBean implements Serializable {
 
 	public LazyDataModel<UserEntity> getUserList() {
 		if (userList == null)
-			userList = new GenericLazyDataModelImpl<UserEntity, UserService, Long>(userService);
+			userList = new GenericLazyDataModelImpl<UserEntity, UserService>(userService);
 		return userList;
 	}
 

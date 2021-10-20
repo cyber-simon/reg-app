@@ -15,6 +15,6 @@ import java.io.Serializable;
 import edu.kit.scc.webreg.entity.BaseEntity;
 import edu.kit.scc.webreg.service.BaseService;
 
-public interface GenericLazyDataModel<E extends BaseEntity<PK>, T extends BaseService<E, PK>, PK extends Serializable>  extends Serializable {
+public interface GenericLazyDataModel<E extends BaseEntity, T extends BaseService<E>> extends Serializable {
 
 }

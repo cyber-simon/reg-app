@@ -268,7 +268,7 @@ public class ShowUserBean implements Serializable {
 		if (auditUserEntryList == null) {
 			Map<String, Object> additionalFilterMap = new HashMap<String, Object>();
 			additionalFilterMap.put("user", new AndPredicate(user));
-			auditUserEntryList = new GenericLazyDataModelImpl<AuditUserEntity, AuditUserEntryService, Long>(auditUserEntryService, additionalFilterMap);
+			auditUserEntryList = new GenericLazyDataModelImpl<AuditUserEntity, AuditUserEntryService>(auditUserEntryService, additionalFilterMap);
 		}		
 		return auditUserEntryList;
 	}

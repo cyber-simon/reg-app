@@ -36,7 +36,7 @@ public class ListUserBean implements Serializable {
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (list == null) {
-			list = new GenericLazyDataModelImpl<UserEntity, UserService, Long>(service);
+			list = new GenericLazyDataModelImpl<UserEntity, UserService>(service);
 		}
 	}
 

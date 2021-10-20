@@ -36,7 +36,7 @@ public class ListAuditBean implements Serializable {
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (list == null) {
-			list = new GenericLazyDataModelImpl<AuditEntryEntity, AuditEntryService, Long>(service);
+			list = new GenericLazyDataModelImpl<AuditEntryEntity, AuditEntryService>(service);
 		}
 	}
 

@@ -35,7 +35,7 @@ public class ListTemplatesBean implements Serializable {
 
     public LazyDataModel<VelocityTemplateEntity> getEntityList() {
     	if (list == null) 
-    		list = new GenericLazyDataModelImpl<VelocityTemplateEntity, VelocityTemplateService, Long>(service);
+    		list = new GenericLazyDataModelImpl<VelocityTemplateEntity, VelocityTemplateService>(service);
    		return list;
     }
 

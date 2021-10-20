@@ -36,7 +36,7 @@ public class ListAdminUserBean implements Serializable {
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (list == null) {
-			list = new GenericLazyDataModelImpl<AdminUserEntity, AdminUserService, Long>(service);
+			list = new GenericLazyDataModelImpl<AdminUserEntity, AdminUserService>(service);
 		}
 	}
 

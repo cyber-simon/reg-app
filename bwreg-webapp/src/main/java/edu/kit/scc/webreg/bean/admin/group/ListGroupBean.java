@@ -62,7 +62,7 @@ public class ListGroupBean implements Serializable {
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (list == null) {
-			list = new GenericLazyDataModelImpl<GroupEntity, GroupService, Long>(service);
+			list = new GenericLazyDataModelImpl<GroupEntity, GroupService>(service);
 		}
 	}
 

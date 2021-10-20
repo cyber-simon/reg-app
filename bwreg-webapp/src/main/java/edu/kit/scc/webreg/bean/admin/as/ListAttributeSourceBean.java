@@ -36,7 +36,7 @@ public class ListAttributeSourceBean implements Serializable {
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (list == null) {
-			list = new GenericLazyDataModelImpl<AttributeSourceEntity, AttributeSourceService, Long>(service);
+			list = new GenericLazyDataModelImpl<AttributeSourceEntity, AttributeSourceService>(service);
 		}
 	}
 

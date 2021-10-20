@@ -35,7 +35,7 @@ public class ListRoleBean implements Serializable {
 
     public LazyDataModel<RoleEntity> getRoleEntityList() {
     	if (list == null) 
-    		list = new GenericLazyDataModelImpl<RoleEntity, RoleService, Long>(service);
+    		list = new GenericLazyDataModelImpl<RoleEntity, RoleService>(service);
         return list;
     }
 

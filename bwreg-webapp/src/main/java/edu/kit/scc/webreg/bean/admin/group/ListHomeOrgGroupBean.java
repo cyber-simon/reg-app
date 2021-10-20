@@ -36,7 +36,7 @@ public class ListHomeOrgGroupBean implements Serializable {
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (list == null) {
-			list = new GenericLazyDataModelImpl<HomeOrgGroupEntity, HomeOrgGroupService, Long>(service);
+			list = new GenericLazyDataModelImpl<HomeOrgGroupEntity, HomeOrgGroupService>(service);
 		}
 	}
 

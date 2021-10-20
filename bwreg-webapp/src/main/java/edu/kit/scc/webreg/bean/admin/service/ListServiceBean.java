@@ -35,7 +35,7 @@ public class ListServiceBean implements Serializable {
 
     public LazyDataModel<ServiceEntity> getServiceEntityList() {
     	if (list == null) 
-    		list = new GenericLazyDataModelImpl<ServiceEntity, ServiceService, Long>(service);
+    		list = new GenericLazyDataModelImpl<ServiceEntity, ServiceService>(service);
    		return list;
     }
 

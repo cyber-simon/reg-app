@@ -36,7 +36,7 @@ public class ListSshPubKeyBean implements Serializable {
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (list == null) {
-			list = new GenericLazyDataModelImpl<SshPubKeyEntity, SshPubKeyService, Long>(service);
+			list = new GenericLazyDataModelImpl<SshPubKeyEntity, SshPubKeyService>(service);
 		}
 	}
 

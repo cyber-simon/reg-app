@@ -46,7 +46,7 @@ public class TextPropertyBean implements Serializable {
 	}
 	
 	private void init() {
-		list = new GenericLazyDataModelImpl<TextPropertyEntity, TextPropertyService, Long>(service);
+		list = new GenericLazyDataModelImpl<TextPropertyEntity, TextPropertyService>(service);
 	}
 
 	public void save(TextPropertyEntity tp) {

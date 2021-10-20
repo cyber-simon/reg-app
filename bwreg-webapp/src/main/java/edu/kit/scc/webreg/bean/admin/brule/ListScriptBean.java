@@ -36,7 +36,7 @@ public class ListScriptBean implements Serializable {
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (list == null) {
-			list = new GenericLazyDataModelImpl<ScriptEntity, ScriptService, Long>(service);
+			list = new GenericLazyDataModelImpl<ScriptEntity, ScriptService>(service);
 		}
 	}
 

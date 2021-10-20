@@ -36,11 +36,11 @@ public class ServiceAdminUserListBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private GenericLazyDataModel<RegistryEntity, RegistryService, Long> list;
-	private GenericLazyDataModel<RegistryEntity, RegistryService, Long> allList;
-	private GenericLazyDataModel<RegistryEntity, RegistryService, Long> otherList;
-	private GenericLazyDataModel<RegistryEntity, RegistryService, Long> deletedList;
-	private GenericLazyDataModel<RegistryEntity, RegistryService, Long> lostAccessList;
+	private GenericLazyDataModel<RegistryEntity, RegistryService> list;
+	private GenericLazyDataModel<RegistryEntity, RegistryService> allList;
+	private GenericLazyDataModel<RegistryEntity, RegistryService> otherList;
+	private GenericLazyDataModel<RegistryEntity, RegistryService> deletedList;
+	private GenericLazyDataModel<RegistryEntity, RegistryService> lostAccessList;
     
     @Inject
     private RegistryService service;
@@ -85,52 +85,52 @@ public class ServiceAdminUserListBean implements Serializable {
 		this.serviceId = serviceId;
 	}
 
-	public GenericLazyDataModel<RegistryEntity, RegistryService, Long> getList() {
+	public GenericLazyDataModel<RegistryEntity, RegistryService> getList() {
 		if (list == null) {
 			Map<String, Object> filterMap = new HashMap<String, Object>();
 			filterMap.put("service", serviceEntity);
 			filterMap.put("registryStatus", RegistryStatus.ACTIVE);
-			list = new GenericLazyDataModelImpl<RegistryEntity, RegistryService, Long>(service, filterMap);
+			list = new GenericLazyDataModelImpl<RegistryEntity, RegistryService>(service, filterMap);
 		}
 		return list;
 	}
 
-	public GenericLazyDataModel<RegistryEntity, RegistryService, Long> getAllList() {
+	public GenericLazyDataModel<RegistryEntity, RegistryService> getAllList() {
 		if (allList == null) {
 			Map<String, Object> filterMap = new HashMap<String, Object>();
 			filterMap.put("service", serviceEntity);
-			allList = new GenericLazyDataModelImpl<RegistryEntity, RegistryService, Long>(service, filterMap);
+			allList = new GenericLazyDataModelImpl<RegistryEntity, RegistryService>(service, filterMap);
 		}
 		return allList;
 	}
 
-	public GenericLazyDataModel<RegistryEntity, RegistryService, Long> getOtherList() {
+	public GenericLazyDataModel<RegistryEntity, RegistryService> getOtherList() {
 		if (otherList == null) {
 			Map<String, Object> filterMap = new HashMap<String, Object>();
 			filterMap.put("service", serviceEntity);
 			filterMap.put("registryStatus", new OrPredicate(RegistryStatus.INVALID,
 					RegistryStatus.PENDING, RegistryStatus.CREATED, RegistryStatus.BLOCKED, RegistryStatus.ON_HOLD));
-			otherList = new GenericLazyDataModelImpl<RegistryEntity, RegistryService, Long>(service, filterMap);
+			otherList = new GenericLazyDataModelImpl<RegistryEntity, RegistryService>(service, filterMap);
 		}
 		return otherList;
 	}
 
-	public GenericLazyDataModel<RegistryEntity, RegistryService, Long> getDeletedList() {
+	public GenericLazyDataModel<RegistryEntity, RegistryService> getDeletedList() {
 		if (deletedList == null) {
 			Map<String, Object> filterMap = new HashMap<String, Object>();
 			filterMap.put("service", serviceEntity);
 			filterMap.put("registryStatus", RegistryStatus.DELETED);
-			deletedList = new GenericLazyDataModelImpl<RegistryEntity, RegistryService, Long>(service, filterMap);
+			deletedList = new GenericLazyDataModelImpl<RegistryEntity, RegistryService>(service, filterMap);
 		}
 		return deletedList;
 	}
 
-	public GenericLazyDataModel<RegistryEntity, RegistryService, Long> getLostAccessList() {
+	public GenericLazyDataModel<RegistryEntity, RegistryService> getLostAccessList() {
 		if (lostAccessList == null) {
 			Map<String, Object> filterMap = new HashMap<String, Object>();
 			filterMap.put("service", serviceEntity);
 			filterMap.put("registryStatus", RegistryStatus.LOST_ACCESS);
-			lostAccessList = new GenericLazyDataModelImpl<RegistryEntity, RegistryService, Long>(service, filterMap);
+			lostAccessList = new GenericLazyDataModelImpl<RegistryEntity, RegistryService>(service, filterMap);
 		}
 		return lostAccessList;
 	}

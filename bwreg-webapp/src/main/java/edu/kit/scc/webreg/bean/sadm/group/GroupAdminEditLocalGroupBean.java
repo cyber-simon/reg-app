@@ -85,8 +85,8 @@ public class GroupAdminEditLocalGroupBean implements Serializable {
 		if (entity == null) {
 			serviceEntity = serviceService.findById(serviceId);
 			entity = service.findWithUsersAndChildren(groupId);
-			userList = new GenericLazyDataModelImpl<UserEntity, UserService, Long>(userService);
-			groupList = new GenericLazyDataModelImpl<GroupEntity, GroupService, Long>(allGroupService);
+			userList = new GenericLazyDataModelImpl<UserEntity, UserService>(userService);
+			groupList = new GenericLazyDataModelImpl<GroupEntity, GroupService>(allGroupService);
 			groupFlagList = groupFlagService.findByGroup(entity);
 			if (groupFlagList.size() == 0)
 				throw new NotAuthorizedException("Gruppe ist diesem Service nicht zugeordnet");
