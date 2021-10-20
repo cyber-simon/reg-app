@@ -26,7 +26,7 @@ public class ProjectAdminRoleConverter extends AbstractConverter<ProjectAdminRol
 	private ProjectAdminRoleService service;
 
 	@Override
-	protected BaseService<ProjectAdminRoleEntity, Long> getService() {
+	protected BaseService<ProjectAdminRoleEntity> getService() {
 		return service;
 	}
 	

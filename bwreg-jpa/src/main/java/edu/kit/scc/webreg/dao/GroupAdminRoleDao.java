@@ -15,7 +15,7 @@ import java.util.List;
 import edu.kit.scc.webreg.entity.GroupAdminRoleEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 
-public interface GroupAdminRoleDao extends BaseDao<GroupAdminRoleEntity, Long> {
+public interface GroupAdminRoleDao extends BaseDao<GroupAdminRoleEntity> {
 
 	GroupAdminRoleEntity findByName(String name);
 

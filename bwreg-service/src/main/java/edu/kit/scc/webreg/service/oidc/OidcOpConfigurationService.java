@@ -13,7 +13,7 @@ package edu.kit.scc.webreg.service.oidc;
 import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
 import edu.kit.scc.webreg.service.BaseService;
 
-public interface OidcOpConfigurationService extends BaseService<OidcOpConfigurationEntity, Long> {
+public interface OidcOpConfigurationService extends BaseService<OidcOpConfigurationEntity> {
 
 	OidcOpConfigurationEntity findByRealm(String realm);
 	OidcOpConfigurationEntity findByRealmAndHost(String realm, String host);

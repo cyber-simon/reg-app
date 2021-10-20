@@ -22,7 +22,7 @@ import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 import edu.kit.scc.webreg.service.ASUserAttrService;
 
 @Stateless
-public class ASUserAttrServiceImpl extends BaseServiceImpl<ASUserAttrEntity, Long> implements ASUserAttrService {
+public class ASUserAttrServiceImpl extends BaseServiceImpl<ASUserAttrEntity> implements ASUserAttrService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -40,7 +40,7 @@ public class ASUserAttrServiceImpl extends BaseServiceImpl<ASUserAttrEntity, Lon
 	}
 	
 	@Override
-	protected BaseDao<ASUserAttrEntity, Long> getDao() {
+	protected BaseDao<ASUserAttrEntity> getDao() {
 		return dao;
 	}
 }

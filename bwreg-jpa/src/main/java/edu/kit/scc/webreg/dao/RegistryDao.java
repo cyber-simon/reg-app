@@ -20,7 +20,7 @@ import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 
-public interface RegistryDao extends BaseDao<RegistryEntity, Long> {
+public interface RegistryDao extends BaseDao<RegistryEntity> {
 
 	List<RegistryEntity> findByService(ServiceEntity service);
 

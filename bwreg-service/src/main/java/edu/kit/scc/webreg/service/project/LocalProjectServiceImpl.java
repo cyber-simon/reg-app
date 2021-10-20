@@ -24,7 +24,7 @@ import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
 
 @Stateless
-public class LocalProjectServiceImpl extends BaseServiceImpl<LocalProjectEntity, Long> implements LocalProjectService {
+public class LocalProjectServiceImpl extends BaseServiceImpl<LocalProjectEntity> implements LocalProjectService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -50,7 +50,7 @@ public class LocalProjectServiceImpl extends BaseServiceImpl<LocalProjectEntity,
 	}
 		
 	@Override
-	protected BaseDao<LocalProjectEntity, Long> getDao() {
+	protected BaseDao<LocalProjectEntity> getDao() {
 		return dao;
 	}
 }

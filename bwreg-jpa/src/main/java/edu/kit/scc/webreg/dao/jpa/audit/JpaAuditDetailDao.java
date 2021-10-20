@@ -23,7 +23,7 @@ import edu.kit.scc.webreg.entity.audit.AuditStatus;
 
 @Named
 @ApplicationScoped
-public class JpaAuditDetailDao extends JpaBaseDao<AuditDetailEntity, Long> implements AuditDetailDao {
+public class JpaAuditDetailDao extends JpaBaseDao<AuditDetailEntity> implements AuditDetailDao {
 
     @Override
     @SuppressWarnings({"unchecked"})

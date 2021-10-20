@@ -15,7 +15,7 @@ import java.util.List;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceEventEntity;
 
-public interface ServiceEventDao extends BaseDao<ServiceEventEntity, Long> {
+public interface ServiceEventDao extends BaseDao<ServiceEventEntity> {
 
 	List<ServiceEventEntity> findAllByService(ServiceEntity service);
 

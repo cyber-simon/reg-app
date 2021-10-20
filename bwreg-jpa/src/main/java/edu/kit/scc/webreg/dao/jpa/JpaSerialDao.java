@@ -19,7 +19,7 @@ import edu.kit.scc.webreg.entity.SerialEntity;
 
 @Named
 @ApplicationScoped
-public class JpaSerialDao extends JpaBaseDao<SerialEntity, Long> implements SerialDao {
+public class JpaSerialDao extends JpaBaseDao<SerialEntity> implements SerialDao {
 
     @Override
 	public SerialEntity findByName(String name) {

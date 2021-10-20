@@ -10,8 +10,8 @@ import edu.kit.scc.webreg.dto.entity.BaseEntityDto;
 import edu.kit.scc.webreg.entity.AbstractBaseEntity;
 import edu.kit.scc.webreg.entity.BaseEntity;
 
-public abstract class AbstractBaseEntityMapper<T extends BaseEntity<PK>,E extends BaseEntityDto<PK>, PK extends Serializable>
-		implements BaseEntityMapper<T, E, PK>, Serializable {
+public abstract class AbstractBaseEntityMapper<T extends BaseEntity,E extends BaseEntityDto>
+		implements BaseEntityMapper<T, E>, Serializable {
 
 	private static final long serialVersionUID = 1L;
 

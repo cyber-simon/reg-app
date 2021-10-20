@@ -26,7 +26,7 @@ import edu.kit.scc.webreg.entity.oidc.ServiceOidcClientEntity_;
 
 @Named
 @ApplicationScoped
-public class JpaServiceOidcClientDao extends JpaBaseDao<ServiceOidcClientEntity, Long> implements ServiceOidcClientDao {
+public class JpaServiceOidcClientDao extends JpaBaseDao<ServiceOidcClientEntity> implements ServiceOidcClientDao {
 
 	@Override
 	public List<ServiceOidcClientEntity> findByClientConfig(OidcClientConfigurationEntity clientConfig) {

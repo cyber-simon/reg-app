@@ -27,7 +27,7 @@ import edu.kit.scc.webreg.entity.ServiceEntity;
 
 @Named
 @ApplicationScoped
-public class JpaServiceDao extends JpaBaseDao<ServiceEntity, Long> implements ServiceDao {
+public class JpaServiceDao extends JpaBaseDao<ServiceEntity> implements ServiceDao {
 
     @Override
 	public ServiceEntity findByShortName(String shortName) {

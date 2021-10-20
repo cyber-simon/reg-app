@@ -18,7 +18,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 
-public interface UserDao extends BaseDao<UserEntity, Long> {
+public interface UserDao extends BaseDao<UserEntity> {
 
 	List<UserEntity> findByEppn(String eppn);
 	UserEntity findByIdWithAll(Long id);

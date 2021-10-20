@@ -40,7 +40,7 @@ public class ListOidcClientConfigurationBean implements Serializable {
 
 	public LazyDataModel<OidcClientConfigurationEntity> getList() {
 		if (list == null)
-			list = new GenericLazyDataModelImpl<OidcClientConfigurationEntity, OidcClientConfigurationService, Long>(service);
+			list = new GenericLazyDataModelImpl<OidcClientConfigurationEntity, OidcClientConfigurationService>(service);
    		return list;
    	}
 }

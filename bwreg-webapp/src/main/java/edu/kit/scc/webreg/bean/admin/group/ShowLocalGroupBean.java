@@ -87,8 +87,8 @@ public class ShowLocalGroupBean implements Serializable {
 		if (entity == null) {
 			entity = groupService.findWithUsersAndChildren(id);
 			
-			userList = new GenericLazyDataModelImpl<UserEntity, UserService, Long>(userService);
-			groupList = new GenericLazyDataModelImpl<GroupEntity, GroupService, Long>(allGroupService);
+			userList = new GenericLazyDataModelImpl<UserEntity, UserService>(userService);
+			groupList = new GenericLazyDataModelImpl<GroupEntity, GroupService>(allGroupService);
 			effectiveMemberList = new ArrayList<UserEntity>(allGroupService.getEffectiveMembers(entity));
 			
 			initView();

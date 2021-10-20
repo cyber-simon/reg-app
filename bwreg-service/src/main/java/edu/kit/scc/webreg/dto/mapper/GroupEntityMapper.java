@@ -8,7 +8,7 @@ import edu.kit.scc.webreg.dto.entity.GroupEntityDto;
 import edu.kit.scc.webreg.entity.GroupEntity;
 
 @ApplicationScoped
-public class GroupEntityMapper extends AbstractBaseEntityMapper<GroupEntity, GroupEntityDto, Long> {
+public class GroupEntityMapper extends AbstractBaseEntityMapper<GroupEntity, GroupEntityDto> {
 
 	private static final long serialVersionUID = 1L;
 

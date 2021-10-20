@@ -7,7 +7,7 @@ import edu.kit.scc.webreg.dto.mapper.AbstractBaseEntityMapper;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 
 @ApplicationScoped
-public class IdpEntityMapper extends AbstractBaseEntityMapper<SamlIdpMetadataEntity, IdpEntityDto, Long> {
+public class IdpEntityMapper extends AbstractBaseEntityMapper<SamlIdpMetadataEntity, IdpEntityDto> {
 
 	private static final long serialVersionUID = 1L;
 

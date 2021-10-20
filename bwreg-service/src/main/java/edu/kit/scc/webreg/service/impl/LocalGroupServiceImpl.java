@@ -35,7 +35,7 @@ import edu.kit.scc.webreg.service.LocalGroupService;
 import edu.kit.scc.webreg.service.group.LocalGroupCreator;
 
 @Stateless
-public class LocalGroupServiceImpl extends BaseServiceImpl<LocalGroupEntity, Long> implements LocalGroupService {
+public class LocalGroupServiceImpl extends BaseServiceImpl<LocalGroupEntity> implements LocalGroupService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -126,7 +126,7 @@ public class LocalGroupServiceImpl extends BaseServiceImpl<LocalGroupEntity, Lon
 	}	
 	
 	@Override
-	protected BaseDao<LocalGroupEntity, Long> getDao() {
+	protected BaseDao<LocalGroupEntity> getDao() {
 		return dao;
 	}	
 }

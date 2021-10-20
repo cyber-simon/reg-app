@@ -25,7 +25,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 
 @Named
 @ApplicationScoped
-public class JpaGroupAdminRoleDao extends JpaBaseDao<GroupAdminRoleEntity, Long> implements GroupAdminRoleDao {
+public class JpaGroupAdminRoleDao extends JpaBaseDao<GroupAdminRoleEntity> implements GroupAdminRoleDao {
 
     @Override
 	public List<GroupAdminRoleEntity> findWithServices(UserEntity user) {

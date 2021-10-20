@@ -18,7 +18,7 @@ import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
 import edu.kit.scc.webreg.entity.audit.AuditServiceRegisterEntity;
 
-public interface AuditEntryDao extends BaseDao<AuditEntryEntity, Long> {
+public interface AuditEntryDao extends BaseDao<AuditEntryEntity> {
 
 	List<AuditEntryEntity> findAllOlderThan(Date date, int limit);
 

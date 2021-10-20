@@ -14,7 +14,7 @@ import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.BaseService;
 
-public interface OidcUserService extends BaseService<OidcUserEntity, Long> {
+public interface OidcUserService extends BaseService<OidcUserEntity> {
 
 	OidcUserEntity updateUserFromOp(OidcUserEntity user, String executor) throws UserUpdateException;
 

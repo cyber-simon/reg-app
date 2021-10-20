@@ -31,7 +31,7 @@ import edu.kit.scc.webreg.exc.UnauthorizedException;
 import edu.kit.scc.webreg.exc.UserCreateException;
 
 @Stateless
-public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserEntity, ExternalUserEntityDto, Long> implements ExternalUserDtoService {
+public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserEntity, ExternalUserEntityDto> implements ExternalUserDtoService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -175,12 +175,12 @@ public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserE
 	}
 		
 	@Override
-	protected BaseEntityMapper<ExternalUserEntity, ExternalUserEntityDto, Long> getMapper() {
+	protected BaseEntityMapper<ExternalUserEntity, ExternalUserEntityDto> getMapper() {
 		return mapper;
 	}
 
 	@Override
-	protected BaseDao<ExternalUserEntity, Long> getDao() {
+	protected BaseDao<ExternalUserEntity> getDao() {
 		return dao;
 	}
 

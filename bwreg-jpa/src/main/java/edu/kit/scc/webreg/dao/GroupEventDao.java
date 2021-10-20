@@ -15,7 +15,7 @@ import java.util.List;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.GroupEventEntity;
 
-public interface GroupEventDao extends BaseDao<GroupEventEntity, Long> {
+public interface GroupEventDao extends BaseDao<GroupEventEntity> {
 
 	List<GroupEventEntity> findAllByEventType(EventType eventType);
 

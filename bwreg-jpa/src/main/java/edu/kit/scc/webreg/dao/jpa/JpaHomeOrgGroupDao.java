@@ -29,7 +29,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 
 @Named
 @ApplicationScoped
-public class JpaHomeOrgGroupDao extends JpaBaseDao<HomeOrgGroupEntity, Long> implements HomeOrgGroupDao {
+public class JpaHomeOrgGroupDao extends JpaBaseDao<HomeOrgGroupEntity> implements HomeOrgGroupDao {
 
     @Override
 	public List<HomeOrgGroupEntity> findByUser(UserEntity user) {

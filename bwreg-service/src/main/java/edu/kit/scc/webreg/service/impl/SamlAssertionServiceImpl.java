@@ -19,7 +19,7 @@ import edu.kit.scc.webreg.entity.SamlAssertionEntity;
 import edu.kit.scc.webreg.service.SamlAssertionService;
 
 @Stateless
-public class SamlAssertionServiceImpl extends BaseServiceImpl<SamlAssertionEntity, Long> implements SamlAssertionService {
+public class SamlAssertionServiceImpl extends BaseServiceImpl<SamlAssertionEntity> implements SamlAssertionService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -32,7 +32,7 @@ public class SamlAssertionServiceImpl extends BaseServiceImpl<SamlAssertionEntit
 	}
 	
 	@Override
-	protected BaseDao<SamlAssertionEntity, Long> getDao() {
+	protected BaseDao<SamlAssertionEntity> getDao() {
 		return dao;
 	}
 

@@ -16,7 +16,7 @@ import edu.kit.scc.webreg.entity.ClusterMemberEntity;
 import edu.kit.scc.webreg.entity.ClusterMemberStatus;
 import edu.kit.scc.webreg.entity.ClusterSchedulerStatus;
 
-public interface ClusterMemberDao extends BaseDao<ClusterMemberEntity, Long> {
+public interface ClusterMemberDao extends BaseDao<ClusterMemberEntity> {
 
 	ClusterMemberEntity findByNodeName(String nodename);
 

@@ -12,7 +12,7 @@ package edu.kit.scc.webreg.service;
 
 import edu.kit.scc.webreg.entity.SamlAuthnRequestEntity;
 
-public interface SamlAuthnRequestService extends BaseService<SamlAuthnRequestEntity, Long> {
+public interface SamlAuthnRequestService extends BaseService<SamlAuthnRequestEntity> {
 
 	void deleteInvalid();
 

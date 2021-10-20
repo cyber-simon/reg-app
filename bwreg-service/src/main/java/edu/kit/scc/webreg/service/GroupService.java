@@ -17,7 +17,7 @@ import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.ServiceBasedGroupEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 
-public interface GroupService extends BaseService<GroupEntity, Long> {
+public interface GroupService extends BaseService<GroupEntity> {
 
 	GroupEntity findByName(String name);
 

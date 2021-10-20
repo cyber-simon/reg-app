@@ -38,7 +38,7 @@ import edu.kit.scc.webreg.exc.UnauthorizedException;
 import edu.kit.scc.webreg.service.group.LocalGroupCreator;
 
 @Stateless
-public class GroupDtoServiceImpl extends BaseDtoServiceImpl<GroupEntity, GroupEntityDto, Long> implements GroupDtoService {
+public class GroupDtoServiceImpl extends BaseDtoServiceImpl<GroupEntity, GroupEntityDto> implements GroupDtoService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -210,12 +210,12 @@ public class GroupDtoServiceImpl extends BaseDtoServiceImpl<GroupEntity, GroupEn
 	}
 
 	@Override
-	protected BaseEntityMapper<GroupEntity, GroupEntityDto, Long> getMapper() {
+	protected BaseEntityMapper<GroupEntity, GroupEntityDto> getMapper() {
 		return mapper;
 	}
 
 	@Override
-	protected BaseDao<GroupEntity, Long> getDao() {
+	protected BaseDao<GroupEntity> getDao() {
 		return dao;
 	}
 

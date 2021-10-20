@@ -6,7 +6,7 @@ import edu.kit.scc.webreg.dto.entity.SshPubKeyEntityDto;
 import edu.kit.scc.webreg.entity.SshPubKeyEntity;
 
 @ApplicationScoped
-public class SshPubKeyEntityMapper extends AbstractBaseEntityMapper<SshPubKeyEntity, SshPubKeyEntityDto, Long> {
+public class SshPubKeyEntityMapper extends AbstractBaseEntityMapper<SshPubKeyEntity, SshPubKeyEntityDto> {
 
 	private static final long serialVersionUID = 1L;
 

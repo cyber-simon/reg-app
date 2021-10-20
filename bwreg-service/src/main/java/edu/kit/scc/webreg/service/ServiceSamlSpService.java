@@ -12,6 +12,6 @@ package edu.kit.scc.webreg.service;
 
 import edu.kit.scc.webreg.entity.ServiceSamlSpEntity;
 
-public interface ServiceSamlSpService extends BaseService<ServiceSamlSpEntity, Long> {
+public interface ServiceSamlSpService extends BaseService<ServiceSamlSpEntity> {
 
 }

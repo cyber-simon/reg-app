@@ -43,7 +43,7 @@ public class SchedulerStatusBean implements Serializable {
 	
     public void preRenderView() {
 		if (list == null) {
-			list = new GenericLazyDataModelImpl<ClusterMemberEntity, ClusterMemberService, Long>(clusterMemberService);
+			list = new GenericLazyDataModelImpl<ClusterMemberEntity, ClusterMemberService>(clusterMemberService);
 		}
 	}
 	

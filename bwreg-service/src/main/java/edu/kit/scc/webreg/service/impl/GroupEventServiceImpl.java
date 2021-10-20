@@ -22,7 +22,7 @@ import edu.kit.scc.webreg.entity.GroupEventEntity;
 import edu.kit.scc.webreg.service.GroupEventService;
 
 @Stateless
-public class GroupEventServiceImpl extends BaseServiceImpl<GroupEventEntity, Long> implements GroupEventService {
+public class GroupEventServiceImpl extends BaseServiceImpl<GroupEventEntity> implements GroupEventService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -30,7 +30,7 @@ public class GroupEventServiceImpl extends BaseServiceImpl<GroupEventEntity, Lon
 	private GroupEventDao dao;
 	
 	@Override
-	protected BaseDao<GroupEventEntity, Long> getDao() {
+	protected BaseDao<GroupEventEntity> getDao() {
 		return dao;
 	}
 	

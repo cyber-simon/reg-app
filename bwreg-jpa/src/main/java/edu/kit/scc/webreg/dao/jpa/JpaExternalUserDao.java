@@ -28,7 +28,7 @@ import edu.kit.scc.webreg.entity.ExternalUserEntity_;
 
 @Named
 @ApplicationScoped
-public class JpaExternalUserDao extends JpaBaseDao<ExternalUserEntity, Long> implements ExternalUserDao, Serializable {
+public class JpaExternalUserDao extends JpaBaseDao<ExternalUserEntity> implements ExternalUserDao, Serializable {
 
 	private static final long serialVersionUID = 1L;
     

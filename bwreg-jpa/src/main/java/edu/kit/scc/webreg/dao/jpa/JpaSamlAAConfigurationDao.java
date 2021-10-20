@@ -23,7 +23,7 @@ import edu.kit.scc.webreg.entity.SamlAAConfigurationEntity;
 
 @Named
 @ApplicationScoped
-public class JpaSamlAAConfigurationDao extends JpaBaseDao<SamlAAConfigurationEntity, Long> implements SamlAAConfigurationDao {
+public class JpaSamlAAConfigurationDao extends JpaBaseDao<SamlAAConfigurationEntity> implements SamlAAConfigurationDao {
 
     @Override
 	public SamlAAConfigurationEntity findByEntityId(String entityId) {

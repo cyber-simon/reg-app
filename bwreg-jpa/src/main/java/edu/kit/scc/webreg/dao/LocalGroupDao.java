@@ -15,7 +15,7 @@ import java.util.List;
 import edu.kit.scc.webreg.entity.LocalGroupEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 
-public interface LocalGroupDao extends BaseDao<LocalGroupEntity, Long> {
+public interface LocalGroupDao extends BaseDao<LocalGroupEntity> {
 
 	LocalGroupEntity findByGidNumber(Integer gid);
 

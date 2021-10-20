@@ -15,7 +15,7 @@ import java.util.List;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 
-public interface IdentityDao extends BaseDao<IdentityEntity, Long> {
+public interface IdentityDao extends BaseDao<IdentityEntity> {
 
 	IdentityEntity findByUserId(Long userId);
 

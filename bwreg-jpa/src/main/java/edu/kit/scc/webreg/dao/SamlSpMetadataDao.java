@@ -16,7 +16,7 @@ import edu.kit.scc.webreg.entity.FederationEntity;
 import edu.kit.scc.webreg.entity.SamlMetadataEntityStatus;
 import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 
-public interface SamlSpMetadataDao extends BaseDao<SamlSpMetadataEntity, Long> {
+public interface SamlSpMetadataDao extends BaseDao<SamlSpMetadataEntity> {
 
 	List<SamlSpMetadataEntity> findAllByFederation(FederationEntity federation);
 

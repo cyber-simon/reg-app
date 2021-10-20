@@ -20,7 +20,7 @@ import edu.kit.scc.webreg.entity.ApplicationConfigEntity;
 
 @Named
 @ApplicationScoped
-public class JpaApplicationConfigDao extends JpaBaseDao<ApplicationConfigEntity, Long> implements ApplicationConfigDao {
+public class JpaApplicationConfigDao extends JpaBaseDao<ApplicationConfigEntity> implements ApplicationConfigDao {
 
     @Override
 	public ApplicationConfigEntity findActive() {

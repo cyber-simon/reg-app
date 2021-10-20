@@ -15,7 +15,7 @@ import java.util.List;
 import edu.kit.scc.webreg.entity.ExternalUserAdminRoleEntity;
 import edu.kit.scc.webreg.entity.ExternalUserEntity;
 
-public interface ExternalUserDao extends BaseDao<ExternalUserEntity, Long> {
+public interface ExternalUserDao extends BaseDao<ExternalUserEntity> {
 
 	ExternalUserEntity findByExternalId(String externalId);
 	List<ExternalUserEntity> findByAdmin(ExternalUserAdminRoleEntity adminRole);

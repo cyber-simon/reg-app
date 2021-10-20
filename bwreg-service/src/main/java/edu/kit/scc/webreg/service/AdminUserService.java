@@ -15,7 +15,7 @@ import java.util.List;
 import edu.kit.scc.webreg.entity.AdminUserEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
 
-public interface AdminUserService extends BaseService<AdminUserEntity, Long> {
+public interface AdminUserService extends BaseService<AdminUserEntity> {
 
 	AdminUserEntity findByUsernameAndPassword(String username, String password);
 

@@ -17,7 +17,7 @@ import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceSamlSpEntity;
 
-public interface ServiceSamlSpDao extends BaseDao<ServiceSamlSpEntity, Long> {
+public interface ServiceSamlSpDao extends BaseDao<ServiceSamlSpEntity> {
 
 	List<ServiceSamlSpEntity> findByService(ServiceEntity service);
 

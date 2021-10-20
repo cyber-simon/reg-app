@@ -21,7 +21,7 @@ import edu.kit.scc.webreg.entity.ServiceEventEntity;
 
 @Named
 @ApplicationScoped
-public class JpaServiceEventDao extends JpaBaseDao<ServiceEventEntity, Long> implements ServiceEventDao {
+public class JpaServiceEventDao extends JpaBaseDao<ServiceEventEntity> implements ServiceEventDao {
 
     @Override
 	public Class<ServiceEventEntity> getEntityClass() {

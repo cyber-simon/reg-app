@@ -26,7 +26,7 @@ public class AgreementTextConverter extends AbstractConverter<AgreementTextEntit
 	private AgreementTextService service;
 
 	@Override
-	protected BaseService<AgreementTextEntity, Long> getService() {
+	protected BaseService<AgreementTextEntity> getService() {
 		return service;
 	}
 	

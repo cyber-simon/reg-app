@@ -22,7 +22,7 @@ import edu.kit.scc.webreg.entity.PolicyEntity;
 
 @Named
 @ApplicationScoped
-public class JpaPolicyDao extends JpaBaseDao<PolicyEntity, Long> implements PolicyDao {
+public class JpaPolicyDao extends JpaBaseDao<PolicyEntity> implements PolicyDao {
 
     @Override
 	public PolicyEntity findWithAgreemets(Long id) {

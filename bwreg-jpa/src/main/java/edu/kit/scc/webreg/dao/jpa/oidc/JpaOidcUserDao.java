@@ -27,7 +27,7 @@ import edu.kit.scc.webreg.entity.oidc.OidcUserEntity_;
 
 @Named
 @ApplicationScoped
-public class JpaOidcUserDao extends JpaBaseDao<OidcUserEntity, Long> implements OidcUserDao, Serializable {
+public class JpaOidcUserDao extends JpaBaseDao<OidcUserEntity> implements OidcUserDao, Serializable {
 
 	private static final long serialVersionUID = 1L;
     

@@ -40,7 +40,7 @@ import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 
 @Named
 @ApplicationScoped
-public class JpaRegistryDao extends JpaBaseDao<RegistryEntity, Long> implements RegistryDao {
+public class JpaRegistryDao extends JpaBaseDao<RegistryEntity> implements RegistryDao {
 
 	@SuppressWarnings("unchecked")
 	@Override

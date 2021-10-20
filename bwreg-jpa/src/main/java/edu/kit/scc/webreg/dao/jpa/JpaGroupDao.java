@@ -41,7 +41,7 @@ import edu.kit.scc.webreg.entity.UserGroupEntity;
 
 @Named
 @ApplicationScoped
-public class JpaGroupDao extends JpaBaseDao<GroupEntity, Long> implements GroupDao {
+public class JpaGroupDao extends JpaBaseDao<GroupEntity> implements GroupDao {
 
 	@Inject
 	private LocalGroupDao localGroupDao;

@@ -24,7 +24,7 @@ import edu.kit.scc.webreg.entity.oidc.OidcTokenEntity;
 
 @Named
 @ApplicationScoped
-public class JpaTokenEntityDao extends JpaBaseDao<OidcTokenEntity, Long> implements OidcTokenDao, Serializable {
+public class JpaTokenEntityDao extends JpaBaseDao<OidcTokenEntity> implements OidcTokenDao, Serializable {
 
 	private static final long serialVersionUID = 1L;
     

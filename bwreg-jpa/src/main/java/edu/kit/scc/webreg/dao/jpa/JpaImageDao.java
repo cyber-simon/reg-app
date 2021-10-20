@@ -22,7 +22,7 @@ import edu.kit.scc.webreg.entity.ImageEntity;
 
 @Named
 @ApplicationScoped
-public class JpaImageDao extends JpaBaseDao<ImageEntity, Long> implements ImageDao {
+public class JpaImageDao extends JpaBaseDao<ImageEntity> implements ImageDao {
 
     @Override
 	public ImageEntity findByName(String name) {

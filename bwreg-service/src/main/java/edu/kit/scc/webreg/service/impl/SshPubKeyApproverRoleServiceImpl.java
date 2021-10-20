@@ -19,7 +19,7 @@ import edu.kit.scc.webreg.entity.SshPubKeyApproverRoleEntity;
 import edu.kit.scc.webreg.service.SshPubKeyApproverRoleService;
 
 @Stateless
-public class SshPubKeyApproverRoleServiceImpl extends BaseServiceImpl<SshPubKeyApproverRoleEntity, Long> implements SshPubKeyApproverRoleService {
+public class SshPubKeyApproverRoleServiceImpl extends BaseServiceImpl<SshPubKeyApproverRoleEntity> implements SshPubKeyApproverRoleService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -27,7 +27,7 @@ public class SshPubKeyApproverRoleServiceImpl extends BaseServiceImpl<SshPubKeyA
 	private SshPubKeyApproverRoleDao dao;
 	
 	@Override
-	protected BaseDao<SshPubKeyApproverRoleEntity, Long> getDao() {
+	protected BaseDao<SshPubKeyApproverRoleEntity> getDao() {
 		return dao;
 	}
 }

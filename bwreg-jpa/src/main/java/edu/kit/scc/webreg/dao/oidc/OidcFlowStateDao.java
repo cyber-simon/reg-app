@@ -13,7 +13,7 @@ package edu.kit.scc.webreg.dao.oidc;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.entity.oidc.OidcFlowStateEntity;
 
-public interface OidcFlowStateDao extends BaseDao<OidcFlowStateEntity, Long> {
+public interface OidcFlowStateDao extends BaseDao<OidcFlowStateEntity> {
 
 	OidcFlowStateEntity findByCode(String code);
 

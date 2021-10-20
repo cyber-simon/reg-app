@@ -16,7 +16,7 @@ import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.project.ProjectAdminRoleEntity;
 
-public interface ProjectAdminRoleDao extends BaseDao<ProjectAdminRoleEntity, Long> {
+public interface ProjectAdminRoleDao extends BaseDao<ProjectAdminRoleEntity> {
 
 	ProjectAdminRoleEntity findByName(String name);
 

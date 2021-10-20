@@ -26,7 +26,7 @@ public class UserConverter extends AbstractConverter<UserEntity> {
 	private UserService service;
 
 	@Override
-	protected BaseService<UserEntity, Long> getService() {
+	protected BaseService<UserEntity> getService() {
 		return service;
 	}
 	

@@ -27,7 +27,7 @@ import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 
 @Named
 @ApplicationScoped
-public class JpaSamlSpMetadataDao extends JpaBaseDao<SamlSpMetadataEntity, Long> implements SamlSpMetadataDao {
+public class JpaSamlSpMetadataDao extends JpaBaseDao<SamlSpMetadataEntity> implements SamlSpMetadataDao {
 
 	@Override
 	public SamlSpMetadataEntity findByIdWithAll(Long id) {

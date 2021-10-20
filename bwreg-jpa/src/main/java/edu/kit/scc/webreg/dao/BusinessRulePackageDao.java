@@ -15,7 +15,7 @@ import java.util.List;
 
 import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 
-public interface BusinessRulePackageDao extends BaseDao<BusinessRulePackageEntity, Long> {
+public interface BusinessRulePackageDao extends BaseDao<BusinessRulePackageEntity> {
 
 	List<BusinessRulePackageEntity> findAllNewer(Date date);
 

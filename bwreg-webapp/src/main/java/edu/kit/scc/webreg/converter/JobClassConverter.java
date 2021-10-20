@@ -26,7 +26,7 @@ public class JobClassConverter extends AbstractConverter<JobClassEntity> {
 	private JobClassService service;
 
 	@Override
-	protected BaseService<JobClassEntity, Long> getService() {
+	protected BaseService<JobClassEntity> getService() {
 		return service;
 	}
 	

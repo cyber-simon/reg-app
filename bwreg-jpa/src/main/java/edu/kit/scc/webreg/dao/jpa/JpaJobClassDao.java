@@ -18,7 +18,7 @@ import edu.kit.scc.webreg.entity.JobClassEntity;
 
 @Named
 @ApplicationScoped
-public class JpaJobClassDao extends JpaBaseDao<JobClassEntity, Long> implements JobClassDao {
+public class JpaJobClassDao extends JpaBaseDao<JobClassEntity> implements JobClassDao {
 
     @Override
 	public Class<JobClassEntity> getEntityClass() {

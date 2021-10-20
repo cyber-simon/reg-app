@@ -3,7 +3,7 @@ package edu.kit.scc.webreg.dto.entity;
 import java.io.Serializable;
 import java.util.Date;
 
-public abstract class AbstractBaseEntityDto implements BaseEntityDto<Long>, Serializable {
+public abstract class AbstractBaseEntityDto implements BaseEntityDto, Serializable {
 
 	private static final long serialVersionUID = 1L;
 

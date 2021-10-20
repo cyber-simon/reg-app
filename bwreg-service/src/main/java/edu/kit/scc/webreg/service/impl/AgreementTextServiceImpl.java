@@ -19,7 +19,7 @@ import edu.kit.scc.webreg.entity.AgreementTextEntity;
 import edu.kit.scc.webreg.service.AgreementTextService;
 
 @Stateless
-public class AgreementTextServiceImpl extends BaseServiceImpl<AgreementTextEntity, Long> implements AgreementTextService {
+public class AgreementTextServiceImpl extends BaseServiceImpl<AgreementTextEntity> implements AgreementTextService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -27,7 +27,7 @@ public class AgreementTextServiceImpl extends BaseServiceImpl<AgreementTextEntit
 	private AgreementTextDao dao;
 	
 	@Override
-	protected BaseDao<AgreementTextEntity, Long> getDao() {
+	protected BaseDao<AgreementTextEntity> getDao() {
 		return dao;
 	}
 }

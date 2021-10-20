@@ -17,7 +17,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceGroupEntity;
 
-public interface AttributeSourceGroupDao extends BaseDao<AttributeSourceGroupEntity, Long> {
+public interface AttributeSourceGroupDao extends BaseDao<AttributeSourceGroupEntity> {
 
 	List<AttributeSourceGroupEntity> findByUserAndAS(UserEntity user,
 			AttributeSourceEntity attributeSource);

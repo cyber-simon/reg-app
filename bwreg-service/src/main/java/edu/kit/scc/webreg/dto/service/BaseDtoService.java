@@ -6,11 +6,11 @@ import java.util.List;
 import edu.kit.scc.webreg.dto.entity.BaseEntityDto;
 import edu.kit.scc.webreg.entity.BaseEntity;
 
-public interface BaseDtoService<T extends BaseEntity<PK>, E extends BaseEntityDto<PK>, PK extends Serializable> extends Serializable {
+public interface BaseDtoService<T extends BaseEntity, E extends BaseEntityDto> extends Serializable {
 
 	E createNewDto();
 
-	E findById(PK pk);
+	E findById(Long pk);
 
 	List<E> findAll();
 }

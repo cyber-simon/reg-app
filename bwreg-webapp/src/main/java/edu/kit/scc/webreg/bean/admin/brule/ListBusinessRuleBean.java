@@ -43,7 +43,7 @@ public class ListBusinessRuleBean implements Serializable {
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (list == null) {
-			list = new GenericLazyDataModelImpl<BusinessRulePackageEntity, BusinessRulePackageService, Long>(service, "rules");
+			list = new GenericLazyDataModelImpl<BusinessRulePackageEntity, BusinessRulePackageService>(service, "rules");
 		}
 	}
 

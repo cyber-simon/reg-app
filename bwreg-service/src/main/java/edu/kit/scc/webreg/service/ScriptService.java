@@ -12,5 +12,5 @@ package edu.kit.scc.webreg.service;
 
 import edu.kit.scc.webreg.entity.ScriptEntity;
 
-public interface ScriptService extends BaseService<ScriptEntity, Long> {
+public interface ScriptService extends BaseService<ScriptEntity> {
 	}

@@ -16,7 +16,7 @@ import java.util.List;
 import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
 import edu.kit.scc.webreg.service.BaseService;
 
-public interface AuditEntryService extends BaseService<AuditEntryEntity, Long> {
+public interface AuditEntryService extends BaseService<AuditEntryEntity> {
 
 	List<AuditEntryEntity> findAllOlderThan(Date date, int limit);
 

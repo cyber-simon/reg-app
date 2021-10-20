@@ -21,7 +21,7 @@ import edu.kit.scc.webreg.entity.SamlIdpScopeEntity;
 
 @Named
 @ApplicationScoped
-public class JpaSamlIdpScopeDao extends JpaBaseDao<SamlIdpScopeEntity, Long> implements SamlIdpScopeDao {
+public class JpaSamlIdpScopeDao extends JpaBaseDao<SamlIdpScopeEntity> implements SamlIdpScopeDao {
 
     @Override
     @SuppressWarnings({"unchecked"})

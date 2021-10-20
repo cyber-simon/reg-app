@@ -18,7 +18,7 @@ import edu.kit.scc.webreg.entity.SshPubKeyApproverRoleEntity;
 
 @Named
 @ApplicationScoped
-public class JpaSshPubKeyApproverRoleDao extends JpaBaseDao<SshPubKeyApproverRoleEntity, Long> implements SshPubKeyApproverRoleDao {
+public class JpaSshPubKeyApproverRoleDao extends JpaBaseDao<SshPubKeyApproverRoleEntity> implements SshPubKeyApproverRoleDao {
 
 	@Override
 	public Class<SshPubKeyApproverRoleEntity> getEntityClass() {

@@ -27,7 +27,7 @@ import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 
 @Named
 @ApplicationScoped
-public class JpaServiceGroupFlagDao extends JpaBaseDao<ServiceGroupFlagEntity, Long> implements ServiceGroupFlagDao {
+public class JpaServiceGroupFlagDao extends JpaBaseDao<ServiceGroupFlagEntity> implements ServiceGroupFlagDao {
 
     @Override
 	public List<ServiceGroupFlagEntity> findByGroup(ServiceBasedGroupEntity group) {

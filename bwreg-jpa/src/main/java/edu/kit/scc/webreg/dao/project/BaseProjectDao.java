@@ -23,7 +23,7 @@ import edu.kit.scc.webreg.entity.project.ProjectMembershipType;
 import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
 import edu.kit.scc.webreg.entity.project.ProjectServiceType;
 
-public interface BaseProjectDao<T extends ProjectEntity> extends BaseDao<T, Long> {
+public interface BaseProjectDao<T extends ProjectEntity> extends BaseDao<T> {
 
 	List<ProjectEntity> findAllByService(ServiceEntity service);
 

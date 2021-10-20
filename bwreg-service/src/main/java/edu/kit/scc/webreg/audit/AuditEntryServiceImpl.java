@@ -24,7 +24,7 @@ import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
 
 @Stateless
-public class AuditEntryServiceImpl extends BaseServiceImpl<AuditEntryEntity, Long> implements AuditEntryService {
+public class AuditEntryServiceImpl extends BaseServiceImpl<AuditEntryEntity> implements AuditEntryService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -52,7 +52,7 @@ public class AuditEntryServiceImpl extends BaseServiceImpl<AuditEntryEntity, Lon
 	}
 
 	@Override
-	protected BaseDao<AuditEntryEntity, Long> getDao() {
+	protected BaseDao<AuditEntryEntity> getDao() {
 		return dao;
 	}
 }

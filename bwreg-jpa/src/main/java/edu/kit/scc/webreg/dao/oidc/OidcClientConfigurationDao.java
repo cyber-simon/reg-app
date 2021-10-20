@@ -14,7 +14,7 @@ import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
 
-public interface OidcClientConfigurationDao extends BaseDao<OidcClientConfigurationEntity, Long> {
+public interface OidcClientConfigurationDao extends BaseDao<OidcClientConfigurationEntity> {
 
 	OidcClientConfigurationEntity findByNameAndOp(String name, OidcOpConfigurationEntity opConfiguration);
 

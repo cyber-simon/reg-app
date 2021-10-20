@@ -19,7 +19,7 @@ import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 
 @Named
 @ApplicationScoped
-public class JpaAttributeSourceDao extends JpaBaseDao<AttributeSourceEntity, Long> implements AttributeSourceDao {
+public class JpaAttributeSourceDao extends JpaBaseDao<AttributeSourceEntity> implements AttributeSourceDao {
 
 	@Override
 	public Class<AttributeSourceEntity> getEntityClass() {

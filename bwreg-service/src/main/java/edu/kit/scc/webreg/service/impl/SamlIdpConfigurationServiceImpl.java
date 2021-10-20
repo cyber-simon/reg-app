@@ -24,7 +24,7 @@ import edu.kit.scc.webreg.entity.ServiceSamlSpEntity;
 import edu.kit.scc.webreg.service.SamlIdpConfigurationService;
 
 @Stateless
-public class SamlIdpConfigurationServiceImpl extends BaseServiceImpl<SamlIdpConfigurationEntity, Long> implements SamlIdpConfigurationService {
+public class SamlIdpConfigurationServiceImpl extends BaseServiceImpl<SamlIdpConfigurationEntity> implements SamlIdpConfigurationService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -51,7 +51,7 @@ public class SamlIdpConfigurationServiceImpl extends BaseServiceImpl<SamlIdpConf
 	}
 	
 	@Override
-	protected BaseDao<SamlIdpConfigurationEntity, Long> getDao() {
+	protected BaseDao<SamlIdpConfigurationEntity> getDao() {
 		return dao;
 	}
 

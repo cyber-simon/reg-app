@@ -26,7 +26,7 @@ public class BusinessRulePackageConverter extends AbstractConverter<BusinessRule
 	private BusinessRulePackageService service;
 
 	@Override
-	protected BaseService<BusinessRulePackageEntity, Long> getService() {
+	protected BaseService<BusinessRulePackageEntity> getService() {
 		return service;
 	}
 	

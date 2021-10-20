@@ -16,7 +16,7 @@ import edu.kit.scc.webreg.entity.ImageEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 
-public interface ServiceService extends BaseService<ServiceEntity, Long> {
+public interface ServiceService extends BaseService<ServiceEntity> {
 
 	ServiceEntity findWithPolicies(Long id);
 

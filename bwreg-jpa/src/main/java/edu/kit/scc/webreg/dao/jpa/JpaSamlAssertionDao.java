@@ -23,7 +23,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 
 @Named
 @ApplicationScoped
-public class JpaSamlAssertionDao extends JpaBaseDao<SamlAssertionEntity, Long> implements SamlAssertionDao, Serializable {
+public class JpaSamlAssertionDao extends JpaBaseDao<SamlAssertionEntity> implements SamlAssertionDao, Serializable {
 
 	private static final long serialVersionUID = 1L;
     

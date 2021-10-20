@@ -33,7 +33,7 @@ import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 
 @Named
 @ApplicationScoped
-public class JpaUserDao extends JpaBaseDao<UserEntity, Long> implements UserDao, Serializable {
+public class JpaUserDao extends JpaBaseDao<UserEntity> implements UserDao, Serializable {
 
 	private static final long serialVersionUID = 1L;
 

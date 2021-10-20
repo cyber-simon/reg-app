@@ -4,7 +4,7 @@ import edu.kit.scc.webreg.dto.entity.GroupEntityDto;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.exc.RestInterfaceException;
 
-public interface GroupDtoService extends BaseDtoService<GroupEntity, GroupEntityDto, Long> {
+public interface GroupDtoService extends BaseDtoService<GroupEntity, GroupEntityDto> {
 
 	GroupEntityDto findByName(String name, Long userId, Boolean withDetails) throws RestInterfaceException ;
 

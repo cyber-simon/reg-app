@@ -12,6 +12,6 @@ package edu.kit.scc.webreg.dao;
 
 import edu.kit.scc.webreg.entity.SshPubKeyApproverRoleEntity;
 
-public interface SshPubKeyApproverRoleDao extends BaseDao<SshPubKeyApproverRoleEntity, Long> {
+public interface SshPubKeyApproverRoleDao extends BaseDao<SshPubKeyApproverRoleEntity> {
 
 }

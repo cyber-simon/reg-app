@@ -15,7 +15,7 @@ import java.util.List;
 import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 
-public interface HomeOrgGroupDao extends BaseDao<HomeOrgGroupEntity, Long> {
+public interface HomeOrgGroupDao extends BaseDao<HomeOrgGroupEntity> {
 
 	HomeOrgGroupEntity findByGidNumber(Integer gid);
 

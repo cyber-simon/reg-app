@@ -19,7 +19,7 @@ import edu.kit.scc.webreg.entity.VelocityTemplateEntity;
 
 @Named
 @ApplicationScoped
-public class JpaVelocityTemplateDao extends JpaBaseDao<VelocityTemplateEntity, Long> implements VelocityTemplateDao {
+public class JpaVelocityTemplateDao extends JpaBaseDao<VelocityTemplateEntity> implements VelocityTemplateDao {
 
     @Override
 	public VelocityTemplateEntity findByName(String name) {

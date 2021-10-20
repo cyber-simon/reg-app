@@ -25,7 +25,7 @@ import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.oidc.OidcRpConfigurationService;
 
 @Named("loginObjectConverter")
-public class LoginObjectConverter implements Converter<Object>, Serializable {
+public class LoginObjectConverter implements Converter<BaseEntity>, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -36,7 +36,7 @@ public class LoginObjectConverter implements Converter<Object>, Serializable {
 	private OidcRpConfigurationService rpService;
 
 	@Override
-	public Object getAsObject(FacesContext ctx, UIComponent component, String value)
+	public BaseEntity getAsObject(FacesContext ctx, UIComponent component, String value)
 			throws ConverterException {
         if (value == null || value.length() < 3) {
             return null;
@@ -49,21 +49,20 @@ public class LoginObjectConverter implements Converter<Object>, Serializable {
         else {
             o = rpService.findById(id);
         }
-		return o;
+		return (BaseEntity) o;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public String getAsString(FacesContext ctx, UIComponent component, Object value)
+	public String getAsString(FacesContext ctx, UIComponent component, BaseEntity value)
 			throws ConverterException {
         if (value == null) {
             return "";
         }
         if (value instanceof SamlIdpMetadataEntity) {
-            return "i_" + ((BaseEntity<Long>)value).getId().toString();
+            return "i_" + value.getId().toString();
         }
         else {
-            return "o_" + ((BaseEntity<Long>)value).getId().toString();
+            return "o_" + value.getId().toString();
         }
 	}	
 }

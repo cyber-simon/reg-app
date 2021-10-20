@@ -19,7 +19,7 @@ import edu.kit.scc.webreg.entity.EmailTemplateEntity;
 import edu.kit.scc.webreg.service.EmailTemplateService;
 
 @Stateless
-public class EmailTemplateServiceImpl extends BaseServiceImpl<EmailTemplateEntity, Long> implements EmailTemplateService {
+public class EmailTemplateServiceImpl extends BaseServiceImpl<EmailTemplateEntity> implements EmailTemplateService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -27,7 +27,7 @@ public class EmailTemplateServiceImpl extends BaseServiceImpl<EmailTemplateEntit
 	private EmailTemplateDao dao;
 	
 	@Override
-	protected BaseDao<EmailTemplateEntity, Long> getDao() {
+	protected BaseDao<EmailTemplateEntity> getDao() {
 		return dao;
 	}
 	

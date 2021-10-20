@@ -7,7 +7,7 @@ import edu.kit.scc.webreg.entity.SshPubKeyEntity;
 import edu.kit.scc.webreg.entity.SshPubKeyStatus;
 import edu.kit.scc.webreg.exc.RestInterfaceException;
 
-public interface SshPubKeyDtoService extends BaseDtoService<SshPubKeyEntity, SshPubKeyEntityDto, Long> {
+public interface SshPubKeyDtoService extends BaseDtoService<SshPubKeyEntity, SshPubKeyEntityDto> {
 
 	List<SshPubKeyEntityDto> findByUidNumber(Long uidNumber) throws RestInterfaceException;
 

@@ -12,7 +12,7 @@ import edu.kit.scc.webreg.dto.service.BaseDtoServiceImpl;
 import edu.kit.scc.webreg.entity.FederationEntity;
 
 @Stateless
-public class FederationDtoServiceImpl extends BaseDtoServiceImpl<FederationEntity, FederationEntityDto, Long> implements FederationDtoService {
+public class FederationDtoServiceImpl extends BaseDtoServiceImpl<FederationEntity, FederationEntityDto> implements FederationDtoService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -23,12 +23,12 @@ public class FederationDtoServiceImpl extends BaseDtoServiceImpl<FederationEntit
 	private FederationDao dao;
 	
 	@Override
-	protected BaseEntityMapper<FederationEntity, FederationEntityDto, Long> getMapper() {
+	protected BaseEntityMapper<FederationEntity, FederationEntityDto> getMapper() {
 		return mapper;
 	}
 
 	@Override
-	protected BaseDao<FederationEntity, Long> getDao() {
+	protected BaseDao<FederationEntity> getDao() {
 		return dao;
 	}
 

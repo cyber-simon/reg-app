@@ -26,7 +26,7 @@ public class ApproverRoleConverter extends AbstractConverter<ApproverRoleEntity>
 	private ApproverRoleService service;
 
 	@Override
-	protected BaseService<ApproverRoleEntity, Long> getService() {
+	protected BaseService<ApproverRoleEntity> getService() {
 		return service;
 	}
 	

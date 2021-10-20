@@ -24,7 +24,7 @@ import edu.kit.scc.webreg.entity.as.AttributeSourceGroupEntity;
 
 @Named
 @ApplicationScoped
-public class JpaAttributeSourceGroupDao extends JpaBaseDao<AttributeSourceGroupEntity, Long> implements AttributeSourceGroupDao {
+public class JpaAttributeSourceGroupDao extends JpaBaseDao<AttributeSourceGroupEntity> implements AttributeSourceGroupDao {
 
 	@SuppressWarnings("unchecked")
 	@Override

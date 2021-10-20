@@ -12,7 +12,7 @@ package edu.kit.scc.webreg.service;
 
 import edu.kit.scc.webreg.entity.SamlAAConfigurationEntity;
 
-public interface SamlAAConfigurationService extends BaseService<SamlAAConfigurationEntity, Long> {
+public interface SamlAAConfigurationService extends BaseService<SamlAAConfigurationEntity> {
 
 	SamlAAConfigurationEntity findByHostname(String hostname);
 

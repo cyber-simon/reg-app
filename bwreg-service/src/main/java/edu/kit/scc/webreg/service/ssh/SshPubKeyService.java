@@ -17,7 +17,7 @@ import edu.kit.scc.webreg.entity.SshPubKeyStatus;
 import edu.kit.scc.webreg.service.BaseService;
 import edu.kit.scc.webreg.ssh.SshPubKeyBlacklistedException;
 
-public interface SshPubKeyService extends BaseService<SshPubKeyEntity, Long> {
+public interface SshPubKeyService extends BaseService<SshPubKeyEntity> {
 
 	SshPubKeyEntity deployKey(Long userId, SshPubKeyEntity entity, String executor)
 			throws SshPubKeyBlacklistedException;

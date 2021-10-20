@@ -29,7 +29,7 @@ import edu.kit.scc.webreg.entity.UserStatus;
 
 @Named
 @ApplicationScoped
-public class JpaSamlUserDao extends JpaBaseDao<SamlUserEntity, Long> implements SamlUserDao, Serializable {
+public class JpaSamlUserDao extends JpaBaseDao<SamlUserEntity> implements SamlUserDao, Serializable {
 
 	private static final long serialVersionUID = 1L;
 

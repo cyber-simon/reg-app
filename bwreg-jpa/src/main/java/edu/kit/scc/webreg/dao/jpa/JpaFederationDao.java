@@ -24,7 +24,7 @@ import edu.kit.scc.webreg.entity.FederationEntity;
 
 @Named
 @ApplicationScoped
-public class JpaFederationDao extends JpaBaseDao<FederationEntity, Long> implements FederationDao {
+public class JpaFederationDao extends JpaBaseDao<FederationEntity> implements FederationDao {
 
     @Override
 	public List<FederationEntity> findAllWithIdpEntities() {

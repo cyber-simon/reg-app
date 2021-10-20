@@ -16,7 +16,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.project.ProjectAdminRoleEntity;
 import edu.kit.scc.webreg.service.BaseService;
 
-public interface ProjectAdminRoleService extends BaseService<ProjectAdminRoleEntity, Long> {
+public interface ProjectAdminRoleService extends BaseService<ProjectAdminRoleEntity> {
 
 	ProjectAdminRoleEntity findByName(String name);
 

@@ -22,7 +22,7 @@ import edu.kit.scc.webreg.entity.JobScheduleEntity;
 import edu.kit.scc.webreg.service.JobScheduleService;
 
 @Stateless
-public class JobScheduleServiceImpl extends BaseServiceImpl<JobScheduleEntity, Long> implements JobScheduleService {
+public class JobScheduleServiceImpl extends BaseServiceImpl<JobScheduleEntity> implements JobScheduleService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -40,7 +40,7 @@ public class JobScheduleServiceImpl extends BaseServiceImpl<JobScheduleEntity, L
 	}
 
 	@Override
-	protected BaseDao<JobScheduleEntity, Long> getDao() {
+	protected BaseDao<JobScheduleEntity> getDao() {
 		return dao;
 	}
 }

@@ -21,7 +21,7 @@ import edu.kit.scc.webreg.entity.GroupEventEntity;
 
 @Named
 @ApplicationScoped
-public class JpaGroupEventDao extends JpaBaseDao<GroupEventEntity, Long> implements GroupEventDao {
+public class JpaGroupEventDao extends JpaBaseDao<GroupEventEntity> implements GroupEventDao {
 
     @Override
 	public Class<GroupEventEntity> getEntityClass() {

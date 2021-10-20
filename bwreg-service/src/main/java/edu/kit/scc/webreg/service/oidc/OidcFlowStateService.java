@@ -13,7 +13,7 @@ package edu.kit.scc.webreg.service.oidc;
 import edu.kit.scc.webreg.entity.oidc.OidcFlowStateEntity;
 import edu.kit.scc.webreg.service.BaseService;
 
-public interface OidcFlowStateService extends BaseService<OidcFlowStateEntity, Long> {
+public interface OidcFlowStateService extends BaseService<OidcFlowStateEntity> {
 
 	void deleteExpiredTokens();
 

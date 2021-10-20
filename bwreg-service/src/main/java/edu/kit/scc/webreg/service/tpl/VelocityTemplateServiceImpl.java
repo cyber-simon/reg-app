@@ -19,7 +19,7 @@ import edu.kit.scc.webreg.entity.VelocityTemplateEntity;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
 
 @Stateless
-public class VelocityTemplateServiceImpl extends BaseServiceImpl<VelocityTemplateEntity, Long> implements VelocityTemplateService {
+public class VelocityTemplateServiceImpl extends BaseServiceImpl<VelocityTemplateEntity> implements VelocityTemplateService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -27,7 +27,7 @@ public class VelocityTemplateServiceImpl extends BaseServiceImpl<VelocityTemplat
 	private VelocityTemplateDao dao;
 	
 	@Override
-	protected BaseDao<VelocityTemplateEntity, Long> getDao() {
+	protected BaseDao<VelocityTemplateEntity> getDao() {
 		return dao;
 	}
 	

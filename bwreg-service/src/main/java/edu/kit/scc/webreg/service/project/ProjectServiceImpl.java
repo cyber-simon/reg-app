@@ -29,7 +29,7 @@ import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
 
 @Stateless
-public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity, Long> implements ProjectService {
+public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity> implements ProjectService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -103,7 +103,7 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity, Long> imp
 	}
 		
 	@Override
-	protected BaseDao<ProjectEntity, Long> getDao() {
+	protected BaseDao<ProjectEntity> getDao() {
 		return dao;
 	}
 }

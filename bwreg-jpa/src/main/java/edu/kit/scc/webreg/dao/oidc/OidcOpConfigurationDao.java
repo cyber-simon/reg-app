@@ -13,7 +13,7 @@ package edu.kit.scc.webreg.dao.oidc;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
 
-public interface OidcOpConfigurationDao extends BaseDao<OidcOpConfigurationEntity, Long> {
+public interface OidcOpConfigurationDao extends BaseDao<OidcOpConfigurationEntity> {
 
 	OidcOpConfigurationEntity findByRealm(String realm);
 	OidcOpConfigurationEntity findByRealmAndHost(String realm, String host);

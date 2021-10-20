@@ -27,7 +27,7 @@ import edu.kit.scc.webreg.entity.ClusterSchedulerStatus;
 
 @Named
 @ApplicationScoped
-public class JpaClusterMemberDao extends JpaBaseDao<ClusterMemberEntity, Long> implements ClusterMemberDao {
+public class JpaClusterMemberDao extends JpaBaseDao<ClusterMemberEntity> implements ClusterMemberDao {
 
 	@Override
 	public ClusterMemberEntity findByNodeName(String nodename) {

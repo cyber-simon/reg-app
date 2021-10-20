@@ -24,7 +24,7 @@ import edu.kit.scc.webreg.entity.SshPubKeyUsageType;
 
 @Named
 @ApplicationScoped
-public class JpaSshPubKeyRegistryDao extends JpaBaseDao<SshPubKeyRegistryEntity, Long> implements SshPubKeyRegistryDao {
+public class JpaSshPubKeyRegistryDao extends JpaBaseDao<SshPubKeyRegistryEntity> implements SshPubKeyRegistryDao {
 
 	@Override
 	@SuppressWarnings("unchecked")

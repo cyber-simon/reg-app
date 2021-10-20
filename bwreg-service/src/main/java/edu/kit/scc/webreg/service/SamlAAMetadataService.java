@@ -16,7 +16,7 @@ import edu.kit.scc.webreg.entity.FederationEntity;
 import edu.kit.scc.webreg.entity.SamlAAMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlMetadataEntityStatus;
 
-public interface SamlAAMetadataService extends BaseService<SamlAAMetadataEntity, Long> {
+public interface SamlAAMetadataService extends BaseService<SamlAAMetadataEntity> {
 
 	List<SamlAAMetadataEntity> findAllByFederation(FederationEntity federation);
 

@@ -13,6 +13,6 @@ package edu.kit.scc.webreg.service.oidc;
 import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
 import edu.kit.scc.webreg.service.BaseService;
 
-public interface OidcClientConfigurationService extends BaseService<OidcClientConfigurationEntity, Long> {
+public interface OidcClientConfigurationService extends BaseService<OidcClientConfigurationEntity> {
 
 }

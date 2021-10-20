@@ -15,7 +15,7 @@ import java.util.List;
 
 import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 
-public interface BusinessRulePackageService extends BaseService<BusinessRulePackageEntity, Long> {
+public interface BusinessRulePackageService extends BaseService<BusinessRulePackageEntity> {
 
 	List<BusinessRulePackageEntity> findAllNewer(Date date);
 

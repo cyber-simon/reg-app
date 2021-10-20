@@ -22,7 +22,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.service.ApproverRoleService;
 
 @Stateless
-public class ApproverRoleServiceImpl extends BaseServiceImpl<ApproverRoleEntity, Long> implements ApproverRoleService {
+public class ApproverRoleServiceImpl extends BaseServiceImpl<ApproverRoleEntity> implements ApproverRoleService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -45,7 +45,7 @@ public class ApproverRoleServiceImpl extends BaseServiceImpl<ApproverRoleEntity,
 	}
 
 	@Override
-	protected BaseDao<ApproverRoleEntity, Long> getDao() {
+	protected BaseDao<ApproverRoleEntity> getDao() {
 		return dao;
 	}
 }

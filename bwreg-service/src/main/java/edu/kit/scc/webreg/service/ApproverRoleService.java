@@ -15,7 +15,7 @@ import java.util.List;
 import edu.kit.scc.webreg.entity.ApproverRoleEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 
-public interface ApproverRoleService extends BaseService<ApproverRoleEntity, Long> {
+public interface ApproverRoleService extends BaseService<ApproverRoleEntity> {
 
 	ApproverRoleEntity findByName(String name);
 

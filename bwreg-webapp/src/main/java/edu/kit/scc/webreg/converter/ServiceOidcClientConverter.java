@@ -26,7 +26,7 @@ public class ServiceOidcClientConverter extends AbstractConverter<ServiceOidcCli
 	private ServiceOidcClientService service;
 
 	@Override
-	protected BaseService<ServiceOidcClientEntity, Long> getService() {
+	protected BaseService<ServiceOidcClientEntity> getService() {
 		return service;
 	}
 	

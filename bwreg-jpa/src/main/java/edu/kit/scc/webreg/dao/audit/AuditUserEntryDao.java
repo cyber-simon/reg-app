@@ -13,6 +13,6 @@ package edu.kit.scc.webreg.dao.audit;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.entity.audit.AuditUserEntity;
 
-public interface AuditUserEntryDao extends BaseDao<AuditUserEntity, Long> {
+public interface AuditUserEntryDao extends BaseDao<AuditUserEntity> {
 
 }

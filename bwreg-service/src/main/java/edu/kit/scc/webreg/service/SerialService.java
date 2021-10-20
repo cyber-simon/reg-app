@@ -12,7 +12,7 @@ package edu.kit.scc.webreg.service;
 
 import edu.kit.scc.webreg.entity.SerialEntity;
 
-public interface SerialService extends BaseService<SerialEntity, Long> {
+public interface SerialService extends BaseService<SerialEntity> {
 
 	SerialEntity findByName(String name);
 

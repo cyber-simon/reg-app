@@ -22,9 +22,9 @@ import org.primefaces.model.SortMeta;
 import edu.kit.scc.webreg.entity.BaseEntity;
 import edu.kit.scc.webreg.service.BaseService;
 
-public class GenericLazyDataModelImpl<E extends BaseEntity<PK>, T extends BaseService<E, PK>, PK extends Serializable>
+public class GenericLazyDataModelImpl<E extends BaseEntity, T extends BaseService<E>>
 		extends LazyDataModel<E>
-		implements GenericLazyDataModel<E, T, PK>, SelectableDataModel<E> {
+		implements GenericLazyDataModel<E, T>, SelectableDataModel<E> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -75,12 +75,11 @@ public class GenericLazyDataModelImpl<E extends BaseEntity<PK>, T extends BaseSe
 		return service;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public E getRowData(String rowKey) {
 		Long id = Long.parseLong(rowKey);
 		if (id instanceof Serializable) {
-			return getService().findById((PK) id);
+			return getService().findById(id);
 		}
 		return null;
 	}

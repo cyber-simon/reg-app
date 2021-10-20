@@ -35,7 +35,7 @@ public class ApprovalListBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private GenericLazyDataModel<RegistryEntity, RegistryService, Long> list;
+	private GenericLazyDataModel<RegistryEntity, RegistryService> list;
     
     @Inject
     private RegistryService service;
@@ -60,12 +60,12 @@ public class ApprovalListBean implements Serializable {
 		
 	}
     
-	public GenericLazyDataModel<RegistryEntity, RegistryService, Long> getList() {
+	public GenericLazyDataModel<RegistryEntity, RegistryService> getList() {
 		if (list == null) {
 			Map<String, Object> filterMap = new HashMap<String, Object>();
 			filterMap.put("service", serviceEntity);
 			filterMap.put("registryStatus", RegistryStatus.PENDING);
-			list = new GenericLazyDataModelImpl<RegistryEntity, RegistryService, Long>(service, filterMap);
+			list = new GenericLazyDataModelImpl<RegistryEntity, RegistryService>(service, filterMap);
 		}
 		return list;
 	}

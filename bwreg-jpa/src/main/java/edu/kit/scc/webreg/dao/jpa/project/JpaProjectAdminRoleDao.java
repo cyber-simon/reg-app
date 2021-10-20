@@ -26,7 +26,7 @@ import edu.kit.scc.webreg.entity.project.ProjectAdminRoleEntity;
 
 @Named
 @ApplicationScoped
-public class JpaProjectAdminRoleDao extends JpaBaseDao<ProjectAdminRoleEntity, Long> implements ProjectAdminRoleDao {
+public class JpaProjectAdminRoleDao extends JpaBaseDao<ProjectAdminRoleEntity> implements ProjectAdminRoleDao {
 
     @Override
 	public List<ProjectAdminRoleEntity> findWithServices(UserEntity user) {

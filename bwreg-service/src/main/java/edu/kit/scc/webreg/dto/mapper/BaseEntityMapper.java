@@ -1,11 +1,9 @@
 package edu.kit.scc.webreg.dto.mapper;
 
-import java.io.Serializable;
-
 import edu.kit.scc.webreg.dto.entity.BaseEntityDto;
 import edu.kit.scc.webreg.entity.BaseEntity;
 
-public interface BaseEntityMapper<T extends BaseEntity<PK>, E extends BaseEntityDto<PK>, PK extends Serializable> {
+public interface BaseEntityMapper<T extends BaseEntity, E extends BaseEntityDto> {
 
 	void copyProperties(T fromBaseEntity, E toDtoEntity);
 	Class<E> getEntityDtoClass();

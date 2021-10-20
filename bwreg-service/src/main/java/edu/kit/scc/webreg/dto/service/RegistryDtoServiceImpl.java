@@ -22,7 +22,7 @@ import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;
 
 @Stateless
-public class RegistryDtoServiceImpl extends BaseDtoServiceImpl<RegistryEntity, RegistryEntityDto, Long> implements RegistryDtoService {
+public class RegistryDtoServiceImpl extends BaseDtoServiceImpl<RegistryEntity, RegistryEntityDto> implements RegistryDtoService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -134,12 +134,12 @@ public class RegistryDtoServiceImpl extends BaseDtoServiceImpl<RegistryEntity, R
 	}
 	
 	@Override
-	protected BaseEntityMapper<RegistryEntity, RegistryEntityDto, Long> getMapper() {
+	protected BaseEntityMapper<RegistryEntity, RegistryEntityDto> getMapper() {
 		return mapper;
 	}
 
 	@Override
-	protected BaseDao<RegistryEntity, Long> getDao() {
+	protected BaseDao<RegistryEntity> getDao() {
 		return dao;
 	}
 

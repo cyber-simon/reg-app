@@ -14,7 +14,7 @@ import java.util.Date;
 
 import edu.kit.scc.webreg.entity.ApplicationConfigEntity;
 
-public interface ApplicationConfigDao extends BaseDao<ApplicationConfigEntity, Long> {
+public interface ApplicationConfigDao extends BaseDao<ApplicationConfigEntity> {
 
 	ApplicationConfigEntity findActive();
 

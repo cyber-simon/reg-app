@@ -16,7 +16,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
 import edu.kit.scc.webreg.entity.UserLoginMethod;
 
-public interface UserLoginInfoDao extends BaseDao<UserLoginInfoEntity, Long> {
+public interface UserLoginInfoDao extends BaseDao<UserLoginInfoEntity> {
 
 	List<UserLoginInfoEntity> findByUser(Long userId);
 	List<UserLoginInfoEntity> findByIdentity(Long identityId);

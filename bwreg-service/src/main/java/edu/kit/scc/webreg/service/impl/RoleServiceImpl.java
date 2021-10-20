@@ -27,7 +27,7 @@ import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.service.RoleService;
 
 @Stateless
-public class RoleServiceImpl extends BaseServiceImpl<RoleEntity, Long> implements RoleService {
+public class RoleServiceImpl extends BaseServiceImpl<RoleEntity> implements RoleService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -132,7 +132,7 @@ public class RoleServiceImpl extends BaseServiceImpl<RoleEntity, Long> implement
 	}
 
 	@Override
-	protected BaseDao<RoleEntity, Long> getDao() {
+	protected BaseDao<RoleEntity> getDao() {
 		return dao;
 	}
 }

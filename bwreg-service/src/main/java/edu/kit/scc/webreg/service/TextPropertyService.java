@@ -12,7 +12,7 @@ package edu.kit.scc.webreg.service;
 
 import edu.kit.scc.webreg.entity.TextPropertyEntity;
 
-public interface TextPropertyService extends BaseService<TextPropertyEntity, Long> {
+public interface TextPropertyService extends BaseService<TextPropertyEntity> {
 
 	TextPropertyEntity findAllBySingleton(String key, String language);
 

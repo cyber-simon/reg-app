@@ -13,7 +13,7 @@ package edu.kit.scc.webreg.dao.oidc;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
 
-public interface OidcRpConfigurationDao extends BaseDao<OidcRpConfigurationEntity, Long> {
+public interface OidcRpConfigurationDao extends BaseDao<OidcRpConfigurationEntity> {
 
 
 }

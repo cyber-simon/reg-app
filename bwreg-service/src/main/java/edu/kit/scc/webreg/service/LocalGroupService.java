@@ -16,7 +16,7 @@ import edu.kit.scc.webreg.entity.LocalGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 
-public interface LocalGroupService extends BaseService<LocalGroupEntity, Long> {
+public interface LocalGroupService extends BaseService<LocalGroupEntity> {
 
 	LocalGroupEntity save(LocalGroupEntity entity, ServiceEntity service);
 	

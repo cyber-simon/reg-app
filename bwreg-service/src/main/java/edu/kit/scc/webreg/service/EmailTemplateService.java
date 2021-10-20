@@ -12,7 +12,7 @@ package edu.kit.scc.webreg.service;
 
 import edu.kit.scc.webreg.entity.EmailTemplateEntity;
 
-public interface EmailTemplateService extends BaseService<EmailTemplateEntity, Long> {
+public interface EmailTemplateService extends BaseService<EmailTemplateEntity> {
 
 	EmailTemplateEntity findByName(String name);
 

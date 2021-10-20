@@ -26,7 +26,7 @@ public class RoleConverter extends AbstractConverter<RoleEntity> {
 	private RoleService service;
 
 	@Override
-	protected BaseService<RoleEntity, Long> getService() {
+	protected BaseService<RoleEntity> getService() {
 		return service;
 	}
 	

@@ -10,8 +10,6 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.entity;
 
-import java.io.Serializable;
-
-public interface BaseEntity<PK extends Serializable> {
-	PK getId();
+public interface BaseEntity {
+	Long getId();
 }

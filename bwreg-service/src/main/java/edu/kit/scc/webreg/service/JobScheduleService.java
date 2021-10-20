@@ -15,7 +15,7 @@ import java.util.List;
 
 import edu.kit.scc.webreg.entity.JobScheduleEntity;
 
-public interface JobScheduleService extends BaseService<JobScheduleEntity, Long> {
+public interface JobScheduleService extends BaseService<JobScheduleEntity> {
 
 	List<JobScheduleEntity> findAllBySingleton(Boolean singleton,
 			Boolean disabled);

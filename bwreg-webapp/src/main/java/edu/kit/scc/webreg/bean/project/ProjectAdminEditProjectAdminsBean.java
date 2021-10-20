@@ -137,7 +137,7 @@ public class ProjectAdminEditProjectAdminsBean implements Serializable {
 		if (allUserList == null) {
 			Map<String, Object> filterMap = new HashMap<String, Object>();
 			filterMap.put("userStatus", UserStatus.ACTIVE);
-			allUserList = new GenericLazyDataModelImpl<UserEntity, UserService, Long>(userService, filterMap);
+			allUserList = new GenericLazyDataModelImpl<UserEntity, UserService>(userService, filterMap);
 		}
 		return allUserList;
 	}

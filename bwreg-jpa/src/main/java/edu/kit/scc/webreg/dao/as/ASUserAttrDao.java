@@ -17,7 +17,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 
-public interface ASUserAttrDao extends BaseDao<ASUserAttrEntity, Long> {
+public interface ASUserAttrDao extends BaseDao<ASUserAttrEntity> {
 
 	ASUserAttrEntity findASUserAttr(UserEntity user,
 			AttributeSourceEntity attributeSource);

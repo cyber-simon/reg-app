@@ -19,7 +19,7 @@ import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.service.SamlSpConfigurationService;
 
 @Stateless
-public class SamlSpConfigurationServiceImpl extends BaseServiceImpl<SamlSpConfigurationEntity, Long> implements SamlSpConfigurationService {
+public class SamlSpConfigurationServiceImpl extends BaseServiceImpl<SamlSpConfigurationEntity> implements SamlSpConfigurationService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -37,7 +37,7 @@ public class SamlSpConfigurationServiceImpl extends BaseServiceImpl<SamlSpConfig
 	}
 
 	@Override
-	protected BaseDao<SamlSpConfigurationEntity, Long> getDao() {
+	protected BaseDao<SamlSpConfigurationEntity> getDao() {
 		return dao;
 	}
 

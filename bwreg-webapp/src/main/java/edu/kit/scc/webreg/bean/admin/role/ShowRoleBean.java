@@ -58,8 +58,8 @@ public class ShowRoleBean implements Serializable {
 			userList = service.findUsersForRole(entity);
 			groupList = service.findGroupsForRole(entity);
 
-			allUserList = new GenericLazyDataModelImpl<UserEntity, UserService, Long>(userService);
-			allGroupList = new GenericLazyDataModelImpl<GroupEntity, GroupService, Long>(groupService);
+			allUserList = new GenericLazyDataModelImpl<UserEntity, UserService>(userService);
+			allGroupList = new GenericLazyDataModelImpl<GroupEntity, GroupService>(groupService);
 		}
 	}
 	

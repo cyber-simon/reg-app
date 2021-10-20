@@ -22,7 +22,7 @@ import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.service.BusinessRulePackageService;
 
 @Stateless
-public class BusinessRulePackageServiceImpl extends BaseServiceImpl<BusinessRulePackageEntity, Long> implements BusinessRulePackageService {
+public class BusinessRulePackageServiceImpl extends BaseServiceImpl<BusinessRulePackageEntity> implements BusinessRulePackageService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -45,7 +45,7 @@ public class BusinessRulePackageServiceImpl extends BaseServiceImpl<BusinessRule
 	}
 
 	@Override
-	protected BaseDao<BusinessRulePackageEntity, Long> getDao() {
+	protected BaseDao<BusinessRulePackageEntity> getDao() {
 		return dao;
 	}
 }

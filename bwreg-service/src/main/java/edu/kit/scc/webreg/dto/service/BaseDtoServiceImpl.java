@@ -1,6 +1,5 @@
 package edu.kit.scc.webreg.dto.service;
 
-import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,13 +9,13 @@ import edu.kit.scc.webreg.dto.entity.BaseEntityDto;
 import edu.kit.scc.webreg.dto.mapper.BaseEntityMapper;
 import edu.kit.scc.webreg.entity.BaseEntity;
 
-public abstract class BaseDtoServiceImpl<T extends BaseEntity<PK>, E extends BaseEntityDto<PK>, PK extends Serializable> 
-	implements BaseDtoService<T, E, PK> {
+public abstract class BaseDtoServiceImpl<T extends BaseEntity, E extends BaseEntityDto> 
+	implements BaseDtoService<T, E> {
 
 	private static final long serialVersionUID = 1L;
 
-	protected abstract BaseEntityMapper<T, E, PK> getMapper();
-	protected abstract BaseDao<T, PK> getDao();
+	protected abstract BaseEntityMapper<T, E> getMapper();
+	protected abstract BaseDao<T> getDao();
 
 	@Override
 	public E createNewDto() {
@@ -28,7 +27,7 @@ public abstract class BaseDtoServiceImpl<T extends BaseEntity<PK>, E extends Bas
 	}
 
 	@Override
-	public E findById(PK pk) {
+	public E findById(Long pk) {
 		E dto = createNewDto();
 		getMapper().copyProperties(getDao().findById(pk), dto);
 		return dto;

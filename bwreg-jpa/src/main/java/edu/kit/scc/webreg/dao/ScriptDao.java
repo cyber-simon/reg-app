@@ -12,7 +12,7 @@ package edu.kit.scc.webreg.dao;
 
 import edu.kit.scc.webreg.entity.ScriptEntity;
 
-public interface ScriptDao extends BaseDao<ScriptEntity, Long> {
+public interface ScriptDao extends BaseDao<ScriptEntity> {
 
 	ScriptEntity findByName(String name);
 

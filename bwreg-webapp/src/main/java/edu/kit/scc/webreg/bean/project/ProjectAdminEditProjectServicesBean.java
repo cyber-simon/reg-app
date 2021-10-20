@@ -145,7 +145,7 @@ public class ProjectAdminEditProjectServicesBean implements Serializable {
 
 	public LazyDataModel<ServiceEntity> getAllServiceList() {
 		if (allServiceList == null) {
-			allServiceList = new GenericLazyDataModelImpl<ServiceEntity, ServiceService, Long>(serviceService);
+			allServiceList = new GenericLazyDataModelImpl<ServiceEntity, ServiceService>(serviceService);
 		}
 		return allServiceList;
 	}

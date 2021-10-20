@@ -20,11 +20,11 @@ import javax.faces.convert.ConverterException;
 import edu.kit.scc.webreg.entity.BaseEntity;
 import edu.kit.scc.webreg.service.BaseService;
 
-public abstract class AbstractConverter<T extends BaseEntity<Long>> implements Converter<T>, Serializable {
+public abstract class AbstractConverter<T extends BaseEntity> implements Converter<T>, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	protected abstract BaseService<? extends BaseEntity<Long>, Long> getService();
+	protected abstract BaseService<? extends BaseEntity> getService();
 	
 	@SuppressWarnings("unchecked")
 	@Override

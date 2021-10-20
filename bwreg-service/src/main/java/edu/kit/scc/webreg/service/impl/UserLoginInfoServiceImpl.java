@@ -14,7 +14,7 @@ import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
 import edu.kit.scc.webreg.service.UserLoginInfoService;
 
 @Stateless
-public class UserLoginInfoServiceImpl extends BaseServiceImpl<UserLoginInfoEntity, Long> implements UserLoginInfoService {
+public class UserLoginInfoServiceImpl extends BaseServiceImpl<UserLoginInfoEntity> implements UserLoginInfoService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -42,7 +42,7 @@ public class UserLoginInfoServiceImpl extends BaseServiceImpl<UserLoginInfoEntit
 	}
 
 	@Override
-	protected BaseDao<UserLoginInfoEntity, Long> getDao() {
+	protected BaseDao<UserLoginInfoEntity> getDao() {
 		return dao;
 	}
 }
