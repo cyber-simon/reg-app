@@ -29,7 +29,7 @@ import edu.kit.scc.webreg.service.group.GroupUpdater;
 import edu.kit.scc.webreg.service.reg.GroupUtil;
 
 @Stateless
-public class GroupServiceImpl extends BaseServiceImpl<GroupEntity, Long> implements GroupService {
+public class GroupServiceImpl extends BaseServiceImpl<GroupEntity> implements GroupService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -99,7 +99,7 @@ public class GroupServiceImpl extends BaseServiceImpl<GroupEntity, Long> impleme
 	}	
 
 	@Override
-	protected BaseDao<GroupEntity, Long> getDao() {
+	protected BaseDao<GroupEntity> getDao() {
 		return groupDao;
 	}	
 }

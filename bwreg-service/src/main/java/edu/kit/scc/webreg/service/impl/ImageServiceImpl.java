@@ -19,7 +19,7 @@ import edu.kit.scc.webreg.entity.ImageEntity;
 import edu.kit.scc.webreg.service.ImageService;
 
 @Stateless
-public class ImageServiceImpl extends BaseServiceImpl<ImageEntity, Long> implements ImageService {
+public class ImageServiceImpl extends BaseServiceImpl<ImageEntity> implements ImageService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -37,7 +37,7 @@ public class ImageServiceImpl extends BaseServiceImpl<ImageEntity, Long> impleme
 	}
 
 	@Override
-	protected BaseDao<ImageEntity, Long> getDao() {
+	protected BaseDao<ImageEntity> getDao() {
 		return dao;
 	}
 	

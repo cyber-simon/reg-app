@@ -15,7 +15,7 @@ import java.util.List;
 import edu.kit.scc.webreg.entity.SshPubKeyRegistryEntity;
 import edu.kit.scc.webreg.service.BaseService;
 
-public interface SshPubKeyRegistryService extends BaseService<SshPubKeyRegistryEntity, Long> {
+public interface SshPubKeyRegistryService extends BaseService<SshPubKeyRegistryEntity> {
 
 	List<SshPubKeyRegistryEntity> findByUserAndService(Long userId, Long serviceId);
 

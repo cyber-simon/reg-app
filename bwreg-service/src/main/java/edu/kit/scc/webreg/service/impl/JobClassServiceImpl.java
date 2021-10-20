@@ -19,7 +19,7 @@ import edu.kit.scc.webreg.entity.JobClassEntity;
 import edu.kit.scc.webreg.service.JobClassService;
 
 @Stateless
-public class JobClassServiceImpl extends BaseServiceImpl<JobClassEntity, Long> implements JobClassService {
+public class JobClassServiceImpl extends BaseServiceImpl<JobClassEntity> implements JobClassService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -27,7 +27,7 @@ public class JobClassServiceImpl extends BaseServiceImpl<JobClassEntity, Long> i
 	private JobClassDao dao;
 	
 	@Override
-	protected BaseDao<JobClassEntity, Long> getDao() {
+	protected BaseDao<JobClassEntity> getDao() {
 		return dao;
 	}
 }

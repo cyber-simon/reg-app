@@ -34,7 +34,7 @@ import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
 import edu.kit.scc.webreg.ssh.SshPubKeyBlacklistedException;
 
 @Stateless
-public class SshPubKeyServiceImpl extends BaseServiceImpl<SshPubKeyEntity, Long> implements SshPubKeyService {
+public class SshPubKeyServiceImpl extends BaseServiceImpl<SshPubKeyEntity> implements SshPubKeyService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -178,7 +178,7 @@ public class SshPubKeyServiceImpl extends BaseServiceImpl<SshPubKeyEntity, Long>
 	}
 	
 	@Override
-	protected BaseDao<SshPubKeyEntity, Long> getDao() {
+	protected BaseDao<SshPubKeyEntity> getDao() {
 		return dao;
 	}
 }

@@ -18,7 +18,7 @@ import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 
-public interface RoleService extends BaseService<RoleEntity, Long> {
+public interface RoleService extends BaseService<RoleEntity> {
 
 	RoleEntity findByName(String name);
 

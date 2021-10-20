@@ -12,6 +12,6 @@ package edu.kit.scc.webreg.service;
 
 import edu.kit.scc.webreg.entity.ClusterMemberEntity;
 
-public interface ClusterMemberService extends BaseService<ClusterMemberEntity, Long> {
+public interface ClusterMemberService extends BaseService<ClusterMemberEntity> {
 
 }

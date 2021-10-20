@@ -19,7 +19,7 @@ import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.service.ScriptService;
 
 @Stateless
-public class ScriptServiceImpl extends BaseServiceImpl<ScriptEntity, Long> implements ScriptService {
+public class ScriptServiceImpl extends BaseServiceImpl<ScriptEntity> implements ScriptService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -27,7 +27,7 @@ public class ScriptServiceImpl extends BaseServiceImpl<ScriptEntity, Long> imple
 	private ScriptDao dao;
 
 	@Override
-	protected BaseDao<ScriptEntity, Long> getDao() {
+	protected BaseDao<ScriptEntity> getDao() {
 		return dao;
 	}
 }

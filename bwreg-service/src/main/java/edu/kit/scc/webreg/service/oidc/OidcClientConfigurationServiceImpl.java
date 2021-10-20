@@ -19,7 +19,7 @@ import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
 
 @Stateless
-public class OidcClientConfigurationServiceImpl extends BaseServiceImpl<OidcClientConfigurationEntity, Long> implements OidcClientConfigurationService {
+public class OidcClientConfigurationServiceImpl extends BaseServiceImpl<OidcClientConfigurationEntity> implements OidcClientConfigurationService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -27,7 +27,7 @@ public class OidcClientConfigurationServiceImpl extends BaseServiceImpl<OidcClie
 	private OidcClientConfigurationDao dao;
 	
 	@Override
-	protected BaseDao<OidcClientConfigurationEntity, Long> getDao() {
+	protected BaseDao<OidcClientConfigurationEntity> getDao() {
 		return dao;
 	}
 }

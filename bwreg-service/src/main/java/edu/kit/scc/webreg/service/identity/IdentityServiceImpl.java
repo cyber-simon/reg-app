@@ -33,7 +33,7 @@ import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
 
 @Stateless
-public class IdentityServiceImpl extends BaseServiceImpl<IdentityEntity, Long> implements IdentityService {
+public class IdentityServiceImpl extends BaseServiceImpl<IdentityEntity> implements IdentityService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -165,7 +165,7 @@ public class IdentityServiceImpl extends BaseServiceImpl<IdentityEntity, Long> i
 	}
 
 	@Override
-	protected BaseDao<IdentityEntity, Long> getDao() {
+	protected BaseDao<IdentityEntity> getDao() {
 		return dao;
 	}
 

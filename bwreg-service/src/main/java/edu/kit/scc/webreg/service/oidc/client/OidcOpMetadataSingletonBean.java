@@ -25,11 +25,11 @@ public class OidcOpMetadataSingletonBean {
 	private Logger logger;
 	
 	private Map<OidcRpConfigurationEntity, OIDCProviderMetadata> metadataMap;
-	private Map<OidcRpConfigurationEntity, Long> expiryMap;
+	private Map<OidcRpConfigurationEntity> expiryMap;
 	
 	public OidcOpMetadataSingletonBean() {
 		metadataMap = new HashMap<OidcRpConfigurationEntity, OIDCProviderMetadata>();
-		expiryMap = new HashMap<OidcRpConfigurationEntity, Long>();
+		expiryMap = new HashMap<OidcRpConfigurationEntity>();
 	}
 	
 	public URI getAuthorizationEndpointURI(OidcRpConfigurationEntity rpConfig) throws IOException, ParseException {

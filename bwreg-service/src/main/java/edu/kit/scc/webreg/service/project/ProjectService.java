@@ -22,7 +22,7 @@ import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
 import edu.kit.scc.webreg.service.BaseService;
 
-public interface ProjectService extends BaseService<ProjectEntity, Long> {
+public interface ProjectService extends BaseService<ProjectEntity> {
 
 	void updateProjectMemberList(ProjectEntity project, Set<IdentityEntity> memberList, String executor);
 	void updateServices(ProjectEntity project, Set<ServiceEntity> services, String executor);

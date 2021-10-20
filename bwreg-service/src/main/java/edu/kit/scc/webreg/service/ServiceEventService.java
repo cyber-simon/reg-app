@@ -15,7 +15,7 @@ import java.util.List;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceEventEntity;
 
-public interface ServiceEventService extends BaseService<ServiceEventEntity, Long> {
+public interface ServiceEventService extends BaseService<ServiceEventEntity> {
 
 	List<ServiceEventEntity> findAllByService(ServiceEntity service);
 

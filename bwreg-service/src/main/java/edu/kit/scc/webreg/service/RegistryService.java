@@ -21,7 +21,7 @@ import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 
-public interface RegistryService extends BaseService<RegistryEntity, Long> {
+public interface RegistryService extends BaseService<RegistryEntity> {
 
 	List<RegistryEntity> findByService(ServiceEntity service);
 

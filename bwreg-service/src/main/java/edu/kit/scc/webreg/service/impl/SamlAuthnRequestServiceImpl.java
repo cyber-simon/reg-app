@@ -19,7 +19,7 @@ import edu.kit.scc.webreg.entity.SamlAuthnRequestEntity;
 import edu.kit.scc.webreg.service.SamlAuthnRequestService;
 
 @Stateless
-public class SamlAuthnRequestServiceImpl extends BaseServiceImpl<SamlAuthnRequestEntity, Long> implements SamlAuthnRequestService {
+public class SamlAuthnRequestServiceImpl extends BaseServiceImpl<SamlAuthnRequestEntity> implements SamlAuthnRequestService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -32,7 +32,7 @@ public class SamlAuthnRequestServiceImpl extends BaseServiceImpl<SamlAuthnReques
 	}
 	
 	@Override
-	protected BaseDao<SamlAuthnRequestEntity, Long> getDao() {
+	protected BaseDao<SamlAuthnRequestEntity> getDao() {
 		return dao;
 	}
 

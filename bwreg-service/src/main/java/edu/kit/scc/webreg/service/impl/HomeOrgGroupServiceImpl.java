@@ -22,7 +22,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.service.HomeOrgGroupService;
 
 @Stateless
-public class HomeOrgGroupServiceImpl extends BaseServiceImpl<HomeOrgGroupEntity, Long> implements HomeOrgGroupService {
+public class HomeOrgGroupServiceImpl extends BaseServiceImpl<HomeOrgGroupEntity> implements HomeOrgGroupService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -45,7 +45,7 @@ public class HomeOrgGroupServiceImpl extends BaseServiceImpl<HomeOrgGroupEntity,
 	}	
 	
 	@Override
-	protected BaseDao<HomeOrgGroupEntity, Long> getDao() {
+	protected BaseDao<HomeOrgGroupEntity> getDao() {
 		return dao;
 	}	
 }

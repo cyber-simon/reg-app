@@ -22,7 +22,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.service.AdminRoleService;
 
 @Stateless
-public class AdminRoleServiceImpl extends BaseServiceImpl<AdminRoleEntity, Long> implements AdminRoleService {
+public class AdminRoleServiceImpl extends BaseServiceImpl<AdminRoleEntity> implements AdminRoleService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -45,7 +45,7 @@ public class AdminRoleServiceImpl extends BaseServiceImpl<AdminRoleEntity, Long>
 	}
 
 	@Override
-	protected BaseDao<AdminRoleEntity, Long> getDao() {
+	protected BaseDao<AdminRoleEntity> getDao() {
 		return dao;
 	}
 }

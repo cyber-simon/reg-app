@@ -22,7 +22,7 @@ import edu.kit.scc.webreg.entity.SamlIdpScopeEntity;
 import edu.kit.scc.webreg.service.SamlIdpScopeService;
 
 @Stateless
-public class SamlIdpScopeServiceImpl extends BaseServiceImpl<SamlIdpScopeEntity, Long> implements SamlIdpScopeService {
+public class SamlIdpScopeServiceImpl extends BaseServiceImpl<SamlIdpScopeEntity> implements SamlIdpScopeService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -35,7 +35,7 @@ public class SamlIdpScopeServiceImpl extends BaseServiceImpl<SamlIdpScopeEntity,
 	}
 
 	@Override
-	protected BaseDao<SamlIdpScopeEntity, Long> getDao() {
+	protected BaseDao<SamlIdpScopeEntity> getDao() {
 		return dao;
 	}
 }

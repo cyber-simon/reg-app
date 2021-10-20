@@ -15,7 +15,7 @@ import java.util.List;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.service.BaseService;
 
-public interface IdentityService extends BaseService<IdentityEntity, Long> {
+public interface IdentityService extends BaseService<IdentityEntity> {
 
 	void createMissingIdentities();
 	List<IdentityEntity> findByMissingPreferredUser(int limit);

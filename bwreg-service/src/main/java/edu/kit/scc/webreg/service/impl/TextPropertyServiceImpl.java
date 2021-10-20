@@ -19,7 +19,7 @@ import edu.kit.scc.webreg.entity.TextPropertyEntity;
 import edu.kit.scc.webreg.service.TextPropertyService;
 
 @Stateless
-public class TextPropertyServiceImpl extends BaseServiceImpl<TextPropertyEntity, Long> implements TextPropertyService {
+public class TextPropertyServiceImpl extends BaseServiceImpl<TextPropertyEntity> implements TextPropertyService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -32,7 +32,7 @@ public class TextPropertyServiceImpl extends BaseServiceImpl<TextPropertyEntity,
 	}
 
 	@Override
-	protected BaseDao<TextPropertyEntity, Long> getDao() {
+	protected BaseDao<TextPropertyEntity> getDao() {
 		return dao;
 	}
 }

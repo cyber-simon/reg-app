@@ -34,7 +34,7 @@ import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
 
 @Stateless
-public class SshPubKeyRegistryServiceImpl extends BaseServiceImpl<SshPubKeyRegistryEntity, Long> implements SshPubKeyRegistryService {
+public class SshPubKeyRegistryServiceImpl extends BaseServiceImpl<SshPubKeyRegistryEntity> implements SshPubKeyRegistryService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -152,7 +152,7 @@ public class SshPubKeyRegistryServiceImpl extends BaseServiceImpl<SshPubKeyRegis
 	}
 
 	@Override
-	protected BaseDao<SshPubKeyRegistryEntity, Long> getDao() {
+	protected BaseDao<SshPubKeyRegistryEntity> getDao() {
 		return dao;
 	}
 }

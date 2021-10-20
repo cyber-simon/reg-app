@@ -26,7 +26,7 @@ import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 
-public interface UserService extends BaseService<UserEntity, Long> {
+public interface UserService extends BaseService<UserEntity> {
 
 	SamlUserEntity findByPersistentWithRoles(String spId, String idpId,
 			String persistentId);

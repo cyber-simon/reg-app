@@ -24,7 +24,7 @@ import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 import edu.kit.scc.webreg.service.ServiceGroupFlagService;
 
 @Stateless
-public class ServiceGroupFlagServiceImpl extends BaseServiceImpl<ServiceGroupFlagEntity, Long> implements ServiceGroupFlagService {
+public class ServiceGroupFlagServiceImpl extends BaseServiceImpl<ServiceGroupFlagEntity> implements ServiceGroupFlagService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -62,7 +62,7 @@ public class ServiceGroupFlagServiceImpl extends BaseServiceImpl<ServiceGroupFla
 	}
 	
 	@Override
-	protected BaseDao<ServiceGroupFlagEntity, Long> getDao() {
+	protected BaseDao<ServiceGroupFlagEntity> getDao() {
 		return dao;
 	}
 }

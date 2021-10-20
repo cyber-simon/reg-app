@@ -19,7 +19,7 @@ import edu.kit.scc.webreg.entity.SerialEntity;
 import edu.kit.scc.webreg.service.SerialService;
 
 @Stateless
-public class SerialServiceImpl extends BaseServiceImpl<SerialEntity, Long> implements SerialService {
+public class SerialServiceImpl extends BaseServiceImpl<SerialEntity> implements SerialService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -37,7 +37,7 @@ public class SerialServiceImpl extends BaseServiceImpl<SerialEntity, Long> imple
 	}
 	
 	@Override
-	protected BaseDao<SerialEntity, Long> getDao() {
+	protected BaseDao<SerialEntity> getDao() {
 		return dao;
 	}
 }

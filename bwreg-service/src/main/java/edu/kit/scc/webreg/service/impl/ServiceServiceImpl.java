@@ -28,7 +28,7 @@ import edu.kit.scc.webreg.service.reg.RegisterUserService;
 import edu.kit.scc.webreg.service.reg.SetPasswordCapable;
 
 @Stateless
-public class ServiceServiceImpl extends BaseServiceImpl<ServiceEntity, Long> implements ServiceService {
+public class ServiceServiceImpl extends BaseServiceImpl<ServiceEntity> implements ServiceService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -115,7 +115,7 @@ public class ServiceServiceImpl extends BaseServiceImpl<ServiceEntity, Long> imp
 	}
 
 	@Override
-	protected BaseDao<ServiceEntity, Long> getDao() {
+	protected BaseDao<ServiceEntity> getDao() {
 		return dao;
 	}
 }

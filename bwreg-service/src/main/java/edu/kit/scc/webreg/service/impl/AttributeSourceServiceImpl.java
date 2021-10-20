@@ -19,7 +19,7 @@ import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 import edu.kit.scc.webreg.service.AttributeSourceService;
 
 @Stateless
-public class AttributeSourceServiceImpl extends BaseServiceImpl<AttributeSourceEntity, Long> implements AttributeSourceService {
+public class AttributeSourceServiceImpl extends BaseServiceImpl<AttributeSourceEntity> implements AttributeSourceService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -27,7 +27,7 @@ public class AttributeSourceServiceImpl extends BaseServiceImpl<AttributeSourceE
 	private AttributeSourceDao dao;
 	
 	@Override
-	protected BaseDao<AttributeSourceEntity, Long> getDao() {
+	protected BaseDao<AttributeSourceEntity> getDao() {
 		return dao;
 	}
 }

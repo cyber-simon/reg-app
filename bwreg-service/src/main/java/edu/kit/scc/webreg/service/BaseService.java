@@ -20,7 +20,7 @@ import org.primefaces.model.SortMeta;
 import edu.kit.scc.webreg.dao.GenericSortOrder;
 import edu.kit.scc.webreg.entity.BaseEntity;
 
-public interface BaseService<T extends BaseEntity<PK>, PK extends Serializable> extends Serializable {
+public interface BaseService<T extends BaseEntity> extends Serializable {
 
     T createNew();
 
@@ -32,9 +32,9 @@ public interface BaseService<T extends BaseEntity<PK>, PK extends Serializable> 
 
     List<T> findAll();
 
-    T findById(PK id);
+    T findById(Long id);
 
-    T findByIdWithAttrs(PK id, String... attrs);
+    T findByIdWithAttrs(Long id, String... attrs);
 
 	List<T> findAllPaging(int first, int pageSize, Map<String, SortMeta> sortBy,
 			Map<String, Object> filterMap, Map<String, FilterMeta> additionalFilterMap, String... attrs);
@@ -44,5 +44,5 @@ public interface BaseService<T extends BaseEntity<PK>, PK extends Serializable> 
 
 	Number countAll(Map<String, Object> filterMap, Map<String, FilterMeta> additionalFilterMap);
 
-	List<T> findByMultipleId(List<PK> ids);
+	List<T> findByMultipleId(List<Long> ids);
 }

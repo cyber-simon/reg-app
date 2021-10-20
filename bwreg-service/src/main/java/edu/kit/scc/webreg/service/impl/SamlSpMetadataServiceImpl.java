@@ -23,7 +23,7 @@ import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 import edu.kit.scc.webreg.service.SamlSpMetadataService;
 
 @Stateless
-public class SamlSpMetadataServiceImpl extends BaseServiceImpl<SamlSpMetadataEntity, Long> implements SamlSpMetadataService {
+public class SamlSpMetadataServiceImpl extends BaseServiceImpl<SamlSpMetadataEntity> implements SamlSpMetadataService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -64,7 +64,7 @@ public class SamlSpMetadataServiceImpl extends BaseServiceImpl<SamlSpMetadataEnt
 	}
 
 	@Override
-	protected BaseDao<SamlSpMetadataEntity, Long> getDao() {
+	protected BaseDao<SamlSpMetadataEntity> getDao() {
 		return dao;
 	}
 

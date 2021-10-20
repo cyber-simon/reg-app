@@ -28,7 +28,7 @@ import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.service.RegistryService;
 
 @Stateless
-public class RegistryServiceImpl extends BaseServiceImpl<RegistryEntity, Long> implements RegistryService {
+public class RegistryServiceImpl extends BaseServiceImpl<RegistryEntity> implements RegistryService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -134,7 +134,7 @@ public class RegistryServiceImpl extends BaseServiceImpl<RegistryEntity, Long> i
 	}
 
 	@Override
-	protected BaseDao<RegistryEntity, Long> getDao() {
+	protected BaseDao<RegistryEntity> getDao() {
 		return dao;
 	}
 }

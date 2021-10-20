@@ -41,7 +41,7 @@ import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.UserService;
 
 @Stateless
-public class UserServiceImpl extends BaseServiceImpl<UserEntity, Long> implements UserService, Serializable {
+public class UserServiceImpl extends BaseServiceImpl<UserEntity> implements UserService, Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -173,7 +173,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity, Long> implement
 	}
 
 	@Override
-	protected BaseDao<UserEntity, Long> getDao() {
+	protected BaseDao<UserEntity> getDao() {
 		return dao;
 	}
 	

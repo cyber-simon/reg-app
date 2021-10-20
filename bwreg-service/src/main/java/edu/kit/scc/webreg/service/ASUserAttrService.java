@@ -15,7 +15,7 @@ import java.util.List;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 
-public interface ASUserAttrService extends BaseService<ASUserAttrEntity, Long> {
+public interface ASUserAttrService extends BaseService<ASUserAttrEntity> {
 
 	List<ASUserAttrEntity> findForUser(UserEntity user);
 

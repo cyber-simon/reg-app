@@ -10,7 +10,6 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.impl;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -22,11 +21,11 @@ import edu.kit.scc.webreg.dao.GenericSortOrder;
 import edu.kit.scc.webreg.entity.BaseEntity;
 import edu.kit.scc.webreg.service.BaseService;
 
-public abstract class BaseServiceImpl<T extends BaseEntity<PK>, PK extends Serializable> implements BaseService<T, PK> {
+public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseService<T> {
 
 	private static final long serialVersionUID = 1L;
 
-	protected abstract BaseDao<T, PK> getDao();
+	protected abstract BaseDao<T> getDao();
 	
 	@Override
 	public T createNew() {
@@ -71,17 +70,17 @@ public abstract class BaseServiceImpl<T extends BaseEntity<PK>, PK extends Seria
 	}
 	
 	@Override
-	public T findById(PK id) {
+	public T findById(Long id) {
 		return getDao().findById(id);
 	}
 
 	@Override
-	public List<T> findByMultipleId(List<PK> ids) {
+	public List<T> findByMultipleId(List<Long> ids) {
 		return getDao().findByMultipleId(ids);
 	}
 
 	@Override
-	public T findByIdWithAttrs(PK id, String...attrs) {
+	public T findByIdWithAttrs(Long id, String...attrs) {
 		return getDao().findByIdWithAttrs(id, attrs);
 	}
 }

@@ -15,7 +15,7 @@ import java.util.List;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.UserEventEntity;
 
-public interface UserEventService extends BaseService<UserEventEntity, Long> {
+public interface UserEventService extends BaseService<UserEventEntity> {
 
 	List<UserEventEntity> findAllByService(EventType eventType);
 

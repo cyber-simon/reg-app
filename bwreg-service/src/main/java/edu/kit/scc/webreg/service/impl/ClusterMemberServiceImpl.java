@@ -19,7 +19,7 @@ import edu.kit.scc.webreg.entity.ClusterMemberEntity;
 import edu.kit.scc.webreg.service.ClusterMemberService;
 
 @Stateless
-public class ClusterMemberServiceImpl extends BaseServiceImpl<ClusterMemberEntity, Long> implements ClusterMemberService {
+public class ClusterMemberServiceImpl extends BaseServiceImpl<ClusterMemberEntity> implements ClusterMemberService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -27,7 +27,7 @@ public class ClusterMemberServiceImpl extends BaseServiceImpl<ClusterMemberEntit
 	private ClusterMemberDao dao;
 
 	@Override
-	protected BaseDao<ClusterMemberEntity, Long> getDao() {
+	protected BaseDao<ClusterMemberEntity> getDao() {
 		return dao;
 	}
 }

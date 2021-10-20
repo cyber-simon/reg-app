@@ -15,7 +15,7 @@ import java.util.List;
 import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 
-public interface HomeOrgGroupService extends BaseService<HomeOrgGroupEntity, Long> {
+public interface HomeOrgGroupService extends BaseService<HomeOrgGroupEntity> {
 
 	HomeOrgGroupEntity findByName(String name);
 

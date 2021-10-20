@@ -12,6 +12,6 @@ package edu.kit.scc.webreg.service;
 
 import edu.kit.scc.webreg.entity.SshPubKeyApproverRoleEntity;
 
-public interface SshPubKeyApproverRoleService extends BaseService<SshPubKeyApproverRoleEntity, Long> {
+public interface SshPubKeyApproverRoleService extends BaseService<SshPubKeyApproverRoleEntity> {
 	
 }

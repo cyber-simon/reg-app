@@ -19,7 +19,7 @@ import edu.kit.scc.webreg.entity.oidc.OidcFlowStateEntity;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
 
 @Stateless
-public class OidcFlowStateServiceImpl extends BaseServiceImpl<OidcFlowStateEntity, Long> implements OidcFlowStateService {
+public class OidcFlowStateServiceImpl extends BaseServiceImpl<OidcFlowStateEntity> implements OidcFlowStateService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -32,7 +32,7 @@ public class OidcFlowStateServiceImpl extends BaseServiceImpl<OidcFlowStateEntit
 	}
 	
 	@Override
-	protected BaseDao<OidcFlowStateEntity, Long> getDao() {
+	protected BaseDao<OidcFlowStateEntity> getDao() {
 		return dao;
 	}
 }

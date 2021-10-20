@@ -36,7 +36,7 @@ import edu.kit.scc.webreg.script.ScriptingEnv;
 import edu.kit.scc.webreg.service.PolicyService;
 
 @Stateless
-public class PolicyServiceImpl extends BaseServiceImpl<PolicyEntity, Long> implements PolicyService {
+public class PolicyServiceImpl extends BaseServiceImpl<PolicyEntity> implements PolicyService {
 
 	private static final long serialVersionUID = 1;
 
@@ -115,7 +115,7 @@ public class PolicyServiceImpl extends BaseServiceImpl<PolicyEntity, Long> imple
 	}
 
 	@Override
-	protected BaseDao<PolicyEntity, Long> getDao() {
+	protected BaseDao<PolicyEntity> getDao() {
 		return dao;
 	}
 }

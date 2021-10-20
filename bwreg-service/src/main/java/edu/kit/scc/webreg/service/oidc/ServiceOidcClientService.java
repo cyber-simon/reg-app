@@ -16,7 +16,7 @@ import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.ServiceOidcClientEntity;
 import edu.kit.scc.webreg.service.BaseService;
 
-public interface ServiceOidcClientService extends BaseService<ServiceOidcClientEntity, Long> {
+public interface ServiceOidcClientService extends BaseService<ServiceOidcClientEntity> {
 
 	List<ServiceOidcClientEntity> findByClientConfig(OidcClientConfigurationEntity clientConfig);
 

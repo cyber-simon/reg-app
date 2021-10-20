@@ -12,6 +12,6 @@ package edu.kit.scc.webreg.service;
 
 import edu.kit.scc.webreg.entity.as.AttributeSourceGroupEntity;
 
-public interface AttributeSourceGroupService extends BaseService<AttributeSourceGroupEntity, Long> {
+public interface AttributeSourceGroupService extends BaseService<AttributeSourceGroupEntity> {
 
 }

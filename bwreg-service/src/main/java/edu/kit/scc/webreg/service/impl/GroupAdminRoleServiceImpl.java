@@ -22,7 +22,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.service.GroupAdminRoleService;
 
 @Stateless
-public class GroupAdminRoleServiceImpl extends BaseServiceImpl<GroupAdminRoleEntity, Long> implements GroupAdminRoleService {
+public class GroupAdminRoleServiceImpl extends BaseServiceImpl<GroupAdminRoleEntity> implements GroupAdminRoleService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -45,7 +45,7 @@ public class GroupAdminRoleServiceImpl extends BaseServiceImpl<GroupAdminRoleEnt
 	}
 
 	@Override
-	protected BaseDao<GroupAdminRoleEntity, Long> getDao() {
+	protected BaseDao<GroupAdminRoleEntity> getDao() {
 		return dao;
 	}
 }

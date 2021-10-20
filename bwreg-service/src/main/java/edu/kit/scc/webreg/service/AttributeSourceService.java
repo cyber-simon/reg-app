@@ -12,6 +12,6 @@ package edu.kit.scc.webreg.service;
 
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 
-public interface AttributeSourceService extends BaseService<AttributeSourceEntity, Long> {
+public interface AttributeSourceService extends BaseService<AttributeSourceEntity> {
 
 }

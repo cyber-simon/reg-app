@@ -44,7 +44,7 @@ import edu.kit.scc.webreg.service.saml.MetadataHelper;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
 
 @Stateless
-public class FederationServiceImpl extends BaseServiceImpl<FederationEntity, Long> implements FederationService {
+public class FederationServiceImpl extends BaseServiceImpl<FederationEntity> implements FederationService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -359,7 +359,7 @@ public class FederationServiceImpl extends BaseServiceImpl<FederationEntity, Lon
 	}
 
 	@Override
-	protected BaseDao<FederationEntity, Long> getDao() {
+	protected BaseDao<FederationEntity> getDao() {
 		return dao;
 	}
 }

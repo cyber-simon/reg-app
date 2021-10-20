@@ -22,7 +22,7 @@ import edu.kit.scc.webreg.entity.project.ProjectAdminRoleEntity;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
 
 @Stateless
-public class ProjectAdminRoleServiceImpl extends BaseServiceImpl<ProjectAdminRoleEntity, Long> implements ProjectAdminRoleService {
+public class ProjectAdminRoleServiceImpl extends BaseServiceImpl<ProjectAdminRoleEntity> implements ProjectAdminRoleService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -45,7 +45,7 @@ public class ProjectAdminRoleServiceImpl extends BaseServiceImpl<ProjectAdminRol
 	}
 
 	@Override
-	protected BaseDao<ProjectAdminRoleEntity, Long> getDao() {
+	protected BaseDao<ProjectAdminRoleEntity> getDao() {
 		return dao;
 	}
 }

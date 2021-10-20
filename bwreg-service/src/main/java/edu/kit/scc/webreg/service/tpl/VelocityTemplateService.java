@@ -13,7 +13,7 @@ package edu.kit.scc.webreg.service.tpl;
 import edu.kit.scc.webreg.entity.VelocityTemplateEntity;
 import edu.kit.scc.webreg.service.BaseService;
 
-public interface VelocityTemplateService extends BaseService<VelocityTemplateEntity, Long> {
+public interface VelocityTemplateService extends BaseService<VelocityTemplateEntity> {
 
 	VelocityTemplateEntity findByName(String name);
 

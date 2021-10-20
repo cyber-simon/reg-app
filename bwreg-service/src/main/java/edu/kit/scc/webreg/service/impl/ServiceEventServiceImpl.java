@@ -22,7 +22,7 @@ import edu.kit.scc.webreg.entity.ServiceEventEntity;
 import edu.kit.scc.webreg.service.ServiceEventService;
 
 @Stateless
-public class ServiceEventServiceImpl extends BaseServiceImpl<ServiceEventEntity, Long> implements ServiceEventService {
+public class ServiceEventServiceImpl extends BaseServiceImpl<ServiceEventEntity> implements ServiceEventService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -30,7 +30,7 @@ public class ServiceEventServiceImpl extends BaseServiceImpl<ServiceEventEntity,
 	private ServiceEventDao dao;
 	
 	@Override
-	protected BaseDao<ServiceEventEntity, Long> getDao() {
+	protected BaseDao<ServiceEventEntity> getDao() {
 		return dao;
 	}
 	

@@ -19,7 +19,7 @@ import edu.kit.scc.webreg.entity.ServiceSamlSpEntity;
 import edu.kit.scc.webreg.service.ServiceSamlSpService;
 
 @Stateless
-public class ServiceSamlSpServiceImpl extends BaseServiceImpl<ServiceSamlSpEntity, Long> implements ServiceSamlSpService {
+public class ServiceSamlSpServiceImpl extends BaseServiceImpl<ServiceSamlSpEntity> implements ServiceSamlSpService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -27,7 +27,7 @@ public class ServiceSamlSpServiceImpl extends BaseServiceImpl<ServiceSamlSpEntit
 	private ServiceSamlSpDao dao;
 
 	@Override
-	protected BaseDao<ServiceSamlSpEntity, Long> getDao() {
+	protected BaseDao<ServiceSamlSpEntity> getDao() {
 		return dao;
 	}
 

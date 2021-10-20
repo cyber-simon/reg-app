@@ -12,6 +12,6 @@ package edu.kit.scc.webreg.service;
 
 import edu.kit.scc.webreg.entity.JobClassEntity;
 
-public interface JobClassService extends BaseService<JobClassEntity, Long> {
+public interface JobClassService extends BaseService<JobClassEntity> {
 
 }

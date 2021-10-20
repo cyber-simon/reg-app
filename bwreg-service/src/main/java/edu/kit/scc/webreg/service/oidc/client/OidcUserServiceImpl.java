@@ -22,7 +22,7 @@ import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
 
 @Stateless
-public class OidcUserServiceImpl extends BaseServiceImpl<OidcUserEntity, Long> implements OidcUserService, Serializable {
+public class OidcUserServiceImpl extends BaseServiceImpl<OidcUserEntity> implements OidcUserService, Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -38,7 +38,7 @@ public class OidcUserServiceImpl extends BaseServiceImpl<OidcUserEntity, Long> i
 	}
 
 	@Override
-	protected BaseDao<OidcUserEntity, Long> getDao() {
+	protected BaseDao<OidcUserEntity> getDao() {
 		return dao;
 	}
 }

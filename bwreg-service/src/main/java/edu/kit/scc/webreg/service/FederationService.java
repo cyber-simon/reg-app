@@ -14,7 +14,7 @@ import java.util.List;
 
 import edu.kit.scc.webreg.entity.FederationEntity;
 
-public interface FederationService extends BaseService<FederationEntity, Long> {
+public interface FederationService extends BaseService<FederationEntity> {
 
 	void updateFederation(FederationEntity entity);
 
