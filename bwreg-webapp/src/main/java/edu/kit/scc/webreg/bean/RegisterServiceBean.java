@@ -18,12 +18,12 @@ import java.util.List;
 import java.util.Map;
 
 import javax.faces.application.FacesMessage;
-import javax.inject.Named;
-import javax.faces.view.ViewScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ComponentSystemEvent;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +55,6 @@ import edu.kit.scc.webreg.service.twofa.linotp.LinotpToken;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpTokenResultList;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
-import edu.kit.scc.webreg.util.ViewIds;
 
 @Named
 @ViewScoped
@@ -342,11 +341,15 @@ public class RegisterServiceBean implements Serializable {
 				sessionManager.setOriginalRequestPath(null);
 				return null;
 	    	}
+
+			ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+			context.redirect("../service/registry-detail.xhtml?regId=" + registry.getId());
+
 		} catch (IOException e) {
 			logger.info("Could not redirect client", e);
 		}
-    	
-    	return "../service/registry-detail.xhtml?regId=" + registry.getId() + "&faces-redirect=true";
+
+    	return null;
     }
     
 	public Long getId() {
