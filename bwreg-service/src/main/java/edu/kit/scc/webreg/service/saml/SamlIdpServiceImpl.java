@@ -169,6 +169,14 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 		logger.debug("Corresponding SP found in Metadata: {}", spMetadata.getEntityId());
 
 		List<ServiceSamlSpEntity> serviceSamlSpEntityList = serviceSamlSpDao.findBySamlSp(spMetadata);
+		
+		if (serviceSamlSpEntityList.size() == 0) {
+			/*
+			 * there is no configured service for this SAML SP. This is not supported at the moment
+			 */
+			throw new SamlAuthenticationException("No Service configured for this SAML SP");
+		}
+		
 		List<ServiceSamlSpEntity> filteredServiceSamlSpEntityList = new ArrayList<ServiceSamlSpEntity>();
 		RegistryEntity registry = null;
 		for (ServiceSamlSpEntity serviceSamlSpEntity : serviceSamlSpEntityList) {
