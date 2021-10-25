@@ -127,16 +127,25 @@ public class HttpUrlSingleAttributeSource extends
 						 */
 						logger.warn("Json Parse failed: {}", e.getMessage());
 						asUserAttr.setQueryStatus(AttributeSourceQueryStatus.FAIL);
-						asUserAttr.setQueryMessage(e.getMessage());
+						if (e.getMessage().length() > 510)
+							asUserAttr.setQueryMessage(e.getMessage().substring(0, 510));
+						else
+							asUserAttr.setQueryMessage(e.getMessage());
 					}
 				} catch (ParseException e) {
 					logger.warn("Parse failed: {}", e.getMessage());
 					asUserAttr.setQueryStatus(AttributeSourceQueryStatus.FAIL);
-					asUserAttr.setQueryMessage(e.getMessage());
+					if (e.getMessage().length() > 510)
+						asUserAttr.setQueryMessage(e.getMessage().substring(0, 510));
+					else
+						asUserAttr.setQueryMessage(e.getMessage());
 				} catch (IOException e) {
 					logger.warn("IOException with Attribute source: {}", e.getMessage());
 					asUserAttr.setQueryStatus(AttributeSourceQueryStatus.FAIL);
-					asUserAttr.setQueryMessage(e.getMessage());
+					if (e.getMessage().length() > 510)
+						asUserAttr.setQueryMessage(e.getMessage().substring(0, 510));
+					else
+						asUserAttr.setQueryMessage(e.getMessage());
 				}
 			}
 		}
