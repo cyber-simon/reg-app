@@ -130,9 +130,13 @@ public class HttpUrlSingleAttributeSource extends
 						asUserAttr.setQueryMessage(e.getMessage());
 					}
 				} catch (ParseException e) {
-					throw new UserUpdateException(e);
+					logger.warn("Parse failed: {}", e.getMessage());
+					asUserAttr.setQueryStatus(AttributeSourceQueryStatus.FAIL);
+					asUserAttr.setQueryMessage(e.getMessage());
 				} catch (IOException e) {
-					throw new UserUpdateException(e);
+					logger.warn("IOException with Attribute source: {}", e.getMessage());
+					asUserAttr.setQueryStatus(AttributeSourceQueryStatus.FAIL);
+					asUserAttr.setQueryMessage(e.getMessage());
 				}
 			}
 		}
