@@ -18,14 +18,15 @@
 	
 	<h:form id="form">
 	
-		<p:dataTable id="dataTable" var="entity" value="#{listJobScheduleBean.list}">
+		<p:dataTable id="dataTable" var="entity" value="#{listJobScheduleBean.list}" paginator="true"
+					lazy="true" rows="15">
 			<p:column>
 				<f:facet name="header">
 					<h:outputText value="#{messages.id}" />
 				</f:facet>
 				<h:outputText value="#{entity.id}" />
 			</p:column>
-			<p:column>
+			<p:column sortBy="#{entity.name}" filterBy="#{entity.name}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.name}" />
 				</f:facet>
@@ -33,7 +34,7 @@
       				<f:param name="id" value="#{entity.id}"/>
     			</h:link>
 			</p:column>			
-			<p:column>
+			<p:column sortBy="#{entity.jobClass.name}" filterBy="#{entity.jobClass.name}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.job_class}" />
 				</f:facet>
@@ -51,9 +52,22 @@
 				</f:facet>
 				<h:outputText value="#{entity.disabled ? messages.yes : messages.no}" />
 			</p:column>
+			<p:column width="12%">
+       			<p:commandButton action="#{listJobScheduleBean.delete(entity)}" immediate="true" update="@form"
+       				value="#{messages.delete}" rendered="#{entity.disabled}">
+       				<p:confirm header="#{messages.confirm_header}" escape="false"
+       					message="#{messages.are_you_sure}" />
+       			</p:commandButton>
+       		</p:column>
 		</p:dataTable>
 
         <h:link outcome="add-schedule.xhtml" value="#{messages.add_schedule}"/><br/>
+
+	    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" closable="false" 
+	    	closeOnEscape="true" width="250">
+	        <p:commandButton value="#{messages.yes}" type="button" styleClass="ui-confirmdialog-yes"/>
+	        <p:commandButton value="#{messages.no}" type="button" styleClass="ui-confirmdialog-no"/>
+	    </p:confirmDialog>    
 		
 	</h:form>
 

@@ -11,33 +11,36 @@
 package edu.kit.scc.webreg.bean.admin.timer;
 
 import java.io.Serializable;
-import java.util.List;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.RequestScoped;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.primefaces.model.LazyDataModel;
+
 import edu.kit.scc.webreg.entity.JobScheduleEntity;
+import edu.kit.scc.webreg.model.GenericLazyDataModelImpl;
 import edu.kit.scc.webreg.service.JobScheduleService;
 
-@Named("listJobScheduleBean")
-@RequestScoped
+@Named
+@ViewScoped
 public class ListJobScheduleBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<JobScheduleEntity> list;
+	private LazyDataModel<JobScheduleEntity> list;
     
     @Inject
     private JobScheduleService service;
 
-    @PostConstruct
-    public void init() {
-		list = service.findAll();
-	}
-	
-    public List<JobScheduleEntity> getList() {
+    public LazyDataModel<JobScheduleEntity> getList() {
+		if (list == null) {
+			list = new GenericLazyDataModelImpl<JobScheduleEntity, JobScheduleService>(service);
+		}
    		return list;
+    }
+    
+    public void delete(JobScheduleEntity entity) {
+    	service.delete(entity);
     }
 }

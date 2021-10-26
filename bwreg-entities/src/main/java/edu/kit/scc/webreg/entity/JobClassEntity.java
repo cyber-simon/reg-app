@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.entity;
 
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -18,6 +19,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinTable;
 import javax.persistence.MapKeyColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -37,6 +39,9 @@ public class JobClassEntity extends AbstractBaseEntity {
     @MapKeyColumn(name = "key_data", length = 1024)
     @Column(name = "value_data", length = 2048)
     private Map<String, String> jobStore; 
+	
+	@OneToMany(targetEntity = JobScheduleEntity.class, mappedBy="jobClass")
+	private Set<JobScheduleEntity> schedules;
 	
 	private Boolean singleton;
 	
@@ -70,5 +75,13 @@ public class JobClassEntity extends AbstractBaseEntity {
 
 	public void setSingleton(Boolean singleton) {
 		this.singleton = singleton;
+	}
+
+	public Set<JobScheduleEntity> getSchedules() {
+		return schedules;
+	}
+
+	public void setSchedules(Set<JobScheduleEntity> schedules) {
+		this.schedules = schedules;
 	}
 }
