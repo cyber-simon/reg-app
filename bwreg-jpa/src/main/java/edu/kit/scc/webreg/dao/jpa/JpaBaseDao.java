@@ -204,6 +204,37 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 		
 		return em.createQuery(criteria).getResultList();		
 	}
+
+	@Override
+	public T findByAttr(String attr, Object value) {
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<T> criteria = builder.createQuery(getEntityClass());
+		Root<T> entity = criteria.from(getEntityClass());
+		criteria.where(builder.and(
+				builder.equal(entity.get(attr), value)
+				));
+		criteria.select(entity);
+
+		try {
+			return em.createQuery(criteria).getSingleResult();
+		}
+		catch (NoResultException e) {
+			return null;
+		}
+	}	
+	
+	@Override
+	public List<T> findAllByAttr(String attr, Object value) {
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<T> criteria = builder.createQuery(getEntityClass());
+		Root<T> entity = criteria.from(getEntityClass());
+		criteria.where(builder.and(
+				builder.equal(entity.get(attr), value)
+				));
+		criteria.select(entity);
+
+		return em.createQuery(criteria).getResultList();
+	}	
 	
 	@Override
 	public T findByIdWithAttrs(Long id, String... attrs) {

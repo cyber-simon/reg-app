@@ -47,4 +47,8 @@ public interface BaseDao<T extends BaseEntity> {
 	void refresh(T entity);
 
 	List<T> findByMultipleId(List<Long> ids);
+
+	T findByAttr(String attr, Object value);
+
+	List<T> findAllByAttr(String attr, Object value);
 }

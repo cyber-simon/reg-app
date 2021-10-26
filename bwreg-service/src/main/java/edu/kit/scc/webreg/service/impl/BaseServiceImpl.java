@@ -75,6 +75,16 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
 	}
 
 	@Override
+	public T findByAttr(String attr, Object value) {
+		return getDao().findByAttr(attr, value);
+	}
+
+	@Override
+	public List<T> findAllByAttr(String attr, Object value) {
+		return getDao().findAllByAttr(attr, value);
+	}
+
+	@Override
 	public List<T> findByMultipleId(List<Long> ids) {
 		return getDao().findByMultipleId(ids);
 	}

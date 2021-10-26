@@ -45,4 +45,8 @@ public interface BaseService<T extends BaseEntity> extends Serializable {
 	Number countAll(Map<String, Object> filterMap, Map<String, FilterMeta> additionalFilterMap);
 
 	List<T> findByMultipleId(List<Long> ids);
+
+	T findByAttr(String attr, Object value);
+
+	List<T> findAllByAttr(String attr, Object value);
 }
