@@ -16,6 +16,11 @@
 			</div>
 			<div id="header-image">
 				<div id="header-right" class="ui-widget">					
+	                <h:form id="nav_bar_form">
+    	               	<p:selectOneMenu id="lang_select" value="#{headBarBean.locale}" onchange="submit()" >
+        	           		<f:selectItems value="#{headBarBean.locales}"/>
+            	       	</p:selectOneMenu>
+                    </h:form>
 				</div>
 				<div id="header-text" class="ui-widget">
 					<div style="position:absolute; bottom: 18px; left: 12px; width: 600px; font-size: 2.2em; color: #ffffff; font-weight: bold;">reg-app administration</div>
