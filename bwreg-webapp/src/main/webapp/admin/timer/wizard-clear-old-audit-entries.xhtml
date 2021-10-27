@@ -96,15 +96,21 @@
 
 		<p:panel rendered="#{wizardClearOldAuditEntriesBean.jobSchedule != null}">
 			<p:panelGrid columns="2">
-				<i class="pi pi-check" style="font-size: 2rem;"></i>
+				<h:panelGroup>
+					<p:outputPanel rendered="#{! wizardClearOldAuditEntriesBean.jobSchedule.disabled}"><i class="pi pi-check" style="font-size: 2rem;"></i></p:outputPanel>
+					<p:outputPanel rendered="#{wizardClearOldAuditEntriesBean.jobSchedule.disabled}"><i class="pi pi-pause" style="font-size: 2rem;"></i></p:outputPanel>
+				</h:panelGroup>
 				<p:outputPanel>
 					<div>
 						Job schedule is defined: <b>#{wizardClearOldAuditEntriesBean.jobSchedule.name}</b>
 					</div>
-					<div style="margin-top: 0.5em;">
+					<div style="margin-top: 1em;">
 						Cron pattern: 
 						<h:outputText value="#{wizardClearOldAuditEntriesBean.jobSchedule.second} #{wizardClearOldAuditEntriesBean.jobSchedule.minute} #{wizardClearOldAuditEntriesBean.jobSchedule.hour} #{wizardClearOldAuditEntriesBean.jobSchedule.dayOfWeek} #{wizardClearOldAuditEntriesBean.jobSchedule.dayOfMonth} #{wizardClearOldAuditEntriesBean.jobSchedule.month} #{wizardClearOldAuditEntriesBean.jobSchedule.year}" />
 					</div>
+					<p:outputPanel rendered="#{wizardClearOldAuditEntriesBean.jobSchedule.disabled}" style="margin-top: 0.5em;">
+						The schedule is currently disabled!
+					</p:outputPanel>
 				</p:outputPanel>
 			</p:panelGrid>
 		</p:panel>
