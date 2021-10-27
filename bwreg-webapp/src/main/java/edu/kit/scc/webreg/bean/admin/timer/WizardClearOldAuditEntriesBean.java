@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.bean.admin.timer;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.faces.event.ComponentSystemEvent;
@@ -25,7 +26,7 @@ import edu.kit.scc.webreg.service.JobScheduleService;
 
 @Named
 @ViewScoped
-public class WizardUpdateFederationMetadataBean implements Serializable {
+public class WizardClearOldAuditEntriesBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -42,15 +43,22 @@ public class WizardUpdateFederationMetadataBean implements Serializable {
 	private String scheduleName;
 	private String scheduleTiming;
 	
+	private Long days;
+	private Long hours;
+	private Long limit;
+	
 	private Boolean initialized = false;
 	
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (! initialized) {
-			setJobName("wizard_UpdateAllFederationMetadata");
-			setScheduleName("wizard_UpdateAllFederationMetadataSchedule");
-			setScheduleTiming("4");
+			setJobName("wizard_ClearOldAuditEntries");
+			setScheduleName("wizard_ClearOldAuditEntriesSchedule");
+			setDays(30L);
+			setHours(0L);
+			setLimit(10L);
+			setScheduleTiming("1m");
 
-			jobClass = jobClassService.findByAttr("jobClassName", "edu.kit.scc.webreg.job.UpdateAllFederationMetadata");
+			jobClass = jobClassService.findByAttr("jobClassName", "edu.kit.scc.webreg.job.ClearAuditLogs");
 			if (jobClass != null) {
 				List<JobScheduleEntity> jsList = jobScheduleService.findAllByAttr("jobClass", jobClass);
 				if (jsList.size() > 0) {
@@ -66,9 +74,12 @@ public class WizardUpdateFederationMetadataBean implements Serializable {
 		if (getJobName() != null)
 			jobClass.setName(getJobName());
 		else
-			jobClass.setName("wizard_UpdateAllFederationMetadata");
+			jobClass.setName("wizard_ClearOldAuditEntries");
 		jobClass.setSingleton(true);
-		jobClass.setJobClassName("edu.kit.scc.webreg.job.UpdateAllFederationMetadata");
+		jobClass.setJobClassName("edu.kit.scc.webreg.job.ClearAuditLogs");
+		jobClass.setJobStore(new HashMap<String, String>());
+		jobClass.getJobStore().put("limit", Long.toString(getLimit()));
+		jobClass.getJobStore().put("purge_millis", Long.toString((getDays() * 24L * 60L * 60L * 1000L) + (getHours() * 60L * 60L * 1000L)));
 		jobClass = jobClassService.save(jobClass);
 	}
 	
@@ -77,22 +88,25 @@ public class WizardUpdateFederationMetadataBean implements Serializable {
 		if (getScheduleName() != null)
 			jobSchedule.setName(getScheduleName());
 		else
-			jobSchedule.setName("wizard_UpdateAllFederationMetadataSchedule");
+			jobSchedule.setName("wizard_ClearOldAuditEntriesSchedule");
 		jobSchedule.setJobClass(getJobClass());
 		jobSchedule.setYear("*");
 		jobSchedule.setMonth("*");
 		jobSchedule.setDayOfMonth("*");
 		jobSchedule.setDayOfWeek("*");
-		jobSchedule.setMinute("15");
-		jobSchedule.setSecond("0");
-		if (scheduleTiming.equals("1"))
-			jobSchedule.setHour("*/1");
-		else if (scheduleTiming.equals("2"))
-			jobSchedule.setHour("*/2");
-		else if (scheduleTiming.equals("4"))
-			jobSchedule.setHour("*/4");
-		else
-			jobSchedule.setHour("*/8");
+		jobSchedule.setHour("*");
+		if (scheduleTiming.equals("30s")) {
+			jobSchedule.setMinute("*");
+			jobSchedule.setSecond("15/30");
+		}
+		else if (scheduleTiming.equals("2m")) {
+			jobSchedule.setMinute("0/2");
+			jobSchedule.setSecond("15");
+		}
+		else {
+			jobSchedule.setMinute("0/1");
+			jobSchedule.setSecond("15");
+		}
 		jobSchedule.setDisabled(false);
 		jobSchedule = jobScheduleService.save(jobSchedule);
 	}
@@ -127,5 +141,29 @@ public class WizardUpdateFederationMetadataBean implements Serializable {
 
 	public void setScheduleTiming(String scheduleTiming) {
 		this.scheduleTiming = scheduleTiming;
+	}
+
+	public Long getDays() {
+		return days;
+	}
+
+	public void setDays(Long days) {
+		this.days = days;
+	}
+
+	public Long getHours() {
+		return hours;
+	}
+
+	public void setHours(Long hours) {
+		this.hours = hours;
+	}
+
+	public Long getLimit() {
+		return limit;
+	}
+
+	public void setLimit(Long limit) {
+		this.limit = limit;
 	}
 }

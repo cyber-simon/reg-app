@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{wizardClearOldAuditEntriesBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+		<h2><h:outputText value="#{messages.timer_wizard_clear_old_audit_entries_header}"/></h2>
+
+		<p:panel rendered="#{wizardClearOldAuditEntriesBean.jobClass == null}">
+			<p:panelGrid columns="2">
+				<i class="pi pi-times" style="font-size: 2rem;"></i>
+				<p:outputPanel>
+					<div>
+						No job class yet. Create one here. You can choose a name, or use the predefined one. 
+						Set the days and hours to determine the age from which on audits are deleted. 
+					</div>
+					<div style="margin-top: 0.5em;">
+						The "Items per run" parameter defines, how many audit entries are deleted per run.
+						The predefined limit of 10 is a sensible value. You can change it, but be aware, the the transaction for the deletion 
+						should not take too long. 
+					</div>
+					<p:panelGrid columns="2" style="margin-top: 0.5em;">
+						<p:outputLabel value="Name:" for="@next"/>
+						<p:inputText value="#{wizardClearOldAuditEntriesBean.scheduleName}" style="width: 320px;"/>
+
+						<p:outputLabel value="Days:" for="@next"/>
+						<p:inputNumber value="#{wizardClearOldAuditEntriesBean.days}" decimalPlaces="0" required="true"/>
+
+						<p:outputLabel value="Hours:" for="@next"/>
+						<p:inputNumber value="#{wizardClearOldAuditEntriesBean.hours}" decimalPlaces="0" required="true"/>
+
+						<p:outputLabel value="Items per run:" for="@next"/>
+						<p:inputNumber value="#{wizardClearOldAuditEntriesBean.limit}" decimalPlaces="0" required="true"/>
+					</p:panelGrid>
+					<p:commandButton action="#{wizardClearOldAuditEntriesBean.createJobClass()}" update="@form" value="Create Job"
+						style="margin-top: 0.5em;"/>
+				</p:outputPanel>
+			</p:panelGrid>			
+		</p:panel>
+
+		<p:panel rendered="#{wizardClearOldAuditEntriesBean.jobClass != null}">
+			<p:panelGrid columns="2">
+				<i class="pi pi-check" style="font-size: 2rem;"></i>
+				<p:outputPanel>
+					<div>
+						Job for clearing audits is defined: <b>#{wizardClearOldAuditEntriesBean.jobClass.name}</b>
+					</div>
+					<div style="margin-top: 1em;">
+						Audits older than #{wizardClearOldAuditEntriesBean.jobClass.jobStore.get('purge_millis')} milliseconds are deleted.
+					</div>
+					<div style="margin-top: 0.5em;">
+						#{wizardClearOldAuditEntriesBean.jobClass.jobStore.get('limit')} Audits are deleted per run.
+					</div>
+				</p:outputPanel>
+			</p:panelGrid>
+		</p:panel>
+
+		<p:panel rendered="#{wizardClearOldAuditEntriesBean.jobSchedule == null and wizardClearOldAuditEntriesBean.jobClass != null}">
+			<p:panelGrid columns="2">
+				<i class="pi pi-times" style="font-size: 2rem;"></i>
+				<p:outputPanel>
+					No job schedule yet. Create one in order to execute the job on regular basis:
+					<p:panelGrid columns="2" style="margin-top: 0.5em;">
+						<p:outputLabel value="Name:" for="@next"/>
+						<p:inputText value="#{wizardClearOldAuditEntriesBean.scheduleName}" style="width: 320px;"/>
+						
+						<p:outputLabel value="Schedule:" for="@next"/>
+			            <p:selectOneListbox id="basic" value="#{wizardClearOldAuditEntriesBean.scheduleTiming}">
+			                <f:selectItem itemLabel="Every 30 secondes" itemValue="30s"/>
+			                <f:selectItem itemLabel="Every minute" itemValue="1m"/>
+			                <f:selectItem itemLabel="Every 2 minutes" itemValue="2m"/>
+			            </p:selectOneListbox>
+					</p:panelGrid>
+					<p:commandButton action="#{wizardClearOldAuditEntriesBean.createSchedule()}" update="@form" value="Create Schedule"
+						style="margin-top: 0.5em;"/>
+				</p:outputPanel>
+			</p:panelGrid>			
+		</p:panel>
+
+		<p:panel rendered="#{wizardClearOldAuditEntriesBean.jobSchedule != null}">
+			<p:panelGrid columns="2">
+				<i class="pi pi-check" style="font-size: 2rem;"></i>
+				<p:outputPanel>
+					<div>
+						Job schedule is defined: <b>#{wizardClearOldAuditEntriesBean.jobSchedule.name}</b>
+					</div>
+					<div style="margin-top: 0.5em;">
+						Cron pattern: 
+						<h:outputText value="#{wizardClearOldAuditEntriesBean.jobSchedule.second} #{wizardClearOldAuditEntriesBean.jobSchedule.minute} #{wizardClearOldAuditEntriesBean.jobSchedule.hour} #{wizardClearOldAuditEntriesBean.jobSchedule.dayOfWeek} #{wizardClearOldAuditEntriesBean.jobSchedule.dayOfMonth} #{wizardClearOldAuditEntriesBean.jobSchedule.month} #{wizardClearOldAuditEntriesBean.jobSchedule.year}" />
+					</div>
+				</p:outputPanel>
+			</p:panelGrid>
+		</p:panel>
+
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>
