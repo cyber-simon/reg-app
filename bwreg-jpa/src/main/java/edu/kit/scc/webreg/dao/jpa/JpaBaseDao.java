@@ -39,6 +39,8 @@ import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.GenericSortOrder;
 import edu.kit.scc.webreg.dao.ops.AndPredicate;
 import edu.kit.scc.webreg.dao.ops.MultipathOrPredicate;
+import edu.kit.scc.webreg.dao.ops.NotEqualsObjectValue;
+import edu.kit.scc.webreg.dao.ops.NotLikeObjectValue;
 import edu.kit.scc.webreg.dao.ops.OrPredicate;
 import edu.kit.scc.webreg.dao.ops.PathObjectValue;
 import edu.kit.scc.webreg.ds.DefaultDatasource;
@@ -228,14 +230,13 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<T> criteria = builder.createQuery(getEntityClass());
 		Root<T> entity = criteria.from(getEntityClass());
-		criteria.where(builder.and(
-				builder.equal(entity.get(attr), value)
-				));
+		Predicate p = predicateFromObject(builder, entity, attr, value);
+		criteria.where(p);
 		criteria.select(entity);
 
 		return em.createQuery(criteria).getResultList();
-	}	
-	
+	}
+
 	@Override
 	public T findByIdWithAttrs(Long id, String... attrs) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
@@ -314,7 +315,10 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 	}
 	
 	protected Predicate predicateFromObject(CriteriaBuilder builder, Root<T> root, String path, Object o) {
-		if (o instanceof MultipathOrPredicate) {
+		if (o == null) {
+			return builder.isNull(resolvePath(root, path));
+		}
+		else if (o instanceof MultipathOrPredicate) {
 			MultipathOrPredicate p = (MultipathOrPredicate) o;
 			List<Predicate> pList = new ArrayList<Predicate>();
 			for (Object object : p.getOperandList()) {
@@ -338,6 +342,17 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 				pList.add(predicateFromObject(builder, root, path, object));
 			}
 			return builder.and(pList.toArray(new Predicate[pList.size()]));
+		}
+		else if (o instanceof NotEqualsObjectValue) {
+			NotEqualsObjectValue p = (NotEqualsObjectValue) o;
+			return builder.notEqual(resolvePath(root, p.getPath()), p.getValue());
+		}
+		else if (o instanceof NotLikeObjectValue) {
+			NotLikeObjectValue p = (NotLikeObjectValue) o;
+			String s = (String) p.getValue();
+			return builder.notLike(
+					builder.lower(this.<String>resolvePath(root, p.getPath())), 
+					"%" + s.toLowerCase() + "%");
 		}
 		else if (o instanceof String) {
 			String s = (String) o;

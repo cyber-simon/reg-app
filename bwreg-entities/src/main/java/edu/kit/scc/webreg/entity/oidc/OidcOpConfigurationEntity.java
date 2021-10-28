@@ -2,6 +2,8 @@ package edu.kit.scc.webreg.entity.oidc;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 
@@ -43,6 +45,9 @@ public class OidcOpConfigurationEntity extends AbstractBaseEntity {
 	@Lob
 	@Type(type = "org.hibernate.type.TextType")		
 	private String standbyCertificate;
+	
+	@Enumerated(EnumType.STRING)
+	private OidcOpConfigurationStatusType opStatus; 
 	
 	public String getRealm() {
 		return realm;
@@ -98,6 +103,14 @@ public class OidcOpConfigurationEntity extends AbstractBaseEntity {
 
 	public void setStandbyCertificate(String standbyCertificate) {
 		this.standbyCertificate = standbyCertificate;
+	}
+
+	public OidcOpConfigurationStatusType getOpStatus() {
+		return opStatus;
+	}
+
+	public void setOpStatus(OidcOpConfigurationStatusType opStatus) {
+		this.opStatus = opStatus;
 	}
 	
 }

@@ -8,14 +8,10 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.service.oidc;
+package edu.kit.scc.webreg.entity.oidc;
 
-import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
-import edu.kit.scc.webreg.service.BaseService;
+public enum OidcOpConfigurationStatusType {
 
-public interface OidcOpConfigurationService extends BaseService<OidcOpConfigurationEntity> {
-
-	OidcOpConfigurationEntity findByRealm(String realm);
-	OidcOpConfigurationEntity findByRealmAndHost(String realm, String host);
-	void fixStatus();
+	ACTIVE,
+	DEACTIVATED
 }

@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationStatusType;
 import edu.kit.scc.webreg.service.oidc.OidcOpConfigurationService;
 
 @Named("addOidcOpConfigurationBean")
@@ -37,6 +38,7 @@ public class AddOidcOpConfigurationBean implements Serializable {
 	}
 
 	public String save() {
+		entity.setOpStatus(OidcOpConfigurationStatusType.ACTIVE);
 		entity = service.save(entity);
 		return "show-op-config.xhtml?faces-redirect=true&id=" + entity.getId();
 	}

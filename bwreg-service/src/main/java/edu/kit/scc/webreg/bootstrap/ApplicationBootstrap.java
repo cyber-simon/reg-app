@@ -40,6 +40,7 @@ import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.impl.HookManager;
 import edu.kit.scc.webreg.service.mail.TemplateRenderer;
+import edu.kit.scc.webreg.service.oidc.OidcOpConfigurationService;
 import edu.kit.scc.webreg.service.timer.ClusterSchedulerManager;
 import edu.kit.scc.webreg.service.timer.StandardScheduler;
 import edu.kit.scc.webreg.service.tpl.TemplateUrlStreamHandlerFactory;
@@ -87,6 +88,9 @@ public class ApplicationBootstrap {
 	@Inject
 	private IdentityService identityService;
 	
+	@Inject
+	private OidcOpConfigurationService oidcOpConfigService;
+	
 	@PostConstruct
 	public void init() {
 		
@@ -124,8 +128,8 @@ public class ApplicationBootstrap {
     	checkRole("AttributeSourceAdmin");
     	checkRole("ExternalUserAdmin");	
     	
-    	logger.info("Initializing admin Account");
     	if (adminUserService.findByUsername("admin") == null) {
+        	logger.info("Initializing admin Account");
     		AdminUserEntity a = adminUserService.createNew();
     		a.setUsername("admin");
     		a.setPassword("secret");
@@ -135,7 +139,7 @@ public class ApplicationBootstrap {
     		adminUserService.save(a);
     	}
 
-    	logger.info("Setting PasswordCapable and GroupCapable on all services, according to implemented interfaces");
+    	logger.debug("Setting PasswordCapable and GroupCapable on all services, according to implemented interfaces");
     	List<ServiceEntity> serviceList = serviceService.findAll();
     	for (ServiceEntity service : serviceList) {
         	logger.debug("Update capabilities on service {}", service.getName());
@@ -153,6 +157,8 @@ public class ApplicationBootstrap {
 			logger.error("Serious Error happened", e);
 		}
         
+    	oidcOpConfigService.fixStatus();
+    	
         bpmProcessService.init();
         
         velocityRenderer.init();
@@ -160,6 +166,7 @@ public class ApplicationBootstrap {
         identityService.createMissingIdentities();
         
         standardScheduler.initialize();
+        
         clusterSchedulerManager.initialize();
         
 	}

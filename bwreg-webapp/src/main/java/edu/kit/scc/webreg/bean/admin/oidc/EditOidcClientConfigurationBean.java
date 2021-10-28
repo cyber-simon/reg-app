@@ -18,8 +18,10 @@ import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
+import edu.kit.scc.webreg.dao.ops.NotEqualsObjectValue;
 import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationStatusType;
 import edu.kit.scc.webreg.service.oidc.OidcClientConfigurationService;
 import edu.kit.scc.webreg.service.oidc.OidcOpConfigurationService;
 
@@ -69,7 +71,7 @@ public class EditOidcClientConfigurationBean implements Serializable {
 
 	public List<OidcOpConfigurationEntity> getOpList() {
 		if (opList == null)
-			opList = opService.findAll();
+			opList = opService.findAllByAttr("opStatus", new NotEqualsObjectValue("opStatus", OidcOpConfigurationStatusType.DEACTIVATED));
 		return opList;
 	}
 }
