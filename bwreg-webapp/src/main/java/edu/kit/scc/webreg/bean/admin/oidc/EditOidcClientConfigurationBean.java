@@ -71,7 +71,7 @@ public class EditOidcClientConfigurationBean implements Serializable {
 
 	public List<OidcOpConfigurationEntity> getOpList() {
 		if (opList == null)
-			opList = opService.findAllByAttr("opStatus", new NotEqualsObjectValue("opStatus", OidcOpConfigurationStatusType.DEACTIVATED));
+			opList = opService.findAllByAttr("opStatus", OidcOpConfigurationStatusType.ACTIVE);
 		return opList;
 	}
 }
