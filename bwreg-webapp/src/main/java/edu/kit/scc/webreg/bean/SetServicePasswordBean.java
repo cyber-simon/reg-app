@@ -147,7 +147,7 @@ public class SetServicePasswordBean implements Serializable {
 		else
 			messageGenerator.addResolvedErrorMessage("pw_error", "error", "service_password_cannot_be_set", true);
 
-		if (navOptions.equalsIgnoreCase("created")) {
+		if (navOptions != null && navOptions.equalsIgnoreCase("created")) {
     		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
 			try {
 				context.redirect("../service/registry-detail.xhtml?regId=" + registryEntity.getId());
