@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{wizardClearExpiredLoginInfoBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+		<h2><h:outputText value="#{messages.timer_wizard_clear_expired_login_info_header}"/></h2>
+
+		<p:panel rendered="#{wizardClearExpiredLoginInfoBean.jobClass == null}">
+			<p:panelGrid columns="2">
+				<i class="pi pi-times" style="font-size: 2rem;"></i>
+				<p:outputPanel>
+					<div>
+						No job class yet. Create one here. You can choose a name, or use the predefined one. 
+						Set the days and hours to determine the age from which on login infos are deleted. 
+					</div>
+					<p:panelGrid columns="2" style="margin-top: 0.5em;">
+						<p:outputLabel value="Name:" for="@next"/>
+						<p:inputText value="#{wizardClearExpiredLoginInfoBean.scheduleName}" style="width: 320px;"/>
+
+						<p:outputLabel value="Days:" for="@next"/>
+						<p:inputNumber value="#{wizardClearExpiredLoginInfoBean.days}" decimalPlaces="0" required="true"/>
+
+						<p:outputLabel value="Hours:" for="@next"/>
+						<p:inputNumber value="#{wizardClearExpiredLoginInfoBean.hours}" decimalPlaces="0" required="true"/>
+					</p:panelGrid>
+					<p:commandButton action="#{wizardClearExpiredLoginInfoBean.createJobClass()}" update="@form" value="Create Job"
+						style="margin-top: 0.5em;"/>
+				</p:outputPanel>
+			</p:panelGrid>			
+		</p:panel>
+
+		<p:panel rendered="#{wizardClearExpiredLoginInfoBean.jobClass != null}">
+			<p:panelGrid columns="2">
+				<i class="pi pi-check" style="font-size: 2rem;"></i>
+				<p:outputPanel>
+					<div>
+						Job for clearing user login info is defined: <b>#{wizardClearExpiredLoginInfoBean.jobClass.name}</b>
+					</div>
+					<div style="margin-top: 1em;">
+						Items older than #{wizardClearExpiredLoginInfoBean.jobClass.jobStore.get('purge_millis')} milliseconds are deleted.
+					</div>
+				</p:outputPanel>
+			</p:panelGrid>
+		</p:panel>
+
+		<p:panel rendered="#{wizardClearExpiredLoginInfoBean.jobSchedule == null and wizardClearExpiredLoginInfoBean.jobClass != null}">
+			<p:panelGrid columns="2">
+				<i class="pi pi-times" style="font-size: 2rem;"></i>
+				<p:outputPanel>
+					No job schedule yet. Create one in order to execute the job on regular basis:
+					<p:panelGrid columns="2" style="margin-top: 0.5em;">
+						<p:outputLabel value="Name:" for="@next"/>
+						<p:inputText value="#{wizardClearExpiredLoginInfoBean.scheduleName}" style="width: 320px;"/>
+						
+						<p:outputLabel value="Schedule:" for="@next"/>
+			            <p:selectOneListbox id="basic" value="#{wizardClearExpiredLoginInfoBean.scheduleTiming}">
+			                <f:selectItem itemLabel="Every minute" itemValue="1m"/>
+			                <f:selectItem itemLabel="Every 5 minutes" itemValue="5m"/>
+			                <f:selectItem itemLabel="Every 10 minutes" itemValue="10m"/>
+			            </p:selectOneListbox>
+					</p:panelGrid>
+					<p:commandButton action="#{wizardClearExpiredLoginInfoBean.createSchedule()}" update="@form" value="Create Schedule"
+						style="margin-top: 0.5em;"/>
+				</p:outputPanel>
+			</p:panelGrid>			
+		</p:panel>
+
+		<p:panel rendered="#{wizardClearExpiredLoginInfoBean.jobSchedule != null}">
+			<p:panelGrid columns="2">
+				<h:panelGroup>
+					<p:outputPanel rendered="#{! wizardClearExpiredLoginInfoBean.jobSchedule.disabled}"><i class="pi pi-check" style="font-size: 2rem;"></i></p:outputPanel>
+					<p:outputPanel rendered="#{wizardClearExpiredLoginInfoBean.jobSchedule.disabled}"><i class="pi pi-pause" style="font-size: 2rem;"></i></p:outputPanel>
+				</h:panelGroup>
+				<p:outputPanel>
+					<div>
+						Job schedule is defined: <b>#{wizardClearExpiredLoginInfoBean.jobSchedule.name}</b>
+					</div>
+					<div style="margin-top: 1em;">
+						Cron pattern: 
+						<h:outputText value="#{wizardClearExpiredLoginInfoBean.jobSchedule.second} #{wizardClearExpiredLoginInfoBean.jobSchedule.minute} #{wizardClearExpiredLoginInfoBean.jobSchedule.hour} #{wizardClearExpiredLoginInfoBean.jobSchedule.dayOfWeek} #{wizardClearExpiredLoginInfoBean.jobSchedule.dayOfMonth} #{wizardClearExpiredLoginInfoBean.jobSchedule.month} #{wizardClearExpiredLoginInfoBean.jobSchedule.year}" />
+					</div>
+					<p:outputPanel rendered="#{wizardClearExpiredLoginInfoBean.jobSchedule.disabled}" style="margin-top: 0.5em;">
+						The schedule is currently disabled!
+					</p:outputPanel>
+				</p:outputPanel>
+			</p:panelGrid>
+		</p:panel>
+
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>
