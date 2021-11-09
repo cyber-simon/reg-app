@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.sec;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -59,7 +60,16 @@ public class Saml2PostHandler implements Servlet {
 		
 		logger.debug("Dispatching request context '{}' path '{}'", context, path);
 		
-		SamlSpConfigurationEntity spConfig = spConfigService.findByHostname(request.getServerName());
+		List<SamlSpConfigurationEntity> spConfigList = spConfigService.findByHostname(servletRequest.getServerName());
+		SamlSpConfigurationEntity spConfig = null;
+		
+		for (SamlSpConfigurationEntity s : spConfigList) {
+			if (s.getAcs().equals(path)) {
+				spConfig = s;
+				break;
+			}
+		}
+		
 		
 		if (spConfig != null) {
 			logger.debug("Executing POST Handler for entity {}", spConfig.getEntityId());

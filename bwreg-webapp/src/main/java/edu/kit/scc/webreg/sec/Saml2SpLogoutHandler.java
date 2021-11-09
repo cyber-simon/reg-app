@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.sec;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -59,12 +60,14 @@ public class Saml2SpLogoutHandler implements Servlet {
 		
 		logger.debug("Dispatching request context '{}' path '{}'", context, path);
 		
-		SamlSpConfigurationEntity spConfig = spConfigService.findByHostname(request.getServerName());
+		List<SamlSpConfigurationEntity> spConfigList = spConfigService.findByHostname(request.getServerName());
 		
-		if (spConfig != null) {
-			logger.debug("Executing POST Handler for entity {}", spConfig.getEntityId());
-			service(request, response, spConfig);
+		if (spConfigList.size() != 1) {
+			throw new ServletException("Logout only works with one SP per host at the moment");
 		}
+		
+		logger.debug("Executing POST Handler for entity {}", spConfigList.get(0).getEntityId());
+		service(request, response, spConfigList.get(0));
 	}
 	
 	private void service(HttpServletRequest request, HttpServletResponse response, SamlSpConfigurationEntity spConfig)

@@ -10,11 +10,13 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service;
 
+import java.util.List;
+
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 
 public interface SamlSpConfigurationService extends BaseService<SamlSpConfigurationEntity> {
 
-	SamlSpConfigurationEntity findByHostname(String hostname);
+	List<SamlSpConfigurationEntity> findByHostname(String hostname);
 
 	SamlSpConfigurationEntity findByEntityId(String entityId);
 

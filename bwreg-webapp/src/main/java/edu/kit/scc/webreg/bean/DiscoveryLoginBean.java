@@ -195,8 +195,20 @@ public class DiscoveryLoginBean implements Serializable {
 
 			if (selectedIdp instanceof SamlIdpMetadataEntity) {
 				SamlIdpMetadataEntity idp = (SamlIdpMetadataEntity) selectedIdp;
-				SamlSpConfigurationEntity spConfig;
-				spConfig = spService.findByHostname(hostname);
+				SamlSpConfigurationEntity spConfig = null;
+				List<SamlSpConfigurationEntity> spConfigList = spService.findByHostname(hostname);
+				
+				if (spConfigList.size() == 1) {
+					spConfig = spConfigList.get(0);
+				}
+				else {
+					for (SamlSpConfigurationEntity s : spConfigList) {
+						if (s.getDefaultSp() != null && s.getDefaultSp().equals(Boolean.TRUE)) {
+							spConfig = s;
+							break;
+						}
+					}
+				}
 				
 				if (spConfig == null) {
 					messageGenerator.addErrorMessage("Es ist keine Host Konfiguration vorhanden", 

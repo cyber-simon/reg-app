@@ -33,6 +33,9 @@ public class SamlSpConfigurationEntity extends SamlConfigurationEntity {
 	@ElementCollection
 	private List<String> hostNameList = new ArrayList<String>();
 	
+	@Column(name = "default_sp")
+	private Boolean defaultSp;
+	
 	public List<String> getHostNameList() {
 		return hostNameList;
 	}
@@ -55,5 +58,13 @@ public class SamlSpConfigurationEntity extends SamlConfigurationEntity {
 
 	public void setEcp(String ecp) {
 		this.ecp = ecp;
+	}
+
+	public Boolean getDefaultSp() {
+		return defaultSp;
+	}
+
+	public void setDefaultSp(Boolean defaultSp) {
+		this.defaultSp = defaultSp;
 	}
 }

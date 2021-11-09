@@ -10,6 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.impl;
 
+import java.util.List;
+
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
@@ -32,7 +34,7 @@ public class SamlSpConfigurationServiceImpl extends BaseServiceImpl<SamlSpConfig
 	}
 
 	@Override
-	public SamlSpConfigurationEntity findByHostname(String hostname) {
+	public List<SamlSpConfigurationEntity> findByHostname(String hostname) {
 		return dao.findByHostname(hostname);
 	}
 
