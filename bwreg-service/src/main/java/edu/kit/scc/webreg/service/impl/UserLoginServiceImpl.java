@@ -382,13 +382,15 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			String bindingHost = (new URL(bindingLocation)).getHost();
 			String hostname = localHostName;
 			logger.debug("hostname is {}", hostname);
-			SamlSpConfigurationEntity sp = spDao.findByHostname(hostname);
+			List<SamlSpConfigurationEntity> spList = spDao.findByHostname(hostname);
 			
-			if (sp == null) {
+			if (spList.size() != 1) {
 				logger.warn("No hostname configured for {}", hostname);
-				throw new NoItemFoundException("No hostname configured");
+				throw new NoHostnameConfiguredException("No hostname configured");
 			}
-			
+
+			SamlSpConfigurationEntity sp = spList.get(0);
+
 			AuthnRequest authnRequest = ssoHelper.buildAuthnRequest(sp.getEntityId(), sp.getEcp(),
 					SAMLConstants.SAML2_PAOS_BINDING_URI);
 			//Envelope envelope = attrQueryHelper.buildSOAP11Envelope(authnRequest);
@@ -511,12 +513,14 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 		
 		String hostname = localHostName;
 		logger.debug("hostname is {}", hostname);
-		SamlSpConfigurationEntity sp = spDao.findByHostname(hostname);
+		List<SamlSpConfigurationEntity> spList = spDao.findByHostname(hostname);
 		
-		if (sp == null) {
+		if (spList.size() != 1) {
 			logger.warn("No hostname configured for {}", hostname);
 			throw new NoHostnameConfiguredException("No hostname configured");
 		}
+
+		SamlSpConfigurationEntity sp = spList.get(0);
 		
 		SamlIdpMetadataEntity idp = idpDao.findByEntityId(user.getIdp().getEntityId());
 

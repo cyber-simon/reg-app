@@ -20,13 +20,11 @@ import org.opensaml.saml.common.messaging.context.SAMLEndpointContext;
 import org.opensaml.saml.common.messaging.context.SAMLPeerEntityContext;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.criterion.RoleDescriptorCriterion;
-import org.opensaml.saml.saml2.binding.decoding.impl.HTTPPostDecoder;
 import org.opensaml.saml.saml2.binding.decoding.impl.HTTPRedirectDeflateDecoder;
 import org.opensaml.saml.saml2.binding.encoding.impl.HTTPRedirectDeflateEncoder;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 import org.opensaml.saml.saml2.core.NameID;
-import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.SingleLogoutService;
 import org.opensaml.saml.security.impl.SAMLMetadataSignatureSigningParametersResolver;
@@ -47,8 +45,8 @@ import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.exc.NoHostnameConfiguredException;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
-import edu.kit.scc.webreg.service.saml.exc.SamlInvalidPostException;
 import edu.kit.scc.webreg.session.SessionManager;
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 
@@ -114,7 +112,15 @@ public class SamlSpLogoutServiceImpl implements SamlSpLogoutService {
 		
 		SamlUserEntity user = (SamlUserEntity) tempUser;
 		SamlIdpMetadataEntity idpEntity = user.getIdp();
-		SamlSpConfigurationEntity spEntity = spConfigDao.findByHostname(request.getLocalName());
+		
+		List<SamlSpConfigurationEntity> spList = spConfigDao.findByHostname(request.getLocalName());
+		
+		if (spList.size() != 1) {
+			logger.warn("No hostname configured for {}", request.getLocalName());
+			throw new NoHostnameConfiguredException("No hostname configured");
+		}
+
+		SamlSpConfigurationEntity spEntity = spList.get(0);
 		
 		EntityDescriptor entityDesc = samlHelper.unmarshal(
 				idpEntity.getEntityDescriptor(), EntityDescriptor.class);
