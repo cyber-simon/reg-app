@@ -2,6 +2,8 @@ package edu.kit.scc.webreg.sec;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -76,6 +78,8 @@ public class SamlSpMetadataServlet implements Servlet {
 			logger.info("No matching saml sp metadata context '{}' path '{}'", context, path);
 		}
 		else {
+			spConfig = spConfigService.findByIdWithAttrs(spConfig.getId(), "hostNameList");
+			
 			response.setContentType("text/xml");
 			PrintWriter w = response.getWriter();
 
@@ -97,10 +101,15 @@ public class SamlSpMetadataServlet implements Servlet {
 			kd.setKeyInfo(keyInfo);
 			spsso.getKeyDescriptors().add(kd);
 			
-			AssertionConsumerService acs = samlHelper.create(AssertionConsumerService.class, AssertionConsumerService.DEFAULT_ELEMENT_NAME);
-			acs.setBinding(SAMLConstants.SAML2_POST_BINDING_URI);
-			acs.setLocation("https://" + request.getServerName() + spConfig.getAcs());
-			spsso.getAssertionConsumerServices().add(acs);
+			List<String> hostNameList = new ArrayList<String>(spConfig.getHostNameList());
+			Collections.sort(hostNameList);
+			
+			for (String hostName : hostNameList) {
+				AssertionConsumerService acs = samlHelper.create(AssertionConsumerService.class, AssertionConsumerService.DEFAULT_ELEMENT_NAME);
+				acs.setBinding(SAMLConstants.SAML2_POST_BINDING_URI);
+				acs.setLocation("https://" + hostName + "/" + spConfig.getAcs());
+				spsso.getAssertionConsumerServices().add(acs);
+			}
 			
 			w.print(samlHelper.prettyPrint(ed));
 			w.close();		
