@@ -67,6 +67,12 @@
 						</f:facet>
 						<h:outputText value="#{user.eppn}" />
 					</p:column>
+					<p:column sortBy="#{user.email}" filterBy="#{user.email}" filterMatchMode="contains">
+						<f:facet name="header">
+							<h:outputText value="#{messages.email}" />
+						</f:facet>
+						<h:outputText value="#{user.email}" />
+					</p:column>
 					<p:column sortBy="#{user.surName}" filterBy="#{user.surName}" filterMatchMode="contains">
 						<f:facet name="header">
 							<h:outputText value="#{messages.sur_name}" />
@@ -79,7 +85,7 @@
 						</f:facet>
 						<h:outputText value="#{user.givenName}" />
 					</p:column>			
-					<p:column>
+					<p:column width="96px;">
 						<p:commandLink action="#{groupAdminEditLocalGroupBean.addUserToGroup(user)}" value="#{messages.add}"
 							update=":form:memberPanel :form:btnPanel"/>
 					</p:column>		
@@ -97,6 +103,12 @@
 						</f:facet>
 						<h:outputText value="#{user.eppn}" />
 					</p:column>
+					<p:column sortBy="#{user.email}" filterBy="#{user.email}" filterMatchMode="contains">
+						<f:facet name="header">
+							<h:outputText value="#{messages.email}" />
+						</f:facet>
+						<h:outputText value="#{user.email}" />
+					</p:column>
 					<p:column sortBy="#{user.surName}" filterBy="#{user.surName}">
 						<f:facet name="header">
 							<h:outputText value="#{messages.sur_name}" />
@@ -109,7 +121,7 @@
 						</f:facet>
 						<h:outputText value="#{user.givenName}" />
 					</p:column>
-					<p:column>
+					<p:column width="96px;">
 						<p:commandLink action="#{groupAdminEditLocalGroupBean.removeUserFromGroup(user)}" value="#{messages.remove}"
 							update=":form:memberPanel :form:btnPanel"/>
 					</p:column>		

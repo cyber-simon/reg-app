@@ -33,11 +33,11 @@
 					<p:dataTable id="registeredTable0" var="registry" value="#{serviceAdminUserListBean.allList}" paginator="true"
 						lazy="true" rows="15" style="width:auto; font-size: 1.2rem;">
 
-						<p:column sortBy="#{registry.id}">
+						<p:column sortBy="#{registry.id}" width="96px;">
 							<f:facet name="header">
 								<h:outputText value="#{messages.id}" />
 							</f:facet>
-							<h:link outcome="show-service-registry.xhtml" value="#{registry.id}" filterMatchMode="contains">
+							<h:link outcome="show-service-registry.xhtml" value="#{registry.id}">
 			      				<f:param name="id" value="#{registry.id}"/>
 			    			</h:link>
 						</p:column>
@@ -45,7 +45,15 @@
 							<f:facet name="header">
 								<h:outputText value="#{messages.eppn}" />
 							</f:facet>
-							<h:link outcome="show-service-registry.xhtml" value="#{registry.user.eppn}" filterMatchMode="contains">
+							<h:link outcome="show-service-registry.xhtml" value="#{registry.user.eppn}">
+			      				<f:param name="id" value="#{registry.id}"/>
+			    			</h:link>
+						</p:column>
+						<p:column sortBy="#{registry.user.email}" filterBy="#{registry.user.email}" filterMatchMode="contains">
+							<f:facet name="header">
+								<h:outputText value="#{messages.email}" />
+							</f:facet>
+							<h:link outcome="show-service-registry.xhtml" value="#{registry.user.email}">
 			      				<f:param name="id" value="#{registry.id}"/>
 			    			</h:link>
 						</p:column>
@@ -83,7 +91,7 @@
 					<p:dataTable id="registeredTable1" var="registry" value="#{serviceAdminUserListBean.list}" paginator="true"
 						lazy="true" rows="15" style="width:auto; font-size: 1.2rem;">
 
-						<p:column sortBy="#{registry.id}">
+						<p:column sortBy="#{registry.id}" width="96px;">
 							<f:facet name="header">
 								<h:outputText value="#{messages.id}" />
 							</f:facet>
@@ -95,7 +103,15 @@
 							<f:facet name="header">
 								<h:outputText value="#{messages.eppn}" />
 							</f:facet>
-							<h:link outcome="show-service-registry.xhtml" value="#{registry.user.eppn}" filterMatchMode="contains">
+							<h:link outcome="show-service-registry.xhtml" value="#{registry.user.eppn}">
+			      				<f:param name="id" value="#{registry.id}"/>
+			    			</h:link>
+						</p:column>
+						<p:column sortBy="#{registry.user.email}" filterBy="#{registry.user.email}" filterMatchMode="contains">
+							<f:facet name="header">
+								<h:outputText value="#{messages.email}" />
+							</f:facet>
+							<h:link outcome="show-service-registry.xhtml" value="#{registry.user.email}">
 			      				<f:param name="id" value="#{registry.id}"/>
 			    			</h:link>
 						</p:column>
@@ -132,7 +148,7 @@
 				<p:tab id="tab2" title="#{messages.lost_access}">
 					<p:dataTable id="registeredTable2" var="registry" value="#{serviceAdminUserListBean.lostAccessList}" paginator="true"
 								lazy="true" rows="15" style="width:auto; font-size: 1.2rem;"> 
-						<p:column sortBy="#{registry.id}">
+						<p:column sortBy="#{registry.id}" width="96px;">
 							<f:facet name="header">
 								<h:outputText value="#{messages.id}" />
 							</f:facet>
@@ -145,6 +161,14 @@
 								<h:outputText value="#{messages.eppn}" />
 							</f:facet>
 							<h:link outcome="show-service-registry.xhtml" value="#{registry.user.eppn}">
+			      				<f:param name="id" value="#{registry.id}"/>
+			    			</h:link>
+						</p:column>
+						<p:column sortBy="#{registry.user.email}" filterBy="#{registry.user.email}" filterMatchMode="contains">
+							<f:facet name="header">
+								<h:outputText value="#{messages.email}" />
+							</f:facet>
+							<h:link outcome="show-service-registry.xhtml" value="#{registry.user.email}">
 			      				<f:param name="id" value="#{registry.id}"/>
 			    			</h:link>
 						</p:column>
@@ -184,7 +208,7 @@
 				<p:tab id="tab3" title="#{messages.deregistered}">
 					<p:dataTable id="registeredTable3" var="registry" value="#{serviceAdminUserListBean.deletedList}" paginator="true"
 								lazy="true" rows="15" style="width:auto; font-size: 1.2rem;"> 
-						<p:column sortBy="#{registry.id}">
+						<p:column sortBy="#{registry.id}" width="96px;">
 							<f:facet name="header">
 								<h:outputText value="#{messages.id}" />
 							</f:facet>
@@ -197,6 +221,14 @@
 								<h:outputText value="#{messages.eppn}" />
 							</f:facet>
 							<h:link outcome="show-service-registry.xhtml" value="#{registry.user.eppn}">
+			      				<f:param name="id" value="#{registry.id}"/>
+			    			</h:link>
+						</p:column>
+						<p:column sortBy="#{registry.user.email}" filterBy="#{registry.user.email}" filterMatchMode="contains">
+							<f:facet name="header">
+								<h:outputText value="#{messages.email}" />
+							</f:facet>
+							<h:link outcome="show-service-registry.xhtml" value="#{registry.user.email}">
 			      				<f:param name="id" value="#{registry.id}"/>
 			    			</h:link>
 						</p:column>
@@ -236,7 +268,7 @@
 				<p:tab id="tab4" title="#{messages.other}">
 					<p:dataTable id="registeredTable4" var="registry" value="#{serviceAdminUserListBean.otherList}" paginator="true"
 								lazy="true" rows="15" style="width:auto; font-size: 1.2rem;"> 
-						<p:column sortBy="#{registry.id}">
+						<p:column sortBy="#{registry.id}" width="96px;">
 							<f:facet name="header">
 								<h:outputText value="#{messages.id}" />
 							</f:facet>
@@ -249,6 +281,14 @@
 								<h:outputText value="#{messages.eppn}" />
 							</f:facet>
 							<h:link outcome="show-service-registry.xhtml" value="#{registry.user.eppn}">
+			      				<f:param name="id" value="#{registry.id}"/>
+			    			</h:link>
+						</p:column>
+						<p:column sortBy="#{registry.user.email}" filterBy="#{registry.user.email}" filterMatchMode="contains">
+							<f:facet name="header">
+								<h:outputText value="#{messages.email}" />
+							</f:facet>
+							<h:link outcome="show-service-registry.xhtml" value="#{registry.user.email}">
 			      				<f:param name="id" value="#{registry.id}"/>
 			    			</h:link>
 						</p:column>

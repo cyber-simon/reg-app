@@ -60,19 +60,25 @@
 			<p:panel id="memberPanel" header="#{messages.members}">
 				<p:dataTable id="memberData" style="min-width: 500px;" rows="15" paginator="true"
 						value="#{groupAdminShowLocalGroupBean.memberList}" var="user">
-					<p:column sortBy="#{user.eppn}" filterBy="#{user.eppn}">
+					<p:column sortBy="#{user.eppn}" filterBy="#{user.eppn}" filterMatchMode="contains">
 						<f:facet name="header">
 							<h:outputText value="#{messages.eppn}" />
 						</f:facet>
 						<h:outputText value="#{user.eppn}" />
 					</p:column>
-					<p:column sortBy="#{user.surName}" filterBy="#{user.surName}">
+					<p:column sortBy="#{user.email}" filterBy="#{user.email}" filterMatchMode="contains">
+						<f:facet name="header">
+							<h:outputText value="#{messages.email}" />
+						</f:facet>
+						<h:outputText value="#{user.email}" />
+					</p:column>
+					<p:column sortBy="#{user.surName}" filterBy="#{user.surName}" filterMatchMode="contains">
 						<f:facet name="header">
 							<h:outputText value="#{messages.sur_name}" />
 						</f:facet>
 						<h:outputText value="#{user.surName}" />
 					</p:column>
-					<p:column sortBy="#{user.givenName}" filterBy="#{user.givenName}">
+					<p:column sortBy="#{user.givenName}" filterBy="#{user.givenName}" filterMatchMode="contains">
 						<f:facet name="header">
 							<h:outputText value="#{messages.given_name}" />
 						</f:facet>
@@ -86,7 +92,7 @@
 				</div>
 				<br/><br/>
 				<div><h:outputText value="#{messages.effective_members}: " /> 
-					<ui:repeat var="effMem" value="#{groupAdminShowLocalGroupBean.effectiveMemberList}">#{effMem.eppn}, </ui:repeat>
+					<ui:repeat var="effMem" value="#{groupAdminShowLocalGroupBean.effectiveMemberList}">#{effMem.email}, </ui:repeat>
 				</div>
 			</p:panel>
 		</div>		
