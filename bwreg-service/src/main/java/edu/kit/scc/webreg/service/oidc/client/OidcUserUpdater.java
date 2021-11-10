@@ -76,6 +76,7 @@ import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.hook.UserServiceHook;
 import edu.kit.scc.webreg.service.SerialService;
 import edu.kit.scc.webreg.service.ServiceService;
+import edu.kit.scc.webreg.service.identity.IdentityUpdater;
 import edu.kit.scc.webreg.service.impl.AbstractUserUpdater;
 import edu.kit.scc.webreg.service.impl.AttributeMapHelper;
 import edu.kit.scc.webreg.service.impl.HookManager;
@@ -137,6 +138,9 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 	
 	@Inject
 	private OidcOpMetadataSingletonBean opMetadataBean;
+
+	@Inject
+	private IdentityUpdater identityUpdater;
 
 	public OidcUserEntity updateUserFromOP(OidcUserEntity user, String executor, StringBuffer debugLog) 
 			throws UserUpdateException {
@@ -358,6 +362,8 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 				attributeStore.put(entry.getKey(), attrHelper.attributeListToString(entry.getValue()));
 			}
 		}
+
+		identityUpdater.updateIdentity(user);
 
 		for (ServiceEntity delayedService : delayedRegisterList) {
 			try {
