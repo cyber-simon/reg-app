@@ -190,6 +190,12 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
 
 		user = postCreateUserInternal(user, attributeMap, executor, auditor);
     	identityCreater.postCreateIdentity(identity, user);
+		if (appConfig.getConfigValue("create_missing_eppn_scope") != null) {
+			if (user.getEppn() == null) {
+				String scope = appConfig.getConfigValue("create_missing_eppn_scope");
+				user.setEppn(user.getIdentity().getGeneratedLocalUsername() + "@" + scope);
+			}
+		}
 
 		auditor.logAction(user.getEppn(), "CREATE USER", null, null, AuditStatus.SUCCESS);
 		

@@ -361,9 +361,17 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 			for (Entry<String, List<Object>> entry : attributeMap.entrySet()) {
 				attributeStore.put(entry.getKey(), attrHelper.attributeListToString(entry.getValue()));
 			}
-		}
 
-		identityUpdater.updateIdentity(user);
+			identityUpdater.updateIdentity(user);
+
+			if (appConfig.getConfigValue("create_missing_eppn_scope") != null) {
+				if (user.getEppn() == null) {
+					String scope = appConfig.getConfigValue("create_missing_eppn_scope");
+					user.setEppn(user.getIdentity().getGeneratedLocalUsername() + "@" + scope);
+					changed = true;
+				}
+			}
+		}
 
 		for (ServiceEntity delayedService : delayedRegisterList) {
 			try {
@@ -467,14 +475,6 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 				logger.info("Setting UID Number {} for user {}", user.getUidNumber(), user.getEppn());
 				auditor.logAction(user.getEppn(), "SET FIELD", "uidNumber", "" + user.getUidNumber(), AuditStatus.SUCCESS);
 				changed = true;
-			}
-			
-			if (appConfig.getConfigValue("create_missing_eppn_scope") != null) {
-				if (user.getEppn() == null) {
-					String scope = appConfig.getConfigValue("create_missing_eppn_scope");
-					user.setEppn(user.getIdentity().getGeneratedLocalUsername() + "@" + scope);
-					changed = true;
-				}
 			}
 		}
 		else {
