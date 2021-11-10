@@ -468,6 +468,14 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 				auditor.logAction(user.getEppn(), "SET FIELD", "uidNumber", "" + user.getUidNumber(), AuditStatus.SUCCESS);
 				changed = true;
 			}
+			
+			if (appConfig.getConfigValue("create_missing_eppn_scope") != null) {
+				if (user.getEppn() == null) {
+					String scope = appConfig.getConfigValue("create_missing_eppn_scope");
+					user.setEppn(user.getIdentity().getGeneratedLocalUsername() + "@" + scope);
+					changed = true;
+				}
+			}
 		}
 		else {
 			logger.info("Overriding standard User Update Mechanism! Activator: {}", completeOverrideHook.getClass().getName());
