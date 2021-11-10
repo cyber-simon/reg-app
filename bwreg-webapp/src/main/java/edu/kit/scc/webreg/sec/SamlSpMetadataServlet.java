@@ -107,7 +107,7 @@ public class SamlSpMetadataServlet implements Servlet {
 			for (String hostName : hostNameList) {
 				AssertionConsumerService acs = samlHelper.create(AssertionConsumerService.class, AssertionConsumerService.DEFAULT_ELEMENT_NAME);
 				acs.setBinding(SAMLConstants.SAML2_POST_BINDING_URI);
-				acs.setLocation("https://" + hostName + "/" + spConfig.getAcs());
+				acs.setLocation("https://" + hostName + spConfig.getAcs());
 				spsso.getAssertionConsumerServices().add(acs);
 			}
 			
