@@ -151,7 +151,7 @@ public class LdapWorker {
 			try {
 				ldap.delete("cn=" + cn + "," + ldapGroupBase);
 				logger.info("Deleted Group {} from ldap {}", 
-						new Object[] {cn, ldapUserBase});
+						new Object[] {cn, ldapGroupBase});
 				auditor.logAction("", "DELETE LDAP GROUP", cn, "Group deleted in " + ldap.getLdapConfig().getLdapUrl(), AuditStatus.SUCCESS);
 			} catch (NamingException e) {
 				logger.warn("FAILED: Delete Group {} from ldap {}", 
