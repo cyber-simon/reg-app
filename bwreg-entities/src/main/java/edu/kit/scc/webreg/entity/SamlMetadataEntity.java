@@ -47,7 +47,7 @@ public class SamlMetadataEntity extends AbstractBaseEntity {
 	@Column(name = "display_name", length = 512)
 	private String displayName;
 	
-	@Column(name = "description", length = 1024)
+	@Column(name = "description", length = 4096)
 	private String description;
 	
 	@Column(name = "information_url", length = 1024)
