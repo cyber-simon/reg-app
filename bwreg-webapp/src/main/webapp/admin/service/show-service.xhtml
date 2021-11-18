@@ -96,14 +96,20 @@
 					<h:outputText value="#{messages.no_group_filter_rule}" 
 						rendered="#{showServiceBean.entity.groupFilterRulePackage == null}"/>
 
+					<h:outputText value="#{messages.ssh_pub_key_capable}:" />
+					<h:outputText value="#{showServiceBean.entity.sshPubKeyCapable ? messages.yes : messages.no}" />
+
+					<h:outputText value="#{messages.pw_capable}:" />
+					<h:outputText value="#{showServiceBean.entity.passwordCapable ? messages.yes : messages.no}" />
+
+					<h:outputText value="#{messages.group_capable}:" />
+					<h:outputText value="#{showServiceBean.entity.groupCapable ? messages.yes : messages.no}" />
+
 					<h:outputText value="#{messages.published}:" />
 					<h:outputText value="#{showServiceBean.entity.published ? messages.yes : messages.no}" />
 
 					<h:outputText value="#{messages.hidden}:" />
 					<h:outputText value="#{showServiceBean.entity.hidden ? messages.yes : messages.no}" />
-
-					<h:outputText value="#{messages.ssh_pub_key_capable}:" />
-					<h:outputText value="#{showServiceBean.entity.sshPubKeyCapable ? messages.yes : messages.no}" />
 
 					<h:outputText value="#{messages.image}:" />
 					<h:panelGroup rendered="#{showServiceBean.entity.image != null}">

@@ -139,13 +139,6 @@ public class ApplicationBootstrap {
     		adminUserService.save(a);
     	}
 
-    	logger.debug("Setting PasswordCapable and GroupCapable on all services, according to implemented interfaces");
-    	List<ServiceEntity> serviceList = serviceService.findAll();
-    	for (ServiceEntity service : serviceList) {
-        	logger.debug("Update capabilities on service {}", service.getName());
-    		serviceService.updateCapabilities(service);
-    	}
-    	
 		logger.info("Initializing Hooks");
     	hookManager.reloadHooks();
 		

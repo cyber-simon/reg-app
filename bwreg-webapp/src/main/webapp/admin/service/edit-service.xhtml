@@ -122,10 +122,20 @@
 		            		var="img" itemLabel="#{img.name} (id #{img.id})" itemValue="#{img}"/>
 		            </h:selectOneMenu>
 					
+					<h:outputText value="#{messages.password_capable}" />
+					<p:selectBooleanButton id="pwCapableField" 
+							onLabel="#{messages.yes}" offLabel="#{messages.no}" 
+							value="#{editServiceBean.entity.passwordCapable}"/>
+			        
 					<h:outputText value="#{messages.ssh_pub_key_capable}" />
 					<p:selectBooleanButton id="sshPubKeyField" 
 							onLabel="#{messages.yes}" offLabel="#{messages.no}" 
 							value="#{editServiceBean.entity.sshPubKeyCapable}"/>
+			        
+					<h:outputText value="#{messages.group_capable}" />
+					<p:selectBooleanButton id="groupCapableField" 
+							onLabel="#{messages.yes}" offLabel="#{messages.no}" 
+							value="#{editServiceBean.entity.groupCapable}"/>
 			        
 					<h:outputText value="#{messages.published}" />
 					<p:selectBooleanButton id="pubField" 

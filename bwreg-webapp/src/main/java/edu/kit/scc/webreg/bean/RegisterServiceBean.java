@@ -329,7 +329,8 @@ public class RegisterServiceBean implements Serializable {
 				sessionManager.setOriginalRequestPath(null);
 				return null;
 	    	}
-	    	else if (service.getServiceProps().containsKey("ecp") &&
+	    	else if (service.getPasswordCapable() &&
+	    			service.getServiceProps().containsKey("ecp") &&
 	    			service.getServiceProps().get("ecp").equalsIgnoreCase("disabled")) {
 	    		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
 				context.redirect("../service/set-password.xhtml?registryId=" + registry.getId() + "&no=created");
