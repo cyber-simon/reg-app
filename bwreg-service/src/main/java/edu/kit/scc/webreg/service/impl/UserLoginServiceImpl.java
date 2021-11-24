@@ -42,6 +42,7 @@ import org.opensaml.soap.common.SOAPException;
 import org.opensaml.soap.messaging.context.SOAP11Context;
 import org.opensaml.xmlsec.encryption.support.DecryptionException;
 import org.slf4j.Logger;
+import org.slf4j.MDC;
 
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
@@ -75,7 +76,6 @@ import edu.kit.scc.webreg.exc.NoEcpSupportException;
 import edu.kit.scc.webreg.exc.NoHostnameConfiguredException;
 import edu.kit.scc.webreg.exc.NoIdpForScopeException;
 import edu.kit.scc.webreg.exc.NoIdpFoundException;
-import edu.kit.scc.webreg.exc.NoItemFoundException;
 import edu.kit.scc.webreg.exc.NoRegistryFoundException;
 import edu.kit.scc.webreg.exc.NoScopedUsernameException;
 import edu.kit.scc.webreg.exc.NoServiceFoundException;
@@ -200,6 +200,8 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			throw new NoRegistryFoundException("registry unknown");
 		}
 
+		MDC.put("userId", "" + registry.getUser().getId());
+		
 		/**
 		 * TODO also cover OIDC users here
 		 */
@@ -728,27 +730,59 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 	
 	private void updateSamlUser(SamlUserEntity user, ServiceEntity service, String executor) throws UserUpdateFailedException {
 		// Default expiry Time after which an attrq is issued to IDP in millis
-		Long expireTime = 10000L;
-		
+		Long expireTime = 10L * 1000L;
 		if (service.getServiceProps() != null && service.getServiceProps().containsKey("attrq_expire_time")) {
 			expireTime = Long.parseLong(service.getServiceProps().get("attrq_expire_time"));
 		}
+
+		String checkMethod = "standard";
+		if (service.getServiceProps() != null && service.getServiceProps().containsKey("attrq_check_method")) {
+			checkMethod = service.getServiceProps().get("attrq_check_method");
+		}
+
+		if (checkMethod.equalsIgnoreCase("no_attrq")) {
+			/*
+			 * Don't perform any user update per attribute query or refresh token, if this is set
+			 */
+
+			logger.info("Performing no user update for {} with id {}, as configuration with service", new Object[] {user.getEppn(), user.getId()});
+		}
+		else if (checkMethod.equalsIgnoreCase("attrq_optional")) {
+			/*
+			 * Perform user update per attribute query or refresh token, but proceed if it failed
+			 */
+			try {
+				if ((user.getLastUpdate() != null) &&
+						((System.currentTimeMillis() - user.getLastUpdate().getTime()) < expireTime)) {
+					logger.info("Skipping user update for {} with id {}", new Object[] {user.getEppn(), user.getId()});
+				}
+				else {
+					logger.info("Performing user update for {} with id {}", new Object[] {user.getEppn(), user.getId()}); 
+					user = userUpdater.updateUserFromIdp(user, service, executor, null);
+				}
+			} catch (UserUpdateException e) {
+				logger.warn("Could not update user (attrq is optional, continue with login process) {}: {}", e.getMessage(), user.getEppn());
+			}		
+		}
+		else {
+			/*
+			 * This is the standard case, where attribute query or refresh token is mandatory
+			 */
+			try {
+				if ((user.getLastUpdate() != null) &&
+						((System.currentTimeMillis() - user.getLastUpdate().getTime()) < expireTime)) {
+					logger.info("Skipping user update for {} with id {}", new Object[] {user.getEppn(), user.getId()});
+				}
+				else {
+					logger.info("Performing user update for {} with id {}", new Object[] {user.getEppn(), user.getId()}); 
 		
-		try {
-			if ((System.currentTimeMillis() - user.getLastUpdate().getTime()) < expireTime) {
-				logger.info("Skipping attributequery for {} with {}@{}", new Object[] {user.getEppn(), 
-						user.getPersistentId(), user.getIdp().getEntityId()});
-			}
-			else {
-				logger.info("Performing attributequery for {} with {}@{}", new Object[] {user.getEppn(), 
-						user.getPersistentId(), user.getIdp().getEntityId()});
-	
-				user = userUpdater.updateUserFromIdp(user, service, executor, null);
-			}
-		} catch (UserUpdateException e) {
-			logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
-			throw new UserUpdateFailedException("user update failed: " + e.getMessage());
-		}		
+					user = userUpdater.updateUserFromIdp(user, service, executor, null);
+				}
+			} catch (UserUpdateException e) {
+				logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
+				throw new UserUpdateFailedException("user update failed: " + e.getMessage());
+			}		
+		}
 	}
 	
 	private void updateOidcUser(OidcUserEntity user, ServiceEntity service, String executor) throws UserUpdateFailedException {
