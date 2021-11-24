@@ -779,7 +779,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 					user = userUpdater.updateUserFromIdp(user, service, executor, null);
 				}
 			} catch (UserUpdateException e) {
-				logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
+				logger.warn("Could not update user {}: {} (attrq is mandatory, denying access)", e.getMessage(), user.getEppn());
 				throw new UserUpdateFailedException("user update failed: " + e.getMessage());
 			}		
 		}
