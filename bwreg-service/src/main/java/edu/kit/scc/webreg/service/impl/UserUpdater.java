@@ -514,7 +514,6 @@ public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 	protected void updateFail(SamlUserEntity user) {
 		user.setLastFailedUpdate(new Date());
 		user.setScheduledUpdate(getNextScheduledUpdate());
-		user.setGroups(null);
 		user = userDao.persist(user);
 	}
 
