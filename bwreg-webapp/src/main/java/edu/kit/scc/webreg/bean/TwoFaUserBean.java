@@ -13,10 +13,10 @@ package edu.kit.scc.webreg.bean;
 import java.io.Serializable;
 import java.time.Instant;
 
-import javax.inject.Named;
-import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.primefaces.PrimeFaces;
 import org.slf4j.Logger;
@@ -28,8 +28,8 @@ import edu.kit.scc.webreg.service.twofa.TwoFaService;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpGetBackupTanListResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpInitAuthenticatorTokenResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpToken;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpTokenResultList;
+import edu.kit.scc.webreg.service.twofa.token.GenericTwoFaToken;
+import edu.kit.scc.webreg.service.twofa.token.TwoFaTokenList;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
@@ -56,7 +56,7 @@ public class TwoFaUserBean implements Serializable {
 	
 	private IdentityEntity identity;
 	
-	private LinotpTokenResultList tokenList;
+	private TwoFaTokenList tokenList;
 	private LinotpInitAuthenticatorTokenResponse createTokenResponse;
 	
 	private String totpCode, yubicoCode;
@@ -293,7 +293,7 @@ public class TwoFaUserBean implements Serializable {
 		return tokenList.getManagementUrl();
 	}
 	
-	public LinotpTokenResultList getTokenList() {
+	public TwoFaTokenList getTokenList() {
 		return tokenList;
 	}
 
@@ -341,7 +341,7 @@ public class TwoFaUserBean implements Serializable {
 	}
 
 	private Boolean hasActiveToken() {
-		for (LinotpToken token : tokenList) {
+		for (GenericTwoFaToken token : tokenList) {
 			if (token.getIsactive()) {
 				/*
 				 * filter token, that are not initialized

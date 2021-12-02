@@ -32,6 +32,7 @@ import edu.kit.scc.webreg.service.twofa.TwoFaException;
 import edu.kit.scc.webreg.service.twofa.TwoFaService;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpTokenResultList;
+import edu.kit.scc.webreg.service.twofa.token.TwoFaTokenList;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
@@ -60,7 +61,7 @@ public class TokenAdminIndexBean implements Serializable {
 	private AuthorizationBean authBean;
 	
  	private UserEntity selectedUser;
- 	private LinotpTokenResultList userTokenList;
+ 	private TwoFaTokenList userTokenList;
  	
 	public void preRenderView(ComponentSystemEvent ev) {
 		
@@ -164,7 +165,7 @@ public class TokenAdminIndexBean implements Serializable {
 			return true;
 	}
 
-	public LinotpTokenResultList getUserTokenList() {
+	public TwoFaTokenList getUserTokenList() {
 		return userTokenList;
 	}
 
