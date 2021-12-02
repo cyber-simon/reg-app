@@ -73,7 +73,7 @@ public class LinotpTokenManager extends AbstractTwoFaManager {
 	public Boolean hasActiveToken(IdentityEntity identity) throws TwoFaException {
 		TwoFaTokenList tokenList = findByIdentity(identity);
 
-		if (tokenList.getReallyReadOnly()) {
+		if (tokenList.getReallyReadOnly() != null && tokenList.getReallyReadOnly()) {
 			return true;
 		}
 		
