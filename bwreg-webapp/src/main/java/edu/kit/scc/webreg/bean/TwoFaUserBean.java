@@ -26,9 +26,10 @@ import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.twofa.TwoFaException;
 import edu.kit.scc.webreg.service.twofa.TwoFaService;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpGetBackupTanListResponse;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpInitAuthenticatorTokenResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
 import edu.kit.scc.webreg.service.twofa.token.GenericTwoFaToken;
+import edu.kit.scc.webreg.service.twofa.token.TokenStatusResponse;
+import edu.kit.scc.webreg.service.twofa.token.TotpCreateResponse;
 import edu.kit.scc.webreg.service.twofa.token.TwoFaTokenList;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
@@ -57,7 +58,7 @@ public class TwoFaUserBean implements Serializable {
 	private IdentityEntity identity;
 	
 	private TwoFaTokenList tokenList;
-	private LinotpInitAuthenticatorTokenResponse createTokenResponse;
+	private TotpCreateResponse createTokenResponse;
 	
 	private String totpCode, yubicoCode;
 	private String defaultButton;
@@ -97,22 +98,20 @@ public class TwoFaUserBean implements Serializable {
 	public void createYubicoToken() {
 		if (! getReadOnly()) {
 			try {
-				LinotpInitAuthenticatorTokenResponse response = twoFaService.createYubicoToken(identity, yubicoCode, "identity-" + identity.getId());
+				TotpCreateResponse response = twoFaService.createYubicoToken(identity, yubicoCode, "identity-" + identity.getId());
 
-				if (response.getResult().isStatus() && response.getResult().isValue()) {
-					if (response != null && response.getDetail() != null) {
-						String serial = response.getDetail().getSerial();
-						Boolean success = 
-								twoFaService.checkSpecificToken(identity, serial, yubicoCode);
-						if (! success) {
-							// Token creating was successful, but check failed
-							twoFaService.deleteToken(identity, serial, "identity-" + identity.getId());
-							messageGenerator.addResolvedWarningMessage("messagePanel", "warn", "twofa_token_init_code_wrong", true);
-						}
-						else {
-							twoFaService.initToken(identity, serial, "identity-" + identity.getId());
-							messageGenerator.addInfoMessage("messagePanel", "Info", "Token " + serial + " created");
-						}
+				if (response.getSuccess()) {
+					String serial = response.getSerial();
+					Boolean success = 
+							twoFaService.checkSpecificToken(identity, serial, yubicoCode);
+					if (! success) {
+						// Token creating was successful, but check failed
+						twoFaService.deleteToken(identity, serial, "identity-" + identity.getId());
+						messageGenerator.addResolvedWarningMessage("messagePanel", "warn", "twofa_token_init_code_wrong", true);
+					}
+					else {
+						twoFaService.initToken(identity, serial, "identity-" + identity.getId());
+						messageGenerator.addInfoMessage("messagePanel", "Info", "Token " + serial + " created");
 					}
 					
 					if (! hasActiveToken()) {
@@ -143,15 +142,13 @@ public class TwoFaUserBean implements Serializable {
 	public void createBackupTanList() {
 		if (! getReadOnly()) {
 			try {
-				LinotpInitAuthenticatorTokenResponse response = twoFaService.createBackupTanList(identity, "identity-" + identity.getId());
+				TotpCreateResponse response = twoFaService.createBackupTanList(identity, "identity-" + identity.getId());
 
-				if (response.getResult().isStatus() && response.getResult().isValue()) {
-					if (response != null && response.getDetail() != null) {
-						String serial = response.getDetail().getSerial();
-						twoFaService.initToken(identity, serial, "identity-" + identity.getId());
-						
-						messageGenerator.addInfoMessage("messagePanel", "Info", "Token " + serial + " created");
-					}
+				if (response.getSuccess()) {
+					String serial = response.getSerial();
+					twoFaService.initToken(identity, serial, "identity-" + identity.getId());
+					
+					messageGenerator.addInfoMessage("messagePanel", "Info", "Token " + serial + " created");
 					
 					if (! hasActiveToken()) {
 						// this was the first token. We have to set 2fa elevation
@@ -188,34 +185,32 @@ public class TwoFaUserBean implements Serializable {
 	
 	public void checkAuthenticatorToken() {
 		try {
-			if (createTokenResponse != null && createTokenResponse.getDetail() != null) {
-				String serial = createTokenResponse.getDetail().getSerial();
-				LinotpSimpleResponse response = twoFaService.enableToken(identity, serial, "identity-" + identity.getId());
+			String serial = createTokenResponse.getSerial();
+			LinotpSimpleResponse response = twoFaService.enableToken(identity, serial, "identity-" + identity.getId());
 
-				if (response.getResult() != null && response.getResult().isStatus() && response.getResult().isValue()) {
-				
-					Boolean success = twoFaService.checkSpecificToken(identity, serial, totpCode);
-					if (success) {
-						// success, Token stays active, set correct description
-						twoFaService.initToken(identity, serial, "identity-" + identity.getId());
-						if (! hasActiveToken()) {
-							// this was the first token. We have to set 2fa elevation
-							sessionManager.setTwoFaElevation(Instant.now());
-						}
-
-						messageGenerator.addInfoMessage("messagePanel", "Info", "Token " + serial + " created");
-
-						tokenList = twoFaService.findByIdentity(identity);
-						PrimeFaces.current().executeScript("PF('addTotpDlg').hide();");
-						createTokenResponse = null;
-						totpCode = "";
-					} 
-					else {
-						// wrong code, disable token
-						response = twoFaService.disableToken(identity, serial, "identity-" + identity.getId());
-						totpCode = "";
-						messageGenerator.addResolvedWarningMessage("totp_messages", "warning", "twofa_token_init_code_wrong", true);
+			if (response.getResult() != null && response.getResult().isStatus() && response.getResult().isValue()) {
+			
+				Boolean success = twoFaService.checkSpecificToken(identity, serial, totpCode);
+				if (success) {
+					// success, Token stays active, set correct description
+					twoFaService.initToken(identity, serial, "identity-" + identity.getId());
+					if (! hasActiveToken()) {
+						// this was the first token. We have to set 2fa elevation
+						sessionManager.setTwoFaElevation(Instant.now());
 					}
+
+					messageGenerator.addInfoMessage("messagePanel", "Info", "Token " + serial + " created");
+
+					tokenList = twoFaService.findByIdentity(identity);
+					PrimeFaces.current().executeScript("PF('addTotpDlg').hide();");
+					createTokenResponse = null;
+					totpCode = "";
+				} 
+				else {
+					// wrong code, disable token
+					twoFaService.disableToken(identity, serial, "identity-" + identity.getId());
+					totpCode = "";
+					messageGenerator.addResolvedWarningMessage("totp_messages", "warning", "twofa_token_init_code_wrong", true);
 				}
 			}
 		} catch (TwoFaException e) {
@@ -245,10 +240,9 @@ public class TwoFaUserBean implements Serializable {
 	public void disableToken(String serial) {
 		if (! getReadOnly()) {
 			try {
-				LinotpSimpleResponse response = twoFaService.disableToken(identity, serial, "identity-" + identity.getId());
+				TokenStatusResponse response = twoFaService.disableToken(identity, serial, "identity-" + identity.getId());
 				tokenList = twoFaService.findByIdentity(identity);
-				if ((response.getResult() != null) && response.getResult().isStatus() &&
-						response.getResult().isValue()) {
+				if (response.getSuccess()) {
 					messageGenerator.addInfoMessage("messagePanel", "Info", "Token " + serial + " disabled");
 				}
 				else {
@@ -296,7 +290,7 @@ public class TwoFaUserBean implements Serializable {
 		return tokenList;
 	}
 
-	public LinotpInitAuthenticatorTokenResponse getCreateTokenResponse() {
+	public TotpCreateResponse getCreateTokenResponse() {
 		return createTokenResponse;
 	}
 
