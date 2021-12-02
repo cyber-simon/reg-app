@@ -22,7 +22,6 @@ import edu.kit.scc.webreg.event.TokenEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpConnection;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpGetBackupTanListResponse;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpInitAuthenticatorTokenResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
 import edu.kit.scc.webreg.service.twofa.token.TokenStatusResponse;
 import edu.kit.scc.webreg.service.twofa.token.TotpCreateResponse;
@@ -131,11 +130,6 @@ public class TwoFaServiceImpl implements TwoFaService {
 		auditor.setIdentity(identity);
 		auditor.setDetail("Creating authenticator token for user " + identity.getId());
 
-		Map<String, String> configMap = configResolver.resolveConfig(identity);
-
-		LinotpConnection linotpConnection = new LinotpConnection(configMap);
-		linotpConnection.requestAdminSession();
-		
 		TotpCreateResponse response = manager.createAuthenticatorToken(identity, auditor);
 		
 		if (response.getSuccess()) {
@@ -170,8 +164,9 @@ public class TwoFaServiceImpl implements TwoFaService {
 	}
 
 	@Override
-	public LinotpInitAuthenticatorTokenResponse createYubicoToken(IdentityEntity identity, String yubi, String executor) throws TwoFaException {
+	public TotpCreateResponse createYubicoToken(IdentityEntity identity, String yubi, String executor) throws TwoFaException {
 		identity = identityDao.merge(identity);
+		TwoFaManager manager = resolveTwoFaManager(identity);
 
 		TokenAuditor auditor = new TokenAuditor(auditEntryDao, auditDetailDao, appConfig);
 		auditor.startAuditTrail(executor, true);
@@ -179,26 +174,20 @@ public class TwoFaServiceImpl implements TwoFaService {
 		auditor.setIdentity(identity);
 		auditor.setDetail("Creating yubico token for user " + identity.getId());
 
-		Map<String, String> configMap = configResolver.resolveConfig(identity);
-
-		LinotpConnection linotpConnection = new LinotpConnection(configMap);
-		linotpConnection.requestAdminSession();
+		TotpCreateResponse response = manager.createYubicoToken(identity, yubi, auditor);
 		
-		LinotpInitAuthenticatorTokenResponse response = linotpConnection.createYubicoToken(yubi);
-		
-		if (response == null || response.getDetail() == null) {
+		if (! response.getSuccess()) {
 			auditor.logAction("" + identity.getId(), "CREATE YUBICO TOKEN", "", "", AuditStatus.FAIL);
 			auditor.finishAuditTrail();
 			throw new TwoFaException("Token generation did not succeed!");
 		}
 
-		auditor.logAction("" + identity.getId(), "CREATE YUBICO TOKEN", "serial-" + response.getDetail().getSerial(), "", AuditStatus.SUCCESS);
+		auditor.logAction("" + identity.getId(), "CREATE YUBICO TOKEN", "serial-" + response.getSerial(), "", AuditStatus.SUCCESS);
 
 		HashMap<String, Object> eventMap = new HashMap<String, Object>();
 		eventMap.put("identity", identity);
 		eventMap.put("respone", response);
-		if (response.getDetail() != null)
-			eventMap.put("serial", response.getDetail().getSerial());
+		eventMap.put("serial", response.getSerial());
 		TokenEvent event = new TokenEvent(eventMap);
 		try {
 			eventSubmitter.submit(event, EventType.TWOFA_CREATED, executor);
@@ -211,8 +200,9 @@ public class TwoFaServiceImpl implements TwoFaService {
 	}
 
 	@Override
-	public LinotpInitAuthenticatorTokenResponse createBackupTanList(IdentityEntity identity, String executor) throws TwoFaException {
+	public TotpCreateResponse createBackupTanList(IdentityEntity identity, String executor) throws TwoFaException {
 		identity = identityDao.merge(identity);
+		TwoFaManager manager = resolveTwoFaManager(identity);
 
 		TokenAuditor auditor = new TokenAuditor(auditEntryDao, auditDetailDao, appConfig);
 		auditor.startAuditTrail(executor, true);
@@ -220,26 +210,20 @@ public class TwoFaServiceImpl implements TwoFaService {
 		auditor.setIdentity(identity);
 		auditor.setDetail("Creating backup tan list for user " + identity.getId());
 
-		Map<String, String> configMap = configResolver.resolveConfig(identity);
+		TotpCreateResponse response = manager.createBackupTanList(identity, auditor);
 
-		LinotpConnection linotpConnection = new LinotpConnection(configMap);
-		linotpConnection.requestAdminSession();
-		
-		LinotpInitAuthenticatorTokenResponse response = linotpConnection.createBackupTanList();
-		
-		if (response == null) {
+		if (! response.getSuccess()) {
 			auditor.logAction("" + identity.getId(), "CREATE BACKUP TAN LIST", "", "", AuditStatus.FAIL);
 			auditor.finishAuditTrail();
 			throw new TwoFaException("Token generation did not succeed!");
 		}
 
-		auditor.logAction("" + identity.getId(), "CREATE BACKUP TAN LIST", "serial-" + response.getDetail().getSerial(), "", AuditStatus.SUCCESS);
+		auditor.logAction("" + identity.getId(), "CREATE BACKUP TAN LIST", "serial-" + response.getSerial(), "", AuditStatus.SUCCESS);
 
 		HashMap<String, Object> eventMap = new HashMap<String, Object>();
 		eventMap.put("identity", identity);
 		eventMap.put("respone", response);
-		if (response.getDetail() != null)
-			eventMap.put("serial", response.getDetail().getSerial());
+		eventMap.put("serial", response.getSerial());
 		TokenEvent event = new TokenEvent(eventMap);
 		try {
 			eventSubmitter.submit(event, EventType.TWOFA_CREATED, executor);

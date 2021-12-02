@@ -2,7 +2,6 @@ package edu.kit.scc.webreg.service.twofa;
 
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpGetBackupTanListResponse;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpInitAuthenticatorTokenResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
 import edu.kit.scc.webreg.service.twofa.token.TokenStatusResponse;
 import edu.kit.scc.webreg.service.twofa.token.TotpCreateResponse;
@@ -24,13 +23,13 @@ public interface TwoFaService {
 
 	Boolean checkSpecificToken(IdentityEntity identity, String serial, String token) throws TwoFaException;
 
-	LinotpInitAuthenticatorTokenResponse createYubicoToken(IdentityEntity identity, String yubi, String executor) throws TwoFaException;
+	TotpCreateResponse createYubicoToken(IdentityEntity identity, String yubi, String executor) throws TwoFaException;
 
 	void initToken(IdentityEntity identity, String serial, String executor) throws TwoFaException;
 
 	TokenStatusResponse disableToken(IdentityEntity identity, String serial, String executor) throws TwoFaException;
 
-	LinotpInitAuthenticatorTokenResponse createBackupTanList(IdentityEntity identity, String executor) throws TwoFaException;
+	TotpCreateResponse createBackupTanList(IdentityEntity identity, String executor) throws TwoFaException;
 
 	LinotpGetBackupTanListResponse getBackupTanList(IdentityEntity identity, String serial, String executor)
 			throws TwoFaException;

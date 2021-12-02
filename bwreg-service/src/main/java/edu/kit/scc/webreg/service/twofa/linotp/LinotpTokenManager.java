@@ -167,6 +167,44 @@ public class LinotpTokenManager extends AbstractTwoFaManager {
 		return response;
 	}
 	
+	@Override
+	public TotpCreateResponse createYubicoToken(IdentityEntity identity, String yubi, TokenAuditor auditor) throws TwoFaException {
+		LinotpConnection linotpConnection = new LinotpConnection(getConfigMap());
+		linotpConnection.requestAdminSession();
+		
+		LinotpInitAuthenticatorTokenResponse linotpResponse = linotpConnection.createYubicoToken(yubi);
+		TotpCreateResponse response = new TotpCreateResponse();
+		
+		if (linotpResponse == null || linotpResponse.getDetail() == null) {
+			response.setSuccess(false);
+		}
+		else {
+			response.setSuccess(true);
+			response.setSerial(linotpResponse.getDetail().getSerial());
+		}
+		
+		return response;
+	}
+
+	@Override
+	public TotpCreateResponse createBackupTanList(IdentityEntity identity, TokenAuditor auditor) throws TwoFaException {
+		LinotpConnection linotpConnection = new LinotpConnection(getConfigMap());
+		linotpConnection.requestAdminSession();
+		
+		LinotpInitAuthenticatorTokenResponse linotpResponse = linotpConnection.createBackupTanList();
+		TotpCreateResponse response = new TotpCreateResponse();
+		
+		if (linotpResponse == null) {
+			response.setSuccess(false);
+		}
+		else {
+			response.setSuccess(true);
+			response.setSerial(linotpResponse.getDetail().getSerial());
+		}
+		
+		return response;
+	}
+
 	private GenericTwoFaToken convertToken(LinotpToken linotpToken) {
 		GenericTwoFaToken token;
 		if (linotpToken.getTokenType().equals("TOTP")) {
