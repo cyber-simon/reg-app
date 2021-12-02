@@ -1,5 +1,6 @@
 package edu.kit.scc.webreg.service.twofa.linotp;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -11,6 +12,7 @@ import edu.kit.scc.webreg.service.twofa.AbstractTwoFaManager;
 import edu.kit.scc.webreg.service.twofa.TwoFaException;
 import edu.kit.scc.webreg.service.twofa.token.GenericTwoFaToken;
 import edu.kit.scc.webreg.service.twofa.token.HmacToken;
+import edu.kit.scc.webreg.service.twofa.token.HmacTokenList;
 import edu.kit.scc.webreg.service.twofa.token.TokenStatusResponse;
 import edu.kit.scc.webreg.service.twofa.token.TotpCreateResponse;
 import edu.kit.scc.webreg.service.twofa.token.TotpToken;
@@ -223,6 +225,67 @@ public class LinotpTokenManager extends AbstractTwoFaManager {
 		return response;
 	}
 
+	@Override
+	public TokenStatusResponse resetFailcounter(IdentityEntity identity, String serial, TokenAuditor auditor) throws TwoFaException {
+		LinotpConnection linotpConnection = new LinotpConnection(getConfigMap());
+		linotpConnection.requestAdminSession();
+		LinotpSimpleResponse linotpResponse = linotpConnection.resetFailcounter(serial);
+		TokenStatusResponse response = new TokenStatusResponse();
+
+		if ((linotpResponse.getResult() != null) && linotpResponse.getResult().isStatus() &&
+				linotpResponse.getResult().isValue()) {
+			response.setSuccess(true);
+		}
+		else {
+			response.setSuccess(false);
+		}
+		response.setSerial(serial);
+		
+		return response;
+	}
+	
+	@Override
+	public TokenStatusResponse deleteToken(IdentityEntity identity, String serial, TokenAuditor auditor) throws TwoFaException {
+		LinotpConnection linotpConnection = new LinotpConnection(getConfigMap());
+		linotpConnection.requestAdminSession();
+		LinotpSimpleResponse linotpResponse = linotpConnection.deleteToken(serial);
+		TokenStatusResponse response = new TokenStatusResponse();
+
+		if ((linotpResponse.getResult() != null) && linotpResponse.getResult().isStatus() &&
+				linotpResponse.getResult().isValue()) {
+			response.setSuccess(true);
+		}
+		else {
+			response.setSuccess(false);
+		}
+		response.setSerial(serial);
+		
+		return response;
+	}
+	
+	@Override
+	public HmacTokenList getBackupTanList(IdentityEntity identity, String serial) throws TwoFaException {
+		LinotpConnection linotpConnection = new LinotpConnection(getConfigMap());
+		linotpConnection.requestAdminSession();
+		
+		int count = 5;
+		if (getConfigMap().containsKey("backup_count")) {
+			count = Integer.parseInt(getConfigMap().get("backup_count"));
+		}
+		LinotpGetBackupTanListResponse linotpResponse = linotpConnection.getBackupTanList(serial, count);
+		
+		if (linotpResponse == null) {
+			throw new TwoFaException("Could not get backup tan list!");
+		}
+		
+		HmacTokenList list = new HmacTokenList();
+		list.setSerial(linotpResponse.getResult().getValue().getSerial());
+		list.setTokenType(linotpResponse.getResult().getValue().getType());
+		list.setOtp(new HashMap<String, String>(linotpResponse.getResult().getValue().getOtp()));
+		
+		return list;
+	}
+	
 	private GenericTwoFaToken convertToken(LinotpToken linotpToken) {
 		GenericTwoFaToken token;
 		if (linotpToken.getTokenType().equals("TOTP")) {

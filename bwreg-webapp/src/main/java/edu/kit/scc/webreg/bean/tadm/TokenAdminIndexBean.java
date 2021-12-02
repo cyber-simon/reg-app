@@ -30,7 +30,6 @@ import edu.kit.scc.webreg.sec.AuthorizationBean;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.twofa.TwoFaException;
 import edu.kit.scc.webreg.service.twofa.TwoFaService;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
 import edu.kit.scc.webreg.service.twofa.token.TokenStatusResponse;
 import edu.kit.scc.webreg.service.twofa.token.TwoFaTokenList;
 import edu.kit.scc.webreg.session.SessionManager;
@@ -140,10 +139,9 @@ public class TokenAdminIndexBean implements Serializable {
 	public void resetFailcounter(String serial) {
 		if (! getReadOnly()) {
 			try {
-				LinotpSimpleResponse response = twoFaService.resetFailcounter(selectedUser.getIdentity(), serial, "identity-" + session.getIdentityId());
+				TokenStatusResponse response = twoFaService.resetFailcounter(selectedUser.getIdentity(), serial, "identity-" + session.getIdentityId());
 				userTokenList = twoFaService.findByIdentity(selectedUser.getIdentity());
-				if ((response.getResult() != null) && response.getResult().isStatus() &&
-						response.getResult().isValue()) {
+				if (response.getSuccess()) {
 					messageGenerator.addInfoMessage("Info", "Token " + serial + " failcounter reset");
 				}
 				else {

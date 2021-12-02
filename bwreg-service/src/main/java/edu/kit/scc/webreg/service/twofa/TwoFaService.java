@@ -1,8 +1,7 @@
 package edu.kit.scc.webreg.service.twofa;
 
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpGetBackupTanListResponse;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
+import edu.kit.scc.webreg.service.twofa.token.HmacTokenList;
 import edu.kit.scc.webreg.service.twofa.token.TokenStatusResponse;
 import edu.kit.scc.webreg.service.twofa.token.TotpCreateResponse;
 import edu.kit.scc.webreg.service.twofa.token.TwoFaTokenList;
@@ -19,7 +18,7 @@ public interface TwoFaService {
 
 	Boolean hasActiveToken(IdentityEntity identity) throws TwoFaException;
 
-	LinotpSimpleResponse deleteToken(IdentityEntity identity, String serial, String executor) throws TwoFaException;
+	TokenStatusResponse deleteToken(IdentityEntity identity, String serial, String executor) throws TwoFaException;
 
 	Boolean checkSpecificToken(IdentityEntity identity, String serial, String token) throws TwoFaException;
 
@@ -31,12 +30,12 @@ public interface TwoFaService {
 
 	TotpCreateResponse createBackupTanList(IdentityEntity identity, String executor) throws TwoFaException;
 
-	LinotpGetBackupTanListResponse getBackupTanList(IdentityEntity identity, String serial, String executor)
+	HmacTokenList getBackupTanList(IdentityEntity identity, String serial)
 			throws TwoFaException;
 
 	Boolean hasActiveTokenById(Long identityId) throws TwoFaException;
 
-	LinotpSimpleResponse resetFailcounter(IdentityEntity identity, String serial, String executor)
+	TokenStatusResponse resetFailcounter(IdentityEntity identity, String serial, String executor)
 			throws TwoFaException;
 
 }

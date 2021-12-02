@@ -25,9 +25,8 @@ import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.twofa.TwoFaException;
 import edu.kit.scc.webreg.service.twofa.TwoFaService;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpGetBackupTanListResponse;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
 import edu.kit.scc.webreg.service.twofa.token.GenericTwoFaToken;
+import edu.kit.scc.webreg.service.twofa.token.HmacTokenList;
 import edu.kit.scc.webreg.service.twofa.token.TokenStatusResponse;
 import edu.kit.scc.webreg.service.twofa.token.TotpCreateResponse;
 import edu.kit.scc.webreg.service.twofa.token.TwoFaTokenList;
@@ -63,7 +62,7 @@ public class TwoFaUserBean implements Serializable {
 	private String totpCode, yubicoCode;
 	private String defaultButton;
 	
-	private LinotpGetBackupTanListResponse backupTanList;
+	private HmacTokenList backupTanList;
 	
 	private Long returnServiceId;
 	
@@ -175,7 +174,7 @@ public class TwoFaUserBean implements Serializable {
 	public void getBackupTanList(String serial) {
 		if (! getReadOnly()) {
 			try {
-				backupTanList = twoFaService.getBackupTanList(identity, serial, "identity-" + identity.getId());
+				backupTanList = twoFaService.getBackupTanList(identity, serial);
 				
 			} catch (TwoFaException e) {
 				logger.warn("TwoFaException", e);
@@ -257,10 +256,9 @@ public class TwoFaUserBean implements Serializable {
 	public void deleteToken(String serial) {
 		if (! getReadOnly()) {
 			try {
-				LinotpSimpleResponse response = twoFaService.deleteToken(identity, serial, "identity-" + identity.getId());
+				TokenStatusResponse response = twoFaService.deleteToken(identity, serial, "identity-" + identity.getId());
 				tokenList = twoFaService.findByIdentity(identity);
-				if ((response.getResult() != null) && response.getResult().isStatus() &&
-						response.getResult().isValue()) {
+				if (response.getSuccess()) {
 					messageGenerator.addInfoMessage("messagePanel", "Info", "Token " + serial + " deleted");
 				}
 				else {
@@ -328,7 +326,7 @@ public class TwoFaUserBean implements Serializable {
 		}
 	}
 
-	public LinotpGetBackupTanListResponse getBackupTanList() {
+	public HmacTokenList getBackupTanList() {
 		return backupTanList;
 	}
 

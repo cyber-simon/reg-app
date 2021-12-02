@@ -22,7 +22,7 @@ import edu.kit.scc.webreg.event.TokenEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpConnection;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpGetBackupTanListResponse;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
+import edu.kit.scc.webreg.service.twofa.token.HmacTokenList;
 import edu.kit.scc.webreg.service.twofa.token.TokenStatusResponse;
 import edu.kit.scc.webreg.service.twofa.token.TotpCreateResponse;
 import edu.kit.scc.webreg.service.twofa.token.TwoFaTokenList;
@@ -237,19 +237,11 @@ public class TwoFaServiceImpl implements TwoFaService {
 	}
 
 	@Override
-	public LinotpGetBackupTanListResponse getBackupTanList(IdentityEntity identity, String serial, String executor) throws TwoFaException {
+	public HmacTokenList getBackupTanList(IdentityEntity identity, String serial) throws TwoFaException {
 		identity = identityDao.merge(identity);
+		TwoFaManager manager = resolveTwoFaManager(identity);
 		
-		Map<String, String> configMap = configResolver.resolveConfig(identity);
-
-		LinotpConnection linotpConnection = new LinotpConnection(configMap);
-		linotpConnection.requestAdminSession();
-		
-		int count = 5;
-		if (configMap.containsKey("backup_count")) {
-			count = Integer.parseInt(configMap.get("backup_count"));
-		}
-		LinotpGetBackupTanListResponse response = linotpConnection.getBackupTanList(serial, count);
+		HmacTokenList response = manager.getBackupTanList(identity, serial);
 		
 		if (response == null) {
 			throw new TwoFaException("Could not get backup tan list!");
@@ -299,7 +291,6 @@ public class TwoFaServiceImpl implements TwoFaService {
 		auditor.setName(this.getClass().getName() + "-EnableToken-Audit");
 		auditor.setIdentity(identity);
 		auditor.setDetail("Enable token " + serial + " for user " + identity.getId());
-
 		
 		TokenStatusResponse response = manager.enableToken(identity, serial, auditor);
 
@@ -322,8 +313,9 @@ public class TwoFaServiceImpl implements TwoFaService {
 	}
 
 	@Override
-	public LinotpSimpleResponse resetFailcounter(IdentityEntity identity, String serial, String executor) throws TwoFaException {
+	public TokenStatusResponse resetFailcounter(IdentityEntity identity, String serial, String executor) throws TwoFaException {
 		identity = identityDao.merge(identity);
+		TwoFaManager manager = resolveTwoFaManager(identity);
 
 		TokenAuditor auditor = new TokenAuditor(auditEntryDao, auditDetailDao, appConfig);
 		auditor.startAuditTrail(executor, true);
@@ -331,11 +323,7 @@ public class TwoFaServiceImpl implements TwoFaService {
 		auditor.setIdentity(identity);
 		auditor.setDetail("Reset failcounter token " + serial + " for user " + identity.getId());
 
-		Map<String, String> configMap = configResolver.resolveConfig(identity);
-
-		LinotpConnection linotpConnection = new LinotpConnection(configMap);
-		linotpConnection.requestAdminSession();
-		LinotpSimpleResponse response = linotpConnection.resetFailcounter(serial);
+		TokenStatusResponse response = manager.resetFailcounter(identity, serial, auditor);
 
 		auditor.logAction("" + identity.getId(), "RESET FAILCOUNTER", "serial-" + serial, "", AuditStatus.SUCCESS);
 
@@ -356,8 +344,9 @@ public class TwoFaServiceImpl implements TwoFaService {
 	}
 	
 	@Override
-	public LinotpSimpleResponse deleteToken(IdentityEntity identity, String serial, String executor) throws TwoFaException {
+	public TokenStatusResponse deleteToken(IdentityEntity identity, String serial, String executor) throws TwoFaException {
 		identity = identityDao.merge(identity);
+		TwoFaManager manager = resolveTwoFaManager(identity);
 
 		TokenAuditor auditor = new TokenAuditor(auditEntryDao, auditDetailDao, appConfig);
 		auditor.startAuditTrail(executor, true);
@@ -365,11 +354,7 @@ public class TwoFaServiceImpl implements TwoFaService {
 		auditor.setIdentity(identity);
 		auditor.setDetail("Delete token " + serial + " for user " + identity.getId());
 		
-		Map<String, String> configMap = configResolver.resolveConfig(identity);
-
-		LinotpConnection linotpConnection = new LinotpConnection(configMap);
-		linotpConnection.requestAdminSession();
-		LinotpSimpleResponse response = linotpConnection.deleteToken(serial);
+		TokenStatusResponse response = manager.deleteToken(identity, serial, auditor);
 
 		auditor.logAction("" + identity.getId(), "DELETE TOKEN", "serial-" + serial, "", AuditStatus.SUCCESS);
 
