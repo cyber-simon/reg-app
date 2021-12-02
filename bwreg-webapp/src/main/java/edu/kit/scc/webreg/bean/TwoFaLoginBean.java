@@ -31,7 +31,6 @@ import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.twofa.TwoFaException;
 import edu.kit.scc.webreg.service.twofa.TwoFaService;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
 import edu.kit.scc.webreg.service.twofa.token.TwoFaTokenList;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
@@ -80,9 +79,9 @@ public class TwoFaLoginBean implements Serializable {
 	public void check() {
 		try {
 			HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-			LinotpSimpleResponse response = twoFaService.checkToken(identity, tokenInput);
+			Boolean success = twoFaService.checkToken(identity, tokenInput);
 
-			if (response.getResult() != null && response.getResult().isStatus() && response.getResult().isValue()) {
+			if (success) {
 				// Successful check
 				sessionManager.setTwoFaElevation(Instant.now());
 				userService.addLoginInfo(identity, UserLoginMethod.TWOFA, UserLoginInfoStatus.SUCCESS, 

@@ -102,10 +102,9 @@ public class TwoFaUserBean implements Serializable {
 				if (response.getResult().isStatus() && response.getResult().isValue()) {
 					if (response != null && response.getDetail() != null) {
 						String serial = response.getDetail().getSerial();
-						LinotpSimpleResponse checkResponse = 
+						Boolean success = 
 								twoFaService.checkSpecificToken(identity, serial, yubicoCode);
-						if (! (checkResponse.getResult().isStatus() && 
-								checkResponse.getResult().isValue())) {
+						if (! success) {
 							// Token creating was successful, but check failed
 							twoFaService.deleteToken(identity, serial, "identity-" + identity.getId());
 							messageGenerator.addResolvedWarningMessage("messagePanel", "warn", "twofa_token_init_code_wrong", true);
@@ -195,8 +194,8 @@ public class TwoFaUserBean implements Serializable {
 
 				if (response.getResult() != null && response.getResult().isStatus() && response.getResult().isValue()) {
 				
-					response = twoFaService.checkSpecificToken(identity, serial, totpCode);
-					if (response.getResult() != null && response.getResult().isStatus() && response.getResult().isValue()) {
+					Boolean success = twoFaService.checkSpecificToken(identity, serial, totpCode);
+					if (success) {
 						// success, Token stays active, set correct description
 						twoFaService.initToken(identity, serial, "identity-" + identity.getId());
 						if (! hasActiveToken()) {

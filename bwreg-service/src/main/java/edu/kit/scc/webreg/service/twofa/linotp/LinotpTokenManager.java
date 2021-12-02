@@ -1,5 +1,7 @@
 package edu.kit.scc.webreg.service.twofa.linotp;
 
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,6 +85,42 @@ public class LinotpTokenManager extends AbstractTwoFaManager {
 		}
 		
 		return false;
+	}
+	
+	@Override
+	public Boolean checkToken(IdentityEntity identity, String token) throws TwoFaException {
+		LinotpConnection linotpConnection = new LinotpConnection(getConfigMap());
+		LinotpSimpleResponse response = linotpConnection.checkToken(token);
+		
+		if (!(response.getResult() != null && response.getResult().isStatus() && 
+				response.getResult().isValue())) {
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
+	
+	@Override
+	public Boolean checkSpecificToken(IdentityEntity identity, String serial, String token) throws TwoFaException {
+		LinotpConnection linotpConnection = new LinotpConnection(getConfigMap());
+		LinotpSimpleResponse response = linotpConnection.checkSpecificToken(serial, token);
+		
+		if (!(response.getResult() != null && response.getResult().isStatus() && 
+				response.getResult().isValue())) {
+			return false;
+		}
+		else {
+			return true;
+		}	
+	}
+	
+	@Override
+	public Map<String,Object> initToken(IdentityEntity identity, String serial, String executor) throws TwoFaException {
+		LinotpConnection linotpConnection = new LinotpConnection(getConfigMap());
+		linotpConnection.requestAdminSession();
+		LinotpSetFieldResult response = linotpConnection.initToken(serial);
+		return response.getValue();
 	}
 	
 	private GenericTwoFaToken convertToken(LinotpToken linotpToken) {

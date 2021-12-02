@@ -25,7 +25,6 @@ import edu.kit.scc.webreg.exc.NoRegistryFoundException;
 import edu.kit.scc.webreg.exc.NoServiceFoundException;
 import edu.kit.scc.webreg.exc.NoUserFoundException;
 import edu.kit.scc.webreg.exc.RestInterfaceException;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
 
 @Stateless
 public class TwoFaLoginServiceImpl implements TwoFaLoginService {
@@ -111,10 +110,9 @@ public class TwoFaLoginServiceImpl implements TwoFaLoginService {
 			throw new LoginFailedException("Password blank");
 		}
 
-		LinotpSimpleResponse response = twoFaService.checkToken(user.getIdentity(), otp);
+		Boolean success = twoFaService.checkToken(user.getIdentity(), otp);
 
-		if (!(response.getResult() != null && response.getResult().isStatus() && 
-				response.getResult().isValue())) {
+		if (! success) {
 			logger.info("User {} ({}) failed 2fa authentication", user.getEppn(), user.getId()); 
 			createLoginInfo(user, registry, UserLoginMethod.TWOFA, UserLoginInfoStatus.FAILED);
 			return ":-(";

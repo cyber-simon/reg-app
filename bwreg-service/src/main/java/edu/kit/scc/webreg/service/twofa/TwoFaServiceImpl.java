@@ -23,11 +23,7 @@ import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpConnection;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpGetBackupTanListResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpInitAuthenticatorTokenResponse;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpSetFieldResult;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpShowUserResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpToken;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpTokenResultList;
 import edu.kit.scc.webreg.service.twofa.token.TwoFaTokenList;
 
 @Stateless
@@ -53,40 +49,11 @@ public class TwoFaServiceImpl implements TwoFaService {
 
 	@Inject
 	private ApplicationConfig appConfig;
-
-	private TwoFaManager resolveTwoFaManager(Map<String, String> configMap) throws TwoFaException {
-		// Set default class to LinOTP implementation for backwards compatibility
-		String className = "edu.kit.scc.webreg.service.twofa.linotp.LinotpTokenManager";
-		
-		// If there is a configured implementation, use it
-		if (configMap.containsKey("managerClass")) {
-			className = configMap.get("managerClass");
-		}
-
-		Object o;
-		try {
-			o = Class.forName(className).getConstructor().newInstance();
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-				| NoSuchMethodException | SecurityException | ClassNotFoundException e) {
-			throw new TwoFaException(e);
-		}
-
-		if (o instanceof TwoFaManager) {
-			TwoFaManager twoFaManager = (TwoFaManager) o;
-			twoFaManager.setConfigMap(configMap);
-			return twoFaManager;
-		}
-		else {
-			throw new TwoFaException("Configured class is not instance of TwoFaManager");
-		}		
-	}
 	
 	@Override
 	public TwoFaTokenList findByIdentity(IdentityEntity identity) throws TwoFaException {
 		identity = identityDao.merge(identity);
-		Map<String, String> configMap = configResolver.resolveConfig(identity);
-		
-		TwoFaManager manager = resolveTwoFaManager(configMap);
+		TwoFaManager manager = resolveTwoFaManager(identity);
 		
 		return manager.findByIdentity(identity);
 	}
@@ -94,40 +61,38 @@ public class TwoFaServiceImpl implements TwoFaService {
 	@Override
 	public Boolean hasActiveToken(IdentityEntity identity) throws TwoFaException {
 		identity = identityDao.merge(identity);
+		TwoFaManager manager = resolveTwoFaManager(identity);
 
-		Map<String, String> configMap = configResolver.resolveConfig(identity);
-		
-		TwoFaManager manager = resolveTwoFaManager(configMap);
 		return manager.hasActiveToken(identity);
 	}
 	
 	@Override
 	public Boolean hasActiveTokenById(Long identityId) throws TwoFaException {
 		IdentityEntity identity = identityDao.findById(identityId);
+		
 		return hasActiveToken(identity);
 	}
 
 	@Override
-	public LinotpSimpleResponse checkToken(IdentityEntity identity, String token) throws TwoFaException {
+	public Boolean checkToken(IdentityEntity identity, String token) throws TwoFaException {
 		identity = identityDao.merge(identity);
+		TwoFaManager manager = resolveTwoFaManager(identity);
 
-		Map<String, String> configMap = configResolver.resolveConfig(identity);
-		LinotpConnection linotpConnection = new LinotpConnection(configMap);
-		return linotpConnection.checkToken(token);
+		return manager.checkToken(identity, token);
 	}
 
 	@Override
-	public LinotpSimpleResponse checkSpecificToken(IdentityEntity identity, String serial, String token) throws TwoFaException {
+	public Boolean checkSpecificToken(IdentityEntity identity, String serial, String token) throws TwoFaException {
 		identity = identityDao.merge(identity);
+		TwoFaManager manager = resolveTwoFaManager(identity);
 
-		Map<String, String> configMap = configResolver.resolveConfig(identity);
-		LinotpConnection linotpConnection = new LinotpConnection(configMap);
-		return linotpConnection.checkSpecificToken(serial, token);
+		return manager.checkSpecificToken(identity, serial, token);
 	}
 
 	@Override
-	public LinotpSetFieldResult initToken(IdentityEntity identity, String serial, String executor) throws TwoFaException {
+	public void initToken(IdentityEntity identity, String serial, String executor) throws TwoFaException {
 		identity = identityDao.merge(identity);
+		TwoFaManager manager = resolveTwoFaManager(identity);
 		
 		TokenAuditor auditor = new TokenAuditor(auditEntryDao, auditDetailDao, appConfig);
 		auditor.startAuditTrail(executor, true);
@@ -135,17 +100,13 @@ public class TwoFaServiceImpl implements TwoFaService {
 		auditor.setIdentity(identity);
 		auditor.setDetail("Init token " + serial + " for identity " + identity.getId());
 		
-		Map<String, String> configMap = configResolver.resolveConfig(identity);
-
-		LinotpConnection linotpConnection = new LinotpConnection(configMap);
-		linotpConnection.requestAdminSession();
-		LinotpSetFieldResult response = linotpConnection.initToken(serial);
+		Map<String, Object> responseMap = manager.initToken(identity, serial, executor);
 	
 		auditor.logAction("" + identity.getId(), "INIT TOTP TOKEN", "serial-" + serial, "", AuditStatus.SUCCESS);
 		
 		HashMap<String, Object> eventMap = new HashMap<String, Object>();
 		eventMap.put("identity", identity);
-		eventMap.put("respone", response);
+		eventMap.put("respone", responseMap);
 		eventMap.put("serial", serial);
 		TokenEvent event = new TokenEvent(eventMap);
 		try {
@@ -155,8 +116,6 @@ public class TwoFaServiceImpl implements TwoFaService {
 		}
 
 		auditor.finishAuditTrail();
-		
-		return response;
 	}
 	
 	@Override
@@ -448,5 +407,34 @@ public class TwoFaServiceImpl implements TwoFaService {
 
 		return response;
 	}
-	
+
+	private TwoFaManager resolveTwoFaManager(IdentityEntity identity) throws TwoFaException {
+		
+		Map<String, String> configMap = configResolver.resolveConfig(identity);
+
+		// Set default class to LinOTP implementation for backwards compatibility
+		String className = "edu.kit.scc.webreg.service.twofa.linotp.LinotpTokenManager";
+		
+		// If there is a configured implementation, use it
+		if (configMap.containsKey("managerClass")) {
+			className = configMap.get("managerClass");
+		}
+
+		Object o;
+		try {
+			o = Class.forName(className).getConstructor().newInstance();
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException | ClassNotFoundException e) {
+			throw new TwoFaException(e);
+		}
+
+		if (o instanceof TwoFaManager) {
+			TwoFaManager twoFaManager = (TwoFaManager) o;
+			twoFaManager.setConfigMap(configMap);
+			return twoFaManager;
+		}
+		else {
+			throw new TwoFaException("Configured class is not instance of TwoFaManager");
+		}		
+	}
 }

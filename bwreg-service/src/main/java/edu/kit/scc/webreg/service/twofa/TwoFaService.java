@@ -15,17 +15,17 @@ public interface TwoFaService {
 
 	LinotpSimpleResponse enableToken(IdentityEntity identity, String serial, String executor) throws TwoFaException;
 
-	LinotpSimpleResponse checkToken(IdentityEntity identity, String token) throws TwoFaException;
+	Boolean checkToken(IdentityEntity identity, String token) throws TwoFaException;
 
 	Boolean hasActiveToken(IdentityEntity identity) throws TwoFaException;
 
 	LinotpSimpleResponse deleteToken(IdentityEntity identity, String serial, String executor) throws TwoFaException;
 
-	LinotpSimpleResponse checkSpecificToken(IdentityEntity identity, String serial, String token) throws TwoFaException;
+	Boolean checkSpecificToken(IdentityEntity identity, String serial, String token) throws TwoFaException;
 
 	LinotpInitAuthenticatorTokenResponse createYubicoToken(IdentityEntity identity, String yubi, String executor) throws TwoFaException;
 
-	LinotpSetFieldResult initToken(IdentityEntity identity, String serial, String executor) throws TwoFaException;
+	void initToken(IdentityEntity identity, String serial, String executor) throws TwoFaException;
 
 	LinotpSimpleResponse disableToken(IdentityEntity identity, String serial, String executor) throws TwoFaException;
 
