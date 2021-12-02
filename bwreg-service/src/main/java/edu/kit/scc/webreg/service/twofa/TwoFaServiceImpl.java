@@ -24,6 +24,8 @@ import edu.kit.scc.webreg.service.twofa.linotp.LinotpConnection;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpGetBackupTanListResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpInitAuthenticatorTokenResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
+import edu.kit.scc.webreg.service.twofa.token.TokenStatusResponse;
+import edu.kit.scc.webreg.service.twofa.token.TotpCreateResponse;
 import edu.kit.scc.webreg.service.twofa.token.TwoFaTokenList;
 
 @Stateless
@@ -100,7 +102,7 @@ public class TwoFaServiceImpl implements TwoFaService {
 		auditor.setIdentity(identity);
 		auditor.setDetail("Init token " + serial + " for identity " + identity.getId());
 		
-		Map<String, Object> responseMap = manager.initToken(identity, serial, executor);
+		Map<String, Object> responseMap = manager.initToken(identity, serial, auditor);
 	
 		auditor.logAction("" + identity.getId(), "INIT TOTP TOKEN", "serial-" + serial, "", AuditStatus.SUCCESS);
 		
@@ -119,8 +121,9 @@ public class TwoFaServiceImpl implements TwoFaService {
 	}
 	
 	@Override
-	public LinotpInitAuthenticatorTokenResponse createAuthenticatorToken(IdentityEntity identity, String executor) throws TwoFaException {
+	public TotpCreateResponse createAuthenticatorToken(IdentityEntity identity, String executor) throws TwoFaException {
 		identity = identityDao.merge(identity);
+		TwoFaManager manager = resolveTwoFaManager(identity);
 
 		TokenAuditor auditor = new TokenAuditor(auditEntryDao, auditDetailDao, appConfig);
 		auditor.startAuditTrail(executor, true);
@@ -133,18 +136,17 @@ public class TwoFaServiceImpl implements TwoFaService {
 		LinotpConnection linotpConnection = new LinotpConnection(configMap);
 		linotpConnection.requestAdminSession();
 		
-		LinotpInitAuthenticatorTokenResponse response = linotpConnection.createAuthenticatorToken();
+		TotpCreateResponse response = manager.createAuthenticatorToken(identity, auditor);
 		
-		if (response.getResult().isStatus() && response.getResult().isValue()) {
+		if (response.getSuccess()) {
 			// Token successfully created
 
-			auditor.logAction("" + identity.getId(), "CREATE TOTP TOKEN", "serial-" + response.getDetail().getSerial(), "", AuditStatus.SUCCESS);
+			auditor.logAction("" + identity.getId(), "CREATE TOTP TOKEN", "serial-" + response.getSerial(), "", AuditStatus.SUCCESS);
 			
 			HashMap<String, Object> eventMap = new HashMap<String, Object>();
 			eventMap.put("identity", identity);
-			eventMap.put("respone", response);
-			if (response.getDetail() != null)
-				eventMap.put("serial", response.getDetail().getSerial());
+			eventMap.put("response", response);
+			eventMap.put("serial", response.getSerial());
 			TokenEvent event = new TokenEvent(eventMap);
 			try {
 				eventSubmitter.submit(event, EventType.TWOFA_CREATED, executor);
@@ -153,9 +155,9 @@ public class TwoFaServiceImpl implements TwoFaService {
 			}
 			
 			// Disable it for once
-			linotpConnection.disableToken(response.getDetail().getSerial());
+			manager.disableToken(identity, response.getSerial(), auditor);
 			
-			auditor.logAction("" + identity.getId(), "DISABLE TOTP TOKEN", "serial-" + response.getDetail().getSerial(), "", AuditStatus.SUCCESS);
+			auditor.logAction("" + identity.getId(), "DISABLE TOTP TOKEN", "serial-" + response.getSerial(), "", AuditStatus.SUCCESS);
 			auditor.finishAuditTrail();
 
 			return response;
@@ -273,8 +275,9 @@ public class TwoFaServiceImpl implements TwoFaService {
 	}
 
 	@Override
-	public LinotpSimpleResponse disableToken(IdentityEntity identity, String serial, String executor) throws TwoFaException {
+	public TokenStatusResponse disableToken(IdentityEntity identity, String serial, String executor) throws TwoFaException {
 		identity = identityDao.merge(identity);
+		TwoFaManager manager = resolveTwoFaManager(identity);
 
 		TokenAuditor auditor = new TokenAuditor(auditEntryDao, auditDetailDao, appConfig);
 		auditor.startAuditTrail(executor, true);
@@ -282,12 +285,8 @@ public class TwoFaServiceImpl implements TwoFaService {
 		auditor.setIdentity(identity);
 		auditor.setDetail("Disable token " + serial + " for user " + identity.getId());
 
-		Map<String, String> configMap = configResolver.resolveConfig(identity);
-
-		LinotpConnection linotpConnection = new LinotpConnection(configMap);
-		linotpConnection.requestAdminSession();
-		LinotpSimpleResponse response = linotpConnection.disableToken(serial);
-
+		TokenStatusResponse response = manager.disableToken(identity, serial, auditor);
+		
 		auditor.logAction("" + identity.getId(), "DISABLE TOKEN", "serial-" + serial, "", AuditStatus.SUCCESS);
 		
 		HashMap<String, Object> eventMap = new HashMap<String, Object>();
