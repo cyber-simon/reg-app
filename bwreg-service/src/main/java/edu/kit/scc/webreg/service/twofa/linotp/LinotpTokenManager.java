@@ -168,6 +168,24 @@ public class LinotpTokenManager extends AbstractTwoFaManager {
 	}
 	
 	@Override
+	public TokenStatusResponse enableToken(IdentityEntity identity, String serial, TokenAuditor auditor) throws TwoFaException {
+		LinotpConnection linotpConnection = new LinotpConnection(getConfigMap());
+		linotpConnection.requestAdminSession();
+		LinotpSimpleResponse linotpResponse = linotpConnection.enableToken(serial);
+		TokenStatusResponse response = new TokenStatusResponse();
+		if ((linotpResponse.getResult() != null) && linotpResponse.getResult().isStatus() &&
+				linotpResponse.getResult().isValue()) {
+			response.setSuccess(true);
+		}
+		else {
+			response.setSuccess(false);
+		}
+		response.setSerial(serial);
+		
+		return response;
+	}
+	
+	@Override
 	public TotpCreateResponse createYubicoToken(IdentityEntity identity, String yubi, TokenAuditor auditor) throws TwoFaException {
 		LinotpConnection linotpConnection = new LinotpConnection(getConfigMap());
 		linotpConnection.requestAdminSession();

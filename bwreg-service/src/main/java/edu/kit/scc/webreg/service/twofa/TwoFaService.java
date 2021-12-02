@@ -13,7 +13,7 @@ public interface TwoFaService {
 
 	TotpCreateResponse createAuthenticatorToken(IdentityEntity identity, String executor) throws TwoFaException;
 
-	LinotpSimpleResponse enableToken(IdentityEntity identity, String serial, String executor) throws TwoFaException;
+	TokenStatusResponse enableToken(IdentityEntity identity, String serial, String executor) throws TwoFaException;
 
 	Boolean checkToken(IdentityEntity identity, String token) throws TwoFaException;
 

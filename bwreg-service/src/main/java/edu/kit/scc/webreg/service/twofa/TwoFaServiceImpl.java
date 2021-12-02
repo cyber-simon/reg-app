@@ -290,8 +290,9 @@ public class TwoFaServiceImpl implements TwoFaService {
 	}
 	
 	@Override
-	public LinotpSimpleResponse enableToken(IdentityEntity identity, String serial, String executor) throws TwoFaException {
+	public TokenStatusResponse enableToken(IdentityEntity identity, String serial, String executor) throws TwoFaException {
 		identity = identityDao.merge(identity);
+		TwoFaManager manager = resolveTwoFaManager(identity);
 
 		TokenAuditor auditor = new TokenAuditor(auditEntryDao, auditDetailDao, appConfig);
 		auditor.startAuditTrail(executor, true);
@@ -299,11 +300,8 @@ public class TwoFaServiceImpl implements TwoFaService {
 		auditor.setIdentity(identity);
 		auditor.setDetail("Enable token " + serial + " for user " + identity.getId());
 
-		Map<String, String> configMap = configResolver.resolveConfig(identity);
-
-		LinotpConnection linotpConnection = new LinotpConnection(configMap);
-		linotpConnection.requestAdminSession();
-		LinotpSimpleResponse response = linotpConnection.enableToken(serial);
+		
+		TokenStatusResponse response = manager.enableToken(identity, serial, auditor);
 
 		auditor.logAction("" + identity.getId(), "ENABLE TOKEN", "serial-" + serial, "", AuditStatus.SUCCESS);
 

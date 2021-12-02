@@ -104,10 +104,9 @@ public class TokenAdminIndexBean implements Serializable {
 	public void enableToken(String serial) {
 		if (! getReadOnly()) {
 			try {
-				LinotpSimpleResponse response = twoFaService.enableToken(selectedUser.getIdentity(), serial, "identity-" + session.getIdentityId());
+				TokenStatusResponse response = twoFaService.enableToken(selectedUser.getIdentity(), serial, "identity-" + session.getIdentityId());
 				userTokenList = twoFaService.findByIdentity(selectedUser.getIdentity());
-				if ((response.getResult() != null) && response.getResult().isStatus() &&
-						response.getResult().isValue()) {
+				if (response.getSuccess()) {
 					messageGenerator.addInfoMessage("Info", "Token " + serial + " enabled");
 				}
 				else {

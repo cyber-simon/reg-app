@@ -186,9 +186,9 @@ public class TwoFaUserBean implements Serializable {
 	public void checkAuthenticatorToken() {
 		try {
 			String serial = createTokenResponse.getSerial();
-			LinotpSimpleResponse response = twoFaService.enableToken(identity, serial, "identity-" + identity.getId());
+			TokenStatusResponse response = twoFaService.enableToken(identity, serial, "identity-" + identity.getId());
 
-			if (response.getResult() != null && response.getResult().isStatus() && response.getResult().isValue()) {
+			if (response.getSuccess()) {
 			
 				Boolean success = twoFaService.checkSpecificToken(identity, serial, totpCode);
 				if (success) {
@@ -221,10 +221,9 @@ public class TwoFaUserBean implements Serializable {
 	public void enableToken(String serial) {
 		if (! getReadOnly()) {
 			try {
-				LinotpSimpleResponse response = twoFaService.enableToken(identity, serial, "identity-" + identity.getId());
+				TokenStatusResponse response = twoFaService.enableToken(identity, serial, "identity-" + identity.getId());
 				tokenList = twoFaService.findByIdentity(identity);
-				if ((response.getResult() != null) && response.getResult().isStatus() &&
-						response.getResult().isValue()) {
+				if (response.getSuccess()) {
 					messageGenerator.addInfoMessage("messagePanel", "Info", "Token " + serial + " enabled");
 				}
 				else {
