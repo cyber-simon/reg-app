@@ -1,5 +1,6 @@
 package edu.kit.scc.webreg.service.twofa;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,6 +28,7 @@ import edu.kit.scc.webreg.service.twofa.linotp.LinotpShowUserResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpToken;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpTokenResultList;
+import edu.kit.scc.webreg.service.twofa.token.TwoFaTokenList;
 
 @Stateless
 public class TwoFaServiceImpl implements TwoFaService {
@@ -52,73 +54,51 @@ public class TwoFaServiceImpl implements TwoFaService {
 	@Inject
 	private ApplicationConfig appConfig;
 
-	@Override
-	public LinotpTokenResultList findByIdentity(IdentityEntity identity) throws TwoFaException {
-		identity = identityDao.merge(identity);
+	private TwoFaManager resolveTwoFaManager(Map<String, String> configMap) throws TwoFaException {
+		// Set default class to LinOTP implementation for backwards compatibility
+		String className = "edu.kit.scc.webreg.service.twofa.linotp.LinotpTokenManager";
 		
-		Map<String, String> configMap = configResolver.resolveConfig(identity);
+		// If there is a configured implementation, use it
+		if (configMap.containsKey("managerClass")) {
+			className = configMap.get("managerClass");
+		}
 
-		if (configMap.containsKey("reallyReadOnly") && configMap.get("reallyReadOnly").equalsIgnoreCase("true")) {
-			LinotpTokenResultList resultList = new LinotpTokenResultList();
-			resultList.setReallyReadOnly(true);
-			resultList.setReadOnly(true);
-			if (configMap.containsKey("managementUrl")) {
-				resultList.setManagementUrl(configMap.get("managementUrl"));
-			}
-			return resultList;
+		Object o;
+		try {
+			o = Class.forName(className).getConstructor().newInstance();
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException | ClassNotFoundException e) {
+			throw new TwoFaException(e);
+		}
+
+		if (o instanceof TwoFaManager) {
+			TwoFaManager twoFaManager = (TwoFaManager) o;
+			twoFaManager.setConfigMap(configMap);
+			return twoFaManager;
 		}
 		else {
-			LinotpConnection linotpConnection = new LinotpConnection(configMap);
-			linotpConnection.requestAdminSession();
-			
-			LinotpShowUserResponse response = linotpConnection.getTokenList();
-			LinotpTokenResultList resultList = new LinotpTokenResultList();
-			if (response.getResult() != null && response.getResult().getValue() != null &&
-					response.getResult().getValue().getData() !=null) {
-				resultList.addAll(response.getResult().getValue().getData());
-			}
-			
-			if (configMap.containsKey("readOnly") && configMap.get("readOnly").equalsIgnoreCase("true")) {
-				resultList.setReadOnly(true);
-			}
-			else {
-				resultList.setReadOnly(false);
-			}
+			throw new TwoFaException("Configured class is not instance of TwoFaManager");
+		}		
+	}
 	
-			if (configMap.containsKey("managementUrl")) {
-				resultList.setManagementUrl(configMap.get("managementUrl"));
-			}
-	
-			if (configMap.containsKey("adminRole")) {
-				resultList.setAdminRole(configMap.get("adminRole"));
-			}
-	
-			return resultList;
-		}
+	@Override
+	public TwoFaTokenList findByIdentity(IdentityEntity identity) throws TwoFaException {
+		identity = identityDao.merge(identity);
+		Map<String, String> configMap = configResolver.resolveConfig(identity);
+		
+		TwoFaManager manager = resolveTwoFaManager(configMap);
+		
+		return manager.findByIdentity(identity);
 	}
 
 	@Override
 	public Boolean hasActiveToken(IdentityEntity identity) throws TwoFaException {
 		identity = identityDao.merge(identity);
-		LinotpTokenResultList tokenList = findByIdentity(identity);
 
-		if (tokenList.getReallyReadOnly()) {
-			return true;
-		}
+		Map<String, String> configMap = configResolver.resolveConfig(identity);
 		
-		for (LinotpToken token : tokenList) {
-			if (token.getIsactive()) {
-				/*
-				 * filter token, that are not initialized
-				 */
-				if (token.getDescription() != null && token.getDescription().contains("INIT")) {
-					return false;
-				}
-				return true;
-			}
-		}
-		
-		return false;
+		TwoFaManager manager = resolveTwoFaManager(configMap);
+		return manager.hasActiveToken(identity);
 	}
 	
 	@Override

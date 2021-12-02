@@ -5,11 +5,11 @@ import edu.kit.scc.webreg.service.twofa.linotp.LinotpGetBackupTanListResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpInitAuthenticatorTokenResponse;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpSetFieldResult;
 import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpTokenResultList;
+import edu.kit.scc.webreg.service.twofa.token.TwoFaTokenList;
 
 public interface TwoFaService {
 
-	LinotpTokenResultList findByIdentity(IdentityEntity identity) throws TwoFaException;
+	TwoFaTokenList findByIdentity(IdentityEntity identity) throws TwoFaException;
 
 	LinotpInitAuthenticatorTokenResponse createAuthenticatorToken(IdentityEntity identity, String executor) throws TwoFaException;
 
