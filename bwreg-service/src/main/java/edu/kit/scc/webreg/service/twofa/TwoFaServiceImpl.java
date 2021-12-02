@@ -104,25 +104,7 @@ public class TwoFaServiceImpl implements TwoFaService {
 	@Override
 	public Boolean hasActiveTokenById(Long identityId) throws TwoFaException {
 		IdentityEntity identity = identityDao.findById(identityId);
-		LinotpTokenResultList tokenList = findByIdentity(identity);
-
-		if (tokenList.getReallyReadOnly()) {
-			return true;
-		}
-
-		for (LinotpToken token : tokenList) {
-			/*
-			 * filter token, that are not initialized
-			 */
-			if (token.getDescription() != null && token.getDescription().contains("INIT")) {
-				return false;
-			}
-			if (token.getIsactive()) {
-				return true;
-			}
-		}
-		
-		return false;
+		return hasActiveToken(identity);
 	}
 
 	@Override

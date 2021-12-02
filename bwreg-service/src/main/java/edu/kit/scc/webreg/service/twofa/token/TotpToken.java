@@ -1,6 +1,6 @@
 package edu.kit.scc.webreg.service.twofa.token;
 
-public class TotpToken extends AbstractTwoFaToken {
+public class TotpToken extends GenericTwoFaToken {
 
 	private static final long serialVersionUID = 1L;
 

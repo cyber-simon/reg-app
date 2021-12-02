@@ -2,7 +2,7 @@ package edu.kit.scc.webreg.service.twofa.token;
 
 import java.io.Serializable;
 
-public abstract class AbstractTwoFaToken implements Serializable {
+public class GenericTwoFaToken implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 

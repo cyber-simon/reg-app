@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.service.twofa.AbstractTwoFaManager;
 import edu.kit.scc.webreg.service.twofa.TwoFaException;
-import edu.kit.scc.webreg.service.twofa.token.AbstractTwoFaToken;
+import edu.kit.scc.webreg.service.twofa.token.GenericTwoFaToken;
 import edu.kit.scc.webreg.service.twofa.token.HmacToken;
 import edu.kit.scc.webreg.service.twofa.token.TotpToken;
 import edu.kit.scc.webreg.service.twofa.token.TwoFaTokenList;
@@ -35,10 +35,10 @@ public class LinotpTokenManager extends AbstractTwoFaManager {
 					response.getResult().getValue().getData() !=null) {
 				
 				for (LinotpToken linotpToken : response.getResult().getValue().getData()) {
-					AbstractTwoFaToken token = convertToken(linotpToken);
+					GenericTwoFaToken token = convertToken(linotpToken);
 
 					if (token != null) {
-						resultList.getTokenList().add(token);
+						resultList.add(token);
 					}
 				}
 			}
@@ -70,7 +70,7 @@ public class LinotpTokenManager extends AbstractTwoFaManager {
 			return true;
 		}
 		
-		for (AbstractTwoFaToken token : tokenList.getTokenList()) {
+		for (GenericTwoFaToken token : tokenList) {
 			if (token.getIsactive()) {
 				/*
 				 * filter token, that are not initialized
@@ -85,8 +85,8 @@ public class LinotpTokenManager extends AbstractTwoFaManager {
 		return false;
 	}
 	
-	private AbstractTwoFaToken convertToken(LinotpToken linotpToken) {
-		AbstractTwoFaToken token;
+	private GenericTwoFaToken convertToken(LinotpToken linotpToken) {
+		GenericTwoFaToken token;
 		if (linotpToken.getTokenType().equals("TOTP")) {
 			TotpToken totpToken = new TotpToken();
 			totpToken.setOtpLen(linotpToken.getOtpLen());

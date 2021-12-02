@@ -1,5 +1,5 @@
 package edu.kit.scc.webreg.service.twofa.token;
 
-public class YubicoToken extends AbstractTwoFaToken {
+public class YubicoToken extends GenericTwoFaToken {
 
 }
