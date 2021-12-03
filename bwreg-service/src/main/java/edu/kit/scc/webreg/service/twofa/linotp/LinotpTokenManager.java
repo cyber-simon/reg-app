@@ -143,6 +143,7 @@ public class LinotpTokenManager extends AbstractTwoFaManager {
 			response.setImage(linotpResponse.getDetail().getGoogleurl().getImg());
 			response.setOrder(linotpResponse.getDetail().getGoogleurl().getOrder());
 			response.setValue(linotpResponse.getDetail().getGoogleurl().getValue());
+			response.setSeed(linotpResponse.getDetail().getOtpkey().getValue());
 		}
 		else {
 			response.setSuccess(false);
@@ -309,7 +310,7 @@ public class LinotpTokenManager extends AbstractTwoFaManager {
 		token.setSerial(linotpToken.getSerial());
 		token.setTokenType(linotpToken.getTokenType());
 		token.setTokenInfo(linotpToken.getTokenInfo());
-		token.setDescription(linotpToken.getDescription());
+		token.setDescription(linotpToken.getTokenDesc());
 		token.setMaxFail(linotpToken.getMaxFail());
 		token.setCount(linotpToken.getCount());
 		token.setUsername(linotpToken.getUsername());

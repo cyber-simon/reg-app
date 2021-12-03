@@ -13,6 +13,7 @@ public class TotpCreateResponse implements Serializable {
 	private String description;
 	private Boolean success;
 	private String message;
+	private String seed;
 	
 	public String getDescription() {
 		return description;
@@ -68,5 +69,13 @@ public class TotpCreateResponse implements Serializable {
 
 	public void setMessage(String message) {
 		this.message = message;
+	}
+
+	public String getSeed() {
+		return seed;
+	}
+
+	public void setSeed(String seed) {
+		this.seed = seed;
 	}
 }

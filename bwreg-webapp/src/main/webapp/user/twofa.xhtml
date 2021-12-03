@@ -68,7 +68,7 @@
 								<h:outputText value="#{token.isactive ? messages.yes : messages.no}" />
 							</h:panelGrid>
 
-							<p:panel style="margin: 8px;" rendered="#{! token.isactive and (token.tokenDesc.contains('INIT'))}">
+							<p:panel style="margin: 8px;" rendered="#{! token.isactive and (token.description.contains('INIT'))}">
 								<h:outputText value="#{messages.twofa_token_not_init}" style="color:red;"/>
 							</p:panel>
 							</p:outputPanel>
@@ -106,15 +106,15 @@
 							<h:outputText value="#{token.isactive ? messages.yes : messages.no}" />
 
 						</h:panelGrid>
-						<p:panel style="margin: 8px;" rendered="#{! token.isactive and (token.tokenDesc.contains('INIT'))}">
+						<p:panel style="margin: 8px;" rendered="#{! token.isactive and (token.description.contains('INIT'))}">
 							<h:outputText value="#{messages.twofa_token_not_init}" style="color:red;" />
 						</p:panel>
 						<p:commandButton action="#{twoFaUserBean.disableToken(token.serial)}" value="#{messages.disable}" 
 							update="@form" rendered="#{token.isactive}"/>
 						<p:commandButton action="#{twoFaUserBean.enableToken(token.serial)}" value="#{messages.enable}" 
-							update="@form" rendered="#{! token.isactive and (! token.tokenDesc.contains('INIT'))}"/>
+							update="@form" rendered="#{! token.isactive and (! token.description.contains('INIT'))}"/>
 						<p:commandButton action="#{twoFaUserBean.deleteToken(token.serial)}" value="#{messages.delete}" 
-							update="@form" rendered="#{! token.isactive and (token.tokenDesc.contains('DELABLE'))}" style="color:red;">
+							update="@form" rendered="#{! token.isactive and (token.description.contains('DELABLE'))}" style="color:red;">
 							<p:confirm header="#{messages.confirm_header}" message="#{messages.confirm}" />
 						</p:commandButton>
 						<p:commandButton action="#{twoFaUserBean.getBackupTanList(token.serial)}" value="#{messages.token_get_tanlist_values}" 
@@ -147,10 +147,10 @@
 					<h:outputText value="#{messages.twofa_backup_tan_list_values}" />
 				</div>
 				<ul style="margin-bottom: 16px;">
-					<ui:repeat var="key" value="#{twoFaUserBean.backupTanList.result.value.otp.keySet()}">
+					<ui:repeat var="key" value="#{twoFaUserBean.backupTanList.otp.keySet()}">
 						<li style="margin-bottom: 4px;">
 							<b><h:outputText value="#{key}" /></b> -  
-							<h:outputText value="#{twoFaUserBean.backupTanList.result.value.otp.get(key)}" />
+							<h:outputText value="#{twoFaUserBean.backupTanList.otp.get(key)}" />
 						</li>
 					</ui:repeat>
 				</ul>
@@ -177,12 +177,12 @@
 				<h:panelGroup rendered="#{not empty twoFaUserBean.createTokenResponse}">
 					<h:panelGrid columns="2">
 						<p:outputPanel>
-							<h:outputText value="#{twoFaUserBean.createTokenResponse.detail.googleurl.img}" escape="false" />
+							<h:outputText value="#{twoFaUserBean.createTokenResponse.image}" escape="false" />
 						</p:outputPanel>
 						<p:outputPanel>
 							<h:panelGrid columns="2">
 								<p:outputLabel for="@next" value="#{messages.twofa_serial}:" />
-								<h:outputText value="#{twoFaUserBean.createTokenResponse.detail.serial}"/>
+								<h:outputText value="#{twoFaUserBean.createTokenResponse.serial}"/>
 
 								<p:outputLabel for="@next" value="#{messages.twofa_code}:" />
 								<p:inputText id="totpText" autocomplete="false" value="#{twoFaUserBean.totpCode}"/>
@@ -192,7 +192,7 @@
 							</p:outputPanel>
 							
 							<p:outputLabel for="@next" value="Seed:" />
-							<h:outputText value="#{twoFaUserBean.createTokenResponse.detail.otpkey.value}"/>
+							<h:outputText value="#{twoFaUserBean.createTokenResponse.seed}"/>
 
 						</h:panelGrid>
 				</h:panelGroup>
