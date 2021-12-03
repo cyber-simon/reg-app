@@ -3,6 +3,9 @@ package edu.kit.scc.webreg.service.twofa.pidea;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -16,11 +19,16 @@ import org.apache.http.ParseException;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.TrustAllStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +79,15 @@ public class PIConnection {
 			    .setSocketTimeout(30000)
 			    .setConnectTimeout(30000)
 			    .build();
-		httpClient = HttpClients.custom().setDefaultRequestConfig(config).build();
+		try {
+			httpClient = HttpClients.custom()
+					.setDefaultRequestConfig(config)
+			        .setSSLContext(new SSLContextBuilder().loadTrustMaterial(null, TrustAllStrategy.INSTANCE).build())
+			        .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+					.build();
+		} catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException e) {
+			throw new TwoFaException(e);
+		}
 
 		adminUsername = configMap.get("username");
 		adminPassword = configMap.get("password");
@@ -422,8 +438,8 @@ public class PIConnection {
 	public PIShowUserResponse getTokenList() throws TwoFaException {
 
 		try {
-			HttpPost httpPost = new HttpPost(configMap.get("url") + "/token/");
-			httpPost.addHeader("Authorization", adminSession);
+			HttpGet httpGet = new HttpGet(configMap.get("url") + "/token");
+			httpGet.addHeader("Authorization", adminSession);
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
 			if (configMap.containsKey("userId"))
 			    nvps.add(new BasicNameValuePair("user", configMap.get("userId")));
@@ -432,9 +448,13 @@ public class PIConnection {
 
 			if (configMap.containsKey("realm"))
 				nvps.add(new BasicNameValuePair("tokenrealm", configMap.get("realm")));
-			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 			
-			CloseableHttpResponse response = httpClient.execute(targetHost, httpPost, context);
+			URI uri = new URIBuilder(httpGet.getURI())
+				      .addParameters(nvps)
+				      .build();
+			httpGet.setURI(uri);
+			
+			CloseableHttpResponse response = httpClient.execute(targetHost, httpGet, context);
 			try {
 			    HttpEntity entity = response.getEntity();
 			    String responseString = EntityUtils.toString(entity);
@@ -445,7 +465,7 @@ public class PIConnection {
 			} finally {
 				response.close();
 			}
-		} catch (ParseException | IOException e) {
+		} catch (ParseException | IOException | URISyntaxException e) {
 			throw new TwoFaException(e);
 		}		
 	}
