@@ -17,7 +17,7 @@ public class PIAuthResult implements Serializable {
 		this.status = status;
 	}
 
-	public PIAuthTokenValue isValue() {
+	public PIAuthTokenValue getValue() {
 		return value;
 	}
 

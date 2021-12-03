@@ -20,8 +20,6 @@ import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.TokenEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpConnection;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpGetBackupTanListResponse;
 import edu.kit.scc.webreg.service.twofa.token.HmacTokenList;
 import edu.kit.scc.webreg.service.twofa.token.TokenStatusResponse;
 import edu.kit.scc.webreg.service.twofa.token.TotpCreateResponse;

@@ -422,7 +422,8 @@ public class PIConnection {
 	public PIShowUserResponse getTokenList() throws TwoFaException {
 
 		try {
-			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/show");
+			HttpPost httpPost = new HttpPost(configMap.get("url") + "/token/");
+			httpPost.addHeader("Authorization", adminSession);
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
 			if (configMap.containsKey("userId"))
 			    nvps.add(new BasicNameValuePair("user", configMap.get("userId")));
@@ -430,8 +431,7 @@ public class PIConnection {
 				throw new TwoFaException("userId missing in config map");
 
 			if (configMap.containsKey("realm"))
-				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
-			nvps.add(new BasicNameValuePair("session", adminSession));
+				nvps.add(new BasicNameValuePair("tokenrealm", configMap.get("realm")));
 			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 			
 			CloseableHttpResponse response = httpClient.execute(targetHost, httpPost, context);
@@ -455,7 +455,7 @@ public class PIConnection {
     		HttpPost httpPost = new HttpPost(configMap.get("url") + "/auth");
 
     		List<NameValuePair> nvps = new ArrayList <NameValuePair>();
-    		nvps.add(new BasicNameValuePair("username", adminSession));
+    		nvps.add(new BasicNameValuePair("username", adminUsername));
     		nvps.add(new BasicNameValuePair("password", adminPassword));
     		httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 
@@ -469,6 +469,7 @@ public class PIConnection {
 			    logger.trace(responseString);
 			    
 			    PIAuthResponse authResponse = resultParser.parseAuthResponse(responseString);
+			    adminSession = authResponse.getResult().getValue().getToken();
 			    return authResponse;
 			} finally {
 				response.close();
