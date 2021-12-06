@@ -39,9 +39,9 @@ public class PITokenManager extends AbstractTwoFaManager {
 
 			PIShowUserResponse response = PIConnection.getTokenList();
 			if (response.getResult() != null && response.getResult().getValue() != null &&
-					response.getResult().getValue().getData() !=null) {
+					response.getResult().getValue().getTokens() !=null) {
 				
-				for (PIToken piToken : response.getResult().getValue().getData()) {
+				for (PIToken piToken : response.getResult().getValue().getTokens()) {
 					GenericTwoFaToken token = convertToken(piToken);
 
 					if (token != null) {
@@ -289,34 +289,35 @@ public class PITokenManager extends AbstractTwoFaManager {
 	
 	private GenericTwoFaToken convertToken(PIToken piToken) {
 		GenericTwoFaToken token;
-		if (piToken.getTokenType().equals("TOTP")) {
+		if (piToken.getTokentype().equals("TOTP")) {
 			TotpToken totpToken = new TotpToken();
-			totpToken.setOtpLen(piToken.getOtpLen());
+			totpToken.setOtpLen(piToken.getOtplen());
 			totpToken.setCountWindow(piToken.getCountWindow());
 			token = totpToken;
 		}
-		else if (piToken.getTokenType().equals("yubico")) {
+		else if (piToken.getTokentype().equals("yubico")) {
 			token = new YubicoToken();
 		}
-		else if (piToken.getTokenType().equals("HMAC")) {
+		else if (piToken.getTokentype().equals("HMAC")) {
 			token = new HmacToken();
 		}
 		else {
-			logger.warn("Unknown Tokentype {}. Ingoring.", piToken.getTokenType());
+			logger.warn("Unknown Tokentype {}. Ingoring.", piToken.getTokentype());
 			return null;
 		}
 		
-		token.setId(piToken.getId());
+		// Token in PI only have serials
+		//token.setId(piToken.getId());
 		token.setSerial(piToken.getSerial());
-		token.setTokenType(piToken.getTokenType());
-		token.setTokenInfo(piToken.getTokenInfo());
-		token.setDescription(piToken.getTokenDesc());
-		token.setMaxFail(piToken.getMaxFail());
+		token.setTokenType(piToken.getTokentype());
+		//token.setTokenInfo(piToken.getTokenInfo());
+		token.setDescription(piToken.getDescription());
+		token.setMaxFail(piToken.getMaxfail());
 		token.setCount(piToken.getCount());
 		token.setUsername(piToken.getUsername());
-		token.setSyncWindow(piToken.getSyncWindow());
-		token.setFailCount(piToken.getFailCount());
-		token.setIsactive(piToken.getIsactive());
+		//token.setSyncWindow(piToken.getSyncWindow());
+		token.setFailCount(piToken.getFailcount());
+		token.setIsactive(piToken.getActive());
 		
 		return token;
 	}	

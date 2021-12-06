@@ -3,30 +3,36 @@ package edu.kit.scc.webreg.service.twofa.pidea;
 import java.io.Serializable;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 public class PIValue implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@JsonProperty("resultset")
-	private PIResultSet resultSet;
-
-	private List<PIToken> data;
+	private Integer count;
+	private Integer current;
 	
-	public PIResultSet getResultSet() {
-		return resultSet;
+	private List<PIToken> tokens;
+
+	public Integer getCount() {
+		return count;
 	}
 
-	public void setResultSet(PIResultSet resultSet) {
-		this.resultSet = resultSet;
+	public void setCount(Integer count) {
+		this.count = count;
 	}
 
-	public List<PIToken> getData() {
-		return data;
+	public Integer getCurrent() {
+		return current;
 	}
 
-	public void setData(List<PIToken> data) {
-		this.data = data;
+	public void setCurrent(Integer current) {
+		this.current = current;
 	}
+
+	public List<PIToken> getTokens() {
+		return tokens;
+	}
+
+	public void setTokens(List<PIToken> tokens) {
+		this.tokens = tokens;
+	}	
 }

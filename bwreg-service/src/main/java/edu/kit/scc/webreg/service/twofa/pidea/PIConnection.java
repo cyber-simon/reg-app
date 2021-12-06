@@ -129,15 +129,15 @@ public class PIConnection {
 	
 	public PISimpleResponse checkSpecificToken(String serial, String token) throws TwoFaException {
 		try {
-			HttpPost httpPost = new HttpPost(configMap.get("url") + "/validate/check_s");
+			HttpPost httpPost = new HttpPost(configMap.get("url") + "/validate/check");
 			
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
 
-		    if (configMap.containsKey("realm"))
-				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
-			
 		    nvps.add(new BasicNameValuePair("serial", serial));
 			nvps.add(new BasicNameValuePair("pass", token));
+			
+		    if (configMap.containsKey("realm"))
+				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
 			
 			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 			
@@ -145,7 +145,8 @@ public class PIConnection {
 			try {
 			    HttpEntity entity = response.getEntity();
 			    String responseString = EntityUtils.toString(entity);
-			    logger.trace(responseString);
+			    if (logger.isTraceEnabled())
+			    	logger.trace("checkSpecificToken response: {}", responseString);
 			    
 			    return resultParser.parseSimpleResponse(responseString);
 
@@ -198,10 +199,10 @@ public class PIConnection {
 	
 	public PIInitAuthenticatorTokenResponse createYubicoToken(String yubi) throws TwoFaException {
 		try {
-			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/init");
+			HttpPost httpPost = new HttpPost(configMap.get("url") + "/token/init");
+			httpPost.addHeader("PI-Authorization", adminSession);
 			
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
-			nvps.add(new BasicNameValuePair("session", adminSession));
 			nvps.add(new BasicNameValuePair("type", "yubico"));
 			nvps.add(new BasicNameValuePair("yubico.tokenid", yubi));
 			nvps.add(new BasicNameValuePair("description", "This is a description"));
@@ -439,7 +440,7 @@ public class PIConnection {
 
 		try {
 			HttpGet httpGet = new HttpGet(configMap.get("url") + "/token");
-			httpGet.addHeader("Authorization", adminSession);
+			httpGet.addHeader("PI-Authorization", adminSession);
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
 			if (configMap.containsKey("userId"))
 			    nvps.add(new BasicNameValuePair("user", configMap.get("userId")));
@@ -458,7 +459,8 @@ public class PIConnection {
 			try {
 			    HttpEntity entity = response.getEntity();
 			    String responseString = EntityUtils.toString(entity);
-			    logger.trace(responseString);
+			    if (logger.isTraceEnabled())
+			    	logger.trace("getTokenList response: {}", responseString);
 			    
 			    return resultParser.parseShowUserResponse(responseString);
 
