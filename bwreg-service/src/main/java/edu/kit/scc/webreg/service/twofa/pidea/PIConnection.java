@@ -236,6 +236,7 @@ public class PIConnection {
 	public PIInitAuthenticatorTokenResponse createBackupTanList() throws TwoFaException {
 		try {
 			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/init");
+			httpPost.addHeader("PI-Authorization", adminSession);
 			
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
 			nvps.add(new BasicNameValuePair("session", adminSession));
@@ -274,6 +275,7 @@ public class PIConnection {
 	public PIGetBackupTanListResponse getBackupTanList(String serial, int count) throws TwoFaException {
 		try {
 			HttpPost httpPost = new HttpPost(configMap.get("url") + "/gettoken/getmultiotp");
+			httpPost.addHeader("PI-Authorization", adminSession);
 			
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
 			nvps.add(new BasicNameValuePair("serial", serial));
@@ -308,6 +310,8 @@ public class PIConnection {
 	public PISetFieldResult setTokenField(String serial, String key, String value) throws TwoFaException {
 		try {
 			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/set");
+			httpPost.addHeader("PI-Authorization", adminSession);
+
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
 			if (configMap.containsKey("realm"))
 				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
@@ -334,7 +338,9 @@ public class PIConnection {
 	
 	public PISimpleResponse disableToken(String serial) throws TwoFaException {
 		try {
-			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/disable");
+			HttpPost httpPost = new HttpPost(configMap.get("url") + "/token/disable");
+			httpPost.addHeader("PI-Authorization", adminSession);
+
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
 			if (configMap.containsKey("realm"))
 				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
@@ -361,6 +367,8 @@ public class PIConnection {
 	public PISimpleResponse enableToken(String serial) throws TwoFaException {
 		try {
 			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/enable");
+			httpPost.addHeader("PI-Authorization", adminSession);
+
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
 			if (configMap.containsKey("realm"))
 				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
@@ -387,6 +395,8 @@ public class PIConnection {
 	public PISimpleResponse deleteToken(String serial) throws TwoFaException {
 		try {
 			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/remove");
+			httpPost.addHeader("PI-Authorization", adminSession);
+
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
 			if (configMap.containsKey("realm"))
 				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
@@ -413,6 +423,8 @@ public class PIConnection {
 	public PISimpleResponse resetFailcounter(String serial) throws TwoFaException {
 		try {
 			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/reset");
+			httpPost.addHeader("PI-Authorization", adminSession);
+
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
 			if (configMap.containsKey("realm"))
 				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
@@ -441,6 +453,7 @@ public class PIConnection {
 		try {
 			HttpGet httpGet = new HttpGet(configMap.get("url") + "/token");
 			httpGet.addHeader("PI-Authorization", adminSession);
+
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
 			if (configMap.containsKey("userId"))
 			    nvps.add(new BasicNameValuePair("user", configMap.get("userId")));
