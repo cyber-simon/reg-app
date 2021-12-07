@@ -19,6 +19,7 @@ import org.apache.http.ParseException;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
@@ -309,20 +310,46 @@ public class PIConnection {
 	}
 	
 	public PISetFieldResult initToken(String serial) throws TwoFaException {
-		return setTokenField(serial, "description", "ACTIVE,DELABLE,TS " + formatDate() + ",");
+		return setTokenDescription(serial, "ACTIVE,DELABLE,TS " + formatDate() + ",");
 	}
 	
-	public PISetFieldResult setTokenField(String serial, String key, String value) throws TwoFaException {
+	public PISetFieldResult setTokenDescription(String serial, String description) throws TwoFaException {
 		try {
-			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/set");
+			HttpPost httpPost = new HttpPost(configMap.get("url") + "/token/description/" + serial);
 			httpPost.addHeader("PI-Authorization", adminSession);
 
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
 			if (configMap.containsKey("realm"))
 				nvps.add(new BasicNameValuePair("tokenrealm", configMap.get("realm")));
-			nvps.add(new BasicNameValuePair("session", adminSession));
-			nvps.add(new BasicNameValuePair("serial", serial));
-			nvps.add(new BasicNameValuePair(key, value));
+			nvps.add(new BasicNameValuePair("description", description));
+			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
+			
+			CloseableHttpResponse response = httpClient.execute(targetHost, httpPost, context);
+			try {
+			    HttpEntity entity = response.getEntity();
+			    String responseString = EntityUtils.toString(entity);
+			    if (logger.isTraceEnabled())
+			    	logger.trace("setTokenField response: {}", responseString);
+
+			    return resultParser.parseSetFieldResponse(responseString);
+
+			} finally {
+				response.close();
+			}
+		} catch (ParseException | IOException e) {
+			throw new TwoFaException(e);
+		}		
+	}
+
+	public PISetFieldResult setTokenField(String serial, String key, String value) throws TwoFaException {
+		try {
+			HttpPost httpPost = new HttpPost(configMap.get("url") + "/token/info/" + serial + "/" + key);
+			httpPost.addHeader("PI-Authorization", adminSession);
+
+			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
+			if (configMap.containsKey("realm"))
+				nvps.add(new BasicNameValuePair("tokenrealm", configMap.get("realm")));
+			nvps.add(new BasicNameValuePair("value", value));
 			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 			
 			CloseableHttpResponse response = httpClient.execute(targetHost, httpPost, context);
@@ -400,17 +427,10 @@ public class PIConnection {
 	
 	public PISimpleResponse deleteToken(String serial) throws TwoFaException {
 		try {
-			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/remove");
-			httpPost.addHeader("PI-Authorization", adminSession);
+			HttpDelete httpDelete = new HttpDelete(configMap.get("url") + "/token/" + serial);
+			httpDelete.addHeader("PI-Authorization", adminSession);
 
-			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
-			if (configMap.containsKey("realm"))
-				nvps.add(new BasicNameValuePair("tokenrealm", configMap.get("realm")));
-			nvps.add(new BasicNameValuePair("session", adminSession));
-			nvps.add(new BasicNameValuePair("serial", serial));
-			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
-			
-			CloseableHttpResponse response = httpClient.execute(targetHost, httpPost, context);
+			CloseableHttpResponse response = httpClient.execute(targetHost, httpDelete, context);
 			try {
 			    HttpEntity entity = response.getEntity();
 			    String responseString = EntityUtils.toString(entity);
