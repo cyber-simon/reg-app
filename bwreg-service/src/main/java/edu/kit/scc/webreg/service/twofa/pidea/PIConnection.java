@@ -105,7 +105,7 @@ public class PIConnection {
 				throw new TwoFaException("userId missing in config map");
 			
 			if (configMap.containsKey("realm"))
-				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
+				nvps.add(new BasicNameValuePair("tokenrealm", configMap.get("realm")));
 			
 			nvps.add(new BasicNameValuePair("pass", token));
 			
@@ -115,7 +115,8 @@ public class PIConnection {
 			try {
 			    HttpEntity entity = response.getEntity();
 			    String responseString = EntityUtils.toString(entity);
-			    logger.trace(responseString);
+			    if (logger.isTraceEnabled())
+			    	logger.trace("checkToken response: {}", responseString);
 			    
 			    return resultParser.parseSimpleResponse(responseString);
 
@@ -137,7 +138,7 @@ public class PIConnection {
 			nvps.add(new BasicNameValuePair("pass", token));
 			
 		    if (configMap.containsKey("realm"))
-				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
+				nvps.add(new BasicNameValuePair("tokenrealm", configMap.get("realm")));
 			
 			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 			
@@ -177,7 +178,7 @@ public class PIConnection {
 				throw new TwoFaException("userId missing in config map");
 
 			if (configMap.containsKey("realm"))
-				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
+				nvps.add(new BasicNameValuePair("tokenrealm", configMap.get("realm")));
 			
 			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 			
@@ -185,7 +186,8 @@ public class PIConnection {
 			try {
 			    HttpEntity entity = response.getEntity();
 			    String responseString = EntityUtils.toString(entity);
-			    logger.trace(responseString);
+			    if (logger.isTraceEnabled())
+			    	logger.trace("createAuthenticatorToken response: {}", responseString);
 			    
 			    return resultParser.parseInitAuthenticatorTokenResponse(responseString);
 
@@ -213,7 +215,7 @@ public class PIConnection {
 				throw new TwoFaException("userId missing in config map");
 
 			if (configMap.containsKey("realm"))
-				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
+				nvps.add(new BasicNameValuePair("tokenrealm", configMap.get("realm")));
 			
 			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 			
@@ -221,7 +223,8 @@ public class PIConnection {
 			try {
 			    HttpEntity entity = response.getEntity();
 			    String responseString = EntityUtils.toString(entity);
-			    logger.trace(responseString);
+			    if (logger.isTraceEnabled())
+			    	logger.trace("createYubicoToken response: {}", responseString);
 			    
 			    return resultParser.parseInitAuthenticatorTokenResponse(responseString);
 
@@ -252,7 +255,7 @@ public class PIConnection {
 				throw new TwoFaException("userId missing in config map");
 
 			if (configMap.containsKey("realm"))
-				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
+				nvps.add(new BasicNameValuePair("tokenrealm", configMap.get("realm")));
 			
 			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 			
@@ -260,7 +263,8 @@ public class PIConnection {
 			try {
 			    HttpEntity entity = response.getEntity();
 			    String responseString = EntityUtils.toString(entity);
-			    logger.trace(responseString);
+			    if (logger.isTraceEnabled())
+			    	logger.trace("createBackupTanList response: {}", responseString);
 			    
 			    return resultParser.parseInitAuthenticatorTokenResponse(responseString);
 
@@ -283,7 +287,7 @@ public class PIConnection {
 			nvps.add(new BasicNameValuePair("count", "" + count));
 
 			if (configMap.containsKey("realm"))
-				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
+				nvps.add(new BasicNameValuePair("tokenrealm", configMap.get("realm")));
 			
 			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 			
@@ -291,7 +295,8 @@ public class PIConnection {
 			try {
 			    HttpEntity entity = response.getEntity();
 			    String responseString = EntityUtils.toString(entity);
-			    logger.trace(responseString);
+			    if (logger.isTraceEnabled())
+			    	logger.trace("getBackupTanList response: {}", responseString);
 			    
 			    return resultParser.parseGetBackupTanListResponse(responseString);
 
@@ -314,7 +319,7 @@ public class PIConnection {
 
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
 			if (configMap.containsKey("realm"))
-				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
+				nvps.add(new BasicNameValuePair("tokenrealm", configMap.get("realm")));
 			nvps.add(new BasicNameValuePair("session", adminSession));
 			nvps.add(new BasicNameValuePair("serial", serial));
 			nvps.add(new BasicNameValuePair(key, value));
@@ -324,7 +329,8 @@ public class PIConnection {
 			try {
 			    HttpEntity entity = response.getEntity();
 			    String responseString = EntityUtils.toString(entity);
-			    logger.trace(responseString);
+			    if (logger.isTraceEnabled())
+			    	logger.trace("setTokenField response: {}", responseString);
 
 			    return resultParser.parseSetFieldResponse(responseString);
 
@@ -343,8 +349,7 @@ public class PIConnection {
 
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
 			if (configMap.containsKey("realm"))
-				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
-			nvps.add(new BasicNameValuePair("session", adminSession));
+				nvps.add(new BasicNameValuePair("tokenrealm", configMap.get("realm")));
 			nvps.add(new BasicNameValuePair("serial", serial));
 			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 			
@@ -352,7 +357,8 @@ public class PIConnection {
 			try {
 			    HttpEntity entity = response.getEntity();
 			    String responseString = EntityUtils.toString(entity);
-			    logger.trace(responseString);
+			    if (logger.isTraceEnabled())
+			    	logger.trace("disableToken response: {}", responseString);
 
 			    return resultParser.parseSimpleResponse(responseString);
 
@@ -366,13 +372,12 @@ public class PIConnection {
 	
 	public PISimpleResponse enableToken(String serial) throws TwoFaException {
 		try {
-			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/enable");
+			HttpPost httpPost = new HttpPost(configMap.get("url") + "/token/enable");
 			httpPost.addHeader("PI-Authorization", adminSession);
 
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
 			if (configMap.containsKey("realm"))
-				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
-			nvps.add(new BasicNameValuePair("session", adminSession));
+				nvps.add(new BasicNameValuePair("tokenrealm", configMap.get("realm")));
 			nvps.add(new BasicNameValuePair("serial", serial));
 			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 			
@@ -380,7 +385,8 @@ public class PIConnection {
 			try {
 			    HttpEntity entity = response.getEntity();
 			    String responseString = EntityUtils.toString(entity);
-			    logger.trace(responseString);
+			    if (logger.isTraceEnabled())
+			    	logger.trace("enableToken response: {}", responseString);
 
 			    return resultParser.parseSimpleResponse(responseString);
 
@@ -399,7 +405,7 @@ public class PIConnection {
 
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
 			if (configMap.containsKey("realm"))
-				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
+				nvps.add(new BasicNameValuePair("tokenrealm", configMap.get("realm")));
 			nvps.add(new BasicNameValuePair("session", adminSession));
 			nvps.add(new BasicNameValuePair("serial", serial));
 			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
@@ -408,7 +414,8 @@ public class PIConnection {
 			try {
 			    HttpEntity entity = response.getEntity();
 			    String responseString = EntityUtils.toString(entity);
-			    logger.trace(responseString);
+			    if (logger.isTraceEnabled())
+			    	logger.trace("deleteToken response: {}", responseString);
 
 			    return resultParser.parseSimpleResponse(responseString);
 
@@ -427,7 +434,7 @@ public class PIConnection {
 
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
 			if (configMap.containsKey("realm"))
-				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
+				nvps.add(new BasicNameValuePair("tokenrealm", configMap.get("realm")));
 			nvps.add(new BasicNameValuePair("session", adminSession));
 			nvps.add(new BasicNameValuePair("serial", serial));
 			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
@@ -436,7 +443,8 @@ public class PIConnection {
 			try {
 			    HttpEntity entity = response.getEntity();
 			    String responseString = EntityUtils.toString(entity);
-			    logger.trace(responseString);
+			    if (logger.isTraceEnabled())
+			    	logger.trace("resetFailcounter response: {}", responseString);
 
 			    return resultParser.parseSimpleResponse(responseString);
 
@@ -501,7 +509,8 @@ public class PIConnection {
 			try {
 			    HttpEntity entity = response.getEntity();
 			    String responseString = EntityUtils.toString(entity);
-			    logger.trace(responseString);
+			    if (logger.isTraceEnabled())
+			    	logger.trace("requestAdminSession response: {}", responseString);
 			    
 			    PIAuthResponse authResponse = resultParser.parseAuthResponse(responseString);
 			    adminSession = authResponse.getResult().getValue().getToken();
