@@ -201,7 +201,7 @@ public class TwoFaServiceImpl implements TwoFaService {
 	}
 
 	@Override
-	public TotpCreateResponse createBackupTanList(IdentityEntity identity, String executor) throws TwoFaException {
+	public TotpCreateResponse createHotpBackupTanList(IdentityEntity identity, String executor) throws TwoFaException {
 		identity = identityDao.merge(identity);
 		TwoFaManager manager = resolveTwoFaManager(identity);
 
@@ -211,7 +211,7 @@ public class TwoFaServiceImpl implements TwoFaService {
 		auditor.setIdentity(identity);
 		auditor.setDetail("Creating backup tan list for user " + identity.getId());
 
-		TotpCreateResponse response = manager.createBackupTanList(identity, auditor);
+		TotpCreateResponse response = manager.createHotpBackupTanList(identity, auditor);
 
 		if (! response.getSuccess()) {
 			auditor.logAction("" + identity.getId(), "CREATE BACKUP TAN LIST", "", "", AuditStatus.FAIL);

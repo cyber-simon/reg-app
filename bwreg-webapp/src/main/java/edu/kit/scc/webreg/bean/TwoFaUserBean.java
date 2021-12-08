@@ -145,7 +145,7 @@ public class TwoFaUserBean implements Serializable {
 	public void createBackupTanList() {
 		if (! getReadOnly()) {
 			try {
-				TotpCreateResponse response = twoFaService.createBackupTanList(identity, "identity-" + identity.getId());
+				TotpCreateResponse response = twoFaService.createHotpBackupTanList(identity, "identity-" + identity.getId());
 
 				if (response.getSuccess()) {
 					String serial = response.getSerial();

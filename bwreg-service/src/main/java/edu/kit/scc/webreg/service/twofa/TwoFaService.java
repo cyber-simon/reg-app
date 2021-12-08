@@ -28,7 +28,7 @@ public interface TwoFaService {
 
 	TokenStatusResponse disableToken(IdentityEntity identity, String serial, String executor) throws TwoFaException;
 
-	TotpCreateResponse createBackupTanList(IdentityEntity identity, String executor) throws TwoFaException;
+	TotpCreateResponse createHotpBackupTanList(IdentityEntity identity, String executor) throws TwoFaException;
 
 	HmacTokenList getBackupTanList(IdentityEntity identity, String serial)
 			throws TwoFaException;

@@ -23,7 +23,7 @@ public interface TwoFaManager {
 	TokenStatusResponse disableToken(IdentityEntity identity, String serial, TokenAuditor auditor) throws TwoFaException;
 	TokenStatusResponse enableToken(IdentityEntity identity, String serial, TokenAuditor auditor) throws TwoFaException;
 	TotpCreateResponse createYubicoToken(IdentityEntity identity, String yubi, TokenAuditor auditor) throws TwoFaException;
-	TotpCreateResponse createBackupTanList(IdentityEntity identity, TokenAuditor auditor) throws TwoFaException;
+	TotpCreateResponse createHotpBackupTanList(IdentityEntity identity, TokenAuditor auditor) throws TwoFaException;
 	TokenStatusResponse resetFailcounter(IdentityEntity identity, String serial, TokenAuditor auditor) throws TwoFaException;
 	TokenStatusResponse deleteToken(IdentityEntity identity, String serial, TokenAuditor auditor) throws TwoFaException;
 	HmacTokenList getBackupTanList(IdentityEntity identity, String serial) throws TwoFaException;

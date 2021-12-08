@@ -218,7 +218,7 @@ public class LinotpTokenManager extends AbstractTwoFaManager {
 	}
 
 	@Override
-	public TotpCreateResponse createBackupTanList(IdentityEntity identity, TokenAuditor auditor) throws TwoFaException {
+	public TotpCreateResponse createHotpBackupTanList(IdentityEntity identity, TokenAuditor auditor) throws TwoFaException {
 		LinotpConnection linotpConnection = new LinotpConnection(getConfigMap());
 		linotpConnection.requestAdminSession();
 		
