@@ -83,6 +83,10 @@ public class TwoFaUserBean implements Serializable {
 		}
 	}
 	
+	public Boolean getCapability(String capability) {
+		return getTokenList().getCapabilities().contains(capability);
+	}
+	
 	public void createAuthenticatorToken() {
 		if (! getReadOnly()) {
 			try {

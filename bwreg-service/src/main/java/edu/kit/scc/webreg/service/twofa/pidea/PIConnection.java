@@ -162,7 +162,8 @@ public class PIConnection {
 	
 	public PIInitAuthenticatorTokenResponse createAuthenticatorToken() throws TwoFaException {
 		try {
-			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/init");
+			HttpPost httpPost = new HttpPost(configMap.get("url") + "/token/init");
+			httpPost.addHeader("PI-Authorization", adminSession);
 			
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
 			nvps.add(new BasicNameValuePair("session", adminSession));
@@ -238,53 +239,16 @@ public class PIConnection {
 	}
 
 	public PIInitAuthenticatorTokenResponse createBackupTanList() throws TwoFaException {
-		try {
-			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/init");
-			httpPost.addHeader("PI-Authorization", adminSession);
-			
-			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
-			nvps.add(new BasicNameValuePair("session", adminSession));
-			nvps.add(new BasicNameValuePair("type", "hmac"));
-			nvps.add(new BasicNameValuePair("otplen", "8"));
-			nvps.add(new BasicNameValuePair("genkey", "1"));
-			nvps.add(new BasicNameValuePair("hashlib", "sha1"));
-			nvps.add(new BasicNameValuePair("description", "INIT,DELABLE,BWIDM,TS " + formatDate() + ","));
-
-			if (configMap.containsKey("userId"))
-			    nvps.add(new BasicNameValuePair("user", configMap.get("userId")));
-			else
-				throw new TwoFaException("userId missing in config map");
-
-			if (configMap.containsKey("realm"))
-				nvps.add(new BasicNameValuePair("tokenrealm", configMap.get("realm")));
-			
-			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
-			
-			CloseableHttpResponse response = httpClient.execute(targetHost, httpPost, context);
-			try {
-			    HttpEntity entity = response.getEntity();
-			    String responseString = EntityUtils.toString(entity);
-			    if (logger.isTraceEnabled())
-			    	logger.trace("createBackupTanList response: {}", responseString);
-			    
-			    return resultParser.parseInitAuthenticatorTokenResponse(responseString);
-
-			} finally {
-				response.close();
-			}
-		} catch (ParseException | IOException e) {
-			throw new TwoFaException(e);
-		}		
+		throw new IllegalAccessError();
 	}
 
 	public PIGetBackupTanListResponse getBackupTanList(String serial, int count) throws TwoFaException {
 		try {
-			HttpPost httpPost = new HttpPost(configMap.get("url") + "/gettoken/getmultiotp");
+			HttpPost httpPost = new HttpPost(configMap.get("url") + "/selfservice/getmultiotp");
 			httpPost.addHeader("PI-Authorization", adminSession);
 			
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
 			nvps.add(new BasicNameValuePair("serial", serial));
-			nvps.add(new BasicNameValuePair("session", adminSession));
 			nvps.add(new BasicNameValuePair("count", "" + count));
 
 			if (configMap.containsKey("realm"))
@@ -449,16 +413,9 @@ public class PIConnection {
 
 	public PISimpleResponse resetFailcounter(String serial) throws TwoFaException {
 		try {
-			HttpPost httpPost = new HttpPost(configMap.get("url") + "/admin/reset");
+			HttpPost httpPost = new HttpPost(configMap.get("url") + "/token/reset/" + serial);
 			httpPost.addHeader("PI-Authorization", adminSession);
 
-			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
-			if (configMap.containsKey("realm"))
-				nvps.add(new BasicNameValuePair("tokenrealm", configMap.get("realm")));
-			nvps.add(new BasicNameValuePair("session", adminSession));
-			nvps.add(new BasicNameValuePair("serial", serial));
-			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
-			
 			CloseableHttpResponse response = httpClient.execute(targetHost, httpPost, context);
 			try {
 			    HttpEntity entity = response.getEntity();

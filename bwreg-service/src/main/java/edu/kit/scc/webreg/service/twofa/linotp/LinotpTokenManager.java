@@ -2,6 +2,7 @@ package edu.kit.scc.webreg.service.twofa.linotp;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,15 @@ import edu.kit.scc.webreg.service.twofa.token.YubicoToken;
 public class LinotpTokenManager extends AbstractTwoFaManager {
 
 	private static Logger logger = LoggerFactory.getLogger(LinotpTokenManager.class);
+
+	private static Set<String> capabilities = Set.of(new String[] { 
+			"TOTP", "YUBIKEY", "HOTP_TANLIST"
+	});
+	
+	@Override
+	public Set<String> getCapabilities() {
+		return capabilities;
+	}
 
 	@Override
 	public TwoFaTokenList findByIdentity(IdentityEntity identity) throws TwoFaException {

@@ -54,7 +54,10 @@ public class TwoFaServiceImpl implements TwoFaService {
 		identity = identityDao.merge(identity);
 		TwoFaManager manager = resolveTwoFaManager(identity);
 		
-		return manager.findByIdentity(identity);
+		TwoFaTokenList list = manager.findByIdentity(identity);
+		list.setCapabilities(manager.getCapabilities());
+		
+		return list;
 	}
 
 	@Override

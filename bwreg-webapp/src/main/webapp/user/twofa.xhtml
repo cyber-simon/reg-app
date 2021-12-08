@@ -130,9 +130,12 @@
 				<h:outputText value="#{messages.twofa_create_new_token}" />
 			</div>
 			<p:outputPanel style="margin-bottom: 16px;">
-				<p:commandButton id="openAddTotpDialog" oncomplete="PF('addTotpDlg').show();" value="#{messages.twofa_create_new_totp}"></p:commandButton>
-				<p:commandButton id="openAddYubicoDialog" oncomplete="PF('addYubicoDlg').show();" value="#{messages.twofa_create_new_yubico}"></p:commandButton>
-				<p:commandButton id="openAddBackupTanDialog" oncomplete="PF('addBackupTanDlg').show();" value="#{messages.twofa_create_backup_tan_list}"></p:commandButton>
+				<p:commandButton id="openAddTotpDialog" oncomplete="PF('addTotpDlg').show();" value="#{messages.twofa_create_new_totp}" 
+					rendered="#{twoFaUserBean.getCapability('TOTP')}"/>
+				<p:commandButton id="openAddYubicoDialog" oncomplete="PF('addYubicoDlg').show();" value="#{messages.twofa_create_new_yubico}"
+					rendered="#{twoFaUserBean.getCapability('YUBIKEY')}"/>
+				<p:commandButton id="openAddBackupTanDialog" oncomplete="PF('addBackupTanDlg').show();" value="#{messages.twofa_create_backup_tan_list}"
+					rendered="#{twoFaUserBean.getCapability('HOTP_TANLIST')}"/>
 			</p:outputPanel>
 			<p:outputPanel rendered="#{not empty twoFaUserBean.returnServiceId}" styleClass="text full">
 				<a href="../user/register-service.xhtml?serviceId=#{twoFaUserBean.returnServiceId}">#{messages.twofa_back_to_register}</a>

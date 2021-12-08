@@ -2,6 +2,7 @@ package edu.kit.scc.webreg.service.twofa.pidea;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,15 @@ public class PITokenManager extends AbstractTwoFaManager {
 
 	private static Logger logger = LoggerFactory.getLogger(PITokenManager.class);
 
+	private static Set<String> capabilities = Set.of(new String[] { 
+			"TOTP", "YUBIKEY", "PAPER_TAN"
+	});
+	
+	@Override
+	public Set<String> getCapabilities() {
+		return capabilities;
+	}
+	
 	@Override
 	public TwoFaTokenList findByIdentity(IdentityEntity identity) throws TwoFaException {
 		TwoFaTokenList resultList = new TwoFaTokenList();
@@ -140,7 +150,7 @@ public class PITokenManager extends AbstractTwoFaManager {
 			response.setSuccess(true);
 			response.setSerial(piResponse.getDetail().getSerial());
 			response.setDescription(piResponse.getDetail().getGoogleurl().getDescription());
-			response.setImage(piResponse.getDetail().getGoogleurl().getImg());
+			response.setImage("<img src=\"" + piResponse.getDetail().getGoogleurl().getImg() + "\" width=\"128\" height=\"128\" />");
 			response.setOrder(piResponse.getDetail().getGoogleurl().getOrder());
 			response.setValue(piResponse.getDetail().getGoogleurl().getValue());
 			response.setSeed(piResponse.getDetail().getOtpkey().getValue());
@@ -209,21 +219,7 @@ public class PITokenManager extends AbstractTwoFaManager {
 
 	@Override
 	public TotpCreateResponse createBackupTanList(IdentityEntity identity, TokenAuditor auditor) throws TwoFaException {
-		PIConnection PIConnection = new PIConnection(getConfigMap());
-		PIConnection.requestAdminSession();
-		
-		PIInitAuthenticatorTokenResponse piResponse = PIConnection.createBackupTanList();
-		TotpCreateResponse response = new TotpCreateResponse();
-		
-		if (piResponse == null) {
-			response.setSuccess(false);
-		}
-		else {
-			response.setSuccess(true);
-			response.setSerial(piResponse.getDetail().getSerial());
-		}
-		
-		return response;
+		throw new IllegalAccessError();
 	}
 
 	@Override
@@ -289,17 +285,20 @@ public class PITokenManager extends AbstractTwoFaManager {
 	
 	private GenericTwoFaToken convertToken(PIToken piToken) {
 		GenericTwoFaToken token;
-		if (piToken.getTokentype().equals("TOTP")) {
+		if (piToken.getTokentype().equals("totp")) {
 			TotpToken totpToken = new TotpToken();
 			totpToken.setOtpLen(piToken.getOtplen());
 			totpToken.setCountWindow(piToken.getCountWindow());
 			token = totpToken;
+			token.setTokenType("TOTP");
 		}
 		else if (piToken.getTokentype().equals("yubico")) {
 			token = new YubicoToken();
+			token.setTokenType("yubico");
 		}
-		else if (piToken.getTokentype().equals("HMAC")) {
+		else if (piToken.getTokentype().equals("hotp")) {
 			token = new HmacToken();
+			token.setTokenType("HMAC");
 		}
 		else {
 			logger.warn("Unknown Tokentype {}. Ingoring.", piToken.getTokentype());
@@ -309,7 +308,6 @@ public class PITokenManager extends AbstractTwoFaManager {
 		// Token in PI only have serials
 		//token.setId(piToken.getId());
 		token.setSerial(piToken.getSerial());
-		token.setTokenType(piToken.getTokentype());
 		//token.setTokenInfo(piToken.getTokenInfo());
 		token.setDescription(piToken.getDescription());
 		token.setMaxFail(piToken.getMaxfail());

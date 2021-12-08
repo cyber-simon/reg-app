@@ -2,6 +2,7 @@ package edu.kit.scc.webreg.service.twofa.token;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Set;
 
 public class TwoFaTokenList extends ArrayList<GenericTwoFaToken> implements Serializable {
 
@@ -11,6 +12,8 @@ public class TwoFaTokenList extends ArrayList<GenericTwoFaToken> implements Seri
 	private Boolean readOnly;
 	private Boolean reallyReadOnly;
 	private String adminRole;
+	
+	private Set<String> capabilities;
 	
 	public Boolean getReadOnly() {
 		return readOnly;
@@ -42,6 +45,14 @@ public class TwoFaTokenList extends ArrayList<GenericTwoFaToken> implements Seri
 
 	public void setAdminRole(String adminRole) {
 		this.adminRole = adminRole;
+	}
+
+	public Set<String> getCapabilities() {
+		return capabilities;
+	}
+
+	public void setCapabilities(Set<String> capabilities) {
+		this.capabilities = capabilities;
 	}
 
 }
