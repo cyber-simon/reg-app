@@ -237,6 +237,11 @@ public class LinotpTokenManager extends AbstractTwoFaManager {
 	}
 
 	@Override
+	public TotpCreateResponse createPaperTanList(IdentityEntity identity, TokenAuditor auditor) throws TwoFaException {
+		throw new IllegalAccessError();
+	}
+	
+	@Override
 	public TokenStatusResponse resetFailcounter(IdentityEntity identity, String serial, TokenAuditor auditor) throws TwoFaException {
 		LinotpConnection linotpConnection = new LinotpConnection(getConfigMap());
 		linotpConnection.requestAdminSession();

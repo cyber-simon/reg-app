@@ -238,18 +238,19 @@ public class PIConnection {
 		}		
 	}
 
-	public PIInitAuthenticatorTokenResponse createBackupTanList() throws TwoFaException {
-		throw new IllegalAccessError();
-	}
-
-	public PIGetBackupTanListResponse getBackupTanList(String serial, int count) throws TwoFaException {
+	public PIInitAuthenticatorTokenResponse createPaperTanList() throws TwoFaException {
 		try {
-			HttpPost httpPost = new HttpPost(configMap.get("url") + "/selfservice/getmultiotp");
+			HttpPost httpPost = new HttpPost(configMap.get("url") + "/token/init");
 			httpPost.addHeader("PI-Authorization", adminSession);
 			
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
-			nvps.add(new BasicNameValuePair("serial", serial));
-			nvps.add(new BasicNameValuePair("count", "" + count));
+			nvps.add(new BasicNameValuePair("type", "paper"));
+			nvps.add(new BasicNameValuePair("description", "This is a description"));
+
+			if (configMap.containsKey("userId"))
+			    nvps.add(new BasicNameValuePair("user", configMap.get("userId")));
+			else
+				throw new TwoFaException("userId missing in config map");
 
 			if (configMap.containsKey("realm"))
 				nvps.add(new BasicNameValuePair("tokenrealm", configMap.get("realm")));
@@ -261,9 +262,9 @@ public class PIConnection {
 			    HttpEntity entity = response.getEntity();
 			    String responseString = EntityUtils.toString(entity);
 			    if (logger.isTraceEnabled())
-			    	logger.trace("getBackupTanList response: {}", responseString);
+			    	logger.trace("createYubicoToken response: {}", responseString);
 			    
-			    return resultParser.parseGetBackupTanListResponse(responseString);
+			    return resultParser.parseInitAuthenticatorTokenResponse(responseString);
 
 			} finally {
 				response.close();

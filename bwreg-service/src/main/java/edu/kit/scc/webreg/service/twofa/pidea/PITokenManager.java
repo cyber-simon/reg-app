@@ -1,6 +1,5 @@
 package edu.kit.scc.webreg.service.twofa.pidea;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,6 +13,7 @@ import edu.kit.scc.webreg.service.twofa.TwoFaException;
 import edu.kit.scc.webreg.service.twofa.token.GenericTwoFaToken;
 import edu.kit.scc.webreg.service.twofa.token.HmacToken;
 import edu.kit.scc.webreg.service.twofa.token.HmacTokenList;
+import edu.kit.scc.webreg.service.twofa.token.PaperTanListToken;
 import edu.kit.scc.webreg.service.twofa.token.TokenStatusResponse;
 import edu.kit.scc.webreg.service.twofa.token.TotpCreateResponse;
 import edu.kit.scc.webreg.service.twofa.token.TotpToken;
@@ -223,6 +223,25 @@ public class PITokenManager extends AbstractTwoFaManager {
 	}
 
 	@Override
+	public TotpCreateResponse createPaperTanList(IdentityEntity identity, TokenAuditor auditor) throws TwoFaException {
+		PIConnection piConnection = new PIConnection(getConfigMap());
+		piConnection.requestAdminSession();
+		
+		PIInitAuthenticatorTokenResponse piResponse = piConnection.createPaperTanList();
+		TotpCreateResponse response = new TotpCreateResponse();
+		
+		if (piResponse == null || piResponse.getDetail() == null) {
+			response.setSuccess(false);
+		}
+		else {
+			response.setSuccess(true);
+			response.setSerial(piResponse.getDetail().getSerial());
+		}
+		
+		return response;
+	}
+	
+	@Override
 	public TokenStatusResponse resetFailcounter(IdentityEntity identity, String serial, TokenAuditor auditor) throws TwoFaException {
 		PIConnection PIConnection = new PIConnection(getConfigMap());
 		PIConnection.requestAdminSession();
@@ -262,25 +281,7 @@ public class PITokenManager extends AbstractTwoFaManager {
 	
 	@Override
 	public HmacTokenList getBackupTanList(IdentityEntity identity, String serial) throws TwoFaException {
-		PIConnection PIConnection = new PIConnection(getConfigMap());
-		PIConnection.requestAdminSession();
-		
-		int count = 5;
-		if (getConfigMap().containsKey("backup_count")) {
-			count = Integer.parseInt(getConfigMap().get("backup_count"));
-		}
-		PIGetBackupTanListResponse piResponse = PIConnection.getBackupTanList(serial, count);
-		
-		if (piResponse == null) {
-			throw new TwoFaException("Could not get backup tan list!");
-		}
-		
-		HmacTokenList list = new HmacTokenList();
-		list.setSerial(piResponse.getResult().getValue().getSerial());
-		list.setTokenType(piResponse.getResult().getValue().getType());
-		list.setOtp(new HashMap<String, String>(piResponse.getResult().getValue().getOtp()));
-		
-		return list;
+		throw new IllegalAccessError();
 	}
 	
 	private GenericTwoFaToken convertToken(PIToken piToken) {
@@ -299,6 +300,11 @@ public class PITokenManager extends AbstractTwoFaManager {
 		else if (piToken.getTokentype().equals("hotp")) {
 			token = new HmacToken();
 			token.setTokenType("HMAC");
+		}
+		else if (piToken.getTokentype().equals("paper")) {
+			PaperTanListToken paperToken = new PaperTanListToken();
+			paperToken.setTokenType("PAPER");
+			token = paperToken;
 		}
 		else {
 			logger.warn("Unknown Tokentype {}. Ingoring.", piToken.getTokentype());
