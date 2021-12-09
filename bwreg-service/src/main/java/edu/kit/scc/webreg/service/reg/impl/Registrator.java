@@ -627,6 +627,21 @@ public class Registrator implements Serializable {
 			ServiceEntity serviceEntity = registry.getService();
 			UserEntity userEntity = registry.getUser();
 
+			String passwordRegex;
+			if (serviceEntity.getServiceProps().containsKey("password_regex")) 
+				passwordRegex = serviceEntity.getServiceProps().get("password_regex");
+			else
+				passwordRegex = ".{6,}";
+
+			String passwordRegexMessage;
+			if (serviceEntity.getServiceProps().containsKey("password_regex_message")) 
+				passwordRegexMessage = serviceEntity.getServiceProps().get("password_regex_message");
+			else
+				passwordRegexMessage = "Das Passwort ist nicht komplex genug";
+			
+			if (! password.matches(passwordRegex))
+				throw new RegisterException(passwordRegexMessage);
+
 			ServiceRegisterAuditor auditor = new ServiceRegisterAuditor(auditDao, auditDetailDao, appConfig);
 			auditor.startAuditTrail(executor);
 			auditor.setName(workflow.getClass().getName() + "-SetPassword-Audit");

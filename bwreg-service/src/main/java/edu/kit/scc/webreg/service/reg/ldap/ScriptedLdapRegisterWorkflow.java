@@ -343,21 +343,6 @@ public class ScriptedLdapRegisterWorkflow
 		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
 		Map<String, String> regMap = registry.getRegistryValues();
 
-		String passwordRegex;
-		if (prop.hasProp("password_regex")) 
-			passwordRegex = prop.readPropOrNull("password_regex");
-		else
-			passwordRegex = ".{6,}";
-
-		String passwordRegexMessage;
-		if (prop.hasProp("password_regex_message")) 
-			passwordRegexMessage = prop.readPropOrNull("password_regex_message");
-		else
-			passwordRegexMessage = "Das Passwort ist nicht komplex genug";
-		
-		if (! password.matches(passwordRegex))
-			throw new RegisterException(passwordRegexMessage);
-
 		String localUid = regMap.get("localUid");
 
 		String ntPassword = null;
