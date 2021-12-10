@@ -238,6 +238,43 @@ public class TwoFaServiceImpl implements TwoFaService {
 	}
 
 	@Override
+	public TotpCreateResponse createPaperTanList(IdentityEntity identity, String executor) throws TwoFaException {
+		identity = identityDao.merge(identity);
+		TwoFaManager manager = resolveTwoFaManager(identity);
+
+		TokenAuditor auditor = new TokenAuditor(auditEntryDao, auditDetailDao, appConfig);
+		auditor.startAuditTrail(executor, true);
+		auditor.setName(this.getClass().getName() + "-CreatePaperTanList-Audit");
+		auditor.setIdentity(identity);
+		auditor.setDetail("Creating paper tan list for user " + identity.getId());
+
+		TotpCreateResponse response = manager.createPaperTanList(identity, auditor);
+
+		if (! response.getSuccess()) {
+			auditor.logAction("" + identity.getId(), "CREATE PAPER TAN LIST", "", "", AuditStatus.FAIL);
+			auditor.finishAuditTrail();
+			throw new TwoFaException("Token generation did not succeed!");
+		}
+
+		auditor.logAction("" + identity.getId(), "CREATE PAPER TAN LIST", "serial-" + response.getSerial(), "", AuditStatus.SUCCESS);
+
+		HashMap<String, Object> eventMap = new HashMap<String, Object>();
+		eventMap.put("identity", identity);
+		eventMap.put("respone", response);
+		eventMap.put("serial", response.getSerial());
+		TokenEvent event = new TokenEvent(eventMap);
+		try {
+			eventSubmitter.submit(event, EventType.TWOFA_CREATED, executor);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}
+
+		auditor.finishAuditTrail();
+
+		return response;
+	}
+	
+	@Override
 	public HmacTokenList getBackupTanList(IdentityEntity identity, String serial) throws TwoFaException {
 		identity = identityDao.merge(identity);
 		TwoFaManager manager = resolveTwoFaManager(identity);

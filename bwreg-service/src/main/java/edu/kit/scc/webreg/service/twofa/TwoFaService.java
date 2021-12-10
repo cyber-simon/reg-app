@@ -38,4 +38,6 @@ public interface TwoFaService {
 	TokenStatusResponse resetFailcounter(IdentityEntity identity, String serial, String executor)
 			throws TwoFaException;
 
+	TotpCreateResponse createPaperTanList(IdentityEntity identity, String executor) throws TwoFaException;
+
 }

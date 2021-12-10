@@ -136,6 +136,8 @@
 					rendered="#{twoFaUserBean.getCapability('YUBIKEY')}"/>
 				<p:commandButton id="openAddBackupTanDialog" oncomplete="PF('addBackupTanDlg').show();" value="#{messages.twofa_create_backup_tan_list}"
 					rendered="#{twoFaUserBean.getCapability('HOTP_TANLIST')}"/>
+				<p:commandButton id="openAddPaperTanDialog" oncomplete="PF('addPaperTanDlg').show();" value="#{messages.twofa_create_paper_tan_list}"
+					rendered="#{twoFaUserBean.getCapability('PAPER_TAN')}"/>
 			</p:outputPanel>
 			<p:outputPanel rendered="#{not empty twoFaUserBean.returnServiceId}" styleClass="text full">
 				<a href="../user/register-service.xhtml?serviceId=#{twoFaUserBean.returnServiceId}">#{messages.twofa_back_to_register}</a>
@@ -235,6 +237,43 @@
 			</p:panel>
 
 		</p:dialog>
+
+		<p:dialog header="#{messages.twofa_create_paper_tan_list}" 
+					widgetVar="addPaperTanDlg" id="addPaperTanDlgId" modal="true" closable="true" closeOnEscape="true"
+					showEffect="fade" hideEffect="fade">
+			<p:ajax event="close" update=":form:tokenDisplayPanel" />
+			<div class="panel" style="width:360px;">
+			    <h:outputText value="#{messages.twofa_create_paper_tan_list_desc}" escape="false" />
+		    </div>
+		
+			<p:outputPanel id="paperTanResponseParentPanel">
+				<p:panel id="paperTanResponsePanel" rendered="#{twoFaUserBean.createTokenResponse == null}">
+				    <p:commandButton id="paperTanStartButton" action="#{twoFaUserBean.createPaperTanList()}" value="#{messages.start}"
+			    		update="paperTanResponseParentPanel, :form:messagePanel"/>
+				</p:panel>
+				<p:panel id="paperTanResponsePanelShow" rendered="#{twoFaUserBean.createTokenResponse != null}">
+					<p:outputPanel id="showPaperTanIdPrintBox">
+						<div style="margin-bottom: 8px;">
+							<h:outputText value="#{messages.twofa_backup_tan_list_values}" />
+						</div>
+						<ul style="margin-bottom: 16px; column-count: 5;">
+							<ui:repeat var="key" value="#{twoFaUserBean.createTokenResponse.otps.keySet()}">
+								<li style="margin-bottom: 4px;">
+									<b><h:outputText value="#{key}" /></b> -  
+									<h:outputText value="#{twoFaUserBean.createTokenResponse.otps.get(key)}" />
+								</li>
+							</ui:repeat>
+						</ul>
+					</p:outputPanel>
+					<p:commandButton value="Print" type="button" style="margin-bottom: 16px">
+		    			<p:printer target="showPaperTanIdPrintBox" />
+					</p:commandButton>
+				    <p:commandButton id="paperTanAckButton" action="#{twoFaUserBean.ackPaperTanList()}" value="#{messages.acknoledge}"
+			    		update="paperTanResponseParentPanel, :form:messagePanel"/>
+				</p:panel>
+			</p:outputPanel>
+		</p:dialog>
+		
 		
 	    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" closable="false" closeOnEscape="true">
 	        <p:commandButton value="#{messages.yes}" type="button" styleClass="ui-confirmdialog-yes" />

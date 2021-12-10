@@ -175,6 +175,40 @@ public class TwoFaUserBean implements Serializable {
 		}
 	}	
 
+	public void createPaperTanList() {
+		if (! getReadOnly()) {
+			try {
+				TotpCreateResponse response = twoFaService.createPaperTanList(identity, "identity-" + identity.getId());
+
+				if (response.getSuccess()) {
+					String serial = response.getSerial();
+					twoFaService.initToken(identity, serial, "identity-" + identity.getId());
+					
+					messageGenerator.addInfoMessage("messagePanel", "Info", "Token " + serial + " created");
+					
+					if (! hasActiveToken()) {
+						// this was the first token. We have to set 2fa elevation
+						sessionManager.setTwoFaElevation(Instant.now());
+					}					
+
+					tokenList = twoFaService.findByIdentity(identity);
+					createTokenResponse = response;
+				}
+				else {
+					messageGenerator.addResolvedWarningMessage("messagePanel", "warn", "twofa_token_failed", true);
+				}	
+			} catch (TwoFaException e) {
+				logger.warn("TwoFaException", e);
+			}
+		}
+	}	
+
+	public void ackPaperTanList() {
+		PrimeFaces.current().executeScript("PF('addPaperTanDlg').hide();");
+		createTokenResponse = null;
+		yubicoCode = "";
+	}
+	
 	public void getBackupTanList(String serial) {
 		if (! getReadOnly()) {
 			try {

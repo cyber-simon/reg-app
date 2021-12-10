@@ -1,6 +1,7 @@
 package edu.kit.scc.webreg.service.twofa.token;
 
 import java.io.Serializable;
+import java.util.Map;
 
 public class TotpCreateResponse implements Serializable {
 
@@ -14,6 +15,7 @@ public class TotpCreateResponse implements Serializable {
 	private Boolean success;
 	private String message;
 	private String seed;
+	private Map<String, String> otps;
 	
 	public String getDescription() {
 		return description;
@@ -77,5 +79,13 @@ public class TotpCreateResponse implements Serializable {
 
 	public void setSeed(String seed) {
 		this.seed = seed;
+	}
+
+	public Map<String, String> getOtps() {
+		return otps;
+	}
+
+	public void setOtps(Map<String, String> otps) {
+		this.otps = otps;
 	}
 }

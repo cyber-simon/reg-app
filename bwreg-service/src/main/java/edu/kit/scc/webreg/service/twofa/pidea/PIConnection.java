@@ -238,7 +238,7 @@ public class PIConnection {
 		}		
 	}
 
-	public PIInitAuthenticatorTokenResponse createPaperTanList() throws TwoFaException {
+	public PIInitPaperTanTokenResponse createPaperTanList() throws TwoFaException {
 		try {
 			HttpPost httpPost = new HttpPost(configMap.get("url") + "/token/init");
 			httpPost.addHeader("PI-Authorization", adminSession);
@@ -262,9 +262,9 @@ public class PIConnection {
 			    HttpEntity entity = response.getEntity();
 			    String responseString = EntityUtils.toString(entity);
 			    if (logger.isTraceEnabled())
-			    	logger.trace("createYubicoToken response: {}", responseString);
+			    	logger.trace("createPaperTanList response: {}", responseString);
 			    
-			    return resultParser.parseInitAuthenticatorTokenResponse(responseString);
+			    return resultParser.parseInitPaperTanTokenResponse(responseString);
 
 			} finally {
 				response.close();

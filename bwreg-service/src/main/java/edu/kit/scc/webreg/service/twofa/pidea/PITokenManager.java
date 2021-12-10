@@ -227,7 +227,7 @@ public class PITokenManager extends AbstractTwoFaManager {
 		PIConnection piConnection = new PIConnection(getConfigMap());
 		piConnection.requestAdminSession();
 		
-		PIInitAuthenticatorTokenResponse piResponse = piConnection.createPaperTanList();
+		PIInitPaperTanTokenResponse piResponse = piConnection.createPaperTanList();
 		TotpCreateResponse response = new TotpCreateResponse();
 		
 		if (piResponse == null || piResponse.getDetail() == null) {
@@ -236,6 +236,7 @@ public class PITokenManager extends AbstractTwoFaManager {
 		else {
 			response.setSuccess(true);
 			response.setSerial(piResponse.getDetail().getSerial());
+			response.setOtps(piResponse.getDetail().getOtps());
 		}
 		
 		return response;

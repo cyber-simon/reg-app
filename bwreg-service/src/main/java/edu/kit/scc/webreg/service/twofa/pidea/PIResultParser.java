@@ -52,6 +52,16 @@ public class PIResultParser {
 			throw new TwoFaException(e);
 		}		
 	}	
+
+	public PIInitPaperTanTokenResponse parseInitPaperTanTokenResponse(String responseString) throws TwoFaException {
+		try {
+			PIInitPaperTanTokenResponse response = 
+					om.readValue(responseString, PIInitPaperTanTokenResponse.class);
+			return response;
+		} catch (IOException e) {
+			throw new TwoFaException(e);
+		}		
+	}	
 	
 	public PIGetBackupTanListResponse parseGetBackupTanListResponse(String responseString) throws TwoFaException {
 		try {
