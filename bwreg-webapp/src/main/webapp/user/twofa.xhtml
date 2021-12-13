@@ -52,6 +52,7 @@
 							<h:graphicImage width="60px" value="#{resource['img/kittoken_small.png']}" alt="Hardware Token" rendered="#{token.tokenType == 'TOTP' and not token.serial.startsWith('TOTP')}"/>
 							<h:graphicImage width="60px" value="#{resource['img/yubikey_small.png']}" alt="Yubikey" rendered="#{token.tokenType == 'yubico'}"/>
 							<h:graphicImage width="60px" value="#{resource['img/tanlist.svg']}" alt="Backup TAN List" rendered="#{token.tokenType == 'HMAC'}"/>
+							<h:graphicImage width="60px" value="#{resource['img/tanlist.svg']}" alt="Paper TAN List" rendered="#{token.tokenType == 'PAPER_TAN'}"/>
 						</p:outputPanel>
 						<p:outputPanel>
 							<h:panelGrid columns="2">
@@ -61,6 +62,7 @@
 									<h:outputText value="#{messages.twofa_tokentype_totp}" rendered="#{token.tokenType == 'TOTP' and token.serial.startsWith('TOTP')}"/>
 									<h:outputText value="#{messages.twofa_tokentype_totp_hardware}" rendered="#{token.tokenType == 'TOTP' and not token.serial.startsWith('TOTP')}"/>
 									<h:outputText value="#{messages.twofa_tokentype_tanlist}" rendered="#{token.tokenType == 'HMAC'}"/>
+									<h:outputText value="#{messages.twofa_tokentype_papertanlist}" rendered="#{token.tokenType == 'PAPER_TAN'}"/>
 									<h:outputText value="#{messages.twofa_tokentype_yubikey}" rendered="#{token.tokenType == 'yubico'}"/>
 								</h:panelGroup>
 								
@@ -91,6 +93,7 @@
 						<h:graphicImage width="60px" value="#{resource['img/kittoken_small.png']}" alt="Hardware Token" rendered="#{token.tokenType == 'TOTP' and not token.serial.startsWith('TOTP')}"/>
 						<h:graphicImage width="60px" value="#{resource['img/yubikey_small.png']}" alt="Yubikey" rendered="#{token.tokenType == 'yubico'}"/>
 						<h:graphicImage width="60px" value="#{resource['img/tanlist.svg']}" alt="Backup TAN List" rendered="#{token.tokenType == 'HMAC'}"/>
+						<h:graphicImage width="60px" value="#{resource['img/tanlist.svg']}" alt="Paper TAN List" rendered="#{token.tokenType == 'PAPER_TAN'}"/>
 					</p:outputPanel>
 					<p:outputPanel>
 						<h:panelGrid columns="2" style="margin-bottom: 16px;">
@@ -99,6 +102,7 @@
 								<h:outputText value="#{messages.twofa_tokentype_totp}" rendered="#{token.tokenType == 'TOTP' and token.serial.startsWith('TOTP')}"/>
 								<h:outputText value="#{messages.twofa_tokentype_totp_hardware}" rendered="#{token.tokenType == 'TOTP' and not token.serial.startsWith('TOTP')}"/>
 								<h:outputText value="#{messages.twofa_tokentype_tanlist}" rendered="#{token.tokenType == 'HMAC'}"/>
+								<h:outputText value="#{messages.twofa_tokentype_papertanlist}" rendered="#{token.tokenType == 'PAPER_TAN'}"/>
 								<h:outputText value="#{messages.twofa_tokentype_yubikey}" rendered="#{token.tokenType == 'yubico'}"/>
 							</h:panelGroup>
 		
@@ -254,7 +258,7 @@
 				<p:panel id="paperTanResponsePanelShow" rendered="#{twoFaUserBean.createTokenResponse != null}">
 					<p:outputPanel id="showPaperTanIdPrintBox">
 						<div style="margin-bottom: 8px;">
-							<h:outputText value="#{messages.twofa_backup_tan_list_values}" />
+							<h:outputText value="#{messages.twofa_create_paper_tan_list_values}" escape="false" />
 						</div>
 						<ul style="margin-bottom: 16px; column-count: 5;">
 							<ui:repeat var="key" value="#{twoFaUserBean.createTokenResponse.otps.keySet()}">
