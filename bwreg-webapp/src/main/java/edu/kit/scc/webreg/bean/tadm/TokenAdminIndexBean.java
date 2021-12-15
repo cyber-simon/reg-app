@@ -15,10 +15,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Named;
-import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.slf4j.Logger;
 
@@ -30,8 +30,8 @@ import edu.kit.scc.webreg.sec.AuthorizationBean;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.twofa.TwoFaException;
 import edu.kit.scc.webreg.service.twofa.TwoFaService;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpTokenResultList;
+import edu.kit.scc.webreg.service.twofa.token.TokenStatusResponse;
+import edu.kit.scc.webreg.service.twofa.token.TwoFaTokenList;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
@@ -60,7 +60,7 @@ public class TokenAdminIndexBean implements Serializable {
 	private AuthorizationBean authBean;
 	
  	private UserEntity selectedUser;
- 	private LinotpTokenResultList userTokenList;
+ 	private TwoFaTokenList userTokenList;
  	
 	public void preRenderView(ComponentSystemEvent ev) {
 		
@@ -103,10 +103,9 @@ public class TokenAdminIndexBean implements Serializable {
 	public void enableToken(String serial) {
 		if (! getReadOnly()) {
 			try {
-				LinotpSimpleResponse response = twoFaService.enableToken(selectedUser.getIdentity(), serial, "identity-" + session.getIdentityId());
+				TokenStatusResponse response = twoFaService.enableToken(selectedUser.getIdentity(), serial, "identity-" + session.getIdentityId());
 				userTokenList = twoFaService.findByIdentity(selectedUser.getIdentity());
-				if ((response.getResult() != null) && response.getResult().isStatus() &&
-						response.getResult().isValue()) {
+				if (response.getSuccess()) {
 					messageGenerator.addInfoMessage("Info", "Token " + serial + " enabled");
 				}
 				else {
@@ -122,14 +121,13 @@ public class TokenAdminIndexBean implements Serializable {
 	public void disableToken(String serial) {
 		if (! getReadOnly()) {
 			try {
-				LinotpSimpleResponse response = twoFaService.disableToken(selectedUser.getIdentity(), serial, "identity-" + session.getIdentityId());
+				TokenStatusResponse response = twoFaService.disableToken(selectedUser.getIdentity(), serial, "identity-" + session.getIdentityId());
 				userTokenList = twoFaService.findByIdentity(selectedUser.getIdentity());
-				if ((response.getResult() != null) && response.getResult().isStatus() &&
-						response.getResult().isValue()) {
+				if (response.getSuccess()) {
 					messageGenerator.addInfoMessage("Info", "Token " + serial + " disabled");
 				}
 				else {
-					messageGenerator.addWarningMessage("Warn", "Token " + serial + " could not be disable");
+					messageGenerator.addWarningMessage("Warn", "Token " + serial + " could not be disabled");
 				}
 			} catch (TwoFaException e) {
 				logger.warn("TwoFaException", e);
@@ -141,10 +139,9 @@ public class TokenAdminIndexBean implements Serializable {
 	public void resetFailcounter(String serial) {
 		if (! getReadOnly()) {
 			try {
-				LinotpSimpleResponse response = twoFaService.resetFailcounter(selectedUser.getIdentity(), serial, "identity-" + session.getIdentityId());
+				TokenStatusResponse response = twoFaService.resetFailcounter(selectedUser.getIdentity(), serial, "identity-" + session.getIdentityId());
 				userTokenList = twoFaService.findByIdentity(selectedUser.getIdentity());
-				if ((response.getResult() != null) && response.getResult().isStatus() &&
-						response.getResult().isValue()) {
+				if (response.getSuccess()) {
 					messageGenerator.addInfoMessage("Info", "Token " + serial + " failcounter reset");
 				}
 				else {
@@ -164,7 +161,7 @@ public class TokenAdminIndexBean implements Serializable {
 			return true;
 	}
 
-	public LinotpTokenResultList getUserTokenList() {
+	public TwoFaTokenList getUserTokenList() {
 		return userTokenList;
 	}
 

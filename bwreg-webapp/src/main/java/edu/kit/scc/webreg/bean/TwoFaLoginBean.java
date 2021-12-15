@@ -14,12 +14,12 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.time.Instant;
 
-import javax.inject.Named;
-import javax.faces.view.ViewScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ComponentSystemEvent;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -31,8 +31,7 @@ import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.twofa.TwoFaException;
 import edu.kit.scc.webreg.service.twofa.TwoFaService;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpTokenResultList;
+import edu.kit.scc.webreg.service.twofa.token.TwoFaTokenList;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
@@ -61,7 +60,7 @@ public class TwoFaLoginBean implements Serializable {
 	private TwoFaService twoFaService;
 
 	private IdentityEntity identity;
-	private LinotpTokenResultList tokenList;
+	private TwoFaTokenList tokenList;
 	
 	private String tokenInput;
 	
@@ -80,9 +79,9 @@ public class TwoFaLoginBean implements Serializable {
 	public void check() {
 		try {
 			HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-			LinotpSimpleResponse response = twoFaService.checkToken(identity, tokenInput);
+			Boolean success = twoFaService.checkToken(identity, tokenInput);
 
-			if (response.getResult() != null && response.getResult().isStatus() && response.getResult().isValue()) {
+			if (success) {
 				// Successful check
 				sessionManager.setTwoFaElevation(Instant.now());
 				userService.addLoginInfo(identity, UserLoginMethod.TWOFA, UserLoginInfoStatus.SUCCESS, 
@@ -120,7 +119,7 @@ public class TwoFaLoginBean implements Serializable {
 		return tokenList.getManagementUrl();
 	}	
 
-	public LinotpTokenResultList getTokenList() {
+	public TwoFaTokenList getTokenList() {
 		return tokenList;
 	}
 

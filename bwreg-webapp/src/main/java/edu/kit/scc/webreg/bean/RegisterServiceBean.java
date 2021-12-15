@@ -51,8 +51,8 @@ import edu.kit.scc.webreg.service.reg.AttributeSourceQueryService;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;
 import edu.kit.scc.webreg.service.twofa.TwoFaException;
 import edu.kit.scc.webreg.service.twofa.TwoFaService;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpToken;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpTokenResultList;
+import edu.kit.scc.webreg.service.twofa.token.GenericTwoFaToken;
+import edu.kit.scc.webreg.service.twofa.token.TwoFaTokenList;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
@@ -223,7 +223,7 @@ public class RegisterServiceBean implements Serializable {
 			 * second factor for service is enabled. Check if user has registered second factor
 			 */
 			try {
-				LinotpTokenResultList tokenList = twoFaService.findByIdentity(getIdentity());
+				TwoFaTokenList tokenList = twoFaService.findByIdentity(getIdentity());
 
 				Map<String, Object> rendererContext = new HashMap<String, Object>();
 				rendererContext.put("service", service);
@@ -238,7 +238,7 @@ public class RegisterServiceBean implements Serializable {
 				}
 				else {
 					Boolean noActive = true;
-					for (LinotpToken lt : tokenList) {
+					for (GenericTwoFaToken lt : tokenList) {
 						if (lt.getIsactive()) {
 							noActive = false;
 							break;

@@ -97,7 +97,6 @@ import edu.kit.scc.webreg.service.saml.SsoHelper;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.service.twofa.TwoFaException;
 import edu.kit.scc.webreg.service.twofa.TwoFaService;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
 
 @Stateless
 public class UserLoginServiceImpl implements UserLoginService, Serializable {
@@ -263,9 +262,8 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			password = password.substring(0, index);
 			
 			try {
-				LinotpSimpleResponse response = twoFaService.checkToken(user.getIdentity(), twoFa);
-				if (!(response.getResult() != null && response.getResult().isStatus() && 
-						response.getResult().isValue())) {
+				Boolean success = twoFaService.checkToken(user.getIdentity(), twoFa);
+				if (! success) {
 					logger.info("User {} ({}) failed 2fa authentication", user.getEppn(), user.getId()); 
 					createLoginInfo(user, registry, UserLoginMethod.TWOFA, UserLoginInfoStatus.FAILED);
 					throw new LoginFailedException("2fa wrong");

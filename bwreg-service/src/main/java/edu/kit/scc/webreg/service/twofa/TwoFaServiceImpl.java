@@ -1,5 +1,6 @@
 package edu.kit.scc.webreg.service.twofa;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,14 +20,10 @@ import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.TokenEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpConnection;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpGetBackupTanListResponse;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpInitAuthenticatorTokenResponse;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpSetFieldResult;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpShowUserResponse;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpSimpleResponse;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpToken;
-import edu.kit.scc.webreg.service.twofa.linotp.LinotpTokenResultList;
+import edu.kit.scc.webreg.service.twofa.token.HmacTokenList;
+import edu.kit.scc.webreg.service.twofa.token.TokenStatusResponse;
+import edu.kit.scc.webreg.service.twofa.token.TotpCreateResponse;
+import edu.kit.scc.webreg.service.twofa.token.TwoFaTokenList;
 
 @Stateless
 public class TwoFaServiceImpl implements TwoFaService {
@@ -51,121 +48,53 @@ public class TwoFaServiceImpl implements TwoFaService {
 
 	@Inject
 	private ApplicationConfig appConfig;
-
+	
 	@Override
-	public LinotpTokenResultList findByIdentity(IdentityEntity identity) throws TwoFaException {
+	public TwoFaTokenList findByIdentity(IdentityEntity identity) throws TwoFaException {
 		identity = identityDao.merge(identity);
+		TwoFaManager manager = resolveTwoFaManager(identity);
 		
-		Map<String, String> configMap = configResolver.resolveConfig(identity);
-
-		if (configMap.containsKey("reallyReadOnly") && configMap.get("reallyReadOnly").equalsIgnoreCase("true")) {
-			LinotpTokenResultList resultList = new LinotpTokenResultList();
-			resultList.setReallyReadOnly(true);
-			resultList.setReadOnly(true);
-			if (configMap.containsKey("managementUrl")) {
-				resultList.setManagementUrl(configMap.get("managementUrl"));
-			}
-			return resultList;
-		}
-		else {
-			LinotpConnection linotpConnection = new LinotpConnection(configMap);
-			linotpConnection.requestAdminSession();
-			
-			LinotpShowUserResponse response = linotpConnection.getTokenList();
-			LinotpTokenResultList resultList = new LinotpTokenResultList();
-			if (response.getResult() != null && response.getResult().getValue() != null &&
-					response.getResult().getValue().getData() !=null) {
-				resultList.addAll(response.getResult().getValue().getData());
-			}
-			
-			if (configMap.containsKey("readOnly") && configMap.get("readOnly").equalsIgnoreCase("true")) {
-				resultList.setReadOnly(true);
-			}
-			else {
-				resultList.setReadOnly(false);
-			}
-	
-			if (configMap.containsKey("managementUrl")) {
-				resultList.setManagementUrl(configMap.get("managementUrl"));
-			}
-	
-			if (configMap.containsKey("adminRole")) {
-				resultList.setAdminRole(configMap.get("adminRole"));
-			}
-	
-			return resultList;
-		}
+		TwoFaTokenList list = manager.findByIdentity(identity);
+		list.setCapabilities(manager.getCapabilities());
+		
+		return list;
 	}
 
 	@Override
 	public Boolean hasActiveToken(IdentityEntity identity) throws TwoFaException {
 		identity = identityDao.merge(identity);
-		LinotpTokenResultList tokenList = findByIdentity(identity);
+		TwoFaManager manager = resolveTwoFaManager(identity);
 
-		if (tokenList.getReallyReadOnly()) {
-			return true;
-		}
-		
-		for (LinotpToken token : tokenList) {
-			if (token.getIsactive()) {
-				/*
-				 * filter token, that are not initialized
-				 */
-				if (token.getDescription() != null && token.getDescription().contains("INIT")) {
-					return false;
-				}
-				return true;
-			}
-		}
-		
-		return false;
+		return manager.hasActiveToken(identity);
 	}
 	
 	@Override
 	public Boolean hasActiveTokenById(Long identityId) throws TwoFaException {
 		IdentityEntity identity = identityDao.findById(identityId);
-		LinotpTokenResultList tokenList = findByIdentity(identity);
-
-		if (tokenList.getReallyReadOnly()) {
-			return true;
-		}
-
-		for (LinotpToken token : tokenList) {
-			/*
-			 * filter token, that are not initialized
-			 */
-			if (token.getDescription() != null && token.getDescription().contains("INIT")) {
-				return false;
-			}
-			if (token.getIsactive()) {
-				return true;
-			}
-		}
 		
-		return false;
+		return hasActiveToken(identity);
 	}
 
 	@Override
-	public LinotpSimpleResponse checkToken(IdentityEntity identity, String token) throws TwoFaException {
+	public Boolean checkToken(IdentityEntity identity, String token) throws TwoFaException {
 		identity = identityDao.merge(identity);
+		TwoFaManager manager = resolveTwoFaManager(identity);
 
-		Map<String, String> configMap = configResolver.resolveConfig(identity);
-		LinotpConnection linotpConnection = new LinotpConnection(configMap);
-		return linotpConnection.checkToken(token);
+		return manager.checkToken(identity, token);
 	}
 
 	@Override
-	public LinotpSimpleResponse checkSpecificToken(IdentityEntity identity, String serial, String token) throws TwoFaException {
+	public Boolean checkSpecificToken(IdentityEntity identity, String serial, String token) throws TwoFaException {
 		identity = identityDao.merge(identity);
+		TwoFaManager manager = resolveTwoFaManager(identity);
 
-		Map<String, String> configMap = configResolver.resolveConfig(identity);
-		LinotpConnection linotpConnection = new LinotpConnection(configMap);
-		return linotpConnection.checkSpecificToken(serial, token);
+		return manager.checkSpecificToken(identity, serial, token);
 	}
 
 	@Override
-	public LinotpSetFieldResult initToken(IdentityEntity identity, String serial, String executor) throws TwoFaException {
+	public void initToken(IdentityEntity identity, String serial, String executor) throws TwoFaException {
 		identity = identityDao.merge(identity);
+		TwoFaManager manager = resolveTwoFaManager(identity);
 		
 		TokenAuditor auditor = new TokenAuditor(auditEntryDao, auditDetailDao, appConfig);
 		auditor.startAuditTrail(executor, true);
@@ -173,17 +102,13 @@ public class TwoFaServiceImpl implements TwoFaService {
 		auditor.setIdentity(identity);
 		auditor.setDetail("Init token " + serial + " for identity " + identity.getId());
 		
-		Map<String, String> configMap = configResolver.resolveConfig(identity);
-
-		LinotpConnection linotpConnection = new LinotpConnection(configMap);
-		linotpConnection.requestAdminSession();
-		LinotpSetFieldResult response = linotpConnection.initToken(serial);
+		Map<String, Object> responseMap = manager.initToken(identity, serial, auditor);
 	
 		auditor.logAction("" + identity.getId(), "INIT TOTP TOKEN", "serial-" + serial, "", AuditStatus.SUCCESS);
 		
 		HashMap<String, Object> eventMap = new HashMap<String, Object>();
 		eventMap.put("identity", identity);
-		eventMap.put("respone", response);
+		eventMap.put("respone", responseMap);
 		eventMap.put("serial", serial);
 		TokenEvent event = new TokenEvent(eventMap);
 		try {
@@ -193,13 +118,12 @@ public class TwoFaServiceImpl implements TwoFaService {
 		}
 
 		auditor.finishAuditTrail();
-		
-		return response;
 	}
 	
 	@Override
-	public LinotpInitAuthenticatorTokenResponse createAuthenticatorToken(IdentityEntity identity, String executor) throws TwoFaException {
+	public TotpCreateResponse createAuthenticatorToken(IdentityEntity identity, String executor) throws TwoFaException {
 		identity = identityDao.merge(identity);
+		TwoFaManager manager = resolveTwoFaManager(identity);
 
 		TokenAuditor auditor = new TokenAuditor(auditEntryDao, auditDetailDao, appConfig);
 		auditor.startAuditTrail(executor, true);
@@ -207,23 +131,17 @@ public class TwoFaServiceImpl implements TwoFaService {
 		auditor.setIdentity(identity);
 		auditor.setDetail("Creating authenticator token for user " + identity.getId());
 
-		Map<String, String> configMap = configResolver.resolveConfig(identity);
-
-		LinotpConnection linotpConnection = new LinotpConnection(configMap);
-		linotpConnection.requestAdminSession();
+		TotpCreateResponse response = manager.createAuthenticatorToken(identity, auditor);
 		
-		LinotpInitAuthenticatorTokenResponse response = linotpConnection.createAuthenticatorToken();
-		
-		if (response.getResult().isStatus() && response.getResult().isValue()) {
+		if (response.getSuccess()) {
 			// Token successfully created
 
-			auditor.logAction("" + identity.getId(), "CREATE TOTP TOKEN", "serial-" + response.getDetail().getSerial(), "", AuditStatus.SUCCESS);
+			auditor.logAction("" + identity.getId(), "CREATE TOTP TOKEN", "serial-" + response.getSerial(), "", AuditStatus.SUCCESS);
 			
 			HashMap<String, Object> eventMap = new HashMap<String, Object>();
 			eventMap.put("identity", identity);
-			eventMap.put("respone", response);
-			if (response.getDetail() != null)
-				eventMap.put("serial", response.getDetail().getSerial());
+			eventMap.put("response", response);
+			eventMap.put("serial", response.getSerial());
 			TokenEvent event = new TokenEvent(eventMap);
 			try {
 				eventSubmitter.submit(event, EventType.TWOFA_CREATED, executor);
@@ -232,9 +150,9 @@ public class TwoFaServiceImpl implements TwoFaService {
 			}
 			
 			// Disable it for once
-			linotpConnection.disableToken(response.getDetail().getSerial());
+			manager.disableToken(identity, response.getSerial(), auditor);
 			
-			auditor.logAction("" + identity.getId(), "DISABLE TOTP TOKEN", "serial-" + response.getDetail().getSerial(), "", AuditStatus.SUCCESS);
+			auditor.logAction("" + identity.getId(), "DISABLE TOTP TOKEN", "serial-" + response.getSerial(), "", AuditStatus.SUCCESS);
 			auditor.finishAuditTrail();
 
 			return response;
@@ -247,8 +165,9 @@ public class TwoFaServiceImpl implements TwoFaService {
 	}
 
 	@Override
-	public LinotpInitAuthenticatorTokenResponse createYubicoToken(IdentityEntity identity, String yubi, String executor) throws TwoFaException {
+	public TotpCreateResponse createYubicoToken(IdentityEntity identity, String yubi, String executor) throws TwoFaException {
 		identity = identityDao.merge(identity);
+		TwoFaManager manager = resolveTwoFaManager(identity);
 
 		TokenAuditor auditor = new TokenAuditor(auditEntryDao, auditDetailDao, appConfig);
 		auditor.startAuditTrail(executor, true);
@@ -256,26 +175,20 @@ public class TwoFaServiceImpl implements TwoFaService {
 		auditor.setIdentity(identity);
 		auditor.setDetail("Creating yubico token for user " + identity.getId());
 
-		Map<String, String> configMap = configResolver.resolveConfig(identity);
-
-		LinotpConnection linotpConnection = new LinotpConnection(configMap);
-		linotpConnection.requestAdminSession();
+		TotpCreateResponse response = manager.createYubicoToken(identity, yubi, auditor);
 		
-		LinotpInitAuthenticatorTokenResponse response = linotpConnection.createYubicoToken(yubi);
-		
-		if (response == null || response.getDetail() == null) {
+		if (! response.getSuccess()) {
 			auditor.logAction("" + identity.getId(), "CREATE YUBICO TOKEN", "", "", AuditStatus.FAIL);
 			auditor.finishAuditTrail();
 			throw new TwoFaException("Token generation did not succeed!");
 		}
 
-		auditor.logAction("" + identity.getId(), "CREATE YUBICO TOKEN", "serial-" + response.getDetail().getSerial(), "", AuditStatus.SUCCESS);
+		auditor.logAction("" + identity.getId(), "CREATE YUBICO TOKEN", "serial-" + response.getSerial(), "", AuditStatus.SUCCESS);
 
 		HashMap<String, Object> eventMap = new HashMap<String, Object>();
 		eventMap.put("identity", identity);
 		eventMap.put("respone", response);
-		if (response.getDetail() != null)
-			eventMap.put("serial", response.getDetail().getSerial());
+		eventMap.put("serial", response.getSerial());
 		TokenEvent event = new TokenEvent(eventMap);
 		try {
 			eventSubmitter.submit(event, EventType.TWOFA_CREATED, executor);
@@ -288,8 +201,9 @@ public class TwoFaServiceImpl implements TwoFaService {
 	}
 
 	@Override
-	public LinotpInitAuthenticatorTokenResponse createBackupTanList(IdentityEntity identity, String executor) throws TwoFaException {
+	public TotpCreateResponse createHotpBackupTanList(IdentityEntity identity, String executor) throws TwoFaException {
 		identity = identityDao.merge(identity);
+		TwoFaManager manager = resolveTwoFaManager(identity);
 
 		TokenAuditor auditor = new TokenAuditor(auditEntryDao, auditDetailDao, appConfig);
 		auditor.startAuditTrail(executor, true);
@@ -297,26 +211,20 @@ public class TwoFaServiceImpl implements TwoFaService {
 		auditor.setIdentity(identity);
 		auditor.setDetail("Creating backup tan list for user " + identity.getId());
 
-		Map<String, String> configMap = configResolver.resolveConfig(identity);
+		TotpCreateResponse response = manager.createHotpBackupTanList(identity, auditor);
 
-		LinotpConnection linotpConnection = new LinotpConnection(configMap);
-		linotpConnection.requestAdminSession();
-		
-		LinotpInitAuthenticatorTokenResponse response = linotpConnection.createBackupTanList();
-		
-		if (response == null) {
+		if (! response.getSuccess()) {
 			auditor.logAction("" + identity.getId(), "CREATE BACKUP TAN LIST", "", "", AuditStatus.FAIL);
 			auditor.finishAuditTrail();
 			throw new TwoFaException("Token generation did not succeed!");
 		}
 
-		auditor.logAction("" + identity.getId(), "CREATE BACKUP TAN LIST", "serial-" + response.getDetail().getSerial(), "", AuditStatus.SUCCESS);
+		auditor.logAction("" + identity.getId(), "CREATE BACKUP TAN LIST", "serial-" + response.getSerial(), "", AuditStatus.SUCCESS);
 
 		HashMap<String, Object> eventMap = new HashMap<String, Object>();
 		eventMap.put("identity", identity);
 		eventMap.put("respone", response);
-		if (response.getDetail() != null)
-			eventMap.put("serial", response.getDetail().getSerial());
+		eventMap.put("serial", response.getSerial());
 		TokenEvent event = new TokenEvent(eventMap);
 		try {
 			eventSubmitter.submit(event, EventType.TWOFA_CREATED, executor);
@@ -330,19 +238,48 @@ public class TwoFaServiceImpl implements TwoFaService {
 	}
 
 	@Override
-	public LinotpGetBackupTanListResponse getBackupTanList(IdentityEntity identity, String serial, String executor) throws TwoFaException {
+	public TotpCreateResponse createPaperTanList(IdentityEntity identity, String executor) throws TwoFaException {
 		identity = identityDao.merge(identity);
-		
-		Map<String, String> configMap = configResolver.resolveConfig(identity);
+		TwoFaManager manager = resolveTwoFaManager(identity);
 
-		LinotpConnection linotpConnection = new LinotpConnection(configMap);
-		linotpConnection.requestAdminSession();
-		
-		int count = 5;
-		if (configMap.containsKey("backup_count")) {
-			count = Integer.parseInt(configMap.get("backup_count"));
+		TokenAuditor auditor = new TokenAuditor(auditEntryDao, auditDetailDao, appConfig);
+		auditor.startAuditTrail(executor, true);
+		auditor.setName(this.getClass().getName() + "-CreatePaperTanList-Audit");
+		auditor.setIdentity(identity);
+		auditor.setDetail("Creating paper tan list for user " + identity.getId());
+
+		TotpCreateResponse response = manager.createPaperTanList(identity, auditor);
+
+		if (! response.getSuccess()) {
+			auditor.logAction("" + identity.getId(), "CREATE PAPER TAN LIST", "", "", AuditStatus.FAIL);
+			auditor.finishAuditTrail();
+			throw new TwoFaException("Token generation did not succeed!");
 		}
-		LinotpGetBackupTanListResponse response = linotpConnection.getBackupTanList(serial, count);
+
+		auditor.logAction("" + identity.getId(), "CREATE PAPER TAN LIST", "serial-" + response.getSerial(), "", AuditStatus.SUCCESS);
+
+		HashMap<String, Object> eventMap = new HashMap<String, Object>();
+		eventMap.put("identity", identity);
+		eventMap.put("respone", response);
+		eventMap.put("serial", response.getSerial());
+		TokenEvent event = new TokenEvent(eventMap);
+		try {
+			eventSubmitter.submit(event, EventType.TWOFA_CREATED, executor);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}
+
+		auditor.finishAuditTrail();
+
+		return response;
+	}
+	
+	@Override
+	public HmacTokenList getBackupTanList(IdentityEntity identity, String serial) throws TwoFaException {
+		identity = identityDao.merge(identity);
+		TwoFaManager manager = resolveTwoFaManager(identity);
+		
+		HmacTokenList response = manager.getBackupTanList(identity, serial);
 		
 		if (response == null) {
 			throw new TwoFaException("Could not get backup tan list!");
@@ -352,8 +289,9 @@ public class TwoFaServiceImpl implements TwoFaService {
 	}
 
 	@Override
-	public LinotpSimpleResponse disableToken(IdentityEntity identity, String serial, String executor) throws TwoFaException {
+	public TokenStatusResponse disableToken(IdentityEntity identity, String serial, String executor) throws TwoFaException {
 		identity = identityDao.merge(identity);
+		TwoFaManager manager = resolveTwoFaManager(identity);
 
 		TokenAuditor auditor = new TokenAuditor(auditEntryDao, auditDetailDao, appConfig);
 		auditor.startAuditTrail(executor, true);
@@ -361,12 +299,8 @@ public class TwoFaServiceImpl implements TwoFaService {
 		auditor.setIdentity(identity);
 		auditor.setDetail("Disable token " + serial + " for user " + identity.getId());
 
-		Map<String, String> configMap = configResolver.resolveConfig(identity);
-
-		LinotpConnection linotpConnection = new LinotpConnection(configMap);
-		linotpConnection.requestAdminSession();
-		LinotpSimpleResponse response = linotpConnection.disableToken(serial);
-
+		TokenStatusResponse response = manager.disableToken(identity, serial, auditor);
+		
 		auditor.logAction("" + identity.getId(), "DISABLE TOKEN", "serial-" + serial, "", AuditStatus.SUCCESS);
 		
 		HashMap<String, Object> eventMap = new HashMap<String, Object>();
@@ -386,20 +320,17 @@ public class TwoFaServiceImpl implements TwoFaService {
 	}
 	
 	@Override
-	public LinotpSimpleResponse enableToken(IdentityEntity identity, String serial, String executor) throws TwoFaException {
+	public TokenStatusResponse enableToken(IdentityEntity identity, String serial, String executor) throws TwoFaException {
 		identity = identityDao.merge(identity);
+		TwoFaManager manager = resolveTwoFaManager(identity);
 
 		TokenAuditor auditor = new TokenAuditor(auditEntryDao, auditDetailDao, appConfig);
 		auditor.startAuditTrail(executor, true);
 		auditor.setName(this.getClass().getName() + "-EnableToken-Audit");
 		auditor.setIdentity(identity);
 		auditor.setDetail("Enable token " + serial + " for user " + identity.getId());
-
-		Map<String, String> configMap = configResolver.resolveConfig(identity);
-
-		LinotpConnection linotpConnection = new LinotpConnection(configMap);
-		linotpConnection.requestAdminSession();
-		LinotpSimpleResponse response = linotpConnection.enableToken(serial);
+		
+		TokenStatusResponse response = manager.enableToken(identity, serial, auditor);
 
 		auditor.logAction("" + identity.getId(), "ENABLE TOKEN", "serial-" + serial, "", AuditStatus.SUCCESS);
 
@@ -420,8 +351,9 @@ public class TwoFaServiceImpl implements TwoFaService {
 	}
 
 	@Override
-	public LinotpSimpleResponse resetFailcounter(IdentityEntity identity, String serial, String executor) throws TwoFaException {
+	public TokenStatusResponse resetFailcounter(IdentityEntity identity, String serial, String executor) throws TwoFaException {
 		identity = identityDao.merge(identity);
+		TwoFaManager manager = resolveTwoFaManager(identity);
 
 		TokenAuditor auditor = new TokenAuditor(auditEntryDao, auditDetailDao, appConfig);
 		auditor.startAuditTrail(executor, true);
@@ -429,11 +361,7 @@ public class TwoFaServiceImpl implements TwoFaService {
 		auditor.setIdentity(identity);
 		auditor.setDetail("Reset failcounter token " + serial + " for user " + identity.getId());
 
-		Map<String, String> configMap = configResolver.resolveConfig(identity);
-
-		LinotpConnection linotpConnection = new LinotpConnection(configMap);
-		linotpConnection.requestAdminSession();
-		LinotpSimpleResponse response = linotpConnection.resetFailcounter(serial);
+		TokenStatusResponse response = manager.resetFailcounter(identity, serial, auditor);
 
 		auditor.logAction("" + identity.getId(), "RESET FAILCOUNTER", "serial-" + serial, "", AuditStatus.SUCCESS);
 
@@ -454,8 +382,9 @@ public class TwoFaServiceImpl implements TwoFaService {
 	}
 	
 	@Override
-	public LinotpSimpleResponse deleteToken(IdentityEntity identity, String serial, String executor) throws TwoFaException {
+	public TokenStatusResponse deleteToken(IdentityEntity identity, String serial, String executor) throws TwoFaException {
 		identity = identityDao.merge(identity);
+		TwoFaManager manager = resolveTwoFaManager(identity);
 
 		TokenAuditor auditor = new TokenAuditor(auditEntryDao, auditDetailDao, appConfig);
 		auditor.startAuditTrail(executor, true);
@@ -463,11 +392,7 @@ public class TwoFaServiceImpl implements TwoFaService {
 		auditor.setIdentity(identity);
 		auditor.setDetail("Delete token " + serial + " for user " + identity.getId());
 		
-		Map<String, String> configMap = configResolver.resolveConfig(identity);
-
-		LinotpConnection linotpConnection = new LinotpConnection(configMap);
-		linotpConnection.requestAdminSession();
-		LinotpSimpleResponse response = linotpConnection.deleteToken(serial);
+		TokenStatusResponse response = manager.deleteToken(identity, serial, auditor);
 
 		auditor.logAction("" + identity.getId(), "DELETE TOKEN", "serial-" + serial, "", AuditStatus.SUCCESS);
 
@@ -486,5 +411,34 @@ public class TwoFaServiceImpl implements TwoFaService {
 
 		return response;
 	}
-	
+
+	private TwoFaManager resolveTwoFaManager(IdentityEntity identity) throws TwoFaException {
+		
+		Map<String, String> configMap = configResolver.resolveConfig(identity);
+
+		// Set default class to LinOTP implementation for backwards compatibility
+		String className = "edu.kit.scc.webreg.service.twofa.linotp.LinotpTokenManager";
+		
+		// If there is a configured implementation, use it
+		if (configMap.containsKey("managerClass")) {
+			className = configMap.get("managerClass");
+		}
+
+		Object o;
+		try {
+			o = Class.forName(className).getConstructor().newInstance();
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException | ClassNotFoundException e) {
+			throw new TwoFaException(e);
+		}
+
+		if (o instanceof TwoFaManager) {
+			TwoFaManager twoFaManager = (TwoFaManager) o;
+			twoFaManager.setConfigMap(configMap);
+			return twoFaManager;
+		}
+		else {
+			throw new TwoFaException("Configured class is not instance of TwoFaManager");
+		}		
+	}
 }

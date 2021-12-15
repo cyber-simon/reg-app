@@ -91,13 +91,13 @@
 							<p:outputLabel for="@next" value="#{messages.twofa_active}:" />
 							<h:outputText value="#{token.isactive ? messages.yes : messages.no}" />
 						</h:panelGrid>
-						<p:panel style="margin: 8px;" rendered="#{! token.isactive and (token.tokenDesc.contains('INIT'))}">
+						<p:panel style="margin: 8px;" rendered="#{! token.isactive and (token.description.contains('INIT'))}">
 							<h:outputText value="#{messages.twofa_token_not_init}" style="color:red;" />
 						</p:panel>
 						<p:commandButton action="#{tokenAdminIndexBean.disableToken(token.serial)}" value="#{messages.disable}" 
 							update="@form" rendered="#{token.isactive}" style="font-size:75%;"/>
 						<p:commandButton action="#{tokenAdminIndexBean.enableToken(token.serial)}" value="#{messages.enable}" 
-							update="@form" rendered="#{! token.isactive and (! token.tokenDesc.contains('INIT'))}" style="font-size:75%;"/>
+							update="@form" rendered="#{! token.isactive and (! token.description.contains('INIT'))}" style="font-size:75%;"/>
 
 						<p:commandButton action="#{tokenAdminIndexBean.resetFailcounter(token.serial)}" value="#{messages.reset_failcounter}" 
 							update="@form" style="font-size:75%;"/>

@@ -52,6 +52,7 @@
 							<h:graphicImage width="60px" value="#{resource['img/kittoken_small.png']}" alt="Hardware Token" rendered="#{token.tokenType == 'TOTP' and not token.serial.startsWith('TOTP')}"/>
 							<h:graphicImage width="60px" value="#{resource['img/yubikey_small.png']}" alt="Yubikey" rendered="#{token.tokenType == 'yubico'}"/>
 							<h:graphicImage width="60px" value="#{resource['img/tanlist.svg']}" alt="Backup TAN List" rendered="#{token.tokenType == 'HMAC'}"/>
+							<h:graphicImage width="60px" value="#{resource['img/tanlist.svg']}" alt="Paper TAN List" rendered="#{token.tokenType == 'PAPER_TAN'}"/>
 						</p:outputPanel>
 						<p:outputPanel>
 							<h:panelGrid columns="2">
@@ -61,6 +62,7 @@
 									<h:outputText value="#{messages.twofa_tokentype_totp}" rendered="#{token.tokenType == 'TOTP' and token.serial.startsWith('TOTP')}"/>
 									<h:outputText value="#{messages.twofa_tokentype_totp_hardware}" rendered="#{token.tokenType == 'TOTP' and not token.serial.startsWith('TOTP')}"/>
 									<h:outputText value="#{messages.twofa_tokentype_tanlist}" rendered="#{token.tokenType == 'HMAC'}"/>
+									<h:outputText value="#{messages.twofa_tokentype_papertanlist}" rendered="#{token.tokenType == 'PAPER_TAN'}"/>
 									<h:outputText value="#{messages.twofa_tokentype_yubikey}" rendered="#{token.tokenType == 'yubico'}"/>
 								</h:panelGroup>
 								
@@ -68,7 +70,7 @@
 								<h:outputText value="#{token.isactive ? messages.yes : messages.no}" />
 							</h:panelGrid>
 
-							<p:panel style="margin: 8px;" rendered="#{! token.isactive and (token.tokenDesc.contains('INIT'))}">
+							<p:panel style="margin: 8px;" rendered="#{! token.isactive and (token.description.contains('INIT'))}">
 								<h:outputText value="#{messages.twofa_token_not_init}" style="color:red;"/>
 							</p:panel>
 							</p:outputPanel>
@@ -91,6 +93,7 @@
 						<h:graphicImage width="60px" value="#{resource['img/kittoken_small.png']}" alt="Hardware Token" rendered="#{token.tokenType == 'TOTP' and not token.serial.startsWith('TOTP')}"/>
 						<h:graphicImage width="60px" value="#{resource['img/yubikey_small.png']}" alt="Yubikey" rendered="#{token.tokenType == 'yubico'}"/>
 						<h:graphicImage width="60px" value="#{resource['img/tanlist.svg']}" alt="Backup TAN List" rendered="#{token.tokenType == 'HMAC'}"/>
+						<h:graphicImage width="60px" value="#{resource['img/tanlist.svg']}" alt="Paper TAN List" rendered="#{token.tokenType == 'PAPER_TAN'}"/>
 					</p:outputPanel>
 					<p:outputPanel>
 						<h:panelGrid columns="2" style="margin-bottom: 16px;">
@@ -99,6 +102,7 @@
 								<h:outputText value="#{messages.twofa_tokentype_totp}" rendered="#{token.tokenType == 'TOTP' and token.serial.startsWith('TOTP')}"/>
 								<h:outputText value="#{messages.twofa_tokentype_totp_hardware}" rendered="#{token.tokenType == 'TOTP' and not token.serial.startsWith('TOTP')}"/>
 								<h:outputText value="#{messages.twofa_tokentype_tanlist}" rendered="#{token.tokenType == 'HMAC'}"/>
+								<h:outputText value="#{messages.twofa_tokentype_papertanlist}" rendered="#{token.tokenType == 'PAPER_TAN'}"/>
 								<h:outputText value="#{messages.twofa_tokentype_yubikey}" rendered="#{token.tokenType == 'yubico'}"/>
 							</h:panelGroup>
 		
@@ -106,15 +110,15 @@
 							<h:outputText value="#{token.isactive ? messages.yes : messages.no}" />
 
 						</h:panelGrid>
-						<p:panel style="margin: 8px;" rendered="#{! token.isactive and (token.tokenDesc.contains('INIT'))}">
+						<p:panel style="margin: 8px;" rendered="#{! token.isactive and (token.description.contains('INIT'))}">
 							<h:outputText value="#{messages.twofa_token_not_init}" style="color:red;" />
 						</p:panel>
 						<p:commandButton action="#{twoFaUserBean.disableToken(token.serial)}" value="#{messages.disable}" 
 							update="@form" rendered="#{token.isactive}"/>
 						<p:commandButton action="#{twoFaUserBean.enableToken(token.serial)}" value="#{messages.enable}" 
-							update="@form" rendered="#{! token.isactive and (! token.tokenDesc.contains('INIT'))}"/>
+							update="@form" rendered="#{! token.isactive and (! token.description.contains('INIT'))}"/>
 						<p:commandButton action="#{twoFaUserBean.deleteToken(token.serial)}" value="#{messages.delete}" 
-							update="@form" rendered="#{! token.isactive and (token.tokenDesc.contains('DELABLE'))}" style="color:red;">
+							update="@form" rendered="#{! token.isactive and (token.description.contains('DELABLE'))}" style="color:red;">
 							<p:confirm header="#{messages.confirm_header}" message="#{messages.confirm}" />
 						</p:commandButton>
 						<p:commandButton action="#{twoFaUserBean.getBackupTanList(token.serial)}" value="#{messages.token_get_tanlist_values}" 
@@ -130,9 +134,14 @@
 				<h:outputText value="#{messages.twofa_create_new_token}" />
 			</div>
 			<p:outputPanel style="margin-bottom: 16px;">
-				<p:commandButton id="openAddTotpDialog" oncomplete="PF('addTotpDlg').show();" value="#{messages.twofa_create_new_totp}"></p:commandButton>
-				<p:commandButton id="openAddYubicoDialog" oncomplete="PF('addYubicoDlg').show();" value="#{messages.twofa_create_new_yubico}"></p:commandButton>
-				<p:commandButton id="openAddBackupTanDialog" oncomplete="PF('addBackupTanDlg').show();" value="#{messages.twofa_create_backup_tan_list}"></p:commandButton>
+				<p:commandButton id="openAddTotpDialog" oncomplete="PF('addTotpDlg').show();" value="#{messages.twofa_create_new_totp}" 
+					rendered="#{twoFaUserBean.getCapability('TOTP')}"/>
+				<p:commandButton id="openAddYubicoDialog" oncomplete="PF('addYubicoDlg').show();" value="#{messages.twofa_create_new_yubico}"
+					rendered="#{twoFaUserBean.getCapability('YUBIKEY')}"/>
+				<p:commandButton id="openAddBackupTanDialog" oncomplete="PF('addBackupTanDlg').show();" value="#{messages.twofa_create_backup_tan_list}"
+					rendered="#{twoFaUserBean.getCapability('HOTP_TANLIST')}"/>
+				<p:commandButton id="openAddPaperTanDialog" oncomplete="PF('addPaperTanDlg').show();" value="#{messages.twofa_create_paper_tan_list}"
+					rendered="#{twoFaUserBean.getCapability('PAPER_TAN')}"/>
 			</p:outputPanel>
 			<p:outputPanel rendered="#{not empty twoFaUserBean.returnServiceId}" styleClass="text full">
 				<a href="../user/register-service.xhtml?serviceId=#{twoFaUserBean.returnServiceId}">#{messages.twofa_back_to_register}</a>
@@ -147,10 +156,10 @@
 					<h:outputText value="#{messages.twofa_backup_tan_list_values}" />
 				</div>
 				<ul style="margin-bottom: 16px;">
-					<ui:repeat var="key" value="#{twoFaUserBean.backupTanList.result.value.otp.keySet()}">
+					<ui:repeat var="key" value="#{twoFaUserBean.backupTanList.otp.keySet()}">
 						<li style="margin-bottom: 4px;">
 							<b><h:outputText value="#{key}" /></b> -  
-							<h:outputText value="#{twoFaUserBean.backupTanList.result.value.otp.get(key)}" />
+							<h:outputText value="#{twoFaUserBean.backupTanList.otp.get(key)}" />
 						</li>
 					</ui:repeat>
 				</ul>
@@ -177,12 +186,12 @@
 				<h:panelGroup rendered="#{not empty twoFaUserBean.createTokenResponse}">
 					<h:panelGrid columns="2">
 						<p:outputPanel>
-							<h:outputText value="#{twoFaUserBean.createTokenResponse.detail.googleurl.img}" escape="false" />
+							<h:outputText value="#{twoFaUserBean.createTokenResponse.image}" escape="false" />
 						</p:outputPanel>
 						<p:outputPanel>
 							<h:panelGrid columns="2">
 								<p:outputLabel for="@next" value="#{messages.twofa_serial}:" />
-								<h:outputText value="#{twoFaUserBean.createTokenResponse.detail.serial}"/>
+								<h:outputText value="#{twoFaUserBean.createTokenResponse.serial}"/>
 
 								<p:outputLabel for="@next" value="#{messages.twofa_code}:" />
 								<p:inputText id="totpText" autocomplete="false" value="#{twoFaUserBean.totpCode}"/>
@@ -192,7 +201,7 @@
 							</p:outputPanel>
 							
 							<p:outputLabel for="@next" value="Seed:" />
-							<h:outputText value="#{twoFaUserBean.createTokenResponse.detail.otpkey.value}"/>
+							<h:outputText value="#{twoFaUserBean.createTokenResponse.seed}"/>
 
 						</h:panelGrid>
 				</h:panelGroup>
@@ -232,6 +241,45 @@
 			</p:panel>
 
 		</p:dialog>
+
+		<p:dialog header="#{messages.twofa_create_paper_tan_list}" 
+					widgetVar="addPaperTanDlg" id="addPaperTanDlgId" modal="true" closable="true" closeOnEscape="true"
+					showEffect="fade" hideEffect="fade">
+			<p:ajax event="close" update=":form:tokenDisplayPanel" />
+
+			<p:outputPanel id="paperTanResponseParentPanel">
+				<p:panel id="paperTanResponsePanel" rendered="#{twoFaUserBean.createTokenResponse == null}">
+					<div class="panel" style="width:360px;">
+					    <h:outputText value="#{messages.twofa_create_paper_tan_list_desc}" escape="false" />
+				    </div>
+				    <p:commandButton id="paperTanStartButton" action="#{twoFaUserBean.createPaperTanList()}" value="#{messages.start}"
+			    		update="paperTanResponseParentPanel, :form:messagePanel"/>
+				</p:panel>
+				<p:panel id="paperTanResponsePanelShow" rendered="#{twoFaUserBean.createTokenResponse != null}">
+					<p:outputPanel id="showPaperTanIdPrintBox">
+						<div style="margin-bottom: 8px;">
+							<h:outputText value="#{messages.twofa_create_paper_tan_list_values}" escape="false" />
+						</div>
+						<ul style="margin-bottom: 16px; column-count: 5;">
+							<ui:repeat var="key" value="#{twoFaUserBean.createTokenResponse.otps.keySet()}">
+								<li style="margin-bottom: 4px;">
+									<b><h:outputText value="#{key}" /></b> -  
+									<h:outputText value="#{twoFaUserBean.createTokenResponse.otps.get(key)}" />
+								</li>
+							</ui:repeat>
+						</ul>
+					</p:outputPanel>
+					<p:outputPanel style="margin-bottom: 16px">
+						<p:commandButton value="Print" type="button">
+			    			<p:printer target="showPaperTanIdPrintBox" />
+						</p:commandButton>
+					    <p:commandButton id="paperTanAckButton" action="#{twoFaUserBean.ackPaperTanList()}" value="#{messages.acknowledge}"
+				    		update="paperTanResponseParentPanel, :form:messagePanel"/>
+			    	</p:outputPanel>
+				</p:panel>
+			</p:outputPanel>
+		</p:dialog>
+		
 		
 	    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" closable="false" closeOnEscape="true">
 	        <p:commandButton value="#{messages.yes}" type="button" styleClass="ui-confirmdialog-yes" />
