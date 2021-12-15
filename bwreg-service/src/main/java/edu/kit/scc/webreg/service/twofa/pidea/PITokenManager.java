@@ -1,7 +1,9 @@
 package edu.kit.scc.webreg.service.twofa.pidea;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -236,7 +238,21 @@ public class PITokenManager extends AbstractTwoFaManager {
 		else {
 			response.setSuccess(true);
 			response.setSerial(piResponse.getDetail().getSerial());
-			response.setOtps(piResponse.getDetail().getOtps());
+			if (getConfigMap().containsKey("papertan_count")) {
+				LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
+				AtomicInteger i = new AtomicInteger(0);
+				int max = Integer.parseInt(getConfigMap().get("papertan_count"));
+				
+				piResponse.getDetail().getOtps().forEach( (x, y) -> {
+					if (i.incrementAndGet() <= max) { 
+						map.put(x, y);
+					}
+				});
+				response.setOtps(map);
+			}
+			else {
+				response.setOtps(piResponse.getDetail().getOtps());
+			}
 		}
 		
 		return response;

@@ -246,12 +246,12 @@
 					widgetVar="addPaperTanDlg" id="addPaperTanDlgId" modal="true" closable="true" closeOnEscape="true"
 					showEffect="fade" hideEffect="fade">
 			<p:ajax event="close" update=":form:tokenDisplayPanel" />
-			<div class="panel" style="width:360px;">
-			    <h:outputText value="#{messages.twofa_create_paper_tan_list_desc}" escape="false" />
-		    </div>
-		
+
 			<p:outputPanel id="paperTanResponseParentPanel">
 				<p:panel id="paperTanResponsePanel" rendered="#{twoFaUserBean.createTokenResponse == null}">
+					<div class="panel" style="width:360px;">
+					    <h:outputText value="#{messages.twofa_create_paper_tan_list_desc}" escape="false" />
+				    </div>
 				    <p:commandButton id="paperTanStartButton" action="#{twoFaUserBean.createPaperTanList()}" value="#{messages.start}"
 			    		update="paperTanResponseParentPanel, :form:messagePanel"/>
 				</p:panel>
@@ -269,11 +269,13 @@
 							</ui:repeat>
 						</ul>
 					</p:outputPanel>
-					<p:commandButton value="Print" type="button" style="margin-bottom: 16px">
-		    			<p:printer target="showPaperTanIdPrintBox" />
-					</p:commandButton>
-				    <p:commandButton id="paperTanAckButton" action="#{twoFaUserBean.ackPaperTanList()}" value="#{messages.acknoledge}"
-			    		update="paperTanResponseParentPanel, :form:messagePanel"/>
+					<p:outputPanel style="margin-bottom: 16px">
+						<p:commandButton value="Print" type="button">
+			    			<p:printer target="showPaperTanIdPrintBox" />
+						</p:commandButton>
+					    <p:commandButton id="paperTanAckButton" action="#{twoFaUserBean.ackPaperTanList()}" value="#{messages.acknowledge}"
+				    		update="paperTanResponseParentPanel, :form:messagePanel"/>
+			    	</p:outputPanel>
 				</p:panel>
 			</p:outputPanel>
 		</p:dialog>
