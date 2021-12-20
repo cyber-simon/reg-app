@@ -89,6 +89,19 @@
 	    </div>
 	  </h:panelGroup>
 	
+ 	  <h:panelGroup rendered="#{authorizationBean.isUserInRole('ROLE_ProjectAdmin') or authorizationBean.isUserInRole('ROLE_MasterAdmin')}">
+       <div class="submenu">
+	      <div class="submenu-title">#{messages.projects}</div>
+	      <div class="submenu-content">
+			  <ul>
+		        <li><span class="ui-icon ui-icon-copy" style="display:inline-block; vertical-align: bottom;" />
+		    	  <h:link outcome="/admin/project/list-projects.xhtml" value="#{messages.all_projects}" />
+		    	</li>
+	          </ul>
+	      </div>
+	    </div>
+	  </h:panelGroup>
+	
 	  <h:panelGroup rendered="#{authorizationBean.isUserInRole('ROLE_SamlAdmin') or authorizationBean.isUserInRole('ROLE_MasterAdmin')}">
         <div class="submenu">
 	      <div class="submenu-title">#{messages.saml_props}</div>
