@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="id" value="#{showLocalProjectBean.id}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{showLocalProjectBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+
+		<h2><h:outputText value="#{messages.local_vo}: #{showLocalProjectBean.entity.name}"/></h2>
+
+		<p:messages id="messageBox" showDetail="true" />
+		
+		<p:panel header="#{messages.properties}">
+			<p:panelGrid id="baseData" columns="2">
+		
+		        <h:outputText value="#{messages.id}:"/>
+		        <h:outputText value="#{showLocalProjectBean.entity.id}"/>
+		
+		        <h:outputText value="#{messages.name}:"/>
+		        <h:outputText value="#{showLocalProjectBean.entity.name}"/>
+					
+		        <h:outputText value="#{messages.group_name}:"/>
+		        <h:outputText value="#{showLocalProjectBean.entity.groupName}"/>
+					
+		        <h:outputText value="#{messages.parent_vo}:"/>
+		        <h:outputText value="#{showLocalProjectBean.entity.parentProject}"/>
+				
+		        <h:outputText value="#{messages.services}:"/>
+		        <p:repeat value="#{showLocalProjectBean.entity.projectServices}" var="s">
+		        	<div><h:outputText value="#{s.service.name}"/></div>
+				</p:repeat>
+			</p:panelGrid>
+		</p:panel>
+
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>

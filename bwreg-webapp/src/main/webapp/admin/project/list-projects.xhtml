@@ -37,13 +37,24 @@
 				<f:facet name="header">
 					<h:outputText value="#{messages.name}" />
 				</f:facet>
-				<h:outputText value="#{p.name}" />
+				<h:link outcome="show-local-project.xhtml" value="#{p.name}" rendered="#{p.class.simpleName == 'LocalProjectEntity'}" >
+      				<f:param name="id" value="#{p.id}"/>
+    			</h:link>
+				<h:link outcome="show-external-oidc-project.xhtml" value="#{p.name}" rendered="#{p.class.simpleName == 'ExternalOidcProjectEntity'}" >
+      				<f:param name="id" value="#{p.id}"/>
+    			</h:link>
 			</p:column>			
 			<p:column sortBy="#{p.shortName}" filterBy="#{p.shortName}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.shortname}" />
 				</f:facet>
 				<h:outputText value="#{p.shortName}" />
+			</p:column>			
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.class}" />
+				</f:facet>
+				<h:outputText value="#{p.class.simpleName}" />
 			</p:column>			
 			<p:column sortBy="#{p.projectStatus}">
 				<f:facet name="header">
