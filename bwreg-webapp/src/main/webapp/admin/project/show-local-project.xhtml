@@ -47,6 +47,76 @@
 				</p:repeat>
 			</p:panelGrid>
 		</p:panel>
+		
+		<p:panel header="#{messages.admins}">
+			<p:dataTable id="adminData" style="min-width: 500px;" 
+					value="#{showLocalProjectBean.adminList}" var="a">
+				<p:column width="64">
+					<f:facet name="header">
+						<h:outputText value="#{messages.id}" />
+					</f:facet>
+					<h:link outcome="/admin/user/show-admin-identity.xhtml" value="#{a.identity.id}">
+			     		<f:param name="id" value="#{a.identity.id}"/>
+					</h:link>
+				</p:column>
+				<p:column>
+					<f:facet name="header">
+						<h:outputText value="#{messages.type}" />
+					</f:facet>
+					<h:outputText value="#{a.type}" />
+				</p:column>
+				<p:column>
+					<f:facet name="header">
+						<h:outputText value="#{messages.local_username}" />
+					</f:facet>
+					<h:outputText value="#{a.identity.generatedLocalUsername}" />
+				</p:column>
+				<p:column>
+					<f:facet name="header">
+						<h:outputText value="#{messages.email}" />
+					</f:facet>
+					<h:outputText value="#{a.identity.prefUser.email}" />
+				</p:column>
+				<p:column>
+					<f:facet name="header">
+						<h:outputText value="#{messages.eppn}" />
+					</f:facet>
+					<h:outputText value="#{a.identity.prefUser.eppn}" />
+				</p:column>
+			</p:dataTable>
+		</p:panel>
+		
+		<p:panel header="#{messages.members}">
+			<p:dataTable id="memberData" style="min-width: 500px;" 
+					value="#{showLocalProjectBean.memberList}" var="m">
+				<p:column width="64">
+					<f:facet name="header">
+						<h:outputText value="#{messages.id}" />
+					</f:facet>
+					<h:link outcome="/admin/user/show-admin-identity.xhtml" value="#{m.identity.id}">
+			     		<f:param name="id" value="#{m.identity.id}"/>
+					</h:link>
+				</p:column>
+				<p:column>
+					<f:facet name="header">
+						<h:outputText value="#{messages.local_username}" />
+					</f:facet>
+					<h:outputText value="#{m.identity.generatedLocalUsername}" />
+				</p:column>
+				<p:column>
+					<f:facet name="header">
+						<h:outputText value="#{messages.email}" />
+					</f:facet>
+					<h:outputText value="#{m.identity.prefUser.email}" />
+				</p:column>
+				<p:column>
+					<f:facet name="header">
+						<h:outputText value="#{messages.eppn}" />
+					</f:facet>
+					<h:outputText value="#{m.identity.prefUser.eppn}" />
+				</p:column>
+			</p:dataTable>
+		</p:panel>
 
 	</h:form>
 

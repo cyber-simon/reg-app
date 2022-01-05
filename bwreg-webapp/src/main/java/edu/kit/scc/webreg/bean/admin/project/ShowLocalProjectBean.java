@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.bean.admin.project;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.faces.event.ComponentSystemEvent;
 import javax.faces.view.ViewScoped;
@@ -20,7 +21,10 @@ import javax.inject.Named;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
+import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
+import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.service.project.LocalProjectService;
+import edu.kit.scc.webreg.service.project.ProjectService;
 
 @Named
 @ViewScoped
@@ -34,7 +38,12 @@ public class ShowLocalProjectBean implements Serializable {
 	@Inject
 	private LocalProjectService service;
 
+	@Inject
+	private ProjectService projectService;
+
 	private LocalProjectEntity entity;
+	private List<ProjectMembershipEntity> memberList;
+	private List<ProjectIdentityAdminEntity> adminList;
 	
 	private Long id;
 
@@ -60,4 +69,18 @@ public class ShowLocalProjectBean implements Serializable {
 	public void setEntity(LocalProjectEntity entity) {
 		this.entity = entity;
 	}
+
+	public List<ProjectMembershipEntity> getMemberList() {
+		if (memberList == null) {
+			memberList = projectService.findMembersForProject(getEntity());
+		}
+		return memberList;
+	}
+
+	public List<ProjectIdentityAdminEntity> getAdminList() {
+		if (adminList == null) {
+			adminList = projectService.findAdminsForProject(getEntity());
+		}
+		return adminList;
+	}	
 }
