@@ -30,8 +30,10 @@ import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.SshPubKeyApproverRoleEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.service.AuthorizationService;
 import edu.kit.scc.webreg.service.GroupService;
+import edu.kit.scc.webreg.service.project.ProjectService;
 import edu.kit.scc.webreg.session.SessionManager;
 
 @Stateless
@@ -44,6 +46,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
 	@Inject
 	private GroupService groupService;
+	
+	@Inject
+	private ProjectService projectService;
 	
 	@Inject
 	private KnowledgeSessionService knowledgeSessionService;
@@ -79,6 +84,12 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     	else 
     		groupsTimeout = 1 * 60 * 1000L;
 
+    	Long projectsTimeout;
+    	if (appConfig.getConfigValue("AuthorizationBean_projectsTimeout") != null)
+    		projectsTimeout = Long.parseLong(appConfig.getConfigValue("AuthorizationBean_projectsTimeout"));
+    	else 
+    		projectsTimeout = 1 * 60 * 1000L;
+
     	Long unregisteredServiceTimeout;
     	if (appConfig.getConfigValue("AuthorizationBean_unregisteredServiceTimeout") != null)
     		unregisteredServiceTimeout = Long.parseLong(appConfig.getConfigValue("AuthorizationBean_unregisteredServiceTimeout"));
@@ -105,6 +116,21 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
 	    	end = System.currentTimeMillis();
 	    	logger.trace("groups loading took {} ms", (end-start));
+    	}
+
+    	if (sessionManager.getProjectSetCreated() == null || 
+    			(System.currentTimeMillis() - sessionManager.getProjectSetCreated()) > projectsTimeout) {
+	    	start = System.currentTimeMillis();
+
+	    	sessionManager.clearProjects();
+	    	
+	    	List<ProjectMembershipEntity> projectList = projectService.findByIdentity(identity);
+		    	
+    		sessionManager.getProjects().addAll(projectList);
+	    	sessionManager.setGroupSetCreated(System.currentTimeMillis());
+
+	    	end = System.currentTimeMillis();
+	    	logger.trace("projects loading took {} ms", (end-start));
     	}
 
     	if (sessionManager.getRoleSetCreated() == null || 
