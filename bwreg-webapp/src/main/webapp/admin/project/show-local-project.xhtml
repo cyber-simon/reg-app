@@ -45,6 +45,10 @@
 		        <p:repeat value="#{showLocalProjectBean.entity.projectServices}" var="s">
 		        	<div><h:outputText value="#{s.service.name}"/></div>
 				</p:repeat>
+				
+				<h:outputText value="#{messages.project_group}:"/>
+		        <h:outputText value="#{showLocalProjectBean.entity.projectGroup.name} - (gidNumber: #{showLocalProjectBean.entity.projectGroup.gidNumber})"/>
+				
 			</p:panelGrid>
 		</p:panel>
 		

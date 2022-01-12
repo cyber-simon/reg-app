@@ -29,6 +29,15 @@ public class ProjectInvitationToken extends AbstractBaseEntity {
 	@Enumerated(EnumType.STRING)
 	private ProjectInvitationType type;
 	
+	@Column(name="rcpt_mail", length=1024)
+	private String rcptMail;
+	
+	@Column(name="rcpt_name", length=1024)
+	private String rcptName;
+
+	@Column(name="sender_name", length=1024)
+	private String senderName;
+	
 	public ProjectEntity getProject() {
 		return project;
 	}
@@ -51,5 +60,29 @@ public class ProjectInvitationToken extends AbstractBaseEntity {
 
 	public void setType(ProjectInvitationType type) {
 		this.type = type;
+	}
+
+	public String getRcptMail() {
+		return rcptMail;
+	}
+
+	public void setRcptMail(String rcptMail) {
+		this.rcptMail = rcptMail;
+	}
+
+	public String getRcptName() {
+		return rcptName;
+	}
+
+	public void setRcptName(String rcptName) {
+		this.rcptName = rcptName;
+	}
+
+	public String getSenderName() {
+		return senderName;
+	}
+
+	public void setSenderName(String senderName) {
+		this.senderName = senderName;
 	}
 }
