@@ -67,7 +67,11 @@ public class OidcClientRedirectServiceImpl implements OidcClientRedirectService 
 			URI authzEndpoint = opMetadataBean.getAuthorizationEndpointURI(rpConfig);
 			
 			ClientID clientID = new ClientID(rpConfig.getClientId());
-			Scope scope = new Scope(OIDCScopeValue.OPENID, OIDCScopeValue.PROFILE, OIDCScopeValue.EMAIL);
+			Scope scope = new Scope();//OIDCScopeValue.OPENID, OIDCScopeValue.PROFILE, OIDCScopeValue.EMAIL);
+			String[] scopes = rpConfig.getScopes().split(",");
+			for (String s : scopes) {
+				scope.add(s.trim());
+			}
 			URI callback = new URI(callbackUrl);
 			State state = new State();
 			Nonce nonce = new Nonce();
