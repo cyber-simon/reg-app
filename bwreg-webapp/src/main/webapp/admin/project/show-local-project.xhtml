@@ -88,6 +88,10 @@
 					<h:outputText value="#{a.identity.prefUser.eppn}" />
 				</p:column>
 			</p:dataTable>
+
+			<h:link outcome="edit-project-admins.xhtml" value="#{messages.edit_admins}">
+				<f:param name="projectId" value="#{showLocalProjectBean.entity.id}"/>
+			</h:link>
 		</p:panel>
 		
 		<p:panel header="#{messages.members}">

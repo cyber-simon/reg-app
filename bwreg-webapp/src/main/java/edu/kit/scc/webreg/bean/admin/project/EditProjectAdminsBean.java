@@ -24,6 +24,8 @@ import org.primefaces.model.LazyDataModel;
 
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
+import edu.kit.scc.webreg.entity.project.ExternalOidcProjectEntity;
+import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
@@ -79,7 +81,12 @@ public class EditProjectAdminsBean implements Serializable {
 	}
 	
 	public String cancel() {
-		return "show-project.xhtml?faces-redirect=true&projectId=" + entity.getId();
+		if (entity instanceof ExternalOidcProjectEntity)
+			return "show-external-oidc-project.xhtml?faces-redirect=true&id=" + entity.getId();
+		else if (entity instanceof LocalProjectEntity)
+			return "show-local-project.xhtml?faces-redirect=true&id=" + entity.getId();
+		else
+			return "";
 	}
 	
 	public ProjectEntity getEntity() {
