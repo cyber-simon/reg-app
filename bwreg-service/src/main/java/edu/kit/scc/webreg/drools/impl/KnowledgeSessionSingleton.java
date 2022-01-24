@@ -50,6 +50,7 @@ import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.ServiceRegisterEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
@@ -106,6 +107,39 @@ public class KnowledgeSessionSingleton {
 		return kc.newKieSession();
 	}
 
+	public List<Object> checkRule(BusinessRulePackageEntity rulePackage, IdentityEntity identity) 
+		throws MisconfiguredServiceException {
+		KieSession ksession = getStatefulSession(rulePackage.getPackageName(), rulePackage.getKnowledgeBaseName(), 
+				rulePackage.getKnowledgeBaseVersion());
+		
+		if (ksession == null)
+			throw new MisconfiguredApplicationException("Es ist keine valide Regel fuer den Benutzerzugriff konfiguriert");
+
+		ksession.setGlobal("logger", logger);
+		ksession.insert(identity);
+		ksession.insert(identity.getUsers());
+		ksession.insert(new Date());
+		
+		ksession.fireAllRules();
+
+		List<Object> objectList = new ArrayList<Object>(ksession.getObjects());
+
+		for (Object o : objectList) {
+			if (logger.isTraceEnabled())
+				logger.trace("Deleting fact handle for Object {}", o);
+			FactHandle factHandle = ksession.getFactHandle(o);
+			if (factHandle != null)
+				ksession.delete(factHandle);
+			else
+				logger.warn("Facthandle for Object {} is null", o);
+		}
+
+		ksession.dispose();
+
+		return objectList;
+	
+	}	
+	
 	public List<Object> checkRule(String unitId, UserEntity user, Map<String, List<Object>> attributeMap,
 				Assertion assertion, SamlIdpMetadataEntity idp, EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity sp) 
 			throws MisconfiguredServiceException {

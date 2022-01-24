@@ -18,10 +18,12 @@ import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.inject.Inject;
 
+import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.ServiceOidcClientEntity;
+import edu.kit.scc.webreg.service.BusinessRulePackageService;
 import edu.kit.scc.webreg.service.ScriptService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.oidc.OidcClientConfigurationService;
@@ -44,11 +46,15 @@ public class ShowOidcClientConfigurationBean implements Serializable {
 	
 	@Inject
 	private ServiceService serviceService;
+
+	@Inject
+	private BusinessRulePackageService rulePackageService;
 	
 	private OidcClientConfigurationEntity entity;
 	private List<ServiceOidcClientEntity> serviceOidcClientList;
 	private List<ScriptEntity> scriptList;
 	private List<ServiceEntity> serviceList;
+	private List<BusinessRulePackageEntity> rulePackageList;
 	
 	private Long id;
 
@@ -148,5 +154,11 @@ public class ShowOidcClientConfigurationBean implements Serializable {
 		if (serviceList == null)
 			serviceList = serviceService.findAll();
 		return serviceList;
+	}
+
+	public List<BusinessRulePackageEntity> getRulePackageList() {
+		if (rulePackageList == null)
+			rulePackageList = rulePackageService.findAll();
+		return rulePackageList;
 	}
 }
