@@ -117,7 +117,6 @@ public class KnowledgeSessionSingleton {
 
 		ksession.setGlobal("logger", logger);
 		ksession.insert(identity);
-		ksession.insert(identity.getUsers());
 		ksession.insert(new Date());
 		
 		ksession.fireAllRules();
