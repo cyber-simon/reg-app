@@ -248,6 +248,20 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 						}
 					}
 				}
+				
+				if (serviceOidcClient.getRulePackage() != null) {
+					/*
+					 * There is an access rule for this oidc client. Check it.
+					 */
+					
+					List<Object> objectList = checkRules(identity, serviceOidcClient.getRulePackage());
+					List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
+					List<UnauthorizedUser> unauthorizedUserList = extractUnauthorizedUser(objectList);
+					
+					if (overrideAccessList.size() == 0 && unauthorizedUserList.size() > 0) {
+						return "/user/oidc-access-denied.xhtml?soidc=" + serviceOidcClient.getId();
+					}
+				}
 			}
 
 			if (wantsElevation) {
@@ -577,6 +591,13 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			}
 		}
 
+		return objectList;
+	}
+
+	private List<Object> checkRules(IdentityEntity identity, BusinessRulePackageEntity rulePackage) {
+		List<Object> objectList;
+		
+		objectList = knowledgeSessionService.checkRule(rulePackage, identity);
 		return objectList;
 	}
 	

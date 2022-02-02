@@ -228,7 +228,7 @@ public class RegisterServiceBean implements Serializable {
 				Map<String, Object> rendererContext = new HashMap<String, Object>();
 				rendererContext.put("service", service);
 				
-				if (tokenList.getReallyReadOnly()) {
+				if (tokenList.getReallyReadOnly() != null && tokenList.getReallyReadOnly()) {
 					// 2fa are managed by other org, we can not see if the user has an active token
 				}
 				else if (tokenList.size() == 0) {

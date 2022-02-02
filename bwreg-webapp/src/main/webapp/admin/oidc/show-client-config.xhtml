@@ -79,7 +79,11 @@
 				<p:outputPanel>
 					<h:outputText value="#{scc.script.name} (#{scc.script.id})" /> - 
 					<h:outputText value="#{scc.service.name}" rendered="#{scc.service != null}"/>
-					<h:outputText value="No service" rendered="#{scc.service == null}"/>
+					<h:outputText value="No service" rendered="#{scc.service == null}"/> - 
+
+					<h:outputText value="#{scc.rulePackage.knowledgeBaseName}" rendered="#{scc.rulePackage != null}"/>
+					<h:outputText value="No extra Access rule" rendered="#{scc.rulePackage == null}"/>
+					
 					<h:outputText value=" (wants elevation: #{scc.wantsElevation})" />
 					<h:outputText value=" (order criteria: #{scc.orderCriteria}) " />
 					<h:commandLink value="#{messages.delete}" action="#{showOidcClientConfigurationBean.removeSoce(scc)}">
@@ -103,6 +107,14 @@
 		        	<f:selectItem itemLabel="Kein Service" itemValue="#{null}"/>
 	            	<f:selectItems value="#{showOidcClientConfigurationBean.serviceList}" 
 	            		var="service" itemLabel="#{service.name} (id #{service.id})" itemValue="#{service}"/>
+	            </h:selectOneMenu>
+
+				<h:outputText value="#{messages.rule_package}" />
+		        <h:selectOneMenu value="#{showOidcClientConfigurationBean.newSoce.rulePackage}"
+		        	converter="#{businessRulePackageConverter}">
+		        	<f:selectItem itemLabel="No extra access rule" itemValue="#{null}"/>
+	            	<f:selectItems value="#{showOidcClientConfigurationBean.rulePackageList}" 
+	            		var="rulePackage" itemLabel="#{rulePackage.knowledgeBaseName} (id #{rulePackage.id})" itemValue="#{rulePackage}"/>
 	            </h:selectOneMenu>
 
 				<h:outputText value="#{messages.wants_elevation}" />

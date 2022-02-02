@@ -46,6 +46,8 @@ public class PITokenManager extends AbstractTwoFaManager {
 			}
 		}
 		else {
+			resultList.setReallyReadOnly(false);
+			
 			PIConnection PIConnection = new PIConnection(getConfigMap());
 			PIConnection.requestAdminSession();
 

@@ -44,6 +44,8 @@ public class LinotpTokenManager extends AbstractTwoFaManager {
 			}
 		}
 		else {
+			resultList.setReallyReadOnly(false);
+			
 			LinotpConnection linotpConnection = new LinotpConnection(getConfigMap());
 			linotpConnection.requestAdminSession();
 

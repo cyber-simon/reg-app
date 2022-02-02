@@ -20,6 +20,7 @@ import org.kie.api.runtime.KieSession;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 
+import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
@@ -62,5 +63,8 @@ public interface KnowledgeSessionService {
 	List<ServiceEntity> checkServiceFilterRule(String unitId, UserEntity user,
 			List<ServiceEntity> serviceList, Set<GroupEntity> groups,
 			Set<RoleEntity> roles, HttpServletRequest request) throws MisconfiguredServiceException;
+
+	List<Object> checkRule(BusinessRulePackageEntity rulePackage, IdentityEntity identity)
+			throws MisconfiguredServiceException;
 
 }

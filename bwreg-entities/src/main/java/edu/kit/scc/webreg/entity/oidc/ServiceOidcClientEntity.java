@@ -6,6 +6,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import edu.kit.scc.webreg.entity.AbstractBaseEntity;
+import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 
@@ -23,6 +24,9 @@ public class ServiceOidcClientEntity extends AbstractBaseEntity {
 
 	@ManyToOne(targetEntity = ScriptEntity.class)
 	private ScriptEntity script;
+	
+	@ManyToOne(targetEntity = BusinessRulePackageEntity.class)
+	private BusinessRulePackageEntity rulePackage;
 	
 	@Column(name = "wants_elevation")
 	private Boolean wantsElevation;
@@ -67,5 +71,13 @@ public class ServiceOidcClientEntity extends AbstractBaseEntity {
 
 	public void setOrderCriteria(Integer orderCriteria) {
 		this.orderCriteria = orderCriteria;
+	}
+
+	public BusinessRulePackageEntity getRulePackage() {
+		return rulePackage;
+	}
+
+	public void setRulePackage(BusinessRulePackageEntity rulePackage) {
+		this.rulePackage = rulePackage;
 	}
 }
