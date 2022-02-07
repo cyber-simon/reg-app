@@ -45,8 +45,7 @@
 				style="margin-left: 12px; color: #660000;"/>
 		</p:outputPanel>
 
-		<p:dataTable id="dataTableAllServicesList" var="service" value="#{projectAdminEditProjectServicesBean.allServiceList}" paginator="true"
-					lazy="true" rows="15">
+		<p:dataTable id="dataTableAllServicesList" var="service" value="#{projectAdminEditProjectServicesBean.allServiceList}">
 			<p:column sortBy="#{service.id}" style="width:128px;">
 				<f:facet name="header">
 					<h:outputText value="#{messages.id}" />

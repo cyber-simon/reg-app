@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.bean.project;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,6 +25,7 @@ import org.primefaces.model.LazyDataModel;
 
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
+import edu.kit.scc.webreg.entity.project.ProjectAdminRoleEntity;
 import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
@@ -58,7 +60,7 @@ public class ProjectAdminEditProjectServicesBean implements Serializable {
 	private LocalProjectEntity entity;
 	private List<ProjectIdentityAdminEntity> adminList;
 	private Set<ServiceEntity> serviceList;
-	private LazyDataModel<ServiceEntity> allServiceList;
+	private List<ServiceEntity> allServiceList;
     
 	private Long projectId;
 
@@ -143,9 +145,16 @@ public class ProjectAdminEditProjectServicesBean implements Serializable {
 		return savePossible;
 	}
 
-	public LazyDataModel<ServiceEntity> getAllServiceList() {
+	public List<ServiceEntity> getAllServiceList() {
 		if (allServiceList == null) {
-			allServiceList = new GenericLazyDataModelImpl<ServiceEntity, ServiceService>(serviceService);
+			List<ServiceEntity> tempServiceList = serviceService.findAll();
+			allServiceList = new ArrayList<ServiceEntity>();
+			for (ServiceEntity s : tempServiceList) {
+				ProjectAdminRoleEntity par2 = s.getProjectAdminRole();
+				if (session.isUserInRole(par2)) {
+					allServiceList.add(s);
+				}
+			}
 		}
 		return allServiceList;
 	}
