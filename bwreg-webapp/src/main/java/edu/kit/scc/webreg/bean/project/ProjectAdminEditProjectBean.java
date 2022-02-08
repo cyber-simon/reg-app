@@ -27,7 +27,7 @@ import edu.kit.scc.webreg.util.ViewIds;
 
 @Named
 @ViewScoped
-public class ProjectAdminAddProjectBean implements Serializable {
+public class ProjectAdminEditProjectBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -45,12 +45,14 @@ public class ProjectAdminAddProjectBean implements Serializable {
 	private List<ProjectEntity> parentProjectList;
 	private ProjectEntity selectedParentProject;
 	
+	private Long projectId;
+	
 	public void preRenderView(ComponentSystemEvent ev) {
 	}
 	
 	public String save() {
 		entity.setParentProject(selectedParentProject);
-		entity = service.save(entity, session.getIdentityId());
+		entity = service.save(entity);
 		
 		return ViewIds.PROJECT_ADMIN_INDEX + "&faces-redirect=true";
 	}
@@ -61,8 +63,7 @@ public class ProjectAdminAddProjectBean implements Serializable {
 
 	public LocalProjectEntity getEntity() {
 		if (entity == null) { 
-			entity = service.createNew();
-			entity.setSubProjectsAllowed(Boolean.FALSE);
+			entity = service.findById(projectId);
 		}
 		
 		return entity;
@@ -85,5 +86,13 @@ public class ProjectAdminAddProjectBean implements Serializable {
 
 	public void setSelectedParentProject(ProjectEntity selectedParentProject) {
 		this.selectedParentProject = selectedParentProject;
+	}
+
+	public Long getProjectId() {
+		return projectId;
+	}
+
+	public void setProjectId(Long projectId) {
+		this.projectId = projectId;
 	}
 }
