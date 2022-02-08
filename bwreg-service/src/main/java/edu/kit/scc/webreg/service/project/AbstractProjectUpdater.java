@@ -88,7 +88,7 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 	}
 	
 	public void syncMemberToGroup(ProjectEntity project, IdentityEntity identity, String executor) {
-		List<ProjectServiceEntity> pseList = getDao().findServicesForProject(project);
+		List<ProjectServiceEntity> pseList = getDao().findServicesForProject(project, true);
 
 		for (ProjectServiceEntity pse : pseList) {
 			
@@ -109,7 +109,7 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 	}
 	
 	public void updateServices(ProjectEntity project, Set<ServiceEntity> serviceList, String executor) {
-		List<ProjectServiceEntity> oldServiceList = getDao().findServicesForProject(project);
+		List<ProjectServiceEntity> oldServiceList = getDao().findServicesForProject(project, true);
 		List<ServiceEntity> newServiceList = new ArrayList<ServiceEntity>(serviceList);
 
 		for (ProjectServiceEntity oldService : oldServiceList) {

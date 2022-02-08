@@ -46,6 +46,7 @@ public class ProjectAdminShowProjectBean implements Serializable {
 	private List<ProjectMembershipEntity> memberList;
 	private List<ProjectIdentityAdminEntity> adminList;
 	private List<ProjectServiceEntity> serviceList;
+	private List<ProjectServiceEntity> serviceFromParentsList;
 
 	private ProjectIdentityAdminEntity adminIdentity;
 
@@ -107,5 +108,12 @@ public class ProjectAdminShowProjectBean implements Serializable {
 
 	public ProjectIdentityAdminEntity getAdminIdentity() {
 		return adminIdentity;
+	}
+
+	public List<ProjectServiceEntity> getServiceFromParentsList() {
+		if (serviceFromParentsList == null) {
+			serviceFromParentsList = projectService.findServicesFromParentsForProject(entity);
+		}
+		return serviceFromParentsList;
 	}
 }

@@ -80,7 +80,17 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity> implement
 
 	@Override
 	public List<ProjectServiceEntity> findServicesForProject(ProjectEntity project) {
-		return dao.findServicesForProject(project);
+		return dao.findServicesForProject(project, false);
+	}
+
+	@Override
+	public List<ProjectServiceEntity> findServicesFromParentsForProject(ProjectEntity project) {
+		if (project.getParentProject() != null) {
+			return dao.findServicesForProject(project.getParentProject(), true);
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override

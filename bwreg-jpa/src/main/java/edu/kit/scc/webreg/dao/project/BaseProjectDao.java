@@ -45,7 +45,7 @@ public interface BaseProjectDao<T extends ProjectEntity> extends BaseDao<T> {
 	
 	List<ProjectIdentityAdminEntity> findAdminsForProject(ProjectEntity project);
 	
-	List<ProjectServiceEntity> findServicesForProject(ProjectEntity project);
+	List<ProjectServiceEntity> findServicesForProject(ProjectEntity project, Boolean withParents);
 
 	ProjectMembershipEntity findByIdentityAndProject(IdentityEntity identity, ProjectEntity project);
 	

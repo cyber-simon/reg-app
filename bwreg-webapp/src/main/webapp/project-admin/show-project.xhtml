@@ -42,6 +42,9 @@
 
 	        <h:outputText value="#{messages.services}:"/>
 	        <h:panelGroup>
+		        <p:repeat value="#{projectAdminShowProjectBean.serviceFromParentsList}" var="s">
+		        	<div style="color:gray;"><h:outputText value="#{s.service.name}"/></div>
+				</p:repeat>
 		        <p:repeat value="#{projectAdminShowProjectBean.serviceList}" var="s">
 		        	<div><h:outputText value="#{s.service.name}"/></div>
 				</p:repeat>
