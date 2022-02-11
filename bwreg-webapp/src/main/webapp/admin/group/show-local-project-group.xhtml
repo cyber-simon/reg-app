@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="id" value="#{showLocalProjectGroupBean.id}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{showLocalProjectGroupBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+
+		<h2><h:outputText value="#{messages.local_group}: #{showLocalProjectGroupBean.entity.name}"/></h2>
+
+		<p:messages id="messageBox" showDetail="true" />
+		
+		<div class="panel">
+			<p:panel header="#{messages.properties}">
+				<p:panelGrid id="baseData" columns="2">
+			
+			        <h:outputText value="#{messages.id}:"/>
+			        <h:outputText value="#{showLocalProjectGroupBean.entity.id}"/>
+			
+			        <h:outputText value="#{messages.name}:"/>
+			        <h:outputText value="#{showLocalProjectGroupBean.entity.name}"/>
+						
+			        <h:outputText value="#{messages.gid_number}:"/>
+			        <h:outputText value="#{showLocalProjectGroupBean.entity.gidNumber}"/>
+						
+			        <h:outputText value="#{messages.status}:"/>
+			        <h:outputText value="#{showLocalProjectGroupBean.entity.groupStatus}"/>
+						
+				</p:panelGrid>
+			</p:panel>
+		</div>
+		<div class="panel">
+			<p:panel id="groupFlagPanel" header="#{messages.services}">
+				<p:dataTable id="flagData" style="min-width: 500px;"
+				 	value="#{showLocalProjectGroupBean.groupFlagList}" var="flags">
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.id}" />
+						</f:facet>
+						<h:outputText value="#{flags.id}" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.service}" />
+						</f:facet>
+						<h:outputText value="#{flags.service.name}" />
+					</p:column>				 	
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.status}" />
+						</f:facet>
+						<h:outputText value="#{flags.status}" />
+					</p:column>				 	
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.action}" />
+						</f:facet>
+						<p:commandLink action="#{showLocalProjectGroupBean.removeGroupFlag(flags)}" value="#{messages.remove}"
+							update="@form" />
+					</p:column>				 	
+				</p:dataTable>
+			</p:panel>
+		</div>
+		
+		<div class="panel">
+			<p:panel id="memberPanel" header="#{messages.members}">
+				<p:dataTable id="memberData" style="min-width: 500px;" 
+						value="#{showLocalProjectGroupBean.entity.users.toArray()}" var="userGroup">
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.id}" />
+						</f:facet>
+						<h:outputText value="#{userGroup.user.id}" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.eppn}" />
+						</f:facet>
+						<h:link outcome="/admin/user/show-user.xhtml" value="#{userGroup.user.eppn}">
+			     				<f:param name="id" value="#{userGroup.user.id}"/>
+			   			</h:link>
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.sur_name}" />
+						</f:facet>
+						<h:outputText value="#{userGroup.user.surName}" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.given_name}" />
+						</f:facet>
+						<h:outputText value="#{userGroup.user.givenName}" />
+					</p:column>
+				</p:dataTable>
+			</p:panel>
+		</div>		
+
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>
