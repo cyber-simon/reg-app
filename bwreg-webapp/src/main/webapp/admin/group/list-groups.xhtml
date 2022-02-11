@@ -52,6 +52,9 @@
 				<h:link outcome="show-as-group.xhtml" value="#{group.name}" rendered="#{group.class.simpleName == 'AttributeSourceGroupEntity'}" >
       				<f:param name="id" value="#{group.id}"/>
     			</h:link>
+				<h:link outcome="show-local-project-group.xhtml" value="#{group.name}" rendered="#{group.class.simpleName == 'LocalProjectGroupEntity'}" >
+      				<f:param name="id" value="#{group.id}"/>
+    			</h:link>
 			</p:column>			
 			<p:column sortBy="#{group.gidNumber}">
 				<f:facet name="header">

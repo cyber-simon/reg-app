@@ -55,9 +55,9 @@ public class ProjectEntity extends AbstractBaseEntity {
 	@ManyToOne(targetEntity = ProjectEntity.class)
 	private ProjectEntity parentProject;
 	
-	@ManyToOne(targetEntity = ProjectAdminRoleEntity.class)
-	private ProjectAdminRoleEntity adminRole;
-	
+	@OneToMany(mappedBy = "parentProject")
+	private Set<ProjectEntity> childProjects;
+
 	@Column(name = "description")
 	@Lob
 	@Type(type = "org.hibernate.type.TextType")
@@ -86,14 +86,6 @@ public class ProjectEntity extends AbstractBaseEntity {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public ProjectAdminRoleEntity getAdminRole() {
-		return adminRole;
-	}
-
-	public void setAdminRole(ProjectAdminRoleEntity adminRole) {
-		this.adminRole = adminRole;
 	}
 
 	public String getShortName() {
@@ -166,5 +158,13 @@ public class ProjectEntity extends AbstractBaseEntity {
 
 	public void setProjectServices(Set<ProjectServiceEntity> projectServices) {
 		this.projectServices = projectServices;
+	}
+
+	public Set<ProjectEntity> getChildProjects() {
+		return childProjects;
+	}
+
+	public void setChildProjects(Set<ProjectEntity> childProjects) {
+		this.childProjects = childProjects;
 	}
 }

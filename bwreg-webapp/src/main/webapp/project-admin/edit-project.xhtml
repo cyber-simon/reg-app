@@ -12,8 +12,9 @@
 <body>
 <f:view>
 	<f:metadata>
+		<f:viewParam name="projectId" value="#{projectAdminEditProjectBean.projectId}"/>
 		<f:event type="javax.faces.event.PreRenderViewEvent"
-            listener="#{projectAdminAddProjectBean.preRenderView}" />
+            listener="#{projectAdminEditProjectBean.preRenderView}" />
 	</f:metadata>
 
 <ui:composition template="/template/default.xhtml">
@@ -28,33 +29,33 @@
 			<h:panelGrid id="baseData" columns="2" columnClasses="labelColumn, elementColumn">
 
 				<h:outputLabel value="#{messages['project.parent_project']}" for="@next" />
-				<p:selectOneMenu value="#{projectAdminAddProjectBean.selectedParentProject}"
+				<p:selectOneMenu value="#{projectAdminEditProjectBean.selectedParentProject}"
 						converter="#{projectConverter}">
 					<f:selectItem itemLabel="#{messages['project.parent_project.none_selected']}" itemValue="#{null}"/>
-					<f:selectItems value="#{projectAdminAddProjectBean.parentProjectList}"
+					<f:selectItems value="#{projectAdminEditProjectBean.parentProjectList}"
 						var="p" itemLabel="#{p.name} (id #{p.id})" itemValue="#{p}"/>/>
 				</p:selectOneMenu>
 				
 		        <bw:inputText id="nameField" label="#{messages.name}" 
-		        	value="#{projectAdminAddProjectBean.entity.name}" required="true"/>
+		        	value="#{projectAdminEditProjectBean.entity.name}" required="true"/>
 
 		        <bw:inputText id="shortNameField" label="#{messages.short_name}" 
-		        	value="#{projectAdminAddProjectBean.entity.shortName}" required="true"/>
+		        	value="#{projectAdminEditProjectBean.entity.shortName}" required="true"/>
 
 		        <bw:inputText id="groupNameField" label="#{messages['project.group_name']}" 
-		        	value="#{projectAdminAddProjectBean.entity.groupName}" required="true"/>
+		        	value="#{projectAdminEditProjectBean.entity.groupName}" required="true"/>
 
 		        <bw:inputText id="shortDescField" label="#{messages['project.short_description']}" 
-		        	value="#{projectAdminAddProjectBean.entity.shortDescription}" required="false"/>
+		        	value="#{projectAdminEditProjectBean.entity.shortDescription}" required="false"/>
 
 				<h:outputLabel value="#{messages['project.sub_projects_allowed']}" for="@next" />
-		       	<p:selectBooleanCheckbox value="#{projectAdminAddProjectBean.entity.subProjectsAllowed}"/>
+		       	<p:selectBooleanCheckbox value="#{projectAdminEditProjectBean.entity.subProjectsAllowed}"/>
 
 			</h:panelGrid>
 				
-			<p:commandButton id="cancel" action="#{projectAdminAddProjectBean.cancel}" value="#{messages.cancel}"
+			<p:commandButton id="cancel" action="#{projectAdminEditProjectBean.cancel}" value="#{messages.cancel}"
 				immediate="true"/>
-			<p:commandButton id="save" action="#{projectAdminAddProjectBean.save}" value="#{messages.save}"/>
+			<p:commandButton id="save" action="#{projectAdminEditProjectBean.save}" value="#{messages.save}"/>
 		</p:panel>
 	</h:form>
 	</ui:define>

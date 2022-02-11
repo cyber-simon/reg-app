@@ -54,33 +54,49 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 	protected abstract BaseProjectDao<T> getDao();
 	
 	public void updateProjectMemberList(ProjectEntity project, Set<IdentityEntity> memberList, String executor) {
-		
-		// Save members first
-		List<ProjectMembershipEntity> oldMemberList = getDao().findMembersForProject(project);
+		// calculate member difference lists, for propagation to parent projects
+		List<IdentityEntity> oldMemberList = getDao().findIdentitiesForProject(project);
 		List<IdentityEntity> newMemberList = new ArrayList<IdentityEntity>(memberList);
 		
-		for (ProjectMembershipEntity oldMember : oldMemberList) {
-			if (! memberList.contains(oldMember.getIdentity())) {
-				getDao().deleteMembership(oldMember);
-				for (UserEntity user : oldMember.getIdentity().getUsers()) {
+		List<IdentityEntity> membersToRemove = new ArrayList<IdentityEntity>(oldMemberList);
+		membersToRemove.removeAll(newMemberList);
+
+		List<IdentityEntity> membersToAdd = new ArrayList<IdentityEntity>(newMemberList);
+		membersToAdd.removeAll(oldMemberList);
+
+		for (IdentityEntity memberToRemove : membersToRemove) {
+			ProjectMembershipEntity membership = getDao().findByIdentityAndProject(memberToRemove, project);
+			if (membership != null) {
+				// if membership is null, identity is not in project
+				getDao().deleteMembership(membership);
+				for (UserEntity user : memberToRemove.getUsers()) {
 					groupDao.removeUserGromGroup(user, project.getProjectGroup());
 				}
 			}
-			else {
-				newMemberList.remove(oldMember.getIdentity());
-			}
 		}
 		
-		for (IdentityEntity newMember : newMemberList) {
-			getDao().addMemberToProject(project, newMember, ProjectMembershipType.MEMBER);
+		for (IdentityEntity memberToAdd : membersToAdd) {
+			getDao().addMemberToProject(project, memberToAdd, ProjectMembershipType.MEMBER);
+		}
+
+		updateProjectMemberList(project, executor, 0, 3);
+	}
+
+	private void updateProjectMemberList(ProjectEntity project, String executor, int depth, int maxDepth) {
+		if (depth >= maxDepth) {
+			return;
 		}
 		
 		syncAllMembersToGroup(project, executor);
 		triggerGroupUpdate(project, executor);
+		
+		if (project.getParentProject() != null) {
+			updateProjectMemberList(project.getParentProject(), executor, 0, 3);
+		}
 	}
-
+	
 	public void syncAllMembersToGroup(ProjectEntity project, String executor) {
-		List<ProjectMembershipEntity> memberList = getDao().findMembersForProject(project);
+		List<ProjectMembershipEntity> memberList = getDao().findMembersForProject(project, true);
 
 		for (ProjectMembershipEntity pme : memberList) {
 			syncMemberToGroup(project, pme.getIdentity(), executor);
@@ -88,7 +104,7 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 	}
 	
 	public void syncMemberToGroup(ProjectEntity project, IdentityEntity identity, String executor) {
-		List<ProjectServiceEntity> pseList = getDao().findServicesForProject(project);
+		Set<ProjectServiceEntity> pseList = getDao().findServicesForProject(project, true);
 
 		for (ProjectServiceEntity pse : pseList) {
 			
@@ -107,34 +123,91 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 			}
 		}		
 	}
-	
-	public void updateServices(ProjectEntity project, Set<ServiceEntity> serviceList, String executor) {
-		List<ProjectServiceEntity> oldServiceList = getDao().findServicesForProject(project);
-		List<ServiceEntity> newServiceList = new ArrayList<ServiceEntity>(serviceList);
 
-		for (ProjectServiceEntity oldService : oldServiceList) {
-			if (! serviceList.contains(oldService.getService())) {
-				getDao().deleteProjectService(oldService);
-				List<ServiceGroupFlagEntity> groupFlagList = groupFlagDao.findByGroupAndService(project.getProjectGroup(), oldService.getService());
-				for (ServiceGroupFlagEntity groupFlag : groupFlagList) {
-					groupFlag.setStatus(ServiceGroupStatus.TO_DELETE);
-				}
-			}
-			else {
-				newServiceList.remove(oldService.getService());
-			}
+	public void updateServices(ProjectEntity project, Set<ServiceEntity> serviceList, String executor) {
+		project = getDao().findById(project.getId());
+		updateServices(project, serviceList, executor, 0, 3);
+	}
+	
+	private void updateServices(ProjectEntity project, Set<ServiceEntity> serviceList, String executor, int depth, int maxDepth) {
+		if (depth >= maxDepth) {
+			return;
+		}
+
+		Set<ProjectServiceEntity> actualServices = getDao().findServicesForProject(project, false);
+		Set<ProjectServiceEntity> actualParentServices;
+		if (project.getParentProject() != null) {
+			actualParentServices = getDao().findServicesForProject(project.getParentProject(), true);
+		}
+		else {
+			actualParentServices = new HashSet<ProjectServiceEntity>();
 		}
 		
-		for (ServiceEntity newService : newServiceList) {
-			getDao().addServiceToProject(project, newService, ProjectServiceType.PASSIVE_GROUP);
+		List<ServiceEntity> actualServiceList = new ArrayList<ServiceEntity>(actualServices.size());
+		actualServices.stream().forEach(o -> actualServiceList.add(o.getService()));
+		List<ServiceEntity> actualParentServiceList = new ArrayList<ServiceEntity>(actualParentServices.size());
+		actualParentServices.stream().forEach(o -> actualParentServiceList.add(o.getService()));
+
+		// only change services for directly called project, not for children
+		if (depth == 0) {
+			List<ServiceEntity> newServiceList = new ArrayList<ServiceEntity>(serviceList);
+			
+			for (ProjectServiceEntity oldService : actualServices) {
+				if (! serviceList.contains(oldService.getService())) {
+						getDao().deleteProjectService(oldService);
+				}
+				newServiceList.remove(oldService.getService());
+			}
+
+			for (ServiceEntity newService : newServiceList) {
+				getDao().addServiceToProject(project, newService, ProjectServiceType.PASSIVE_GROUP);
+			}
+		}
+
+		Set<ServiceEntity> allServiceList = new HashSet<ServiceEntity>(serviceList);
+		allServiceList.addAll(actualParentServiceList);
+		if (depth > 0) {
+			// we are handling child group
+			// that means, we also need to add our own services,
+			// if not, our own services would be dropped
+			allServiceList.addAll(actualServiceList);
+		}
+		
+		syncGroupFlags(project, allServiceList);
+		
+		triggerGroupUpdate(project, executor);
+		
+		for (ProjectEntity childProject : project.getChildProjects()) {
+			updateServices(childProject, serviceList, executor, depth + 1, maxDepth);
+		}
+	}
+	
+	private void syncGroupFlags(ProjectEntity project, Set<ServiceEntity> allServiceList) {
+		List<ServiceGroupFlagEntity> groupFlagList = groupFlagDao.findByGroup(project.getProjectGroup());
+		List<ServiceEntity> groupFlagServiceList = new ArrayList<ServiceEntity>(groupFlagList.size());
+		groupFlagList.stream().forEach(o -> groupFlagServiceList.add(o.getService()));
+
+		Set<ServiceEntity> flagsToRemove = new HashSet<ServiceEntity>(groupFlagServiceList);
+		flagsToRemove.removeAll(allServiceList);
+		
+		Set<ServiceEntity> flagsToAdd = new HashSet<ServiceEntity>(allServiceList);
+		flagsToAdd.removeAll(groupFlagServiceList);
+		
+		for (ServiceEntity s : flagsToRemove) {
+			List<ServiceGroupFlagEntity> gfl = groupFlagDao.findByGroupAndService(project.getProjectGroup(), s);
+			for (ServiceGroupFlagEntity gf : gfl) {
+				gf.setStatus(ServiceGroupStatus.TO_DELETE);
+			}			
+		}
+		
+		for (ServiceEntity s : flagsToAdd) {
 			ServiceGroupFlagEntity groupFlag = groupFlagDao.createNew();
 			groupFlag.setGroup(project.getProjectGroup());
-			groupFlag.setService(newService);
+			groupFlag.setService(s);
 			groupFlag.setStatus(ServiceGroupStatus.DIRTY);
 			groupFlag = groupFlagDao.persist(groupFlag);
 		}
-		
-		triggerGroupUpdate(project, executor);
+
 	}
 	
 	public void triggerGroupUpdate(ProjectEntity project, String executor) {

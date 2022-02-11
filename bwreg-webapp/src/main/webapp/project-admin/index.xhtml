@@ -23,7 +23,7 @@
 	<ui:define name="content">
 	<h:form id="form" class="full form">
 
-		<h2><h:outputText value="#{messages.my_projects}"/></h2>
+		<h2><h:outputText value="#{messages['project.projects']}"/></h2>
 
 		<p:dataTable id="dataTable" var="pia" value="#{projectAdminListProjectBean.projectList}" paginator="true" rows="15">
 			<p:column>
@@ -54,7 +54,9 @@
 			</p:column>
 		</p:dataTable>
 		
-		<h:link outcome="add-project.xhtml" value="#{messages.add_project}" />
+		<div class="text full" style="margin-top: 0.4em;">
+			<h:link outcome="add-project.xhtml" value="#{messages['project.add']}" />
+		</div>
 
 	</h:form>
 	</ui:define>

@@ -26,12 +26,6 @@
 		<h2><h:outputText value="#{messages.my_projects}"/></h2>
 
 		<p:dataTable id="dataTable" var="p" value="#{userProjectIndexBean.projectList}" paginator="true" rows="15">
-			<p:column>
-				<f:facet name="header">
-					<h:outputText value="#{messages.id}" />
-				</f:facet>
-				<h:outputText value="#{p.project.id}" />
-			</p:column>
 			<p:column sortBy="#{p.project.name}" filterBy="#{p.project.name}">
 				<f:facet name="header">
 					<h:outputText value="#{messages.name}" />
@@ -41,13 +35,16 @@
 					<h:outputText value="#{p.project.externalName}" />
 				</p:outputPanel>
 				<p:outputPanel rendered="#{p.project.class.simpleName == 'LocalProjectEntity'}">
-					<h:link outcome="show-project.xhtml" value="#{p.project.name}">
-			      		<f:param name="projectId" value="#{p.project.id}"/>
+					<h:link outcome="show-local-project.xhtml" value="#{p.project.name}">
+			      		<f:param name="id" value="#{p.project.id}"/>
 					</h:link>
 				</p:outputPanel>
 			</p:column>			
 		</p:dataTable>
 		
+		<div class="text full" style="margin-top: 0.4em;">
+			<a href="../index.xhtml"><h:outputText value="#{messages.back}"/></a>
+		</div>		
 	</h:form>
 	</ui:define>
 </ui:composition>

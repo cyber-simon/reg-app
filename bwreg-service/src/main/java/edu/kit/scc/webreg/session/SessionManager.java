@@ -25,6 +25,7 @@ import javax.inject.Named;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.service.saml.SamlIdentifier;
 
 @Named("sessionManager")
@@ -91,6 +92,9 @@ public class SessionManager implements Serializable {
 	private Set<String> groupNames;
 	private Long groupSetCreated;
 	
+	private Set<ProjectMembershipEntity> projects;
+	private Long projectSetCreated;
+	
 	private String theme;
 	
 	private String locale;
@@ -109,6 +113,7 @@ public class SessionManager implements Serializable {
 		groupNames = new HashSet<String>();
 		roles = new HashSet<RoleEntity>();
 		loggedInUserList = new HashSet<Long>();
+		projects = new HashSet<ProjectMembershipEntity>();
 	}
 	
 	public void clearRoleList() {
@@ -121,8 +126,13 @@ public class SessionManager implements Serializable {
 	
 	public void clearGroups() {
 		groups.clear();
+		groupNames.clear();
 	}
 	
+	public void clearProjects() {
+		projects.clear();
+	}
+
 	public boolean isLoggedIn() {
 		return (identityId != null ? true : false);		
 	}
@@ -396,5 +406,21 @@ public class SessionManager implements Serializable {
 
 	public void setAuthnRequestRelayState(String authnRequestRelayState) {
 		this.authnRequestRelayState = authnRequestRelayState;
+	}
+
+	public Set<ProjectMembershipEntity> getProjects() {
+		return projects;
+	}
+
+	public void setProjects(Set<ProjectMembershipEntity> projects) {
+		this.projects = projects;
+	}
+
+	public Long getProjectSetCreated() {
+		return projectSetCreated;
+	}
+
+	public void setProjectSetCreated(Long projectSetCreated) {
+		this.projectSetCreated = projectSetCreated;
 	}
 }

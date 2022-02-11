@@ -8,7 +8,7 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.bean.project;
+package edu.kit.scc.webreg.bean.admin.project;
 
 import java.io.Serializable;
 import java.util.List;
@@ -18,53 +18,51 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.slf4j.Logger;
+
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
-import edu.kit.scc.webreg.entity.project.ProjectEntity;
+import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
+import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.service.project.LocalProjectService;
 import edu.kit.scc.webreg.service.project.ProjectService;
-import edu.kit.scc.webreg.session.SessionManager;
-import edu.kit.scc.webreg.util.ViewIds;
 
 @Named
 @ViewScoped
-public class ProjectAdminAddProjectBean implements Serializable {
+public class ShowLocalProjectBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	@Inject
-	private SessionManager session;
+	private Logger logger;
 	
 	@Inject
 	private LocalProjectService service;
-	
+
 	@Inject
 	private ProjectService projectService;
-	
-	private LocalProjectEntity entity;
 
-	private List<ProjectEntity> parentProjectList;
-	private ProjectEntity selectedParentProject;
+	private LocalProjectEntity entity;
+	private List<ProjectMembershipEntity> memberList;
+	private List<ProjectIdentityAdminEntity> adminList;
 	
+	private Long id;
+
 	public void preRenderView(ComponentSystemEvent ev) {
 	}
-	
-	public String save() {
-		entity.setParentProject(selectedParentProject);
-		entity = service.save(entity, session.getIdentityId());
-		
-		return ViewIds.PROJECT_ADMIN_INDEX + "&faces-redirect=true";
+
+	public Long getId() {
+		return id;
 	}
 
-	public String cancel() {
-		return ViewIds.PROJECT_ADMIN_INDEX + "&faces-redirect=true";
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public LocalProjectEntity getEntity() {
-		if (entity == null) { 
-			entity = service.createNew();
-			entity.setSubProjectsAllowed(Boolean.FALSE);
+		if (entity == null) {
+			entity = service.findByIdWithAttrs(id, "projectServices");
 		}
-		
+
 		return entity;
 	}
 
@@ -72,18 +70,17 @@ public class ProjectAdminAddProjectBean implements Serializable {
 		this.entity = entity;
 	}
 
-	public List<ProjectEntity> getParentProjectList() {
-		if (parentProjectList == null) {
-			parentProjectList = projectService.findAllByAttr("subProjectsAllowed", Boolean.TRUE);
+	public List<ProjectMembershipEntity> getMemberList() {
+		if (memberList == null) {
+			memberList = projectService.findMembersForProject(getEntity());
 		}
-		return parentProjectList;
+		return memberList;
 	}
 
-	public ProjectEntity getSelectedParentProject() {
-		return selectedParentProject;
-	}
-
-	public void setSelectedParentProject(ProjectEntity selectedParentProject) {
-		this.selectedParentProject = selectedParentProject;
-	}
+	public List<ProjectIdentityAdminEntity> getAdminList() {
+		if (adminList == null) {
+			adminList = projectService.findAdminsForProject(getEntity());
+		}
+		return adminList;
+	}	
 }

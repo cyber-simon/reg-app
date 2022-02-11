@@ -21,7 +21,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import edu.kit.scc.webreg.entity.ServiceEntity;
-import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 
 @Entity(name = "ProjectServiceEntity")
 @Table(name = "project_service")
@@ -43,7 +42,7 @@ public class ProjectServiceEntity implements Serializable {
 	private ProjectServiceType type;	
 
 	@Enumerated(EnumType.STRING)
-	private ServiceGroupStatus status;
+	private ProjectServiceStatusType status;
 
 	@Override
 	public int hashCode() {
@@ -100,11 +99,11 @@ public class ProjectServiceEntity implements Serializable {
 		this.type = type;
 	}
 
-	public ServiceGroupStatus getStatus() {
+	public ProjectServiceStatusType getStatus() {
 		return status;
 	}
 
-	public void setStatus(ServiceGroupStatus status) {
+	public void setStatus(ProjectServiceStatusType status) {
 		this.status = status;
 	}
 }

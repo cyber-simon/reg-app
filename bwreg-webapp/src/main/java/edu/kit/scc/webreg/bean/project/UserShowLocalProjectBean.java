@@ -11,79 +11,57 @@
 package edu.kit.scc.webreg.bean.project;
 
 import java.io.Serializable;
-import java.util.List;
 
 import javax.faces.event.ComponentSystemEvent;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.slf4j.Logger;
+
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
-import edu.kit.scc.webreg.entity.project.ProjectEntity;
 import edu.kit.scc.webreg.service.project.LocalProjectService;
 import edu.kit.scc.webreg.service.project.ProjectService;
-import edu.kit.scc.webreg.session.SessionManager;
-import edu.kit.scc.webreg.util.ViewIds;
 
 @Named
 @ViewScoped
-public class ProjectAdminAddProjectBean implements Serializable {
+public class UserShowLocalProjectBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	@Inject
-	private SessionManager session;
+	private Logger logger;
 	
 	@Inject
 	private LocalProjectService service;
-	
+
 	@Inject
 	private ProjectService projectService;
-	
-	private LocalProjectEntity entity;
 
-	private List<ProjectEntity> parentProjectList;
-	private ProjectEntity selectedParentProject;
+	private LocalProjectEntity entity;
 	
+	private Long id;
+
 	public void preRenderView(ComponentSystemEvent ev) {
 	}
-	
-	public String save() {
-		entity.setParentProject(selectedParentProject);
-		entity = service.save(entity, session.getIdentityId());
-		
-		return ViewIds.PROJECT_ADMIN_INDEX + "&faces-redirect=true";
+
+	public Long getId() {
+		return id;
 	}
 
-	public String cancel() {
-		return ViewIds.PROJECT_ADMIN_INDEX + "&faces-redirect=true";
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public LocalProjectEntity getEntity() {
-		if (entity == null) { 
-			entity = service.createNew();
-			entity.setSubProjectsAllowed(Boolean.FALSE);
+		if (entity == null) {
+			entity = service.findByIdWithAttrs(id, "projectServices");
 		}
-		
+
 		return entity;
 	}
 
 	public void setEntity(LocalProjectEntity entity) {
 		this.entity = entity;
-	}
-
-	public List<ProjectEntity> getParentProjectList() {
-		if (parentProjectList == null) {
-			parentProjectList = projectService.findAllByAttr("subProjectsAllowed", Boolean.TRUE);
-		}
-		return parentProjectList;
-	}
-
-	public ProjectEntity getSelectedParentProject() {
-		return selectedParentProject;
-	}
-
-	public void setSelectedParentProject(ProjectEntity selectedParentProject) {
-		this.selectedParentProject = selectedParentProject;
 	}
 }

@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+
+	<f:metadata>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{listProjectBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	
+	<h:form id="form">
+	
+		<p:dataTable id="dataTable" var="p" value="#{listProjectBean.projectEntityList}" paginator="true"
+					lazy="true" rows="15">
+			<p:column sortBy="#{p.id}">
+				<f:facet name="header">
+					<h:outputText value="#{messages.id}" />
+				</f:facet>
+				<h:outputText value="#{p.id}" />
+			</p:column>
+			<p:column sortBy="#{p.name}" filterBy="#{p.name}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.name}" />
+				</f:facet>
+				<h:link outcome="show-local-project.xhtml" value="#{p.name}" rendered="#{p.class.simpleName == 'LocalProjectEntity'}" >
+      				<f:param name="id" value="#{p.id}"/>
+    			</h:link>
+				<h:link outcome="show-external-oidc-project.xhtml" value="#{p.name}" rendered="#{p.class.simpleName == 'ExternalOidcProjectEntity'}" >
+      				<f:param name="id" value="#{p.id}"/>
+    			</h:link>
+			</p:column>			
+			<p:column sortBy="#{p.shortName}" filterBy="#{p.shortName}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.shortname}" />
+				</f:facet>
+				<h:outputText value="#{p.shortName}" />
+			</p:column>			
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.class}" />
+				</f:facet>
+				<h:outputText value="#{p.class.simpleName}" />
+			</p:column>			
+			<p:column sortBy="#{p.projectStatus}">
+				<f:facet name="header">
+					<h:outputText value="#{messages.status}" />
+				</f:facet>
+				<h:outputText value="#{p.projectStatus}" />
+			</p:column>			
+		</p:dataTable>
+			
+	
+	</h:form>
+
+	</ui:define>
+</ui:composition>		
+</f:view>
+</body>
+</html>

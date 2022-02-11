@@ -16,21 +16,22 @@ import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 
 import edu.kit.scc.webreg.entity.RoleEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity;
 
 @Entity(name = "ProjectAdminRoleEntity")
 public class ProjectAdminRoleEntity extends RoleEntity {
 
 	private static final long serialVersionUID = 1L;
 
-	@OneToMany(targetEntity=ProjectEntity.class, mappedBy="adminRole")
-	private Set<ProjectEntity> adminForProjects;
+	@OneToMany(targetEntity=ServiceEntity.class, mappedBy="projectAdminRole")
+	private Set<ProjectEntity> adminForServices;
 
-	public Set<ProjectEntity> getAdminForProjects() {
-		return adminForProjects;
+	public Set<ProjectEntity> getAdminForServices() {
+		return adminForServices;
 	}
 
-	public void setAdminForProjects(Set<ProjectEntity> adminForProjects) {
-		this.adminForProjects = adminForProjects;
+	public void setAdminForServices(Set<ProjectEntity> adminForServices) {
+		this.adminForServices = adminForServices;
 	}
 
 }
