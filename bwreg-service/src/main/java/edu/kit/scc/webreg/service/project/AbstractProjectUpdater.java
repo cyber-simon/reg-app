@@ -123,14 +123,26 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 			}
 		}		
 	}
-	
+
 	public void updateServices(ProjectEntity project, Set<ServiceEntity> serviceList, String executor) {
+		project = getDao().findById(project.getId());
+		updateServices(project, serviceList, executor, 0, 3);
+	}
+	
+	private void updateServices(ProjectEntity project, Set<ServiceEntity> serviceList, String executor, int depth, int maxDepth) {
+		if (depth >= maxDepth) {
+			return;
+		}
+
 		Set<ProjectServiceEntity> oldServiceList = getDao().findServicesForProject(project, true);
 		List<ServiceEntity> newServiceList = new ArrayList<ServiceEntity>(serviceList);
 
 		for (ProjectServiceEntity oldService : oldServiceList) {
 			if (! serviceList.contains(oldService.getService())) {
-				getDao().deleteProjectService(oldService);
+				if (depth == 0) {
+					// only change services for directly called project, not for children
+					getDao().deleteProjectService(oldService);
+				}
 				List<ServiceGroupFlagEntity> groupFlagList = groupFlagDao.findByGroupAndService(project.getProjectGroup(), oldService.getService());
 				for (ServiceGroupFlagEntity groupFlag : groupFlagList) {
 					groupFlag.setStatus(ServiceGroupStatus.TO_DELETE);
@@ -142,7 +154,10 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 		}
 		
 		for (ServiceEntity newService : newServiceList) {
-			getDao().addServiceToProject(project, newService, ProjectServiceType.PASSIVE_GROUP);
+			if (depth == 0) {
+				// only change services for directly called project, not for children
+				getDao().addServiceToProject(project, newService, ProjectServiceType.PASSIVE_GROUP);
+			}
 			ServiceGroupFlagEntity groupFlag = groupFlagDao.createNew();
 			groupFlag.setGroup(project.getProjectGroup());
 			groupFlag.setService(newService);
@@ -151,6 +166,10 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 		}
 		
 		triggerGroupUpdate(project, executor);
+		
+		for (ProjectEntity childProject : project.getChildProjects()) {
+			updateServices(childProject, serviceList, executor, depth + 1, maxDepth);
+		}
 	}
 	
 	public void triggerGroupUpdate(ProjectEntity project, String executor) {
