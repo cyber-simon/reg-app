@@ -164,8 +164,14 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 			}
 		}
 
-		List<ServiceEntity> allServiceList = new ArrayList<ServiceEntity>(serviceList);
+		Set<ServiceEntity> allServiceList = new HashSet<ServiceEntity>(serviceList);
 		allServiceList.addAll(actualParentServiceList);
+		if (depth > 0) {
+			// we are handling child group
+			// that means, we also need to add our own services,
+			// if not, our own services would be dropped
+			allServiceList.addAll(actualServiceList);
+		}
 		
 		syncGroupFlags(project, allServiceList);
 		
@@ -176,7 +182,7 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 		}
 	}
 	
-	private void syncGroupFlags(ProjectEntity project, List<ServiceEntity> allServiceList) {
+	private void syncGroupFlags(ProjectEntity project, Set<ServiceEntity> allServiceList) {
 		List<ServiceGroupFlagEntity> groupFlagList = groupFlagDao.findByGroup(project.getProjectGroup());
 		List<ServiceEntity> groupFlagServiceList = new ArrayList<ServiceEntity>(groupFlagList.size());
 		groupFlagList.stream().forEach(o -> groupFlagServiceList.add(o.getService()));
