@@ -11,7 +11,9 @@
 package edu.kit.scc.webreg.dao.jpa.project;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.NoResultException;
 
@@ -45,10 +47,36 @@ public abstract class JpaBaseProjectDao<T extends ProjectEntity> extends JpaBase
 				.setParameter("identity", identity).getResultList();
 	}
 
+	@Override
+	public List<ProjectMembershipEntity> findMembersForProject(ProjectEntity project, boolean withChildren) {
+		if (! em.contains(project))
+			project = em.merge(project);
+
+		List<ProjectMembershipEntity> membershipList = new ArrayList<ProjectMembershipEntity>();
+		findMembersForProject(project, membershipList, withChildren, 0, 3);
+		return membershipList;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void findMembersForProject(ProjectEntity project, List<ProjectMembershipEntity> membershipList, boolean withChildren, int depth, int maxDepth) {
+		if (depth >= maxDepth) {
+			return;
+		}
+		
+		membershipList.addAll(em.createQuery("select r from ProjectMembershipEntity r where r.project = :project")
+				.setParameter("project", project).getResultList());
+		
+		if (withChildren) {
+			for (ProjectEntity childProject : project.getChildProjects()) {
+				findMembersForProject(childProject, membershipList, true, depth + 1, maxDepth);
+			}
+		}
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ProjectMembershipEntity> findMembersForProject(ProjectEntity project) {
-		return em.createQuery("select r from ProjectMembershipEntity r where r.project = :project")
+	public List<IdentityEntity> findIdentitiesForProject(ProjectEntity project) {
+		return em.createQuery("select r.identity from ProjectMembershipEntity r where r.project = :project")
 				.setParameter("project", project).getResultList();
 	}
 
@@ -78,8 +106,8 @@ public abstract class JpaBaseProjectDao<T extends ProjectEntity> extends JpaBase
 	}
 	
 	@Override
-	public List<ProjectServiceEntity> findServicesForProject(ProjectEntity project, Boolean withParents) {
-		List<ProjectServiceEntity> resultList = new ArrayList<ProjectServiceEntity>();
+	public Set<ProjectServiceEntity> findServicesForProject(ProjectEntity project, Boolean withParents) {
+		Set<ProjectServiceEntity> resultList = new HashSet<ProjectServiceEntity>();
 		
 		if (withParents) {
 			addServicesForProject(resultList, project, 0, 3);
@@ -92,7 +120,7 @@ public abstract class JpaBaseProjectDao<T extends ProjectEntity> extends JpaBase
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void addServicesForProject(List<ProjectServiceEntity> resultList, ProjectEntity project, int depth, int maxDepth) {
+	private void addServicesForProject(Set<ProjectServiceEntity> resultList, ProjectEntity project, int depth, int maxDepth) {
 		if (depth >= maxDepth) {
 			return;
 		}

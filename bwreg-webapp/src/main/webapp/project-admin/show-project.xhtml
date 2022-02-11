@@ -95,6 +95,13 @@
 			</p:column>			
 		</p:dataTable>		
 		
+		<div style="margin-top: 1em;">
+			<h:outputText value="#{messages['project.effective_members']}: " />
+			<ui:repeat var="pme" value="#{projectAdminShowProjectBean.effectiveMemberList}">
+				<h:outputText value="#{pme.identity.prefUser.eppn}, " />
+			</ui:repeat>
+		</div>
+		
 		<h5 style="margin-top: 1em;"><h:outputText value="#{messages['project.admins']}" /></h5>
 		<div class="text full" style="margin-top: 0.4em;">
 			<h:link outcome="edit-project-admins.xhtml" value="#{messages['project.edit_admins']}">

@@ -54,33 +54,49 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 	protected abstract BaseProjectDao<T> getDao();
 	
 	public void updateProjectMemberList(ProjectEntity project, Set<IdentityEntity> memberList, String executor) {
-		
-		// Save members first
-		List<ProjectMembershipEntity> oldMemberList = getDao().findMembersForProject(project);
+		// calculate member difference lists, for propagation to parent projects
+		List<IdentityEntity> oldMemberList = getDao().findIdentitiesForProject(project);
 		List<IdentityEntity> newMemberList = new ArrayList<IdentityEntity>(memberList);
 		
-		for (ProjectMembershipEntity oldMember : oldMemberList) {
-			if (! memberList.contains(oldMember.getIdentity())) {
-				getDao().deleteMembership(oldMember);
-				for (UserEntity user : oldMember.getIdentity().getUsers()) {
+		List<IdentityEntity> membersToRemove = new ArrayList<IdentityEntity>(oldMemberList);
+		membersToRemove.removeAll(newMemberList);
+
+		List<IdentityEntity> membersToAdd = new ArrayList<IdentityEntity>(newMemberList);
+		membersToAdd.removeAll(oldMemberList);
+
+		for (IdentityEntity memberToRemove : membersToRemove) {
+			ProjectMembershipEntity membership = getDao().findByIdentityAndProject(memberToRemove, project);
+			if (membership != null) {
+				// if membership is null, identity is not in project
+				getDao().deleteMembership(membership);
+				for (UserEntity user : memberToRemove.getUsers()) {
 					groupDao.removeUserGromGroup(user, project.getProjectGroup());
 				}
 			}
-			else {
-				newMemberList.remove(oldMember.getIdentity());
-			}
 		}
 		
-		for (IdentityEntity newMember : newMemberList) {
-			getDao().addMemberToProject(project, newMember, ProjectMembershipType.MEMBER);
+		for (IdentityEntity memberToAdd : membersToAdd) {
+			getDao().addMemberToProject(project, memberToAdd, ProjectMembershipType.MEMBER);
+		}
+
+		updateProjectMemberList(project, executor, 0, 3);
+	}
+
+	private void updateProjectMemberList(ProjectEntity project, String executor, int depth, int maxDepth) {
+		if (depth >= maxDepth) {
+			return;
 		}
 		
 		syncAllMembersToGroup(project, executor);
 		triggerGroupUpdate(project, executor);
+		
+		if (project.getParentProject() != null) {
+			updateProjectMemberList(project.getParentProject(), executor, 0, 3);
+		}
 	}
-
+	
 	public void syncAllMembersToGroup(ProjectEntity project, String executor) {
-		List<ProjectMembershipEntity> memberList = getDao().findMembersForProject(project);
+		List<ProjectMembershipEntity> memberList = getDao().findMembersForProject(project, true);
 
 		for (ProjectMembershipEntity pme : memberList) {
 			syncMemberToGroup(project, pme.getIdentity(), executor);
@@ -88,7 +104,7 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 	}
 	
 	public void syncMemberToGroup(ProjectEntity project, IdentityEntity identity, String executor) {
-		List<ProjectServiceEntity> pseList = getDao().findServicesForProject(project, true);
+		Set<ProjectServiceEntity> pseList = getDao().findServicesForProject(project, true);
 
 		for (ProjectServiceEntity pse : pseList) {
 			
@@ -109,7 +125,7 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 	}
 	
 	public void updateServices(ProjectEntity project, Set<ServiceEntity> serviceList, String executor) {
-		List<ProjectServiceEntity> oldServiceList = getDao().findServicesForProject(project, true);
+		Set<ProjectServiceEntity> oldServiceList = getDao().findServicesForProject(project, true);
 		List<ServiceEntity> newServiceList = new ArrayList<ServiceEntity>(serviceList);
 
 		for (ProjectServiceEntity oldService : oldServiceList) {

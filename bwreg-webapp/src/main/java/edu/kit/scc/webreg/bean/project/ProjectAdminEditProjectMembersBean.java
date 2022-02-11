@@ -17,10 +17,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.inject.Named;
-import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.primefaces.model.LazyDataModel;
 
@@ -63,6 +63,7 @@ public class ProjectAdminEditProjectMembersBean implements Serializable {
 	
 	private LocalProjectEntity entity;
 	private Set<IdentityEntity> memberList;
+	private Set<IdentityEntity> effectiveMemberList;
 	private List<ProjectIdentityAdminEntity> adminList;
 	private List<ProjectServiceEntity> serviceList;
 	private LazyDataModel<UserEntity> allUserList;
@@ -171,5 +172,16 @@ public class ProjectAdminEditProjectMembersBean implements Serializable {
 
 	public ProjectIdentityAdminEntity getAdminIdentity() {
 		return adminIdentity;
+	}
+
+	public Set<IdentityEntity> getEffectiveMemberList() {
+		if (effectiveMemberList == null) {
+			List<ProjectMembershipEntity> tempMemberList = projectService.findMembersForProject(entity, true);
+			effectiveMemberList = new HashSet<IdentityEntity>();
+			for (ProjectMembershipEntity pme : tempMemberList) {
+				effectiveMemberList.add(pme.getIdentity());
+			}
+		}
+		return effectiveMemberList;
 	}
 }

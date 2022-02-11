@@ -10,6 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.project;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -76,18 +77,23 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity> implement
 
 	@Override
 	public List<ProjectMembershipEntity> findMembersForProject(ProjectEntity project) {
-		return dao.findMembersForProject(project);
+		return dao.findMembersForProject(project, false);
+	}
+
+	@Override
+	public List<ProjectMembershipEntity> findMembersForProject(ProjectEntity project, boolean withChildren) {
+		return dao.findMembersForProject(project, withChildren);
 	}
 
 	@Override
 	public List<ProjectServiceEntity> findServicesForProject(ProjectEntity project) {
-		return dao.findServicesForProject(project, false);
+		return new ArrayList<ProjectServiceEntity>(dao.findServicesForProject(project, false));
 	}
 
 	@Override
 	public List<ProjectServiceEntity> findServicesFromParentsForProject(ProjectEntity project) {
 		if (project.getParentProject() != null) {
-			return dao.findServicesForProject(project.getParentProject(), true);
+			return new ArrayList<ProjectServiceEntity>(dao.findServicesForProject(project.getParentProject(), true));
 		}
 		else {
 			return null;

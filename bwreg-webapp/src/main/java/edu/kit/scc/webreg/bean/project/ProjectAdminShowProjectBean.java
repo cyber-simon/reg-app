@@ -44,6 +44,7 @@ public class ProjectAdminShowProjectBean implements Serializable {
 
 	private LocalProjectEntity entity;
 	private List<ProjectMembershipEntity> memberList;
+	private List<ProjectMembershipEntity> effectiveMemberList;
 	private List<ProjectIdentityAdminEntity> adminList;
 	private List<ProjectServiceEntity> serviceList;
 	private List<ProjectServiceEntity> serviceFromParentsList;
@@ -115,5 +116,12 @@ public class ProjectAdminShowProjectBean implements Serializable {
 			serviceFromParentsList = projectService.findServicesFromParentsForProject(entity);
 		}
 		return serviceFromParentsList;
+	}
+
+	public List<ProjectMembershipEntity> getEffectiveMemberList() {
+		if (effectiveMemberList == null) {
+			effectiveMemberList = projectService.findMembersForProject(entity, true);
+		}
+		return effectiveMemberList;
 	}
 }

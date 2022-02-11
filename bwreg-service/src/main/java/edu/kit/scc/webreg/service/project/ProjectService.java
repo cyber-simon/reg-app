@@ -43,4 +43,5 @@ public interface ProjectService extends BaseService<ProjectEntity> {
 	
 	List<ProjectMembershipEntity> findByIdentity(IdentityEntity identity);
 	List<ProjectServiceEntity> findServicesFromParentsForProject(ProjectEntity project);
+	List<ProjectMembershipEntity> findMembersForProject(ProjectEntity project, boolean withChildren);
 }

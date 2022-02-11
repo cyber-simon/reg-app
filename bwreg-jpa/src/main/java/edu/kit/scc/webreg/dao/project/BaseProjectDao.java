@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.dao.project;
 
 import java.util.List;
+import java.util.Set;
 
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.entity.ServiceEntity;
@@ -41,13 +42,15 @@ public interface BaseProjectDao<T extends ProjectEntity> extends BaseDao<T> {
 	
 	List<ProjectIdentityAdminEntity> findAdminByIdentity(IdentityEntity identity);
 
-	List<ProjectMembershipEntity> findMembersForProject(ProjectEntity project);
-	
 	List<ProjectIdentityAdminEntity> findAdminsForProject(ProjectEntity project);
 	
-	List<ProjectServiceEntity> findServicesForProject(ProjectEntity project, Boolean withParents);
+	Set<ProjectServiceEntity> findServicesForProject(ProjectEntity project, Boolean withParents);
 
 	ProjectMembershipEntity findByIdentityAndProject(IdentityEntity identity, ProjectEntity project);
 	
 	List<ProjectMembershipEntity> findByIdentity(IdentityEntity identity);
+
+	List<IdentityEntity> findIdentitiesForProject(ProjectEntity project);
+
+	List<ProjectMembershipEntity> findMembersForProject(ProjectEntity project, boolean withChildren);
 }
