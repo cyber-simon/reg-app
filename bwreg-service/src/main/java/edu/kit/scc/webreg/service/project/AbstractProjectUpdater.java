@@ -134,42 +134,74 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 			return;
 		}
 
-		Set<ProjectServiceEntity> oldServiceList = getDao().findServicesForProject(project, true);
-		List<ServiceEntity> newServiceList = new ArrayList<ServiceEntity>(serviceList);
-
-		for (ProjectServiceEntity oldService : oldServiceList) {
-			if (! serviceList.contains(oldService.getService())) {
-				if (depth == 0) {
-					// only change services for directly called project, not for children
-					getDao().deleteProjectService(oldService);
-				}
-				List<ServiceGroupFlagEntity> groupFlagList = groupFlagDao.findByGroupAndService(project.getProjectGroup(), oldService.getService());
-				for (ServiceGroupFlagEntity groupFlag : groupFlagList) {
-					groupFlag.setStatus(ServiceGroupStatus.TO_DELETE);
-				}
-			}
-			else {
-				newServiceList.remove(oldService.getService());
-			}
+		Set<ProjectServiceEntity> actualServices = getDao().findServicesForProject(project, false);
+		Set<ProjectServiceEntity> actualParentServices;
+		if (project.getParentProject() != null) {
+			actualParentServices = getDao().findServicesForProject(project.getParentProject(), true);
+		}
+		else {
+			actualParentServices = new HashSet<ProjectServiceEntity>();
 		}
 		
-		for (ServiceEntity newService : newServiceList) {
-			if (depth == 0) {
-				// only change services for directly called project, not for children
+		List<ServiceEntity> actualServiceList = new ArrayList<ServiceEntity>(actualServices.size());
+		actualServices.stream().forEach(o -> actualServiceList.add(o.getService()));
+		List<ServiceEntity> actualParentServiceList = new ArrayList<ServiceEntity>(actualParentServices.size());
+		actualParentServices.stream().forEach(o -> actualParentServiceList.add(o.getService()));
+
+		// only change services for directly called project, not for children
+		if (depth == 0) {
+			List<ServiceEntity> newServiceList = new ArrayList<ServiceEntity>(serviceList);
+			
+			for (ProjectServiceEntity oldService : actualServices) {
+				if (! serviceList.contains(oldService.getService())) {
+						getDao().deleteProjectService(oldService);
+				}
+				newServiceList.remove(oldService.getService());
+			}
+
+			for (ServiceEntity newService : newServiceList) {
 				getDao().addServiceToProject(project, newService, ProjectServiceType.PASSIVE_GROUP);
 			}
-			ServiceGroupFlagEntity groupFlag = groupFlagDao.createNew();
-			groupFlag.setGroup(project.getProjectGroup());
-			groupFlag.setService(newService);
-			groupFlag.setStatus(ServiceGroupStatus.DIRTY);
-			groupFlag = groupFlagDao.persist(groupFlag);
 		}
+
+		List<ServiceEntity> allServiceList = new ArrayList<ServiceEntity>(serviceList);
+		allServiceList.addAll(actualParentServiceList);
+		
+		syncGroupFlags(project, allServiceList);
 		
 		triggerGroupUpdate(project, executor);
 		
 		for (ProjectEntity childProject : project.getChildProjects()) {
 			updateServices(childProject, serviceList, executor, depth + 1, maxDepth);
 		}
+	}
+	
+	private void syncGroupFlags(ProjectEntity project, List<ServiceEntity> allServiceList) {
+		List<ServiceGroupFlagEntity> groupFlagList = groupFlagDao.findByGroup(project.getProjectGroup());
+		List<ServiceEntity> groupFlagServiceList = new ArrayList<ServiceEntity>(groupFlagList.size());
+		groupFlagList.stream().forEach(o -> groupFlagServiceList.add(o.getService()));
+
+		Set<ServiceEntity> flagsToRemove = new HashSet<ServiceEntity>(groupFlagServiceList);
+		flagsToRemove.removeAll(allServiceList);
+		
+		Set<ServiceEntity> flagsToAdd = new HashSet<ServiceEntity>(allServiceList);
+		flagsToAdd.removeAll(groupFlagServiceList);
+		
+		for (ServiceEntity s : flagsToRemove) {
+			List<ServiceGroupFlagEntity> gfl = groupFlagDao.findByGroupAndService(project.getProjectGroup(), s);
+			for (ServiceGroupFlagEntity gf : gfl) {
+				gf.setStatus(ServiceGroupStatus.TO_DELETE);
+			}			
+		}
+		
+		for (ServiceEntity s : flagsToAdd) {
+			ServiceGroupFlagEntity groupFlag = groupFlagDao.createNew();
+			groupFlag.setGroup(project.getProjectGroup());
+			groupFlag.setService(s);
+			groupFlag.setStatus(ServiceGroupStatus.DIRTY);
+			groupFlag = groupFlagDao.persist(groupFlag);
+		}
+
 	}
 	
 	public void triggerGroupUpdate(ProjectEntity project, String executor) {
