@@ -60,6 +60,9 @@ public class OidcFlowStateEntity extends AbstractBaseEntity {
 	@Column(name = "refresh_token", length = 4096)
 	private String refreshToken;
 
+	@Column(name = "scope", length = 4096)
+	private String scope;
+
 	@Column(name = "access_token_type", length = 32)
 	private String accessTokenType;
 
@@ -192,5 +195,13 @@ public class OidcFlowStateEntity extends AbstractBaseEntity {
 
 	public void setCodecodeChallangeMethod(String codecodeChallangeMethod) {
 		this.codecodeChallangeMethod = codecodeChallangeMethod;
+	}
+
+	public String getScope() {
+		return scope;
+	}
+
+	public void setScope(String scope) {
+		this.scope = scope;
 	}
 }

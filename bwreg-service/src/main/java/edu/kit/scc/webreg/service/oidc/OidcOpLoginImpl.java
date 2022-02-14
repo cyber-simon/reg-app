@@ -136,7 +136,11 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 				throw new OidcAuthenticationException("invalid redirect uri");
 			}
 		}
-		
+
+		if (scope == null) {
+			throw new OidcAuthenticationException("scope not set");
+		}
+
 		OidcFlowStateEntity flowState = flowStateDao.createNew();
 		flowState.setOpConfiguration(opConfig);
 		flowState.setNonce(nonce);
@@ -148,8 +152,8 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		flowState.setValidUntil(new Date(System.currentTimeMillis() + (30L * 60L * 1000L)));
 		flowState.setCodeChallange(codeChallange);
 		flowState.setCodecodeChallangeMethod(codeChallangeMethod);
+		flowState.setScope(scope);
 		flowState = flowStateDao.persist(flowState);
-
 		session.setOidcFlowStateId(flowState.getId());
 		session.setOidcAuthnOpConfigId(opConfig.getId());
 		session.setOidcAuthnClientConfigId(clientConfig.getId());
@@ -377,6 +381,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		claimsBuilder.expirationTime(new Date(System.currentTimeMillis() + (60L * 60L * 1000L)))
 	      .issuer("https://" + opConfig.getHost() + "/oidc/realms/" + opConfig.getRealm())
 	      .claim("nonce", flowState.getNonce())
+	      .claim("scope", flowState.getScope())
 	      .audience(clientConfig.getName())
 	      .issueTime(new Date())
 	      .subject(user.getEppn())
