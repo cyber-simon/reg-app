@@ -141,7 +141,8 @@ public abstract class AbstractSimpleLdapRegisterWorkflow
 		
 		reconMap.put("uidNumber", "" + user.getUidNumber());
 		reconMap.put("gidNumber", "" + user.getPrimaryGroup().getGidNumber());
-		
+		reconMap.put("description", registry.getId().toString());
+
 		reconMap.put("groupName", constructGroupName(user.getPrimaryGroup()));
 		
 		if (prop.hasProp("tpl_local_uid")) {
@@ -158,6 +159,8 @@ public abstract class AbstractSimpleLdapRegisterWorkflow
 			reconMap.put("homeDir", constructHomeDir(homeId, homeUid, user, reconMap));
 		}
 
+		reconMap.put("sambaEnabled", isSambaEnabled().toString());
+		
 		if (prop.hasProp("extra_attributes")) {
 			String[] extraAttributes = prop.readPropOrNull("extra_attributes").split(" ");
 			for (String extraAttribute : extraAttributes) {
