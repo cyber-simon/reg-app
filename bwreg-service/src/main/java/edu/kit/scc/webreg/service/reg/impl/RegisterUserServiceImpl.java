@@ -67,8 +67,8 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	}
 	
 	@Override
-	public void updateGroups(Set<GroupEntity> groupUpdateSet, String executor) throws RegisterException {
-		registrator.updateGroups(groupUpdateSet, executor);
+	public void updateGroups(Set<GroupEntity> groupUpdateSet, Boolean reconRegistries, Boolean fullRecon, String executor) throws RegisterException {
+		registrator.updateGroups(groupUpdateSet, reconRegistries, fullRecon, executor);
 	}
 	
 	@Override

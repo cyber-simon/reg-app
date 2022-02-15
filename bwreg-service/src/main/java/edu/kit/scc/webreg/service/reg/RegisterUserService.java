@@ -52,7 +52,7 @@ public interface RegisterUserService {
 	void deleteGroup(GroupEntity group, ServiceEntity service, String executor)
 			throws RegisterException;
 
-	void updateGroups(Set<GroupEntity> groupUpdateSet, String executor)
+	void updateGroups(Set<GroupEntity> groupUpdateSet, Boolean reconRegistries, Boolean fullRecon, String executor)
 			throws RegisterException;
 
 	void deletePassword(UserEntity user, ServiceEntity service,

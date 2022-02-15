@@ -49,6 +49,7 @@ import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.EventEntity;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.GroupEntity;
+import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;
 import edu.kit.scc.webreg.entity.PolicyEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
@@ -237,7 +238,7 @@ public class Registrator implements Serializable {
 		}    			
 	}
 
-	protected void updateGroups(GroupPerServiceList groupUpdateList, String executor) throws RegisterException {
+	protected void updateGroups(GroupPerServiceList groupUpdateList, Boolean reconRegistries, Boolean fullRecon, String executor) throws RegisterException {
 
 		for (ServiceEntity service : groupUpdateList.getServices()) {
 			RegisterUserWorkflow workflow = getWorkflowInstance(service.getRegisterBean());
@@ -320,6 +321,25 @@ public class Registrator implements Serializable {
 				}
 				logger.debug("Persist service Flags took {}ms", (System.currentTimeMillis() - a)); a = System.currentTimeMillis();
 
+				/*
+				 * recon all registries
+				 */
+				if (reconRegistries) {
+					logger.debug("Start recon registries for {}", service.getName());
+					for (GroupEntity group : updateStruct.getGroups()) {
+						// Skip HomeOrg groups, as these trigger a user update and recon on this path
+						if (! (group instanceof HomeOrgGroupEntity)) {
+							for (UserEntity user : updateStruct.getUsersForGroup(group)) {
+								RegistryEntity registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.ACTIVE);
+								if (registry != null) {
+									reconsiliation(registry, fullRecon, executor);
+								}
+							}
+						}
+					}
+					logger.debug("Recon registries took {}ms", (System.currentTimeMillis() - a)); a = System.currentTimeMillis();
+				}
+				
 				auditor.finishAuditTrail();
 				auditor.commitAuditTrail();
 
@@ -330,7 +350,7 @@ public class Registrator implements Serializable {
 		}		
 	}
 	
-	public void updateGroups(Set<GroupEntity> groupUpdateSet, String executor) throws RegisterException {
+	public void updateGroups(Set<GroupEntity> groupUpdateSet, Boolean reconRegistries, Boolean fullRecon, String executor) throws RegisterException {
 		GroupPerServiceList groupUpdateList = new GroupPerServiceList();
 		
 		for (GroupEntity group : groupUpdateSet) {
@@ -354,6 +374,17 @@ public class Registrator implements Serializable {
 						try {
 							deleteGroup(serviceBasedGroup, flag.getService(), executor);
 							groupFlagDao.delete(flag);
+							// also recon registries here
+							if (reconRegistries) {
+								if (! (group instanceof HomeOrgGroupEntity)) {
+									for (UserGroupEntity user : group.getUsers()) {
+										RegistryEntity registry = registryDao.findByServiceAndUserAndStatus(flag.getService(), user.getUser(), RegistryStatus.ACTIVE);
+										if (registry != null) {
+											reconsiliation(registry, fullRecon, executor);
+										}
+									}
+								}								
+							}
 						} catch (RegisterException e) {
 							logger.warn("Could not delete group: " + e);
 						}
@@ -365,7 +396,7 @@ public class Registrator implements Serializable {
 			}
 		}
 
-		updateGroups(groupUpdateList, executor);
+		updateGroups(groupUpdateList, reconRegistries, fullRecon, executor);
 	}
 	
 	protected void updateParentGroup(GroupEntity group, GroupPerServiceList groupUpdateList, int depth, int maxDepth) {

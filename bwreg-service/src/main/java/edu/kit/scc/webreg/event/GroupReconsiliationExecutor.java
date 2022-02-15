@@ -44,6 +44,16 @@ public class GroupReconsiliationExecutor extends
 				logger.warn("No executor configured for GroupReconsiliationExecutor. Using unknown");
 				executor = "unknown";
 			}
+
+			Boolean reconRegistries = false;
+			if (getJobStore().containsKey("recon_registries")) {
+				reconRegistries = Boolean.parseBoolean(getJobStore().get("recon_registries"));
+			}
+
+			Boolean fullRecon = false;
+			if (getJobStore().containsKey("full_recon")) {
+				fullRecon = Boolean.parseBoolean(getJobStore().get("full_recon"));
+			}
 			
 			try {
 				InitialContext ic = new InitialContext();
@@ -53,7 +63,7 @@ public class GroupReconsiliationExecutor extends
 				Set<GroupEntity> groupList = getEvent().getEntity();
 				
 				try {
-					registerUserService.updateGroups(groupList, executor);
+					registerUserService.updateGroups(groupList, reconRegistries, fullRecon, executor);
 				} catch (RegisterException e) {
 					logger.warn("Could not update groups ", e);
 				}			

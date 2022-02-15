@@ -11,10 +11,13 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dao.GroupDao;
+import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.ServiceGroupFlagDao;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.GroupEntity;
+import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceBasedGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupStatus;
@@ -22,6 +25,8 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.MultipleGroupEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
+import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.service.reg.impl.Registrator;
 import edu.kit.scc.webreg.session.SessionManager;
 
 @ApplicationScoped
@@ -40,6 +45,12 @@ public class GroupUpdater implements Serializable {
 	
 	@Inject
 	private UserDao userDao;
+	
+	@Inject
+	private Registrator registrator;
+	
+	@Inject
+	private RegistryDao registryDao;
 	
 	@Inject
 	private SessionManager sessionManager;
@@ -65,6 +76,10 @@ public class GroupUpdater implements Serializable {
 			group = groupDao.merge(group);
 			groupDao.removeUserGromGroup(user, group);
 		}
+		
+		Set<UserEntity> changedUsers = new HashSet<UserEntity>();
+		changedUsers.addAll(usersToAdd);
+		changedUsers.addAll(usersToRemove);
 		
 		if (group instanceof ServiceBasedGroupEntity) {
 			ServiceBasedGroupEntity serviceBasedGroup = (ServiceBasedGroupEntity) group;
