@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -238,7 +239,7 @@ public class Registrator implements Serializable {
 		}    			
 	}
 
-	protected void updateGroups(GroupPerServiceList groupUpdateList, Boolean reconRegistries, Boolean fullRecon, String executor) throws RegisterException {
+	protected void updateGroups(GroupPerServiceList groupUpdateList, Boolean reconRegistries, Boolean fullRecon, Map<GroupEntity, Set<UserEntity>> usersToRemove, String executor) throws RegisterException {
 
 		for (ServiceEntity service : groupUpdateList.getServices()) {
 			RegisterUserWorkflow workflow = getWorkflowInstance(service.getRegisterBean());
@@ -329,11 +330,22 @@ public class Registrator implements Serializable {
 					for (GroupEntity group : updateStruct.getGroups()) {
 						// Skip HomeOrg groups, as these trigger a user update and recon on this path
 						if (! (group instanceof HomeOrgGroupEntity)) {
+							// Trigger recon for all member of group
 							for (UserEntity user : updateStruct.getUsersForGroup(group)) {
 								RegistryEntity registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.ACTIVE);
 								if (registry != null) {
 									reconsiliation(registry, fullRecon, executor);
 								}
+							}
+							
+							// trigger recon for removed members
+							if (usersToRemove.containsKey(group)) {
+								for (UserEntity user : usersToRemove.get(group)) {
+									RegistryEntity registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.ACTIVE);
+									if (registry != null) {
+										reconsiliation(registry, fullRecon, executor);
+									}
+								}								
 							}
 						}
 					}
@@ -350,7 +362,7 @@ public class Registrator implements Serializable {
 		}		
 	}
 	
-	public void updateGroups(Set<GroupEntity> groupUpdateSet, Boolean reconRegistries, Boolean fullRecon, String executor) throws RegisterException {
+	public void updateGroups(Set<GroupEntity> groupUpdateSet, Boolean reconRegistries, Boolean fullRecon, Map<GroupEntity, Set<UserEntity>> usersToRemove, String executor) throws RegisterException {
 		GroupPerServiceList groupUpdateList = new GroupPerServiceList();
 		
 		for (GroupEntity group : groupUpdateSet) {
@@ -396,7 +408,7 @@ public class Registrator implements Serializable {
 			}
 		}
 
-		updateGroups(groupUpdateList, reconRegistries, fullRecon, executor);
+		updateGroups(groupUpdateList, reconRegistries, fullRecon, usersToRemove, executor);
 	}
 	
 	protected void updateParentGroup(GroupEntity group, GroupPerServiceList groupUpdateList, int depth, int maxDepth) {

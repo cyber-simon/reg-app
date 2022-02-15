@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.event;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.naming.InitialContext;
@@ -20,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.kit.scc.webreg.entity.GroupEntity;
+import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;
 
@@ -61,9 +63,10 @@ public class GroupReconsiliationExecutor extends
 				RegisterUserService registerUserService = (RegisterUserService) ic.lookup("global/bwreg/bwreg-service/RegisterUserServiceImpl!edu.kit.scc.webreg.service.reg.RegisterUserService");
 	
 				Set<GroupEntity> groupList = getEvent().getEntity();
+				Map<GroupEntity, Set<UserEntity>> usersToRemove = getEvent().getUsersToRemove();
 				
 				try {
-					registerUserService.updateGroups(groupList, reconRegistries, fullRecon, executor);
+					registerUserService.updateGroups(groupList, reconRegistries, fullRecon, usersToRemove, executor);
 				} catch (RegisterException e) {
 					logger.warn("Could not update groups ", e);
 				}			

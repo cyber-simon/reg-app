@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.service.reg.impl;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.ejb.Asynchronous;
@@ -67,8 +68,8 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	}
 	
 	@Override
-	public void updateGroups(Set<GroupEntity> groupUpdateSet, Boolean reconRegistries, Boolean fullRecon, String executor) throws RegisterException {
-		registrator.updateGroups(groupUpdateSet, reconRegistries, fullRecon, executor);
+	public void updateGroups(Set<GroupEntity> groupUpdateSet, Boolean reconRegistries, Boolean fullRecon, Map<GroupEntity, Set<UserEntity>> usersToRemove, String executor) throws RegisterException {
+		registrator.updateGroups(groupUpdateSet, reconRegistries, fullRecon, usersToRemove, executor);
 	}
 	
 	@Override

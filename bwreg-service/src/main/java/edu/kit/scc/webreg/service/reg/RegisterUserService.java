@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.service.reg;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import edu.kit.scc.webreg.audit.Auditor;
@@ -52,7 +53,7 @@ public interface RegisterUserService {
 	void deleteGroup(GroupEntity group, ServiceEntity service, String executor)
 			throws RegisterException;
 
-	void updateGroups(Set<GroupEntity> groupUpdateSet, Boolean reconRegistries, Boolean fullRecon, String executor)
+	void updateGroups(Set<GroupEntity> groupUpdateSet, Boolean reconRegistries, Boolean fullRecon, Map<GroupEntity, Set<UserEntity>> usersToRemove, String executor)
 			throws RegisterException;
 
 	void deletePassword(UserEntity user, ServiceEntity service,

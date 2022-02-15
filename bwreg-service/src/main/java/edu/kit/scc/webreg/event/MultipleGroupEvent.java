@@ -11,14 +11,27 @@
 package edu.kit.scc.webreg.event;
 
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import edu.kit.scc.webreg.entity.GroupEntity;
+import edu.kit.scc.webreg.entity.UserEntity;
 
 public class MultipleGroupEvent extends AbstractEvent<HashSet<GroupEntity>> {
 
 	private static final long serialVersionUID = 1L;
 
+	private Map<GroupEntity, Set<UserEntity>> usersToRemove;
+	
 	public MultipleGroupEvent(HashSet<GroupEntity> groupList) {
 		super(groupList);
+	}
+
+	public Map<GroupEntity, Set<UserEntity>> getUsersToRemove() {
+		return usersToRemove;
+	}
+
+	public void setUsersToRemove(Map<GroupEntity, Set<UserEntity>> usersToRemove) {
+		this.usersToRemove = usersToRemove;
 	}
 }

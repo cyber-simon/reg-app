@@ -1,8 +1,10 @@
 package edu.kit.scc.webreg.service.group;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -16,8 +18,6 @@ import edu.kit.scc.webreg.dao.ServiceGroupFlagDao;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.GroupEntity;
-import edu.kit.scc.webreg.entity.RegistryEntity;
-import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceBasedGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupStatus;
@@ -25,7 +25,6 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.MultipleGroupEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
-import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.service.reg.impl.Registrator;
 import edu.kit.scc.webreg.session.SessionManager;
 
@@ -77,10 +76,6 @@ public class GroupUpdater implements Serializable {
 			groupDao.removeUserGromGroup(user, group);
 		}
 		
-		Set<UserEntity> changedUsers = new HashSet<UserEntity>();
-		changedUsers.addAll(usersToAdd);
-		changedUsers.addAll(usersToRemove);
-		
 		if (group instanceof ServiceBasedGroupEntity) {
 			ServiceBasedGroupEntity serviceBasedGroup = (ServiceBasedGroupEntity) group;
 			List<ServiceGroupFlagEntity> groupFlagList = groupFlagDao.findByGroup(serviceBasedGroup);
@@ -89,7 +84,7 @@ public class GroupUpdater implements Serializable {
 				flag.setStatus(ServiceGroupStatus.DIRTY);
 			}
 			
-			emitGroupUpdate(group);
+			emitGroupUpdate(group, usersToRemove);
 		}
 	}
 
@@ -101,7 +96,7 @@ public class GroupUpdater implements Serializable {
 		}
 		
 		if (emitUpdate) {
-			emitGroupUpdate(group);
+			emitGroupUpdate(group, null);
 		}
 	}	
 
@@ -113,14 +108,20 @@ public class GroupUpdater implements Serializable {
 		}
 
 		if (emitUpdate) {
-			emitGroupUpdate(group);
+			Set<UserEntity> usersToRemove = new HashSet<UserEntity>();
+			usersToRemove.add(user);
+			emitGroupUpdate(group, usersToRemove);
 		}
 	}	
 
-	protected void emitGroupUpdate(GroupEntity group) {
+	protected void emitGroupUpdate(GroupEntity group, Set<UserEntity> usersToRemove) {
 		HashSet<GroupEntity> gl = new HashSet<GroupEntity>();
 		gl.add(group);
 		MultipleGroupEvent mge = new MultipleGroupEvent(gl);
+		Map<GroupEntity, Set<UserEntity>> usersToRemoveMap = new HashMap<GroupEntity, Set<UserEntity>>();
+		usersToRemoveMap.put(group, usersToRemove);
+		mge.setUsersToRemove(usersToRemoveMap);
+		
 		try {
 			eventSubmitter.submit(mge, EventType.GROUP_UPDATE, "idty-" + sessionManager.getIdentityId());
 		} catch (EventSubmitException e) {
