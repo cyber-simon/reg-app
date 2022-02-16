@@ -137,10 +137,6 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			}
 		}
 
-		if (scope == null) {
-			throw new OidcAuthenticationException("scope not set");
-		}
-
 		OidcFlowStateEntity flowState = flowStateDao.createNew();
 		flowState.setOpConfiguration(opConfig);
 		flowState.setNonce(nonce);
@@ -381,12 +377,14 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		claimsBuilder.expirationTime(new Date(System.currentTimeMillis() + (60L * 60L * 1000L)))
 	      .issuer("https://" + opConfig.getHost() + "/oidc/realms/" + opConfig.getRealm())
 	      .claim("nonce", flowState.getNonce())
-	      .claim("scope", flowState.getScope())
 	      .audience(clientConfig.getName())
 	      .issueTime(new Date())
-	      .subject(user.getEppn())
-	      .build();
+	      .subject(user.getEppn());
 		
+	    if (flowState.getScope() != null) {
+			claimsBuilder.claim("scope", flowState.getScope());
+	    }
+
 		for (ServiceOidcClientEntity serviceOidcClient : serviceOidcClientList) {
 			ScriptEntity scriptEntity = serviceOidcClient.getScript();
 			if (scriptEntity.getScriptType().equalsIgnoreCase("javascript")) {
