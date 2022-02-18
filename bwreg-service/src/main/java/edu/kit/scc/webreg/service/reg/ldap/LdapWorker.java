@@ -47,6 +47,8 @@ public class LdapWorker {
 	private String ldapUserBase;
 	private String ldapGroupBase;
 	
+	private String ldapGroupType;
+	
 	private boolean sambaEnabled;
 	private String sidPrefix;
 	
@@ -65,6 +67,9 @@ public class LdapWorker {
 
 			if (sambaEnabled)
 				sidPrefix = prop.readProp("sid_prefix");
+			
+			ldapGroupType = prop.readPropOrNull("group_type");
+			
 		} catch (PropertyReaderException e) {
 			throw new RegisterException(e);
 		}		
@@ -99,8 +104,18 @@ public class LdapWorker {
 		for (Ldap ldap : connectionManager.getConnections()) {
 			try {
 				Set<String> oldMemberUids = new HashSet<String>();
-				Attributes attrs = ldap.getAttributes(dn, new String[]{"memberUid"});
-				Attribute attr = attrs.get("memberUid");
+
+				String memberAttribute;
+				if (ldapGroupType != null && ldapGroupType.equals("member")) {
+					memberAttribute = "member";
+				}
+				else {
+					memberAttribute = "memberUid";
+				}
+
+				Attributes attrs = ldap.getAttributes(dn, new String[]{memberAttribute});
+				Attribute attr = attrs.get(memberAttribute);
+
 				if (attr != null) {
 					for (int i=0; i<attr.size(); i++) {
 						String memberUid = (String) attr.get(i);
@@ -118,7 +133,7 @@ public class LdapWorker {
 					logger.info("Adding member {} to group {}", memberUid, cn);
 					try {
 						ldap.modifyAttributes(dn, AttributeModification.ADD, 
-								AttributesFactory.createAttributes("memberUid", memberUid));
+								AttributesFactory.createAttributes(memberAttribute, memberUid));
 						auditor.logAction(cn, "ADD LDAP GROUP MEMBER", memberUid, "Added member on " + ldap.getLdapConfig().getLdapUrl(), AuditStatus.SUCCESS);
 					} catch (NamingException e) {
 						auditor.logAction(cn, "ADD LDAP GROUP MEMBER", memberUid, "Add member on " + ldap.getLdapConfig().getLdapUrl(), AuditStatus.FAIL);
@@ -129,7 +144,7 @@ public class LdapWorker {
 					logger.info("Removing member {} from group {}", memberUid, cn);
 					try {
 						ldap.modifyAttributes(dn, AttributeModification.REMOVE, 
-								AttributesFactory.createAttributes("memberUid", memberUid));
+								AttributesFactory.createAttributes(memberAttribute, memberUid));
 						auditor.logAction(cn, "REMOVE LDAP GROUP MEMBER", memberUid, "Removed member on " + ldap.getLdapConfig().getLdapUrl(), AuditStatus.SUCCESS);
 					} catch (NamingException e) {
 						auditor.logAction(cn, "REMOVE LDAP GROUP MEMBER", memberUid, "Remove member on " + ldap.getLdapConfig().getLdapUrl(), AuditStatus.FAIL);
@@ -579,6 +594,11 @@ public class LdapWorker {
 					"top", "posixGroup", "sambaGroupMapping"});
 			attrs.put(AttributesFactory.createAttribute("sambaSID", sidPrefix + (Long.parseLong(gidNumber) * 2L + 1000L)));					
 			attrs.put(AttributesFactory.createAttribute("sambaGroupType", "2"));
+		}
+		if (ldapGroupType != null && ldapGroupType.equals("member")) {
+			attrs = AttributesFactory.createAttributes("objectClass", new String[] {
+					"top", "groupOfNames", "posixGroup"});
+			attrs.put(AttributesFactory.createAttribute("member", "cn=" + cn + "," + ldapGroupBase));
 		}
 		else {
 			attrs = AttributesFactory.createAttributes("objectClass", new String[] {
