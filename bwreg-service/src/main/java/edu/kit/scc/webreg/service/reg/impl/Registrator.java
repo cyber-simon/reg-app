@@ -339,7 +339,7 @@ public class Registrator implements Serializable {
 							}
 							
 							// trigger recon for removed members
-							if (usersToRemove.containsKey(group)) {
+							if (usersToRemove != null && usersToRemove.containsKey(group)) {
 								for (UserEntity user : usersToRemove.get(group)) {
 									RegistryEntity registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.ACTIVE);
 									if (registry != null) {
