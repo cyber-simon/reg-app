@@ -49,6 +49,7 @@ import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
+import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
@@ -88,6 +89,9 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 
 	@Inject
 	private ApplicationConfig appConfig;
+	
+	@Inject
+	private KnowledgeSessionSingleton singleton;
 	
 	@Override
 	public KieSession getStatefulSession(String packageName, String knowledgeBaseName, String knowledgeBaseVersion) {
@@ -147,6 +151,13 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 		return objectList;
 	
 	}	
+
+	@Override
+	public List<String> checkScriptAccess(ScriptEntity scriptEntity, IdentityEntity identity) {
+		identity = identityDao.merge(identity);
+		
+		return singleton.checkScriptAccess(scriptEntity, identity);
+	}
 
 	@Override
 	public List<Object> checkRule(String unitId, UserEntity user, Map<String, List<Object>> attributeMap,

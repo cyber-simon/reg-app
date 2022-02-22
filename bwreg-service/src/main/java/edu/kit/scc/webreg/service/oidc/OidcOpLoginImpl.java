@@ -262,6 +262,14 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 						return "/user/oidc-access-denied.xhtml?soidc=" + serviceOidcClient.getId();
 					}
 				}
+				
+				if (serviceOidcClient.getScript() != null) {
+					List<String> unauthorizedList = knowledgeSessionService.checkScriptAccess(serviceOidcClient.getScript(), identity);
+					
+					if (unauthorizedList.size() > 0) {
+						return "/user/oidc-access-denied.xhtml?soidc=" + serviceOidcClient.getId();
+					}
+				}
 			}
 
 			if (wantsElevation) {

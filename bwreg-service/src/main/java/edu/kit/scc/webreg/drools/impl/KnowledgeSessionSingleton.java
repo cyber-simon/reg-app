@@ -20,6 +20,10 @@ import java.util.Set;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
 import org.kie.api.KieServices;
 import org.kie.api.builder.ReleaseId;
@@ -47,6 +51,7 @@ import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
+import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
@@ -138,6 +143,30 @@ public class KnowledgeSessionSingleton {
 		return objectList;
 	
 	}	
+	
+	public List<String> checkScriptAccess(ScriptEntity scriptEntity, IdentityEntity identity) {
+		ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
+		List<String> unauthorizedList = new ArrayList<String>();
+		
+		if (engine == null) {
+			logger.warn("No engine set for script {}. Allowing access", scriptEntity.getName());
+			return unauthorizedList;
+		}
+		
+		try {
+			engine.eval(scriptEntity.getScript());
+
+			Invocable invocable = (Invocable) engine;
+			
+			invocable.invokeFunction("checkAccess", identity, unauthorizedList, logger);
+
+		} catch (ScriptException e) {
+			logger.warn("Script execution failed.", e);
+		} catch (NoSuchMethodException e) {
+			logger.info("No checkAccess method in script. Allowing access");
+		}
+		return unauthorizedList;
+	}
 	
 	public List<Object> checkRule(String unitId, UserEntity user, Map<String, List<Object>> attributeMap,
 				Assertion assertion, SamlIdpMetadataEntity idp, EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity sp) 
