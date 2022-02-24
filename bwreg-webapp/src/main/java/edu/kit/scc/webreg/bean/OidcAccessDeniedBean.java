@@ -91,6 +91,15 @@ public class OidcAccessDeniedBean implements Serializable {
 				}
 			}
 		}
+		
+		if (serviceOidcClient.getScript() != null) {
+			List<String> unauthorizedList = knowledgeSessionService.checkScriptAccess(serviceOidcClient.getScript(), identity);
+			
+			for (String s : unauthorizedList) {
+	    		messageGenerator.addResolvedErrorMessage("reqs", "error", s, true);
+	    		accessProblem = true;
+			}
+		}
 	}
 
 	public Long getId() {

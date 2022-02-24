@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.naming.NamingEnumeration;
@@ -178,6 +180,11 @@ public class LdapWorker {
 
 	public void reconUser(String cn, String sn, String givenName, String mail, String uid, String uidNumber, String gidNumber,
 			String homeDir, String description) {
+		reconUser(cn, sn, givenName, mail, uid, uidNumber, gidNumber, homeDir, description, null);
+	}
+	
+	public void reconUser(String cn, String sn, String givenName, String mail, String uid, String uidNumber, String gidNumber,
+			String homeDir, String description, Map<String, String> extraAttributesMap) {
 		for (Ldap ldap : connectionManager.getConnections()) {
 			List<String> dnList = new ArrayList<String>();
 
@@ -242,6 +249,14 @@ public class LdapWorker {
 					if (sambaEnabled) {
 						addAttrIfNotExists(attrs, "objectClass", "sambaSamAccount", modList);
 						compareAttr(attrs, "sambaSID", sidPrefix + (Long.parseLong(uidNumber) * 2L + 1000L), modList, log);					
+					}
+					
+					if (extraAttributesMap != null) {
+						for (Entry<String, String> extraAttribute : extraAttributesMap.entrySet()) {
+							if (extraAttribute.getKey().startsWith("extra_") && extraAttribute.getKey().length() > 6) {
+								compareAttr(attrs, extraAttribute.getKey().substring(6), extraAttribute.getValue(), modList, log);
+							}
+						}
 					}
 					
 					if (modList.size() == 0) {

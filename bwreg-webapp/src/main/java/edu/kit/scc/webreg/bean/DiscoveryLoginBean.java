@@ -36,6 +36,7 @@ import edu.kit.scc.webreg.entity.ServiceSamlSpEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
+import edu.kit.scc.webreg.entity.oidc.ServiceOidcClientEntity;
 import edu.kit.scc.webreg.service.SamlIdpConfigurationService;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.SamlSpConfigurationService;
@@ -43,6 +44,7 @@ import edu.kit.scc.webreg.service.SamlSpMetadataService;
 import edu.kit.scc.webreg.service.oidc.OidcClientConfigurationService;
 import edu.kit.scc.webreg.service.oidc.OidcOpConfigurationService;
 import edu.kit.scc.webreg.service.oidc.OidcRpConfigurationService;
+import edu.kit.scc.webreg.service.oidc.ServiceOidcClientService;
 import edu.kit.scc.webreg.service.saml.FederationSingletonBean;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.CookieHelper;
@@ -86,6 +88,9 @@ public class DiscoveryLoginBean implements Serializable {
 	
 	@Inject
 	private OidcClientConfigurationService oidcClientConfigService;
+	
+	@Inject
+	private ServiceOidcClientService serviceOidcClientService;
 	
 	@Inject
 	private CookieHelper cookieHelper;
@@ -265,7 +270,14 @@ public class DiscoveryLoginBean implements Serializable {
 				 */
 				opConfig = oidcOpConfigService.findById(sessionManager.getOidcAuthnOpConfigId());
 				clientConfig = oidcClientConfigService.findById(sessionManager.getOidcAuthnClientConfigId());
-				getIdpList().addAll(federationBean.getAllIdpList());
+				List<ServiceOidcClientEntity> serviceOidcClientList = serviceOidcClientService.findByClientConfig(clientConfig);
+				idpList = new ArrayList<Object>();
+				
+				for (ServiceOidcClientEntity serviceOidcClient : serviceOidcClientList) {
+					if (serviceOidcClient.getScript() != null) {
+						idpList.addAll(federationBean.getFilteredIdpList(serviceOidcClient.getScript()));
+					}
+				}
 			}
 			else if (sessionManager.getAuthnRequestIdpConfigId() != null && 
 					sessionManager.getAuthnRequestSpMetadataId() != null) {
