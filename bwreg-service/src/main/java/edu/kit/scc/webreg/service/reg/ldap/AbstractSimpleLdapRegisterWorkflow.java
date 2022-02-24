@@ -142,7 +142,7 @@ public abstract class AbstractSimpleLdapRegisterWorkflow
 		reconMap.put("uidNumber", "" + user.getUidNumber());
 		reconMap.put("gidNumber", "" + user.getPrimaryGroup().getGidNumber());
 		reconMap.put("description", registry.getId().toString());
-		
+
 		reconMap.put("groupName", constructGroupName(user.getPrimaryGroup()));
 		
 		if (prop.hasProp("tpl_local_uid")) {
@@ -160,6 +160,15 @@ public abstract class AbstractSimpleLdapRegisterWorkflow
 		}
 
 		reconMap.put("sambaEnabled", isSambaEnabled().toString());
+		
+		if (prop.hasProp("extra_attributes")) {
+			String[] extraAttributes = prop.readPropOrNull("extra_attributes").split(" ");
+			for (String extraAttribute : extraAttributes) {
+				if (prop.hasProp("tpl_" + extraAttribute)) {
+					reconMap.put("extra_" + extraAttribute, evalTemplate(prop.readPropOrNull("tpl_" + extraAttribute), user, reconMap, homeId, homeUid));
+				}
+			}
+		}
 		
 		Boolean change = false;
 		
@@ -205,7 +214,7 @@ public abstract class AbstractSimpleLdapRegisterWorkflow
 		
 		LdapWorker ldapWorker = new LdapWorker(prop, auditor, isSambaEnabled());
 
-		ldapWorker.reconUser(cn, sn, givenName, mail, localUid, uidNumber, gidNumber, homeDir, description);
+		ldapWorker.reconUser(cn, sn, givenName, mail, localUid, uidNumber, gidNumber, homeDir, description, regMap);
 		if (prop.hasProp("pw_location") && 
 				((prop.readPropOrNull("pw_location").equalsIgnoreCase("registry")) || prop.readPropOrNull("pw_location").equalsIgnoreCase("both"))
 				&& (! registry.getRegistryValues().containsKey("userPassword"))) {

@@ -167,7 +167,7 @@ public class ScriptedLdapRegisterWorkflow
 		
 		LdapWorker ldapWorker = new LdapWorker(prop, auditor, Boolean.parseBoolean(regMap.get("sambaEnabled")));
 
-		ldapWorker.reconUser(cn, sn, givenName, mail, localUid, uidNumber, gidNumber, homeDir, description);
+		ldapWorker.reconUser(cn, sn, givenName, mail, localUid, uidNumber, gidNumber, homeDir, description, regMap);
 		if (prop.hasProp("pw_location") && 
 				((prop.readPropOrNull("pw_location").equalsIgnoreCase("registry")) || prop.readPropOrNull("pw_location").equalsIgnoreCase("both"))
 				&& (! registry.getRegistryValues().containsKey("userPassword"))) {
