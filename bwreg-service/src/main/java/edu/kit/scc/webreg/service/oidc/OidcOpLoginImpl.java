@@ -446,13 +446,18 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			throw new OidcAuthenticationException(e);
 		}
 
+		long accessTokenLifetime = 3600;
+		if (clientConfig.getGenericStore().containsKey("access_token_lifetime")) {
+			accessTokenLifetime = Long.parseLong(clientConfig.getGenericStore().get("access_token_lifetime"));
+		}
+			
 		BearerAccessToken bat;
 		if (clientConfig.getGenericStore().containsKey("long_access_token") && 
 				clientConfig.getGenericStore().get("long_access_token").equalsIgnoreCase("true")) {
-			bat = new BearerAccessToken(jwt.serialize(), 3600, new Scope(opConfig.getHost()));
+			bat = new BearerAccessToken(jwt.serialize(), accessTokenLifetime, new Scope(opConfig.getHost()));
 		}
 		else {
-			bat = new BearerAccessToken(3600, new Scope(opConfig.getHost()));
+			bat = new BearerAccessToken(accessTokenLifetime, new Scope(opConfig.getHost()));
 		}
 		
 		RefreshToken refreshToken = new RefreshToken();
@@ -464,8 +469,14 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		flowState.setAccessToken(bat.getValue());
 		flowState.setAccessTokenType("Bearer");
 		flowState.setRefreshToken(refreshToken.getValue());
-		flowState.setValidUntil(new Date(System.currentTimeMillis() + bat.getLifetime()));
-		
+
+		if (clientConfig.getGenericStore().containsKey("refresh_token_lifetime")) {
+			flowState.setValidUntil(new Date(System.currentTimeMillis() + 
+					Long.parseLong(clientConfig.getGenericStore().get("refresh_token_lifetime"))));
+		} 
+		else {
+			flowState.setValidUntil(new Date(System.currentTimeMillis() + bat.getLifetime()));
+		}		
 		return tokenResponse.toJSONObject();
 	}
 	
