@@ -29,6 +29,8 @@ public interface RegistryDao extends BaseDao<RegistryEntity> {
 	List<RegistryEntity> findByServiceAndStatus(ServiceEntity service,
 			RegistryStatus status);
 
+	List<RegistryEntity> findByServiceAndAttribute(String key, String value, ServiceEntity service);
+
 	List<RegistryEntity> findByIdentityAndStatus(IdentityEntity identity, RegistryStatus... status);
 
 	List<RegistryEntity> findByServiceAndUser(ServiceEntity service, UserEntity user);

@@ -54,6 +54,18 @@ public class RegistryDtoServiceImpl extends BaseDtoServiceImpl<RegistryEntity, R
 	}
 	
 	@Override
+	public List<RegistryEntityDto> findRegistriesByAttribute(String key, String value, ServiceEntity service) {
+		List<RegistryEntity> regList = dao.findByServiceAndAttribute(key, value, service);
+		List<RegistryEntityDto> dtoList = new ArrayList<RegistryEntityDto>(regList.size());
+		for (RegistryEntity reg : regList) {
+			RegistryEntityDto dto = createNewDto();
+			mapper.copyProperties(reg, dto);
+			dtoList.add(dto);
+		}
+		return dtoList;
+	}
+	
+	@Override
 	public List<RegistryEntityDto> findRegistriesForDepro(String serviceShortName) {
 		List<RegistryEntity> regList = dao.findRegistriesForDepro(serviceShortName);
 		List<RegistryEntityDto> dtoList = new ArrayList<RegistryEntityDto>(regList.size());
