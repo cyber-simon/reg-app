@@ -189,6 +189,17 @@ public class JpaRegistryDao extends JpaBaseDao<RegistryEntity> implements Regist
 	}	
 	
 	@Override
+	public List<RegistryEntity> findByServiceAndAttribute(String key, String value, ServiceEntity service) {
+		return em.createQuery("select r from RegistryEntity r join r.registryValues rv "
+				+ "where (key(rv) = :key and rv = :val) "
+				+ "and r.service = :service ", RegistryEntity.class)
+				.setParameter("key", key)
+				.setParameter("val", value)
+				.setParameter("service", service)
+				.getResultList();
+	}		
+	
+	@Override
 	public List<RegistryEntity> findByServiceAndNotStatus(ServiceEntity service, RegistryStatus... status) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<RegistryEntity> criteria = builder.createQuery(RegistryEntity.class);
