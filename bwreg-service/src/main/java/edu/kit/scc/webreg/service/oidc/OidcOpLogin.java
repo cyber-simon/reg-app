@@ -25,6 +25,6 @@ public interface OidcOpLogin {
 	JSONObject serveUserJwt(String realm, HttpServletRequest request, HttpServletResponse response) throws OidcAuthenticationException;
 
 	JSONObject serveToken(String realm, String grantType, String code, String redirectUri, HttpServletRequest request,
-			HttpServletResponse response, String clientId, String clientSecret, String codeVerifier) throws OidcAuthenticationException;
+			HttpServletResponse response, String clientId, String clientSecret, String codeVerifier, String refreshToken) throws OidcAuthenticationException;
 
 }
