@@ -33,14 +33,14 @@ public class OidcTokenController {
 	public JSONObject auth(@PathParam("realm") String realm, @FormParam("grant_type") String grantType,
 			@FormParam("code") String code, @FormParam("redirect_uri") String redirectUri,
 			@FormParam("client_id") String clientId, @FormParam("client_secret") String clientSecret,
-			@FormParam("code_verifier") String codeVerifier,
+			@FormParam("code_verifier") String codeVerifier, @FormParam("refresh_token") String refreshToken,
 			@Context HttpServletRequest request, @Context HttpServletResponse response)
 			throws Exception {
 
 		logger.debug("Post token called for {} with code {} and grant_type {}", realm, code, grantType);
 
 		if (clientId != null && (clientSecret != null || codeVerifier != null)) {
-    		return opLogin.serveToken(realm, grantType, code, redirectUri, request, response, clientId, clientSecret, codeVerifier);			
+    		return opLogin.serveToken(realm, grantType, code, redirectUri, request, response, clientId, clientSecret, codeVerifier, refreshToken);			
 		}
 		
 	    String auth = request.getHeader("Authorization");
@@ -52,7 +52,7 @@ public class OidcTokenController {
 	        			new String(Base64.decodeBase64(auth.substring(index).getBytes())), ":", 2);
 	        	
 	        	if (credentials.length == 2) {
-	        		return opLogin.serveToken(realm, grantType, code, redirectUri, request, response, credentials[0], credentials[1], codeVerifier);
+	        		return opLogin.serveToken(realm, grantType, code, redirectUri, request, response, credentials[0], credentials[1], codeVerifier, refreshToken);
 	        	}
 	        }
 	    }
