@@ -13,6 +13,7 @@ package edu.kit.scc.webreg.bean;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -139,6 +140,14 @@ public class RegisterServiceBean implements Serializable {
 			if (r.size() != 0) {
 				errorState = true;
 	    		messageGenerator.addResolvedErrorMessage("errorState", "error", "already_registered", true);
+				return;
+			}
+			
+			if (identity.getRegistrationLock() != null && identity.getRegistrationLock().after(new Date(System.currentTimeMillis() - (5 * 60 * 1000L)))) {
+				// There is a registration running and a timeout is not reached
+				errorState = true;
+	    		messageGenerator.addResolvedErrorMessage("errorState", "error", "registration_already_running", true);
+	    		logger.warn("Identity {} cannot register for service {}: There is a registration already running.", identity.getId(), service.getId());
 				return;
 			}
 			
@@ -299,16 +308,41 @@ public class RegisterServiceBean implements Serializable {
     	RegistryEntity registry;
     	
     	try {
-    		if (policyHolderList.size() == 0) {
-    			registry = registerUserService.registerUser(selectedUserEntity, service, "user-self");
-    		}
-    		else {
-    			List<Long> policyIdList = new ArrayList<Long>();
-    			for (PolicyHolder ph : policyHolderList) {
-    				policyIdList.add(ph.getPolicy().getId());
-    			}
-    			registry = registerUserService.registerUser(selectedUserEntity, service, policyIdList, "user-self");
-    		}
+			//
+			// Insert/check gate to prevent double registrations per identity in this place 
+			//
+    		
+			identity = identityService.findById(sessionManager.getIdentityId());
+			if (identity.getRegistrationLock() != null && 
+					(identity.getRegistrationLock().getTime() < System.currentTimeMillis() - (5 * 60 * 1000L))) {
+				// There is a registration running and a timeout is not reached
+	    		messageGenerator.addResolvedErrorMessage("errorState", "error", "registration_already_running", true);
+	    		logger.warn("Identity {} cannot register for service {}: There is a registration already running.", identity.getId(), service.getId());
+				return null;   				
+			}
+			else {
+				identity.setRegistrationLock(new Date());
+				identity = identityService.save(identity);
+
+	    		if (policyHolderList.size() == 0) {
+	    			registry = registerUserService.registerUser(selectedUserEntity, service, "user-self");
+	    		}
+	    		else {
+	    			List<Long> policyIdList = new ArrayList<Long>();
+	    			for (PolicyHolder ph : policyHolderList) {
+	    				policyIdList.add(ph.getPolicy().getId());
+	    			}
+	
+    				registry = registerUserService.registerUser(selectedUserEntity, service, policyIdList, "user-self");
+	    		}
+
+	    		//
+	    		// remove double registration lock
+	    		//
+	    		
+	    		identity.setRegistrationLock(null);
+				identity = identityService.save(identity);
+			}
     		sessionManager.setUnregisteredServiceCreated(null);
     	} catch (RegisterException e) {
 			FacesContext.getCurrentInstance().addMessage("need_check", 
