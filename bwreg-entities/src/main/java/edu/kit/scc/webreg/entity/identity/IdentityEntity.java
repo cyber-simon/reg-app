@@ -10,6 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.entity.identity;
 
+import java.util.Date;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -53,6 +54,9 @@ public class IdentityEntity extends AbstractBaseEntity {
 	@Column(name = "chosen_local_username", length = 32, unique = true)
 	private String chosenLocalUsername;
 
+	@Column(name = "registration_lock")
+	protected Date registrationLock;
+	
 	public Set<UserEntity> getUsers() {
 		return users;
 	}
@@ -115,5 +119,13 @@ public class IdentityEntity extends AbstractBaseEntity {
 
 	public void setChosenLocalUsername(String chosenLocalUsername) {
 		this.chosenLocalUsername = chosenLocalUsername;
+	}
+
+	public Date getRegistrationLock() {
+		return registrationLock;
+	}
+
+	public void setRegistrationLock(Date registrationLock) {
+		this.registrationLock = registrationLock;
 	}
 }
