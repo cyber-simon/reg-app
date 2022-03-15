@@ -104,7 +104,7 @@ public class Saml2IdpRedirectHandler {
 
 		logger.debug("Corresponding SP found in Metadata: {}", spMetadata.getEntityId());
 		
-		if (session == null || session.getIdpId() == null || session.getSpId() == null) {
+		if (session == null || session.getIdentityId() == null) {
 			logger.debug("Client session from {} not established. In order to serve client must login. Sending to login page.",
 					request.getRemoteAddr());
 			long id = samlIdpService.registerAuthnRequest(authnRequest);
