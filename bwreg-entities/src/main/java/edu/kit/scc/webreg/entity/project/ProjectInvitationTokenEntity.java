@@ -13,7 +13,7 @@ import edu.kit.scc.webreg.entity.AbstractBaseEntity;
 
 @Entity(name = "ProjectInvitationToken")
 @Table(name = "project_invitation_token")
-public class ProjectInvitationToken extends AbstractBaseEntity {
+public class ProjectInvitationTokenEntity extends AbstractBaseEntity {
 
 	private static final long serialVersionUID = 1L;
 	
