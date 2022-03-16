@@ -40,6 +40,7 @@ public class BBCodeConverter implements Serializable {
         bbMap.put(Pattern.compile("(?s)\\[h5\\](.+?)\\[/h5\\]"), "<h5>$1</h5>");
         bbMap.put(Pattern.compile("(?s)\\[h6\\](.+?)\\[/h6\\]"), "<h6>$1</h6>");
         bbMap.put(Pattern.compile("(?s)\\[ul\\](.+?)\\[/ul\\]"), "<ul>$1</ul>");
+        bbMap.put(Pattern.compile("(?s)\\[ol\\](.+?)\\[/ol\\]"), "<ol>$1</ol>");
         bbMap.put(Pattern.compile("(?s)\\[li\\](.+?)\\[/li\\]"), "<li>$1</li>");
         bbMap.put(Pattern.compile("(?s)\\[quote\\](.+?)\\[/quote\\]"), "<blockquote>$1</blockquote>");
         bbMap.put(Pattern.compile("(?s)\\[p\\](.+?)\\[/p\\]"), "<div class='panel'>$1</div>");

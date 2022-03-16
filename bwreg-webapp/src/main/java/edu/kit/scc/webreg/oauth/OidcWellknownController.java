@@ -20,6 +20,7 @@ import javax.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 
 import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.oauth2.sdk.GrantType;
 import com.nimbusds.oauth2.sdk.ResponseMode;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
@@ -71,6 +72,11 @@ public class OidcWellknownController {
 					ClientAuthenticationMethod.CLIENT_SECRET_BASIC } );
 			metadata.setTokenEndpointAuthMethods(authMethods);
 
+			List<GrantType> gts = new ArrayList<GrantType>();
+			gts.add(GrantType.AUTHORIZATION_CODE);
+			gts.add(GrantType.REFRESH_TOKEN);
+			metadata.setGrantTypes(gts);
+			
 			List<ResponseType> rts = new ArrayList<ResponseType>();
 			rts.add(new ResponseType("code"));
 			rts.add(new ResponseType("id_token"));

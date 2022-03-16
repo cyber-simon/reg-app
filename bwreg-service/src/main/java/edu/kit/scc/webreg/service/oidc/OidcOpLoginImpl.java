@@ -31,6 +31,8 @@ import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.oauth2.sdk.ErrorObject;
+import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
@@ -303,170 +305,21 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	public JSONObject serveToken(String realm, String grantType,
 			String code, String redirectUri,
 			HttpServletRequest request, HttpServletResponse response, 
-			String clientId, String clientSecret, String codeVerifier) throws OidcAuthenticationException {
-		
-		OidcFlowStateEntity flowState = flowStateDao.findByCode(code);
+			String clientId, String clientSecret, String codeVerifier,
+			String refreshToken) throws OidcAuthenticationException {
 
-		if (flowState == null) {
-			throw new OidcAuthenticationException("unknown flow state");
+		if (grantType == null) {
+			return sendError(OAuth2Error.INVALID_REQUEST, response);
 		}
-
-		OidcOpConfigurationEntity opConfig = flowState.getOpConfiguration();
-		
-		if (opConfig == null) {
-			throw new OidcAuthenticationException("unknown realm");
+		if (grantType.equals("authorization_code")) {
+			return serveAuthorizationCode(realm, code, redirectUri, request, response, clientId, clientSecret, codeVerifier);
 		}
-		
-		OidcClientConfigurationEntity clientConfig = flowState.getClientConfiguration();
-
-		if (clientConfig == null) {
-			throw new OidcAuthenticationException("unknown client");
-		}
-		
-		if (! clientConfig.getName().equals(clientId)) {
-			throw new OidcAuthenticationException("unauthorized");
-		}
-
-		if (clientSecret != null && (! clientConfig.getSecret().equals(clientSecret))) {
-			// client_id and client_secret is set, but secret is wrong
-			throw new OidcAuthenticationException("unauthorized");
-		}
-		else if (codeVerifier != null) {
-			//check code verifier
-			// code_verifier must be SHA256(flowState.getCodeChallange)
-			
-			try {
-				MessageDigest digest = MessageDigest.getInstance("SHA-256");
-				byte[] encodedhash = digest.digest(
-						codeVerifier.getBytes(StandardCharsets.UTF_8));
-				String checkStr = new String(Base64.getUrlEncoder().withoutPadding().encode(encodedhash));
-				if (! checkStr.equals(flowState.getCodeChallange())) {
-					logger.debug("Code challange failed: {} <-> {}", checkStr, flowState.getCodeChallange());
-					throw new OidcAuthenticationException("code verification failed");
-				}
-			} catch (NoSuchAlgorithmException e) {
-				throw new OidcAuthenticationException("cannot create hash at the moment. This is bad.");
-			}
-		}
-
-		if (clientConfig.getGenericStore().containsKey("cors_allow_regex")) {
-			String origin = request.getHeader("Origin");
-			if (origin.matches(clientConfig.getGenericStore().get("cors_allow_regex"))) {
-				response.setHeader("Access-Control-Allow-Origin", origin);
-			}
-		}
-			
-		IdentityEntity identity = flowState.getIdentity();
-
-		if (identity == null) {
-			throw new OidcAuthenticationException("No identity attached to flow state.");
-		}
-
-		UserEntity user;
-		if (identity.getUsers().size() == 1) {
-			user = identity.getUsers().iterator().next();
+		else if (grantType.equals("refresh_token")) {
+			return serveRefreshToken(realm, refreshToken, redirectUri, request, response, clientId, clientSecret, codeVerifier);
 		}
 		else {
-			user = identity.getPrefUser();
-		}
-		
-		RegistryEntity registry = flowState.getRegistry();
-
-		/*
-		 * allow for no registry
-		 */
-//		if (registry == null) {
-//			throw new OidcAuthenticationException("No registry attached to flow state.");
-//		}
-		
-		List<ServiceOidcClientEntity> serviceOidcClientList = serviceOidcClientDao.findByClientConfig(clientConfig);
-
-		JWTClaimsSet.Builder claimsBuilder = new JWTClaimsSet.Builder();
-		claimsBuilder.expirationTime(new Date(System.currentTimeMillis() + (60L * 60L * 1000L)))
-	      .issuer("https://" + opConfig.getHost() + "/oidc/realms/" + opConfig.getRealm())
-	      .claim("nonce", flowState.getNonce())
-	      .audience(clientConfig.getName())
-	      .issueTime(new Date())
-	      .subject(user.getEppn());
-		
-	    if (flowState.getScope() != null) {
-			claimsBuilder.claim("scope", flowState.getScope());
-	    }
-
-		for (ServiceOidcClientEntity serviceOidcClient : serviceOidcClientList) {
-			ScriptEntity scriptEntity = serviceOidcClient.getScript();
-			if (scriptEntity.getScriptType().equalsIgnoreCase("javascript")) {
-				ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
-
-				if (engine == null)
-					throw new OidcAuthenticationException("service not configured properly. engine not found: " + scriptEntity.getScriptEngine());
-				
-				try {
-					engine.eval(scriptEntity.getScript());
-
-					Invocable invocable = (Invocable) engine;
-					
-					invocable.invokeFunction("buildTokenStatement", scriptingEnv, claimsBuilder, user, registry, 
-							serviceOidcClient.getService(), logger, identity);
-				} catch (NoSuchMethodException | ScriptException e) {
-					logger.warn("Script execution failed. Continue with other scripts.", e);
-				}
-			}
-			else {
-				throw new OidcAuthenticationException("unkown script type: " + scriptEntity.getScriptType());
-			}
-		}
-		
-		JWTClaimsSet claims =  claimsBuilder.build();
-
-		logger.debug("claims before signing: " + claims.toJSONObject());
-
-		SignedJWT jwt;
-		
-		try {
-			//MACSigner macSigner = new MACSigner(clientConfig.getSecret());
-			
-			PrivateKey privateKey = cryptoHelper.getPrivateKey(opConfig.getPrivateKey());
-			X509Certificate certificate = cryptoHelper.getCertificate(opConfig.getCertificate());
-			
-			JWK jwk = JWK.parse(certificate);
-			JWSHeader header;
-			RSASSASigner rsaSigner = new RSASSASigner(privateKey);
-			if (clientConfig.getGenericStore().containsKey("short_id_token_header") && 
-					clientConfig.getGenericStore().get("short_id_token_header").equalsIgnoreCase("true")) {
-				header = new JWSHeader.Builder(JWSAlgorithm.RS256).type(JOSEObjectType.JWT).keyID(jwk.getKeyID()).build();
-			}
-			else {
-				header = new JWSHeader.Builder(JWSAlgorithm.RS256).jwk(jwk).type(JOSEObjectType.JWT).keyID(jwk.getKeyID()).build();
-			}
-			jwt = new SignedJWT(header, claims);
-			jwt.sign(rsaSigner);
-
-		} catch (JOSEException | IOException e) {
-			throw new OidcAuthenticationException(e);
-		}
-
-		BearerAccessToken bat;
-		if (clientConfig.getGenericStore().containsKey("long_access_token") && 
-				clientConfig.getGenericStore().get("long_access_token").equalsIgnoreCase("true")) {
-			bat = new BearerAccessToken(jwt.serialize(), 3600, new Scope(opConfig.getHost()));
-		}
-		else {
-			bat = new BearerAccessToken(3600, new Scope(opConfig.getHost()));
-		}
-		
-		RefreshToken refreshToken = new RefreshToken();
-		OIDCTokens tokens = new OIDCTokens(jwt, bat, refreshToken);
-		OIDCTokenResponse tokenResponse = new OIDCTokenResponse(tokens);
-
-		logger.debug("tokenResponse: " + tokenResponse.toJSONObject());
-		
-		flowState.setAccessToken(bat.getValue());
-		flowState.setAccessTokenType("Bearer");
-		flowState.setRefreshToken(refreshToken.getValue());
-		flowState.setValidUntil(new Date(System.currentTimeMillis() + bat.getLifetime()));
-		
-		return tokenResponse.toJSONObject();
+			return sendError(OAuth2Error.UNSUPPORTED_GRANT_TYPE, response);
+		}		
 	}
 	
 	@Override
@@ -583,6 +436,250 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			return null;
 	}
 	
+	protected JSONObject serveRefreshToken(String realm,
+			String refreshToken, String redirectUri,
+			HttpServletRequest request, HttpServletResponse response, 
+			String clientId, String clientSecret, String codeVerifier) throws OidcAuthenticationException {
+
+		OidcFlowStateEntity flowState = flowStateDao.findByAttr("refreshToken", refreshToken);
+
+		if (flowState == null) {
+			throw new OidcAuthenticationException("unknown flow state");
+		}
+
+		OidcOpConfigurationEntity opConfig = flowState.getOpConfiguration();
+		
+		if (opConfig == null) {
+			throw new OidcAuthenticationException("unknown realm");
+		}
+		
+		OidcClientConfigurationEntity clientConfig = flowState.getClientConfiguration();
+
+		if (clientConfig == null) {
+			throw new OidcAuthenticationException("unknown client");
+		}
+
+		if (! clientConfig.getName().equals(clientId)) {
+			throw new OidcAuthenticationException("unauthorized");
+		}
+
+		if (clientSecret != null && (! clientConfig.getSecret().equals(clientSecret))) {
+			// client_id and client_secret is set, but secret is wrong
+			throw new OidcAuthenticationException("unauthorized");
+		}
+
+		return buildAccessToken(flowState, opConfig, clientConfig);
+	}
+	
+	protected JSONObject serveAuthorizationCode(String realm,
+			String code, String redirectUri,
+			HttpServletRequest request, HttpServletResponse response, 
+			String clientId, String clientSecret, String codeVerifier) throws OidcAuthenticationException {
+		
+		OidcFlowStateEntity flowState = flowStateDao.findByCode(code);
+		
+		if (flowState == null) {
+			return sendError(OAuth2Error.ACCESS_DENIED, response);
+		}
+		
+		OidcOpConfigurationEntity opConfig = flowState.getOpConfiguration();
+		OidcClientConfigurationEntity clientConfig = flowState.getClientConfiguration();
+
+		ErrorObject error = verifyConfig(opConfig, clientConfig);
+		
+		if (error != null) {
+			return sendError(error, response);
+		}
+		
+		if (! clientConfig.getName().equals(clientId)) {
+			return sendError(OAuth2Error.INVALID_CLIENT, response);
+		}
+
+		if (clientSecret != null && (! clientConfig.getSecret().equals(clientSecret))) {
+			// client_id and client_secret is set, but secret is wrong
+			return sendError(OAuth2Error.INVALID_CLIENT, response);
+		}
+		else if (codeVerifier != null) {
+			//check code verifier
+			// code_verifier must be SHA256(flowState.getCodeChallange)
+			
+			try {
+				MessageDigest digest = MessageDigest.getInstance("SHA-256");
+				byte[] encodedhash = digest.digest(
+						codeVerifier.getBytes(StandardCharsets.UTF_8));
+				String checkStr = new String(Base64.getUrlEncoder().withoutPadding().encode(encodedhash));
+				if (! checkStr.equals(flowState.getCodeChallange())) {
+					logger.debug("Code challange failed: {} <-> {}", checkStr, flowState.getCodeChallange());
+					return sendError(OAuth2Error.VALIDATION_FAILED, response);
+				}
+			} catch (NoSuchAlgorithmException e) {
+				throw new OidcAuthenticationException("cannot create hash at the moment. This is bad.");
+			}
+		}
+
+		if (clientConfig.getGenericStore().containsKey("cors_allow_regex")) {
+			String origin = request.getHeader("Origin");
+			if (origin != null && origin.matches(clientConfig.getGenericStore().get("cors_allow_regex"))) {
+				response.setHeader("Access-Control-Allow-Origin", origin);
+			}
+		}
+			
+		return buildAccessToken(flowState, opConfig, clientConfig);
+	}
+	
+	protected ErrorObject verifyConfig(OidcOpConfigurationEntity opConfig, OidcClientConfigurationEntity clientConfig) {
+		if (opConfig == null) {
+			return OAuth2Error.REQUEST_NOT_SUPPORTED;
+		}
+		else if (clientConfig == null) {
+			return OAuth2Error.INVALID_CLIENT;
+		}
+		else {
+			return null;
+		}
+	}
+	
+	protected JSONObject sendError(ErrorObject error, HttpServletResponse response) {
+		response.setStatus(error.getHTTPStatusCode());
+		return error.toJSONObject();
+	}
+	
+	protected JSONObject buildAccessToken(OidcFlowStateEntity flowState, OidcOpConfigurationEntity opConfig, OidcClientConfigurationEntity clientConfig) 
+				throws OidcAuthenticationException {
+
+		IdentityEntity identity = flowState.getIdentity();
+
+		if (identity == null) {
+			throw new OidcAuthenticationException("No identity attached to flow state.");
+		}
+
+		UserEntity user;
+		if (identity.getUsers().size() == 1) {
+			user = identity.getUsers().iterator().next();
+		}
+		else {
+			user = identity.getPrefUser();
+		}
+		
+		RegistryEntity registry = flowState.getRegistry();
+
+		/*
+		 * allow for no registry
+		 */
+//		if (registry == null) {
+//			throw new OidcAuthenticationException("No registry attached to flow state.");
+//		}
+		
+		List<ServiceOidcClientEntity> serviceOidcClientList = serviceOidcClientDao.findByClientConfig(clientConfig);
+
+		JWTClaimsSet.Builder claimsBuilder = new JWTClaimsSet.Builder();
+		claimsBuilder.expirationTime(new Date(System.currentTimeMillis() + (60L * 60L * 1000L)))
+	      .issuer("https://" + opConfig.getHost() + "/oidc/realms/" + opConfig.getRealm())
+	      .claim("nonce", flowState.getNonce())
+	      .audience(clientConfig.getName())
+	      .issueTime(new Date())
+	      .subject(user.getEppn());
+		
+	    if (flowState.getScope() != null) {
+			claimsBuilder.claim("scope", flowState.getScope());
+	    }
+
+		for (ServiceOidcClientEntity serviceOidcClient : serviceOidcClientList) {
+			ScriptEntity scriptEntity = serviceOidcClient.getScript();
+			if (scriptEntity.getScriptType().equalsIgnoreCase("javascript")) {
+				ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
+
+				if (engine == null)
+					throw new OidcAuthenticationException("service not configured properly. engine not found: " + scriptEntity.getScriptEngine());
+				
+				try {
+					engine.eval(scriptEntity.getScript());
+
+					Invocable invocable = (Invocable) engine;
+					
+					invocable.invokeFunction("buildTokenStatement", scriptingEnv, claimsBuilder, user, registry, 
+							serviceOidcClient.getService(), logger, identity);
+				} catch (NoSuchMethodException | ScriptException e) {
+					logger.warn("Script execution failed. Continue with other scripts.", e);
+				}
+			}
+			else {
+				throw new OidcAuthenticationException("unkown script type: " + scriptEntity.getScriptType());
+			}
+		}
+		
+		JWTClaimsSet claims =  claimsBuilder.build();
+
+		logger.debug("claims before signing: " + claims.toJSONObject());
+
+		SignedJWT jwt;
+		
+		try {
+			//MACSigner macSigner = new MACSigner(clientConfig.getSecret());
+			
+			PrivateKey privateKey = cryptoHelper.getPrivateKey(opConfig.getPrivateKey());
+			X509Certificate certificate = cryptoHelper.getCertificate(opConfig.getCertificate());
+			
+			JWK jwk = JWK.parse(certificate);
+			JWSHeader header;
+			RSASSASigner rsaSigner = new RSASSASigner(privateKey);
+			if (clientConfig.getGenericStore().containsKey("short_id_token_header") && 
+					clientConfig.getGenericStore().get("short_id_token_header").equalsIgnoreCase("true")) {
+				header = new JWSHeader.Builder(JWSAlgorithm.RS256).type(JOSEObjectType.JWT).keyID(jwk.getKeyID()).build();
+			}
+			else {
+				header = new JWSHeader.Builder(JWSAlgorithm.RS256).jwk(jwk).type(JOSEObjectType.JWT).keyID(jwk.getKeyID()).build();
+			}
+			jwt = new SignedJWT(header, claims);
+			jwt.sign(rsaSigner);
+
+		} catch (JOSEException | IOException e) {
+			throw new OidcAuthenticationException(e);
+		}
+
+		long accessTokenLifetime = 3600;
+		if (clientConfig.getGenericStore().containsKey("access_token_lifetime")) {
+			accessTokenLifetime = Long.parseLong(clientConfig.getGenericStore().get("access_token_lifetime"));
+		}
+
+		long refreshTokenLifetime = 7200;
+		if (clientConfig.getGenericStore().containsKey("refresh_token_lifetime")) {
+			accessTokenLifetime = Long.parseLong(clientConfig.getGenericStore().get("refresh_token_lifetime"));
+		}
+		
+		BearerAccessToken bat;
+		if (clientConfig.getGenericStore().containsKey("long_access_token") && 
+				clientConfig.getGenericStore().get("long_access_token").equalsIgnoreCase("true")) {
+			bat = new BearerAccessToken(jwt.serialize(), accessTokenLifetime, new Scope(opConfig.getHost()));
+		}
+		else {
+			bat = new BearerAccessToken(accessTokenLifetime, new Scope(opConfig.getHost()));
+		}
+		
+		RefreshToken refreshToken = new RefreshToken();
+		OIDCTokens tokens = new OIDCTokens(jwt, bat, refreshToken);
+		OIDCTokenResponse tokenResponse = new OIDCTokenResponse(tokens);
+
+		logger.debug("tokenResponse: " + tokenResponse.toJSONObject());
+		
+		flowState.setAccessToken(bat.getValue());
+		flowState.setAccessTokenType("Bearer");
+		
+		if (flowState.getRefreshToken() == null) {
+			flowState.setRefreshToken(refreshToken.getValue());
+			flowState.setValidUntil(new Date(System.currentTimeMillis() + refreshTokenLifetime));
+		}
+		else if (flowState.getRefreshToken() != null && clientConfig.getGenericStore().containsKey("refresh_token_extend")
+				&& clientConfig.getGenericStore().get("refresh_token_extend").equalsIgnoreCase("true")) {
+			flowState.setRefreshToken(refreshToken.getValue());
+			flowState.setValidUntil(new Date(System.currentTimeMillis() + refreshTokenLifetime));
+		}
+		else {
+			flowState.setRefreshToken(refreshToken.getValue());
+		}
+
+		return tokenResponse.toJSONObject();
+	}
 	
 	private List<Object> checkRules(UserEntity user, ServiceEntity service, RegistryEntity registry) {
 		List<Object> objectList;

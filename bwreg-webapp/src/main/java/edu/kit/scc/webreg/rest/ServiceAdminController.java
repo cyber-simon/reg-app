@@ -89,6 +89,29 @@ public class ServiceAdminController {
 		return deproList;
 	}	
 	
+	@Path(value = "/byattribute/{ssn}/{key}/{value}")
+	@Produces({"application/json"})
+	@GET
+	public List<RegistryEntityDto> findByAttribute(@PathParam("ssn") String ssn, @PathParam("key") String key, @PathParam("value") String value, @Context HttpServletRequest request)
+					throws IOException, RestInterfaceException {
+		
+		ServiceEntity serviceEntity = serviceService.findByShortName(ssn);
+		if (serviceEntity == null)
+			throw new NoItemFoundException("No such service");
+
+		if (! checkAccess(request, serviceEntity.getAdminRole().getName()))
+			throw new UnauthorizedException("No access");
+		
+		if (key == null)
+			throw new NoItemFoundException("key must not be null");
+		if (value == null)
+			throw new NoItemFoundException("value must not be null");
+
+		List<RegistryEntityDto> deproList = registryDtoService.findRegistriesByAttribute(key, value, serviceEntity);
+
+		return deproList;
+	}	
+	
 	@Path(value = "/depro/{ssn}/list")
 	@Produces({"application/json"})
 	@GET

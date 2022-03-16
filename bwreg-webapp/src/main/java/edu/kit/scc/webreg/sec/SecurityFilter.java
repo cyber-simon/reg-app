@@ -300,7 +300,8 @@ public class SecurityFilter implements Filter {
 	    }
 		
 		response.setHeader( "WWW-Authenticate", "Basic realm=\"Admin Realm\"" );
-		response.sendError( HttpServletResponse.SC_UNAUTHORIZED );		
+		response.setStatus( HttpServletResponse.SC_UNAUTHORIZED );
+		response.getWriter().print("<html><body>Please <a href='/'>login</a> as regular user.</body></html>");
 	}
 
 	private void processDirectAuth(String path, HttpServletRequest request, 
