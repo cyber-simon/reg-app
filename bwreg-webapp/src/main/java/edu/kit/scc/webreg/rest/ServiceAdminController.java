@@ -156,6 +156,135 @@ public class ServiceAdminController {
 		}
 	}
 	
+	@Path(value = "/recon/all/{ssn}")
+	@Produces({"application/json"})
+	@GET
+	public Response recon(@PathParam("ssn") String ssn, @Context HttpServletRequest request)
+					throws IOException, RestInterfaceException, RegisterException {
+		
+		ServiceEntity serviceEntity = serviceService.findByShortName(ssn);
+		if (serviceEntity == null)
+			throw new NoItemFoundException("No such service");
+
+		if (! checkAccess(request, serviceEntity.getAdminRole().getName()))
+			throw new UnauthorizedException("No access");
+
+		registerUserService.completeReconciliation(serviceEntity, false, false, true, resolveUsername(request));
+		return Response.ok("reconciliation started", MediaType.TEXT_PLAIN_TYPE).build();
+	}
+	
+	@Path(value = "/recon/by-id/{ssn}/{regId}")
+	@Produces({"application/json"})
+	@GET
+	public Response recon(@PathParam("ssn") String ssn, @PathParam("regId") Long regId, @Context HttpServletRequest request)
+					throws IOException, RestInterfaceException, RegisterException {
+		
+		ServiceEntity serviceEntity = serviceService.findByShortName(ssn);
+		if (serviceEntity == null)
+			throw new NoItemFoundException("No such service");
+
+		if (! checkAccess(request, serviceEntity.getAdminRole().getName()))
+			throw new UnauthorizedException("No access");
+
+		RegistryEntity registryEntity = registryService.findById(regId);
+		if (registryEntity == null)
+			throw new NoItemFoundException("No such registry");
+		
+		try {
+			registerUserService.completeReconciliationForRegistry(serviceEntity, registryEntity, false, false, resolveUsername(request) );
+			return Response.ok("reconciliation successful", MediaType.TEXT_PLAIN_TYPE).build();
+		} catch (RegisterException e) {
+			logger.warn("reconciliation failed!", e);
+			throw e;
+		}
+	}
+	
+	@Path(value = "/fullrecon/all/{ssn}")
+	@Produces({"application/json"})
+	@GET
+	public Response fullrecon(@PathParam("ssn") String ssn, @Context HttpServletRequest request)
+					throws IOException, RestInterfaceException, RegisterException {
+		
+		ServiceEntity serviceEntity = serviceService.findByShortName(ssn);
+		if (serviceEntity == null)
+			throw new NoItemFoundException("No such service");
+
+		if (! checkAccess(request, serviceEntity.getAdminRole().getName()))
+			throw new UnauthorizedException("No access");
+
+		registerUserService.completeReconciliation(serviceEntity, true, false, true, resolveUsername(request));
+		return Response.ok("reconciliation started", MediaType.TEXT_PLAIN_TYPE).build();
+	}
+	
+	@Path(value = "/fullrecon/by-id/{ssn}/{regId}")
+	@Produces({"application/json"})
+	@GET
+	public Response fullrecon(@PathParam("ssn") String ssn, @PathParam("regId") Long regId, @Context HttpServletRequest request)
+					throws IOException, RestInterfaceException, RegisterException {
+		
+		ServiceEntity serviceEntity = serviceService.findByShortName(ssn);
+		if (serviceEntity == null)
+			throw new NoItemFoundException("No such service");
+
+		if (! checkAccess(request, serviceEntity.getAdminRole().getName()))
+			throw new UnauthorizedException("No access");
+
+		RegistryEntity registryEntity = registryService.findById(regId);
+		if (registryEntity == null)
+			throw new NoItemFoundException("No such registry");
+		
+		try {
+			registerUserService.completeReconciliationForRegistry(serviceEntity, registryEntity, true, false, resolveUsername(request));
+			return Response.ok("reconciliation successful", MediaType.TEXT_PLAIN_TYPE).build();
+		} catch (RegisterException e) {
+			logger.warn("reconciliation failed!", e);
+			throw e;
+		}
+	}
+	
+	@Path(value = "/fullreconwgroups/all/{ssn}")
+	@Produces({"application/json"})
+	@GET
+	public Response fullreconwgroups(@PathParam("ssn") String ssn, @Context HttpServletRequest request)
+					throws IOException, RestInterfaceException, RegisterException {
+		
+		ServiceEntity serviceEntity = serviceService.findByShortName(ssn);
+		if (serviceEntity == null)
+			throw new NoItemFoundException("No such service");
+
+		if (! checkAccess(request, serviceEntity.getAdminRole().getName()))
+			throw new UnauthorizedException("No access");
+
+		registerUserService.completeReconciliation(serviceEntity, true, true, true, resolveUsername(request));
+		return Response.ok("reconciliation started", MediaType.TEXT_PLAIN_TYPE).build();
+	}
+	
+	@Path(value = "/fullreconwgroups/by-id/{ssn}/{regId}")
+	@Produces({"application/json"})
+	@GET
+	public Response fullreconwgroups(@PathParam("ssn") String ssn, @PathParam("regId") Long regId, @Context HttpServletRequest request)
+					throws IOException, RestInterfaceException, RegisterException {
+		
+		ServiceEntity serviceEntity = serviceService.findByShortName(ssn);
+		if (serviceEntity == null)
+			throw new NoItemFoundException("No such service");
+
+		if (! checkAccess(request, serviceEntity.getAdminRole().getName()))
+			throw new UnauthorizedException("No access");
+
+		RegistryEntity registryEntity = registryService.findById(regId);
+		if (registryEntity == null)
+			throw new NoItemFoundException("No such registry");
+		
+		try {
+			registerUserService.completeReconciliationForRegistry(serviceEntity, registryEntity, true, true, resolveUsername(request));
+			return Response.ok("reconciliation successful", MediaType.TEXT_PLAIN_TYPE).build();
+		} catch (RegisterException e) {
+			logger.warn("reconciliation failed!", e);
+			throw e;
+		}
+	}
+	
 	protected Boolean checkAccess(HttpServletRequest request, String roleName) {
 		Boolean check;
 		
