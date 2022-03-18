@@ -605,7 +605,7 @@ public class LdapWorker {
 			ldapGroupObjectclasses = "top posixGroup";
 		
 		if (sambaEnabled) {
-			if (!ldapGroupObjectclasses.matches("(?:\\s|.)*?\\bsambaGroupMapping\\b(?:\\s|.)"))
+			if (!ldapGroupObjectclasses.matches("(?:\\s|.)*?\\bsambaGroupMapping\\b(?:\\s|.)*"))
 				ldapGroupObjectclasses += " sambaGroupMapping";
                         
 			attrs = AttributesFactory.createAttributes("objectClass",
