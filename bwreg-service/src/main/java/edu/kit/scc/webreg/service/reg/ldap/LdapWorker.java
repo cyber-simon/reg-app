@@ -625,7 +625,7 @@ public class LdapWorker {
 		if (ldapGroupObjectclasses == null || ldapGroupObjectclasses.trim().isEmpty())
 			ldapGroupObjectclasses = "top posixGroup";
 		
-		if (sambaEnabled && (! ldapGroupObjectclasses.matches("(?:\\s|.)*?\\bsambaGroupMapping\\b(?:\\s|.)"))) {
+		if (sambaEnabled && (! ldapGroupObjectclasses.matches("(?:\\s|.)*?\\bsambaGroupMapping\\b(?:\\s|.)*"))) {
 			ldapGroupObjectclasses += " sambaGroupMapping";
 		}
 
