@@ -131,7 +131,7 @@ public class ServiceAdminController {
 	}
 
 	@Path(value = "/depro/{ssn}/cleanup/{regId}")
-	@Produces({"application/json"})
+	@Produces({"text/plain"})
 	@GET
 	public Response depro(@PathParam("ssn") String ssn, @PathParam("regId") Long regId, @Context HttpServletRequest request)
 					throws IOException, RestInterfaceException, RegisterException {
@@ -157,7 +157,7 @@ public class ServiceAdminController {
 	}
 	
 	@Path(value = "/recon/all/{ssn}")
-	@Produces({"application/json"})
+	@Produces({"text/plain"})
 	@GET
 	public Response recon(@PathParam("ssn") String ssn, @Context HttpServletRequest request)
 					throws IOException, RestInterfaceException, RegisterException {
@@ -174,7 +174,7 @@ public class ServiceAdminController {
 	}
 	
 	@Path(value = "/recon/by-id/{ssn}/{regId}")
-	@Produces({"application/json"})
+	@Produces({"text/plain"})
 	@GET
 	public Response recon(@PathParam("ssn") String ssn, @PathParam("regId") Long regId, @Context HttpServletRequest request)
 					throws IOException, RestInterfaceException, RegisterException {
@@ -200,7 +200,7 @@ public class ServiceAdminController {
 	}
 	
 	@Path(value = "/fullrecon/all/{ssn}")
-	@Produces({"application/json"})
+	@Produces({"text/plain"})
 	@GET
 	public Response fullrecon(@PathParam("ssn") String ssn, @Context HttpServletRequest request)
 					throws IOException, RestInterfaceException, RegisterException {
@@ -217,7 +217,7 @@ public class ServiceAdminController {
 	}
 	
 	@Path(value = "/fullrecon/by-id/{ssn}/{regId}")
-	@Produces({"application/json"})
+	@Produces({"text/plain"})
 	@GET
 	public Response fullrecon(@PathParam("ssn") String ssn, @PathParam("regId") Long regId, @Context HttpServletRequest request)
 					throws IOException, RestInterfaceException, RegisterException {
@@ -243,7 +243,7 @@ public class ServiceAdminController {
 	}
 	
 	@Path(value = "/fullreconwgroups/all/{ssn}")
-	@Produces({"application/json"})
+	@Produces({"text/plain"})
 	@GET
 	public Response fullreconwgroups(@PathParam("ssn") String ssn, @Context HttpServletRequest request)
 					throws IOException, RestInterfaceException, RegisterException {
@@ -260,7 +260,7 @@ public class ServiceAdminController {
 	}
 	
 	@Path(value = "/fullreconwgroups/by-id/{ssn}/{regId}")
-	@Produces({"application/json"})
+	@Produces({"text/plain"})
 	@GET
 	public Response fullreconwgroups(@PathParam("ssn") String ssn, @PathParam("regId") Long regId, @Context HttpServletRequest request)
 					throws IOException, RestInterfaceException, RegisterException {
