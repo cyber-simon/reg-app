@@ -11,7 +11,6 @@
 package edu.kit.scc.webreg.service.reg.ldap;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -210,7 +209,7 @@ public class LdapWorker {
 			if (dnList.size() == 0) {
 				logger.debug("Account does not exist. Creating...");
 				try {
-					createUserIntern(ldap, cn, givenName, sn, mail, uid, uidNumber, gidNumber, homeDir, description);
+					createUserIntern(ldap, cn, givenName, sn, mail, uid, uidNumber, gidNumber, homeDir, description, extraAttributesMap);
 					logger.info("User {},{} with ldap {} successfully created", 
 							new Object[] {uid, gidNumber, ldapUserBase});
 					auditor.logAction("", "RECON CREATE LDAP USER", uid, "User created in " + ldap.getLdapConfig().getLdapUrl(), AuditStatus.SUCCESS);
@@ -578,7 +577,7 @@ public class LdapWorker {
 	}
 	
 	private void createUserIntern(Ldap ldap, String cn, String givenName, String sn, String mail, String uid, String uidNumber, String gidNumber,
-			String homeDir, String description) throws NamingException {
+			String homeDir, String description, Map<String, String> extraAttributesMap) throws NamingException {
 		Attributes attrs;
                 
 		if (ldapUserObjectclasses == null || ldapUserObjectclasses.trim().isEmpty())
@@ -607,6 +606,14 @@ public class LdapWorker {
 		attrs.put(AttributesFactory.createAttribute("homeDirectory", homeDir));
 		attrs.put(AttributesFactory.createAttribute("description", description));
 
+		if (extraAttributesMap != null) {
+			for (Entry<String, String> extraAttribute : extraAttributesMap.entrySet()) {
+				if (extraAttribute.getKey().startsWith("extra_") && extraAttribute.getKey().length() > 6) {
+					attrs.put(AttributesFactory.createAttribute(extraAttribute.getKey().substring(6), extraAttribute.getValue()));
+				}
+			}
+		}
+		
 		ldap.create("uid=" + uid + "," + ldapUserBase, attrs);
 	}
 	
