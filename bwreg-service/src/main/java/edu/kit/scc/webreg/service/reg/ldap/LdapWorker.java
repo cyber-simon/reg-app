@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.service.reg.ldap;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -604,20 +605,32 @@ public class LdapWorker {
 
 		Attributes attrs;
 		
+		List<String> objectClasses = new ArrayList<String>();
+		objectClasses.add("top");
+		objectClasses.add("posixGroup");
 		if (sambaEnabled) {
-			attrs = AttributesFactory.createAttributes("objectClass", new String[] {
-					"top", "posixGroup", "sambaGroupMapping"});
+			objectClasses.add("sambaGroupMapping");
+		}
+
+		/*
+		 * In order to this for work, the ldap schema must be modified. The standard OpenLDAP core schema will fail,
+		 * because of groupOfNames MUST member. This prevents the creation of empty groups. member must be in the MAY section.
+		 * 
+		 * Second is posixGroup being STRUCTURAL. This conflicts with groupOfNames also being STRUCTURAL. 
+		 * It should be AUXILIARY like posixAccount.
+		 */
+		if (ldapGroupType != null && ldapGroupType.equals("member")) {
+			objectClasses.add("groupOfNames");
+		}
+		attrs = AttributesFactory.createAttributes("objectClass", objectClasses.toArray(new String[0]));
+		
+		if (sambaEnabled) {
 			attrs.put(AttributesFactory.createAttribute("sambaSID", sidPrefix + (Long.parseLong(gidNumber) * 2L + 1000L)));					
 			attrs.put(AttributesFactory.createAttribute("sambaGroupType", "2"));
 		}
+
 		if (ldapGroupType != null && ldapGroupType.equals("member")) {
-			attrs = AttributesFactory.createAttributes("objectClass", new String[] {
-					"top", "groupOfNames", "posixGroup"});
 			attrs.put(AttributesFactory.createAttribute("member", "cn=" + cn + "," + ldapGroupBase));
-		}
-		else {
-			attrs = AttributesFactory.createAttributes("objectClass", new String[] {
-					"top", "posixGroup"});
 		}
 
 		attrs.put(AttributesFactory.createAttribute("cn", cn));
