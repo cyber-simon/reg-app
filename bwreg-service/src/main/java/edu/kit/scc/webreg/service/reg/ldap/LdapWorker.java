@@ -48,6 +48,8 @@ public class LdapWorker {
 	
 	private String ldapUserBase;
 	private String ldapGroupBase;
+    private String ldapUserObjectclasses = null;
+    private String ldapGroupObjectclasses = null;
 	
 	private boolean sambaEnabled;
 	private String sidPrefix;
@@ -64,9 +66,15 @@ public class LdapWorker {
 			connectionManager = new LdapConnectionManager(prop);
 			ldapUserBase = prop.readProp("ldap_user_base");
 			ldapGroupBase = prop.readProp("ldap_group_base");
+                        
+			if (prop.hasProp("ldap_user_objectclass"))
+				ldapUserObjectclasses = prop.readProp("ldap_user_objectclass");
+			if (prop.hasProp("ldap_group_objectclass"))
+				ldapGroupObjectclasses = prop.readProp("ldap_group_objectclass");
 
 			if (sambaEnabled)
 				sidPrefix = prop.readProp("sid_prefix");
+
 		} catch (PropertyReaderException e) {
 			throw new RegisterException(e);
 		}		
@@ -558,17 +566,21 @@ public class LdapWorker {
 	private void createUserIntern(Ldap ldap, String cn, String givenName, String sn, String mail, String uid, String uidNumber, String gidNumber,
 			String homeDir, String description) throws NamingException {
 		Attributes attrs;
+                
+		if (ldapUserObjectclasses == null || ldapUserObjectclasses.trim().isEmpty())
+			ldapUserObjectclasses = "top person organizationalPerson inetOrgPerson posixAccount";
 		
 		if (sambaEnabled) {
-			attrs = AttributesFactory.createAttributes("objectClass", new String[] {
-					"top", "person", "organizationalPerson", 
-	        		"inetOrgPerson", "posixAccount", "sambaSamAccount"});
-			attrs.put(AttributesFactory.createAttribute("sambaSID", sidPrefix + (Long.parseLong(uidNumber) * 2L + 1000L)));					
+			if (!ldapUserObjectclasses.matches("(?:\\s|.)*?\\bsambaSamAccount\\b(?:\\s|.)*"))
+				ldapUserObjectclasses += " sambaSamAccount";
+                        
+			attrs = AttributesFactory.createAttributes("objectClass",
+                                ldapUserObjectclasses.split("\\s+"));
+			attrs.put(AttributesFactory.createAttribute("sambaSID", sidPrefix + (Long.parseLong(uidNumber) * 2L + 1000L)));
 		}
 		else {
-			attrs = AttributesFactory.createAttributes("objectClass", new String[] {
-				"top", "person", "organizationalPerson", 
-        		"inetOrgPerson", "posixAccount"});
+			attrs = AttributesFactory.createAttributes("objectClass",
+                                ldapUserObjectclasses.split("\\s+"));
 		}
 		
 		attrs.put(AttributesFactory.createAttribute("cn", cn));
@@ -588,16 +600,22 @@ public class LdapWorker {
 			throws NamingException {
 
 		Attributes attrs;
+                
+		if (ldapGroupObjectclasses == null || ldapGroupObjectclasses.trim().isEmpty())
+			ldapGroupObjectclasses = "top posixGroup";
 		
 		if (sambaEnabled) {
-			attrs = AttributesFactory.createAttributes("objectClass", new String[] {
-					"top", "posixGroup", "sambaGroupMapping"});
+			if (!ldapGroupObjectclasses.matches("(?:\\s|.)*?\\bsambaGroupMapping\\b(?:\\s|.)"))
+				ldapGroupObjectclasses += " sambaGroupMapping";
+                        
+			attrs = AttributesFactory.createAttributes("objectClass",
+                                    ldapGroupObjectclasses.split("\\s+"));
 			attrs.put(AttributesFactory.createAttribute("sambaSID", sidPrefix + (Long.parseLong(gidNumber) * 2L + 1000L)));					
 			attrs.put(AttributesFactory.createAttribute("sambaGroupType", "2"));
 		}
 		else {
-			attrs = AttributesFactory.createAttributes("objectClass", new String[] {
-					"top", "posixGroup"});
+			attrs = AttributesFactory.createAttributes("objectClass",
+                                    ldapGroupObjectclasses.split("\\s+"));
 		}
 
 		attrs.put(AttributesFactory.createAttribute("cn", cn));
