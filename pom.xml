@@ -77,7 +77,7 @@
 			<dependency>
 				<groupId>edu.vt.middleware</groupId>
 				<artifactId>vt-ldap</artifactId>
-				<version>3.3.7</version>
+				<version>3.3.9</version>
 			</dependency>
 			<dependency>
 				<groupId>org.primefaces</groupId>
