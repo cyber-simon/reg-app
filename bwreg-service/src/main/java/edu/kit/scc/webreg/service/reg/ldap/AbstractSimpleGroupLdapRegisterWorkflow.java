@@ -76,7 +76,11 @@ public abstract class AbstractSimpleGroupLdapRegisterWorkflow
 				//Skip group member with incomplete data
 				if (homeId != null && homeUid != null) {
 					homeId = homeId.toLowerCase();
-					memberUids.add(constructLocalUid(homeId, homeUid, user, reconMap));
+					String localUid = constructLocalUid(homeId, homeUid, user, reconMap);
+					if (prop.hasProp("group_type") && prop.readPropOrNull("group_type").equals("member")) {
+						localUid = "uid=" + localUid + "," + prop.readPropOrNull("ldap_group_base");
+					}
+					memberUids.add(localUid);
 				}
 			}
 			

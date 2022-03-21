@@ -48,8 +48,10 @@ public class LdapWorker {
 	
 	private String ldapUserBase;
 	private String ldapGroupBase;
-    private String ldapUserObjectclasses = null;
-    private String ldapGroupObjectclasses = null;
+    private String ldapUserObjectclasses;
+    private String ldapGroupObjectclasses;
+	
+	private String ldapGroupType;
 	
 	private boolean sambaEnabled;
 	private String sidPrefix;
@@ -67,13 +69,14 @@ public class LdapWorker {
 			ldapUserBase = prop.readProp("ldap_user_base");
 			ldapGroupBase = prop.readProp("ldap_group_base");
                         
-			if (prop.hasProp("ldap_user_objectclass"))
-				ldapUserObjectclasses = prop.readProp("ldap_user_objectclass");
-			if (prop.hasProp("ldap_group_objectclass"))
-				ldapGroupObjectclasses = prop.readProp("ldap_group_objectclass");
+			ldapUserObjectclasses = prop.readPropOrNull("ldap_user_objectclass");
+			ldapGroupObjectclasses = prop.readPropOrNull("ldap_group_objectclass");
+
+			ldapGroupType = prop.readPropOrNull("group_type");
 
 			if (sambaEnabled)
 				sidPrefix = prop.readProp("sid_prefix");
+			
 
 		} catch (PropertyReaderException e) {
 			throw new RegisterException(e);
@@ -109,8 +112,18 @@ public class LdapWorker {
 		for (Ldap ldap : connectionManager.getConnections()) {
 			try {
 				Set<String> oldMemberUids = new HashSet<String>();
-				Attributes attrs = ldap.getAttributes(dn, new String[]{"memberUid"});
-				Attribute attr = attrs.get("memberUid");
+
+				String memberAttribute;
+				if (ldapGroupType != null && ldapGroupType.equals("member")) {
+					memberAttribute = "member";
+				}
+				else {
+					memberAttribute = "memberUid";
+				}
+
+				Attributes attrs = ldap.getAttributes(dn, new String[]{memberAttribute});
+				Attribute attr = attrs.get(memberAttribute);
+
 				if (attr != null) {
 					for (int i=0; i<attr.size(); i++) {
 						String memberUid = (String) attr.get(i);
@@ -128,7 +141,7 @@ public class LdapWorker {
 					logger.info("Adding member {} to group {}", memberUid, cn);
 					try {
 						ldap.modifyAttributes(dn, AttributeModification.ADD, 
-								AttributesFactory.createAttributes("memberUid", memberUid));
+								AttributesFactory.createAttributes(memberAttribute, memberUid));
 						auditor.logAction(cn, "ADD LDAP GROUP MEMBER", memberUid, "Added member on " + ldap.getLdapConfig().getLdapUrl(), AuditStatus.SUCCESS);
 					} catch (NamingException e) {
 						auditor.logAction(cn, "ADD LDAP GROUP MEMBER", memberUid, "Add member on " + ldap.getLdapConfig().getLdapUrl(), AuditStatus.FAIL);
@@ -139,7 +152,7 @@ public class LdapWorker {
 					logger.info("Removing member {} from group {}", memberUid, cn);
 					try {
 						ldap.modifyAttributes(dn, AttributeModification.REMOVE, 
-								AttributesFactory.createAttributes("memberUid", memberUid));
+								AttributesFactory.createAttributes(memberAttribute, memberUid));
 						auditor.logAction(cn, "REMOVE LDAP GROUP MEMBER", memberUid, "Removed member on " + ldap.getLdapConfig().getLdapUrl(), AuditStatus.SUCCESS);
 					} catch (NamingException e) {
 						auditor.logAction(cn, "REMOVE LDAP GROUP MEMBER", memberUid, "Remove member on " + ldap.getLdapConfig().getLdapUrl(), AuditStatus.FAIL);
@@ -196,7 +209,7 @@ public class LdapWorker {
 			if (dnList.size() == 0) {
 				logger.debug("Account does not exist. Creating...");
 				try {
-					createUserIntern(ldap, cn, givenName, sn, mail, uid, uidNumber, gidNumber, homeDir, description);
+					createUserIntern(ldap, cn, givenName, sn, mail, uid, uidNumber, gidNumber, homeDir, description, extraAttributesMap);
 					logger.info("User {},{} with ldap {} successfully created", 
 							new Object[] {uid, gidNumber, ldapUserBase});
 					auditor.logAction("", "RECON CREATE LDAP USER", uid, "User created in " + ldap.getLdapConfig().getLdapUrl(), AuditStatus.SUCCESS);
@@ -564,7 +577,7 @@ public class LdapWorker {
 	}
 	
 	private void createUserIntern(Ldap ldap, String cn, String givenName, String sn, String mail, String uid, String uidNumber, String gidNumber,
-			String homeDir, String description) throws NamingException {
+			String homeDir, String description, Map<String, String> extraAttributesMap) throws NamingException {
 		Attributes attrs;
                 
 		if (ldapUserObjectclasses == null || ldapUserObjectclasses.trim().isEmpty())
@@ -593,6 +606,14 @@ public class LdapWorker {
 		attrs.put(AttributesFactory.createAttribute("homeDirectory", homeDir));
 		attrs.put(AttributesFactory.createAttribute("description", description));
 
+		if (extraAttributesMap != null) {
+			for (Entry<String, String> extraAttribute : extraAttributesMap.entrySet()) {
+				if (extraAttribute.getKey().startsWith("extra_") && extraAttribute.getKey().length() > 6) {
+					attrs.put(AttributesFactory.createAttribute(extraAttribute.getKey().substring(6), extraAttribute.getValue()));
+				}
+			}
+		}
+		
 		ldap.create("uid=" + uid + "," + ldapUserBase, attrs);
 	}
 	
@@ -604,18 +625,27 @@ public class LdapWorker {
 		if (ldapGroupObjectclasses == null || ldapGroupObjectclasses.trim().isEmpty())
 			ldapGroupObjectclasses = "top posixGroup";
 		
+		if (sambaEnabled && (! ldapGroupObjectclasses.matches("(?:\\s|.)*?\\bsambaGroupMapping\\b(?:\\s|.)*"))) {
+			ldapGroupObjectclasses += " sambaGroupMapping";
+		}
+
+		/*
+		 * In order to this for work, the ldap schema must be modified. The standard OpenLDAP core schema will fail,
+		 * because of groupOfNames MUST member. This prevents the creation of empty groups. member must be in the MAY section.
+		 * 
+		 * Second is posixGroup being STRUCTURAL. This conflicts with groupOfNames also being STRUCTURAL. 
+		 * It should be AUXILIARY like posixAccount. If you want this to work, you must change posixGroup to AUXILIARY
+		 */
+		if (ldapGroupType != null && ldapGroupType.equals("member")) {
+			ldapGroupObjectclasses += " groupOfNames";
+		}
+
+		attrs = AttributesFactory.createAttributes("objectClass",
+                ldapGroupObjectclasses.split("\\s+"));
+
 		if (sambaEnabled) {
-			if (!ldapGroupObjectclasses.matches("(?:\\s|.)*?\\bsambaGroupMapping\\b(?:\\s|.)*"))
-				ldapGroupObjectclasses += " sambaGroupMapping";
-                        
-			attrs = AttributesFactory.createAttributes("objectClass",
-                                    ldapGroupObjectclasses.split("\\s+"));
 			attrs.put(AttributesFactory.createAttribute("sambaSID", sidPrefix + (Long.parseLong(gidNumber) * 2L + 1000L)));					
 			attrs.put(AttributesFactory.createAttribute("sambaGroupType", "2"));
-		}
-		else {
-			attrs = AttributesFactory.createAttributes("objectClass",
-                                    ldapGroupObjectclasses.split("\\s+"));
 		}
 
 		attrs.put(AttributesFactory.createAttribute("cn", cn));
