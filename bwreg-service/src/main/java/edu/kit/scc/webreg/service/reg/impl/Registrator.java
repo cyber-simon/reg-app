@@ -861,6 +861,53 @@ public class Registrator implements Serializable {
 		logger.info("Reconciliation is done.");
 	}
 
+	public void completeReconciliationForRegistry(ServiceEntity service, RegistryEntity registry, Boolean fullRecon, Boolean withGroups,
+			String executor) throws RegisterException  {
+		
+		logger.info("Recon registry {} with fullRecon={} and withGroups={}", registry.getId(), fullRecon, withGroups);
+		try {
+			reconsiliation(registry, fullRecon, executor);
+		} catch (RegisterException e) {
+			logger.warn("Could not recon registry {}: {}", registry.getId(), e);
+			throw e;
+		}
+		
+		if (withGroups && service.getGroupCapable()) {
+			HashSet<GroupEntity> groups = new HashSet<GroupEntity>();
+			List<HashSet<GroupEntity>> chunkList = new ArrayList<>();
+			
+			List<ServiceGroupFlagEntity> groupFlagList = groupFlagDao.findByService(service);
+
+			logger.info("Setting groupFlags to dirty");
+			int i = 0;
+			
+			for (ServiceGroupFlagEntity groupFlag : groupFlagList) {
+				if ((i % 50) == 0) {
+					groups = new HashSet<GroupEntity>();
+					chunkList.add(groups);
+				}
+				groupFlag.setStatus(ServiceGroupStatus.DIRTY);
+				groupFlag = groupFlagDao.persist(groupFlag);
+				groups.add(groupFlag.getGroup());
+				i++;
+			}
+
+			logger.info("Sending Group Update Events");
+			
+			for (HashSet<GroupEntity> innerGroup : chunkList) {
+				MultipleGroupEvent mge = new MultipleGroupEvent(innerGroup);
+				try {
+					eventSubmitter.submit(mge, EventType.GROUP_UPDATE, executor);
+				} catch (EventSubmitException e) {
+					logger.warn("Exeption", e);
+					throw new RegisterException("could not recon registry for groups: "+e.getMessage());
+				}
+			}
+		}
+		
+		logger.info("Reconciliation is done.");
+	}
+
 	public void deprovision(RegistryEntity registry, String executor) throws RegisterException {
 		
 		if (! RegistryStatus.DELETED.equals(registry.getRegistryStatus())) {

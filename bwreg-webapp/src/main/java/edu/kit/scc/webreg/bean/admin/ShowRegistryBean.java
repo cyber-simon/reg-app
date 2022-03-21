@@ -20,10 +20,12 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;
 import edu.kit.scc.webreg.session.SessionManager;
+import edu.kit.scc.webreg.util.FacesMessageGenerator;
 import edu.kit.scc.webreg.util.ViewIds;
 
 @Named
@@ -43,6 +45,9 @@ public class ShowRegistryBean implements Serializable {
 	
 	@Inject
 	private SessionManager sessionManager;
+	
+	@Inject
+	private FacesMessageGenerator messageGenerator;
 	
 	private RegistryEntity registry;
 
@@ -75,6 +80,18 @@ public class ShowRegistryBean implements Serializable {
 		}
 		
 		return ViewIds.SHOW_USER + "?id=" + userId + "&faces-redirect=true";
+	}
+	
+	public void startReconForRegistry(Boolean fullRecon, Boolean withGroups) {
+		try {
+			logger.info("Reconciling registry {}", registry.getId());
+			ServiceEntity serviceEntity = registry.getService();
+			registerUserService.completeReconciliationForRegistry(serviceEntity, registry, fullRecon, withGroups, "identity-" + sessionManager.getIdentityId());
+			messageGenerator.addInfoMessage("Recon finished", "Reconciliation was successful!");
+		} catch (RegisterException e) {
+			logger.warn("Could not reconcile registry", e);
+			messageGenerator.addErrorMessage("Recon finished", "ERROR: Reconciliation problem!");
+		}
 	}
 	
 	public Long getId() {

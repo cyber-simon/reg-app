@@ -144,6 +144,12 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	}
 
 	@Override
+	public void completeReconciliationForRegistry(ServiceEntity service, RegistryEntity registry, Boolean fullRecon, Boolean withGroups, 
+			String executor) throws RegisterException  {
+		registrator.completeReconciliationForRegistry(service, registry, fullRecon, withGroups, executor);
+	}
+
+	@Override
 	public void deprovision(RegistryEntity registry, String executor) throws RegisterException {
 		registrator.deprovision(registry, executor);
 	}
