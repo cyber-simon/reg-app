@@ -864,7 +864,7 @@ public class Registrator implements Serializable {
 	public void completeReconciliationForRegistry(ServiceEntity service, RegistryEntity registry, Boolean fullRecon, Boolean withGroups,
 			String executor) throws RegisterException  {
 		
-		logger.info("Recon registry {}", registry.getId());
+		logger.info("Recon registry {} with fullRecon={} and withGroups={}", registry.getId(), fullRecon, withGroups);
 		try {
 			reconsiliation(registry, fullRecon, executor);
 		} catch (RegisterException e) {

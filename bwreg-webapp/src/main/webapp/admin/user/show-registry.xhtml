@@ -97,6 +97,14 @@
 		<br/>
 		<div id="panelInline">
 			<p:panel header="#{messages.tools}">
+				<div style="margin-bottom:10px;">
+			        <p:commandButton id="recon3" action="#{showRegistryBean.startReconForRegistry(false, false)}" value="#{messages.reconsiliation}"
+			        	ajax="false"/>					
+			        <p:commandButton id="recon4" action="#{showRegistryBean.startReconForRegistry(true, false)}" value="#{messages.full_reconsiliation}"
+			        	ajax="false"/>					
+			        <p:commandButton id="recon5" action="#{showRegistryBean.startReconForRegistry(true, true)}" value="#{messages.full_reconsiliation_with_groups}"
+			        	ajax="false"/>	
+				</div>
 		        <p:commandButton id="recon1" action="#{showRegistryBean.deregister()}" value="#{messages.deregister}"
 		        	ajax="false" style="color: red;"/>					
 		        <p:commandButton id="recon2" action="#{showRegistryBean.purgeRegistry()}" value="#{messages.purge_registry}"
