@@ -388,8 +388,8 @@ public class Registrator implements Serializable {
 							groupFlagDao.delete(flag);
 							// also recon registries here
 							if (reconRegistries) {
-								if (! (group instanceof HomeOrgGroupEntity)) {
-									for (UserGroupEntity user : group.getUsers()) {
+								if (! (serviceBasedGroup instanceof HomeOrgGroupEntity)) {
+									for (UserGroupEntity user : serviceBasedGroup.getUsers()) {
 										RegistryEntity registry = registryDao.findByServiceAndUserAndStatus(flag.getService(), user.getUser(), RegistryStatus.ACTIVE);
 										if (registry != null) {
 											reconsiliation(registry, fullRecon, executor);
