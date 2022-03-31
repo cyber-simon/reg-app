@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.service.reg.ldap;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -210,6 +211,8 @@ public class LdapWorker {
 						try {
 							ldap.modifyAttributes(dn, AttributeModification.ADD, 
 									AttributesFactory.createAttributes("member", member));
+							ldap.modifyAttributes(member, AttributeModification.ADD, 
+									AttributesFactory.createAttributes("memberOf", dn));
 							auditor.logAction(cn, "ADD LDAP GROUP MEMBER", member, "Added member on " + ldap.getLdapConfig().getLdapUrl(), AuditStatus.SUCCESS);
 						} catch (NamingException e) {
 							logger.info("Ldap problem: {}", e.getMessage());
@@ -222,6 +225,8 @@ public class LdapWorker {
 						try {
 							ldap.modifyAttributes(dn, AttributeModification.REMOVE, 
 									AttributesFactory.createAttributes("member", member));
+							ldap.modifyAttributes(member, AttributeModification.REMOVE, 
+									AttributesFactory.createAttributes("memberOf", dn));
 							auditor.logAction(cn, "REMOVE LDAP GROUP MEMBER", member, "Removed member on " + ldap.getLdapConfig().getLdapUrl(), AuditStatus.SUCCESS);
 						} catch (NamingException e) {
 							logger.info("Ldap problem: {}", e.getMessage());
