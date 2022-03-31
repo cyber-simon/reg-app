@@ -174,14 +174,20 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 			/*
 			 * there is no configured service for this SAML SP. This is not supported at the moment
 			 */
-			throw new SamlAuthenticationException("No Service configured for this SAML SP");
+			throw new SamlAuthenticationException("Nothiing configured for this SAML SP");
 		}
 		
 		List<ServiceSamlSpEntity> filteredServiceSamlSpEntityList = new ArrayList<ServiceSamlSpEntity>();
 		RegistryEntity registry = null;
 		for (ServiceSamlSpEntity serviceSamlSpEntity : serviceSamlSpEntityList) {
 			ServiceEntity service = serviceSamlSpEntity.getService();
-			logger.debug("Service for SP found: {}", service.getId());
+			
+			if (service == null) {
+				logger.debug("No Service for SP connected for {}", serviceSamlSpEntity.getId());
+			}
+			else {
+				logger.debug("Service for SP found: {}, (serviceSamlSpEntity id {})", service.getId(), serviceSamlSpEntity.getId());
+			}
 
 			if (serviceSamlSpEntity.getIdp() != null && 
 					(! serviceSamlSpEntity.getIdp().getId().equals(idpConfig.getId()))) {
@@ -193,54 +199,64 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 				 * evaluate all the scripts and create the user attributes
 				 */
 				if (matchService(serviceSamlSpEntity.getScript(), user, serviceSamlSpEntity)) {
-					logger.debug("SP matches: {}", service.getId());
+					logger.debug("serviceSamlSpEntity matches: {}", serviceSamlSpEntity.getId());
 					
-					registry = registryDao.findByServiceAndIdentityAndStatus(service, identity, RegistryStatus.ACTIVE);
-					if (registry != null) {
-						List<Object> objectList = checkRules(user, service, registry);
-						List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
-						List<UnauthorizedUser> unauthorizedUserList = extractUnauthorizedUser(objectList);
-						
-						if (overrideAccessList.size() == 0 && unauthorizedUserList.size() > 0) {
-							return "/user/check-access.xhtml?regId=" + registry.getId();
-						}
-
-						filteredServiceSamlSpEntityList.add(serviceSamlSpEntity);
-					}
-					else {
-						registry = registryDao.findByServiceAndIdentityAndStatus(service, identity, RegistryStatus.LOST_ACCESS);
-						
+					if (service != null) {
+						registry = registryDao.findByServiceAndIdentityAndStatus(service, identity, RegistryStatus.ACTIVE);
 						if (registry != null) {
-							logger.info("Registration for user {} and service {} in state LOST_ACCESS, checking again", 
-									user.getEppn(), service.getName());
 							List<Object> objectList = checkRules(user, service, registry);
 							List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
 							List<UnauthorizedUser> unauthorizedUserList = extractUnauthorizedUser(objectList);
 							
 							if (overrideAccessList.size() == 0 && unauthorizedUserList.size() > 0) {
-								logger.info("Registration for user {} and service {} in state LOST_ACCESS stays, redirecting to check page", 
-										user.getEppn(), service.getName());
 								return "/user/check-access.xhtml?regId=" + registry.getId();
 							}
 
 							filteredServiceSamlSpEntityList.add(serviceSamlSpEntity);
 						}
 						else {
-							logger.info("No active registration for user {} and service {}, redirecting to register page", 
-									user.getEppn(), service.getName());
-							return "/user/register-service.xhtml?serviceId=" + service.getId();
+							registry = registryDao.findByServiceAndIdentityAndStatus(service, identity, RegistryStatus.LOST_ACCESS);
+							
+							if (registry != null) {
+								logger.info("Registration for user {} and service {} in state LOST_ACCESS, checking again", 
+										user.getEppn(), service.getName());
+								List<Object> objectList = checkRules(user, service, registry);
+								List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
+								List<UnauthorizedUser> unauthorizedUserList = extractUnauthorizedUser(objectList);
+								
+								if (overrideAccessList.size() == 0 && unauthorizedUserList.size() > 0) {
+									logger.info("Registration for user {} and service {} in state LOST_ACCESS stays, redirecting to check page", 
+											user.getEppn(), service.getName());
+									return "/user/check-access.xhtml?regId=" + registry.getId();
+								}
+
+								filteredServiceSamlSpEntityList.add(serviceSamlSpEntity);
+							}
+							else {
+								logger.info("No active registration for user {} and service {}, redirecting to register page", 
+										user.getEppn(), service.getName());
+								return "/user/register-service.xhtml?serviceId=" + service.getId();
+							}
 						}
+					}
+					else {
+						/*
+						 * There is no service set for this sp idp connection
+						 */
+						filteredServiceSamlSpEntityList.add(serviceSamlSpEntity);
 					}
 				}
 				else {
-					logger.debug("SP no match: {}", service.getId());				
+					logger.debug("serviceSamlSpEntity no match: {}", serviceSamlSpEntity.getId());				
 				}				
 			}
 			
 		}
 		
-		// Redefine user to match registry
-		user = registry.getUser();
+		if (registry != null) {
+			// Redefine user to match registry
+			user = registry.getUser();
+		}
 		
 		Response samlResponse = ssoHelper.buildAuthnResponse(authnRequest, idpConfig.getEntityId());
 		
@@ -251,7 +267,7 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 		assertion.setSubject(ssoHelper.buildSubject(idpConfig, spMetadata, samlHelper.getRandomId(), NameID.TRANSIENT, authnRequest.getID(), authnRequest.getAssertionConsumerServiceURL()));
 		assertion.setConditions(ssoHelper.buildConditions(spMetadata));
 		assertion.getAttributeStatements().add(buildAttributeStatement(user, filteredServiceSamlSpEntityList, registry));
-		assertion.getAuthnStatements().add(ssoHelper.buildAuthnStatement((5L * 60L * 1000L)));
+		assertion.getAuthnStatements().add(ssoHelper.buildAuthnStatement((30L * 60L * 1000L)));
 		
 		SecurityParametersContext securityContext = buildSecurityContext(idpConfig);
 		HTTPPostEncoder postEncoder = new HTTPPostEncoder();
