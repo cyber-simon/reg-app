@@ -49,6 +49,15 @@ public class SshPubKeyDtoServiceImpl extends BaseDtoServiceImpl<SshPubKeyEntity,
 		return convertList(list);
 	}	
 	
+	@Override
+	public List<SshPubKeyEntityDto> findByUidNumberAndExpiryInDays(Long uidNumber, Integer days) throws RestInterfaceException {
+		UserEntity user = userDao.findByUidNumber(uidNumber);
+		
+		List<SshPubKeyEntity> list = dao.findByIdentityAndExpiryInDays(user.getIdentity().getId(), days);
+		
+		return convertList(list);
+	}
+
 	protected List<SshPubKeyEntityDto> convertList(List<SshPubKeyEntity> list) {
 		List<SshPubKeyEntityDto> dtoList = new ArrayList<SshPubKeyEntityDto>(list.size());
 		

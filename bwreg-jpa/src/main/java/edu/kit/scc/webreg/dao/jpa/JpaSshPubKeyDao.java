@@ -12,6 +12,7 @@ package edu.kit.scc.webreg.dao.jpa;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -66,6 +67,20 @@ public class JpaSshPubKeyDao extends JpaBaseDao<SshPubKeyEntity> implements SshP
 		return em.createQuery("select e from SshPubKeyEntity e where e.identity.id = :userId and e.encodedKey = :encodedKey")
 				.setParameter("identityId", identityId)
 				.setParameter("encodedKey", encodedKey)
+				.getResultList();	
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<SshPubKeyEntity> findByIdentityAndExpiryInDays(Long identityId, Integer days) {
+		Date currentDate = new Date();
+        Calendar c = Calendar.getInstance();
+        c.setTime(currentDate);
+        c.add(Calendar.DATE, days);
+        Date expiryDatePlusN = c.getTime();
+		return em.createQuery("select e from SshPubKeyEntity e where e.identity.id = :identityId and e.expiresAt < :expiryDatePlusN")
+				.setParameter("identityId", identityId)
+				.setParameter("expiryDatePlusN", expiryDatePlusN)
 				.getResultList();	
 	}
 
