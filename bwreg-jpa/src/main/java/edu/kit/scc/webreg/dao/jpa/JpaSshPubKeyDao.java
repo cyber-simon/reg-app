@@ -64,7 +64,7 @@ public class JpaSshPubKeyDao extends JpaBaseDao<SshPubKeyEntity> implements SshP
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<SshPubKeyEntity> findByIdentityAndKey(Long identityId, String encodedKey) {
-		return em.createQuery("select e from SshPubKeyEntity e where e.identity.id = :userId and e.encodedKey = :encodedKey")
+		return em.createQuery("select e from SshPubKeyEntity e where e.identity.id = :identityId and e.encodedKey = :encodedKey")
 				.setParameter("identityId", identityId)
 				.setParameter("encodedKey", encodedKey)
 				.getResultList();	
