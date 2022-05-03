@@ -86,6 +86,19 @@ public class JpaSshPubKeyDao extends JpaBaseDao<SshPubKeyEntity> implements SshP
 
 	@Override
 	@SuppressWarnings("unchecked")
+	public List<SshPubKeyEntity> findByExpiryInDays(Integer days) {
+		Date currentDate = new Date();
+        Calendar c = Calendar.getInstance();
+        c.setTime(currentDate);
+        c.add(Calendar.DATE, days);
+        Date expiryDatePlusN = c.getTime();
+		return em.createQuery("select e from SshPubKeyEntity e where e.expiresAt < :expiryDatePlusN")
+				.setParameter("expiryDatePlusN", expiryDatePlusN)
+				.getResultList();	
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
 	public List<SshPubKeyEntity> findByKey(String encodedKey) {
 		return em.createQuery("select e from SshPubKeyEntity e where e.encodedKey = :encodedKey")
 				.setParameter("encodedKey", encodedKey)

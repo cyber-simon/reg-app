@@ -59,11 +59,20 @@ public class SshKeyController {
 	@Path(value = "/list/uidnumber/{uidNumber}/keys-expiring-soon/{days}")
 	@Produces({MediaType.APPLICATION_JSON})
 	@GET
-	// example: https://..../rest/ssh-key/list/uidnumber/900001/keys-expiring-soon/30
+	// example: https://..../rest/ssh-key/list/uidnumber/900001/keys-expiring-soon/30	
 	public List<SshPubKeyEntityDto> listKeysForUserAndExpiryInDays(@PathParam("uidNumber") Long uidNumber,
 			@PathParam("days") Integer days, @Context HttpServletRequest request)
 					throws IOException, RestInterfaceException {
 		return dtoService.findByUidNumberAndExpiryInDays(uidNumber, days);
+	}
+	
+	@Path(value = "/list/keys-expiring-soon/{days}")
+	@Produces({MediaType.APPLICATION_JSON})
+	@GET
+	// example: https://..../rest/ssh-key/list/keys-expiring-soon/30	
+	public List<SshPubKeyEntityDto> listKeysExpiryInDays(@PathParam("days") Integer days, @Context HttpServletRequest request)
+					throws IOException, RestInterfaceException {
+		return dtoService.findByExpiryInDays(days);
 	}
 	
 	@Path(value = "/auth/all/{ssn}/uidnumber/{uidNumber}")
