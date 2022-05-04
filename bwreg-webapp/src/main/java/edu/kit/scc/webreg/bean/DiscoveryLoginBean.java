@@ -45,6 +45,7 @@ import edu.kit.scc.webreg.service.oidc.OidcClientConfigurationService;
 import edu.kit.scc.webreg.service.oidc.OidcOpConfigurationService;
 import edu.kit.scc.webreg.service.oidc.OidcRpConfigurationService;
 import edu.kit.scc.webreg.service.oidc.ServiceOidcClientService;
+import edu.kit.scc.webreg.service.oidc.client.OidcDiscoverySingletonBean;
 import edu.kit.scc.webreg.service.saml.FederationSingletonBean;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.CookieHelper;
@@ -67,6 +68,9 @@ public class DiscoveryLoginBean implements Serializable {
 	
 	@Inject
 	private OidcRpConfigurationService oidcRpService;
+	
+	@Inject
+	private OidcDiscoverySingletonBean oidcDiscoverySingletonBean;
 	
 	@Inject
 	private SessionManager sessionManager;
@@ -276,6 +280,10 @@ public class DiscoveryLoginBean implements Serializable {
 				for (ServiceOidcClientEntity serviceOidcClient : serviceOidcClientList) {
 					if (serviceOidcClient.getScript() != null) {
 						idpList.addAll(federationBean.getFilteredIdpList(serviceOidcClient.getScript()));
+
+						if (appConfig.getConfigValueOrDefault("show_oidc_login", "false").equalsIgnoreCase("true")) {
+							idpList.addAll(oidcDiscoverySingletonBean.getFilteredOpList(serviceOidcClient.getScript()));
+						}			
 					}
 				}
 			}
@@ -292,6 +300,10 @@ public class DiscoveryLoginBean implements Serializable {
 				for (ServiceSamlSpEntity serviceSaml : serviceSamlList) {
 					if (serviceSaml.getScript() != null) {
 						idpList.addAll(federationBean.getFilteredIdpList(serviceSaml.getScript()));
+
+						if (appConfig.getConfigValueOrDefault("show_oidc_login", "false").equalsIgnoreCase("true")) {
+							idpList.addAll(oidcDiscoverySingletonBean.getFilteredOpList(serviceSaml.getScript()));
+						}			
 					}
 				}
 			}
@@ -301,11 +313,12 @@ public class DiscoveryLoginBean implements Serializable {
 				 */
 				getIdpList().clear();
 				getIdpList().addAll(federationBean.getAllIdpList());
+
+				if (appConfig.getConfigValueOrDefault("show_oidc_login", "false").equalsIgnoreCase("true")) {
+					idpList.addAll(oidcRpService.findAll());
+				}			
 			}
 
-			if (appConfig.getConfigValueOrDefault("show_oidc_login", "false").equalsIgnoreCase("true")) {
-				idpList.addAll(oidcRpService.findAll());
-			}			
 		}
 		else {
 			if (selectedFederation instanceof FederationEntity) {
