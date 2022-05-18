@@ -94,6 +94,11 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity> implements User
 	}
 
 	@Override
+	public SamlUserEntity findByPersistent(String spId, String idpId, String persistentId) {
+		return samlUserDao.findByPersistent(spId, idpId, persistentId);
+	}
+	
+	@Override
 	public List<UserEntity> findByIdentity(IdentityEntity identity) {
 		return dao.findByIdentity(identity);
 	}
@@ -111,11 +116,6 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity> implements User
     @Override
 	public List<UserEntity> findGenericStoreKeyWithLimit(String key, Integer limit) {
 		return dao.findGenericStoreKeyWithLimit(key, limit);
-	}
-	
-	@Override
-	public SamlUserEntity findByPersistentWithRoles(String spId, String idpId, String persistentId) {
-		return samlUserDao.findByPersistentWithRoles(spId, idpId, persistentId);
 	}
 
 	@Override

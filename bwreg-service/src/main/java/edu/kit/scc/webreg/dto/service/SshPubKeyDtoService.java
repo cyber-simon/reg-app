@@ -14,4 +14,10 @@ public interface SshPubKeyDtoService extends BaseDtoService<SshPubKeyEntity, Ssh
 	List<SshPubKeyEntityDto> findByUidNumberAndStatus(Long uidNumber, SshPubKeyStatus keyStatus)
 			throws RestInterfaceException;
 
+	List<SshPubKeyEntityDto> findByUidNumberAndExpiryInDays(Long uidNumber, Integer days)
+			throws RestInterfaceException;
+
+	List<SshPubKeyEntityDto> findByExpiryInDays(Integer days)
+			throws RestInterfaceException;
+
 }

@@ -79,7 +79,7 @@ public class BulkUserImportBean implements Serializable {
 	
 	private List<ImportUser> importUserList;
 
-	private ImportUser[] selectedImport;
+	private List<ImportUser> selectedImport;
 	
 	public void fillTable() {
 		importUserList = new ArrayList<ImportUser>();
@@ -107,7 +107,7 @@ public class BulkUserImportBean implements Serializable {
 	public void processSelected() {
 		for (ImportUser importUser : selectedImport) {
 			logger.debug("Processing user {} for import: {}", importUser.getUid(), importUser.getPersistentId());
-			SamlUserEntity userEntity = userService.findByPersistentWithRoles(importUser.getSpEntityId(), 
+			SamlUserEntity userEntity = userService.findByPersistent(importUser.getSpEntityId(), 
 					importUser.getIdpEntityId(), importUser.getPersistentId());
 			
 			SamlSpConfigurationEntity spEntity = spService.findByEntityId(importUser.getSpEntityId());
@@ -188,12 +188,12 @@ public class BulkUserImportBean implements Serializable {
 		this.idpEntityId = idpEntityId;
 	}
 
-	public ImportUser[] getSelectedImport() {
+	public List<ImportUser> getSelectedImport() {
 		return selectedImport;
 	}
 
-	public void setSelectedImport(ImportUser[] selectedImport) {
+	public void setSelectedImport(List<ImportUser> selectedImport) {
 		this.selectedImport = selectedImport;
 	}
-	
+
 }

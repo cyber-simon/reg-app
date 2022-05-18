@@ -53,31 +53,6 @@ public class JpaSamlUserDao extends JpaBaseDao<SamlUserEntity> implements SamlUs
 	}	
 
 	@Override
-	public SamlUserEntity findByPersistentWithRoles(String spId, String idpId, String persistentId) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<SamlUserEntity> criteria = builder.createQuery(SamlUserEntity.class);
-		Root<SamlUserEntity> user = criteria.from(SamlUserEntity.class);
-		criteria.where(builder.and(
-				builder.equal(user.get("persistentSpId"), spId),
-				builder.equal(user.get("persistentIdpId"), idpId),
-				builder.equal(user.get("persistentId"), persistentId)
-				));
-		criteria.select(user);
-		criteria.distinct(true);
-		user.fetch("roles", JoinType.LEFT);
-		user.fetch("groups", JoinType.LEFT);
-		user.fetch("genericStore", JoinType.LEFT);
-		user.fetch("attributeStore", JoinType.LEFT);
-		
-		try {
-			return em.createQuery(criteria).getSingleResult();
-		}
-		catch (NoResultException e) {
-			return null;
-		}			
-	}	
-
-	@Override
 	public SamlUserEntity findByPersistent(String spId, String idpId, String persistentId) {
 		
 		TypedQuery<SamlUserEntity> query = em.createQuery("select u from SamlUserEntity u where u.persistentSpId = :spId and u.idp.entityId = :idpId and "

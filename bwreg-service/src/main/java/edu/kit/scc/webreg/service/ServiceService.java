@@ -36,8 +36,6 @@ public interface ServiceService extends BaseService<ServiceEntity> {
 
 	List<ServiceEntity> findByHotlineRole(RoleEntity role);
 
-	ServiceEntity updateCapabilities(ServiceEntity service);
-
 	List<ServiceEntity> findByGroupAdminRole(RoleEntity role);
 
 	List<ServiceEntity> findByParentService(ServiceEntity service);
