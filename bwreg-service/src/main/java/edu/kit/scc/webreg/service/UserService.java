@@ -28,9 +28,6 @@ import edu.kit.scc.webreg.exc.UserUpdateException;
 
 public interface UserService extends BaseService<UserEntity> {
 
-	SamlUserEntity findByPersistentWithRoles(String spId, String idpId,
-			String persistentId);
-	
 	List<UserEntity> findByEppn(String eppn);
 	
 	UserEntity findByIdWithAll(Long id);
@@ -68,5 +65,7 @@ public interface UserService extends BaseService<UserEntity> {
 
 	SamlUserEntity updateUserFromIdp(SamlUserEntity user, String executor, StringBuffer debugLog)
 			throws UserUpdateException;
+
+	SamlUserEntity findByPersistent(String spId, String idpId, String persistentId);
 
 }
