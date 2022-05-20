@@ -23,7 +23,7 @@
 	<ui:define name="content">
 	<h:form id="form" class="full form">
 
-		<h2><h:outputText value="#{messages.my_projects}"/></h2>
+		<h2><h:outputText value="#{messages['project.my_projects']}"/></h2>
 
 		<p:dataTable id="dataTable" var="p" value="#{userProjectIndexBean.projectList}" paginator="true" rows="15">
 			<p:column sortBy="#{p.project.name}" filterBy="#{p.project.name}">
@@ -41,6 +41,13 @@
 				</p:outputPanel>
 			</p:column>			
 		</p:dataTable>
+		
+		<p:panel>
+		<p:panelGrid columns="2">
+			<p:linkButton href="create-new-project.xhtml" value="#{messages['project.create_new_project_link']}" />
+			<h:outputText value="#{messages['project.create_new_project_link_text']}" />
+		</p:panelGrid>
+		</p:panel>
 		
 		<div class="text full" style="margin-top: 0.4em;">
 			<a href="../index.xhtml"><h:outputText value="#{messages.back}"/></a>
