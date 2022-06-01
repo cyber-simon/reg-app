@@ -58,8 +58,8 @@ public class UserProjectCreateNewBean implements Serializable {
 	}
 
 	public String save() {
-		ProjectEntity project = projectService.save(entity, identity.getId());
-		return "show-local-project.xhtml?id=" + project.getId();
+		entity = localProjectService.save(entity, getIdentity().getId());
+		return "show-local-project.xhtml?id=" + entity.getId();
 	}
 
 	public String cancel() {
