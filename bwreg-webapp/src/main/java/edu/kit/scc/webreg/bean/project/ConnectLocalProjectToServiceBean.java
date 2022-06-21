@@ -47,12 +47,18 @@ public class ConnectLocalProjectToServiceBean implements Serializable {
 	private LocalProjectEntity entity;
 
 	private List<ServiceEntity> serviceList;
+	private List<ServiceEntity> selectedServices;
 	
 	private Long id;
 
 	public void preRenderView(ComponentSystemEvent ev) {
 	}
 
+	public String save() {
+		
+		return "show-local-project.xhtml?id=" + getEntity().getId();
+	}
+	
 	public Long getId() {
 		return id;
 	}
@@ -78,5 +84,13 @@ public class ConnectLocalProjectToServiceBean implements Serializable {
 			serviceList = serviceService.findAllByAttr("projectCapable", Boolean.TRUE);
 		}
 		return serviceList;
+	}
+
+	public List<ServiceEntity> getSelectedServices() {
+		return selectedServices;
+	}
+
+	public void setSelectedServices(List<ServiceEntity> selectedServices) {
+		this.selectedServices = selectedServices;
 	}
 }

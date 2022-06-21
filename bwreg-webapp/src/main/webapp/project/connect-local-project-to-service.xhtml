@@ -34,8 +34,26 @@
 		
 		        <h:outputText value="#{messages.name}:"/>
 		        <h:outputText value="#{connectLocalProjectToServiceBean.entity.name}"/>
-					
+
+		        <h:outputText value="#{messages['project.connect_to_service_list']}:"/>
+		        <p:selectManyMenu id="servicePicker" value="#{connectLocalProjectToServiceBean.selectedServices}"
+                            converter="#{serviceConverter}" style="min-width: 300px;"
+                            var="s" showCheckbox="true">
+					<f:selectItems value="#{connectLocalProjectToServiceBean.serviceList}" var="service" itemLabel="#{service.name}"
+                            itemValue="#{service}"/>
+					<p:column>
+						<h:outputText value="#{s.name}"/>
+					</p:column>       
+		        </p:selectManyMenu>
 			</p:panelGrid>
+		</p:panel>
+
+		<p:panel>
+			<h:outputText value="#{messages['project.connect_to_service_connect_text']}" />
+		</p:panel>
+		
+		<p:panel>
+			<p:commandButton id="save" action="#{connectLocalProjectToServiceBean.save}" value="#{messages['project.connect_to_service_connect_button']}"/>
 		</p:panel>
 
 		<div class="text full" style="margin-top: 0.4em;">

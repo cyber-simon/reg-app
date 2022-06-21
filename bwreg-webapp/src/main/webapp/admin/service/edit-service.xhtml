@@ -145,6 +145,11 @@
 							onLabel="#{messages.yes}" offLabel="#{messages.no}" 
 							value="#{editServiceBean.entity.groupCapable}"/>
 			        
+					<h:outputText value="#{messages.project_capable}" />
+					<p:selectBooleanButton id="projectCapableField" 
+							onLabel="#{messages.yes}" offLabel="#{messages.no}" 
+							value="#{editServiceBean.entity.projectCapable}"/>
+			        
 					<h:outputText value="#{messages.published}" />
 					<p:selectBooleanButton id="pubField" 
 							onLabel="#{messages.yes}" offLabel="#{messages.no}" 
