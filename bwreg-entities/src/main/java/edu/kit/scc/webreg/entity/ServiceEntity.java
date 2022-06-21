@@ -86,6 +86,9 @@ public class ServiceEntity extends AbstractBaseEntity {
 	@Column(name="group_capable")
 	private Boolean groupCapable;
 	
+	@Column(name="project_capable")
+	private Boolean projectCapable;
+	
 	@Column(name="ssh_pub_key_capable")
 	private Boolean sshPubKeyCapable;
 	
@@ -336,6 +339,14 @@ public class ServiceEntity extends AbstractBaseEntity {
 
 	public void setProjectAdminRole(ProjectAdminRoleEntity projectAdminRole) {
 		this.projectAdminRole = projectAdminRole;
+	}
+
+	public Boolean getProjectCapable() {
+		return projectCapable;
+	}
+
+	public void setProjectCapable(Boolean projectCapable) {
+		this.projectCapable = projectCapable;
 	}
 
 }

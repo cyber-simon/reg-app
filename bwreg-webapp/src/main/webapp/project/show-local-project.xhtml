@@ -48,6 +48,15 @@
 			</p:panelGrid>
 		</p:panel>
 
+		<p:panel>
+			<p:panelGrid columns="2">
+				<p:linkButton href="connect-local-project-to-service.xhtml" value="#{messages['project.connect_to_service_link']}">
+					<f:param name="id" value="#{userShowLocalProjectBean.entity.id}"/>
+				</p:linkButton>
+				<h:outputText value="#{messages['project.connect_to_service_link_text']}" />
+			</p:panelGrid>
+		</p:panel>
+
 		<div class="text full" style="margin-top: 0.4em;">
 			<a href="index.xhtml"><h:outputText value="#{messages.back}"/></a>
 		</div>		
