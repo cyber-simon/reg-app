@@ -19,7 +19,10 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
+import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
+import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
+import edu.kit.scc.webreg.exc.NotAuthorizedException;
 import edu.kit.scc.webreg.service.project.LocalProjectService;
 import edu.kit.scc.webreg.service.project.ProjectService;
 import edu.kit.scc.webreg.session.SessionManager;
@@ -44,10 +47,35 @@ public class ProjectAdminEditProjectBean implements Serializable {
 
 	private List<ProjectEntity> parentProjectList;
 	private ProjectEntity selectedParentProject;
+
+	private List<ProjectIdentityAdminEntity> adminList;
+	private ProjectIdentityAdminEntity adminIdentity;
 	
 	private Long projectId;
 	
 	public void preRenderView(ComponentSystemEvent ev) {
+		for (ProjectIdentityAdminEntity a : getAdminList()) {
+			if (a.getIdentity().getId().equals(session.getIdentityId())) {
+				adminIdentity = a;
+				break;
+			}
+		}
+		
+		if (adminIdentity == null) {
+			throw new NotAuthorizedException("Nicht autorisiert");
+		}		
+		else {
+			if (! (ProjectAdminType.ADMIN.equals(adminIdentity.getType()) || ProjectAdminType.OWNER.equals(adminIdentity.getType()))) {
+				throw new NotAuthorizedException("Nicht autorisiert");
+			}
+		}
+	}
+	
+	public List<ProjectIdentityAdminEntity> getAdminList() {
+		if (adminList == null) {
+			adminList = projectService.findAdminsForProject(entity);
+		}
+		return adminList;
 	}
 	
 	public String save() {

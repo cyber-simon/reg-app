@@ -27,6 +27,7 @@ import edu.kit.scc.webreg.entity.project.ProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipType;
 import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
+import edu.kit.scc.webreg.entity.project.ProjectServiceStatusType;
 import edu.kit.scc.webreg.entity.project.ProjectServiceType;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.MultipleGroupEvent;
@@ -124,12 +125,31 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 		}		
 	}
 
-	public void updateServices(ProjectEntity project, Set<ServiceEntity> serviceList, String executor) {
+	public void addOrChangeService(ProjectEntity project, ServiceEntity service, ProjectServiceType type, 
+			ProjectServiceStatusType status, String executor) {
+		ProjectServiceEntity pse = getDao().findByServiceAndProject(service, project);
+		
+		if (pse != null) {
+			logger.info("Found an entry for project {} and service {}, changing", project.getName(), service.getName());
+			pse.setStatus(status);
+			pse.setType(type);
+		}
+		else {
+			pse = getDao().addServiceToProject(project, service, type, status);
+			logger.info("Added new ProjectService connection for project {} and service {}", project.getName(), service.getName());
+		}
+		syncGroupFlags(pse, executor);
+		triggerGroupUpdate(project, executor);
+	}
+		
+	public void updateServices(ProjectEntity project, Set<ServiceEntity> serviceList, ProjectServiceType type, 
+			ProjectServiceStatusType status, String executor) {
 		project = getDao().findById(project.getId());
-		updateServices(project, serviceList, executor, 0, 3);
+		updateServices(project, serviceList, type, status, executor, 0, 3);
 	}
 	
-	private void updateServices(ProjectEntity project, Set<ServiceEntity> serviceList, String executor, int depth, int maxDepth) {
+	private void updateServices(ProjectEntity project, Set<ServiceEntity> serviceList, ProjectServiceType type, 
+			ProjectServiceStatusType status, String executor, int depth, int maxDepth) {
 		if (depth >= maxDepth) {
 			return;
 		}
@@ -160,7 +180,7 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 			}
 
 			for (ServiceEntity newService : newServiceList) {
-				getDao().addServiceToProject(project, newService, ProjectServiceType.PASSIVE_GROUP);
+				getDao().addServiceToProject(project, newService, type, status);
 			}
 		}
 
@@ -178,7 +198,32 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 		triggerGroupUpdate(project, executor);
 		
 		for (ProjectEntity childProject : project.getChildProjects()) {
-			updateServices(childProject, serviceList, executor, depth + 1, maxDepth);
+			updateServices(childProject, serviceList, type, status, executor, depth + 1, maxDepth);
+		}
+	}
+
+	private void syncGroupFlags(ProjectServiceEntity pse, String executor) {
+		List<ServiceGroupFlagEntity> groupFlagList = groupFlagDao.findByGroupAndService(pse.getProject().getProjectGroup(), pse.getService());
+
+		if (groupFlagList.size() > 1) {
+			logger.warn("There are more than one GroupFlag for Project {} and Service {}. There should be only one or zero.", pse.getProject().getName(), pse.getService().getName());
+		}
+		
+		if (pse.getStatus() != ProjectServiceStatusType.ACTIVE) {
+			// PSE is not active, delete all groups, if there are any
+			for (ServiceGroupFlagEntity gf : groupFlagList) {
+				gf.setStatus(ServiceGroupStatus.TO_DELETE);
+			}			
+		}
+		else {
+			// PSE is ACTIVE, create group flags if missing
+			if (groupFlagList.size() == 0) {
+				ServiceGroupFlagEntity groupFlag = groupFlagDao.createNew();
+				groupFlag.setGroup(pse.getProject().getProjectGroup());
+				groupFlag.setService(pse.getService());
+				groupFlag.setStatus(ServiceGroupStatus.DIRTY);
+				groupFlag = groupFlagDao.persist(groupFlag);
+			}
 		}
 	}
 	

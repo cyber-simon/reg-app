@@ -22,9 +22,15 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
+import edu.kit.scc.webreg.entity.project.ProjectAdminType;
+import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
+import edu.kit.scc.webreg.entity.project.ProjectServiceStatusType;
+import edu.kit.scc.webreg.entity.project.ProjectServiceType;
+import edu.kit.scc.webreg.exc.NotAuthorizedException;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.project.LocalProjectService;
 import edu.kit.scc.webreg.service.project.ProjectService;
+import edu.kit.scc.webreg.session.SessionManager;
 
 @Named
 @ViewScoped
@@ -34,6 +40,9 @@ public class ConnectLocalProjectToServiceBean implements Serializable {
 
 	@Inject
 	private Logger logger;
+	
+	@Inject
+	private SessionManager session;
 	
 	@Inject
 	private LocalProjectService service;
@@ -51,11 +60,39 @@ public class ConnectLocalProjectToServiceBean implements Serializable {
 	
 	private Long id;
 
+	private List<ProjectIdentityAdminEntity> adminList;
+	private ProjectIdentityAdminEntity adminIdentity;
+
 	public void preRenderView(ComponentSystemEvent ev) {
+		for (ProjectIdentityAdminEntity a : getAdminList()) {
+			if (a.getIdentity().getId().equals(session.getIdentityId())) {
+				adminIdentity = a;
+				break;
+			}
+		}
+		
+		if (adminIdentity == null) {
+			throw new NotAuthorizedException("Nicht autorisiert");
+		}		
+		else {
+			if (! (ProjectAdminType.ADMIN.equals(adminIdentity.getType()) || ProjectAdminType.OWNER.equals(adminIdentity.getType()))) {
+				throw new NotAuthorizedException("Nicht autorisiert");
+			}
+		}
+	}
+
+	public List<ProjectIdentityAdminEntity> getAdminList() {
+		if (adminList == null) {
+			adminList = projectService.findAdminsForProject(entity);
+		}
+		return adminList;
 	}
 
 	public String save() {
-		
+		for (ServiceEntity s : selectedServices) {
+			projectService.addOrChangeService(entity, s, ProjectServiceType.PASSIVE_GROUP, 
+					ProjectServiceStatusType.APPROVAL_PENDING, "idty-" + session.getIdentityId());
+		}
 		return "show-local-project.xhtml?id=" + getEntity().getId();
 	}
 	
