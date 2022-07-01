@@ -45,6 +45,12 @@
 						<h:outputText value="#{s.name}"/>
 					</p:column>       
 		        </p:selectManyMenu>
+		        
+		        <h:outputText value="#{messages.services}:"/>
+		        <p:repeat value="#{connectLocalProjectToServiceBean.entity.projectServices}" var="s">
+		        	<div><h:outputText value="#{s.service.name} (#{s.status})"/></div>
+				</p:repeat>
+						        
 			</p:panelGrid>
 		</p:panel>
 
@@ -53,7 +59,7 @@
 		</p:panel>
 		
 		<p:panel>
-			<p:commandButton id="save" action="#{connectLocalProjectToServiceBean.save}" value="#{messages['project.connect_to_service_connect_button']}"/>
+			<p:commandButton id="save" action="#{connectLocalProjectToServiceBean.save}" value="#{messages['project.connect_to_service_connect_button']}" />
 		</p:panel>
 
 		<div class="text full" style="margin-top: 0.4em;">

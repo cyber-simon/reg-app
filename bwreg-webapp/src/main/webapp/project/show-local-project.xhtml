@@ -61,6 +61,51 @@
 			<a href="index.xhtml"><h:outputText value="#{messages.back}"/></a>
 		</div>		
 
+		<h5 style="margin-top: 1em;"><h:outputText value="#{messages['project.members']}" /></h5>
+		<p:dataTable id="dataTableMember" var="member" value="#{userShowLocalProjectBean.memberList}" paginator="true"
+					rows="15">
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.id}" />
+				</f:facet>
+				<h:outputText value="#{member.identity.id}" />
+			</p:column>			
+			<p:column sortBy="#{member.identity.prefUser.eppn}" filterBy="#{member.identity.prefUser.eppn}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.name}" />
+				</f:facet>
+				<h:outputText value="#{member.identity.prefUser.eppn}" />
+			</p:column>			
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.type}" />
+				</f:facet>
+				<h:outputText value="#{member.membershipType}" />
+			</p:column>			
+		</p:dataTable>	
+		
+		<h5 style="margin-top: 1em;"><h:outputText value="#{messages['project.admins']}" /></h5>
+		<p:dataTable id="dataTableAdmin" var="admin" value="#{userShowLocalProjectBean.adminList}" paginator="true"
+					rows="15">
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.id}" />
+				</f:facet>
+				<h:outputText value="#{admin.identity.id}" />
+			</p:column>			
+			<p:column sortBy="#{admin.identity.prefUser.eppn}" filterBy="#{admin.identity.prefUser.eppn}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.name}" />
+				</f:facet>
+				<h:outputText value="#{admin.identity.prefUser.eppn}" />
+			</p:column>			
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.type}" />
+				</f:facet>
+				<h:outputText value="#{admin.type}" />
+			</p:column>			
+		</p:dataTable>	
 	</h:form>
 
 	</ui:define>

@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.bean.project;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.faces.event.ComponentSystemEvent;
@@ -24,6 +25,7 @@ import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
+import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
 import edu.kit.scc.webreg.entity.project.ProjectServiceStatusType;
 import edu.kit.scc.webreg.entity.project.ProjectServiceType;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
@@ -57,6 +59,7 @@ public class ConnectLocalProjectToServiceBean implements Serializable {
 
 	private List<ServiceEntity> serviceList;
 	private List<ServiceEntity> selectedServices;
+	private List<ProjectServiceEntity> projectServiceList;
 	
 	private Long id;
 
@@ -64,6 +67,8 @@ public class ConnectLocalProjectToServiceBean implements Serializable {
 	private ProjectIdentityAdminEntity adminIdentity;
 
 	public void preRenderView(ComponentSystemEvent ev) {
+		selectedServices = new ArrayList<ServiceEntity>();
+		
 		for (ProjectIdentityAdminEntity a : getAdminList()) {
 			if (a.getIdentity().getId().equals(session.getIdentityId())) {
 				adminIdentity = a;
@@ -83,7 +88,7 @@ public class ConnectLocalProjectToServiceBean implements Serializable {
 
 	public List<ProjectIdentityAdminEntity> getAdminList() {
 		if (adminList == null) {
-			adminList = projectService.findAdminsForProject(entity);
+			adminList = projectService.findAdminsForProject(getEntity());
 		}
 		return adminList;
 	}
@@ -93,7 +98,7 @@ public class ConnectLocalProjectToServiceBean implements Serializable {
 			projectService.addOrChangeService(entity, s, ProjectServiceType.PASSIVE_GROUP, 
 					ProjectServiceStatusType.APPROVAL_PENDING, "idty-" + session.getIdentityId());
 		}
-		return "show-local-project.xhtml?id=" + getEntity().getId();
+		return "show-local-project.xhtml?faces-redirect=true&id=" + getEntity().getId();
 	}
 	
 	public Long getId() {
@@ -119,6 +124,9 @@ public class ConnectLocalProjectToServiceBean implements Serializable {
 	public List<ServiceEntity> getServiceList() {
 		if (serviceList == null) {
 			serviceList = serviceService.findAllByAttr("projectCapable", Boolean.TRUE);
+			for (ProjectServiceEntity pse : getProjectServiceList()) {
+				serviceList.remove(pse.getService());
+			}
 		}
 		return serviceList;
 	}
@@ -129,5 +137,16 @@ public class ConnectLocalProjectToServiceBean implements Serializable {
 
 	public void setSelectedServices(List<ServiceEntity> selectedServices) {
 		this.selectedServices = selectedServices;
+	}
+
+	public List<ProjectServiceEntity> getProjectServiceList() {
+		if (projectServiceList == null) {
+			projectServiceList = projectService.findServicesForProject(entity);
+		}
+		return projectServiceList;
+	}
+
+	public void setProjectServiceList(List<ProjectServiceEntity> projectServiceList) {
+		this.projectServiceList = projectServiceList;
 	}
 }
