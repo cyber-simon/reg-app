@@ -51,6 +51,10 @@ public class IdentityCreater implements Serializable {
 			logger.debug("No local generated username for identity {}. Generating one...", user.getIdentity());
 			String generatedName = RandomStringUtils.randomAlphabetic(3).toLowerCase() + RandomStringUtils.randomNumeric(4);
 			logger.debug("Generated username for identity {}: {}", user.getIdentity(), generatedName);
+			while (dao.findByAttr("generatedLocalUsername", generatedName) != null) {
+				generatedName = RandomStringUtils.randomAlphabetic(3).toLowerCase() + RandomStringUtils.randomNumeric(4);
+				logger.debug("Generated username is already taken. Try again for identity {}: {}", user.getIdentity(), generatedName);
+			}
 			user.getIdentity().setGeneratedLocalUsername(generatedName);
 		}
 	}
