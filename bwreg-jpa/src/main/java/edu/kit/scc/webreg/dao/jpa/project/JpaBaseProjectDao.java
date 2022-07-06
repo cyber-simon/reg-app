@@ -36,8 +36,8 @@ public abstract class JpaBaseProjectDao<T extends ProjectEntity> extends JpaBase
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ProjectEntity> findAllByService(ServiceEntity service) {
-		return em.createQuery("select r.project from ProjectEntity r where r.service = :service order by r.project.name")
+	public List<ProjectServiceEntity> findAllByService(ServiceEntity service) {
+		return em.createQuery("select r from ProjectServiceEntity r where r.service = :service order by r.project.name")
 				.setParameter("service", service).getResultList();
 	}
 	

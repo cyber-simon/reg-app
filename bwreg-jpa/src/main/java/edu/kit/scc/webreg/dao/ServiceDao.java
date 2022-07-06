@@ -44,4 +44,6 @@ public interface ServiceDao extends BaseDao<ServiceEntity> {
 
 	List<ServiceEntity> findBySshPubKeyApproverRole(RoleEntity role);
 
+	List<ServiceEntity> findByProjectAdminRole(RoleEntity role);
+
 }

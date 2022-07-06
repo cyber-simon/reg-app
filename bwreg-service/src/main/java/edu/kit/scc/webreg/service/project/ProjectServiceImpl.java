@@ -69,6 +69,11 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity> implement
 	}
 
 	@Override
+	public List<ProjectServiceEntity> findAllByService(ServiceEntity service) {
+		return dao.findAllByService(service);
+	}
+
+	@Override
 	public List<ProjectIdentityAdminEntity> findAdminByUserId(Long identityId) {
 		IdentityEntity identity = identityDao.findById(identityId);
 		return dao.findAdminByIdentity(identity);

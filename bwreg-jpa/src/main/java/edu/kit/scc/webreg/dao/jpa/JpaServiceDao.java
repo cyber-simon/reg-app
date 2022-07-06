@@ -97,6 +97,13 @@ public class JpaServiceDao extends JpaBaseDao<ServiceEntity> implements ServiceD
 
 	@Override
     @SuppressWarnings({"unchecked"})
+	public List<ServiceEntity> findByProjectAdminRole(RoleEntity role) {
+		return em.createQuery("select e from ServiceEntity e where e.projectAdminRole = :role")
+				.setParameter("role", role).getResultList();
+	}
+
+	@Override
+    @SuppressWarnings({"unchecked"})
 	public List<ServiceEntity> findByGroupCapability(Boolean capable) {
 		return em.createQuery("select e from ServiceEntity e where e.groupCapable = :capable")
 				.setParameter("capable", capable).getResultList();

@@ -30,6 +30,7 @@ import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.SshPubKeyApproverRoleEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+import edu.kit.scc.webreg.entity.project.ProjectAdminRoleEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.service.AuthorizationService;
 import edu.kit.scc.webreg.service.GroupService;
@@ -163,6 +164,10 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 		    		else if (role instanceof GroupAdminRoleEntity) {
 		    			for (ServiceEntity s : serviceDao.findByGroupAdminRole(role))
 		    				sessionManager.getServiceGroupAdminList().add(s);
+		    		}
+		    		else if (role instanceof ProjectAdminRoleEntity) {
+		    			for (ServiceEntity s : serviceDao.findByProjectAdminRole(role))
+		    				sessionManager.getServiceProjectAdminList().add(s);
 		    		}
 		    	}
 	    	}

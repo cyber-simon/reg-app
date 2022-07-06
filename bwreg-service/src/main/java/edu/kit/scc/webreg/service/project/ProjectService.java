@@ -49,4 +49,5 @@ public interface ProjectService extends BaseService<ProjectEntity> {
 			ProjectServiceStatusType status, String executor);
 	void addOrChangeService(ProjectEntity project, ServiceEntity service, ProjectServiceType type,
 			ProjectServiceStatusType status, String executor);
+	List<ProjectServiceEntity> findAllByService(ServiceEntity service);
 }

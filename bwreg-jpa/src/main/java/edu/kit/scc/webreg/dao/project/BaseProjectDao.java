@@ -27,7 +27,7 @@ import edu.kit.scc.webreg.entity.project.ProjectServiceType;
 
 public interface BaseProjectDao<T extends ProjectEntity> extends BaseDao<T> {
 
-	List<ProjectEntity> findAllByService(ServiceEntity service);
+	List<ProjectServiceEntity> findAllByService(ServiceEntity service);
 
 	List<T> findByService(ServiceEntity service);
 
