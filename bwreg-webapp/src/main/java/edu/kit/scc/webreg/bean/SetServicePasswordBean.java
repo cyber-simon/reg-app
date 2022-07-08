@@ -10,16 +10,6 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.bean;
 
-import java.io.IOException;
-import java.io.Serializable;
-
-import javax.inject.Named;
-import javax.faces.view.ViewScoped;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ComponentSystemEvent;
-import javax.inject.Inject;
-
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
@@ -34,8 +24,17 @@ import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;
 import edu.kit.scc.webreg.service.reg.RegisterUserWorkflow;
 import edu.kit.scc.webreg.service.reg.SetPasswordCapable;
+import edu.kit.scc.webreg.service.reg.ldap.PropertyReader;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
+import java.io.IOException;
+import java.io.Serializable;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.faces.event.ComponentSystemEvent;
+import javax.faces.view.ViewScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
 
 @Named
 @ViewScoped
@@ -71,8 +70,10 @@ public class SetServicePasswordBean implements Serializable {
 	
 	private Long id;
 	private String serviceShortName;
-	private String navOptions; 
-	
+	private String navOptions;
+	private String deletePasswordBtnDisplay = "inline";
+	private String deletePasswordBtnUpdate = "messageBox,baseData";
+
 	private String password1, password2;
 	
 	private Boolean initialized = false;
@@ -107,6 +108,19 @@ public class SetServicePasswordBean implements Serializable {
 				throw new IllegalArgumentException("Not authorized for this service");
 
 			serviceEntity = serviceService.findByIdWithServiceProps(serviceEntity.getId());
+			try {
+				PropertyReader prop = PropertyReader.newRegisterPropReader(serviceEntity);
+				if ("true".equalsIgnoreCase(prop.readPropOrNull("hide_delete_password_btn"))) {
+					deletePasswordBtnDisplay = "none";
+					deletePasswordBtnUpdate = "";
+				} else {
+					deletePasswordBtnDisplay = "inline";
+					deletePasswordBtnUpdate = "messageBox,baseData";
+				}
+			} catch (RegisterException e) {
+				deletePasswordBtnDisplay = "inline";
+				deletePasswordBtnUpdate = "messageBox,baseData";
+			}
 			
 			password1 = null;
 			password2 = null;
@@ -158,6 +172,11 @@ public class SetServicePasswordBean implements Serializable {
 	}
 	
 	public String deleteServicePassword() {
+		if ("none".equals(deletePasswordBtnDisplay)){
+			// diasble the button functionality as it is hidden
+			return null;
+		}
+
 		if (! (RegistryStatus.ACTIVE.equals(registryEntity.getRegistryStatus()) || 
 				RegistryStatus.LOST_ACCESS.equals(registryEntity.getRegistryStatus()))) {
 			messageGenerator.addResolvedErrorMessage("pw_error", "error", "service_password_cannot_be_deleted", true);
@@ -221,5 +240,21 @@ public class SetServicePasswordBean implements Serializable {
 
 	public void setNavOptions(String navOptions) {
 		this.navOptions = navOptions;
+	}
+
+	public String getDeletePasswordBtnDisplay() {
+		return deletePasswordBtnDisplay;
+	}
+
+	public void setDeletePasswordBtnDisplay(String deletePasswordBtnDisplay) {
+		this.deletePasswordBtnDisplay = deletePasswordBtnDisplay;
+	}
+
+	public String getDeletePasswordBtnUpdate() {
+		return deletePasswordBtnUpdate;
+	}
+
+	public void setDeletePasswordBtnUpdate(String deletePasswordBtnUpdate) {
+		this.deletePasswordBtnUpdate = deletePasswordBtnUpdate;
 	}
 }
