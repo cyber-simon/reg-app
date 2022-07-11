@@ -6,6 +6,7 @@
 package edu.kit.scc.webreg.service.ssh;
 
 import edu.kit.scc.webreg.audit.Auditor;
+import edu.kit.scc.webreg.entity.audit.AuditStatus;
 import edu.kit.scc.webreg.exc.PropertyReaderException;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.service.reg.ldap.LdapWorker;
@@ -22,22 +23,17 @@ import org.slf4j.LoggerFactory;
  */
 public class SshWorker {
 
-    private static Logger logger = LoggerFactory.getLogger(LdapWorker.class);
+    private static final Logger logger = LoggerFactory.getLogger(LdapWorker.class);
     private Auditor auditor;
 
     // sending commands/passwords to ssh host's input
     private String sshHost; // host to connect to (required)
     private String sshUser; // user to connect to the host as (required)
-    /*
-    private String sshInput; // the input to send to the host's stream (required)
-    private String ssh_input_username;
-    private String ssh_input_password;
-     */
     private String sshKeyFilepath; // file path to the private ssh key (optional)
     private String sshKeyPassword; // password for the private key (optional)
     private String sshKnownHosts; // filepath to the known hosts file (optional)
 
-    SshWorker(PropertyReader prop, Auditor auditor) throws RegisterException {
+    public SshWorker(PropertyReader prop, Auditor auditor) throws RegisterException {
         this.auditor = auditor;
         try {
             sshHost = prop.readProp("ssh_host");
@@ -50,8 +46,13 @@ public class SshWorker {
         }
     }
 
-    public void setPassword(String uid, String password) throws RegisterException {
-        // send "{ username: uid, password: password }" to STDIN of sshHost
+	/**
+	 * Stream "{ username: uid, password: password }" to STDIN of sshHost
+	 * @param uid User name
+	 * @param password
+	 * @throws RegisterException
+	 */
+	public void setPassword(String uid, String password) throws RegisterException {
         try {
             String response = new SshConnector().setPassword(uid, password, sshHost, sshUser,
                     sshKeyFilepath, sshKeyPassword, sshKnownHosts);
@@ -60,13 +61,45 @@ public class SshWorker {
 					throw new IOException(response);
 				}
 				logger.info("Sending password to host response: {}", response);
+				auditor.logAction("", "SET PASSWORD SSH USER", uid,
+						"Set password succesful for user " + uid + " on host " + sshHost,
+						AuditStatus.SUCCESS);
 			}
         } catch (IOException e) {
 			logger.error("IOExcetion happened in SSH Session", e);
 			String message = "FAILED: Sending password over SSH to " + sshHost
 				+ " as " + sshUser + " for user " + uid + ": " + e.getMessage();
-//            auditor.logAction("", "SEND PASSWORD USER", uid, "Send user password failed",
-//                    AuditStatus.FAIL);
+            auditor.logAction("", "SEND PASSWORD USER", uid, "Send user password failed",
+                    AuditStatus.FAIL);
+            throw new RegisterException(message);
+        }
+    }
+
+	/**
+	 * Stream arbitrary input to STDIN of a SSH host.
+	 *
+	 * @param input String to stream to host.
+	 * @throws RegisterException
+	 */
+	public void sendInput(String input) throws RegisterException {
+        try {
+            String response = new SshConnector().sendInput(input, sshHost, sshUser,
+                    sshKeyFilepath, sshKeyPassword, sshKnownHosts);
+			if (!response.isBlank()) {
+				if (response.contains("[STDERR]")) {
+					throw new IOException(response);
+				}
+				logger.info("Sending input to host response: {}", response);
+				auditor.logAction("", "SEND SSH INPUT", input,
+						"Input " + input + " send successfully to host "  + sshHost,
+						AuditStatus.SUCCESS);
+			}
+        } catch (IOException e) {
+			logger.error("IOExcetion happened in SSH Session", e);
+			String message = "FAILED: Sending input " + input + " to " + sshHost
+				+ " as " + sshUser + ": " + e.getMessage();
+            auditor.logAction("", "SEND SSH INPUT", input, "Sendind input failed",
+                    AuditStatus.FAIL);
             throw new RegisterException(message);
         }
     }
