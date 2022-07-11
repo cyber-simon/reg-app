@@ -509,7 +509,7 @@ public class LdapWorker {
 		return pwList;
 	}
 
-	public void setPassword(String uid, String password) {
+	public void setPassword(String uid, String password) throws RegisterException {
 		for (Ldap ldap : connectionManager.getConnections()) {
 			try {
 				String ldapDn = "uid=" + uid + "," + ldapUserBase;
@@ -521,11 +521,12 @@ public class LdapWorker {
 				logger.warn("FAILED: Setting password for User {} in ldap {}: {}",
 						new Object[] {uid, ldapUserBase, e.getMessage()});
 				auditor.logAction("", "SET PASSWORD LDAP USER", uid, "Set User password failed in " + ldap.getLdapConfig().getLdapUrl(), AuditStatus.FAIL);
+				throw new RegisterException(e);
 			}
 		}
 	}
 
-	public void setSambaPassword(String uid, String password, UserEntity user) {
+	public void setSambaPassword(String uid, String password, UserEntity user) throws RegisterException {
 		for (Ldap ldap : connectionManager.getConnections()) {
 			try {
 				Attributes attrs = ldap.getAttributes("uid=" + uid + "," + ldapUserBase);
@@ -550,14 +551,15 @@ public class LdapWorker {
 
 				auditor.logAction("", "SET SAMBA PASSWORD LDAP USER", uid, "Set User samba password in " + ldap.getLdapConfig().getLdapUrl(), AuditStatus.SUCCESS);
 			} catch (NamingException e) {
-				logger.warn("FAILED: Setting password for User {} in ldap {}: {}",
+				logger.warn("FAILED: Setting Samba password for User {} in ldap {}: {}",
 						new Object[] {uid, ldapUserBase, e.getMessage()});
 				auditor.logAction("", "SET SAMBA PASSWORD LDAP USER", uid, "Set User samba password failed in " + ldap.getLdapConfig().getLdapUrl(), AuditStatus.FAIL);
+				throw new RegisterException(e);
 			}
 		}
 	}
 
-	public void deletePassword(String uid) {
+	public void deletePassword(String uid) throws RegisterException {
 		for (Ldap ldap : connectionManager.getConnections()) {
 			try {
 				String ldapDn = "uid=" + uid + "," + ldapUserBase;
@@ -574,6 +576,7 @@ public class LdapWorker {
 				logger.warn("FAILED: Setting password for User {} in ldap {}: {}",
 						new Object[] {uid, ldapUserBase, e.getMessage()});
 				auditor.logAction("", "DELETE PASSWORD LDAP USER", uid, "Delete User password failed in " + ldap.getLdapConfig().getLdapUrl(), AuditStatus.FAIL);
+				throw new RegisterException(e);
 			}
 		}
 	}
