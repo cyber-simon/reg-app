@@ -10,13 +10,12 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao;
 
-import java.util.Date;
-import java.util.List;
-
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+import java.util.Date;
+import java.util.List;
 
 public interface UserDao extends BaseDao<UserEntity> {
 
@@ -30,6 +29,7 @@ public interface UserDao extends BaseDao<UserEntity> {
 	List<UserEntity> findGenericStoreKeyWithLimit(String key, Integer limit);
 	List<UserEntity> findOrderByFailedUpdateWithLimit(Date date, Integer limit);
 	List<UserEntity> findByStatus(UserStatus status);
+	List<UserEntity> findByStatusAndTimeSince(UserStatus status, Long statusSince, Integer limit);
 	UserEntity findByUidNumber(Long uidNumber);
 	List<UserEntity> findMissingIdentity();
 	List<UserEntity> findByIdentity(IdentityEntity identity);

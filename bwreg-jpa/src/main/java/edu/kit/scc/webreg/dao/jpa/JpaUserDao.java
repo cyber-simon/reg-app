@@ -10,10 +10,16 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
+import edu.kit.scc.webreg.dao.UserDao;
+import edu.kit.scc.webreg.entity.ExternalUserEntity;
+import edu.kit.scc.webreg.entity.GroupEntity;
+import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserEntity_;
+import edu.kit.scc.webreg.entity.UserStatus;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 import javax.persistence.NoResultException;
@@ -22,14 +28,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.MapJoin;
 import javax.persistence.criteria.Root;
-
-import edu.kit.scc.webreg.dao.UserDao;
-import edu.kit.scc.webreg.entity.ExternalUserEntity;
-import edu.kit.scc.webreg.entity.GroupEntity;
-import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.entity.UserEntity_;
-import edu.kit.scc.webreg.entity.UserStatus;
-import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 
 @Named
 @ApplicationScoped
@@ -161,7 +159,21 @@ public class JpaUserDao extends JpaBaseDao<UserEntity> implements UserDao, Seria
 		criteria.where(builder.equal(user.get("userStatus"), status));
 		criteria.select(user);
 		return em.createQuery(criteria).getResultList();
-	}	
+	}
+
+	public List<UserEntity> findByStatusAndTimeSince(UserStatus status, Long statusSince, Integer limit) {
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<UserEntity> criteria = builder.createQuery(UserEntity.class);
+		Root<UserEntity> user = criteria.from(UserEntity.class);
+		criteria.where(builder.and(
+						builder.equal(user.get("userStatus"), status),
+						builder.lessThanOrEqualTo(user.<Date>get("lastStatusChange"),
+								new Date(System.currentTimeMillis() - statusSince))
+				));
+		criteria.select(user);
+		criteria.orderBy(builder.asc(user.<Date>get("lastStatusChange")));
+		return em.createQuery(criteria).setMaxResults(limit).getResultList();
+	}
 
 	@Override
 	public UserEntity findByIdWithAll(Long id) {
