@@ -90,15 +90,15 @@ public class SshWorker {
 					throw new IOException(response);
 				}
 				logger.info("Sending input to host response: {}", response);
-				auditor.logAction("", "SEND SSH INPUT", input,
-						"Input " + input + " send successfully to host "  + sshHost,
+				auditor.logAction("", "SEND SSH INPUT", sshHost,
+						"Input send successfully to host "  + sshHost,
 						AuditStatus.SUCCESS);
 			}
         } catch (IOException e) {
 			logger.error("IOExcetion happened in SSH Session", e);
-			String message = "FAILED: Sending input " + input + " to " + sshHost
+			String message = "FAILED: Sending input to " + sshHost
 				+ " as " + sshUser + ": " + e.getMessage();
-            auditor.logAction("", "SEND SSH INPUT", input, "Sendind input failed",
+            auditor.logAction("", "SEND SSH INPUT", sshHost, "Sendind input failed",
                     AuditStatus.FAIL);
             throw new RegisterException(message);
         }

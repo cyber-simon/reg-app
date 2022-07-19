@@ -12,8 +12,6 @@ import edu.kit.scc.webreg.service.mail.TemplateRenderer;
 import edu.kit.scc.webreg.service.ssh.SshWorker;
 import java.util.HashMap;
 import java.util.Map;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 
 /**
  * This workflow will evaluate a Velocity template (ssh_input_template)
@@ -40,18 +38,13 @@ public class ScriptedLdapSshRegisterWorkflow extends ScriptedLdapRegisterWorkflo
 
 		String template = "";
 		try {
-			InitialContext ic = new InitialContext();
-			TemplateRenderer renderer = (TemplateRenderer) ic.lookup("global/bwreg/bwreg-service/TemplateRenderer!edu.kit.scc.webreg.service.mail.TemplateRenderer");
+			TemplateRenderer renderer = new TemplateRenderer();
+			renderer.init();
 			template = prop.readProp("ssh_input_template");
 			String input = renderer.evaluate(template, context);
 
 			SshWorker sshWorker = new SshWorker(prop, auditor);
 			sshWorker.sendInput(input);
-		} catch (NamingException ex) {
-			logger.error("Could not retrieve TemplateRenderer");
-			auditor.logAction("", "SSH SET USER PASSWORD", localUid, "Setting user password failed",
-					AuditStatus.FAIL);
-			throw new RegisterException(ex);
 		} catch (TemplateRenderingException ex) {
 			logger.error("Could not evaluate provided template: " + (template.isBlank() ? "template is empty" : template));
 			auditor.logAction("", "SSH SET USER PASSWORD", localUid, "Setting user password failed",
@@ -61,6 +54,8 @@ public class ScriptedLdapSshRegisterWorkflow extends ScriptedLdapRegisterWorkflo
 			logger.error("ScriptedLdapSshRegisterWorkflow not configured corresctly: ssh_input_template is missing");
 			auditor.logAction("", "SSH SET USER PASSWORD", localUid, "Setting user password failed",
 					AuditStatus.FAIL);
+			throw new RegisterException(ex);
+		} catch (NullPointerException ex) {
 			throw new RegisterException(ex);
 		}
 	}
