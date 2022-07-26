@@ -49,14 +49,14 @@ public class ScriptedLdapSshRegisterWorkflow extends ScriptedLdapRegisterWorkflo
 			logger.error("Could not evaluate provided template: " + (template.isBlank() ? "template is empty" : template));
 			auditor.logAction("", "SSH SET USER PASSWORD", localUid, "Setting user password failed",
 					AuditStatus.FAIL);
-			throw new RegisterException(ex);
+			throw new RegisterException();
 		} catch (PropertyReaderException ex) {
 			logger.error("ScriptedLdapSshRegisterWorkflow not configured corresctly: ssh_input_template is missing");
 			auditor.logAction("", "SSH SET USER PASSWORD", localUid, "Setting user password failed",
 					AuditStatus.FAIL);
-			throw new RegisterException(ex);
+			throw new RegisterException("System is not configured properly.");
 		} catch (NullPointerException ex) {
-			throw new RegisterException(ex);
+			throw new RegisterException();
 		}
 	}
 

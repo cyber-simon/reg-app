@@ -66,12 +66,10 @@ public class SshWorker {
 						AuditStatus.SUCCESS);
 			}
         } catch (IOException e) {
-			logger.error("IOExcetion happened in SSH Session", e);
-			String message = "FAILED: Sending password over SSH to " + sshHost
-				+ " as " + sshUser + " for user " + uid + ": " + e.getMessage();
+			logger.error("IOException happened in SSH Session", e);
             auditor.logAction("", "SEND PASSWORD USER", uid, "Send user password failed",
                     AuditStatus.FAIL);
-            throw new RegisterException(message);
+            throw new RegisterException("FAILED: A problem occured while trying to change the password.");
         }
     }
 
@@ -95,12 +93,11 @@ public class SshWorker {
 						AuditStatus.SUCCESS);
 			}
         } catch (IOException e) {
-			logger.error("IOExcetion happened in SSH Session on " + sshHost
+			logger.error("IOException happened in SSH Session on " + sshHost
 				+ " with user " + sshUser, e);
-			String message = "FAILED: Sending input to host: " + e.getMessage();
-            auditor.logAction("", "SEND SSH INPUT", sshHost, "Sendind input failed",
+            auditor.logAction("", "SEND SSH INPUT", sshHost, "Sending input failed",
                     AuditStatus.FAIL);
-            throw new RegisterException(message);
+            throw new RegisterException("FAILED: A problem occured while trying to change the password.");
         }
     }
 }
