@@ -16,8 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Worker to perform various operations via SSH.
- * Utilizes sshj library.
+ * Worker to perform various operations via SSH. Utilizes sshj library.
  *
  * @author bum-admin
  */
@@ -46,55 +45,56 @@ public class SshWorker {
         }
     }
 
-	/**
-	 * Stream "{ username: uid, password: password }" to STDIN of sshHost
-	 * @param uid User name
-	 * @param password
-	 * @throws RegisterException
-	 */
-	public void setPassword(String uid, String password) throws RegisterException {
+    /**
+     * Stream "{ username: uid, password: password }" to STDIN of sshHost
+     *
+     * @param uid User name
+     * @param password
+     * @throws RegisterException
+     */
+    public void setPassword(String uid, String password) throws RegisterException {
         try {
             String response = new SshConnector().setPassword(uid, password, sshHost, sshUser,
                     sshKeyFilepath, sshKeyPassword, sshKnownHosts);
-			if (!response.isBlank()) {
-				if (response.contains("[STDERR]")) {
-					throw new IOException(response);
-				}
-				logger.info("Sending password to host response: {}", response);
-				auditor.logAction("", "SET PASSWORD SSH USER", uid,
-						"Set password succesful for user " + uid + " on host " + sshHost,
-						AuditStatus.SUCCESS);
-			}
+            if (!response.isBlank()) {
+                if (response.contains("[STDERR]")) {
+                    throw new IOException(response);
+                }
+                logger.info("Sending password to host response: {}", response);
+                auditor.logAction("", "SET PASSWORD SSH USER", uid,
+                        "Set password succesful for user " + uid + " on host " + sshHost,
+                        AuditStatus.SUCCESS);
+            }
         } catch (IOException e) {
-			logger.error("IOException happened in SSH Session", e);
+            logger.error("IOException happened in SSH Session", e);
             auditor.logAction("", "SEND PASSWORD USER", uid, "Send user password failed",
                     AuditStatus.FAIL);
             throw new RegisterException("FAILED: A problem occured while trying to change the password.");
         }
     }
 
-	/**
-	 * Stream arbitrary input to STDIN of a SSH host.
-	 *
-	 * @param input String to stream to host.
-	 * @throws RegisterException
-	 */
-	public void sendInput(String input) throws RegisterException {
+    /**
+     * Stream arbitrary input to STDIN of a SSH host.
+     *
+     * @param input String to stream to host.
+     * @throws RegisterException
+     */
+    public void sendInput(String input) throws RegisterException {
         try {
             String response = new SshConnector().sendInput(input, sshHost, sshUser,
                     sshKeyFilepath, sshKeyPassword, sshKnownHosts);
-			if (!response.isBlank()) {
-				if (response.contains("[STDERR]")) {
-					throw new IOException(response);
-				}
-				logger.info("Sending input to host response: {}", response);
-				auditor.logAction("", "SEND SSH INPUT", sshHost,
-						"Input send successfully to host " + sshHost,
-						AuditStatus.SUCCESS);
-			}
+            if (!response.isBlank()) {
+                if (response.contains("[STDERR]")) {
+                    throw new IOException(response);
+                }
+                logger.info("Sending input to host response: {}", response);
+                auditor.logAction("", "SEND SSH INPUT", sshHost,
+                        "Input send successfully to host " + sshHost,
+                        AuditStatus.SUCCESS);
+            }
         } catch (IOException e) {
-			logger.error("IOException happened in SSH Session on " + sshHost
-				+ " with user " + sshUser, e);
+            logger.error("IOException happened in SSH Session on " + sshHost
+                    + " with user " + sshUser, e);
             auditor.logAction("", "SEND SSH INPUT", sshHost, "Sending input failed",
                     AuditStatus.FAIL);
             throw new RegisterException("FAILED: A problem occured while trying to change the password.");

@@ -14,55 +14,56 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This workflow will evaluate a Velocity template (ssh_input_template)
- * and transmit the result to the STDIN of a specified SSH host (see SshWorker.java).
+ * This workflow will evaluate a Velocity template (ssh_input_template) and
+ * transmit the result to the STDIN of a specified SSH host (see
+ * SshWorker.java).
  *
  * @author Michael Burgardt
  */
 public class ScriptedLdapSshRegisterWorkflow extends ScriptedLdapRegisterWorkflow {
 
-	@Override
-	public void setPassword(UserEntity user, ServiceEntity service,
-			RegistryEntity registry, Auditor auditor, String password) throws RegisterException {
+    @Override
+    public void setPassword(UserEntity user, ServiceEntity service,
+            RegistryEntity registry, Auditor auditor, String password) throws RegisterException {
 
-		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
-		Map<String, String> regMap = registry.getRegistryValues();
+        PropertyReader prop = PropertyReader.newRegisterPropReader(service);
+        Map<String, String> regMap = registry.getRegistryValues();
 
-		Map<String, Object> context = new HashMap<>(5);
-		context.put("password", password);
-		context.put("registry", registry);
-		context.put("user", user);
-		context.put("service", service);
-		String localUid = regMap.get("localUid");
-		context.put("uid", localUid);
+        Map<String, Object> context = new HashMap<>(5);
+        context.put("password", password);
+        context.put("registry", registry);
+        context.put("user", user);
+        context.put("service", service);
+        String localUid = regMap.get("localUid");
+        context.put("uid", localUid);
 
-		String template = "";
-		try {
-			TemplateRenderer renderer = new TemplateRenderer();
-			renderer.init();
-			template = prop.readProp("ssh_input_template");
-			String input = renderer.evaluate(template, context);
+        String template = "";
+        try {
+            TemplateRenderer renderer = new TemplateRenderer();
+            renderer.init();
+            template = prop.readProp("ssh_input_template");
+            String input = renderer.evaluate(template, context);
 
-			SshWorker sshWorker = new SshWorker(prop, auditor);
-			sshWorker.sendInput(input);
-		} catch (TemplateRenderingException ex) {
-			logger.error("Could not evaluate provided template: " + (template.isBlank() ? "template is empty" : template));
-			auditor.logAction("", "SSH SET USER PASSWORD", localUid, "Setting user password failed",
-					AuditStatus.FAIL);
-			throw new RegisterException();
-		} catch (PropertyReaderException ex) {
-			logger.error("ScriptedLdapSshRegisterWorkflow not configured corresctly: ssh_input_template is missing");
-			auditor.logAction("", "SSH SET USER PASSWORD", localUid, "Setting user password failed",
-					AuditStatus.FAIL);
-			throw new RegisterException("System is not configured properly.");
-		} catch (NullPointerException ex) {
-			throw new RegisterException();
-		}
-	}
+            SshWorker sshWorker = new SshWorker(prop, auditor);
+            sshWorker.sendInput(input);
+        } catch (TemplateRenderingException ex) {
+            logger.error("Could not evaluate provided template: " + (template.isBlank() ? "template is empty" : template));
+            auditor.logAction("", "SSH SET USER PASSWORD", localUid, "Setting user password failed",
+                    AuditStatus.FAIL);
+            throw new RegisterException();
+        } catch (PropertyReaderException ex) {
+            logger.error("ScriptedLdapSshRegisterWorkflow not configured corresctly: ssh_input_template is missing");
+            auditor.logAction("", "SSH SET USER PASSWORD", localUid, "Setting user password failed",
+                    AuditStatus.FAIL);
+            throw new RegisterException("System is not configured properly.");
+        } catch (NullPointerException ex) {
+            throw new RegisterException();
+        }
+    }
 
-	@Override
-	public void deletePassword(UserEntity user, ServiceEntity service,
-			RegistryEntity registry, Auditor auditor) throws RegisterException {
-		throw new RegisterException("Deleting passwords via ssh is not supported!");
-	}
+    @Override
+    public void deletePassword(UserEntity user, ServiceEntity service,
+            RegistryEntity registry, Auditor auditor) throws RegisterException {
+        throw new RegisterException("Deleting passwords via ssh is not supported!");
+    }
 }
