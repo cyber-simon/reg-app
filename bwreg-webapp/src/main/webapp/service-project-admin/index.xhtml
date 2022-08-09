@@ -44,7 +44,8 @@
 					<h:outputText value="#{messages.name}" />
 				</f:facet>
 				<h:link outcome="show-project.xhtml" value="#{pia.project.name}">
-		      		<f:param name="projectId" value="#{pia.project.id}"/>
+		      		<f:param name="id" value="#{pia.project.id}"/>
+		      		<f:param name="sid" value="#{pia.service.id}"/>
 				</h:link>
 			</p:column>			
 			<p:column>
