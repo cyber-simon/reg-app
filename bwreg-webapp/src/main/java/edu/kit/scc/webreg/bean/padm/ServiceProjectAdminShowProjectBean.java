@@ -27,6 +27,7 @@ import edu.kit.scc.webreg.sec.AuthorizationBean;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.project.LocalProjectService;
 import edu.kit.scc.webreg.service.project.ProjectService;
+import edu.kit.scc.webreg.session.SessionManager;
 
 @Named
 @ViewScoped
@@ -34,6 +35,9 @@ public class ServiceProjectAdminShowProjectBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	@Inject 
+	private SessionManager session;
+	
 	@Inject
 	private LocalProjectService service;
 
@@ -48,6 +52,7 @@ public class ServiceProjectAdminShowProjectBean implements Serializable {
 
 	private LocalProjectEntity entity;
 	private ServiceEntity serviceEntity;
+	private ProjectServiceEntity projectServiceEntity;
 	private List<ProjectServiceEntity> serviceList;
 
 	private ProjectIdentityAdminEntity adminIdentity;
@@ -67,12 +72,20 @@ public class ServiceProjectAdminShowProjectBean implements Serializable {
 		if (entity == null || serviceEntity == null)
 			throw new NotAuthorizedException("Nicht autorisiert");
 		
-		if (! authBean.isUserServiceProjectAdmin(getServiceEntity()))
-			throw new NotAuthorizedException("Nicht autorisiert");
+		if (! authBean.isUserServiceProjectAdmin(serviceEntity)) 
+			throw new NotAuthorizedException("No service project admin");
+		
+		projectServiceEntity = entity.getProjectServices().stream().filter(
+				ps -> ps.getService().equals(serviceEntity))
+				.findFirst().orElseThrow(() -> new NotAuthorizedException("Nicht autorisiert"));
+	}
 
-		if (! entity.getProjectServices().stream().filter(ps -> ps.getService().equals(serviceEntity)).findFirst().isPresent()) {
-			throw new NotAuthorizedException("Project is not connected with service");
-		}
+	public void approve() {
+		service.approve(projectServiceEntity, "idty-" + session.getIdentityId());
+	}
+	
+	public void deny() {
+		service.deny(projectServiceEntity, null, "idty-" + session.getIdentityId());
 	}
 	
 	public LocalProjectEntity getEntity() {
@@ -116,6 +129,14 @@ public class ServiceProjectAdminShowProjectBean implements Serializable {
 
 	public void setServiceEntity(ServiceEntity serviceEntity) {
 		this.serviceEntity = serviceEntity;
+	}
+
+	public ProjectServiceEntity getProjectServiceEntity() {
+		return projectServiceEntity;
+	}
+
+	public void setProjectServiceEntity(ProjectServiceEntity projectServiceEntity) {
+		this.projectServiceEntity = projectServiceEntity;
 	}
 
 }

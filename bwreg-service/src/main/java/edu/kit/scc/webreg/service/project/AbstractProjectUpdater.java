@@ -31,6 +31,7 @@ import edu.kit.scc.webreg.entity.project.ProjectServiceStatusType;
 import edu.kit.scc.webreg.entity.project.ProjectServiceType;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.MultipleGroupEvent;
+import edu.kit.scc.webreg.event.ProjectServiceEvent;
 import edu.kit.scc.webreg.exc.EventSubmitException;
 
 public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements Serializable {
@@ -53,6 +54,37 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 	private EventSubmitter eventSubmitter;
 
 	protected abstract BaseProjectDao<T> getDao();
+	
+	public void approve(ProjectServiceEntity pse, String executor) {
+		if (! pse.getStatus().equals(ProjectServiceStatusType.APPROVAL_PENDING)) {
+			return;
+		}
+		
+		ProjectServiceEvent event = new ProjectServiceEvent(pse);
+		try {
+			eventSubmitter.submit(event, EventType.PROJECT_SERVICE_APPROVAL, executor);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}
+		pse.setStatus(ProjectServiceStatusType.ACTIVE);
+		syncGroupFlags(pse, executor);
+		triggerGroupUpdate(pse.getProject(), executor);
+	}
+	
+	public void deny(ProjectServiceEntity pse, String denyMessage, String executor) {
+		if (! pse.getStatus().equals(ProjectServiceStatusType.APPROVAL_PENDING)) {
+			return;
+		}
+		
+		ProjectServiceEvent event = new ProjectServiceEvent(pse);
+		try {
+			eventSubmitter.submit(event, EventType.PROJECT_SERVICE_APPROVAL, executor);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}
+		pse.setStatus(ProjectServiceStatusType.APPROVAL_DENIED);
+		
+	}
 	
 	public void updateProjectMemberList(ProjectEntity project, Set<IdentityEntity> memberList, String executor) {
 		// calculate member difference lists, for propagation to parent projects

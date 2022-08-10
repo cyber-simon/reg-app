@@ -23,7 +23,7 @@
 	<ui:define name="content">
 	<h:form id="form" class="full form">
 
-		<h2><h:outputText value="#{messages['project.local_project']}: #{serviceProjectAdminShowProjectBean.entity.name}"/></h2>
+		<h2><h:outputText value="#{messages['project.local_project']} (#{serviceProjectAdminShowProjectBean.serviceEntity.name}): #{serviceProjectAdminShowProjectBean.entity.name}"/></h2>
 
 		<p:messages id="messageBox" showDetail="true" />
 		
@@ -49,6 +49,17 @@
 			</p:panelGrid>
 		</p:panel>
 
+		<p:panel rendered="#{serviceProjectAdminShowProjectBean.projectServiceEntity.status == 'APPROVAL_PENDING'}">
+			<h:outputText value="#{messages['project.local_project.approver_admin_message']}" />
+			<p:outputPanel>
+				<p:commandButton id="approve" action="#{serviceProjectAdminShowProjectBean.approve()}" value="#{messages.approve}" style="color:green;"/>
+				<p:commandButton id="deny" action="#{serviceProjectAdminShowProjectBean.deny()}" value="#{messages.deny}" style="color:red;" />
+			</p:outputPanel>
+		</p:panel>
+
+		<p:panel rendered="#{serviceProjectAdminShowProjectBean.projectServiceEntity.status == 'ACTIVE'}">
+			Active panel
+		</p:panel>
 
 	</h:form>
 

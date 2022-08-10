@@ -34,6 +34,14 @@ public abstract class JpaBaseProjectDao<T extends ProjectEntity> extends JpaBase
 
 	public abstract List<T> findByService(ServiceEntity service);
 	
+	@Override
+	public ProjectServiceEntity mergeProjectService(ProjectServiceEntity entity) {
+		if (em.contains(entity))
+			return entity;
+		else
+			return em.merge(entity);
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<ProjectServiceEntity> findAllByService(ServiceEntity service) {

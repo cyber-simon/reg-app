@@ -58,4 +58,6 @@ public interface BaseProjectDao<T extends ProjectEntity> extends BaseDao<T> {
 	Set<ProjectServiceEntity> findServicesForProject(ProjectEntity project, Boolean withParents);
 
 	ProjectServiceEntity findByServiceAndProject(ServiceEntity service, ProjectEntity project);
+
+	ProjectServiceEntity mergeProjectService(ProjectServiceEntity entity);
 }
