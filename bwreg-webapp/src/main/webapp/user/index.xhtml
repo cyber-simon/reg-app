@@ -160,6 +160,25 @@
 					</p:column>
 				</p:dataTable>
 			</p:tab>
+
+			<p:tab id="tab4" title="#{messages.projects}">
+				<div class="panel">#{messages.my_data_projectss}</div>
+				<p:dataTable id="projectData" style="min-width: 500px;" 
+						value="#{userPropertiesBean.projectMemberList}" var="p">
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.name}" />
+						</f:facet>
+						<p:outputPanel rendered="#{p.project.class.simpleName == 'ExternalOidcProjectEntity'}">
+							<h:outputText value="#{p.project.name}" /> (<h:outputText value="#{p.project.rpConfig.displayName}" />)
+							<h:outputText value="#{p.project.externalName}" />
+						</p:outputPanel>
+						<p:outputPanel rendered="#{p.project.class.simpleName == 'LocalProjectEntity'}">
+							<h:outputText value="#{p.project.name}" />
+						</p:outputPanel>
+					</p:column>
+				</p:dataTable>
+			</p:tab>
 									
 		</p:tabView>
 

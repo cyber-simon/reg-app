@@ -21,8 +21,6 @@ import javax.inject.Named;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
-import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
-import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
 import edu.kit.scc.webreg.service.project.LocalProjectService;
 import edu.kit.scc.webreg.service.project.ProjectService;
@@ -30,7 +28,7 @@ import edu.kit.scc.webreg.session.SessionManager;
 
 @Named
 @ViewScoped
-public class UserShowLocalProjectBean implements Serializable {
+public class InviteToProjectBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -45,24 +43,20 @@ public class UserShowLocalProjectBean implements Serializable {
 
 	private LocalProjectEntity entity;
 
-	private List<ProjectMembershipEntity> memberList;
-	private List<ProjectMembershipEntity> effectiveMemberList;
-	private List<ProjectIdentityAdminEntity> adminList;
-	private List<ProjectServiceEntity> serviceList;
-	private List<ProjectServiceEntity> serviceFromParentsList;
-
-	private ProjectIdentityAdminEntity adminIdentity;
-
 	private Long id;
 
+	private List<ProjectIdentityAdminEntity> adminList;
+	private ProjectIdentityAdminEntity adminIdentity;
+
 	public void preRenderView(ComponentSystemEvent ev) {
+		
 		for (ProjectIdentityAdminEntity a : getAdminList()) {
 			if (a.getIdentity().getId().equals(session.getIdentityId())) {
 				adminIdentity = a;
 				break;
 			}
 		}
-
+		
 		if (adminIdentity == null) {
 			throw new NotAuthorizedException("Nicht autorisiert");
 		}		
@@ -70,9 +64,16 @@ public class UserShowLocalProjectBean implements Serializable {
 			if (! (ProjectAdminType.ADMIN.equals(adminIdentity.getType()) || ProjectAdminType.OWNER.equals(adminIdentity.getType()))) {
 				throw new NotAuthorizedException("Nicht autorisiert");
 			}
-		}		
+		}
 	}
 
+	public List<ProjectIdentityAdminEntity> getAdminList() {
+		if (adminList == null) {
+			adminList = projectService.findAdminsForProject(getEntity());
+		}
+		return adminList;
+	}
+	
 	public Long getId() {
 		return id;
 	}
@@ -83,7 +84,7 @@ public class UserShowLocalProjectBean implements Serializable {
 
 	public LocalProjectEntity getEntity() {
 		if (entity == null) {
-			entity = service.findByIdWithAttrs(id, "projectServices");
+			entity = service.findByIdWithAttrs(id);
 		}
 
 		return entity;
@@ -92,43 +93,4 @@ public class UserShowLocalProjectBean implements Serializable {
 	public void setEntity(LocalProjectEntity entity) {
 		this.entity = entity;
 	}
-	
-	public List<ProjectMembershipEntity> getMemberList() {
-		if (memberList == null) {
-			memberList = projectService.findMembersForProject(getEntity());
-		}
-		return memberList;
-	}
-
-	public List<ProjectIdentityAdminEntity> getAdminList() {
-		if (adminList == null) {
-			adminList = projectService.findAdminsForProject(getEntity());
-		}
-		return adminList;
-	}
-
-	public List<ProjectServiceEntity> getServiceList() {
-		if (serviceList == null) {
-			serviceList = projectService.findServicesForProject(getEntity());
-		}
-		return serviceList;
-	}
-
-	public ProjectIdentityAdminEntity getAdminIdentity() {
-		return adminIdentity;
-	}
-
-	public List<ProjectServiceEntity> getServiceFromParentsList() {
-		if (serviceFromParentsList == null) {
-			serviceFromParentsList = projectService.findServicesFromParentsForProject(getEntity());
-		}
-		return serviceFromParentsList;
-	}
-
-	public List<ProjectMembershipEntity> getEffectiveMemberList() {
-		if (effectiveMemberList == null) {
-			effectiveMemberList = projectService.findMembersForProject(getEntity(), true);
-		}
-		return effectiveMemberList;
-	}	
 }

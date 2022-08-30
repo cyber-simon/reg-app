@@ -38,8 +38,8 @@
 		        <h:outputText value="#{messages.group_name}:"/>
 		        <h:outputText value="#{userShowLocalProjectBean.entity.groupName}"/>
 					
-		        <h:outputText value="#{messages.parent_vo}:"/>
-		        <h:outputText value="#{userShowLocalProjectBean.entity.parentProject}"/>
+		        <h:outputText value="#{messages.parent_vo}:" rendered="#{userShowLocalProjectBean.entity.parentProject != null}"/>
+		        <h:outputText value="#{userShowLocalProjectBean.entity.parentProject}" rendered="#{userShowLocalProjectBean.entity.parentProject != null}"/>
 				
 		        <h:outputText value="#{messages.services}:"/>
 		        <p:repeat value="#{userShowLocalProjectBean.entity.projectServices}" var="s">
@@ -54,6 +54,11 @@
 					<f:param name="id" value="#{userShowLocalProjectBean.entity.id}"/>
 				</p:linkButton>
 				<h:outputText value="#{messages['project.connect_to_service_link_text']}" />
+
+				<p:linkButton href="invite-to-project.xhtml" value="#{messages['project.invite_to_project_link']}">
+					<f:param name="id" value="#{userShowLocalProjectBean.entity.id}"/>
+				</p:linkButton>
+				<h:outputText value="#{messages['project.invite_to_project_link_text']}" />
 			</p:panelGrid>
 		</p:panel>
 
@@ -62,8 +67,7 @@
 		</div>		
 
 		<h5 style="margin-top: 1em;"><h:outputText value="#{messages['project.members']}" /></h5>
-		<p:dataTable id="dataTableMember" var="member" value="#{userShowLocalProjectBean.memberList}" paginator="true"
-					rows="15">
+		<p:dataTable id="dataTableMember" var="member" value="#{userShowLocalProjectBean.memberList}">
 			<p:column>
 				<f:facet name="header">
 					<h:outputText value="#{messages.id}" />
@@ -85,8 +89,7 @@
 		</p:dataTable>	
 		
 		<h5 style="margin-top: 1em;"><h:outputText value="#{messages['project.admins']}" /></h5>
-		<p:dataTable id="dataTableAdmin" var="admin" value="#{userShowLocalProjectBean.adminList}" paginator="true"
-					rows="15">
+		<p:dataTable id="dataTableAdmin" var="admin" value="#{userShowLocalProjectBean.adminList}">
 			<p:column>
 				<f:facet name="header">
 					<h:outputText value="#{messages.id}" />

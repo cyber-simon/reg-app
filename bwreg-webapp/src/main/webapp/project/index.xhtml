@@ -24,6 +24,8 @@
 	<h:form id="form" class="full form">
 
 		<h2><h:outputText value="#{messages['project.my_projects']}"/></h2>
+				
+		<h5><h:outputText value="#{messages['project.my_projects.description_admin']}"/></h5>
 
 		<p:dataTable id="dataTable" var="p" value="#{userProjectIndexBean.projectList}" paginator="true" rows="15">
 			<p:column sortBy="#{p.project.name}" filterBy="#{p.project.name}">
@@ -42,23 +44,6 @@
 			</p:column>			
 		</p:dataTable>
 
-		<p:dataTable id="dataMemberTable" var="p" value="#{userProjectIndexBean.projectMemberList}" paginator="true" rows="15">
-			<p:column sortBy="#{p.project.name}" filterBy="#{p.project.name}">
-				<f:facet name="header">
-					<h:outputText value="#{messages.name}" />
-				</f:facet>
-				<p:outputPanel rendered="#{p.project.class.simpleName == 'ExternalOidcProjectEntity'}">
-					<h:outputText value="#{p.project.name}" /> (<h:outputText value="#{p.project.rpConfig.displayName}" />)
-					<h:outputText value="#{p.project.externalName}" />
-				</p:outputPanel>
-				<p:outputPanel rendered="#{p.project.class.simpleName == 'LocalProjectEntity'}">
-					<h:link outcome="show-local-project.xhtml" value="#{p.project.name}">
-			      		<f:param name="id" value="#{p.project.id}"/>
-					</h:link>
-				</p:outputPanel>
-			</p:column>			
-		</p:dataTable>
-				
 		<p:panel>
 		<p:panelGrid columns="2">
 			<p:linkButton href="create-new-project.xhtml" value="#{messages['project.create_new_project_link']}" />

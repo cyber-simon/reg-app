@@ -20,7 +20,6 @@ import javax.inject.Named;
 
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
-import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.project.ProjectService;
 import edu.kit.scc.webreg.session.SessionManager;
@@ -41,7 +40,6 @@ public class UserProjectIndexBean implements Serializable {
  	private IdentityService identityService;
  	
  	private IdentityEntity identity;
-    private List<ProjectMembershipEntity> projectMemberList;
     private List<ProjectIdentityAdminEntity> projectList;
         
 	public void preRenderView(ComponentSystemEvent ev) {
@@ -55,13 +53,6 @@ public class UserProjectIndexBean implements Serializable {
 		return identity;
 	}
 	
-	public List<ProjectMembershipEntity> getProjectMemberList() {
-		if (projectMemberList == null) {
-			projectMemberList = projectService.findByIdentity(getIdentity());
-		}
-		return projectMemberList;
-	}
-
 	public List<ProjectIdentityAdminEntity> getProjectList() {
 		if (projectList == null) {
 			projectList = projectService.findAdminByUserId(getIdentity().getId());

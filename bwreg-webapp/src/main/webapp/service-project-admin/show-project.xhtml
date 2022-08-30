@@ -58,7 +58,7 @@
 		</p:panel>
 
 		<p:panel rendered="#{serviceProjectAdminShowProjectBean.projectServiceEntity.status == 'ACTIVE'}">
-			Active panel
+			<h:outputText value="#{messages['project.local_project.approver_active_panel_txt']}" />
 		</p:panel>
 
 	</h:form>
