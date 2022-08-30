@@ -1,5 +1,7 @@
 package edu.kit.scc.webreg.entity.project;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -37,6 +39,12 @@ public class ProjectInvitationTokenEntity extends AbstractBaseEntity {
 
 	@Column(name="sender_name", length=1024)
 	private String senderName;
+	
+	@Column(name="custom_message", length=1024)
+	private String customMessage;
+	
+	@Column(name="valid_until")
+	private Date validUntil;
 	
 	public ProjectEntity getProject() {
 		return project;
@@ -84,5 +92,21 @@ public class ProjectInvitationTokenEntity extends AbstractBaseEntity {
 
 	public void setSenderName(String senderName) {
 		this.senderName = senderName;
+	}
+
+	public Date getValidUntil() {
+		return validUntil;
+	}
+
+	public void setValidUntil(Date validUntil) {
+		this.validUntil = validUntil;
+	}
+
+	public String getCustomMessage() {
+		return customMessage;
+	}
+
+	public void setCustomMessage(String customMessage) {
+		this.customMessage = customMessage;
 	}
 }

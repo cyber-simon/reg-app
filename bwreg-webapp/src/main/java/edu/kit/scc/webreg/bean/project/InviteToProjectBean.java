@@ -17,12 +17,16 @@ import javax.faces.event.ComponentSystemEvent;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
 
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
+import edu.kit.scc.webreg.entity.project.ProjectInvitationTokenEntity;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
 import edu.kit.scc.webreg.service.project.LocalProjectService;
+import edu.kit.scc.webreg.service.project.ProjectInvitationTokenService;
 import edu.kit.scc.webreg.service.project.ProjectService;
 import edu.kit.scc.webreg.session.SessionManager;
 
@@ -41,13 +45,25 @@ public class InviteToProjectBean implements Serializable {
 	@Inject
 	private ProjectService projectService;
 
+	@Inject
+	private ProjectInvitationTokenService tokenService;
+	
 	private LocalProjectEntity entity;
-
+	private List<ProjectInvitationTokenEntity> tokenList;
+	
 	private Long id;
 
 	private List<ProjectIdentityAdminEntity> adminList;
 	private ProjectIdentityAdminEntity adminIdentity;
 
+	@Email
+	@NotNull
+	private String rcptMail;
+	
+	private String rcptName;
+	private String senderName;
+	private String customMessage;
+	
 	public void preRenderView(ComponentSystemEvent ev) {
 		
 		for (ProjectIdentityAdminEntity a : getAdminList()) {
@@ -67,6 +83,10 @@ public class InviteToProjectBean implements Serializable {
 		}
 	}
 
+	public void sendToken() {
+		tokenService.sendEmailToken(getEntity(), rcptMail, rcptName, senderName, customMessage);
+	}
+	
 	public List<ProjectIdentityAdminEntity> getAdminList() {
 		if (adminList == null) {
 			adminList = projectService.findAdminsForProject(getEntity());
@@ -92,5 +112,45 @@ public class InviteToProjectBean implements Serializable {
 
 	public void setEntity(LocalProjectEntity entity) {
 		this.entity = entity;
+	}
+
+	public List<ProjectInvitationTokenEntity> getTokenList() {
+		if (tokenList == null) {
+			tokenList = tokenService.findAllByAttr("project", getEntity());
+		}
+		
+		return tokenList;
+	}
+
+	public String getRcptMail() {
+		return rcptMail;
+	}
+
+	public void setRcptMail(String rcptMail) {
+		this.rcptMail = rcptMail;
+	}
+
+	public String getRcptName() {
+		return rcptName;
+	}
+
+	public void setRcptName(String rcptName) {
+		this.rcptName = rcptName;
+	}
+
+	public String getSenderName() {
+		return senderName;
+	}
+
+	public void setSenderName(String senderName) {
+		this.senderName = senderName;
+	}
+
+	public String getCustomMessage() {
+		return customMessage;
+	}
+
+	public void setCustomMessage(String customMessage) {
+		this.customMessage = customMessage;
 	}
 }

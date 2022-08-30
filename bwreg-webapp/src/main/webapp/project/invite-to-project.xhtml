@@ -22,20 +22,50 @@
 	<ui:define name="content">
 	<h:form id="form" class="full form">
 
-		<h2><h:outputText value="#{messages['project.invite_project_members']}: #{inviteToProjectBean.entity.name}"/></h2>
+		<h2><h:outputText value="#{messages['project.invite_project.members']}: #{inviteToProjectBean.entity.name}"/></h2>
 
 		<p:messages id="messageBox" showDetail="true" />
 		
 		<p:panel>
-			<h:outputText value="#{messages['project.invite_project_members_text']}"/>
+			<h:outputText value="#{messages['project.invite_project.members_text']}"/>
 		</p:panel>
 
-		<p:panel header="#{messages['project.invite_project_members_with_email']}">
-			<h:outputText value="#{messages['project.invite_project_members_with_email_text']}"/>
-		</p:panel>
+		<p:dataTable id="dataTable" var="t" value="#{inviteToProjectBean.tokenList}">
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.token}" />
+				</f:facet>
+				<h:outputText value="#{t.token}" />
+			</p:column>			
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.email}" />
+				</f:facet>
+				<h:outputText value="#{t.rcptMail}" />
+			</p:column>			
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.valid_to}" />
+				</f:facet>
+				<h:outputText value="#{t.validUntil}" />
+			</p:column>			
+		</p:dataTable>
 
-		<p:panel header="#{messages['project.invite_project_members_with_token']}">
-			<h:outputText value="#{messages['project.invite_project_members_with_token_text']}"/>
+
+		<p:panel header="#{messages['project.invite_project.members_with_email']}">
+			<h:outputText value="#{messages['project.invite_project.members_with_email_text']}"/>
+			
+			<h:panelGrid columns="2">
+			
+				<h:outputLabel value="#{messages['project.invite_project.rcpt_mail']}" />
+				<p:inputText value="#{inviteToProjectBean.rcptMail}"/>
+				
+				<h:outputLabel value="#{messages['project.invite_project.rcpt_name']}" />
+				<p:inputText value="#{inviteToProjectBean.rcptName}"/>
+				
+			</h:panelGrid>
+			
+			<p:commandButton action="#{inviteToProjectBean.sendToken()}" value="#{messages['project.invite_project.send_invitation']}" update="messageBox"/>
 		</p:panel>
 
 		<div class="text full" style="margin-top: 0.4em;">
