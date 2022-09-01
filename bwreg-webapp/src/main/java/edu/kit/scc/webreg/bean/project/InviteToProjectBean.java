@@ -29,6 +29,7 @@ import edu.kit.scc.webreg.service.project.LocalProjectService;
 import edu.kit.scc.webreg.service.project.ProjectInvitationTokenService;
 import edu.kit.scc.webreg.service.project.ProjectService;
 import edu.kit.scc.webreg.session.SessionManager;
+import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
 @Named
 @ViewScoped
@@ -47,6 +48,9 @@ public class InviteToProjectBean implements Serializable {
 
 	@Inject
 	private ProjectInvitationTokenService tokenService;
+	
+	@Inject
+	private FacesMessageGenerator messageGenerator;
 	
 	private LocalProjectEntity entity;
 	private List<ProjectInvitationTokenEntity> tokenList;
@@ -85,6 +89,15 @@ public class InviteToProjectBean implements Serializable {
 
 	public void sendToken() {
 		tokenService.sendEmailToken(getEntity(), rcptMail, rcptName, senderName, customMessage);
+	}
+	
+	public void deleteToken(ProjectInvitationTokenEntity token) {
+		tokenService.delete(token);
+		messageGenerator.addResolvedInfoMessage("project.invite_project.token_deleted", "project.invite_project.token_deleted_detail", true);
+	}
+	
+	public void resendToken(ProjectInvitationTokenEntity token) {
+		
 	}
 	
 	public List<ProjectIdentityAdminEntity> getAdminList() {

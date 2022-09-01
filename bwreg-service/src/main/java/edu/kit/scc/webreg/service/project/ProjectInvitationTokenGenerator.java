@@ -27,12 +27,16 @@ public class ProjectInvitationTokenGenerator implements Serializable {
 
 	public ProjectInvitationTokenEntity sendToken(ProjectEntity project, String rcptMail, String rcptName, String senderName, String customMessage) {
 		ProjectInvitationTokenEntity token = generateToken(project, rcptMail, rcptName, senderName, customMessage);
+		sendToken(token);
 		
+		return token;
+	}
+	
+	public void sendToken(ProjectInvitationTokenEntity token) {
 		/**
 		 * TODO send token here
 		 */
-		
-		return token;
+
 	}
 	
 	public ProjectInvitationTokenEntity generateToken(ProjectEntity project, String rcptMail, String rcptName, String senderName, String customMessage) {
