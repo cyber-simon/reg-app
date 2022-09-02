@@ -56,7 +56,7 @@ public class QueuedMailServiceImpl implements QueuedMailService {
 	}
 
 	@Override
-	public void sendMail(String from, String to, String cc, String bcc, String subject, String body) 
+	public void sendMail(String from, String to, String cc, String bcc, String subject, String body, String replyTo) 
 			throws MailServiceException {
 
 		logger.debug("Submitting mail message to Queue");
@@ -68,6 +68,7 @@ public class QueuedMailServiceImpl implements QueuedMailService {
 		mail.setBcc(bcc);
 		mail.setSubject(subject);
 		mail.setBody(body);
+		mail.setReplyTo(replyTo);
 		
 		try {
 			Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);

@@ -19,4 +19,7 @@ public interface MailService extends Serializable {
 	void sendMail(String from, String to, String cc, String bcc,
 			String subject, String body) throws MailServiceException;
 
+	void sendMail(String from, String to, String cc, String bcc, String subject, String body, String replyTo)
+			throws MailServiceException;
+
 }

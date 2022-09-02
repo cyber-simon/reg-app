@@ -10,14 +10,15 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.project;
 
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectInvitationTokenEntity;
 import edu.kit.scc.webreg.service.BaseService;
 
 public interface ProjectInvitationTokenService extends BaseService<ProjectInvitationTokenEntity> {
 
-	ProjectInvitationTokenEntity sendEmailToken(ProjectEntity project, String rcptMail, String rcptName, String senderName,
-			String customMessage);
+	ProjectInvitationTokenEntity sendEmailToken(ProjectEntity project, IdentityEntity identity, String rcptMail,
+			String rcptName, String senderName, String customMessage);
 
 
 }

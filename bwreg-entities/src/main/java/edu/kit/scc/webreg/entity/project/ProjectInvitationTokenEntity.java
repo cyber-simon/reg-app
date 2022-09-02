@@ -12,6 +12,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 import edu.kit.scc.webreg.entity.AbstractBaseEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 
 @Entity(name = "ProjectInvitationToken")
 @Table(name = "project_invitation_token")
@@ -24,7 +25,7 @@ public class ProjectInvitationTokenEntity extends AbstractBaseEntity {
 
 	@NotNull
 	@Column(name="invitation_token", length=128, nullable=false, unique=true)
-	@Pattern(regexp = "^[a-z]{1}[a-z0-9-_]{0,63}$")
+	@Pattern(regexp = "^[a-z0-9-_]{0,63}$")
 	private String token;
 
 	@Column(name = "invitation_type")
@@ -36,6 +37,9 @@ public class ProjectInvitationTokenEntity extends AbstractBaseEntity {
 	
 	@Column(name="rcpt_name", length=1024)
 	private String rcptName;
+
+	@ManyToOne(targetEntity = IdentityEntity.class)
+	private IdentityEntity identity;
 
 	@Column(name="sender_name", length=1024)
 	private String senderName;
@@ -108,5 +112,13 @@ public class ProjectInvitationTokenEntity extends AbstractBaseEntity {
 
 	public void setCustomMessage(String customMessage) {
 		this.customMessage = customMessage;
+	}
+
+	public IdentityEntity getIdentity() {
+		return identity;
+	}
+
+	public void setIdentity(IdentityEntity identity) {
+		this.identity = identity;
 	}
 }

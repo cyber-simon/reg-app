@@ -20,11 +20,13 @@ import javax.inject.Named;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
 import edu.kit.scc.webreg.entity.project.ProjectInvitationTokenEntity;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
+import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.project.LocalProjectService;
 import edu.kit.scc.webreg.service.project.ProjectInvitationTokenService;
 import edu.kit.scc.webreg.service.project.ProjectService;
@@ -52,6 +54,9 @@ public class InviteToProjectBean implements Serializable {
 	@Inject
 	private FacesMessageGenerator messageGenerator;
 	
+	@Inject
+	private IdentityService identityService;
+	
 	private LocalProjectEntity entity;
 	private List<ProjectInvitationTokenEntity> tokenList;
 	
@@ -59,7 +64,8 @@ public class InviteToProjectBean implements Serializable {
 
 	private List<ProjectIdentityAdminEntity> adminList;
 	private ProjectIdentityAdminEntity adminIdentity;
-
+	private IdentityEntity identity;
+	
 	@Email
 	@NotNull
 	private String rcptMail;
@@ -71,7 +77,7 @@ public class InviteToProjectBean implements Serializable {
 	public void preRenderView(ComponentSystemEvent ev) {
 		
 		for (ProjectIdentityAdminEntity a : getAdminList()) {
-			if (a.getIdentity().getId().equals(session.getIdentityId())) {
+			if (a.getIdentity().getId().equals(getIdentity().getId())) {
 				adminIdentity = a;
 				break;
 			}
@@ -88,12 +94,15 @@ public class InviteToProjectBean implements Serializable {
 	}
 
 	public void sendToken() {
-		tokenService.sendEmailToken(getEntity(), rcptMail, rcptName, senderName, customMessage);
+		tokenService.sendEmailToken(getEntity(), getIdentity(), rcptMail, rcptName, senderName, customMessage);
+		messageGenerator.addResolvedInfoMessage("project.invite_project.token_send", "project.invite_project.token_send_detail", true);
+		tokenList = null;
 	}
 	
 	public void deleteToken(ProjectInvitationTokenEntity token) {
 		tokenService.delete(token);
 		messageGenerator.addResolvedInfoMessage("project.invite_project.token_deleted", "project.invite_project.token_deleted_detail", true);
+		tokenList = null;
 	}
 	
 	public void resendToken(ProjectInvitationTokenEntity token) {
@@ -165,5 +174,12 @@ public class InviteToProjectBean implements Serializable {
 
 	public void setCustomMessage(String customMessage) {
 		this.customMessage = customMessage;
+	}
+
+	public IdentityEntity getIdentity() {
+		if (identity == null) {
+			identity = identityService.findById(session.getIdentityId());
+		}
+		return identity;
 	}
 }

@@ -49,10 +49,18 @@
 				</f:facet>
 				<h:outputText value="#{t.validUntil}" />
 			</p:column>			
+			<p:column width="12%">
+   				<p:tooltip for="@next" value="#{messages.delete}" position="top"/>
+       			<p:commandButton action="#{inviteToProjectBean.deleteToken(t)}" immediate="true" update=":form:messageBox, :form:dataTable"
+       				icon="fa fa-fw fa-trash" style="font-size: 0.6em;">
+       				<p:confirm header="#{messages.confirm_header}" escape="false"
+       					message="#{messages['project.invite_project.delete_token_confirm']}" />
+       			</p:commandButton>
+       		</p:column>
 		</p:dataTable>
 
 
-		<p:panel header="#{messages['project.invite_project.members_with_email']}">
+		<p:panel id="inputPanel" header="#{messages['project.invite_project.members_with_email']}">
 			<h:outputText value="#{messages['project.invite_project.members_with_email_text']}"/>
 			
 			<h:panelGrid columns="2">
@@ -65,12 +73,18 @@
 				
 			</h:panelGrid>
 			
-			<p:commandButton action="#{inviteToProjectBean.sendToken()}" value="#{messages['project.invite_project.send_invitation']}" update="messageBox"/>
+			<p:commandButton action="#{inviteToProjectBean.sendToken()}" value="#{messages['project.invite_project.send_invitation']}" update="messageBox, dataTable, inputPanel"/>
 		</p:panel>
 
 		<div class="text full" style="margin-top: 0.4em;">
 			<a href="show-local-project.xhtml?id=#{inviteToProjectBean.entity.id}"><h:outputText value="#{messages.back}"/></a>
 		</div>		
+
+	    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" closable="false" 
+	    	closeOnEscape="true" width="320">
+	        <p:commandButton value="#{messages.yes}" type="button" styleClass="ui-confirmdialog-yes"/>
+	        <p:commandButton value="#{messages.no}" type="button" styleClass="ui-confirmdialog-no"/>
+	    </p:confirmDialog>    
 
 	</h:form>
 

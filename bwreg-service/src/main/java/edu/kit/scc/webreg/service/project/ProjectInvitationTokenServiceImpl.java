@@ -15,6 +15,7 @@ import javax.inject.Inject;
 
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.project.ProjectInvitationTokenDao;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectInvitationTokenEntity;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
@@ -31,8 +32,8 @@ public class ProjectInvitationTokenServiceImpl extends BaseServiceImpl<ProjectIn
 	private ProjectInvitationTokenGenerator generator;
 	
 	@Override
-	public ProjectInvitationTokenEntity sendEmailToken(ProjectEntity project, String rcptMail, String rcptName, String senderName, String customMessage) {
-		return generator.sendToken(project, rcptMail, rcptName, senderName, customMessage);				
+	public ProjectInvitationTokenEntity sendEmailToken(ProjectEntity project, IdentityEntity identity, String rcptMail, String rcptName, String senderName, String customMessage) {
+		return generator.sendToken(project, identity, rcptMail, rcptName, senderName, customMessage);				
 	}
 	
 	@Override
