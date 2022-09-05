@@ -86,6 +86,12 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 		
 	}
 	
+	public void addProjectMember(ProjectEntity project, IdentityEntity identity, String executor) {
+		logger.debug("Adding member {} to project {}", identity.getId(), project.getId());
+		getDao().addMemberToProject(project, identity, ProjectMembershipType.MEMBER);
+		updateProjectMemberList(project, executor, 0, 3);
+	}
+	
 	public void updateProjectMemberList(ProjectEntity project, Set<IdentityEntity> memberList, String executor) {
 		// calculate member difference lists, for propagation to parent projects
 		List<IdentityEntity> oldMemberList = getDao().findIdentitiesForProject(project);
@@ -101,6 +107,7 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 			ProjectMembershipEntity membership = getDao().findByIdentityAndProject(memberToRemove, project);
 			if (membership != null) {
 				// if membership is null, identity is not in project
+				logger.debug("Adding member {} to project {}", memberToRemove.getId(), project.getId());
 				getDao().deleteMembership(membership);
 				for (UserEntity user : memberToRemove.getUsers()) {
 					groupDao.removeUserGromGroup(user, project.getProjectGroup());
@@ -109,6 +116,7 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 		}
 		
 		for (IdentityEntity memberToAdd : membersToAdd) {
+			logger.debug("Adding member {} to project {}", memberToAdd.getId(), project.getId());
 			getDao().addMemberToProject(project, memberToAdd, ProjectMembershipType.MEMBER);
 		}
 

@@ -50,4 +50,6 @@ public interface ProjectService extends BaseService<ProjectEntity> {
 	void addOrChangeService(ProjectEntity project, ServiceEntity service, ProjectServiceType type,
 			ProjectServiceStatusType status, String executor);
 	List<ProjectServiceEntity> findAllByService(ServiceEntity service);
+	void addProjectMember(ProjectEntity project, IdentityEntity identity, String executor);
+	ProjectMembershipEntity findByIdentityAndProject(IdentityEntity identity, ProjectEntity project);
 }

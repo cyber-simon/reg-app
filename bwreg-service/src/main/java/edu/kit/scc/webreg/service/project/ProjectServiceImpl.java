@@ -52,6 +52,12 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity> implement
 	}
 	
 	@Override
+	public void addProjectMember(ProjectEntity project, IdentityEntity identity, String executor) {
+		project = dao.merge(project);
+		updater.addProjectMember(project, identity, executor);
+	}
+	
+	@Override
 	public void updateServices(ProjectEntity project, Set<ServiceEntity> services, ProjectServiceType type, 
 			ProjectServiceStatusType status, String executor) {
 		updater.updateServices(project, services, type, status, executor);
@@ -82,6 +88,11 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity> implement
 	@Override
 	public List<ProjectMembershipEntity> findByIdentity(IdentityEntity identity) {
 		return dao.findByIdentity(identity);
+	}
+	
+	@Override
+	public ProjectMembershipEntity findByIdentityAndProject(IdentityEntity identity, ProjectEntity project) {
+		return dao.findByIdentityAndProject(identity, project);
 	}
 	
 	@Override
