@@ -28,6 +28,7 @@ import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.project.LocalProjectService;
 import edu.kit.scc.webreg.service.project.ProjectService;
 import edu.kit.scc.webreg.session.SessionManager;
+import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
 @Named
 @ViewScoped
@@ -50,6 +51,9 @@ public class ServiceProjectAdminShowProjectBean implements Serializable {
     @Inject
     private AuthorizationBean authBean;
 
+    @Inject
+    private FacesMessageGenerator messageGenerator;
+    
 	private LocalProjectEntity entity;
 	private ServiceEntity serviceEntity;
 	private ProjectServiceEntity projectServiceEntity;
@@ -79,13 +83,19 @@ public class ServiceProjectAdminShowProjectBean implements Serializable {
 				ps -> ps.getService().equals(serviceEntity))
 				.findFirst().orElseThrow(() -> new NotAuthorizedException("Nicht autorisiert"));
 	}
-
+	
 	public void approve() {
 		service.approve(projectServiceEntity, "idty-" + session.getIdentityId());
+		messageGenerator.addResolvedInfoMessage("project.local_project.approver_admin_approved", "project.local_project.approver_admin_approved_detail", true);
+		entity = service.findByIdWithAttrs(projectId, "projectServices");
+		serviceList = null;
 	}
 	
 	public void deny() {
 		service.deny(projectServiceEntity, null, "idty-" + session.getIdentityId());
+		messageGenerator.addResolvedInfoMessage("project.local_project.approver_admin_declined", "project.local_project.approver_admin_declined_detail", true);
+		entity = service.findByIdWithAttrs(projectId, "projectServices");
+		serviceList = null;
 	}
 	
 	public LocalProjectEntity getEntity() {

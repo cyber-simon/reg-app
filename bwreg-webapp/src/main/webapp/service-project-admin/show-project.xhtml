@@ -50,10 +50,18 @@
 		</p:panel>
 
 		<p:panel rendered="#{serviceProjectAdminShowProjectBean.projectServiceEntity.status == 'APPROVAL_PENDING'}">
-			<h:outputText value="#{messages['project.local_project.approver_admin_message']}" />
 			<p:outputPanel>
-				<p:commandButton id="approve" action="#{serviceProjectAdminShowProjectBean.approve()}" value="#{messages.approve}" style="color:green;"/>
-				<p:commandButton id="deny" action="#{serviceProjectAdminShowProjectBean.deny()}" value="#{messages.deny}" style="color:red;" />
+				<h:outputText value="#{messages['project.local_project.approver_admin_message']}" />
+			</p:outputPanel>
+			<p:outputPanel style="margin-top: 0.5em;">
+				<h:outputText value="#{serviceProjectAdminShowProjectBean.projectServiceEntity.project.name}" />
+				<i class="pi pi-arrow-right"></i>
+				<h:outputText value=" #{serviceProjectAdminShowProjectBean.projectServiceEntity.service.name}" />
+			</p:outputPanel>
+			
+			<p:outputPanel>
+				<p:commandButton id="approve" action="#{serviceProjectAdminShowProjectBean.approve()}" value="#{messages.approve}" style="color:green;" update="@form"/>
+				<p:commandButton id="deny" action="#{serviceProjectAdminShowProjectBean.deny()}" value="#{messages.deny}" style="color:red;" update="@form"/>
 			</p:outputPanel>
 		</p:panel>
 
