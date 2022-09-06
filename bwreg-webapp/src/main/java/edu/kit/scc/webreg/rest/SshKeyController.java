@@ -1,5 +1,6 @@
 package edu.kit.scc.webreg.rest;
 
+import edu.kit.scc.webreg.dao.RegistryDao;
 import java.io.IOException;
 import java.util.List;
 
@@ -14,9 +15,12 @@ import javax.ws.rs.core.MediaType;
 
 import edu.kit.scc.webreg.dto.entity.SshPubKeyEntityDto;
 import edu.kit.scc.webreg.dto.service.SshPubKeyDtoService;
+import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.SshPubKeyStatus;
 import edu.kit.scc.webreg.exc.NoItemFoundException;
+import edu.kit.scc.webreg.exc.NoUserFoundException;
 import edu.kit.scc.webreg.exc.RestInterfaceException;
 import edu.kit.scc.webreg.exc.UnauthorizedException;
 import edu.kit.scc.webreg.sec.SecurityFilter;
@@ -38,6 +42,9 @@ public class SshKeyController {
 	
 	@Inject
 	private SshPubKeyDtoService dtoService;
+        
+	@Inject
+	private RegistryDao registryDao;
 	
 	@Path(value = "/list/uidnumber/{uidNumber}/all")
 	@Produces({MediaType.APPLICATION_JSON})
@@ -126,7 +133,58 @@ public class SshKeyController {
 
 		return sshLoginService.authByUidNumberCommand(service, uidNumber, request);
 	}
-	
+        
+	@Path(value = "/auth/all/{ssn}/localuid/{localuid}")
+	@Produces({MediaType.TEXT_PLAIN})
+	@GET
+	public String authByLocalUid(@PathParam("ssn") String ssn, 
+			@PathParam("localuid") String localUid, @Context HttpServletRequest request)
+					throws IOException, RestInterfaceException {
+		ServiceEntity service = serviceService.findByShortName(ssn);
+		if (service == null)
+			throw new NoItemFoundException("No such service");
+
+		if (! checkAccess(request, service.getAdminRole().getName()))
+			throw new UnauthorizedException("No access");
+
+                Long uidNumber = getUidNumberByLocalUid(service, localUid);
+		return sshLoginService.authByUidNumber(service, uidNumber, request);
+	}
+        
+        @Path(value = "/auth/interactive/{ssn}/localuid/{localuid}")
+	@Produces({MediaType.TEXT_PLAIN})
+	@GET
+	public String authByLocalUidInteractive(@PathParam("ssn") String ssn, 
+			@PathParam("localuid") String localUid, @Context HttpServletRequest request)
+					throws IOException, RestInterfaceException {
+		ServiceEntity service = serviceService.findByShortName(ssn);
+		if (service == null)
+			throw new NoItemFoundException("No such service");
+
+		if (! checkAccess(request, service.getAdminRole().getName()))
+			throw new UnauthorizedException("No access");
+
+                Long uidNumber = getUidNumberByLocalUid(service, localUid);
+		return sshLoginService.authByUidNumberInteractive(service, uidNumber, request);
+	}
+
+	@Path(value = "/auth/command/{ssn}/localuid/{localuid}")
+	@Produces({MediaType.TEXT_PLAIN})
+	@GET
+	public String authByLocalUidCommand(@PathParam("ssn") String ssn, 
+			@PathParam("localuid") String localUid, @Context HttpServletRequest request)
+					throws IOException, RestInterfaceException {
+		ServiceEntity service = serviceService.findByShortName(ssn);
+		if (service == null)
+			throw new NoItemFoundException("No such service");
+
+		if (! checkAccess(request, service.getAdminRole().getName()))
+			throw new UnauthorizedException("No access");
+                
+                Long uidNumber = getUidNumberByLocalUid(service, localUid);
+		return sshLoginService.authByUidNumberCommand(service, uidNumber, request);
+	}
+        
 	protected Boolean checkAccess(HttpServletRequest request, String roleName) {
 		Boolean check;
 		
@@ -161,4 +219,19 @@ public class SshKeyController {
 		else
 			return null;
 	}
+        
+        protected Long getUidNumberByLocalUid(ServiceEntity service, String localUid) throws NoUserFoundException {
+                List<RegistryEntity> registryList = registryDao.findAllByRegValueAndStatus(service, "localUid", localUid, RegistryStatus.ACTIVE);
+                if (registryList.size() == 0) {
+                        registryList.addAll(registryDao.findAllByRegValueAndStatus(service, "localUid", localUid, RegistryStatus.LOST_ACCESS));
+                }
+                if (registryList.size() == 0) {
+                        registryList.addAll(registryDao.findAllByRegValueAndStatus(service, "localUid", localUid, RegistryStatus.ON_HOLD));
+                }
+                if (registryList.size() == 0) {
+                        throw new NoUserFoundException("no such localUid in registries");
+                }
+                Integer uidNumber = registryList.get(0).getIdentity().getUidNumber();
+                return uidNumber.longValue();
+        }
 }
