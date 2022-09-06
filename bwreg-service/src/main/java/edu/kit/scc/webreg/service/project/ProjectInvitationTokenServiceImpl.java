@@ -32,8 +32,23 @@ public class ProjectInvitationTokenServiceImpl extends BaseServiceImpl<ProjectIn
 	private ProjectInvitationTokenGenerator generator;
 	
 	@Override
-	public ProjectInvitationTokenEntity sendEmailToken(ProjectEntity project, IdentityEntity identity, String rcptMail, String rcptName, String senderName, String customMessage) {
-		return generator.sendToken(project, identity, rcptMail, rcptName, senderName, customMessage);				
+	public ProjectInvitationTokenEntity sendEmailToken(ProjectEntity project, IdentityEntity identity, String rcptMail, String rcptName, String senderName, 
+			String customMessage, String executor) {
+		return generator.sendToken(project, identity, rcptMail, rcptName, senderName, customMessage, executor);				
+	}
+	
+	@Override
+	public ProjectInvitationTokenEntity acceptEmailToken(ProjectInvitationTokenEntity token, String executor) {
+		token = dao.merge(token);
+		generator.acceptEmailToken(token, executor);
+		return token;
+	}
+	
+	@Override
+	public ProjectInvitationTokenEntity declineEmailToken(ProjectInvitationTokenEntity token, String executor) {
+		token = dao.merge(token);
+		generator.declineEmailToken(token, executor);
+		return token;
 	}
 	
 	@Override

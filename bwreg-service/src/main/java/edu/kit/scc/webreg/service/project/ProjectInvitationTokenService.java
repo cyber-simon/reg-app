@@ -18,7 +18,11 @@ import edu.kit.scc.webreg.service.BaseService;
 public interface ProjectInvitationTokenService extends BaseService<ProjectInvitationTokenEntity> {
 
 	ProjectInvitationTokenEntity sendEmailToken(ProjectEntity project, IdentityEntity identity, String rcptMail,
-			String rcptName, String senderName, String customMessage);
+			String rcptName, String senderName, String customMessage, String executor);
+
+	ProjectInvitationTokenEntity acceptEmailToken(ProjectInvitationTokenEntity token, String executor);
+
+	ProjectInvitationTokenEntity declineEmailToken(ProjectInvitationTokenEntity token, String executor);
 
 
 }

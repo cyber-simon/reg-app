@@ -49,6 +49,12 @@
 				</f:facet>
 				<h:outputText value="#{t.validUntil}" />
 			</p:column>			
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.status}" />
+				</f:facet>
+				<h:outputText value="#{t.status}" />
+			</p:column>			
 			<p:column width="12%">
    				<p:tooltip for="@next" value="#{messages.delete}" position="top"/>
        			<p:commandButton action="#{inviteToProjectBean.deleteToken(t)}" immediate="true" update=":form:messageBox, :form:dataTable"

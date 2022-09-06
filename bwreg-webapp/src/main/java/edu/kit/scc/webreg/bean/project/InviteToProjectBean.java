@@ -94,7 +94,7 @@ public class InviteToProjectBean implements Serializable {
 	}
 
 	public void sendToken() {
-		tokenService.sendEmailToken(getEntity(), getIdentity(), rcptMail, rcptName, senderName, customMessage);
+		tokenService.sendEmailToken(getEntity(), getIdentity(), rcptMail, rcptName, senderName, customMessage, "idty-" + session.getIdentityId());
 		messageGenerator.addResolvedInfoMessage("project.invite_project.token_send", "project.invite_project.token_send_detail", true);
 		tokenList = null;
 	}

@@ -70,8 +70,7 @@ public class AcceptInviteBean implements Serializable {
 
 	public void accept() {
 		if (token != null) {
-			projectService.addProjectMember(token.getProject(), token.getIdentity(), "idty-" + sessionManager.getIdentityId());
-			tokenService.delete(token);
+			tokenService.acceptEmailToken(token, "idty-" + sessionManager.getIdentityId());
 			token = null;
 		}
 		else {
@@ -80,6 +79,7 @@ public class AcceptInviteBean implements Serializable {
 	}
 	
 	public void decline() {
+		tokenService.declineEmailToken(token, "idty-" + sessionManager.getIdentityId());
 		token = null;
 	}
 	

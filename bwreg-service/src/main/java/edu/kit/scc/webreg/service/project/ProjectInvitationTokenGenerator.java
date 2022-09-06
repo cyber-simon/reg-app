@@ -14,10 +14,15 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.project.ProjectInvitationTokenDao;
+import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
+import edu.kit.scc.webreg.entity.project.ProjectInvitationStatus;
 import edu.kit.scc.webreg.entity.project.ProjectInvitationTokenEntity;
 import edu.kit.scc.webreg.entity.project.ProjectInvitationType;
+import edu.kit.scc.webreg.event.EventSubmitter;
+import edu.kit.scc.webreg.event.ProjectInvitationTokenEvent;
+import edu.kit.scc.webreg.exc.EventSubmitException;
 import edu.kit.scc.webreg.service.mail.TemplateMailService;
 
 @ApplicationScoped
@@ -35,10 +40,40 @@ public class ProjectInvitationTokenGenerator implements Serializable {
 	private ProjectInvitationTokenDao dao;
 
 	@Inject
+	private LocalProjectUpdater updater;
+
+	@Inject
 	private TemplateMailService mailService;
+
+	@Inject
+	private EventSubmitter eventSubmitter;
 	
-	public ProjectInvitationTokenEntity sendToken(ProjectEntity project, IdentityEntity identity, String rcptMail, String rcptName, String senderName, String customMessage) {
-		ProjectInvitationTokenEntity token = generateToken(project, identity, rcptMail, rcptName, senderName, customMessage);
+	public void acceptEmailToken(ProjectInvitationTokenEntity token, String executor) {
+		updater.addProjectMember(token.getProject(), token.getIdentity(), executor);
+		token.setStatus(ProjectInvitationStatus.ACCEPTED);
+
+		ProjectInvitationTokenEvent event = new ProjectInvitationTokenEvent(token);
+		try {
+			eventSubmitter.submit(event, EventType.PROJECT_INVITATION_EMAIL_ACCEPTED, executor);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}
+	}
+	
+	public void declineEmailToken(ProjectInvitationTokenEntity token, String executor) {
+		ProjectInvitationTokenEvent event = new ProjectInvitationTokenEvent(token);
+		token.setStatus(ProjectInvitationStatus.DECLINED);
+
+		try {
+			eventSubmitter.submit(event, EventType.PROJECT_INVITATION_EMAIL_DECLINED, executor);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}
+	}
+	
+	public ProjectInvitationTokenEntity sendToken(ProjectEntity project, IdentityEntity identity, String rcptMail, String rcptName, String senderName, 
+			String customMessage, String executor) {
+		ProjectInvitationTokenEntity token = generateToken(project, identity, rcptMail, rcptName, senderName, customMessage, executor);
 		sendToken(token);
 		
 		return token;
@@ -56,16 +91,19 @@ public class ProjectInvitationTokenGenerator implements Serializable {
 		context.put("project", token.getProject());
 		
 		mailService.sendMail(templateName, context, true);
+		token.setStatus(ProjectInvitationStatus.MAIL_SENT);
 
 	}
 	
-	public ProjectInvitationTokenEntity generateToken(ProjectEntity project, IdentityEntity identity, String rcptMail, String rcptName, String senderName, String customMessage) {
+	public ProjectInvitationTokenEntity generateToken(ProjectEntity project, IdentityEntity identity, String rcptMail, String rcptName, String senderName, 
+			String customMessage, String executor) {
 
 		logger.debug("Creating ProjectInvitationToken for project {} (rcptMail {}, rcptName {})", project.getName(), rcptMail, rcptName);
 		
 		ProjectInvitationTokenEntity token = dao.createNew();
 		token.setType(ProjectInvitationType.ONE_TIME);
-
+		token.setStatus(ProjectInvitationStatus.NEW);
+		
 		SecureRandom random = new SecureRandom();
 		String t = new BigInteger(130, random).toString(32);
 		token.setToken(t);
@@ -83,7 +121,14 @@ public class ProjectInvitationTokenGenerator implements Serializable {
 		token.setValidUntil(new Date(System.currentTimeMillis() + validity));
 		
 		token = dao.persist(token);
-		
+
+		ProjectInvitationTokenEvent event = new ProjectInvitationTokenEvent(token);
+		try {
+			eventSubmitter.submit(event, EventType.PROJECT_INVITATION_EMAIL_CREATED, executor);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}
+
 		return token;
 	}
 	

@@ -31,7 +31,11 @@ public class ProjectInvitationTokenEntity extends AbstractBaseEntity {
 	@Column(name = "invitation_type")
 	@Enumerated(EnumType.STRING)
 	private ProjectInvitationType type;
-	
+
+	@Column(name = "invitation_status")
+	@Enumerated(EnumType.STRING)
+	private ProjectInvitationStatus status;
+
 	@Column(name="rcpt_mail", length=1024)
 	private String rcptMail;
 	
@@ -120,5 +124,13 @@ public class ProjectInvitationTokenEntity extends AbstractBaseEntity {
 
 	public void setIdentity(IdentityEntity identity) {
 		this.identity = identity;
+	}
+
+	public ProjectInvitationStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(ProjectInvitationStatus status) {
+		this.status = status;
 	}
 }
