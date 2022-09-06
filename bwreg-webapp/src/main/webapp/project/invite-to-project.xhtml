@@ -76,6 +76,16 @@
 				
 				<h:outputLabel value="#{messages['project.invite_project.rcpt_name']}" />
 				<p:inputText value="#{inviteToProjectBean.rcptName}"/>
+
+				<h:outputLabel value="#{messages['project.invite_project.sender_mail']}" />
+				<p:selectOneMenu id="senderMailOption" value="#{inviteToProjectBean.senderMail}">
+					<f:selectItems value="#{inviteToProjectBean.senderEmailList}"/>
+				</p:selectOneMenu>
+
+				<h:outputLabel value="#{messages['project.invite_project.sender_name']}" />
+				<p:selectOneMenu id="senderNameOption" value="#{inviteToProjectBean.senderName}">
+					<f:selectItems value="#{inviteToProjectBean.senderNameList}"/>
+				</p:selectOneMenu>
 				
 			</h:panelGrid>
 			

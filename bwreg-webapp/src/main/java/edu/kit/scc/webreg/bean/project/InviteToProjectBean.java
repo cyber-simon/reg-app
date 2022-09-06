@@ -11,7 +11,9 @@
 package edu.kit.scc.webreg.bean.project;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.faces.event.ComponentSystemEvent;
 import javax.faces.view.ViewScoped;
@@ -20,12 +22,14 @@ import javax.inject.Named;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 
+import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
 import edu.kit.scc.webreg.entity.project.ProjectInvitationTokenEntity;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
+import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.project.LocalProjectService;
 import edu.kit.scc.webreg.service.project.ProjectInvitationTokenService;
@@ -57,6 +61,9 @@ public class InviteToProjectBean implements Serializable {
 	@Inject
 	private IdentityService identityService;
 	
+	@Inject
+	private UserService userService;
+	
 	private LocalProjectEntity entity;
 	private List<ProjectInvitationTokenEntity> tokenList;
 	
@@ -72,7 +79,11 @@ public class InviteToProjectBean implements Serializable {
 	
 	private String rcptName;
 	private String senderName;
+	private String senderMail;
 	private String customMessage;
+	
+	private Set<String> senderEmailList;
+	private Set<String> senderNameList;
 	
 	public void preRenderView(ComponentSystemEvent ev) {
 		
@@ -181,5 +192,47 @@ public class InviteToProjectBean implements Serializable {
 			identity = identityService.findById(session.getIdentityId());
 		}
 		return identity;
+	}
+
+	public Set<String> getSenderEmailList() {
+		if (senderEmailList == null) {
+			fillSenderLists();
+		}
+		return senderEmailList;
+	}
+
+	public Set<String> getSenderNameList() {
+		if (senderNameList == null) {
+			fillSenderLists();
+		}
+		return senderNameList;
+	}
+	
+	private void fillSenderLists() {
+		List<UserEntity> userList = userService.findByIdentity(getIdentity());
+		senderEmailList = new HashSet<String>();
+		senderNameList = new HashSet<String>();
+		
+		for (UserEntity user : userList) {
+			if (user.getEmail() != null) {
+				senderEmailList.add(user.getEmail());
+			}
+			
+			if (user.getEmailAddresses() != null) {
+				senderEmailList.addAll(user.getEmailAddresses());
+			}
+			
+			if (user.getGivenName() != null && user.getSurName() != null) {
+				senderNameList.add(user.getGivenName() + " " + user.getSurName());
+			}
+		}
+	}
+
+	public String getSenderMail() {
+		return senderMail;
+	}
+
+	public void setSenderMail(String senderMail) {
+		this.senderMail = senderMail;
 	}
 }
