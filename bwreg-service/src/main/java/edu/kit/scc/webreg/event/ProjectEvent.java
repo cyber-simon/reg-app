@@ -8,16 +8,20 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.dao.project;
+package edu.kit.scc.webreg.event;
 
-import java.util.List;
-
-import edu.kit.scc.webreg.dao.BaseDao;
-import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
 
-public interface ProjectServiceDao extends BaseDao<ProjectEntity> {
+public class ProjectEvent extends AbstractEvent<ProjectEntity> {
 
-	List<ProjectEntity> findByService(ServiceEntity service);
+	private static final long serialVersionUID = 1L;
 
+	public ProjectEvent(ProjectEntity entity) {
+		super(entity);
+	}
+
+	public ProjectEvent(ProjectEntity entity, AuditEntryEntity audit) {
+		super(entity, audit);
+	}
 }

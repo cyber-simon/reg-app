@@ -22,15 +22,16 @@ import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipType;
 import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
+import edu.kit.scc.webreg.entity.project.ProjectServiceStatusType;
 import edu.kit.scc.webreg.entity.project.ProjectServiceType;
 
 public interface BaseProjectDao<T extends ProjectEntity> extends BaseDao<T> {
 
-	List<ProjectEntity> findAllByService(ServiceEntity service);
+	List<ProjectServiceEntity> findAllByService(ServiceEntity service);
 
 	List<T> findByService(ServiceEntity service);
 
-	ProjectServiceEntity addServiceToProject(ProjectEntity project, ServiceEntity service, ProjectServiceType type);
+	ProjectServiceEntity addServiceToProject(ProjectEntity project, ServiceEntity service, ProjectServiceType type, ProjectServiceStatusType status);
 
 	ProjectIdentityAdminEntity addAdminToProject(ProjectEntity project, IdentityEntity identity, ProjectAdminType type);
 	void removeAdminFromProject(ProjectIdentityAdminEntity pia);
@@ -44,7 +45,7 @@ public interface BaseProjectDao<T extends ProjectEntity> extends BaseDao<T> {
 
 	List<ProjectIdentityAdminEntity> findAdminsForProject(ProjectEntity project);
 	
-	Set<ProjectServiceEntity> findServicesForProject(ProjectEntity project, Boolean withParents);
+	Set<ProjectServiceEntity> findServicesForProject(ProjectEntity project, Boolean withParents, ProjectServiceStatusType status);
 
 	ProjectMembershipEntity findByIdentityAndProject(IdentityEntity identity, ProjectEntity project);
 	
@@ -53,4 +54,10 @@ public interface BaseProjectDao<T extends ProjectEntity> extends BaseDao<T> {
 	List<IdentityEntity> findIdentitiesForProject(ProjectEntity project);
 
 	List<ProjectMembershipEntity> findMembersForProject(ProjectEntity project, boolean withChildren);
+
+	Set<ProjectServiceEntity> findServicesForProject(ProjectEntity project, Boolean withParents);
+
+	ProjectServiceEntity findByServiceAndProject(ServiceEntity service, ProjectEntity project);
+
+	ProjectServiceEntity mergeProjectService(ProjectServiceEntity entity);
 }

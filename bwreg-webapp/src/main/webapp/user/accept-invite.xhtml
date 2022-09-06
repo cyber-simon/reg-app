@@ -1,0 +1,64 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="t" value="#{acceptInviteBean.tokenString}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{acceptInviteBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	
+	<h:form id="form" class="full fancy form">
+		<h2><h:outputText value="#{messages['project.accept_invite']}"/></h2>
+
+		<p:messages id="messageBox" showDetail="true" />
+
+		<p:panelGrid columns="2">
+			<p:outputLabel for="@next" value="#{messages['token']}" />
+			<p:inputText value="#{acceptInviteBean.tokenString}"/>
+		</p:panelGrid>
+
+		<h:panelGroup id="tokenPnl">
+			<p:panel rendered="#{acceptInviteBean.token == null}">
+				<p:commandButton value="#{messages['check']}" action="#{acceptInviteBean.check()}" update="messageBox, tokenPnl"/>		
+			</p:panel>
+	
+			<p:panel rendered="#{acceptInviteBean.token != null}">
+
+				<p:outputPanel>
+					<h:outputText value="#{messages['project.accept_invite.accept_txt_pre']}" />
+					<h5><h:outputText value="#{acceptInviteBean.token.project.name}" /></h5>
+					<h:outputText value="#{messages['project.accept_invite.accept_txt_post']}" />
+				</p:outputPanel>
+				
+				<p:commandButton value="#{messages['accept']}" action="#{acceptInviteBean.accept()}" update="messageBox, tokenPnl"/>		
+				<p:commandButton value="#{messages['decline']}" action="#{acceptInviteBean.decline()}" update="messageBox, tokenPnl"/>		
+			</p:panel>
+		</h:panelGroup>
+				
+		<div class="text full" style="margin-top: 0.4em;">
+			<a href="../index.xhtml"><h:outputText value="#{messages.back}"/></a>
+		</div>		
+		
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>

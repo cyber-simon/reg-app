@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
+import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.script.ScriptingEnv;
 
 public class AbstractProjectCreater<T extends ProjectEntity> implements Serializable {
@@ -19,4 +20,8 @@ public class AbstractProjectCreater<T extends ProjectEntity> implements Serializ
 	@Inject
 	private ScriptingEnv scriptingEnv;
 	
+	@Inject
+	private EventSubmitter eventSubmitter;
+	
+		
 }

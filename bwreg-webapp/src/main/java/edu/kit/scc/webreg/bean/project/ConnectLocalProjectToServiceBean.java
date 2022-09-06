@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.bean.project;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.faces.event.ComponentSystemEvent;
@@ -18,42 +19,56 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.slf4j.Logger;
+
+import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectAdminType;
-import edu.kit.scc.webreg.entity.project.ProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
+import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
+import edu.kit.scc.webreg.entity.project.ProjectServiceStatusType;
+import edu.kit.scc.webreg.entity.project.ProjectServiceType;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
+import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.project.LocalProjectService;
 import edu.kit.scc.webreg.service.project.ProjectService;
 import edu.kit.scc.webreg.session.SessionManager;
-import edu.kit.scc.webreg.util.ViewIds;
 
 @Named
 @ViewScoped
-public class ProjectAdminEditProjectBean implements Serializable {
+public class ConnectLocalProjectToServiceBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	@Inject
+	private Logger logger;
+	
 	@Inject
 	private SessionManager session;
 	
 	@Inject
 	private LocalProjectService service;
-	
+
+	@Inject
+	private ServiceService serviceService;
+
 	@Inject
 	private ProjectService projectService;
-	
+
 	private LocalProjectEntity entity;
 
-	private List<ProjectEntity> parentProjectList;
-	private ProjectEntity selectedParentProject;
+	private List<ServiceEntity> serviceList;
+	private List<ServiceEntity> selectedServices;
+	private List<ProjectServiceEntity> projectServiceList;
+	
+	private Long id;
 
 	private List<ProjectIdentityAdminEntity> adminList;
 	private ProjectIdentityAdminEntity adminIdentity;
-	
-	private Long projectId;
-	
+
 	public void preRenderView(ComponentSystemEvent ev) {
+		selectedServices = new ArrayList<ServiceEntity>();
+		
 		for (ProjectIdentityAdminEntity a : getAdminList()) {
 			if (a.getIdentity().getId().equals(session.getIdentityId())) {
 				adminIdentity = a;
@@ -70,30 +85,35 @@ public class ProjectAdminEditProjectBean implements Serializable {
 			}
 		}
 	}
-	
+
 	public List<ProjectIdentityAdminEntity> getAdminList() {
 		if (adminList == null) {
-			adminList = projectService.findAdminsForProject(entity);
+			adminList = projectService.findAdminsForProject(getEntity());
 		}
 		return adminList;
 	}
-	
+
 	public String save() {
-		entity.setParentProject(selectedParentProject);
-		entity = service.save(entity);
-		
-		return ViewIds.PROJECT_ADMIN_INDEX + "&faces-redirect=true";
+		for (ServiceEntity s : selectedServices) {
+			projectService.addOrChangeService(entity, s, ProjectServiceType.PASSIVE_GROUP, 
+					ProjectServiceStatusType.APPROVAL_PENDING, "idty-" + session.getIdentityId());
+		}
+		return "show-local-project.xhtml?faces-redirect=true&id=" + getEntity().getId();
+	}
+	
+	public Long getId() {
+		return id;
 	}
 
-	public String cancel() {
-		return ViewIds.PROJECT_ADMIN_INDEX + "&faces-redirect=true";
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public LocalProjectEntity getEntity() {
-		if (entity == null) { 
-			entity = service.findById(projectId);
+		if (entity == null) {
+			entity = service.findByIdWithAttrs(id, "projectServices");
 		}
-		
+
 		return entity;
 	}
 
@@ -101,26 +121,32 @@ public class ProjectAdminEditProjectBean implements Serializable {
 		this.entity = entity;
 	}
 
-	public List<ProjectEntity> getParentProjectList() {
-		if (parentProjectList == null) {
-			parentProjectList = projectService.findAllByAttr("subProjectsAllowed", Boolean.TRUE);
+	public List<ServiceEntity> getServiceList() {
+		if (serviceList == null) {
+			serviceList = serviceService.findAllByAttr("projectCapable", Boolean.TRUE);
+			for (ProjectServiceEntity pse : getProjectServiceList()) {
+				serviceList.remove(pse.getService());
+			}
 		}
-		return parentProjectList;
+		return serviceList;
 	}
 
-	public ProjectEntity getSelectedParentProject() {
-		return selectedParentProject;
+	public List<ServiceEntity> getSelectedServices() {
+		return selectedServices;
 	}
 
-	public void setSelectedParentProject(ProjectEntity selectedParentProject) {
-		this.selectedParentProject = selectedParentProject;
+	public void setSelectedServices(List<ServiceEntity> selectedServices) {
+		this.selectedServices = selectedServices;
 	}
 
-	public Long getProjectId() {
-		return projectId;
+	public List<ProjectServiceEntity> getProjectServiceList() {
+		if (projectServiceList == null) {
+			projectServiceList = projectService.findServicesForProject(entity);
+		}
+		return projectServiceList;
 	}
 
-	public void setProjectId(Long projectId) {
-		this.projectId = projectId;
+	public void setProjectServiceList(List<ProjectServiceEntity> projectServiceList) {
+		this.projectServiceList = projectServiceList;
 	}
 }

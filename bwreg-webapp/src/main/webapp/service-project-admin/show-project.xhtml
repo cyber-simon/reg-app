@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="id" value="#{serviceProjectAdminShowProjectBean.projectId}"/>
+		<f:viewParam name="sid" value="#{serviceProjectAdminShowProjectBean.serviceId}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{serviceProjectAdminShowProjectBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form" class="full form">
+
+		<h2><h:outputText value="#{messages['project.local_project']} (#{serviceProjectAdminShowProjectBean.serviceEntity.name}): #{serviceProjectAdminShowProjectBean.entity.name}"/></h2>
+
+		<p:messages id="messageBox" showDetail="true" />
+		
+		<p:panel header="#{messages.properties}">
+			<p:panelGrid id="baseData" columns="2">
+		
+		        <h:outputText value="#{messages.id}:"/>
+		        <h:outputText value="#{serviceProjectAdminShowProjectBean.entity.id}"/>
+		
+		        <h:outputText value="#{messages.name}:"/>
+		        <h:outputText value="#{serviceProjectAdminShowProjectBean.entity.name}"/>
+					
+		        <h:outputText value="#{messages.group_name}:"/>
+		        <h:outputText value="#{serviceProjectAdminShowProjectBean.entity.groupName}"/>
+					
+		        <h:outputText value="#{messages.parent_vo}:"/>
+		        <h:outputText value="#{serviceProjectAdminShowProjectBean.entity.parentProject}"/>
+				
+		        <h:outputText value="#{messages.services}:"/>
+		        <p:repeat value="#{serviceProjectAdminShowProjectBean.entity.projectServices}" var="s">
+		        	<div><h:outputText value="#{s.service.name} (#{s.status})"/></div>
+				</p:repeat>
+			</p:panelGrid>
+		</p:panel>
+
+		<p:panel rendered="#{serviceProjectAdminShowProjectBean.projectServiceEntity.status == 'APPROVAL_PENDING'}">
+			<p:outputPanel>
+				<h:outputText value="#{messages['project.local_project.approver_admin_message']}" />
+			</p:outputPanel>
+			<p:outputPanel style="margin-top: 0.5em;">
+				<h:outputText value="#{serviceProjectAdminShowProjectBean.projectServiceEntity.project.name}" />
+				<i class="pi pi-arrow-right"></i>
+				<h:outputText value=" #{serviceProjectAdminShowProjectBean.projectServiceEntity.service.name}" />
+			</p:outputPanel>
+			
+			<p:outputPanel>
+				<p:commandButton id="approve" action="#{serviceProjectAdminShowProjectBean.approve()}" value="#{messages.approve}" style="color:green;" update="@form"/>
+				<p:commandButton id="deny" action="#{serviceProjectAdminShowProjectBean.deny()}" value="#{messages.deny}" style="color:red;" update="@form"/>
+			</p:outputPanel>
+		</p:panel>
+
+		<p:panel rendered="#{serviceProjectAdminShowProjectBean.projectServiceEntity.status == 'ACTIVE'}">
+			<h:outputText value="#{messages['project.local_project.approver_active_panel_txt']}" />
+		</p:panel>
+
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>

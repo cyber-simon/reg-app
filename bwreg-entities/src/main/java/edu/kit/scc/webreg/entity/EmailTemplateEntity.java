@@ -49,6 +49,9 @@ public class EmailTemplateEntity extends AbstractBaseEntity {
 	@Column(name = "tpl_bcc", length=512)
 	private String bcc;
 	
+	@Column(name = "tpl_reply_to", length=512)
+	private String replyTo;
+	
 	public String getName() {
 		return name;
 	}
@@ -103,6 +106,14 @@ public class EmailTemplateEntity extends AbstractBaseEntity {
 
 	public void setBcc(String bcc) {
 		this.bcc = bcc;
+	}
+
+	public String getReplyTo() {
+		return replyTo;
+	}
+
+	public void setReplyTo(String replyTo) {
+		this.replyTo = replyTo;
 	}
 
 }

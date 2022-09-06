@@ -187,6 +187,29 @@
 				</li>
    			</h:panelGroup>
 
+   			<h:panelGroup rendered="#{authorizationBean.serviceProjectAdminList.size() gt 0}">
+				<li class="flyout"><a href="#{request.contextPath}/index.xhtml">#{messages.project_admin}</a>
+					<div class="dropdown">
+						<ul class="navigation-l2">
+							<li class="has-submenu">
+								<a>#{messages.project_admin}</a>
+									<ui:repeat var="service" value="#{authorizationBean.serviceProjectAdminList}">
+									<div class="submenu">
+										<ul class="navigation-l3">
+											<li class="">
+								    	        <h:link outcome="/service-project-admin/index.xhtml" value="#{service.name}">
+								    	        	<f:param name="serviceId" value="#{service.id}" />
+								    	        </h:link>
+											</li>
+										</ul>
+									</div>
+								</ui:repeat>
+							</li>
+						</ul>
+					</div>
+				</li>
+   			</h:panelGroup>
+
 			<li class="home"><a href="#{request.contextPath}/index.xhtml"><span>Startseite</span></a></li>
 		</h:panelGroup>
 	  </ul>

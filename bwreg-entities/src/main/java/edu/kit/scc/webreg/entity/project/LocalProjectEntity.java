@@ -11,13 +11,13 @@ public class LocalProjectEntity extends ProjectEntity {
 	private static final long serialVersionUID = 1L;
 
 	@OneToMany(mappedBy = "project")
-	private Set<ProjectInvitationToken> invitationTokens;
+	private Set<ProjectInvitationTokenEntity> invitationTokens;
 
-	public Set<ProjectInvitationToken> getInvitationTokens() {
+	public Set<ProjectInvitationTokenEntity> getInvitationTokens() {
 		return invitationTokens;
 	}
 
-	public void setInvitationTokens(Set<ProjectInvitationToken> invitationTokens) {
+	public void setInvitationTokens(Set<ProjectInvitationTokenEntity> invitationTokens) {
 		this.invitationTokens = invitationTokens;
 	}
 

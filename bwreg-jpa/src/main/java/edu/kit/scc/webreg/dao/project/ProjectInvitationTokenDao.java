@@ -8,18 +8,11 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.service.mail;
+package edu.kit.scc.webreg.dao.project;
 
-import java.io.Serializable;
+import edu.kit.scc.webreg.dao.BaseDao;
+import edu.kit.scc.webreg.entity.project.ProjectInvitationTokenEntity;
 
-import edu.kit.scc.webreg.exc.MailServiceException;
-
-public interface MailService extends Serializable {
-
-	void sendMail(String from, String to, String cc, String bcc,
-			String subject, String body) throws MailServiceException;
-
-	void sendMail(String from, String to, String cc, String bcc, String subject, String body, String replyTo)
-			throws MailServiceException;
+public interface ProjectInvitationTokenDao extends BaseDao<ProjectInvitationTokenEntity> {
 
 }

@@ -27,16 +27,25 @@ import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipType;
 import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
+import edu.kit.scc.webreg.entity.project.ProjectServiceStatusType;
 import edu.kit.scc.webreg.entity.project.ProjectServiceType;
 
 public abstract class JpaBaseProjectDao<T extends ProjectEntity> extends JpaBaseDao<T> implements BaseProjectDao<T> {
 
 	public abstract List<T> findByService(ServiceEntity service);
 	
+	@Override
+	public ProjectServiceEntity mergeProjectService(ProjectServiceEntity entity) {
+		if (em.contains(entity))
+			return entity;
+		else
+			return em.merge(entity);
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ProjectEntity> findAllByService(ServiceEntity service) {
-		return em.createQuery("select r.project from ProjectEntity r where r.service = :service order by r.project.name")
+	public List<ProjectServiceEntity> findAllByService(ServiceEntity service) {
+		return em.createQuery("select r from ProjectServiceEntity r where r.service = :service order by r.project.name")
 				.setParameter("service", service).getResultList();
 	}
 	
@@ -98,37 +107,63 @@ public abstract class JpaBaseProjectDao<T extends ProjectEntity> extends JpaBase
 		}
 	}
 
+	@Override
+	public ProjectServiceEntity findByServiceAndProject(ServiceEntity service, ProjectEntity project) {
+		try {
+			return (ProjectServiceEntity) em.createQuery("select r from ProjectServiceEntity r where r.service = :service and r.project = :project")
+				.setParameter("service", service).setParameter("project", project).getSingleResult();
+		}
+		catch (NoResultException e) {
+			return null;
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<ProjectIdentityAdminEntity> findAdminsForProject(ProjectEntity project) {
 		return em.createQuery("select r from ProjectIdentityAdminEntity r where r.project = :project")
 				.setParameter("project", project).getResultList();
 	}
-	
+
 	@Override
 	public Set<ProjectServiceEntity> findServicesForProject(ProjectEntity project, Boolean withParents) {
+		return findServicesForProject(project, withParents, null);
+	}
+	
+	@Override
+	public Set<ProjectServiceEntity> findServicesForProject(ProjectEntity project, Boolean withParents, ProjectServiceStatusType status) {
 		Set<ProjectServiceEntity> resultList = new HashSet<ProjectServiceEntity>();
 		
 		if (withParents) {
-			addServicesForProject(resultList, project, 0, 3);
+			addServicesForProject(resultList, project, 0, 3, status);
 		}
 		else {
-			addServicesForProject(resultList, project, 0, 1);
+			addServicesForProject(resultList, project, 0, 1, status);
 		}
 
 		return resultList;
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void addServicesForProject(Set<ProjectServiceEntity> resultList, ProjectEntity project, int depth, int maxDepth) {
+	private void addServicesForProject(Set<ProjectServiceEntity> resultList, ProjectEntity project, int depth, int maxDepth, ProjectServiceStatusType status) {
 		if (depth >= maxDepth) {
 			return;
 		}
 		else {
-			resultList.addAll(em.createQuery("select r from ProjectServiceEntity r where r.project = :project")
-					.setParameter("project", project).getResultList());
+			if (status != null) {
+				resultList.addAll(em.createQuery("select r from ProjectServiceEntity r where r.project = :project and status = :status")
+						.setParameter("project", project).setParameter("status", status)
+						.getResultList());
+			}
+			else {
+				// find all, if status is null
+				resultList.addAll(em.createQuery("select r from ProjectServiceEntity r where r.project = :project")
+						.setParameter("project", project)
+						.getResultList());
+			}
+			
 			if (project.getParentProject() != null) {
-				addServicesForProject(resultList, project, depth + 1, maxDepth);
+				addServicesForProject(resultList, project, depth + 1, maxDepth, status);
 			}
 		}
 	}
@@ -150,11 +185,12 @@ public abstract class JpaBaseProjectDao<T extends ProjectEntity> extends JpaBase
 	}
 
 	@Override
-	public ProjectServiceEntity addServiceToProject(ProjectEntity project, ServiceEntity service, ProjectServiceType type) {
+	public ProjectServiceEntity addServiceToProject(ProjectEntity project, ServiceEntity service, ProjectServiceType type, ProjectServiceStatusType status) {
 		ProjectServiceEntity entity = new ProjectServiceEntity();
 		entity.setProject(project);
 		entity.setService(service);
 		entity.setType(type);
+		entity.setStatus(status);
 		em.persist(entity);
 		return entity;
 	}

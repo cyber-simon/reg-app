@@ -22,6 +22,7 @@ public class SimpleQueuedMail implements Serializable {
 	private String bcc;
 	private String subject;
 	private String body;
+	private String replyTo;
 	
 	public String getFrom() {
 		return from;
@@ -69,6 +70,14 @@ public class SimpleQueuedMail implements Serializable {
 
 	public void setBcc(String bcc) {
 		this.bcc = bcc;
+	}
+
+	public String getReplyTo() {
+		return replyTo;
+	}
+
+	public void setReplyTo(String replyTo) {
+		this.replyTo = replyTo;
 	}
 	
 }

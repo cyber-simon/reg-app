@@ -8,18 +8,20 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.service.mail;
+package edu.kit.scc.webreg.event;
 
-import java.io.Serializable;
+import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
+import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
 
-import edu.kit.scc.webreg.exc.MailServiceException;
+public class ProjectServiceEvent extends AbstractEvent<ProjectServiceEntity> {
 
-public interface MailService extends Serializable {
+	private static final long serialVersionUID = 1L;
 
-	void sendMail(String from, String to, String cc, String bcc,
-			String subject, String body) throws MailServiceException;
+	public ProjectServiceEvent(ProjectServiceEntity entity) {
+		super(entity);
+	}
 
-	void sendMail(String from, String to, String cc, String bcc, String subject, String body, String replyTo)
-			throws MailServiceException;
-
+	public ProjectServiceEvent(ProjectServiceEntity entity, AuditEntryEntity audit) {
+		super(entity, audit);
+	}
 }

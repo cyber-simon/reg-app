@@ -42,11 +42,17 @@ public class MailServiceImpl implements MailService {
 	@Override
 	public void sendMail(String from, String to, String cc, String bcc, String subject, String body) 
 			throws MailServiceException {
+		sendMail(from, to, cc, bcc, subject, body, null);
+	}
+	
+	@Override
+	public void sendMail(String from, String to, String cc, String bcc, String subject, String body, String replyTo) 
+			throws MailServiceException {
 
 		logger.debug("Sending mail from {} to {}", from, to);
 		
 		try {
-			sendMailIntern(from, to, cc, bcc, subject, body);
+			sendMailIntern(from, to, cc, bcc, subject, body, replyTo);
 		} catch (AddressException e) {
 			throw new MailServiceException("Invalid Email Adderss", e);
 		} catch (MessagingException e) {
@@ -54,7 +60,7 @@ public class MailServiceImpl implements MailService {
 		}
 	}
 
-	private void sendMailIntern(String from, String to, String cc, String bcc, String subject, String body) 
+	private void sendMailIntern(String from, String to, String cc, String bcc, String subject, String body, String replyTo) 
 			throws AddressException, MessagingException, MailServiceException {
 		Message message = new MimeMessage(session);
 
@@ -78,8 +84,11 @@ public class MailServiceImpl implements MailService {
 		
 		if (body != null)
 			message.setText(body);
+
+		if (replyTo != null)
+			message.setReplyTo(InternetAddress.parse(replyTo, false));
 		
-		message.setHeader("X-Mailer", "bwIdm Webregistrierung Mail");
+		message.setHeader("X-Mailer", "reg-app mail service");
 		message.setSentDate(new Date());
 		Transport.send(message);
 	}

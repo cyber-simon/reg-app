@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="id" value="#{inviteToProjectBean.id}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{inviteToProjectBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form" class="full form">
+
+		<h2><h:outputText value="#{messages['project.invite_project.members']}: #{inviteToProjectBean.entity.name}"/></h2>
+
+		<p:messages id="messageBox" showDetail="true" />
+		
+		<p:panel>
+			<h:outputText value="#{messages['project.invite_project.members_text']}"/>
+		</p:panel>
+
+		<p:dataTable id="dataTable" var="t" value="#{inviteToProjectBean.tokenList}">
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.token}" />
+				</f:facet>
+				<h:outputText value="#{t.token}" />
+			</p:column>			
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.email}" />
+				</f:facet>
+				<h:outputText value="#{t.rcptMail}" />
+			</p:column>			
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.valid_to}" />
+				</f:facet>
+				<h:outputText value="#{t.validUntil}" />
+			</p:column>			
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.status}" />
+				</f:facet>
+				<h:outputText value="#{t.status}" />
+			</p:column>			
+			<p:column width="12%">
+   				<p:tooltip for="@next" value="#{messages.delete}" position="top"/>
+       			<p:commandButton action="#{inviteToProjectBean.deleteToken(t)}" immediate="true" update=":form:messageBox, :form:dataTable"
+       				icon="fa fa-fw fa-trash" style="font-size: 0.6em;">
+       				<p:confirm header="#{messages.confirm_header}" escape="false"
+       					message="#{messages['project.invite_project.delete_token_confirm']}" />
+       			</p:commandButton>
+       		</p:column>
+		</p:dataTable>
+
+
+		<p:panel id="inputPanel" header="#{messages['project.invite_project.members_with_email']}">
+			<h:outputText value="#{messages['project.invite_project.members_with_email_text']}"/>
+			
+			<h:panelGrid columns="2">
+			
+				<h:outputLabel value="#{messages['project.invite_project.rcpt_mail']}" />
+				<p:inputText value="#{inviteToProjectBean.rcptMail}"/>
+				
+				<h:outputLabel value="#{messages['project.invite_project.rcpt_name']}" />
+				<p:inputText value="#{inviteToProjectBean.rcptName}"/>
+
+				<h:outputLabel value="#{messages['project.invite_project.sender_mail']}" />
+				<p:selectOneMenu id="senderMailOption" value="#{inviteToProjectBean.senderMail}">
+					<f:selectItems value="#{inviteToProjectBean.senderEmailList}"/>
+				</p:selectOneMenu>
+
+				<h:outputLabel value="#{messages['project.invite_project.sender_name']}" />
+				<p:selectOneMenu id="senderNameOption" value="#{inviteToProjectBean.senderName}">
+					<f:selectItems value="#{inviteToProjectBean.senderNameList}"/>
+				</p:selectOneMenu>
+				
+			</h:panelGrid>
+			
+			<p:commandButton action="#{inviteToProjectBean.sendToken()}" value="#{messages['project.invite_project.send_invitation']}" update="messageBox, dataTable, inputPanel"/>
+		</p:panel>
+
+		<div class="text full" style="margin-top: 0.4em;">
+			<a href="show-local-project.xhtml?id=#{inviteToProjectBean.entity.id}"><h:outputText value="#{messages.back}"/></a>
+		</div>		
+
+	    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" closable="false" 
+	    	closeOnEscape="true" width="320">
+	        <p:commandButton value="#{messages.yes}" type="button" styleClass="ui-confirmdialog-yes"/>
+	        <p:commandButton value="#{messages.no}" type="button" styleClass="ui-confirmdialog-no"/>
+	    </p:confirmDialog>    
+
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>

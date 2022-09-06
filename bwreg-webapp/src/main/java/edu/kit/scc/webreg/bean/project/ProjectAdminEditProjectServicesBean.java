@@ -16,20 +16,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.inject.Named;
-import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
-
-import org.primefaces.model.LazyDataModel;
+import javax.inject.Named;
 
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectAdminRoleEntity;
 import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
+import edu.kit.scc.webreg.entity.project.ProjectServiceStatusType;
+import edu.kit.scc.webreg.entity.project.ProjectServiceType;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
-import edu.kit.scc.webreg.model.GenericLazyDataModelImpl;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.project.LocalProjectService;
 import edu.kit.scc.webreg.service.project.ProjectService;
@@ -101,7 +100,7 @@ public class ProjectAdminEditProjectServicesBean implements Serializable {
 	}
 	
 	public String save() {
-		projectService.updateServices(entity, getServiceList(), "idty-" + session.getIdentityId());
+		projectService.updateServices(entity, getServiceList(), ProjectServiceType.PASSIVE_GROUP, ProjectServiceStatusType.ACTIVE, "idty-" + session.getIdentityId());
 		return "show-project.xhtml?faces-redirect=true&projectId=" + entity.getId();
 	}
 	

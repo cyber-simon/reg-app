@@ -3,8 +3,8 @@ package edu.kit.scc.webreg.service.project;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import edu.kit.scc.webreg.dao.project.LocalProjectDao;
 import edu.kit.scc.webreg.dao.project.BaseProjectDao;
+import edu.kit.scc.webreg.dao.project.LocalProjectDao;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
 
 @ApplicationScoped

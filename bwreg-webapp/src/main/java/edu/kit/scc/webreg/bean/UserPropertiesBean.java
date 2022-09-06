@@ -27,10 +27,12 @@ import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
+import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.service.GroupService;
 import edu.kit.scc.webreg.service.RoleService;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.identity.IdentityService;
+import edu.kit.scc.webreg.service.project.ProjectService;
 import edu.kit.scc.webreg.session.SessionManager;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
@@ -49,7 +51,9 @@ public class UserPropertiesBean implements Serializable {
 	private List<RoleEntity> roleList;
 
 	private List<GroupEntity> groupList;
-	
+
+    private List<ProjectMembershipEntity> projectMemberList;
+
 	private ClaimsSet claims;
 	
 	@Inject
@@ -66,7 +70,10 @@ public class UserPropertiesBean implements Serializable {
 	
 	@Inject
 	private GroupService groupService;
-	
+
+ 	@Inject
+ 	private ProjectService projectService;
+
     @Inject 
     private SessionManager sessionManager;
     
@@ -133,4 +140,12 @@ public class UserPropertiesBean implements Serializable {
 		}
 		return claims;
 	}
+
+	public List<ProjectMembershipEntity> getProjectMemberList() {
+		if (projectMemberList == null) {
+			projectMemberList = projectService.findByIdentity(getIdentity());
+		}
+		return projectMemberList;
+	}
+
 }

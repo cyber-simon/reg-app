@@ -96,11 +96,12 @@ public class TemplateMailServiceImpl implements TemplateMailService {
 			String bcc = renderer.evaluate(emailTemplateEntity.getBcc(), rendererContext);
 			String from = renderer.evaluate(emailTemplateEntity.getFrom(), rendererContext);
 			String subject = renderer.evaluate(emailTemplateEntity.getSubject(), rendererContext);
+			String replyTo = renderer.evaluate(emailTemplateEntity.getReplyTo(), rendererContext);
 
 			if (queued)
-				queuedMailService.sendMail(from, to, cc, bcc, subject, body);
+				queuedMailService.sendMail(from, to, cc, bcc, subject, body, replyTo);
 			else
-				mailService.sendMail(from, to, cc, bcc, subject, body);
+				mailService.sendMail(from, to, cc, bcc, subject, body, replyTo);
 
 		} catch (TemplateRenderingException e) {
 			logger.warn("Problem while processing template", e);

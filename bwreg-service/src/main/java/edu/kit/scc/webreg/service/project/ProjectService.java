@@ -20,12 +20,13 @@ import edu.kit.scc.webreg.entity.project.ProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
+import edu.kit.scc.webreg.entity.project.ProjectServiceStatusType;
+import edu.kit.scc.webreg.entity.project.ProjectServiceType;
 import edu.kit.scc.webreg.service.BaseService;
 
 public interface ProjectService extends BaseService<ProjectEntity> {
 
 	void updateProjectMemberList(ProjectEntity project, Set<IdentityEntity> memberList, String executor);
-	void updateServices(ProjectEntity project, Set<ServiceEntity> services, String executor);
 	void addAdminToProject(ProjectEntity project, IdentityEntity identity, ProjectAdminType type, String executor);
 	void removeAdminFromProject(ProjectIdentityAdminEntity pia, String executor);
 	
@@ -44,4 +45,11 @@ public interface ProjectService extends BaseService<ProjectEntity> {
 	List<ProjectMembershipEntity> findByIdentity(IdentityEntity identity);
 	List<ProjectServiceEntity> findServicesFromParentsForProject(ProjectEntity project);
 	List<ProjectMembershipEntity> findMembersForProject(ProjectEntity project, boolean withChildren);
+	void updateServices(ProjectEntity project, Set<ServiceEntity> services, ProjectServiceType type,
+			ProjectServiceStatusType status, String executor);
+	void addOrChangeService(ProjectEntity project, ServiceEntity service, ProjectServiceType type,
+			ProjectServiceStatusType status, String executor);
+	List<ProjectServiceEntity> findAllByService(ServiceEntity service);
+	void addProjectMember(ProjectEntity project, IdentityEntity identity, String executor);
+	ProjectMembershipEntity findByIdentityAndProject(IdentityEntity identity, ProjectEntity project);
 }

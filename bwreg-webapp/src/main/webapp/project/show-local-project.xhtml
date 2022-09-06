@@ -22,7 +22,7 @@
 	<ui:define name="content">
 	<h:form id="form" class="full form">
 
-		<h2><h:outputText value="#{messages.local_vo}: #{userShowLocalProjectBean.entity.name}"/></h2>
+		<h2><h:outputText value="#{messages['project.local_project']}: #{userShowLocalProjectBean.entity.name}"/></h2>
 
 		<p:messages id="messageBox" showDetail="true" />
 		
@@ -38,13 +38,27 @@
 		        <h:outputText value="#{messages.group_name}:"/>
 		        <h:outputText value="#{userShowLocalProjectBean.entity.groupName}"/>
 					
-		        <h:outputText value="#{messages.parent_vo}:"/>
-		        <h:outputText value="#{userShowLocalProjectBean.entity.parentProject}"/>
+		        <h:outputText value="#{messages.parent_vo}:" rendered="#{userShowLocalProjectBean.entity.parentProject != null}"/>
+		        <h:outputText value="#{userShowLocalProjectBean.entity.parentProject}" rendered="#{userShowLocalProjectBean.entity.parentProject != null}"/>
 				
 		        <h:outputText value="#{messages.services}:"/>
 		        <p:repeat value="#{userShowLocalProjectBean.entity.projectServices}" var="s">
-		        	<div><h:outputText value="#{s.service.name}"/></div>
+		        	<div><h:outputText value="#{s.service.name} (#{s.status})"/></div>
 				</p:repeat>
+			</p:panelGrid>
+		</p:panel>
+
+		<p:panel>
+			<p:panelGrid columns="2">
+				<p:linkButton href="connect-local-project-to-service.xhtml" value="#{messages['project.show_local_project.connect_to_service_link']}">
+					<f:param name="id" value="#{userShowLocalProjectBean.entity.id}"/>
+				</p:linkButton>
+				<h:outputText value="#{messages['project.show_local_project.connect_to_service_link_text']}" />
+
+				<p:linkButton href="invite-to-project.xhtml" value="#{messages['project.show_local_project.invite_to_project_link']}">
+					<f:param name="id" value="#{userShowLocalProjectBean.entity.id}"/>
+				</p:linkButton>
+				<h:outputText value="#{messages['project.show_local_project.invite_to_project_link_text']}" />
 			</p:panelGrid>
 		</p:panel>
 
@@ -52,6 +66,49 @@
 			<a href="index.xhtml"><h:outputText value="#{messages.back}"/></a>
 		</div>		
 
+		<h5 style="margin-top: 1em;"><h:outputText value="#{messages['project.members']}" /></h5>
+		<p:dataTable id="dataTableMember" var="member" value="#{userShowLocalProjectBean.memberList}">
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.id}" />
+				</f:facet>
+				<h:outputText value="#{member.identity.id}" />
+			</p:column>			
+			<p:column sortBy="#{member.identity.prefUser.eppn}" filterBy="#{member.identity.prefUser.eppn}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.name}" />
+				</f:facet>
+				<h:outputText value="#{member.identity.prefUser.eppn}" />
+			</p:column>			
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.type}" />
+				</f:facet>
+				<h:outputText value="#{member.membershipType}" />
+			</p:column>			
+		</p:dataTable>	
+		
+		<h5 style="margin-top: 1em;"><h:outputText value="#{messages['project.admins']}" /></h5>
+		<p:dataTable id="dataTableAdmin" var="admin" value="#{userShowLocalProjectBean.adminList}">
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.id}" />
+				</f:facet>
+				<h:outputText value="#{admin.identity.id}" />
+			</p:column>			
+			<p:column sortBy="#{admin.identity.prefUser.eppn}" filterBy="#{admin.identity.prefUser.eppn}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.name}" />
+				</f:facet>
+				<h:outputText value="#{admin.identity.prefUser.eppn}" />
+			</p:column>			
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.type}" />
+				</f:facet>
+				<h:outputText value="#{admin.type}" />
+			</p:column>			
+		</p:dataTable>	
 	</h:form>
 
 	</ui:define>

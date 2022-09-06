@@ -14,6 +14,7 @@ import java.util.List;
 
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
+import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
 import edu.kit.scc.webreg.service.BaseService;
 
 public interface LocalProjectService extends BaseService<LocalProjectEntity> {
@@ -21,5 +22,9 @@ public interface LocalProjectService extends BaseService<LocalProjectEntity> {
 	List<LocalProjectEntity> findByService(ServiceEntity service);
 
 	LocalProjectEntity save(LocalProjectEntity project, Long identityId);
+
+	void approve(ProjectServiceEntity pse, String executor);
+
+	void deny(ProjectServiceEntity pse, String denyMessage, String executor);
 
 }

@@ -1,5 +1,7 @@
 package edu.kit.scc.webreg.entity.project;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -10,10 +12,11 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 import edu.kit.scc.webreg.entity.AbstractBaseEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 
 @Entity(name = "ProjectInvitationToken")
 @Table(name = "project_invitation_token")
-public class ProjectInvitationToken extends AbstractBaseEntity {
+public class ProjectInvitationTokenEntity extends AbstractBaseEntity {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -22,21 +25,34 @@ public class ProjectInvitationToken extends AbstractBaseEntity {
 
 	@NotNull
 	@Column(name="invitation_token", length=128, nullable=false, unique=true)
-	@Pattern(regexp = "^[a-z]{1}[a-z0-9-_]{0,63}$")
+	@Pattern(regexp = "^[a-z0-9-_]{0,63}$")
 	private String token;
 
 	@Column(name = "invitation_type")
 	@Enumerated(EnumType.STRING)
 	private ProjectInvitationType type;
-	
+
+	@Column(name = "invitation_status")
+	@Enumerated(EnumType.STRING)
+	private ProjectInvitationStatus status;
+
 	@Column(name="rcpt_mail", length=1024)
 	private String rcptMail;
 	
 	@Column(name="rcpt_name", length=1024)
 	private String rcptName;
 
+	@ManyToOne(targetEntity = IdentityEntity.class)
+	private IdentityEntity identity;
+
 	@Column(name="sender_name", length=1024)
 	private String senderName;
+	
+	@Column(name="custom_message", length=1024)
+	private String customMessage;
+	
+	@Column(name="valid_until")
+	private Date validUntil;
 	
 	public ProjectEntity getProject() {
 		return project;
@@ -84,5 +100,37 @@ public class ProjectInvitationToken extends AbstractBaseEntity {
 
 	public void setSenderName(String senderName) {
 		this.senderName = senderName;
+	}
+
+	public Date getValidUntil() {
+		return validUntil;
+	}
+
+	public void setValidUntil(Date validUntil) {
+		this.validUntil = validUntil;
+	}
+
+	public String getCustomMessage() {
+		return customMessage;
+	}
+
+	public void setCustomMessage(String customMessage) {
+		this.customMessage = customMessage;
+	}
+
+	public IdentityEntity getIdentity() {
+		return identity;
+	}
+
+	public void setIdentity(IdentityEntity identity) {
+		this.identity = identity;
+	}
+
+	public ProjectInvitationStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(ProjectInvitationStatus status) {
+		this.status = status;
 	}
 }

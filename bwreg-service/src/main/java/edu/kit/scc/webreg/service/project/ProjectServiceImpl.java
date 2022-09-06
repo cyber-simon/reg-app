@@ -27,6 +27,8 @@ import edu.kit.scc.webreg.entity.project.ProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
+import edu.kit.scc.webreg.entity.project.ProjectServiceStatusType;
+import edu.kit.scc.webreg.entity.project.ProjectServiceType;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
 
 @Stateless
@@ -50,13 +52,31 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity> implement
 	}
 	
 	@Override
-	public void updateServices(ProjectEntity project, Set<ServiceEntity> services, String executor) {
-		updater.updateServices(project, services, executor);
+	public void addProjectMember(ProjectEntity project, IdentityEntity identity, String executor) {
+		project = dao.merge(project);
+		updater.addProjectMember(project, identity, executor);
+	}
+	
+	@Override
+	public void updateServices(ProjectEntity project, Set<ServiceEntity> services, ProjectServiceType type, 
+			ProjectServiceStatusType status, String executor) {
+		updater.updateServices(project, services, type, status, executor);
+	}
+	
+	@Override
+	public void addOrChangeService(ProjectEntity project, ServiceEntity service, ProjectServiceType type, 
+			ProjectServiceStatusType status, String executor) {
+		updater.addOrChangeService(project, service, type, status, executor);
 	}
 	
 	@Override
 	public List<ProjectEntity> findByService(ServiceEntity service) {
 		return dao.findByService(service);
+	}
+
+	@Override
+	public List<ProjectServiceEntity> findAllByService(ServiceEntity service) {
+		return dao.findAllByService(service);
 	}
 
 	@Override
@@ -68,6 +88,11 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity> implement
 	@Override
 	public List<ProjectMembershipEntity> findByIdentity(IdentityEntity identity) {
 		return dao.findByIdentity(identity);
+	}
+	
+	@Override
+	public ProjectMembershipEntity findByIdentityAndProject(IdentityEntity identity, ProjectEntity project) {
+		return dao.findByIdentityAndProject(identity, project);
 	}
 	
 	@Override

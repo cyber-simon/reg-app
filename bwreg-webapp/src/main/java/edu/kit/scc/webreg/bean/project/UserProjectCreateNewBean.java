@@ -11,7 +11,6 @@
 package edu.kit.scc.webreg.bean.project;
 
 import java.io.Serializable;
-import java.util.List;
 
 import javax.faces.event.ComponentSystemEvent;
 import javax.faces.view.ViewScoped;
@@ -19,14 +18,16 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
-import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
+import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
+import edu.kit.scc.webreg.entity.project.ProjectEntity;
 import edu.kit.scc.webreg.service.identity.IdentityService;
+import edu.kit.scc.webreg.service.project.LocalProjectService;
 import edu.kit.scc.webreg.service.project.ProjectService;
 import edu.kit.scc.webreg.session.SessionManager;
 
 @Named
 @ViewScoped
-public class UserProjectIndexBean implements Serializable {
+public class UserProjectCreateNewBean implements Serializable {
 
  	private static final long serialVersionUID = 1L;
 
@@ -35,13 +36,16 @@ public class UserProjectIndexBean implements Serializable {
  	
  	@Inject
  	private ProjectService projectService;
+
+ 	@Inject
+ 	private LocalProjectService localProjectService;
  	
  	@Inject
  	private IdentityService identityService;
  	
  	private IdentityEntity identity;
-    private List<ProjectIdentityAdminEntity> projectList;
-        
+ 	private LocalProjectEntity entity;
+    
 	public void preRenderView(ComponentSystemEvent ev) {
 	
 	}
@@ -52,11 +56,24 @@ public class UserProjectIndexBean implements Serializable {
 		}
 		return identity;
 	}
-	
-	public List<ProjectIdentityAdminEntity> getProjectList() {
-		if (projectList == null) {
-			projectList = projectService.findAdminByUserId(getIdentity().getId());
-		}
-		return projectList;
+
+	public String save() {
+		entity = localProjectService.save(entity, getIdentity().getId());
+		return "show-local-project.xhtml?id=" + entity.getId();
 	}
+
+	public String cancel() {
+		return "index.xhtml";
+	}
+	
+	public LocalProjectEntity getEntity() {
+		if (entity == null) {
+			entity = localProjectService.createNew();
+		}
+		return entity;
+	}
+
+	public void setEntity(LocalProjectEntity entity) {
+		this.entity = entity;
+	}	
 }
