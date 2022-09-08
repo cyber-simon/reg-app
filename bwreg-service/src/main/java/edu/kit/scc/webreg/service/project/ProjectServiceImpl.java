@@ -56,7 +56,12 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity> implement
 		project = dao.merge(project);
 		updater.addProjectMember(project, identity, executor);
 	}
-	
+
+	@Override
+	public void removeProjectMember(ProjectMembershipEntity pme, String executor) {
+		updater.removeProjectMember(pme, executor);
+	}
+
 	@Override
 	public void updateServices(ProjectEntity project, Set<ServiceEntity> services, ProjectServiceType type, 
 			ProjectServiceStatusType status, String executor) {

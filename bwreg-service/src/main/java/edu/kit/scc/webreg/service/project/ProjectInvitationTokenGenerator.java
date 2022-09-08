@@ -51,7 +51,8 @@ public class ProjectInvitationTokenGenerator implements Serializable {
 	public void acceptEmailToken(ProjectInvitationTokenEntity token, String executor) {
 		updater.addProjectMember(token.getProject(), token.getIdentity(), executor);
 		token.setStatus(ProjectInvitationStatus.ACCEPTED);
-
+		token.setLastStatusChange(new Date());
+		
 		ProjectInvitationTokenEvent event = new ProjectInvitationTokenEvent(token);
 		try {
 			eventSubmitter.submit(event, EventType.PROJECT_INVITATION_EMAIL_ACCEPTED, executor);
@@ -63,6 +64,7 @@ public class ProjectInvitationTokenGenerator implements Serializable {
 	public void declineEmailToken(ProjectInvitationTokenEntity token, String executor) {
 		ProjectInvitationTokenEvent event = new ProjectInvitationTokenEvent(token);
 		token.setStatus(ProjectInvitationStatus.DECLINED);
+		token.setLastStatusChange(new Date());
 
 		try {
 			eventSubmitter.submit(event, EventType.PROJECT_INVITATION_EMAIL_DECLINED, executor);
@@ -92,6 +94,7 @@ public class ProjectInvitationTokenGenerator implements Serializable {
 		
 		mailService.sendMail(templateName, context, true);
 		token.setStatus(ProjectInvitationStatus.MAIL_SENT);
+		token.setLastStatusChange(new Date());
 
 	}
 	
@@ -103,6 +106,7 @@ public class ProjectInvitationTokenGenerator implements Serializable {
 		ProjectInvitationTokenEntity token = dao.createNew();
 		token.setType(ProjectInvitationType.ONE_TIME);
 		token.setStatus(ProjectInvitationStatus.NEW);
+		token.setLastStatusChange(new Date());
 		
 		SecureRandom random = new SecureRandom();
 		String t = new BigInteger(130, random).toString(32);

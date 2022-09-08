@@ -85,6 +85,12 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 		pse.setStatus(ProjectServiceStatusType.APPROVAL_DENIED);
 		
 	}
+
+	public void removeProjectMember(ProjectMembershipEntity pme, String executor) {
+		logger.debug("Remove member {} from project {}", pme.getIdentity().getId(), pme.getProject().getId());
+		getDao().removeMemberFromProject(pme);
+		updateProjectMemberList(pme.getProject(), executor, 0, 3);
+	}
 	
 	public void addProjectMember(ProjectEntity project, IdentityEntity identity, String executor) {
 		logger.debug("Adding member {} to project {}", identity.getId(), project.getId());

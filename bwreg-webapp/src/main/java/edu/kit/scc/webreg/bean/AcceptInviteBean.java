@@ -64,7 +64,7 @@ public class AcceptInviteBean implements Serializable {
 		
 		ProjectMembershipEntity pme = projectService.findByIdentityAndProject(getIdentity(), token.getProject());
 		if (pme != null) {
-			messageGenerator.addResolvedErrorMessage("already-project-member", "already-project-member-detail", true);
+			messageGenerator.addResolvedErrorMessage("project.accept_invite.already_project_member", "project.accept_invite.already_project_member_detail", true);
 		}
 	}
 
@@ -72,6 +72,7 @@ public class AcceptInviteBean implements Serializable {
 		if (token != null) {
 			tokenService.acceptEmailToken(token, "idty-" + sessionManager.getIdentityId());
 			token = null;
+			tokenString = "";
 		}
 		else {
 			messageGenerator.addResolvedErrorMessage("no-token", "no-token-detail", true);
@@ -81,6 +82,7 @@ public class AcceptInviteBean implements Serializable {
 	public void decline() {
 		tokenService.declineEmailToken(token, "idty-" + sessionManager.getIdentityId());
 		token = null;
+		tokenString = "";
 	}
 	
 	public IdentityEntity getIdentity() {

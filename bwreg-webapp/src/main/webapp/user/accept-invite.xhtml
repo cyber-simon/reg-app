@@ -38,7 +38,7 @@
 				<p:commandButton value="#{messages['check']}" action="#{acceptInviteBean.check()}" update="messageBox, tokenPnl"/>		
 			</p:panel>
 	
-			<p:panel rendered="#{acceptInviteBean.token != null}">
+			<p:panel rendered="#{acceptInviteBean.token != null and (acceptInviteBean.token.status == 'MAIL_SENT' or acceptInviteBean.token.status == 'NEW')}">
 
 				<p:outputPanel>
 					<h:outputText value="#{messages['project.accept_invite.accept_txt_pre']}" />
@@ -49,6 +49,15 @@
 				<p:commandButton value="#{messages['accept']}" action="#{acceptInviteBean.accept()}" update="messageBox, tokenPnl"/>		
 				<p:commandButton value="#{messages['decline']}" action="#{acceptInviteBean.decline()}" update="messageBox, tokenPnl"/>		
 			</p:panel>
+			
+			<p:panel rendered="#{acceptInviteBean.token != null and acceptInviteBean.token.status == 'ACCEPTED'}">
+				<h:outputText value="#{messages['project.accept_invite.token_already_accepted']}" />
+			</p:panel>
+						
+			<p:panel rendered="#{acceptInviteBean.token != null and acceptInviteBean.token.status == 'DECLINED'}">
+				<h:outputText value="#{messages['project.accept_invite.token_already_declined']}" />
+			</p:panel>
+						
 		</h:panelGroup>
 				
 		<div class="text full" style="margin-top: 0.4em;">

@@ -60,4 +60,6 @@ public interface BaseProjectDao<T extends ProjectEntity> extends BaseDao<T> {
 	ProjectServiceEntity findByServiceAndProject(ServiceEntity service, ProjectEntity project);
 
 	ProjectServiceEntity mergeProjectService(ProjectServiceEntity entity);
+
+	void removeMemberFromProject(ProjectMembershipEntity pme);
 }

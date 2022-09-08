@@ -25,7 +25,7 @@
 
 		<h2><h:outputText value="#{messages['project.my_projects']}"/></h2>
 				
-		<h5><h:outputText value="#{messages['project.my_projects.description_admin']}"/></h5>
+		<h5><h:outputText value="#{messages['project.my_projects.description']}"/></h5>
 
 		<p:dataTable id="dataTable" var="p" value="#{userProjectIndexBean.projectList}" paginator="true" rows="15">
 			<p:column sortBy="#{p.project.name}" filterBy="#{p.project.name}">
@@ -46,8 +46,8 @@
 
 		<p:panel>
 		<p:panelGrid columns="2">
-			<p:linkButton href="create-new-project.xhtml" value="#{messages['project.create_new_project_link']}" />
-			<h:outputText value="#{messages['project.create_new_project_link_text']}" />
+			<p:linkButton href="create-new-project.xhtml" value="#{messages['project.my_projects.create_new_project_link']}" />
+			<h:outputText value="#{messages['project.my_projects.create_new_project_link_text']}" />
 		</p:panelGrid>
 		</p:panel>
 		

@@ -206,6 +206,12 @@ public abstract class JpaBaseProjectDao<T extends ProjectEntity> extends JpaBase
 	}
 
 	@Override
+	public void removeMemberFromProject(ProjectMembershipEntity pme) {
+		pme = em.merge(pme);
+		em.remove(pme);
+	}
+
+	@Override
 	public void deleteMembership(ProjectMembershipEntity entity) {
 		if (! em.contains(entity))
 			entity = em.merge(entity);
