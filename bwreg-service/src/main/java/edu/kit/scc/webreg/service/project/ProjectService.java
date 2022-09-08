@@ -52,4 +52,5 @@ public interface ProjectService extends BaseService<ProjectEntity> {
 	List<ProjectServiceEntity> findAllByService(ServiceEntity service);
 	void addProjectMember(ProjectEntity project, IdentityEntity identity, String executor);
 	ProjectMembershipEntity findByIdentityAndProject(IdentityEntity identity, ProjectEntity project);
+	void removeProjectMember(ProjectMembershipEntity pme, String executor);
 }

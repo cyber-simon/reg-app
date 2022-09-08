@@ -54,6 +54,9 @@ public class ProjectInvitationTokenEntity extends AbstractBaseEntity {
 	@Column(name="valid_until")
 	private Date validUntil;
 	
+	@Column(name="last_status_change")
+	private Date lastStatusChange;
+	
 	public ProjectEntity getProject() {
 		return project;
 	}
@@ -132,5 +135,13 @@ public class ProjectInvitationTokenEntity extends AbstractBaseEntity {
 
 	public void setStatus(ProjectInvitationStatus status) {
 		this.status = status;
+	}
+
+	public Date getLastStatusChange() {
+		return lastStatusChange;
+	}
+
+	public void setLastStatusChange(Date lastStatusChange) {
+		this.lastStatusChange = lastStatusChange;
 	}
 }

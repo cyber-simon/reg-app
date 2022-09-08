@@ -68,17 +68,23 @@
 
 		<h5 style="margin-top: 1em;"><h:outputText value="#{messages['project.members']}" /></h5>
 		<p:dataTable id="dataTableMember" var="member" value="#{userShowLocalProjectBean.memberList}">
-			<p:column>
-				<f:facet name="header">
-					<h:outputText value="#{messages.id}" />
-				</f:facet>
-				<h:outputText value="#{member.identity.id}" />
-			</p:column>			
 			<p:column sortBy="#{member.identity.prefUser.eppn}" filterBy="#{member.identity.prefUser.eppn}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.name}" />
 				</f:facet>
 				<h:outputText value="#{member.identity.prefUser.eppn}" />
+			</p:column>			
+			<p:column sortBy="#{member.identity.prefUser.surName}" filterBy="#{member.identity.prefUser.surName}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.sur_name}" />
+				</f:facet>
+				<h:outputText value="#{member.identity.prefUser.surName}" />
+			</p:column>			
+			<p:column sortBy="#{member.identity.prefUser.givenName}" filterBy="#{member.identity.prefUser.givenName}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.given_name}" />
+				</f:facet>
+				<h:outputText value="#{member.identity.prefUser.givenName}" />
 			</p:column>			
 			<p:column>
 				<f:facet name="header">
@@ -86,6 +92,14 @@
 				</f:facet>
 				<h:outputText value="#{member.membershipType}" />
 			</p:column>			
+			<p:column width="12%">
+   				<p:tooltip for="@next" value="#{messages.delete}" position="top"/>
+       			<p:commandButton action="#{userShowLocalProjectBean.deleteMember(member)}" immediate="true" update="@form"
+       				icon="fa fa-fw fa-trash" style="font-size: 0.6em;">
+       				<p:confirm header="#{messages.confirm_header}" escape="false"
+       					message="#{messages['project.show_local_project.delete_member_confirm']}" />
+       			</p:commandButton>
+       		</p:column>
 		</p:dataTable>	
 		
 		<h5 style="margin-top: 1em;"><h:outputText value="#{messages['project.admins']}" /></h5>
@@ -109,6 +123,13 @@
 				<h:outputText value="#{admin.type}" />
 			</p:column>			
 		</p:dataTable>	
+		
+	    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" closable="false" 
+	    	closeOnEscape="true" width="320">
+	        <p:commandButton value="#{messages.yes}" type="button" styleClass="ui-confirmdialog-yes"/>
+	        <p:commandButton value="#{messages.no}" type="button" styleClass="ui-confirmdialog-no"/>
+	    </p:confirmDialog>    
+		
 	</h:form>
 
 	</ui:define>

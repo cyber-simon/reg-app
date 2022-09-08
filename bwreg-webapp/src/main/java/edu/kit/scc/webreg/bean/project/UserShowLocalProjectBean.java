@@ -89,6 +89,12 @@ public class UserShowLocalProjectBean implements Serializable {
 		return entity;
 	}
 
+	public void deleteMember(ProjectMembershipEntity pme) {
+		projectService.removeProjectMember(pme, "idty-" + session.getIdentityId());
+		memberList = null;
+		effectiveMemberList = null;
+	}
+	
 	public void setEntity(LocalProjectEntity entity) {
 		this.entity = entity;
 	}
