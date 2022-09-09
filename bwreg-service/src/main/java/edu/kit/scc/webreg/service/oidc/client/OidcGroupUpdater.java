@@ -1,6 +1,7 @@
 package edu.kit.scc.webreg.service.oidc.client;
 
 import java.io.Serializable;
+import java.text.Normalizer;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -113,8 +114,18 @@ public class OidcGroupUpdater implements Serializable {
 			homeId = homeId.toLowerCase();
 			homeId = homeId.replaceAll("[^a-z0-9]", "");
 			
-			String groupName = homeId;
+			String groupName = homeIdResolver.resolvePrimaryGroup(homeId, user, attributeMap);
 			
+			if (groupName == null) {
+				groupName = homeId;
+			}
+			else {
+				//Filter all non character from groupName
+				groupName = Normalizer.normalize(groupName, Normalizer.Form.NFD);
+				groupName = groupName.toLowerCase();
+				groupName = groupName.replaceAll("[^a-z0-9\\-_]", "");
+			}
+						
 			logger.info("Setting standard HomeID group {} for user {}", homeId, user.getId());
 			group = dao.findByNameAndPrefix(groupName, homeId);
 			
