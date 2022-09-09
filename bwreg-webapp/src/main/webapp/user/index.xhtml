@@ -151,6 +151,7 @@
 						</f:facet>
 						<h:outputText value="#{group.class.simpleName}: #{group.name} " />
 						<h:outputText value="(#{group.prefix})" rendered="#{group.class.simpleName == 'HomeOrgGroupEntity'}" />
+						<h:outputText value="(#{group.prefix})" rendered="#{group.class.simpleName == 'OidcGroupEntity'}" />
 					</p:column>
 					<p:column>
 						<f:facet name="header">
