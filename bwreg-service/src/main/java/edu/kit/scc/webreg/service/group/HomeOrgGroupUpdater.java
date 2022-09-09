@@ -150,8 +150,12 @@ public class HomeOrgGroupUpdater implements Serializable {
 				//Filter all non character from homeid
 				homeId = homeId.toLowerCase();
 				homeId = homeId.replaceAll("[^a-z0-9]", "");
-				
-				String groupName = attrHelper.getSingleStringFirst(attributeMap, "http://bwidm.de/bwidmCC");
+
+				String groupName = homeIdResolver.resolvePrimaryGroup(homeId, user, attributeMap);
+
+				if (groupName == null) {
+					groupName = attrHelper.getSingleStringFirst(attributeMap, "http://bwidm.de/bwidmCC");
+				}
 
 				if (groupName == null) {
 					groupName = homeId;
