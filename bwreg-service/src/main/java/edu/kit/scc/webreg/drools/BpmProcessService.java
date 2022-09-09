@@ -151,12 +151,14 @@ public class BpmProcessService {
 
 		int i = 0;
 		for (BusinessRuleEntity rule : rulePackage.getRules()) {
-			resources[i] = ResourceFactory.newReaderResource(new StringReader(rule.getRule()));
-			if (rule.getRuleType().equals("DRL") || rule.getRuleType().equals("BPMN2")) {
-				resources[i].setResourceType(ResourceType.getResourceType(rule.getRuleType()));
+			if (rule.getRule() != null) {
+				resources[i] = ResourceFactory.newReaderResource(new StringReader(rule.getRule()));
+				if (rule.getRuleType().equals("DRL") || rule.getRuleType().equals("BPMN2")) {
+					resources[i].setResourceType(ResourceType.getResourceType(rule.getRuleType()));
+				}
+				resources[i].setSourcePath("kbase/" + rule.getName());
+				i++;
 			}
-			resources[i].setSourcePath("kbase/" + rule.getName());
-			i++;
 		}
 		
 		KieModule kieModule = ks.getRepository().getKieModule(releaseId);
