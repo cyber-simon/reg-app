@@ -39,6 +39,7 @@ import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
+import com.nimbusds.openid.connect.sdk.SubjectType;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 
@@ -322,6 +323,9 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		else if (grantType.equals("refresh_token")) {
 			return serveRefreshToken(realm, request, response, clientId, clientSecret, formParams);
 		}
+		else if (grantType.equals("urn:ietf:params:oauth:grant-type:token-exchange")) {
+			return serveTokenExchange(realm, request, response, clientId, clientSecret, formParams);
+		}
 		else {
 			return sendError(OAuth2Error.UNSUPPORTED_GRANT_TYPE, response);
 		}		
@@ -440,6 +444,65 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		else
 			return null;
 	}
+
+	protected JSONObject serveTokenExchange(String realm,
+			HttpServletRequest request, HttpServletResponse response, 
+			String clientId, String clientSecret, 
+			MultivaluedMap<String,String> formParams) throws OidcAuthenticationException {
+
+		OidcOpConfigurationEntity opConfig = opDao.findByRealmAndHost(realm, request.getServerName());
+		if (opConfig == null) {
+			return sendError(OAuth2Error.ACCESS_DENIED, response, "unknown realm/host combination: " + realm + " / " + request.getServerName());
+		}
+		
+		/*
+		 * As required in
+		 * https://datatracker.ietf.org/doc/rfc8693/
+		 */
+		String subjectToken = formParams.getFirst("subject_token");
+		String subjectTokenType = formParams.getFirst("subject_token_type");
+		if (subjectTokenType == null) {
+			// subject_token_type is req'd, but if it is missing, let's guess it's an access_token
+			subjectTokenType = "urn:ietf:params:oauth:token-type:access_token";
+		}
+		
+		OidcFlowStateEntity flowState = null;
+		
+		if (subjectTokenType.equals("urn:ietf:params:oauth:token-type:access_token")) {
+			flowState = flowStateDao.findByAttr("accessToken", subjectToken);
+		}
+		else if (subjectTokenType.equals("urn:ietf:params:oauth:token-type:refresh_token")) {
+			flowState = flowStateDao.findByAttr("refreshToken", subjectToken);
+		}
+		else {
+			return sendError(OAuth2Error.INVALID_REQUEST_OBJECT, response);
+		}
+		
+		if (flowState == null) {
+			return sendError(OAuth2Error.ACCESS_DENIED, response);
+		}
+		
+		OidcClientConfigurationEntity oldClientConfig = flowState.getClientConfiguration();
+		OidcClientConfigurationEntity newClientConfig = clientDao.findByNameAndOp(clientId, opConfig);
+		
+		if (newClientConfig == null) {
+			return sendError(OAuth2Error.ACCESS_DENIED, response, "Invalid client_id for realm");
+		}
+
+		if (newClientConfig.getSecret() != null && (! newClientConfig.getSecret().equals(clientSecret))) {
+			return sendError(OAuth2Error.ACCESS_DENIED, response, "Invalid client_secret");
+		}
+		
+		if ((! oldClientConfig.getGenericStore().containsKey("token_exchange_allow_to")) || 
+				(! newClientConfig.getName().matches(oldClientConfig.getGenericStore().get("token_exchange_allow_to")))) {
+			return sendError(OAuth2Error.ACCESS_DENIED, response, "Client is not allowed to exchange token");
+		}
+		
+		/**
+		 * TODO create new flow, send new token
+		 */
+		return sendError(OAuth2Error.REQUEST_NOT_SUPPORTED, response);		
+	}
 	
 	protected JSONObject serveRefreshToken(String realm,
 			HttpServletRequest request, HttpServletResponse response, 
@@ -447,7 +510,6 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			MultivaluedMap<String,String> formParams) throws OidcAuthenticationException {
 
 		String refreshToken = formParams.getFirst("refresh_token");
-
 		OidcFlowStateEntity flowState = flowStateDao.findByAttr("refreshToken", refreshToken);
 
 		if (flowState == null) {
@@ -549,7 +611,14 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	}
 	
 	protected JSONObject sendError(ErrorObject error, HttpServletResponse response) {
+		return sendError(error, response, null);
+	}
+	
+	protected JSONObject sendError(ErrorObject error, HttpServletResponse response, String errorDescription) {
 		response.setStatus(error.getHTTPStatusCode());
+		if (errorDescription != null) {
+			error = error.setDescription(errorDescription);
+		}
 		return error.toJSONObject();
 	}
 	
