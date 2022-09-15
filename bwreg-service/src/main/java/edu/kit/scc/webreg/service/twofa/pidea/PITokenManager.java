@@ -322,7 +322,7 @@ public class PITokenManager extends AbstractTwoFaManager {
 		}
 		else if (piToken.getTokentype().equals("paper")) {
 			PaperTanListToken paperToken = new PaperTanListToken();
-			paperToken.setTokenType("PAPER");
+			paperToken.setTokenType("PAPER_TAN");
 			token = paperToken;
 		}
 		else {
