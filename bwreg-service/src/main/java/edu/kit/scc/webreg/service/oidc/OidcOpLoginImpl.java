@@ -39,7 +39,6 @@ import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
-import com.nimbusds.openid.connect.sdk.SubjectType;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 
@@ -460,29 +459,34 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		 * https://datatracker.ietf.org/doc/rfc8693/
 		 */
 		String subjectToken = formParams.getFirst("subject_token");
+		
+		if (subjectToken == null) {
+			return sendError(OAuth2Error.INVALID_REQUEST_OBJECT, response, "subject_token is required");
+		}
+		
 		String subjectTokenType = formParams.getFirst("subject_token_type");
 		if (subjectTokenType == null) {
 			// subject_token_type is req'd, but if it is missing, let's guess it's an access_token
 			subjectTokenType = "urn:ietf:params:oauth:token-type:access_token";
 		}
 		
-		OidcFlowStateEntity flowState = null;
+		OidcFlowStateEntity oldFlowState = null;
 		
 		if (subjectTokenType.equals("urn:ietf:params:oauth:token-type:access_token")) {
-			flowState = flowStateDao.findByAttr("accessToken", subjectToken);
+			oldFlowState = flowStateDao.findByAttr("accessToken", subjectToken);
 		}
 		else if (subjectTokenType.equals("urn:ietf:params:oauth:token-type:refresh_token")) {
-			flowState = flowStateDao.findByAttr("refreshToken", subjectToken);
+			oldFlowState = flowStateDao.findByAttr("refreshToken", subjectToken);
 		}
 		else {
-			return sendError(OAuth2Error.INVALID_REQUEST_OBJECT, response);
+			return sendError(OAuth2Error.INVALID_REQUEST_OBJECT, response, "subject_token_type is not known");
 		}
 		
-		if (flowState == null) {
-			return sendError(OAuth2Error.ACCESS_DENIED, response);
+		if (oldFlowState == null) {
+			return sendError(OAuth2Error.ACCESS_DENIED, response, "subject_token not found");
 		}
 		
-		OidcClientConfigurationEntity oldClientConfig = flowState.getClientConfiguration();
+		OidcClientConfigurationEntity oldClientConfig = oldFlowState.getClientConfiguration();
 		OidcClientConfigurationEntity newClientConfig = clientDao.findByNameAndOp(clientId, opConfig);
 		
 		if (newClientConfig == null) {
@@ -497,11 +501,16 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 				(! newClientConfig.getName().matches(oldClientConfig.getGenericStore().get("token_exchange_allow_to")))) {
 			return sendError(OAuth2Error.ACCESS_DENIED, response, "Client is not allowed to exchange token");
 		}
-		
-		/**
-		 * TODO create new flow, send new token
-		 */
-		return sendError(OAuth2Error.REQUEST_NOT_SUPPORTED, response);		
+
+		OidcFlowStateEntity newFlowState = flowStateDao.createNew();
+		newFlowState.setIdentity(oldFlowState.getIdentity());
+		newFlowState.setOpConfiguration(opConfig);
+		newFlowState.setClientConfiguration(newClientConfig);
+		newFlowState.setResponseType("urn:ietf:params:oauth:grant-type:token-exchange");
+		newFlowState.setScope("openid");
+		newFlowState = flowStateDao.persist(newFlowState);
+
+		return buildAccessToken(newFlowState, opConfig, newClientConfig);		
 	}
 	
 	protected JSONObject serveRefreshToken(String realm,
