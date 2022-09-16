@@ -10,16 +10,6 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.impl;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-
-import org.opensaml.saml.saml2.core.Assertion;
-import org.slf4j.Logger;
-
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.SamlUserDao;
@@ -39,6 +29,13 @@ import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.UserService;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import org.opensaml.saml.saml2.core.Assertion;
+import org.slf4j.Logger;
 
 @Stateless
 public class UserServiceImpl extends BaseServiceImpl<UserEntity> implements UserService, Serializable {
@@ -137,7 +134,12 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity> implements User
 	public List<UserEntity> findByStatus(UserStatus status) {
 		return dao.findByStatus(status);
 	}
-	
+
+	@Override
+	public List<UserEntity> findByStatusAndTimeSince(UserStatus status, Long statusSince, Integer limit) {
+		return dao.findByStatusAndTimeSince(status, statusSince, limit);
+	}
+
 	@Override
 	public UserEntity findByIdWithAll(Long id) {
 		return dao.findByIdWithAll(id);
