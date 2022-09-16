@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MultivaluedMap;
 
 import edu.kit.scc.webreg.service.saml.exc.OidcAuthenticationException;
 import net.minidev.json.JSONObject;
@@ -24,7 +25,8 @@ public interface OidcOpLogin {
 
 	JSONObject serveUserJwt(String realm, HttpServletRequest request, HttpServletResponse response) throws OidcAuthenticationException;
 
-	JSONObject serveToken(String realm, String grantType, String code, String redirectUri, HttpServletRequest request,
-			HttpServletResponse response, String clientId, String clientSecret, String codeVerifier, String refreshToken) throws OidcAuthenticationException;
+	JSONObject serveToken(String realm, HttpServletRequest request, HttpServletResponse response, String clientId,
+			String clientSecret, String codeVerifier, MultivaluedMap<String, String> formParams)
+			throws OidcAuthenticationException;
 
 }

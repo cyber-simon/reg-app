@@ -20,6 +20,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MultivaluedMap;
 
 import org.slf4j.Logger;
 
@@ -302,20 +303,27 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	}
 	
 	@Override
-	public JSONObject serveToken(String realm, String grantType,
-			String code, String redirectUri,
+	public JSONObject serveToken(String realm, 
 			HttpServletRequest request, HttpServletResponse response, 
 			String clientId, String clientSecret, String codeVerifier,
-			String refreshToken) throws OidcAuthenticationException {
+			MultivaluedMap<String,String> formParams) throws OidcAuthenticationException {
+
+		String grantType = formParams.getFirst("grant_type");
+		String code = formParams.getFirst("code");
+
+		logger.debug("Post token called for {} with code {} and grant_type {}", realm, code, grantType);
 
 		if (grantType == null) {
 			return sendError(OAuth2Error.INVALID_REQUEST, response);
 		}
 		if (grantType.equals("authorization_code")) {
-			return serveAuthorizationCode(realm, code, redirectUri, request, response, clientId, clientSecret, codeVerifier);
+			return serveAuthorizationCode(realm, request, response, clientId, clientSecret, codeVerifier, formParams);
 		}
 		else if (grantType.equals("refresh_token")) {
-			return serveRefreshToken(realm, refreshToken, redirectUri, request, response, clientId, clientSecret, codeVerifier);
+			return serveRefreshToken(realm, request, response, clientId, clientSecret, formParams);
+		}
+		else if (grantType.equals("urn:ietf:params:oauth:grant-type:token-exchange")) {
+			return serveTokenExchange(realm, request, response, clientId, clientSecret, formParams);
 		}
 		else {
 			return sendError(OAuth2Error.UNSUPPORTED_GRANT_TYPE, response);
@@ -435,12 +443,82 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		else
 			return null;
 	}
+
+	protected JSONObject serveTokenExchange(String realm,
+			HttpServletRequest request, HttpServletResponse response, 
+			String clientId, String clientSecret, 
+			MultivaluedMap<String,String> formParams) throws OidcAuthenticationException {
+
+		OidcOpConfigurationEntity opConfig = opDao.findByRealmAndHost(realm, request.getServerName());
+		if (opConfig == null) {
+			return sendError(OAuth2Error.ACCESS_DENIED, response, "unknown realm/host combination: " + realm + " / " + request.getServerName());
+		}
+		
+		/*
+		 * As required in
+		 * https://datatracker.ietf.org/doc/rfc8693/
+		 */
+		String subjectToken = formParams.getFirst("subject_token");
+		
+		if (subjectToken == null) {
+			return sendError(OAuth2Error.INVALID_REQUEST_OBJECT, response, "subject_token is required");
+		}
+		
+		String subjectTokenType = formParams.getFirst("subject_token_type");
+		if (subjectTokenType == null) {
+			// subject_token_type is req'd, but if it is missing, let's guess it's an access_token
+			subjectTokenType = "urn:ietf:params:oauth:token-type:access_token";
+		}
+		
+		OidcFlowStateEntity oldFlowState = null;
+		
+		if (subjectTokenType.equals("urn:ietf:params:oauth:token-type:access_token")) {
+			oldFlowState = flowStateDao.findByAttr("accessToken", subjectToken);
+		}
+		else if (subjectTokenType.equals("urn:ietf:params:oauth:token-type:refresh_token")) {
+			oldFlowState = flowStateDao.findByAttr("refreshToken", subjectToken);
+		}
+		else {
+			return sendError(OAuth2Error.INVALID_REQUEST_OBJECT, response, "subject_token_type is not known");
+		}
+		
+		if (oldFlowState == null) {
+			return sendError(OAuth2Error.ACCESS_DENIED, response, "subject_token not found");
+		}
+		
+		OidcClientConfigurationEntity oldClientConfig = oldFlowState.getClientConfiguration();
+		OidcClientConfigurationEntity newClientConfig = clientDao.findByNameAndOp(clientId, opConfig);
+		
+		if (newClientConfig == null) {
+			return sendError(OAuth2Error.ACCESS_DENIED, response, "Invalid client_id for realm");
+		}
+
+		if (newClientConfig.getSecret() != null && (! newClientConfig.getSecret().equals(clientSecret))) {
+			return sendError(OAuth2Error.ACCESS_DENIED, response, "Invalid client_secret");
+		}
+		
+		if ((! oldClientConfig.getGenericStore().containsKey("token_exchange_allow_to")) || 
+				(! newClientConfig.getName().matches(oldClientConfig.getGenericStore().get("token_exchange_allow_to")))) {
+			return sendError(OAuth2Error.ACCESS_DENIED, response, "Client is not allowed to exchange token");
+		}
+
+		OidcFlowStateEntity newFlowState = flowStateDao.createNew();
+		newFlowState.setIdentity(oldFlowState.getIdentity());
+		newFlowState.setOpConfiguration(opConfig);
+		newFlowState.setClientConfiguration(newClientConfig);
+		newFlowState.setResponseType("urn:ietf:params:oauth:grant-type:token-exchange");
+		newFlowState.setScope("openid");
+		newFlowState = flowStateDao.persist(newFlowState);
+
+		return buildAccessToken(newFlowState, opConfig, newClientConfig);		
+	}
 	
 	protected JSONObject serveRefreshToken(String realm,
-			String refreshToken, String redirectUri,
 			HttpServletRequest request, HttpServletResponse response, 
-			String clientId, String clientSecret, String codeVerifier) throws OidcAuthenticationException {
+			String clientId, String clientSecret, 
+			MultivaluedMap<String,String> formParams) throws OidcAuthenticationException {
 
+		String refreshToken = formParams.getFirst("refresh_token");
 		OidcFlowStateEntity flowState = flowStateDao.findByAttr("refreshToken", refreshToken);
 
 		if (flowState == null) {
@@ -472,9 +550,11 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	}
 	
 	protected JSONObject serveAuthorizationCode(String realm,
-			String code, String redirectUri,
 			HttpServletRequest request, HttpServletResponse response, 
-			String clientId, String clientSecret, String codeVerifier) throws OidcAuthenticationException {
+			String clientId, String clientSecret, String codeVerifier,
+			MultivaluedMap<String,String> formParams) throws OidcAuthenticationException {
+
+		String code = formParams.getFirst("code");
 		
 		OidcFlowStateEntity flowState = flowStateDao.findByCode(code);
 		
@@ -540,7 +620,14 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	}
 	
 	protected JSONObject sendError(ErrorObject error, HttpServletResponse response) {
+		return sendError(error, response, null);
+	}
+	
+	protected JSONObject sendError(ErrorObject error, HttpServletResponse response, String errorDescription) {
 		response.setStatus(error.getHTTPStatusCode());
+		if (errorDescription != null) {
+			error = error.setDescription(errorDescription);
+		}
 		return error.toJSONObject();
 	}
 	
