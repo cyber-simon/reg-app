@@ -10,22 +10,6 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.reg.impl;
 
-import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import org.kie.api.runtime.KieSession;
-import org.slf4j.Logger;
-
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.audit.GroupAuditor;
 import edu.kit.scc.webreg.audit.RegistryAuditor;
@@ -78,6 +62,19 @@ import edu.kit.scc.webreg.service.reg.PasswordUtil;
 import edu.kit.scc.webreg.service.reg.RegisterUserWorkflow;
 import edu.kit.scc.webreg.service.reg.ScriptingWorkflow;
 import edu.kit.scc.webreg.service.reg.SetPasswordCapable;
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import org.kie.api.runtime.KieSession;
+import org.slf4j.Logger;
 
 @ApplicationScoped
 public class Registrator implements Serializable {
@@ -709,6 +706,8 @@ public class Registrator implements Serializable {
 			auditor.finishAuditTrail();
 			auditor.commitAuditTrail();
 
+			ServiceRegisterEvent serviceRegisterEvent = new ServiceRegisterEvent(registry, auditor.getAudit());
+			eventSubmitter.submit(serviceRegisterEvent, EventType.REGISTRY_PASSWORD_CHANGE, executor);
 		} catch (RegisterException e) {
 			throw e;
 		} catch (Throwable t) {

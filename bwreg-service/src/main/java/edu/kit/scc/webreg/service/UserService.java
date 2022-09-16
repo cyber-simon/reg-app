@@ -10,11 +10,6 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service;
 
-import java.util.Date;
-import java.util.List;
-
-import org.opensaml.saml.saml2.core.Assertion;
-
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
@@ -25,6 +20,9 @@ import edu.kit.scc.webreg.entity.UserLoginMethod;
 import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
+import java.util.Date;
+import java.util.List;
+import org.opensaml.saml.saml2.core.Assertion;
 
 public interface UserService extends BaseService<UserEntity> {
 
@@ -48,6 +46,8 @@ public interface UserService extends BaseService<UserEntity> {
 			throws UserUpdateException;
 
 	List<UserEntity> findByStatus(UserStatus status);
+
+	List<UserEntity> findByStatusAndTimeSince(UserStatus status, Long statusSince, Integer limit);
 
 	void checkOnHoldRegistries(UserEntity user);
 
