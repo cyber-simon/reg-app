@@ -71,9 +71,9 @@ public class SetServicePasswordBean implements Serializable {
 	private Long id;
 	private String serviceShortName;
 	private String navOptions;
-	private String deletePasswordBtnDisplay = "inline";
-	private String deletePasswordBtnUpdate = "messageBox,baseData";
 
+	private Boolean hideDeletePasswordBtn = false;
+	
 	private String password1, password2;
 	
 	private Boolean initialized = false;
@@ -111,15 +111,10 @@ public class SetServicePasswordBean implements Serializable {
 			try {
 				PropertyReader prop = PropertyReader.newRegisterPropReader(serviceEntity);
 				if ("true".equalsIgnoreCase(prop.readPropOrNull("hide_delete_password_btn"))) {
-					deletePasswordBtnDisplay = "none";
-					deletePasswordBtnUpdate = "";
-				} else {
-					deletePasswordBtnDisplay = "inline";
-					deletePasswordBtnUpdate = "messageBox,baseData";
+					hideDeletePasswordBtn = true;
 				}
 			} catch (RegisterException e) {
-				deletePasswordBtnDisplay = "inline";
-				deletePasswordBtnUpdate = "messageBox,baseData";
+				throw new IllegalArgumentException("service is not configured yet");
 			}
 			
 			password1 = null;
@@ -172,7 +167,7 @@ public class SetServicePasswordBean implements Serializable {
 	}
 	
 	public String deleteServicePassword() {
-		if ("none".equals(deletePasswordBtnDisplay)){
+		if (hideDeletePasswordBtn) {
 			// diasble the button functionality as it is hidden
 			return null;
 		}
@@ -242,19 +237,7 @@ public class SetServicePasswordBean implements Serializable {
 		this.navOptions = navOptions;
 	}
 
-	public String getDeletePasswordBtnDisplay() {
-		return deletePasswordBtnDisplay;
-	}
-
-	public void setDeletePasswordBtnDisplay(String deletePasswordBtnDisplay) {
-		this.deletePasswordBtnDisplay = deletePasswordBtnDisplay;
-	}
-
-	public String getDeletePasswordBtnUpdate() {
-		return deletePasswordBtnUpdate;
-	}
-
-	public void setDeletePasswordBtnUpdate(String deletePasswordBtnUpdate) {
-		this.deletePasswordBtnUpdate = deletePasswordBtnUpdate;
+	public Boolean getHideDeletePasswordBtn() {
+		return hideDeletePasswordBtn;
 	}
 }
