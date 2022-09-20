@@ -19,17 +19,28 @@ import edu.kit.scc.webreg.service.twofa.token.TotpCreateResponse;
 import edu.kit.scc.webreg.service.twofa.token.TotpToken;
 import edu.kit.scc.webreg.service.twofa.token.TwoFaTokenList;
 import edu.kit.scc.webreg.service.twofa.token.YubicoToken;
+import java.util.Arrays;
+import java.util.HashSet;
 
 public class LinotpTokenManager extends AbstractTwoFaManager {
 
 	private static Logger logger = LoggerFactory.getLogger(LinotpTokenManager.class);
 
-	private static Set<String> capabilities = Set.of(new String[] { 
+	private static final Set<String> capabilities = Set.of(new String[] {
 			"TOTP", "YUBIKEY", "HOTP_TANLIST"
 	});
 	
 	@Override
 	public Set<String> getCapabilities() {
+		if (getConfigMap().containsKey("capabilities")) {
+			Set<String> capab = new HashSet<String>(Arrays.asList(getConfigMap().get("capabilities")
+					.toUpperCase().split("\\s*;\\s*")));
+			if (capab.retainAll(capabilities)) {
+				// capab was changed -> unsupported input detected!
+				logger.warn("Some provided capabilities are not supported and will be ignored!");
+			}
+			return capab;
+		}
 		return capabilities;
 	}
 
