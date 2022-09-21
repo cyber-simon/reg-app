@@ -175,6 +175,13 @@ public class TwoFaServiceImpl implements TwoFaService {
 		auditor.setIdentity(identity);
 		auditor.setDetail("Creating yubico token for user " + identity.getId());
 
+		// prevent error where PrivacyIdea creates a token but doesn't return a serial
+		if (12 > yubi.length()) {
+			auditor.logAction("" + identity.getId(), "CREATE YUBICO TOKEN", "", "Yubikey code less than 12 chars long", AuditStatus.FAIL);
+			auditor.finishAuditTrail();
+			throw new TwoFaException("Yubikey code is of insufficient length!");
+		}
+
 		TotpCreateResponse response = manager.createYubicoToken(identity, yubi, auditor);
 		
 		if (! response.getSuccess()) {
