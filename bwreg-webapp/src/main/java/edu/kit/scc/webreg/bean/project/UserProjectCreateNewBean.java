@@ -59,11 +59,11 @@ public class UserProjectCreateNewBean implements Serializable {
 
 	public String save() {
 		entity = localProjectService.save(entity, getIdentity().getId());
-		return "show-local-project.xhtml?id=" + entity.getId();
+		return "show-local-project.xhtml?id=" + entity.getId() + "&faces-redirect=true";
 	}
 
 	public String cancel() {
-		return "index.xhtml";
+		return "index.xhtml?faces-redirect=true";
 	}
 	
 	public LocalProjectEntity getEntity() {
