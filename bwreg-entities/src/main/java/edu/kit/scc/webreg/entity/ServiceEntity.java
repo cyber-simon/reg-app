@@ -73,6 +73,9 @@ public class ServiceEntity extends AbstractBaseEntity {
 	@OneToMany(targetEntity = PolicyEntity.class, mappedBy = "service")
 	private Set<PolicyEntity> policies;
 
+	@OneToMany(targetEntity = PolicyEntity.class, mappedBy = "projectPolicy")
+	private Set<PolicyEntity> projectPolicies;
+
 	@OneToMany(targetEntity = AttributeSourceServiceEntity.class, mappedBy = "service")
 	private Set<AttributeSourceServiceEntity> attributeSourceService;
 
@@ -347,6 +350,14 @@ public class ServiceEntity extends AbstractBaseEntity {
 
 	public void setProjectCapable(Boolean projectCapable) {
 		this.projectCapable = projectCapable;
+	}
+
+	public Set<PolicyEntity> getProjectPolicies() {
+		return projectPolicies;
+	}
+
+	public void setProjectPolicies(Set<PolicyEntity> projectPolicies) {
+		this.projectPolicies = projectPolicies;
 	}
 
 }

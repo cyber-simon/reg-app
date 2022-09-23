@@ -196,11 +196,31 @@
 		    			</h:link>
 					</p:column>			    	
 		    	</p:dataTable>	
+			</p:panel>			
 	
-				<h:link outcome="add-policy.xhtml" value="#{messages.add_policy}">
-					<f:param name="serviceId" value="#{showServiceBean.entity.id}"/>
-				</h:link>
-			</p:panel>
+			<p:panel header="#{messages.project_policies}">
+		    	<p:dataTable id="projectPolicyTable" var="policy" style="min-width: 400px;"
+		    		value="#{showServiceBean.entity.projectPolicies.toArray()}">
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.id}" />
+						</f:facet>
+						<h:outputText value="#{policy.id}" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.name}" />
+						</f:facet>
+						<h:link outcome="show-policy.xhtml" value="#{policy.name}">
+		      				<f:param name="id" value="#{policy.id}"/>
+		    			</h:link>
+					</p:column>			    	
+		    	</p:dataTable>	
+			</p:panel>			
+
+			<h:link outcome="add-policy.xhtml" value="#{messages.add_policy}">
+				<f:param name="serviceId" value="#{showServiceBean.entity.id}"/>
+			</h:link>
 		</div>
 		
  		<div id="panelInline">

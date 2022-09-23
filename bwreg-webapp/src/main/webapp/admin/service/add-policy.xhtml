@@ -34,6 +34,19 @@
 					<bw:inputText id="nameField" label="#{messages.name}"
 						value="#{addPolicyBean.entity.name}" required="true" />
 			
+					<p:outputLabel value="#{messages.policy_type}" />
+	                <p:selectOneMenu id="option" value="#{addPolicyBean.policyType}">
+	                	<p:ajax update="@form"/>
+	                    <f:selectItem itemLabel="Policy for Service" itemValue="service_policy"/>
+	                    <f:selectItem itemLabel="Policy for Projects" itemValue="project_policy"/>
+	                </p:selectOneMenu>
+
+					<p:outputLabel id="pptLabel" value="#{messages.policy_type}" rendered="#{addPolicyBean.policyType == 'project_policy'}"/>
+	                <p:selectOneMenu id="ppt" value="#{addPolicyBean.entity.projectPolicyType}" rendered="#{addPolicyBean.policyType == 'project_policy'}">
+	                    <f:selectItems value="#{addPolicyBean.projectPolicyTypes}" 
+								var="et" itemLabel="#{et}" itemValue="#{et}"/>
+	                </p:selectOneMenu>
+
 				</p:panelGrid>
 				<p:commandButton id="save" action="#{addPolicyBean.save}" value="#{messages.save}"/>
 			</p:panel>

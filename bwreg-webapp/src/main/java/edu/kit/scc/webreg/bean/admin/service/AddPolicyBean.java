@@ -12,13 +12,14 @@ package edu.kit.scc.webreg.bean.admin.service;
 
 import java.io.Serializable;
 
-import javax.inject.Named;
-import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import edu.kit.scc.webreg.entity.PolicyEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.project.ProjectPolicyType;
 import edu.kit.scc.webreg.service.PolicyService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.util.ViewIds;
@@ -41,14 +42,20 @@ public class AddPolicyBean implements Serializable {
 	
 	private Long serviceId;
 
-	public void preRenderView(ComponentSystemEvent ev) {
-		service = serviceService.findById(serviceId);
-		entity = policyService.createNew();
+	private String policyType;
+	
+	public void preRenderView(ComponentSystemEvent ev) {	
 	}
 	
 	public String save() {
-		entity.setSevice(service);
-		policyService.save(entity);
+		if ("project_policy".equals(policyType)) {
+			getEntity().setProjectPolicy(service);
+		}
+		else {
+			getEntity().setProjectPolicyType(null);
+			getEntity().setSevice(service);
+		}
+		policyService.save(getEntity());
 		return ViewIds.SHOW_SERVICE + "?faces-redirect=true&id=" + service.getId();
 	}
 	
@@ -61,6 +68,9 @@ public class AddPolicyBean implements Serializable {
 	}
 
 	public PolicyEntity getEntity() {
+		if (entity == null) {
+			entity = policyService.createNew();
+		}
 		return entity;
 	}
 
@@ -69,10 +79,25 @@ public class AddPolicyBean implements Serializable {
 	}
 
 	public ServiceEntity getService() {
+		if (service == null) {
+			service = serviceService.findById(serviceId);
+		}
 		return service;
 	}
 
 	public void setService(ServiceEntity service) {
 		this.service = service;
 	}
+
+	public String getPolicyType() {
+		return policyType;
+	}
+
+	public void setPolicyType(String policyType) {
+		this.policyType = policyType;
+	}
+	
+	public ProjectPolicyType[] getProjectPolicyTypes() {
+		return ProjectPolicyType.values();
+	}	
 }

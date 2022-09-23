@@ -14,10 +14,16 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+
+import edu.kit.scc.webreg.entity.project.ProjectPolicyType;
+import edu.kit.scc.webreg.entity.project.ProjectStatus;
 
 @Entity(name = "PolicyEntity")
 @Table(name = "policy")
@@ -28,6 +34,13 @@ public class PolicyEntity extends AbstractBaseEntity {
 	@ManyToOne(targetEntity = ServiceEntity.class)
 	private ServiceEntity service;
 	
+	@ManyToOne(targetEntity = ServiceEntity.class)
+    @JoinColumn(name = "project_policy_id")
+	private ServiceEntity projectPolicy;
+
+	@Enumerated(EnumType.STRING)
+	private ProjectPolicyType projectPolicyType;	
+
 	@OneToMany(targetEntity = AgreementTextEntity.class, mappedBy="policy")
 	private Set<AgreementTextEntity> agreementTexts;
 
@@ -89,6 +102,22 @@ public class PolicyEntity extends AbstractBaseEntity {
 
 	public void setHidden(Boolean hidden) {
 		this.hidden = hidden;
+	}
+
+	public ServiceEntity getProjectPolicy() {
+		return projectPolicy;
+	}
+
+	public void setProjectPolicy(ServiceEntity projectPolicy) {
+		this.projectPolicy = projectPolicy;
+	}
+
+	public ProjectPolicyType getProjectPolicyType() {
+		return projectPolicyType;
+	}
+
+	public void setProjectPolicyType(ProjectPolicyType projectPolicyType) {
+		this.projectPolicyType = projectPolicyType;
 	}
 
 }

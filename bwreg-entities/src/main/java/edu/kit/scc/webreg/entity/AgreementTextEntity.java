@@ -10,10 +10,16 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.entity;
 
+import java.util.Map;
+
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Type;
@@ -28,6 +34,14 @@ public class AgreementTextEntity extends AbstractBaseEntity {
 	@Lob
 	@Type(type = "org.hibernate.type.TextType")	
 	private String agreement;
+	
+	@ElementCollection(fetch = FetchType.EAGER)
+	@JoinTable(name = "agreement_text_i18")
+    @MapKeyColumn(name = "key_data", length = 128)
+    @Column(name = "value_data")
+    @Lob
+	@Type(type = "org.hibernate.type.TextType")	
+    private Map<String, String> agreementMap;
 	
 	@Column(name = "name", length = 128)
 	private String name;
@@ -57,5 +71,13 @@ public class AgreementTextEntity extends AbstractBaseEntity {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public Map<String, String> getAgreementMap() {
+		return agreementMap;
+	}
+
+	public void setAgreementMap(Map<String, String> agreementMap) {
+		this.agreementMap = agreementMap;
 	}
 }

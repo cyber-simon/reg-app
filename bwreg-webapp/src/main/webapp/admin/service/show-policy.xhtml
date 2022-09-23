@@ -32,8 +32,13 @@
 			        <h:outputText value="#{showPolicyBean.entity.id}"/>
 			
 			        <h:outputText value="#{messages.name}:"/>
-			        <h:outputText value="#{showPolicyBean.entity.name} (Service: #{showPolicyBean.entity.service.name})"/>
-
+			        <h:panelGroup>
+			        	<h:outputText value="#{showPolicyBean.entity.name} (Service: #{showPolicyBean.entity.service.name})"
+			        			rendered="#{showPolicyBean.entity.service != null}"/>
+			        	<h:outputText value="#{showPolicyBean.entity.name} (Project policy for Service: #{showPolicyBean.entity.projectPolicy.name} (#{showPolicyBean.entity.projectPolicyType})"
+			        			rendered="#{showPolicyBean.entity.projectPolicy != null}"/>
+					</h:panelGroup>
+					
 					<h:outputText value="#{messages.hidden}:" />
 					<h:outputText value="#{showPolicyBean.entity.hidden ? messages.yes : messages.no}" />
 						

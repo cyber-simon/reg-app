@@ -34,13 +34,28 @@
 					<bw:inputText id="nameField" label="#{messages.name}"
 						value="#{editAgreementBean.entity.name}" required="true" />					
 				
-			        <h:outputText value="#{messages.admin_role}:"/>
+			        <h:outputText value="#{messages.agreement_text}:"/>
 			        <p:inputTextarea value="#{editAgreementBean.entity.agreement}" style="width: 600px; height: 300px;" 
 			        	autoResize="false" />
 				
 				</p:panelGrid>
 				<p:commandButton id="save" action="#{editAgreementBean.save}" value="#{messages.save}"/>
 			</p:panel>
+			
+			<p:repeat var="key" value="#{editAgreementBean.entity.agreementMap.keySet().toArray()}">
+				<div><h:outputText value="#{key}" /></div>
+				<div><h:outputText value="#{editAgreementBean.entity.agreementMap[key]}" /></div>
+				<p:commandButton id="removeText" action="#{editAgreementBean.removeText(key)}" value="#{messages.delete}" update="@form" />
+			</p:repeat>	
+			
+			<p:panel header="#{messages.add_agreement_text}">
+				<p:panelGrid id="addAgrI18Data" columns="2">
+			        <h:inputText value="#{editAgreementBean.inputFieldLang}"/>
+			        <p:inputTextarea value="#{editAgreementBean.inputFieldText}" style="width: 600px; height: 300px;" 
+			        	autoResize="false" />
+				</p:panelGrid>
+				<p:commandButton id="addText" action="#{editAgreementBean.addText()}" value="#{messages.add}" update="@form" />
+			</p:panel>		
 		</div>
 	</h:form>
 

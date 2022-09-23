@@ -158,6 +158,7 @@ public class JpaServiceDao extends JpaBaseDao<ServiceEntity> implements ServiceD
 		criteria.distinct(true);
 		root.fetch("serviceProps", JoinType.LEFT);
 		root.fetch("policies", JoinType.LEFT);
+		root.fetch("projectPolicies", JoinType.LEFT);
 
 		try {
 			return em.createQuery(criteria).getSingleResult();

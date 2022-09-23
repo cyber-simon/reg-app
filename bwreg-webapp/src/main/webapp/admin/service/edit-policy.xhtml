@@ -45,11 +45,18 @@
 							value="#{editPolicyBean.entity.showOnly}"/>
 			
 			        <p:outputLabel for="selectAgreement" value="#{messages.actual_agreement}:"/>
-			        <h:selectOneMenu id="selectAgreement" value="#{editPolicyBean.selectedAgreement}"
+			        <p:selectOneMenu id="selectAgreement" value="#{editPolicyBean.selectedAgreement}"
 			        	converter="#{agreementTextConverter}">
 		            	<f:selectItems value="#{editPolicyBean.entity.agreementTexts}" 
 		            		var="at" itemLabel="#{at.name} (id #{at.id})" itemValue="#{at}"/>
-		            </h:selectOneMenu>
+		            </p:selectOneMenu>
+		            
+					<p:outputLabel id="pptLabel" value="#{messages.policy_type}" rendered="#{editPolicyBean.entity.projectPolicy != null}"/>
+	                <p:selectOneMenu id="ppt" value="#{editPolicyBean.entity.projectPolicyType}" rendered="#{editPolicyBean.entity.projectPolicy != null}">
+	                    <f:selectItems value="#{editPolicyBean.projectPolicyTypes}" 
+								var="et" itemLabel="#{et}" itemValue="#{et}"/>
+	                </p:selectOneMenu>
+		            
 				</p:panelGrid>
 				<p:commandButton id="save" action="#{editPolicyBean.save}" value="#{messages.save}"/>
 			</p:panel>

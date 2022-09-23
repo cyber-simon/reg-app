@@ -19,6 +19,7 @@ import javax.inject.Inject;
 
 import edu.kit.scc.webreg.entity.AgreementTextEntity;
 import edu.kit.scc.webreg.entity.PolicyEntity;
+import edu.kit.scc.webreg.entity.project.ProjectPolicyType;
 import edu.kit.scc.webreg.service.PolicyService;
 
 @Named
@@ -73,5 +74,7 @@ public class EditPolicyBean implements Serializable {
 		this.selectedAgreement = selectedAgreement;
 	}
 
-	
+	public ProjectPolicyType[] getProjectPolicyTypes() {
+		return ProjectPolicyType.values();
+	}		
 }

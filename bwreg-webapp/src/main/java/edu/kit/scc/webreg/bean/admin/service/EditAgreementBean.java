@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.bean.admin.service;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
 import javax.inject.Named;
 import javax.faces.view.ViewScoped;
@@ -33,6 +34,8 @@ public class EditAgreementBean implements Serializable {
 	
 	private Long id;
 	
+	private String inputFieldLang, inputFieldText;
+	
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
 			entity = service.findById(id);
@@ -44,6 +47,20 @@ public class EditAgreementBean implements Serializable {
 		return "show-policy.xhtml?faces-redirect=true&id=" + entity.getPolicy().getId();
 	}
 
+	public void addText() {
+		if (entity.getAgreementMap() == null) {
+			entity.setAgreementMap(new HashMap<String, String>());
+		}
+		entity.getAgreementMap().put(inputFieldLang, inputFieldText);
+		inputFieldLang = "";
+		inputFieldText = "";
+	}
+	
+	public void removeText(String key) {
+		inputFieldLang = key;
+		inputFieldText = entity.getAgreementMap().remove(key);
+	}
+	
 	public AgreementTextEntity getEntity() {
 		return entity;
 	}
@@ -60,5 +77,19 @@ public class EditAgreementBean implements Serializable {
 		this.id = id;
 	}
 
-	
+	public String getInputFieldLang() {
+		return inputFieldLang;
+	}
+
+	public void setInputFieldLang(String inputFieldLang) {
+		this.inputFieldLang = inputFieldLang;
+	}
+
+	public String getInputFieldText() {
+		return inputFieldText;
+	}
+
+	public void setInputFieldText(String inputFieldText) {
+		this.inputFieldText = inputFieldText;
+	}
 }
