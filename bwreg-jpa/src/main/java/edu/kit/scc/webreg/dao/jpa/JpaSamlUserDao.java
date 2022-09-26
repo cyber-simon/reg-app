@@ -53,6 +53,21 @@ public class JpaSamlUserDao extends JpaBaseDao<SamlUserEntity> implements SamlUs
 	}	
 
 	@Override
+	public SamlUserEntity findBySubject(String spId, String idpId, String subjectId) {
+		
+		TypedQuery<SamlUserEntity> query = em.createQuery("select u from SamlUserEntity u where u.persistentSpId = :spId and u.idp.entityId = :idpId and "
+				+ "u.subjectId = :subjectId", SamlUserEntity.class).setParameter("spId", spId)
+				.setParameter("idpId", idpId).setParameter("subjectId", subjectId);
+		
+		try {
+			return query.getSingleResult();
+		}
+		catch (NoResultException e) {
+			return null;
+		}			
+	}	
+	
+	@Override
 	public SamlUserEntity findByPersistent(String spId, String idpId, String persistentId) {
 		
 		TypedQuery<SamlUserEntity> query = em.createQuery("select u from SamlUserEntity u where u.persistentSpId = :spId and u.idp.entityId = :idpId and "

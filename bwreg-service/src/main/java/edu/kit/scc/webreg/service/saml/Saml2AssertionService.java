@@ -26,7 +26,6 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
@@ -201,16 +200,34 @@ public class Saml2AssertionService {
 		}
 		
 		/*
-		 * prefer pairwise-id over persistent over subject-id
+		 * prefer subject-id over pairwise-id over persistent  
 		 */
-		if (samlIdentifier.getPairwiseId() != null) {
-			return scriptingEnv.getSamlUserDao().findByPersistent(samlSpEntityId, idpEntity.getEntityId(), samlIdentifier.getPairwiseId());
+		if (samlIdentifier.getSubjectId() != null) {
+			SamlUserEntity user = scriptingEnv.getSamlUserDao().findBySubject(samlSpEntityId, idpEntity.getEntityId(), samlIdentifier.getPersistentId());
+			// if a user is already existant per pairwise or persistent and get's an additional subject, try to find him now
+			if (user == null) {
+				if (samlIdentifier.getPairwiseId() != null) {
+					user = scriptingEnv.getSamlUserDao().findByPersistent(samlSpEntityId, idpEntity.getEntityId(), samlIdentifier.getPairwiseId());
+				}
+				else if (samlIdentifier.getPersistentId() != null) {
+					user = scriptingEnv.getSamlUserDao().findByPersistent(samlSpEntityId, idpEntity.getEntityId(), samlIdentifier.getPersistentId());
+				}
+			}
+			return user;
+		}
+		else if (samlIdentifier.getPairwiseId() != null) {
+			SamlUserEntity user = scriptingEnv.getSamlUserDao().findByPersistent(samlSpEntityId, idpEntity.getEntityId(), samlIdentifier.getPairwiseId());
+			// if pairwise yields no result, try persistent id, in case of an IDP changeing from persistent to pairwise and not keeping the IDs
+			// in case of both ids are set
+			if (user == null) {
+				if (samlIdentifier.getPersistentId() != null) {
+					user = scriptingEnv.getSamlUserDao().findByPersistent(samlSpEntityId, idpEntity.getEntityId(), samlIdentifier.getPersistentId());
+				}
+			}			
+			return user;
 		}
 		else if (samlIdentifier.getPersistentId() != null) {
 			return scriptingEnv.getSamlUserDao().findByPersistent(samlSpEntityId, idpEntity.getEntityId(), samlIdentifier.getPersistentId());
-		}
-		else if (samlIdentifier.getSubjectId() != null) {
-			throw new NotImplementedException("Not implemented yet");
 		}
 		else {
 			throw new SamlAuthenticationException("No usable identifier found. Acceptable identifiers are Pairwise-ID, Subject-ID or Persistent ID");

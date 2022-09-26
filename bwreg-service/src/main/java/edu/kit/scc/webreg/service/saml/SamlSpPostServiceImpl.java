@@ -7,15 +7,12 @@ import java.util.Map;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.opensaml.messaging.decoder.MessageDecodingException;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
-import org.opensaml.xmlsec.encryption.support.DecryptionException;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
@@ -35,7 +32,6 @@ import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.impl.UserUpdater;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.session.SessionManager;
-import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 
 @Stateless
 public class SamlSpPostServiceImpl implements SamlSpPostService {
@@ -88,7 +84,6 @@ public class SamlSpPostServiceImpl implements SamlSpPostService {
 		Assertion assertion = null;
 		Response samlResponse = null;
 		SamlIdentifier samlIdentifier;
-		String persistentId;
 		try {
 
 			if (debugLog != null) {
