@@ -28,6 +28,12 @@
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
+			<artifactId>bwreg-lib</artifactId>
+			<version>2.7.7-SNAPSHOT</version>
+			<scope>provided</scope>
+		</dependency>		
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
 			<artifactId>bwreg-jpa</artifactId>
 			<version>2.7.7-SNAPSHOT</version>
 			<type>ejb</type>

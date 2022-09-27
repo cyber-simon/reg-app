@@ -18,6 +18,7 @@
 
 	<modules>
 		<module>bwreg-entities</module>
+		<module>bwreg-lib</module>
 		<module>bwreg-jpa</module>
 		<module>bwreg-service</module>
 		<module>bwreg-webapp</module>
