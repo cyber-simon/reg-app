@@ -15,11 +15,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 
 import org.kie.api.KieServices;
 import org.kie.api.builder.ReleaseId;
@@ -43,10 +41,8 @@ import edu.kit.scc.webreg.drools.OverrideAccess;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;
 import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.EventType;
-import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
-import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.ScriptEntity;
@@ -197,58 +193,7 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 
 		return objectList;
 	}
-	
-	@Override
-	public List<ServiceEntity> checkServiceFilterRule(String unitId, IdentityEntity identity, List<ServiceEntity> serviceList,
-			Set<GroupEntity> groups, Set<RoleEntity> roles, HttpServletRequest request) 
-			throws MisconfiguredServiceException {
-		
-		identity = identityDao.merge(identity);
 
-		KieSession ksession = getStatefulSession(unitId);
-
-		if (ksession == null)
-			throw new MisconfiguredApplicationException("Es ist keine valide Regel fuer den Benutzerzugriff konfiguriert");
-
-		ksession.setGlobal("logger", logger);
-		ksession.insert(identity);
-		for (UserEntity user : identity.getUsers())
-			ksession.insert(user);
-		for (GroupEntity group : groups)
-			ksession.insert(group);
-		for (ServiceEntity service : serviceList)
-			ksession.insert(service);
-		ksession.insert(new Date());
-		ksession.insert(request);
-		
-		ksession.fireAllRules();
-
-		List<Object> objectList = new ArrayList<Object>(ksession.getObjects());
-		List<ServiceEntity> removeList = new ArrayList<ServiceEntity>();
-		
-		for (Object o : objectList) {
-			if (logger.isTraceEnabled())
-				logger.trace("Deleting fact handle for Object {}", o);
-			
-			FactHandle factHandle = ksession.getFactHandle(o);
-			if (factHandle != null)
-				ksession.delete(factHandle);
-			else
-				logger.warn("Facthandle for Object {} is null", o);
-			
-			if (o instanceof ServiceEntity) {
-				removeList.add((ServiceEntity) o);
-			}
-		}
-
-		ksession.dispose();
-
-		List<ServiceEntity> returnList = new ArrayList<ServiceEntity>(serviceList);
-		returnList.removeAll(removeList);
-		
-		return returnList;
-	}
-	
 	@Override
 	public List<Object> checkRule(String packageName, String knowledgeBaseName, String knowledgeBaseVersion, 
 			UserEntity user, ServiceEntity service,

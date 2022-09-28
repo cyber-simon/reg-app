@@ -17,7 +17,7 @@ import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.RoleDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
 import edu.kit.scc.webreg.dao.identity.IdentityDao;
-import edu.kit.scc.webreg.drools.KnowledgeSessionService;
+import edu.kit.scc.webreg.drools.impl.KnowledgeSessionSingleton;
 import edu.kit.scc.webreg.entity.AdminRoleEntity;
 import edu.kit.scc.webreg.entity.ApproverRoleEntity;
 import edu.kit.scc.webreg.entity.GroupAdminRoleEntity;
@@ -52,7 +52,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 	private ProjectService projectService;
 	
 	@Inject
-	private KnowledgeSessionService knowledgeSessionService;
+	private KnowledgeSessionSingleton knowledgeSessionSingleton;
 	
 	@Inject
 	private IdentityDao identityDao;
@@ -200,7 +200,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 	
 		    	List<ServiceEntity> tempList = new ArrayList<ServiceEntity>();
 		    	
-		    	tempList.addAll(knowledgeSessionService.checkServiceFilterRule(
+		    	tempList.addAll(knowledgeSessionSingleton.checkServiceFilterRule(
 			    			serviceFilterRule, identity, unregisteredServiceList,
 			    			sessionManager.getGroups(), sessionManager.getRoles(), request));
 		    	

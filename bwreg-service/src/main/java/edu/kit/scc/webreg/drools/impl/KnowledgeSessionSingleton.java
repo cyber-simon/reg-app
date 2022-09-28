@@ -24,6 +24,7 @@ import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import javax.servlet.http.HttpServletRequest;
 
 import org.kie.api.KieServices;
 import org.kie.api.builder.ReleaseId;
@@ -41,6 +42,8 @@ import edu.kit.scc.webreg.dao.ServiceDao;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
+import edu.kit.scc.webreg.drools.DroolsConfigurationException;
+import edu.kit.scc.webreg.drools.DroolsEvaluator;
 import edu.kit.scc.webreg.drools.OverrideAccess;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;
 import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
@@ -110,6 +113,14 @@ public class KnowledgeSessionSingleton {
 	protected KieSession getStatefulSession(KieServices ks, ReleaseId releaseId) {
 		KieContainer kc = ks.newKieContainer(releaseId);
 		return kc.newKieSession();
+	}
+
+	public List<ServiceEntity> checkServiceFilterRule(String unitId, IdentityEntity identity, List<ServiceEntity> serviceList,
+			Set<GroupEntity> groups, Set<RoleEntity> roles, HttpServletRequest request) 
+			throws DroolsConfigurationException {
+		
+		DroolsEvaluator evaluator = new DroolsEvaluator(KieServices.Factory.get());
+		return evaluator.checkServiceFilterRule(unitId, identity, serviceList, groups, roles, logger);
 	}
 
 	public List<Object> checkRule(BusinessRulePackageEntity rulePackage, IdentityEntity identity) 
