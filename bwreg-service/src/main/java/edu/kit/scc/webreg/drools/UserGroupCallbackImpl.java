@@ -45,8 +45,7 @@ public class UserGroupCallbackImpl implements UserGroupCallback {
 	}
 
 	@Override
-	public List<String> getGroupsForUser(String userId, List<String> groupIds,
-			List<String> allExistingGroupIds) {
+	public List<String> getGroupsForUser(String userId) {
 		List<UserEntity> userList = userService.findByEppn(userId);
 		if (userList.size() == 0) {
 			return null;
