@@ -61,7 +61,7 @@ public interface KnowledgeSessionService {
 			SamlIdpMetadataEntity idp, EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity sp)
 			throws MisconfiguredServiceException;
 
-	List<ServiceEntity> checkServiceFilterRule(String unitId, UserEntity user,
+	List<ServiceEntity> checkServiceFilterRule(String unitId, IdentityEntity identity,
 			List<ServiceEntity> serviceList, Set<GroupEntity> groups,
 			Set<RoleEntity> roles, HttpServletRequest request) throws MisconfiguredServiceException;
 

@@ -199,11 +199,11 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 	}
 	
 	@Override
-	public List<ServiceEntity> checkServiceFilterRule(String unitId, UserEntity user, List<ServiceEntity> serviceList,
+	public List<ServiceEntity> checkServiceFilterRule(String unitId, IdentityEntity identity, List<ServiceEntity> serviceList,
 			Set<GroupEntity> groups, Set<RoleEntity> roles, HttpServletRequest request) 
 			throws MisconfiguredServiceException {
 		
-		user = userDao.merge(user);
+		identity = identityDao.merge(identity);
 
 		KieSession ksession = getStatefulSession(unitId);
 
@@ -211,7 +211,9 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 			throw new MisconfiguredApplicationException("Es ist keine valide Regel fuer den Benutzerzugriff konfiguriert");
 
 		ksession.setGlobal("logger", logger);
-		ksession.insert(user);
+		ksession.insert(identity);
+		for (UserEntity user : identity.getUsers())
+			ksession.insert(user);
 		for (GroupEntity group : groups)
 			ksession.insert(group);
 		for (ServiceEntity service : serviceList)

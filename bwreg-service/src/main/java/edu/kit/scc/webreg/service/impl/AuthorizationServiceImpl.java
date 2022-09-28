@@ -200,11 +200,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 	
 		    	List<ServiceEntity> tempList = new ArrayList<ServiceEntity>();
 		    	
-		    	for (UserEntity user : identity.getUsers()) {
-			    	tempList.addAll(knowledgeSessionService.checkServiceFilterRule(
-			    			serviceFilterRule, user, unregisteredServiceList,
+		    	tempList.addAll(knowledgeSessionService.checkServiceFilterRule(
+			    			serviceFilterRule, identity, unregisteredServiceList,
 			    			sessionManager.getGroups(), sessionManager.getRoles(), request));
-		    	}
 		    	
 		    	unregisteredServiceList = tempList;
 		    	
