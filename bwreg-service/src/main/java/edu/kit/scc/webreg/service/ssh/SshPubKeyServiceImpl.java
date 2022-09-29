@@ -87,7 +87,7 @@ public class SshPubKeyServiceImpl extends BaseServiceImpl<SshPubKeyEntity> imple
 	public SshPubKeyEntity expireKey(SshPubKeyEntity entity, String executor) {
 		entity = dao.merge(entity);
 		entity.setKeyStatus(SshPubKeyStatus.EXPIRED);
-		logger.debug("Setting key {} to expired");
+		logger.debug("Setting key {} to expired", entity.getId());
 
 		for (SshPubKeyRegistryEntity regKey : entity.getSshPubKeyRegistries()) {
 			logger.debug("Deleting registry connection {} for key {}", regKey.getId(), entity.getId());
