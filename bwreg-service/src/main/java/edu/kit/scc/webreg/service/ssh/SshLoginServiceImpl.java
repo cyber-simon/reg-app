@@ -194,7 +194,7 @@ public class SshLoginServiceImpl implements SshLoginService {
 			}
 			sb.append(regKey.getSshPubKey().getKeyType());
 			sb.append(" ");
-			sb.append(regKey.getSshPubKey().getEncodedKey());
+			sb.append(regKey.getSshPubKey().getEncodedKey().replaceAll("[\\n\t ]", ""));
 			if (user.getEmail() != null) {
 				sb.append(" ");
 				sb.append(user.getEmail());
