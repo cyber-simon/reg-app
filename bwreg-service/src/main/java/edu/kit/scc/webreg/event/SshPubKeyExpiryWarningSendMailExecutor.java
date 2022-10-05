@@ -56,7 +56,7 @@ public class SshPubKeyExpiryWarningSendMailExecutor extends
 			
 			Map<String, Object> context = new HashMap<String, Object>(3);
 			context.put("sshPubKey", sshPubKey);
-			context.put("user", sshPubKey.getUser());
+			context.put("user", sshPubKey.getIdentity().getPrefUser());
 			context.put("identity", sshPubKey.getIdentity());
 			
 			templateMailService.sendMail(templateName, context, true);
