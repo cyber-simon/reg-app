@@ -22,38 +22,38 @@
 	<parent>
 		<groupId>edu.kit.scc</groupId>
 		<artifactId>bwreg</artifactId>
-		<version>2.7.7-SNAPSHOT</version>
+		<version>2.7.7</version>
 	</parent>
 
 	<dependencies>
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
 			<artifactId>bwreg-entities</artifactId>
-			<version>2.7.7-SNAPSHOT</version>
+			<version>2.7.7</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
 			<artifactId>bwreg-lib</artifactId>
-			<version>2.7.7-SNAPSHOT</version>
+			<version>2.7.7</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
 			<artifactId>bwreg-jpa</artifactId>
-			<version>2.7.7-SNAPSHOT</version>
+			<version>2.7.7</version>
 			<type>ejb</type>
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
 			<artifactId>bwreg-service</artifactId>
-			<version>2.7.7-SNAPSHOT</version>
+			<version>2.7.7</version>
 			<type>ejb</type>
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
 			<artifactId>bwreg-webapp</artifactId>
-			<version>2.7.7-SNAPSHOT</version>
+			<version>2.7.7</version>
 			<type>war</type>
 		</dependency>
 
