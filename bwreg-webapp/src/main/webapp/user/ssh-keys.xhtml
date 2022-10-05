@@ -25,7 +25,7 @@
 	<ui:define name="content">
 	<h:form id="form" class="form full fancy">
 
-		<h3>#{messages.ssh_pub_key_list}</h3>
+		<h3>#{messages['ssh_keys.key_list']}</h3>
 
 		<div><p:messages showDetail="true" /></div>
 
@@ -45,6 +45,7 @@
 		        			rendered="#{not empty key.pubKeyEntity.expiresAt}" style="font-weight: bold;"/>
 		        		<h:outputText value="#{messages.never}"
 		        			rendered="#{empty key.pubKeyEntity.expiresAt}" style="font-weight: bold;"/>
+		        		<h:panelGroup rendered="#{key.pubKeyEntity.keyStatus == 'EXPIRED'}"><h:outputText value=" (#{messages['ssh_keys.already_expired']})" /></h:panelGroup>
 	        		</p:outputPanel>
 
 	        		<p:outputLabel for="@next" value="#{messages.ssh_key_type}:"/>

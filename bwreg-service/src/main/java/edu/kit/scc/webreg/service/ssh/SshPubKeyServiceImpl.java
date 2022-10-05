@@ -79,6 +79,11 @@ public class SshPubKeyServiceImpl extends BaseServiceImpl<SshPubKeyEntity> imple
 	}
 
 	@Override
+	public List<SshPubKeyEntity> findKeysToDelete(int limit, int days) {
+		return dao.findKeysToDelete(limit, days);
+	}
+	
+	@Override
 	public List<SshPubKeyEntity> findKeysToExpiryWarning(int limit, int days) {
 		return dao.findKeysToExpiryWarning(limit, days);
 	}
@@ -136,7 +141,7 @@ public class SshPubKeyServiceImpl extends BaseServiceImpl<SshPubKeyEntity> imple
 
 		entity = dao.merge(entity);
 		entity.setKeyStatus(SshPubKeyStatus.DELETED);
-		logger.debug("Setting key {} to deleted");
+		logger.debug("Setting key {} to deleted", entity.getId());
 
 		for (SshPubKeyRegistryEntity regKey : entity.getSshPubKeyRegistries()) {
 			sshPubKeyRegistryDao.delete(regKey);

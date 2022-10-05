@@ -36,4 +36,6 @@ public interface SshPubKeyDao extends BaseDao<SshPubKeyEntity> {
 	List<SshPubKeyEntity> findByIdentityAndExpiryInDays(Long id, Integer days);
 
 	List<SshPubKeyEntity> findByExpiryInDays(Integer days);
+
+	List<SshPubKeyEntity> findKeysToDelete(int limit, int days);
 }

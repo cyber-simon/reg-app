@@ -73,6 +73,7 @@ public class UserSshKeyManagementBean implements Serializable {
 		if (identity == null) {
 			identity = identityService.findById(sessionManager.getIdentityId());
 	    	List<SshPubKeyEntity> sshPubKeyList = sshPubKeyService.findByIdentityAndStatusWithRegs(identity.getId(), SshPubKeyStatus.ACTIVE);
+	    	sshPubKeyList.addAll(sshPubKeyService.findByIdentityAndStatusWithRegs(identity.getId(), SshPubKeyStatus.EXPIRED));
 	    	
 	    	keyList = new ArrayList<OpenSshPublicKey>();
 	    	for (SshPubKeyEntity sshKey : sshPubKeyList) {
@@ -106,7 +107,7 @@ public class UserSshKeyManagementBean implements Serializable {
 			sshPubKeyService.deleteKey(removeEntity, "identity-" + identity.getId());
 		}
 		
-		messageGenerator.addResolvedInfoMessage("info", "ssh_key_deleted", false);				
+		messageGenerator.addResolvedInfoMessage("info", "ssh_keys.key_deleted", false);				
 	}
 	
 	public void deployKey() {

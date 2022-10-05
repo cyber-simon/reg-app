@@ -28,87 +28,78 @@ import edu.kit.scc.webreg.entity.SshPubKeyStatus;
 public class JpaSshPubKeyDao extends JpaBaseDao<SshPubKeyEntity> implements SshPubKeyDao {
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public List<SshPubKeyEntity> findByIdentity(Long identityId) {
-		return em.createQuery("select e from SshPubKeyEntity e where e.identity.id = :identityId")
+		return em.createQuery("select e from SshPubKeyEntity e where e.identity.id = :identityId", SshPubKeyEntity.class)
 				.setParameter("identityId", identityId).getResultList();	
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<SshPubKeyEntity> findMissingIdentity() {
-		return em.createQuery("select r from SshPubKeyEntity r where r.identity is null")
+		return em.createQuery("select r from SshPubKeyEntity r where r.identity is null", SshPubKeyEntity.class)
 				.getResultList();
 	}	
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public List<SshPubKeyEntity> findByIdentityAndStatus(Long identityId, SshPubKeyStatus keyStatus) {
-		return em.createQuery("select e from SshPubKeyEntity e where e.identity.id = :identityId and e.keyStatus = :keyStatus")
+		return em.createQuery("select e from SshPubKeyEntity e where e.identity.id = :identityId and e.keyStatus = :keyStatus", SshPubKeyEntity.class)
 				.setParameter("identityId", identityId)
 				.setParameter("keyStatus", keyStatus)
 				.getResultList();	
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public List<SshPubKeyEntity> findByIdentityAndStatusWithRegs(Long identityId, SshPubKeyStatus keyStatus) {
 		return em.createQuery("select distinct e from SshPubKeyEntity e "
 				+ "left join fetch e.sshPubKeyRegistries "
-				+ "where e.identity.id = :identityId and e.keyStatus = :keyStatus")
+				+ "where e.identity.id = :identityId and e.keyStatus = :keyStatus", SshPubKeyEntity.class)
 				.setParameter("identityId", identityId)
 				.setParameter("keyStatus", keyStatus)
 				.getResultList();	
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public List<SshPubKeyEntity> findByIdentityAndKey(Long identityId, String encodedKey) {
-		return em.createQuery("select e from SshPubKeyEntity e where e.identity.id = :identityId and e.encodedKey = :encodedKey")
+		return em.createQuery("select e from SshPubKeyEntity e where e.identity.id = :identityId and e.encodedKey = :encodedKey", SshPubKeyEntity.class)
 				.setParameter("identityId", identityId)
 				.setParameter("encodedKey", encodedKey)
 				.getResultList();	
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public List<SshPubKeyEntity> findByIdentityAndExpiryInDays(Long identityId, Integer days) {
 		Date currentDate = new Date();
         Calendar c = Calendar.getInstance();
         c.setTime(currentDate);
         c.add(Calendar.DATE, days);
         Date expiryDatePlusN = c.getTime();
-		return em.createQuery("select e from SshPubKeyEntity e where e.identity.id = :identityId and e.expiresAt < :expiryDatePlusN")
+		return em.createQuery("select e from SshPubKeyEntity e where e.identity.id = :identityId and e.expiresAt < :expiryDatePlusN", SshPubKeyEntity.class)
 				.setParameter("identityId", identityId)
 				.setParameter("expiryDatePlusN", expiryDatePlusN)
 				.getResultList();	
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public List<SshPubKeyEntity> findByExpiryInDays(Integer days) {
 		Date currentDate = new Date();
         Calendar c = Calendar.getInstance();
         c.setTime(currentDate);
         c.add(Calendar.DATE, days);
         Date expiryDatePlusN = c.getTime();
-		return em.createQuery("select e from SshPubKeyEntity e where e.expiresAt < :expiryDatePlusN")
+		return em.createQuery("select e from SshPubKeyEntity e where e.expiresAt < :expiryDatePlusN", SshPubKeyEntity.class)
 				.setParameter("expiryDatePlusN", expiryDatePlusN)
 				.getResultList();	
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public List<SshPubKeyEntity> findByKey(String encodedKey) {
-		return em.createQuery("select e from SshPubKeyEntity e where e.encodedKey = :encodedKey")
+		return em.createQuery("select e from SshPubKeyEntity e where e.encodedKey = :encodedKey", SshPubKeyEntity.class)
 				.setParameter("encodedKey", encodedKey)
 				.getResultList();	
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public List<SshPubKeyEntity> findKeysToExpire(int limit) {
-		return em.createQuery("select e from SshPubKeyEntity e where e.expiresAt < :dateNow and e.keyStatus = :keyStatus")
+		return em.createQuery("select e from SshPubKeyEntity e where e.expiresAt < :dateNow and e.keyStatus = :keyStatus", SshPubKeyEntity.class)
 				.setParameter("dateNow", new Date())
 				.setParameter("keyStatus", SshPubKeyStatus.ACTIVE)
 				.setMaxResults(limit)
@@ -116,11 +107,20 @@ public class JpaSshPubKeyDao extends JpaBaseDao<SshPubKeyEntity> implements SshP
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
+	public List<SshPubKeyEntity> findKeysToDelete(int limit, int days) {
+		Date dateNowPlusN = Date.from(LocalDateTime.now().plusDays(days).atZone(ZoneId.systemDefault()).toInstant());
+		return em.createQuery("select e from SshPubKeyEntity e where e.expiresAt < :dateNowPlusN and e.keyStatus = :keyStatus", SshPubKeyEntity.class)
+				.setParameter("dateNowPlusN", dateNowPlusN)
+				.setParameter("keyStatus", SshPubKeyStatus.EXPIRED)
+				.setMaxResults(limit)
+				.getResultList();	
+	}
+
+	@Override
 	public List<SshPubKeyEntity> findKeysToExpiryWarning(int limit, int days) {
 		Date dateDays = Date.from(LocalDateTime.now().plusDays(days).atZone(ZoneId.systemDefault()).toInstant());
 		return em.createQuery("select e from SshPubKeyEntity e where e.expireWarningSent = null and "
-				+ "e.expiresAt > :dateNow and e.expiresAt < :dateDays and e.keyStatus = :keyStatus")
+				+ "e.expiresAt > :dateNow and e.expiresAt < :dateDays and e.keyStatus = :keyStatus", SshPubKeyEntity.class)
 				.setParameter("dateNow", new Date())
 				.setParameter("dateDays", dateDays)
 				.setParameter("keyStatus", SshPubKeyStatus.ACTIVE)

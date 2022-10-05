@@ -43,5 +43,7 @@ public interface SshPubKeyService extends BaseService<SshPubKeyEntity> {
 	SshPubKeyEntity keyExpiryWarningSent(SshPubKeyEntity entity);
 	
 	List<SshPubKeyEntity> findKeysToExpiryWarning(int limit, int days);
+
+	List<SshPubKeyEntity> findKeysToDelete(int limit, int days);
 	
 }
