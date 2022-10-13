@@ -1,45 +1,20 @@
-<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.2.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
-                      http://maven.apache.org/xsd/settings-1.0.0.xsd">
-	<localRepository />
-	<interactiveMode />
-	<usePluginRegistry />
-	<offline />
-	<pluginGroups />
-	<servers />
+	xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.2.0 https://maven.apache.org/xsd/settings-1.2.0.xsd">
+	<servers>
+		<server>
+			<id>ama-nexus</id>
+			<username>${env.DEPLOYMENT_USERNAME}</username>
+			<password>${env.DEPLOYMENT_PASSWORD}</password>
+		</server>
+	</servers>
 	<mirrors>
-	    <mirror>
-	      <id>fels-nexus_central</id>
-	      <name>fels-nexus Nexus Mirror</name>
-	      <mirrorOf>central</mirrorOf>
-	      <url>https://fels-nexus.scc.kit.edu/repository/maven-central</url>
-	    </mirror>		
-	    <mirror>
-	      <id>fels-nexus_java.net</id>
-	      <name>fels-nexus Nexus Mirror</name>
-	      <mirrorOf>java.net</mirrorOf>
-	      <url>https://fels-nexus.scc.kit.edu/repository/java.net</url>
-	    </mirror>		
-	    <mirror>
-	      <id>fels-nexus_maven2-repository.jboss.com</id>
-	      <name>fels-nexus Nexus Mirror</name>
-	      <mirrorOf>maven2-repository.jboss.com</mirrorOf>
-	      <url>https://fels-nexus.scc.kit.edu/repository/maven2-repository.jboss.com</url>
-	    </mirror>		
-	    <mirror>
-	      <id>fels-nexus_prime-repo</id>
-	      <name>fels-nexus Nexus Mirror</name>
-	      <mirrorOf>prime-repo</mirrorOf>
-	      <url>https://fels-nexus.scc.kit.edu/repository/prime-repo</url>
-	    </mirror>		
-	    <mirror>
-	      <id>fels-nexus_shibboleth.internet2.edu</id>
-	      <name>fels-nexus Nexus Mirror</name>
-	      <mirrorOf>shibboleth.internet2.edu</mirrorOf>
-	      <url>https://fels-nexus.scc.kit.edu/repository/shibboleth.internet2.edu</url>
-	    </mirror>		
+		<mirror>
+			<id>ama-nexus</id>
+			<name>ama-nexus</name>
+			<url>https://ama-nexus.scc.kit.edu/repository/maven-public/</url>
+			<mirrorOf>*</mirrorOf>
+		</mirror>
 	</mirrors>
-	<proxies />
-	<profiles />
 </settings>

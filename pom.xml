@@ -191,35 +191,30 @@
     	</repository>	
 		<repository>
 			<id>java.net</id>
-			<name>Java.net Repository for Maven</name>
 			<url>https://maven.java.net/content/repositories/releases</url>
 		</repository>
 		<repository>
-			<id>maven2-repository.jboss.com</id>
-			<name>JBoss Repository for Maven</name>
+			<id>jboss.org</id>
 			<url>https://repository.jboss.org/nexus/content/repositories/releases/</url>
 		</repository>
 		<repository>
-			<id>prime-repo</id>
-			<name>PrimeFaces Maven Repository</name>
+			<id>primefaces.org</id>
 			<url>https://repository.primefaces.org</url>
-			<layout>default</layout>
 		</repository>
 		<repository>
-			<id>shibboleth.internet2.edu</id>
-			<name>Internet2</name>
-			<layout>default</layout>
-			<url>https://build.shibboleth.net/nexus/content/repositories/releases</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
+			<id>shibboleth.net</id>
+			<url>https://build.shibboleth.net/nexus/content/repositories/releases/</url>
 		</repository>
 	</repositories>
 
 	<distributionManagement>
+		<snapshotRepository>
+			<id>ama-nexus</id>
+			<url>https://ama-nexus.scc.kit.edu/repository/ama-maven-snapshots/</url>
+		</snapshotRepository>
 		<repository>
-			<id>${deploy-repo.id}</id>
-			<url>${deploy-repo.url}</url>
+			<id>ama-nexus</id>
+			<url>https://ama-nexus.scc.kit.edu/repository/ama-maven-releases/</url>
 		</repository>
 	</distributionManagement>
   
