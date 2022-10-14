@@ -108,9 +108,9 @@ public class JpaSshPubKeyDao extends JpaBaseDao<SshPubKeyEntity> implements SshP
 
 	@Override
 	public List<SshPubKeyEntity> findKeysToDelete(int limit, int days) {
-		Date dateNowPlusN = Date.from(LocalDateTime.now().plusDays(days).atZone(ZoneId.systemDefault()).toInstant());
-		return em.createQuery("select e from SshPubKeyEntity e where e.expiresAt < :dateNowPlusN and e.keyStatus = :keyStatus", SshPubKeyEntity.class)
-				.setParameter("dateNowPlusN", dateNowPlusN)
+		Date dateNowMinusN = Date.from(LocalDateTime.now().minusDays(days).atZone(ZoneId.systemDefault()).toInstant());
+		return em.createQuery("select e from SshPubKeyEntity e where e.expiresAt < :dateNowMinusN and e.keyStatus = :keyStatus", SshPubKeyEntity.class)
+				.setParameter("dateNowMinusN", dateNowMinusN)
 				.setParameter("keyStatus", SshPubKeyStatus.EXPIRED)
 				.setMaxResults(limit)
 				.getResultList();	
