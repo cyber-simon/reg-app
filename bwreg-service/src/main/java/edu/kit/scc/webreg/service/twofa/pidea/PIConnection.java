@@ -280,7 +280,7 @@ public class PIConnection {
 	
 	public PISetFieldResult setTokenDescription(String serial, String description) throws TwoFaException {
 		try {
-			HttpPost httpPost = new HttpPost(configMap.get("url") + "/token/description/" + serial);
+			HttpPost httpPost = new HttpPost(configMap.get("url") + "/token/set/" + serial);
 			httpPost.addHeader("PI-Authorization", adminSession);
 
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
