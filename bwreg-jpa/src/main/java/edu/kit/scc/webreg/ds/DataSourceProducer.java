@@ -8,7 +8,7 @@ import javax.persistence.PersistenceContext;
 @ApplicationScoped
 public class DataSourceProducer {
 
-    @PersistenceContext(unitName = "bwidm")
+    @PersistenceContext
 	private EntityManager em;
 
     @Produces
