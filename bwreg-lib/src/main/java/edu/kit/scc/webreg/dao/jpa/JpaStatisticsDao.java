@@ -4,12 +4,11 @@ import java.io.Serializable;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import edu.kit.scc.webreg.dao.StatisticsDao;
-import edu.kit.scc.webreg.ds.DefaultDatasource;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 
@@ -19,8 +18,7 @@ public class JpaStatisticsDao implements Serializable, StatisticsDao {
 
 	private static final long serialVersionUID = 1L;
 
-    @Inject
-    @DefaultDatasource
+    @PersistenceContext
     protected EntityManager em;
 	
 	@Override

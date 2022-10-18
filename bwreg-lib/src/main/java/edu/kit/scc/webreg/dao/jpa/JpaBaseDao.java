@@ -16,9 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -43,13 +43,11 @@ import edu.kit.scc.webreg.dao.ops.NotEqualsObjectValue;
 import edu.kit.scc.webreg.dao.ops.NotLikeObjectValue;
 import edu.kit.scc.webreg.dao.ops.OrPredicate;
 import edu.kit.scc.webreg.dao.ops.PathObjectValue;
-import edu.kit.scc.webreg.ds.DefaultDatasource;
 import edu.kit.scc.webreg.entity.BaseEntity;
 
 public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 
-	@Inject
-	@DefaultDatasource
+    @PersistenceContext
     protected EntityManager em;
 
     public abstract Class<T> getEntityClass();
