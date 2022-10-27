@@ -92,7 +92,7 @@ public class UserSshKeyManagementBean implements Serializable {
 			keyList.remove(k);
 			sshPubKeyService.deleteKey(k.getPubKeyEntity(), "identity-" + identity.getId());
 		});
-		messageGenerator.addResolvedInfoMessage("info", "ssh_keys.key_deleted", false);
+		messageGenerator.addResolvedInfoMessage("info", "ssh_keys.key_deleted", true);
 	}
 
 	public void deployKey() {
