@@ -30,6 +30,10 @@ import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.ssh.SshPubKeyService;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
+import java.io.IOException;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Named
 @ViewScoped
@@ -125,12 +129,17 @@ public class UserSshKeyManagementBean implements Serializable {
 			newKey = "";
 			newName = "";
 			messageGenerator.addResolvedInfoMessage("info", "ssh_key_deployed", true);
+			ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
+			ec.redirect(((HttpServletRequest) ec.getRequest()).getRequestURI());
 		} catch (UnsupportedKeyTypeException e) {
 			logger.warn("An error occured whilst deploying key: " + e.getMessage());
 			messageGenerator.addResolvedErrorMessage("sshKeyMessage", "error_msg", e.toString(), false);
 		} catch (SshPubKeyBlacklistedException e) {
 			logger.warn("User {} tried to deploy blacklisted key", identity.getId());
 			messageGenerator.addResolvedErrorMessage("sshKeyMessage", "error", "key_blacklisted", true);
+		} catch (IOException e) {
+			logger.warn("An error occured trying to reload page after deploying key: " + e.getMessage());
+			messageGenerator.addResolvedErrorMessage("sshKeyMessage", "error_msg", e.toString(), false);
 		}
 	}
 
