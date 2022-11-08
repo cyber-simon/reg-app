@@ -61,7 +61,7 @@ public class AutoApprovalExecutor extends
 
 			logger.info("Checking autoapproval for user {}", registry.getUser().getEppn());
 
-			KnowledgeSessionService knowledgeSessionService = (KnowledgeSessionService) ic.lookup("global/bwreg/bwreg-service/KnowledgeSessionServiceImpl!edu.kit.scc.webreg.drools.KnowledgeSessionService");
+			KnowledgeSessionService knowledgeSessionService = (KnowledgeSessionService) ic.lookup("global/bwreg/bwreg-service/KnowledgeSessionServiceImpl!edu.kit.scc.webreg.service.drools.KnowledgeSessionService");
 
 			List<Object> objectList = knowledgeSessionService.checkRule(ruleNames[0], ruleNames[1], ruleNames[2], 
 					registry.getUser(), registry.getService(), registry, "autoapproval", false);

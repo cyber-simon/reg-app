@@ -47,7 +47,7 @@ public class UserUpdateAccessCheckExecutor extends
 		try {
 			InitialContext ic = new InitialContext();
 			
-			KnowledgeSessionService knowledgeSessionService = (KnowledgeSessionService) ic.lookup("global/bwreg/bwreg-service/KnowledgeSessionServiceImpl!edu.kit.scc.webreg.drools.KnowledgeSessionService");
+			KnowledgeSessionService knowledgeSessionService = (KnowledgeSessionService) ic.lookup("global/bwreg/bwreg-service/KnowledgeSessionServiceImpl!edu.kit.scc.webreg.service.drools.KnowledgeSessionService");
 			RegistryService registryService = (RegistryService) ic.lookup("global/bwreg/bwreg-service/RegistryServiceImpl!edu.kit.scc.webreg.service.RegistryService");
 			
 			UserEntity user = getEvent().getEntity();

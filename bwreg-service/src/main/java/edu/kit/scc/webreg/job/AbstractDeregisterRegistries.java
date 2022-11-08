@@ -49,7 +49,7 @@ public abstract class AbstractDeregisterRegistries extends AbstractExecutableJob
 			RegisterUserService registerUserService = (RegisterUserService) ic.lookup("global/bwreg/bwreg-service/RegisterUserServiceImpl!edu.kit.scc.webreg.service.reg.RegisterUserService");
 	
 			UserService userService = (UserService) ic.lookup("global/bwreg/bwreg-service/UserServiceImpl!edu.kit.scc.webreg.service.UserService");
-			KnowledgeSessionService knowledgeSessionService = (KnowledgeSessionService) ic.lookup("global/bwreg/bwreg-service/KnowledgeSessionServiceImpl!edu.kit.scc.webreg.drools.KnowledgeSessionService");
+			KnowledgeSessionService knowledgeSessionService = (KnowledgeSessionService) ic.lookup("global/bwreg/bwreg-service/KnowledgeSessionServiceImpl!edu.kit.scc.webreg.service.drools.KnowledgeSessionService");
 			
 			List<RegistryEntity> registryList = registryService.findByServiceAndStatusAndIDPGood(ssn, registryStatus, 
 					new Date(System.currentTimeMillis() - lastUpdate), limit);
