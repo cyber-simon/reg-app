@@ -30,14 +30,13 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import org.primefaces.model.FilterMeta;
-import org.primefaces.model.MatchMode;
-import org.primefaces.model.SortMeta;
-import org.primefaces.model.SortOrder;
-
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.GenericSortOrder;
 import edu.kit.scc.webreg.dao.ops.AndPredicate;
+import edu.kit.scc.webreg.dao.ops.DaoFilterData;
+import edu.kit.scc.webreg.dao.ops.DaoMatchMode;
+import edu.kit.scc.webreg.dao.ops.DaoSortData;
+import edu.kit.scc.webreg.dao.ops.DaoSortOrder;
 import edu.kit.scc.webreg.dao.ops.MultipathOrPredicate;
 import edu.kit.scc.webreg.dao.ops.NotEqualsObjectValue;
 import edu.kit.scc.webreg.dao.ops.NotLikeObjectValue;
@@ -89,8 +88,8 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<T> findAllPaging(int first, int pageSize, Map<String, SortMeta> sortBy,
-			Map<String, Object> filterMap, Map<String, FilterMeta> additionalFilterMap, String... attrs) {
+	public List<T> findAllPaging(int first, int pageSize, Map<String, DaoSortData> sortBy,
+			Map<String, Object> filterMap, Map<String, DaoFilterData> additionalFilterMap, String... attrs) {
 
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<T> criteria = builder.createQuery(getEntityClass());
@@ -126,7 +125,7 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<T> findAllPaging(int first, int pageSize, String sortField,
-			GenericSortOrder sortOrder, Map<String, Object> filterMap, Map<String, FilterMeta> additionalFilterMap, String... attrs) {
+			GenericSortOrder sortOrder, Map<String, Object> filterMap, Map<String, DaoFilterData> additionalFilterMap, String... attrs) {
 
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<T> criteria = builder.createQuery(getEntityClass());
@@ -155,7 +154,7 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 	}
 
 	@Override
-	public Number countAll(Map<String, Object> filterMap, Map<String, FilterMeta> additionalFilterMap) {
+	public Number countAll(Map<String, Object> filterMap, Map<String, DaoFilterData> additionalFilterMap) {
 
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<Long> criteria = builder.createQuery(Long.class);
@@ -271,12 +270,12 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 		
 	}
 	
-	protected List<Predicate> predicatesFromAdditionalFilterMap(CriteriaBuilder builder, Root<T> root, Map<String, FilterMeta> additionalFilterMap) {
+	protected List<Predicate> predicatesFromAdditionalFilterMap(CriteriaBuilder builder, Root<T> root, Map<String, DaoFilterData> additionalFilterMap) {
 		
 		List<Predicate> predicates = new ArrayList<Predicate>();
 
 		if (additionalFilterMap != null) {
-			for (Entry<String, FilterMeta> entry : additionalFilterMap.entrySet()) {
+			for (Entry<String, DaoFilterData> entry : additionalFilterMap.entrySet()) {
 				if (entry.getValue() != null && entry.getValue().getFilterValue() != null) {
 					predicates.add(predicateFromFilterMeta(builder, root, entry.getKey(), entry.getValue()));
 				}
@@ -286,23 +285,23 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 		return predicates;
 	}
 
-	protected Predicate predicateFromFilterMeta(CriteriaBuilder builder, Root<T> root, String path, FilterMeta filterMeta) {
-		if (filterMeta.getMatchMode().equals(MatchMode.STARTS_WITH)) {
+	protected Predicate predicateFromFilterMeta(CriteriaBuilder builder, Root<T> root, String path, DaoFilterData filterMeta) {
+		if (filterMeta.getMatchMode().equals(DaoMatchMode.STARTS_WITH)) {
 			return builder.like(
 					builder.lower(this.<String>resolvePath(root, path)), 
 					filterMeta.getFilterValue().toString().toLowerCase() + "%");
 		}
-		else if (filterMeta.getMatchMode().equals(MatchMode.ENDS_WITH)) {
+		else if (filterMeta.getMatchMode().equals(DaoMatchMode.ENDS_WITH)) {
 			return builder.like(
 					builder.lower(this.<String>resolvePath(root, path)), 
 					"%" + filterMeta.getFilterValue().toString().toLowerCase());
 		}
-		else if (filterMeta.getMatchMode().equals(MatchMode.CONTAINS)) {
+		else if (filterMeta.getMatchMode().equals(DaoMatchMode.CONTAINS)) {
 			return builder.like(
 					builder.lower(this.<String>resolvePath(root, path)), 
 					"%" + filterMeta.getFilterValue().toString().toLowerCase() + "%");
 		}
-		else if (filterMeta.getMatchMode().equals(MatchMode.EQUALS)) {
+		else if (filterMeta.getMatchMode().equals(DaoMatchMode.EQUALS)) {
 			return builder.like(
 					builder.lower(this.<String>resolvePath(root, path)), 
 					filterMeta.getFilterValue().toString().toLowerCase());
@@ -380,16 +379,16 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 		}		
 	}
 		
-	protected List<Order> getSortOrder(CriteriaBuilder builder, Root<T> root, Map<String, SortMeta> sortBy) {
+	protected List<Order> getSortOrder(CriteriaBuilder builder, Root<T> root, Map<String, DaoSortData> sortBy) {
 
 		List<Order> orderList = new ArrayList<Order>();
 
 		if (sortBy != null) {
-			for (Entry<String, SortMeta> entry : sortBy.entrySet()) {
+			for (Entry<String, DaoSortData> entry : sortBy.entrySet()) {
 				if (entry.getValue() != null && entry.getValue().getOrder() != null && entry.getValue().getField() != null) {
-					if (entry.getValue().getOrder().equals(SortOrder.ASCENDING))
+					if (entry.getValue().getOrder().equals(DaoSortOrder.ASCENDING))
 						orderList.add(builder.asc(resolvePath(root, entry.getValue().getField())));
-					else if (entry.getValue().getOrder().equals(SortOrder.DESCENDING))
+					else if (entry.getValue().getOrder().equals(DaoSortOrder.DESCENDING))
 						orderList.add(builder.desc(resolvePath(root, entry.getValue().getField())));
 				}
 			}

@@ -14,10 +14,9 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import org.primefaces.model.FilterMeta;
-import org.primefaces.model.SortMeta;
-
 import edu.kit.scc.webreg.dao.GenericSortOrder;
+import edu.kit.scc.webreg.dao.ops.DaoFilterData;
+import edu.kit.scc.webreg.dao.ops.DaoSortData;
 import edu.kit.scc.webreg.entity.BaseEntity;
 
 public interface BaseService<T extends BaseEntity> extends Serializable {
@@ -36,13 +35,13 @@ public interface BaseService<T extends BaseEntity> extends Serializable {
 
     T findByIdWithAttrs(Long id, String... attrs);
 
-	List<T> findAllPaging(int first, int pageSize, Map<String, SortMeta> sortBy,
-			Map<String, Object> filterMap, Map<String, FilterMeta> additionalFilterMap, String... attrs);
+	List<T> findAllPaging(int first, int pageSize, Map<String, DaoSortData> sortBy,
+			Map<String, Object> filterMap, Map<String, DaoFilterData> additionalFilterMap, String... attrs);
 
 	List<T> findAllPaging(int first, int pageSize, String sortField,
-			GenericSortOrder sortOrder, Map<String, Object> filterMap, Map<String, FilterMeta> additionalFilterMap, String... attrs);
+			GenericSortOrder sortOrder, Map<String, Object> filterMap, Map<String, DaoFilterData> additionalFilterMap, String... attrs);
 
-	Number countAll(Map<String, Object> filterMap, Map<String, FilterMeta> additionalFilterMap);
+	Number countAll(Map<String, Object> filterMap, Map<String, DaoFilterData> additionalFilterMap);
 
 	List<T> findByMultipleId(List<Long> ids);
 

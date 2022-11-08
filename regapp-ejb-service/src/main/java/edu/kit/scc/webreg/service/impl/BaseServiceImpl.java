@@ -13,11 +13,10 @@ package edu.kit.scc.webreg.service.impl;
 import java.util.List;
 import java.util.Map;
 
-import org.primefaces.model.FilterMeta;
-import org.primefaces.model.SortMeta;
-
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.GenericSortOrder;
+import edu.kit.scc.webreg.dao.ops.DaoFilterData;
+import edu.kit.scc.webreg.dao.ops.DaoSortData;
 import edu.kit.scc.webreg.entity.BaseEntity;
 import edu.kit.scc.webreg.service.BaseService;
 
@@ -53,19 +52,19 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
 	}
 
 	@Override
-	public List<T> findAllPaging(int first, int pageSize, Map<String, SortMeta> sortBy,
-			Map<String, Object> filterMap, Map<String, FilterMeta> additionalFilterMap, String... attrs) {
+	public List<T> findAllPaging(int first, int pageSize, Map<String, DaoSortData> sortBy,
+			Map<String, Object> filterMap, Map<String, DaoFilterData> additionalFilterMap, String... attrs) {
 		return getDao().findAllPaging(first, pageSize, sortBy, filterMap, additionalFilterMap, attrs);
 	}
 
 	@Override
 	public List<T> findAllPaging(int first, int pageSize, String sortField,
-			GenericSortOrder sortOrder, Map<String, Object> filterMap, Map<String, FilterMeta> additionalFilterMap, String... attrs) {
+			GenericSortOrder sortOrder, Map<String, Object> filterMap, Map<String, DaoFilterData> additionalFilterMap, String... attrs) {
 		return getDao().findAllPaging(first, pageSize, sortField, sortOrder, filterMap, additionalFilterMap, attrs);
 	}
 	
 	@Override
-	public Number countAll(Map<String, Object> filterMap, Map<String, FilterMeta> additionalFilterMap) {
+	public Number countAll(Map<String, Object> filterMap, Map<String, DaoFilterData> additionalFilterMap) {
 		return getDao().countAll(filterMap, additionalFilterMap);
 	}
 	

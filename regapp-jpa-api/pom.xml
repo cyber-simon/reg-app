@@ -64,11 +64,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.primefaces</groupId>
-			<artifactId>primefaces</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
 			<groupId>edu.vt.middleware</groupId>
 			<artifactId>vt-ldap</artifactId>
 			<scope>provided</scope>

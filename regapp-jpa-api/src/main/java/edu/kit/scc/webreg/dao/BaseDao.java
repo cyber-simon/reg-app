@@ -13,9 +13,8 @@ package edu.kit.scc.webreg.dao;
 import java.util.List;
 import java.util.Map;
 
-import org.primefaces.model.FilterMeta;
-import org.primefaces.model.SortMeta;
-
+import edu.kit.scc.webreg.dao.ops.DaoFilterData;
+import edu.kit.scc.webreg.dao.ops.DaoSortData;
 import edu.kit.scc.webreg.entity.BaseEntity;
 
 public interface BaseDao<T extends BaseEntity> {
@@ -29,12 +28,12 @@ public interface BaseDao<T extends BaseEntity> {
     List<T> findAll();
 
     List<T> findAllPaging(int first, int pageSize, String sortField, GenericSortOrder sortOrder,
-    		Map<String, Object> filterMap, Map<String, FilterMeta> additionalFilterMap, String... attrs);
+    		Map<String, Object> filterMap, Map<String, DaoFilterData> additionalFilterMap, String... attrs);
 
-	List<T> findAllPaging(int first, int pageSize, Map<String, SortMeta> sortBy,
-			Map<String, Object> filterMap, Map<String, FilterMeta> additionalFilterMap, String... attrs);
+	List<T> findAllPaging(int first, int pageSize, Map<String, DaoSortData> sortBy,
+			Map<String, Object> filterMap, Map<String, DaoFilterData> additionalFilterMap, String... attrs);
     
-	Number countAll(Map<String, Object> filterMap, Map<String, FilterMeta> additionalFilterMap);
+	Number countAll(Map<String, Object> filterMap, Map<String, DaoFilterData> additionalFilterMap);
 
 	T findById(Long id);
 
