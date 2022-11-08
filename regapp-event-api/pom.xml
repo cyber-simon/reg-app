@@ -36,6 +36,16 @@
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-tools</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-jpa-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
 			<artifactId>regapp-job-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
