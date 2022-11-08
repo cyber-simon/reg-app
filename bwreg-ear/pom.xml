@@ -131,6 +131,12 @@
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-reg-ldap</artifactId>
+			<version>${project.version}</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
 			<artifactId>regapp-saml</artifactId>
 			<version>${project.version}</version>
 			<type>jar</type>
