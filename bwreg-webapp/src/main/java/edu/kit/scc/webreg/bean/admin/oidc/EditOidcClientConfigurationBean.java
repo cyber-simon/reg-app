@@ -13,12 +13,11 @@ package edu.kit.scc.webreg.bean.admin.oidc;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.inject.Named;
-import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 
-import edu.kit.scc.webreg.dao.ops.NotEqualsObjectValue;
 import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationStatusType;

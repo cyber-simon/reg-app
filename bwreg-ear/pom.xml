@@ -22,38 +22,172 @@
 	<parent>
 		<groupId>edu.kit.scc</groupId>
 		<artifactId>bwreg</artifactId>
-		<version>2.7.8-SNAPSHOT</version>
+		<version>${revision}</version>
 	</parent>
 
 	<dependencies>
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
 			<artifactId>bwreg-entities</artifactId>
-			<version>2.7.8-SNAPSHOT</version>
+			<version>${project.version}</version>
+			<type>jar</type>
+		</dependency>
+		
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-as</artifactId>
+			<version>${project.version}</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
-			<artifactId>bwreg-lib</artifactId>
-			<version>2.7.8-SNAPSHOT</version>
+			<artifactId>regapp-audit</artifactId>
+			<version>${project.version}</version>
 			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-config</artifactId>
+			<version>${project.version}</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-drools</artifactId>
+			<version>${project.version}</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-ejb-service</artifactId>
+			<version>${project.version}</version>
+			<type>ejb</type>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-event-api</artifactId>
+			<version>${project.version}</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-exc</artifactId>
+			<version>${project.version}</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-idty</artifactId>
+			<version>${project.version}</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-job-api</artifactId>
+			<version>${project.version}</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-jpa-api</artifactId>
+			<version>${project.version}</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-jpa-impl</artifactId>
+			<version>${project.version}</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-oidc</artifactId>
+			<version>${project.version}</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-oidc-op</artifactId>
+			<version>${project.version}</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-oidc-rp</artifactId>
+			<version>${project.version}</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-reg-api</artifactId>
+			<version>${project.version}</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-reg-impl</artifactId>
+			<version>${project.version}</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-saml</artifactId>
+			<version>${project.version}</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-saml-idp</artifactId>
+			<version>${project.version}</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-saml-sp</artifactId>
+			<version>${project.version}</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-session</artifactId>
+			<version>${project.version}</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-tools</artifactId>
+			<version>${project.version}</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-twofa</artifactId>
+			<version>${project.version}</version>
+			<type>jar</type>
+		</dependency>
+
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>bwreg-lib</artifactId>
+			<version>${revision}</version>
+			<type>ejb</type>
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
 			<artifactId>bwreg-jpa</artifactId>
-			<version>2.7.8-SNAPSHOT</version>
+			<version>${project.version}</version>
 			<type>ejb</type>
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
 			<artifactId>bwreg-service</artifactId>
-			<version>2.7.8-SNAPSHOT</version>
+			<version>${project.version}</version>
 			<type>ejb</type>
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
 			<artifactId>bwreg-webapp</artifactId>
-			<version>2.7.8-SNAPSHOT</version>
+			<version>${project.version}</version>
 			<type>war</type>
 		</dependency>
 

@@ -16,10 +16,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Named;
-import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.opensaml.saml.saml2.core.Attribute;
 import org.primefaces.event.TransferEvent;
@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.audit.AuditUserEntryService;
 import edu.kit.scc.webreg.dao.ops.AndPredicate;
-import edu.kit.scc.webreg.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
@@ -48,6 +47,7 @@ import edu.kit.scc.webreg.service.GroupService;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.RoleService;
 import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.service.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.service.oidc.client.OidcUserService;
 import edu.kit.scc.webreg.session.SessionManager;
 

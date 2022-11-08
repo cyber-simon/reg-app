@@ -14,7 +14,6 @@ import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLStreamHandlerFactory;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
@@ -26,19 +25,17 @@ import org.opensaml.core.config.InitializationException;
 import org.opensaml.core.config.InitializationService;
 import org.slf4j.Logger;
 
-import edu.kit.scc.webreg.drools.BpmProcessService;
 import edu.kit.scc.webreg.entity.AdminUserEntity;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.SerialEntity;
-import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.hook.HookManager;
 import edu.kit.scc.webreg.service.AdminUserService;
 import edu.kit.scc.webreg.service.GroupService;
 import edu.kit.scc.webreg.service.RoleService;
 import edu.kit.scc.webreg.service.SerialService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.identity.IdentityService;
-import edu.kit.scc.webreg.service.impl.HookManager;
 import edu.kit.scc.webreg.service.mail.TemplateRenderer;
 import edu.kit.scc.webreg.service.oidc.OidcOpConfigurationService;
 import edu.kit.scc.webreg.service.timer.ClusterSchedulerManager;

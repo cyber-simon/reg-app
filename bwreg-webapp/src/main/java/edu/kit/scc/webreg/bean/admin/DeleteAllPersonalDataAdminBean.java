@@ -14,11 +14,11 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.inject.Named;
-import javax.faces.view.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ComponentSystemEvent;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.slf4j.Logger;
 
@@ -28,7 +28,6 @@ import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.UserDeleteService;
 import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.session.SessionManager;
-import edu.kit.scc.webreg.util.ViewIds;
 
 @Named
 @ViewScoped

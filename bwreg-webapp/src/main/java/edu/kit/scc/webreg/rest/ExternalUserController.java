@@ -20,12 +20,12 @@ import javax.ws.rs.core.MediaType;
 
 import org.slf4j.Logger;
 
+import edu.kit.scc.webreg.drools.exc.UnauthorizedException;
 import edu.kit.scc.webreg.dto.entity.ExternalUserEntityDto;
 import edu.kit.scc.webreg.dto.service.ExternalUserDtoService;
 import edu.kit.scc.webreg.entity.ExternalUserAdminRoleEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.exc.RestInterfaceException;
-import edu.kit.scc.webreg.exc.UnauthorizedException;
 import edu.kit.scc.webreg.sec.SecurityFilter;
 import edu.kit.scc.webreg.service.AdminUserService;
 import edu.kit.scc.webreg.service.RoleService;

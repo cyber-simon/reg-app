@@ -1,6 +1,5 @@
 package edu.kit.scc.webreg.rest;
 
-import edu.kit.scc.webreg.dao.RegistryDao;
 import java.io.IOException;
 import java.util.List;
 
@@ -13,6 +12,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import edu.kit.scc.webreg.dao.RegistryDao;
+import edu.kit.scc.webreg.drools.exc.UnauthorizedException;
 import edu.kit.scc.webreg.dto.entity.SshPubKeyEntityDto;
 import edu.kit.scc.webreg.dto.service.SshPubKeyDtoService;
 import edu.kit.scc.webreg.entity.RegistryEntity;
@@ -22,7 +23,6 @@ import edu.kit.scc.webreg.entity.SshPubKeyStatus;
 import edu.kit.scc.webreg.exc.NoItemFoundException;
 import edu.kit.scc.webreg.exc.NoUserFoundException;
 import edu.kit.scc.webreg.exc.RestInterfaceException;
-import edu.kit.scc.webreg.exc.UnauthorizedException;
 import edu.kit.scc.webreg.sec.SecurityFilter;
 import edu.kit.scc.webreg.service.RoleService;
 import edu.kit.scc.webreg.service.ServiceService;

@@ -4,3 +4,4 @@
 .metadata
 .vscode
 target
+.flattened-pom.xml

@@ -17,7 +17,7 @@
 	<parent>
 		<groupId>edu.kit.scc</groupId>
 		<artifactId>bwreg</artifactId>
-		<version>2.7.8-SNAPSHOT</version>
+		<version>${revision}</version>
 	</parent>
 
 
@@ -31,7 +31,19 @@
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
 			<artifactId>bwreg-entities</artifactId>
-			<version>2.7.8-SNAPSHOT</version>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-jpa-api</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-jpa-impl</artifactId>
+			<version>${project.version}</version>
 			<scope>provided</scope>
 		</dependency>
 

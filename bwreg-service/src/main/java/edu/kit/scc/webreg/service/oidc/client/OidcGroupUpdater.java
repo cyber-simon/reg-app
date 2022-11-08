@@ -27,10 +27,10 @@ import edu.kit.scc.webreg.entity.oidc.OidcGroupEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.MultipleGroupEvent;
-import edu.kit.scc.webreg.exc.EventSubmitException;
+import edu.kit.scc.webreg.event.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.SerialService;
-import edu.kit.scc.webreg.service.saml.HomeIdResolver;
+import edu.kit.scc.webreg.service.identity.HomeIdResolver;
 
 @ApplicationScoped
 public class OidcGroupUpdater implements Serializable {

@@ -19,10 +19,10 @@ import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Named;
-import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.primefaces.event.TransferEvent;
 import org.primefaces.model.DualListModel;

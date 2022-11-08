@@ -45,7 +45,7 @@ import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
 import edu.kit.scc.webreg.exc.PropertyReaderException;
 import edu.kit.scc.webreg.exc.RegisterException;
-import edu.kit.scc.webreg.service.reg.ldap.PropertyReader;
+import edu.kit.scc.webreg.tools.PropertyReader;
 
 public class PFWorker {
 

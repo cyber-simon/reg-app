@@ -23,8 +23,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
-
 import org.opensaml.messaging.encoder.MessageEncodingException;
 import org.slf4j.Logger;
 
@@ -34,6 +32,7 @@ import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.SamlSpConfigurationService;
 import edu.kit.scc.webreg.service.saml.Saml2RedirectService;
 import edu.kit.scc.webreg.session.SessionManager;
+import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 
 @Named
 @WebServlet(urlPatterns = {"/Shibboleth.sso/Login", "/saml/sp/login"})

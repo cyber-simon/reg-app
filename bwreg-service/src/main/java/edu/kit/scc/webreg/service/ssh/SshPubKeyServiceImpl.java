@@ -29,7 +29,7 @@ import edu.kit.scc.webreg.entity.SshPubKeyStatus;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.SshPubKeyEvent;
 import edu.kit.scc.webreg.event.SshPubKeyRegistryEvent;
-import edu.kit.scc.webreg.exc.EventSubmitException;
+import edu.kit.scc.webreg.event.exc.EventSubmitException;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
 import edu.kit.scc.webreg.ssh.SshPubKeyBlacklistedException;
 

@@ -16,7 +16,7 @@ import javax.inject.Inject;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.service.ServiceService;
-import edu.kit.scc.webreg.service.reg.ldap.PropertyReader;
+import edu.kit.scc.webreg.tools.PropertyReader;
 
 @Stateless
 public class PFAccountServiceImpl implements PFAccountService {
