@@ -12,10 +12,10 @@ package edu.kit.scc.webreg.bean;
 
 import java.io.Serializable;
 
-import javax.inject.Named;
-import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

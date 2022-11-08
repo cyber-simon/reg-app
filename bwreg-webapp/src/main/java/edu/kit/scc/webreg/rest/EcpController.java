@@ -32,22 +32,22 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dao.TextPropertyDao;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;
+import edu.kit.scc.webreg.drools.exc.UnauthorizedException;
 import edu.kit.scc.webreg.entity.TextPropertyEntity;
 import edu.kit.scc.webreg.exc.GenericRestInterfaceException;
 import edu.kit.scc.webreg.exc.LoginFailedException;
-import edu.kit.scc.webreg.exc.NoEcpSupportException;
-import edu.kit.scc.webreg.exc.NoHostnameConfiguredException;
-import edu.kit.scc.webreg.exc.NoIdpForScopeException;
-import edu.kit.scc.webreg.exc.NoIdpFoundException;
 import edu.kit.scc.webreg.exc.NoRegistryFoundException;
 import edu.kit.scc.webreg.exc.NoServiceFoundException;
 import edu.kit.scc.webreg.exc.NoUserFoundException;
 import edu.kit.scc.webreg.exc.RestInterfaceException;
-import edu.kit.scc.webreg.exc.UnauthorizedException;
 import edu.kit.scc.webreg.exc.UserUpdateFailedException;
 import edu.kit.scc.webreg.rest.dto.ECPResponse;
 import edu.kit.scc.webreg.rest.dto.RestError;
 import edu.kit.scc.webreg.service.UserLoginService;
+import edu.kit.scc.webreg.service.saml.exc.NoEcpSupportException;
+import edu.kit.scc.webreg.service.saml.exc.NoHostnameConfiguredException;
+import edu.kit.scc.webreg.service.saml.exc.NoIdpForScopeException;
+import edu.kit.scc.webreg.service.saml.exc.NoIdpFoundException;
 
 @Path("/ecp")
 public class EcpController {

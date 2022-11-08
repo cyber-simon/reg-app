@@ -30,7 +30,7 @@ import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.MultipleGroupEvent;
-import edu.kit.scc.webreg.exc.EventSubmitException;
+import edu.kit.scc.webreg.event.exc.EventSubmitException;
 import edu.kit.scc.webreg.service.LocalGroupService;
 import edu.kit.scc.webreg.service.group.LocalGroupCreator;
 

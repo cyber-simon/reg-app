@@ -10,6 +10,16 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.bean;
 
+import java.io.IOException;
+import java.io.Serializable;
+
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.faces.event.ComponentSystemEvent;
+import javax.faces.view.ViewScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
@@ -24,17 +34,9 @@ import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;
 import edu.kit.scc.webreg.service.reg.RegisterUserWorkflow;
 import edu.kit.scc.webreg.service.reg.SetPasswordCapable;
-import edu.kit.scc.webreg.service.reg.ldap.PropertyReader;
 import edu.kit.scc.webreg.session.SessionManager;
+import edu.kit.scc.webreg.tools.PropertyReader;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
-import java.io.IOException;
-import java.io.Serializable;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ComponentSystemEvent;
-import javax.faces.view.ViewScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
 
 @Named
 @ViewScoped

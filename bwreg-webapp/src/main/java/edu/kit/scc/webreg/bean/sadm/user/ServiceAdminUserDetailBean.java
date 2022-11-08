@@ -14,16 +14,15 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Named;
-import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 import org.slf4j.Logger;
 
-import edu.kit.scc.webreg.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.drools.OverrideAccess;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;
 import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
@@ -45,6 +44,7 @@ import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.SamlAssertionService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.service.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.service.reg.Infotainment;
 import edu.kit.scc.webreg.service.reg.InfotainmentCapable;
 import edu.kit.scc.webreg.service.reg.InfotainmentTreeNode;

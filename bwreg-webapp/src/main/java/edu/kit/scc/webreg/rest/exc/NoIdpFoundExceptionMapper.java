@@ -15,7 +15,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
-import edu.kit.scc.webreg.exc.NoIdpFoundException;
+import edu.kit.scc.webreg.service.saml.exc.NoIdpFoundException;
 
 @Provider
 public class NoIdpFoundExceptionMapper implements ExceptionMapper<NoIdpFoundException> {

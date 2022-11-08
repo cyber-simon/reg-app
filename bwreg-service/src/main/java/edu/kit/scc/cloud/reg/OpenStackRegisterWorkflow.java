@@ -4,10 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
-import java.util.Base64;
-
 import java.security.SecureRandom;
+import java.util.Base64;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +23,7 @@ import edu.kit.scc.webreg.service.reg.InfotainmentCapable;
 import edu.kit.scc.webreg.service.reg.InfotainmentTreeNode;
 import edu.kit.scc.webreg.service.reg.RegisterUserWorkflow;
 import edu.kit.scc.webreg.service.reg.SetPasswordCapable;
-import edu.kit.scc.webreg.service.reg.ldap.PropertyReader;
+import edu.kit.scc.webreg.tools.PropertyReader;
 
 /**
  * Workflow Class to register OpenStack cloud users

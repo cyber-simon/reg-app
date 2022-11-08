@@ -5,9 +5,9 @@
 	<parent>
 		<groupId>edu.kit.scc</groupId>
 		<artifactId>bwreg</artifactId>
-		<version>2.7.8-SNAPSHOT</version>
+		<version>${revision}</version>
 	</parent>
-	<packaging>jar</packaging>
+	<packaging>ejb</packaging>
 	<artifactId>bwreg-lib</artifactId>
 
 	<dependencyManagement>
@@ -32,7 +32,55 @@
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
 			<artifactId>bwreg-entities</artifactId>
-			<version>2.7.8-SNAPSHOT</version>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-exc</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-tools</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-jpa-api</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-config</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-audit</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-drools</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-event-api</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-reg-api</artifactId>
+			<version>${project.version}</version>
 			<scope>provided</scope>
 		</dependency>
 
@@ -69,6 +117,26 @@
 			<artifactId>primefaces</artifactId>
 			<scope>provided</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>edu.vt.middleware</groupId>
+			<artifactId>vt-ldap</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>jcifs</groupId>
+			<artifactId>jcifs</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+   			<groupId>commons-beanutils</groupId>
+		    <artifactId>commons-beanutils</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.velocity</groupId>
+			<artifactId>velocity</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		
 	</dependencies>
 </project>

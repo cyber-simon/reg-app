@@ -7,9 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.net.ssl.SSLException;
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.Unmarshaller;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -41,7 +38,10 @@ import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.exc.PropertyReaderException;
 import edu.kit.scc.webreg.exc.RegisterException;
-import edu.kit.scc.webreg.service.reg.ldap.PropertyReader;
+import edu.kit.scc.webreg.tools.PropertyReader;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
 
 public class NextcloudWorker {
 

@@ -18,11 +18,11 @@ import javax.naming.NamingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.kit.scc.webreg.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.service.RegistryService;
+import edu.kit.scc.webreg.service.drools.KnowledgeSessionService;
 
 public class UserUpdateAccessCheckExecutor extends
 		AbstractEventExecutor<UserEvent, UserEntity> {

@@ -70,16 +70,16 @@ import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.UserEvent;
-import edu.kit.scc.webreg.exc.EventSubmitException;
+import edu.kit.scc.webreg.event.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
+import edu.kit.scc.webreg.hook.HookManager;
 import edu.kit.scc.webreg.hook.UserServiceHook;
 import edu.kit.scc.webreg.service.SerialService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.identity.IdentityUpdater;
 import edu.kit.scc.webreg.service.impl.AbstractUserUpdater;
 import edu.kit.scc.webreg.service.impl.AttributeMapHelper;
-import edu.kit.scc.webreg.service.impl.HookManager;
 import edu.kit.scc.webreg.service.reg.AttributeSourceQueryService;
 import edu.kit.scc.webreg.service.reg.impl.Registrator;
 

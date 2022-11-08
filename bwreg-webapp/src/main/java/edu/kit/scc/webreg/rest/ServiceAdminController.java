@@ -25,6 +25,7 @@ import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
 
+import edu.kit.scc.webreg.drools.exc.UnauthorizedException;
 import edu.kit.scc.webreg.dto.entity.RegistryEntityDto;
 import edu.kit.scc.webreg.dto.service.RegistryDtoService;
 import edu.kit.scc.webreg.entity.RegistryEntity;
@@ -33,7 +34,6 @@ import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.exc.NoItemFoundException;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.exc.RestInterfaceException;
-import edu.kit.scc.webreg.exc.UnauthorizedException;
 import edu.kit.scc.webreg.sec.SecurityFilter;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.RoleService;

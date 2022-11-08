@@ -15,10 +15,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import javax.inject.Named;
-import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.primefaces.model.LazyDataModel;
 import org.slf4j.Logger;
@@ -34,7 +34,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserGroupEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.MultipleGroupEvent;
-import edu.kit.scc.webreg.exc.EventSubmitException;
+import edu.kit.scc.webreg.event.exc.EventSubmitException;
 import edu.kit.scc.webreg.model.GenericLazyDataModelImpl;
 import edu.kit.scc.webreg.service.GroupService;
 import edu.kit.scc.webreg.service.LocalGroupService;

@@ -15,7 +15,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
-import edu.kit.scc.webreg.exc.NoIdpForScopeException;
+import edu.kit.scc.webreg.service.saml.exc.NoIdpForScopeException;
 
 @Provider
 public class NoIdpForScopeExceptionMapper implements ExceptionMapper<NoIdpForScopeException> {

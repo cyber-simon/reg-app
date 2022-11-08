@@ -29,7 +29,6 @@ import javax.inject.Named;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.kit.scc.webreg.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.drools.OverrideAccess;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;
 import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
@@ -47,6 +46,7 @@ import edu.kit.scc.webreg.service.PolicyService;
 import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.service.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.reg.AttributeSourceQueryService;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;

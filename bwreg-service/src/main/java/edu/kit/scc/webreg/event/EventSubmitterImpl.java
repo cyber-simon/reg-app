@@ -34,7 +34,7 @@ import edu.kit.scc.webreg.dao.EventDao;
 import edu.kit.scc.webreg.entity.EventEntity;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.ServiceEventEntity;
-import edu.kit.scc.webreg.exc.EventSubmitException;
+import edu.kit.scc.webreg.event.exc.EventSubmitException;
 
 @Stateless
 public class EventSubmitterImpl implements EventSubmitter {

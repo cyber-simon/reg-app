@@ -44,7 +44,7 @@ import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.UserEvent;
-import edu.kit.scc.webreg.exc.EventSubmitException;
+import edu.kit.scc.webreg.event.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.identity.IdentityCreater;
 import edu.kit.scc.webreg.service.impl.AttributeMapHelper;

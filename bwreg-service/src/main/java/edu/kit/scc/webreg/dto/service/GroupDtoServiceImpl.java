@@ -14,6 +14,7 @@ import edu.kit.scc.webreg.dao.LocalGroupDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
 import edu.kit.scc.webreg.dao.ServiceGroupFlagDao;
 import edu.kit.scc.webreg.dao.UserDao;
+import edu.kit.scc.webreg.drools.exc.UnauthorizedException;
 import edu.kit.scc.webreg.dto.entity.GroupEntityDto;
 import edu.kit.scc.webreg.dto.mapper.BaseEntityMapper;
 import edu.kit.scc.webreg.dto.mapper.GroupDetailEntityMapper;
@@ -29,12 +30,11 @@ import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.MultipleGroupEvent;
-import edu.kit.scc.webreg.exc.EventSubmitException;
+import edu.kit.scc.webreg.event.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.GenericRestInterfaceException;
 import edu.kit.scc.webreg.exc.NoServiceFoundException;
 import edu.kit.scc.webreg.exc.NoUserFoundException;
 import edu.kit.scc.webreg.exc.RestInterfaceException;
-import edu.kit.scc.webreg.exc.UnauthorizedException;
 import edu.kit.scc.webreg.service.group.LocalGroupCreator;
 
 @Stateless

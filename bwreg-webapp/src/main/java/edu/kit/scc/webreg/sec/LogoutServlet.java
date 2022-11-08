@@ -27,7 +27,6 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.service.saml.SamlSpLogoutService;
-import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.ViewIds;
 
 @Named

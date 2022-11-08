@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dao.TextPropertyDao;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;
+import edu.kit.scc.webreg.drools.exc.UnauthorizedException;
 import edu.kit.scc.webreg.entity.TextPropertyEntity;
 import edu.kit.scc.webreg.exc.GenericRestInterfaceException;
 import edu.kit.scc.webreg.exc.LoginFailedException;
@@ -40,7 +41,6 @@ import edu.kit.scc.webreg.exc.NoRegistryFoundException;
 import edu.kit.scc.webreg.exc.NoServiceFoundException;
 import edu.kit.scc.webreg.exc.NoUserFoundException;
 import edu.kit.scc.webreg.exc.RestInterfaceException;
-import edu.kit.scc.webreg.exc.UnauthorizedException;
 import edu.kit.scc.webreg.exc.UserUpdateFailedException;
 import edu.kit.scc.webreg.rest.dto.AttributeQueryResponse;
 import edu.kit.scc.webreg.rest.dto.RestError;

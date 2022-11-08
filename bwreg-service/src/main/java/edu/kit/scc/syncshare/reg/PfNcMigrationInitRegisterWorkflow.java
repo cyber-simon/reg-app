@@ -17,7 +17,7 @@ import edu.kit.scc.webreg.service.reg.Infotainment;
 import edu.kit.scc.webreg.service.reg.InfotainmentCapable;
 import edu.kit.scc.webreg.service.reg.InfotainmentTreeNode;
 import edu.kit.scc.webreg.service.reg.RegisterUserWorkflow;
-import edu.kit.scc.webreg.service.reg.ldap.PropertyReader;
+import edu.kit.scc.webreg.tools.PropertyReader;
 
 public class PfNcMigrationInitRegisterWorkflow extends PowerFolderRegisterWorkflow 
 	implements RegisterUserWorkflow, InfotainmentCapable  {

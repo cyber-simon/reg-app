@@ -28,14 +28,14 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
+import edu.kit.scc.webreg.bootstrap.BpmProcessService;
 import edu.kit.scc.webreg.bootstrap.NodeConfiguration;
-import edu.kit.scc.webreg.drools.BpmProcessService;
 import edu.kit.scc.webreg.entity.JobClassEntity;
 import edu.kit.scc.webreg.entity.JobScheduleEntity;
+import edu.kit.scc.webreg.hook.HookManager;
 import edu.kit.scc.webreg.job.ExecutableJob;
 import edu.kit.scc.webreg.service.JobClassService;
 import edu.kit.scc.webreg.service.JobScheduleService;
-import edu.kit.scc.webreg.service.impl.HookManager;
 
 @Singleton
 public class StandardSchedulerImpl implements StandardScheduler, Serializable {

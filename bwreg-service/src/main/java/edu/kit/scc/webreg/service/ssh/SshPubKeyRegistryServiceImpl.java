@@ -30,7 +30,7 @@ import edu.kit.scc.webreg.entity.SshPubKeyRegistryEntity;
 import edu.kit.scc.webreg.entity.SshPubKeyRegistryStatus;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.SshPubKeyRegistryEvent;
-import edu.kit.scc.webreg.exc.EventSubmitException;
+import edu.kit.scc.webreg.event.exc.EventSubmitException;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
 
 @Stateless

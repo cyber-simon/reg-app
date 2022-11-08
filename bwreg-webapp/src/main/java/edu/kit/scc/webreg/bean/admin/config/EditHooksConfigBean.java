@@ -13,15 +13,15 @@ package edu.kit.scc.webreg.bean.admin.config;
 import java.io.Serializable;
 import java.util.Set;
 
-import javax.inject.Named;
-import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.hook.GroupServiceHook;
+import edu.kit.scc.webreg.hook.HookManager;
 import edu.kit.scc.webreg.hook.UserServiceHook;
-import edu.kit.scc.webreg.service.impl.HookManager;
 import edu.kit.scc.webreg.util.ViewIds;
 
 @Named

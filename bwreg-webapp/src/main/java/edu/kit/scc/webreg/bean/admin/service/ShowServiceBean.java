@@ -12,10 +12,10 @@ package edu.kit.scc.webreg.bean.admin.service;
 
 import java.io.Serializable;
 
-import javax.inject.Named;
-import javax.faces.view.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.service.ServiceService;
