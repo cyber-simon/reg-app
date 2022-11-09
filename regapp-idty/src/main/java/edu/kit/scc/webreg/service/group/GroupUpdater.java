@@ -26,7 +26,6 @@ import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.MultipleGroupEvent;
 import edu.kit.scc.webreg.event.exc.EventSubmitException;
 import edu.kit.scc.webreg.service.reg.impl.Registrator;
-import edu.kit.scc.webreg.session.SessionManager;
 
 @ApplicationScoped
 public class GroupUpdater implements Serializable {
@@ -50,9 +49,6 @@ public class GroupUpdater implements Serializable {
 	
 	@Inject
 	private RegistryDao registryDao;
-	
-	@Inject
-	private SessionManager sessionManager;
 	
 	@Inject
 	private EventSubmitter eventSubmitter;
@@ -123,7 +119,7 @@ public class GroupUpdater implements Serializable {
 		mge.setUsersToRemove(usersToRemoveMap);
 		
 		try {
-			eventSubmitter.submit(mge, EventType.GROUP_UPDATE, "idty-" + sessionManager.getIdentityId());
+			eventSubmitter.submit(mge, EventType.GROUP_UPDATE, "TODO");
 		} catch (EventSubmitException e) {
 			logger.warn("Exeption", e);
 		}
