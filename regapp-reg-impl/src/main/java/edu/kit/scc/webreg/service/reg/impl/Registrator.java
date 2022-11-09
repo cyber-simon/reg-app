@@ -540,6 +540,17 @@ public class Registrator implements Serializable {
 		}    	
 	}
 
+	public void reconsiliationByUser(UserEntity user, Boolean fullRecon, String executor) throws RegisterException {
+		List<RegistryEntity> registryList = registryDao.findByIdentityAndStatus(user.getIdentity(), RegistryStatus.ACTIVE);
+		for (RegistryEntity registry : registryList) {
+			try {
+				reconsiliation(registry, fullRecon, executor, null);
+			} catch (RegisterException e) {
+				logger.warn("Could not recon registry {}: {}", registry.getId(), e);
+			}
+		}
+	}
+	
 	public void deregisterUser(RegistryEntity registry, String executor, String statusMessage) throws RegisterException {
 		deregisterUser(registry, executor, null, statusMessage);
 	}

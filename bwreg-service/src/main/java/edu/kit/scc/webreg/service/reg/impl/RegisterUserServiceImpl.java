@@ -24,7 +24,6 @@ import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
-import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
@@ -79,14 +78,7 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 
 	@Override
 	public void reconsiliationByUser(UserEntity user, Boolean fullRecon, String executor) throws RegisterException {
-		List<RegistryEntity> registryList = registryDao.findByIdentityAndStatus(user.getIdentity(), RegistryStatus.ACTIVE);
-		for (RegistryEntity registry : registryList) {
-			try {
-				registrator.reconsiliation(registry, fullRecon, executor, null);
-			} catch (RegisterException e) {
-				logger.warn("Could not recon registry {}: {}", registry.getId(), e);
-			}
-		}
+		registrator.reconsiliationByUser(user, fullRecon, executor);
 	}
 
 	@Override
