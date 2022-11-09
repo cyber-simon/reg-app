@@ -10,6 +10,9 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.event;
 
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+
 import javax.annotation.Resource;
 import javax.ejb.Stateless;
 import javax.jms.Connection;
@@ -72,5 +75,31 @@ public class EventSubmitterImpl extends AbstractEventSubmitterImpl implements Ev
 			
 		}
 		
+	}
+
+	@Override
+	public EventExecutor<AbstractEvent<? extends Serializable>, ?> resolveClass(String className)
+			throws EventSubmitException {
+
+		try {
+			Object o = Class.forName(className).getConstructor().newInstance();
+			if (o instanceof EventExecutor<?, ?>) {
+				
+				@SuppressWarnings("unchecked")
+				EventExecutor<AbstractEvent<? extends Serializable>, ?> eventExecutor = 
+					(EventExecutor<AbstractEvent<? extends Serializable>, ?>) o;
+				
+				return eventExecutor;
+			}
+			else {
+				logger.warn("Could not execute job {}: not instance of EventExecutor", 
+						className);
+				throw new EventSubmitException("Failed spawning event executor");				
+			}
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException | ClassNotFoundException e) {
+			logger.warn("Failed spawning event executor", e);
+			throw new EventSubmitException("Failed spawning event executor", e);
+		}
 	}
 }

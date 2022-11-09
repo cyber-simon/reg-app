@@ -19,6 +19,9 @@ import edu.kit.scc.webreg.event.exc.EventSubmitException;
 
 public interface EventSubmitter extends Serializable {
 
+	EventExecutor<AbstractEvent<? extends Serializable>, ?> resolveClass(String className)
+			throws EventSubmitException;
+	
 	void submit(EventExecutor<?, ?> eventExecutor)
 			throws EventSubmitException;
 

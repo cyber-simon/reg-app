@@ -43,39 +43,28 @@ public abstract class AbstractEventSubmitterImpl implements EventSubmitter {
 
 		for (EventEntity eventEntity : eventList) {
 			if (eventType.equals(eventEntity.getEventType())) {
-				try {
-					Object o = Class.forName(eventEntity.getJobClass().getJobClassName()).getConstructor().newInstance();
-					if (o instanceof EventExecutor<?, ?>) {
-						
-						@SuppressWarnings("unchecked")
-						EventExecutor<AbstractEvent<? extends Serializable>, ?> eventExecutor = 
-							(EventExecutor<AbstractEvent<? extends Serializable>, ?>) o;
-						
-						Map<String, String> jobStore;
-						if (eventEntity.getJobClass().getJobStore() == null) {
-							jobStore = new HashMap<String, String>();
-						}
-						else {
-							jobStore = new HashMap<String, String>(eventEntity.getJobClass().getJobStore());
-						}
-							
-						jobStore.put("executor", executor);
-						
-						eventExecutor.setJobStore(jobStore);
-						eventExecutor.setEvent(event);
-						submit(eventExecutor);
-					}
-					else {
-						logger.warn("Could not execute job {} ({}): not instance of EventExecutor", 
-								eventEntity.getJobClass().getName(), eventEntity.getJobClass().getJobClassName());
-					}
-				} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException e) {
-					logger.warn("Failed spawning event executor", e);
-					throw new EventSubmitException("Failed spawning event executor", e);
-				} 
+				EventExecutor<AbstractEvent<? extends Serializable>, ?> eventExecutor = 
+						resolveClass(eventEntity.getJobClass().getJobClassName());
+				
+				Map<String, String> jobStore;
+				if (eventEntity.getJobClass().getJobStore() == null) {
+					jobStore = new HashMap<String, String>();
+				}
+				else {
+					jobStore = new HashMap<String, String>(eventEntity.getJobClass().getJobStore());
+				}
+					
+				jobStore.put("executor", executor);
+				
+				eventExecutor.setJobStore(jobStore);
+				eventExecutor.setEvent(event);
+				submit(eventExecutor);
+			}
+			else {
+				logger.warn("Could not execute job {} ({}): not instance of EventExecutor", 
+						eventEntity.getJobClass().getName(), eventEntity.getJobClass().getJobClassName());
 			}
 		}
-		
 	}	
 	
 	@Override
