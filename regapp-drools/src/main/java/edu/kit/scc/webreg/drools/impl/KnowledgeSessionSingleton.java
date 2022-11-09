@@ -42,6 +42,7 @@ import edu.kit.scc.webreg.dao.ServiceDao;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
+import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.drools.DroolsConfigurationException;
 import edu.kit.scc.webreg.drools.DroolsEvaluator;
 import edu.kit.scc.webreg.drools.OverrideAccess;
@@ -83,6 +84,9 @@ public class KnowledgeSessionSingleton {
 
 	@Inject
 	private UserDao userDao;
+	
+	@Inject
+	private IdentityDao identityDao;
 
 	@Inject
 	private ServiceDao serviceDao;
@@ -398,6 +402,38 @@ public class KnowledgeSessionSingleton {
 				BusinessRulePackageEntity rulePackage = service.getAccessRule().getRulePackage();
 				objectList = checkRule(rulePackage.getPackageName(), rulePackage.getKnowledgeBaseName(), 
 						rulePackage.getKnowledgeBaseVersion(), user, service, registry, executor, withCache);
+			}
+
+			returnMap.put(registry, objectList);
+		}
+		
+		return returnMap;
+	}
+	
+	public Map<RegistryEntity, List<Object>> checkRules(List<RegistryEntity> registryList, IdentityEntity identity, String executor) {
+		return checkRules(registryList, identity, executor, true);
+	}
+	
+	public Map<RegistryEntity, List<Object>> checkRules(List<RegistryEntity> registryList, IdentityEntity identity, 
+			String executor, Boolean withCache) {
+		
+		Map<RegistryEntity, List<Object>> returnMap = new HashMap<RegistryEntity, List<Object>>();
+		
+		identity = identityDao.merge(identity);
+
+		for (RegistryEntity registry : registryList) {
+			registry = registryDao.merge(registry);
+			ServiceEntity service = registry.getService();
+			
+			List<Object> objectList;
+			
+			if (service.getAccessRule() == null) {
+				objectList = checkRule("default", "permitAllRule", "1.0.0", registry.getUser(), service, registry, executor, withCache);
+			}
+			else {
+				BusinessRulePackageEntity rulePackage = service.getAccessRule().getRulePackage();
+				objectList = checkRule(rulePackage.getPackageName(), rulePackage.getKnowledgeBaseName(), 
+						rulePackage.getKnowledgeBaseVersion(), registry.getUser(), service, registry, executor, withCache);
 			}
 
 			returnMap.put(registry, objectList);

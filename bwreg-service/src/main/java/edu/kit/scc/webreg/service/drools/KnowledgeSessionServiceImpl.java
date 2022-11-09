@@ -309,36 +309,14 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 
 	@Override
 	public Map<RegistryEntity, List<Object>> checkRules(List<RegistryEntity> registryList, IdentityEntity identity, String executor) {
-		return checkRules(registryList, identity, executor, true);
+		return singleton.checkRules(registryList, identity, executor);
 	}
 	
 	@Override
 	public Map<RegistryEntity, List<Object>> checkRules(List<RegistryEntity> registryList, IdentityEntity identity, 
 			String executor, Boolean withCache) {
 		
-		Map<RegistryEntity, List<Object>> returnMap = new HashMap<RegistryEntity, List<Object>>();
-		
-		identity = identityDao.merge(identity);
-
-		for (RegistryEntity registry : registryList) {
-			registry = registryDao.merge(registry);
-			ServiceEntity service = registry.getService();
-			
-			List<Object> objectList;
-			
-			if (service.getAccessRule() == null) {
-				objectList = checkRule("default", "permitAllRule", "1.0.0", registry.getUser(), service, registry, executor, withCache);
-			}
-			else {
-				BusinessRulePackageEntity rulePackage = service.getAccessRule().getRulePackage();
-				objectList = checkRule(rulePackage.getPackageName(), rulePackage.getKnowledgeBaseName(), 
-						rulePackage.getKnowledgeBaseVersion(), registry.getUser(), service, registry, executor, withCache);
-			}
-
-			returnMap.put(registry, objectList);
-		}
-		
-		return returnMap;
+		return singleton.checkRules(registryList, identity, executor, withCache);
 	}
 	
 	private boolean hasAccess(List<Object> objectList) {
