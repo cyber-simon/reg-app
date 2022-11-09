@@ -30,6 +30,10 @@ import edu.kit.scc.webreg.entity.UserLoginInfoStatus;
 import edu.kit.scc.webreg.entity.UserLoginMethod;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.impl.UserUpdater;
+import edu.kit.scc.webreg.service.saml.Saml2AssertionService;
+import edu.kit.scc.webreg.service.saml.Saml2DecoderService;
+import edu.kit.scc.webreg.service.saml.SamlHelper;
+import edu.kit.scc.webreg.service.saml.SamlIdentifier;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.session.SessionManager;
 
@@ -176,7 +180,7 @@ public class SamlSpPostServiceImpl implements SamlSpPostService {
 		saml2AssertionService.updateUserIdentifier(samlIdentifier, user, spConfig.getEntityId(), debugLog);
 
 		try {
-			user = userUpdater.updateUser(user, assertion, "web-sso");
+			user = userUpdater.updateUser(user, assertion, "web-sso", request.getLocalName());
 		} catch (UserUpdateException e) {
 			logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
 			throw new SamlAuthenticationException(e.getMessage());

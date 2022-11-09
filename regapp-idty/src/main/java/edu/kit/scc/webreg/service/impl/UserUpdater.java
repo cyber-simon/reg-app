@@ -150,13 +150,15 @@ public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 	@Inject
 	private LogHelper logHelper;
 	
-	public SamlUserEntity updateUser(SamlUserEntity user, Map<String, List<Object>> attributeMap, String executor, StringBuffer debugLog)
+	@Override
+	public SamlUserEntity updateUser(SamlUserEntity user, Map<String, List<Object>> attributeMap, String executor, StringBuffer debugLog, String lastLoginHost)
 			throws UserUpdateException {
-		return updateUser(user, attributeMap, executor, null, debugLog);
+		return updateUser(user, attributeMap, executor, null, debugLog, lastLoginHost);
 	}
 
+	@Override
 	public SamlUserEntity updateUser(SamlUserEntity user, Map<String, List<Object>> attributeMap, String executor, 
-			ServiceEntity service, StringBuffer debugLog)
+			ServiceEntity service, StringBuffer debugLog, String lastLoginHost)
 			throws UserUpdateException {
 		MDC.put("userId", "" + user.getId());
 		logger.debug("Updating SAML user {}", user.getEppn());
@@ -294,7 +296,7 @@ public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 			}
 		}
 
-		changed |= postUpdateUser(user, attributeMap, user.getIdp().getGenericStore(), executor, service, debugLog);
+		changed |= postUpdateUser(user, attributeMap, user.getIdp().getGenericStore(), executor, service, debugLog, lastLoginHost);
 
 		user.setLastUpdate(new Date());
 		user.setLastFailedUpdate(null);
@@ -343,7 +345,7 @@ public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 		return new Date(System.currentTimeMillis() + futureMillis + r.nextInt(futureMillisRandom));
 	}
 
-	public SamlUserEntity updateUser(SamlUserEntity user, Assertion assertion, String executor, ServiceEntity service, StringBuffer debugLog)
+	public SamlUserEntity updateUser(SamlUserEntity user, Assertion assertion, String executor, ServiceEntity service, StringBuffer debugLog, String lastLoginHost)
 			throws UserUpdateException {
 	
 		if (assertion != null) {
@@ -366,15 +368,15 @@ public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 		}
 		
 		if (service != null)
-			return updateUser(user, attributeMap, executor, service, debugLog);
+			return updateUser(user, attributeMap, executor, service, debugLog, lastLoginHost);
 		else
-			return updateUser(user, attributeMap, executor, debugLog);
+			return updateUser(user, attributeMap, executor, debugLog, lastLoginHost);
 	}
 
-	public SamlUserEntity updateUser(SamlUserEntity user, Assertion assertion, String executor)
+	public SamlUserEntity updateUser(SamlUserEntity user, Assertion assertion, String executor, String lastLoginHost)
 			throws UserUpdateException {
 		
-		return updateUser(user, assertion, executor, null, null);
+		return updateUser(user, assertion, executor, null, null, lastLoginHost);
 	}
 	
 	public SamlUserEntity updateUserFromIdp(SamlUserEntity user, String executor) 
@@ -468,7 +470,7 @@ public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 
 			updateIdpStatus(SamlIdpMetadataEntityStatus.GOOD, idpEntity);
 
-			return updateUser(user, assertion, "attribute-query", service, debugLog);
+			return updateUser(user, assertion, "attribute-query", service, debugLog, null);
 		} catch (DecryptionException e) {
 			handleException(user, e, idpEntity, auditor, debugLog);
 			throw new UserUpdateException(e);
@@ -530,13 +532,13 @@ public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 	}
 
 	public boolean updateUserNew(SamlUserEntity user, Map<String, List<Object>> attributeMap, String executor, 
-			Auditor auditor, StringBuffer debugLog)
+			Auditor auditor, StringBuffer debugLog, String lastLoginHost)
 			throws UserUpdateException {
 		boolean changed = false;
 		
 		changed |= preUpdateUser(user, attributeMap, user.getIdp().getGenericStore(), executor, null, debugLog);
 		changed |= updateUserFromAttribute(user, attributeMap, auditor);
-		changed |= postUpdateUser(user, attributeMap, user.getIdp().getGenericStore(), executor, null, debugLog);
+		changed |= postUpdateUser(user, attributeMap, user.getIdp().getGenericStore(), executor, null, debugLog, lastLoginHost);
 		
 		return changed;
 	}

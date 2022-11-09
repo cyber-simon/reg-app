@@ -39,6 +39,7 @@ import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.session.HttpRequestContext;
 
 @Stateless
 public class UserServiceImpl extends BaseServiceImpl<UserEntity> implements UserService, Serializable {
@@ -65,6 +66,9 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity> implements User
 	
 	@Inject
 	private IdentityDao identityDao;
+	
+	@Inject
+	private HttpRequestContext requestContext;
 	
 	@Override
 	public UserLoginInfoEntity addLoginInfo(Long userId, UserLoginMethod method, UserLoginInfoStatus status, String from) {
@@ -174,7 +178,12 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity> implements User
 	@Override
 	public SamlUserEntity updateUserFromAssertion(SamlUserEntity user, Assertion assertion, String executor) 
 				throws UserUpdateException {
-		return userUpdater.updateUser(user, assertion, executor);
+		String lastLoginHost = null;
+		if (requestContext != null && requestContext.getHttpServletRequest() != null) {
+			lastLoginHost = requestContext.getHttpServletRequest().getLocalName();
+		}
+
+		return userUpdater.updateUser(user, assertion, executor, lastLoginHost);
 	}
 
 	@Override

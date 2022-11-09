@@ -16,7 +16,6 @@ import edu.kit.scc.webreg.hook.UserUpdateHook;
 import edu.kit.scc.webreg.hook.UserUpdateHookException;
 import edu.kit.scc.webreg.script.ScriptingEnv;
 import edu.kit.scc.webreg.service.reg.ScriptingWorkflow;
-import edu.kit.scc.webreg.session.HttpRequestContext;
 
 public abstract class AbstractUserUpdater<T extends UserEntity> implements Serializable {
 
@@ -28,13 +27,10 @@ public abstract class AbstractUserUpdater<T extends UserEntity> implements Seria
 	@Inject
 	private ScriptingEnv scriptingEnv;
 	
-	@Inject
-	private HttpRequestContext httpRequest;
-	
-	public abstract T updateUser(T user, Map<String, List<Object>> attributeMap, String executor, StringBuffer debugLog)
+	public abstract T updateUser(T user, Map<String, List<Object>> attributeMap, String executor, StringBuffer debugLog, String lastLoginHost)
 			throws UserUpdateException;
 
-	public abstract T updateUser(T user, Map<String, List<Object>> attributeMap, String executor, ServiceEntity service, StringBuffer debugLog)
+	public abstract T updateUser(T user, Map<String, List<Object>> attributeMap, String executor, ServiceEntity service, StringBuffer debugLog, String lastLoginHost)
 			throws UserUpdateException;
 
 	protected boolean preUpdateUser(UserEntity user, Map<String, List<Object>> attributeMap, Map<String,String> homeOrgGenericStore, 
@@ -57,13 +53,14 @@ public abstract class AbstractUserUpdater<T extends UserEntity> implements Seria
 	}
 
 	protected boolean postUpdateUser(UserEntity user, Map<String, List<Object>> attributeMap, Map<String,String> homeOrgGenericStore, 
-				String executor, ServiceEntity service, StringBuffer debugLog)
+				String executor, ServiceEntity service, StringBuffer debugLog, String lastLoginHost)
 			throws UserUpdateException {
 
 		boolean returnValue = false;
 
-		if (httpRequest != null && httpRequest.getHttpServletRequest() != null) {
-		    user.setLastLoginHost(httpRequest.getHttpServletRequest().getLocalName());
+		if (lastLoginHost != null) {
+		    //user.setLastLoginHost(httpRequest.getHttpServletRequest().getLocalName());
+			user.setLastLoginHost(lastLoginHost);
 		}
 		
 		UserUpdateHook updateHook = resolveUpdateHook(homeOrgGenericStore);

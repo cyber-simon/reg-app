@@ -228,7 +228,7 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 
 		    	logger.debug("Updating OIDC user {}", user.getSubjectId());
 				
-				user = updateUser(user, claims, userInfo, refreshToken, bearerAccessToken, "web-sso", debugLog);
+				user = updateUser(user, claims, userInfo, refreshToken, bearerAccessToken, "web-sso", debugLog, null);
 
 			}
 		}
@@ -239,13 +239,15 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 		return user;
 	}
 	
-	public OidcUserEntity updateUser(OidcUserEntity user, Map<String, List<Object>> attributeMap, String executor, StringBuffer debugLog)
+	@Override
+	public OidcUserEntity updateUser(OidcUserEntity user, Map<String, List<Object>> attributeMap, String executor, StringBuffer debugLog, String lastLoginHost)
 			throws UserUpdateException {
-		return updateUser(user, attributeMap, executor, null, null);
+		return updateUser(user, attributeMap, executor, null, null, lastLoginHost);
 	}
 	
+	@Override
 	public OidcUserEntity updateUser(OidcUserEntity user, Map<String, List<Object>> attributeMap, String executor, 
-			ServiceEntity service, StringBuffer debugLog)
+			ServiceEntity service, StringBuffer debugLog, String lastLoginHost)
 			throws UserUpdateException {
 		MDC.put("userId", "" + user.getId());
 		logger.debug("Updating OIDC user {}", user.getEppn());
@@ -382,7 +384,7 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 			}
 		}
 
-		changed |= postUpdateUser(user, attributeMap, user.getIssuer().getGenericStore(), executor, service, debugLog);
+		changed |= postUpdateUser(user, attributeMap, user.getIssuer().getGenericStore(), executor, service, debugLog, lastLoginHost);
 		
 		user.setLastUpdate(new Date());
 		user.setLastFailedUpdate(null);
@@ -400,22 +402,22 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 	}
 	
 	public OidcUserEntity updateUser(OidcUserEntity user, IDTokenClaimsSet claims, UserInfo userInfo, 
-			RefreshToken refreshToken, BearerAccessToken bat, String executor, ServiceEntity service, StringBuffer debugLog)
+			RefreshToken refreshToken, BearerAccessToken bat, String executor, ServiceEntity service, StringBuffer debugLog, String lastLoginHost)
 			throws UserUpdateException {
 
 		Map<String, List<Object>> attributeMap = oidcTokenHelper.convertToAttributeMap(claims, userInfo, refreshToken, bat);
 
 		if (service != null)
-			return updateUser(user, attributeMap, executor, service, debugLog);
+			return updateUser(user, attributeMap, executor, service, debugLog, lastLoginHost);
 		else
-			return updateUser(user, attributeMap, executor, debugLog);
+			return updateUser(user, attributeMap, executor, debugLog, lastLoginHost);
 	}
 
 	public OidcUserEntity updateUser(OidcUserEntity user, IDTokenClaimsSet claims, UserInfo userInfo, 
-			RefreshToken refreshToken, BearerAccessToken bat, String executor, StringBuffer debugLog)
+			RefreshToken refreshToken, BearerAccessToken bat, String executor, StringBuffer debugLog, String lastLoginHost)
 			throws UserUpdateException {
 		
-		return updateUser(user, claims, userInfo, refreshToken, bat, executor, null, debugLog);
+		return updateUser(user, claims, userInfo, refreshToken, bat, executor, null, debugLog, lastLoginHost);
 	}
 	
 	protected void fireUserChangeEvent(UserEntity user, String executor, Auditor auditor) {

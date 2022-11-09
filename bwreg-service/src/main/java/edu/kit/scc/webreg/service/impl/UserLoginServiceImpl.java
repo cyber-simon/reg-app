@@ -97,6 +97,7 @@ import edu.kit.scc.webreg.service.saml.exc.NoIdpFoundException;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.service.twofa.TwoFaException;
 import edu.kit.scc.webreg.service.twofa.TwoFaService;
+import edu.kit.scc.webreg.session.HttpRequestContext;
 
 @Stateless
 public class UserLoginServiceImpl implements UserLoginService, Serializable {
@@ -159,6 +160,9 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 	
 	@Inject
 	private UserLoginInfoDao userLoginInfoDao;
+	
+	@Inject
+	private HttpRequestContext requestContext;
 	
 	@Override
 	public Map<String, String> ecpLogin(String eppn,
@@ -611,8 +615,13 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 		
 		saml2AssertionService.updateUserIdentifier(samlIdentifier, user, spEntity.getEntityId(), null);
 		
+		String lastLoginHost = null;
+		if (requestContext != null && requestContext.getHttpServletRequest() != null) {
+			lastLoginHost = requestContext.getHttpServletRequest().getLocalName();
+		}
+		
 		try {
-			user = userUpdater.updateUser(user, assertion, caller, service, null);
+			user = userUpdater.updateUser(user, assertion, caller, service, null, lastLoginHost);
 		} catch (UserUpdateException e) {
 			logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
 			throw new UserUpdateFailedException("user update failed: " + e.getMessage());

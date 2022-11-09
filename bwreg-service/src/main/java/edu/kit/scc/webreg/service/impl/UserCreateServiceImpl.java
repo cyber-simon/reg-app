@@ -20,7 +20,6 @@ import java.util.Random;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 
@@ -49,6 +48,7 @@ import edu.kit.scc.webreg.service.group.HomeOrgGroupUpdater;
 import edu.kit.scc.webreg.service.identity.IdentityCreater;
 import edu.kit.scc.webreg.service.saml.Saml2AssertionService;
 import edu.kit.scc.webreg.service.saml.SamlIdentifier;
+import edu.kit.scc.webreg.session.HttpRequestContext;
 
 @Stateless
 public class UserCreateServiceImpl implements UserCreateService {
@@ -96,7 +96,7 @@ public class UserCreateServiceImpl implements UserCreateService {
 	private SamlIdpMetadataService idpMetadataService;
 	
 	@Inject
-	private HttpServletRequest httpRequest;
+	private HttpRequestContext requestContext;
 
 	@Override
 	public SamlUserEntity preCreateUser(SamlIdpMetadataEntity idpEntity, SamlSpConfigurationEntity spConfigEntity, SamlIdentifier samlIdentifier,
@@ -137,8 +137,13 @@ public class UserCreateServiceImpl implements UserCreateService {
 		auditor.startAuditTrail(executor);
 		auditor.setName(getClass().getName() + "-UserCreate-Audit");
 		auditor.setDetail("Create user " + user.getEppn());
+
+		String lastLoginHost = null;
+		if (requestContext != null && requestContext.getHttpServletRequest() != null) {
+			lastLoginHost = requestContext.getHttpServletRequest().getLocalName();
+		}
 		
-    	userUpdater.updateUserNew(user, attributeMap, executor, auditor, debugLog);
+    	userUpdater.updateUserNew(user, attributeMap, executor, auditor, debugLog, lastLoginHost);
 		
     	/** 
     	 * if user has no uid number yet, generate one
@@ -153,8 +158,6 @@ public class UserCreateServiceImpl implements UserCreateService {
 			attributeStore.put(entry.getKey(), attrHelper.attributeListToString(entry.getValue()));
 		}
 		
-		user.setLastLoginHost(httpRequest.getLocalName());
-
 		user.setLastUpdate(new Date());
 		user.setScheduledUpdate(getNextScheduledUpdate());
 		
