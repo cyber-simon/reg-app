@@ -24,7 +24,6 @@ import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-import javax.servlet.http.HttpServletRequest;
 
 import org.kie.api.KieServices;
 import org.kie.api.builder.ReleaseId;
@@ -44,7 +43,6 @@ import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
 import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.drools.DroolsConfigurationException;
-import edu.kit.scc.webreg.drools.DroolsEvaluator;
 import edu.kit.scc.webreg.drools.OverrideAccess;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;
 import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
@@ -120,14 +118,48 @@ public class KnowledgeSessionSingleton {
 	}
 
 	public List<ServiceEntity> checkServiceFilterRule(String unitId, IdentityEntity identity, List<ServiceEntity> serviceList,
-			Set<GroupEntity> groups, Set<RoleEntity> roles, HttpServletRequest request) 
+			Set<GroupEntity> groups, Set<RoleEntity> roles) 
 			throws DroolsConfigurationException {
 		
-		DroolsEvaluator evaluator = new DroolsEvaluator(KieServices.Factory.get());
-		return evaluator.checkServiceFilterRule(unitId, identity, serviceList, groups, roles, logger);
-	}
+		KieSession ksession = getStatefulSession(unitId);
 
-	public List<Object> checkRule(BusinessRulePackageEntity rulePackage, IdentityEntity identity) 
+		if (ksession == null)
+			throw new DroolsConfigurationException("Es ist keine valide Regel fuer den Benutzerzugriff konfiguriert");
+
+		ksession.setGlobal("logger", logger);
+		ksession.insert(identity);
+		for (UserEntity user : identity.getUsers())
+			ksession.insert(user);
+		for (GroupEntity group : groups)
+			ksession.insert(group);
+		for (ServiceEntity service : serviceList)
+			ksession.insert(service);
+		ksession.insert(new Date());
+		
+		ksession.fireAllRules();
+
+		List<Object> objectList = new ArrayList<Object>(ksession.getObjects());
+		List<ServiceEntity> removeList = new ArrayList<ServiceEntity>();
+		
+		for (Object o : objectList) {
+			FactHandle factHandle = ksession.getFactHandle(o);
+			if (factHandle != null)
+				ksession.delete(factHandle);
+			
+			if (o instanceof ServiceEntity) {
+				removeList.add((ServiceEntity) o);
+			}
+		}
+
+		ksession.dispose();
+
+		List<ServiceEntity> returnList = new ArrayList<ServiceEntity>(serviceList);
+		returnList.removeAll(removeList);
+		
+		return returnList;
+	}	
+
+	public List<Object> checkIdentityRule(BusinessRulePackageEntity rulePackage, IdentityEntity identity) 
 		throws MisconfiguredServiceException {
 		KieSession ksession = getStatefulSession(rulePackage.getPackageName(), rulePackage.getKnowledgeBaseName(), 
 				rulePackage.getKnowledgeBaseVersion());
@@ -183,7 +215,7 @@ public class KnowledgeSessionSingleton {
 		return unauthorizedList;
 	}
 	
-	public List<Object> checkRule(String unitId, UserEntity user, Map<String, List<Object>> attributeMap,
+	public List<Object> checkSamlLoginRule(String unitId, UserEntity user, Map<String, List<Object>> attributeMap,
 				Assertion assertion, SamlIdpMetadataEntity idp, EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity sp) 
 			throws MisconfiguredServiceException {
 		
@@ -268,19 +300,39 @@ public class KnowledgeSessionSingleton {
 		return returnList;
 	}
 	
-	public List<Object> checkRule(String packageName, String knowledgeBaseName, String knowledgeBaseVersion, 
-			UserEntity user, ServiceEntity service,
+	public List<Object> checkServiceAccessRule(UserEntity user, ServiceEntity service,
 			RegistryEntity registry, String executor) 
 			throws MisconfiguredServiceException {
-		return checkRule(packageName, knowledgeBaseName, knowledgeBaseVersion, user, service, registry, executor, true);
+		return checkServiceAccessRule(user, service, registry, executor, true);
 	}
 	
-	public List<Object> checkRule(String packageName, String knowledgeBaseName, String knowledgeBaseVersion, 
-			UserEntity user, ServiceEntity service,
+	public List<Object> checkServiceAccessRule(UserEntity user, ServiceEntity service, String executor, Boolean withCache) 
+			throws MisconfiguredServiceException {
+		return checkServiceAccessRule(user, service, null, executor, withCache);
+	}
+	
+	public List<Object> checkServiceAccessRule(UserEntity user, ServiceEntity service,
 			RegistryEntity registry, String executor, Boolean withCache) 
 			throws MisconfiguredServiceException {
 
 		user = userDao.merge(user);
+		String packageName = "default"; 
+		String knowledgeBaseName = "permitAllRule"; 
+		String knowledgeBaseVersion = "1.0.0";
+		
+		if (service.getAccessRule() != null) {
+			BusinessRulePackageEntity rulePackage = service.getAccessRule().getRulePackage();
+
+			if (rulePackage == null) {
+				throw new IllegalStateException("checkServiceAccess called with a rule (" +
+							service.getAccessRule().getName() + ") that has no rulePackage");
+			}
+
+			packageName = rulePackage.getPackageName();
+			knowledgeBaseName = rulePackage.getKnowledgeBaseName();
+			knowledgeBaseVersion = rulePackage.getKnowledgeBaseVersion();
+		}
+
 		
 		if (withCache) {
 			service = serviceDao.findById(service.getId());
@@ -393,17 +445,8 @@ public class KnowledgeSessionSingleton {
 		for (RegistryEntity registry : registryList) {
 			ServiceEntity service = registry.getService();
 			
-			List<Object> objectList;
+			List<Object> objectList = checkServiceAccessRule(user, service, registry, executor, withCache);
 			
-			if (service.getAccessRule() == null) {
-				objectList = checkRule("default", "permitAllRule", "1.0.0", user, service, registry, executor, withCache);
-			}
-			else {
-				BusinessRulePackageEntity rulePackage = service.getAccessRule().getRulePackage();
-				objectList = checkRule(rulePackage.getPackageName(), rulePackage.getKnowledgeBaseName(), 
-						rulePackage.getKnowledgeBaseVersion(), user, service, registry, executor, withCache);
-			}
-
 			returnMap.put(registry, objectList);
 		}
 		
@@ -425,16 +468,7 @@ public class KnowledgeSessionSingleton {
 			registry = registryDao.merge(registry);
 			ServiceEntity service = registry.getService();
 			
-			List<Object> objectList;
-			
-			if (service.getAccessRule() == null) {
-				objectList = checkRule("default", "permitAllRule", "1.0.0", registry.getUser(), service, registry, executor, withCache);
-			}
-			else {
-				BusinessRulePackageEntity rulePackage = service.getAccessRule().getRulePackage();
-				objectList = checkRule(rulePackage.getPackageName(), rulePackage.getKnowledgeBaseName(), 
-						rulePackage.getKnowledgeBaseVersion(), registry.getUser(), service, registry, executor, withCache);
-			}
+			List<Object> objectList = checkServiceAccessRule(registry.getUser(), service, registry, executor, withCache);
 
 			returnMap.put(registry, objectList);
 		}

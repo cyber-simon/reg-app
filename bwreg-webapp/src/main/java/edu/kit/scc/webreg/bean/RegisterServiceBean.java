@@ -183,22 +183,7 @@ public class RegisterServiceBean implements Serializable {
 	}
 
 	public void checkUserAccess() {
-		List<Object> objectList;
-		
-		if (service.getAccessRule() == null) {
-			objectList = knowledgeSessionService.checkRule("default", "permitAllRule", "1.0.0", selectedUserEntity, service, null, "user-self", false);
-		}
-		else {
-			BusinessRulePackageEntity rulePackage = service.getAccessRule().getRulePackage();
-			if (rulePackage != null) {
-				objectList = knowledgeSessionService.checkRule(rulePackage.getPackageName(), rulePackage.getKnowledgeBaseName(), 
-					rulePackage.getKnowledgeBaseVersion(), selectedUserEntity, service, null, "user-self", false);
-			}
-			else {
-				throw new IllegalStateException("checkServiceAccess called with a rule (" +
-							service.getAccessRule().getName() + ") that has no rulePackage");
-			}
-		}
+		List<Object> objectList = knowledgeSessionService.checkServiceAccessRule(selectedUserEntity, service, null, "user-self", false);
 
 		requirementsList = new ArrayList<String>();
 		for (Object o : objectList) {

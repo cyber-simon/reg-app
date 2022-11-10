@@ -77,7 +77,6 @@ import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.drools.OverrideAccess;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;
 import edu.kit.scc.webreg.drools.impl.KnowledgeSessionSingleton;
-import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.SamlAuthnRequestEntity;
@@ -496,24 +495,7 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 	}
 	
 	private List<Object> checkRules(UserEntity user, ServiceEntity service, RegistryEntity registry) {
-		List<Object> objectList;
-		
-		if (service.getAccessRule() == null) {
-			objectList = knowledgeSessionService.checkRule("default", "permitAllRule", "1.0.0", user, service, registry, "user-self", false);
-		}
-		else {
-			BusinessRulePackageEntity rulePackage = service.getAccessRule().getRulePackage();
-			if (rulePackage != null) {
-				objectList = knowledgeSessionService.checkRule(rulePackage.getPackageName(), rulePackage.getKnowledgeBaseName(), 
-					rulePackage.getKnowledgeBaseVersion(), user, service, registry, "user-self", false);
-			}
-			else {
-				throw new IllegalStateException("checkServiceAccess called with a rule (" +
-							service.getAccessRule().getName() + ") that has no rulePackage");
-			}
-		}
-
-		return objectList;
+		return knowledgeSessionService.checkServiceAccessRule(user, service, registry, "user-self", false);
 	}
 	
 	private List<OverrideAccess> extractOverideAccess(List<Object> objectList) {

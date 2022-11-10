@@ -32,8 +32,7 @@ public interface KnowledgeSessionService {
 	KieSession getStatefulSession(String packageName, String knowledgeBaseName,
 			String knowledgeBaseVersion);
 
-	List<Object> checkRule(String packageName, String knowledgeBaseName,
-			String knowledgeBaseVersion, UserEntity user,
+	List<Object> checkServiceAccessRule(UserEntity user,
 			ServiceEntity service, RegistryEntity registry, String executor)
 			throws MisconfiguredServiceException;
 
@@ -42,8 +41,7 @@ public interface KnowledgeSessionService {
 	Map<RegistryEntity, List<Object>> checkRules(
 			List<RegistryEntity> registryList, IdentityEntity identity, String executor);
 
-	List<Object> checkRule(String packageName, String knowledgeBaseName,
-			String knowledgeBaseVersion, UserEntity user,
+	List<Object> checkServiceAccessRule(UserEntity user,
 			ServiceEntity service, RegistryEntity registry, String executor,
 			Boolean withCache) throws MisconfiguredServiceException;
 

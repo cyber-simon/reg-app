@@ -20,7 +20,6 @@ import javax.inject.Named;
 
 import edu.kit.scc.webreg.drools.OverrideAccess;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;
-import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
@@ -86,24 +85,8 @@ public class CheckAccessBean implements Serializable {
 
 	private void checkServiceAccess(ServiceEntity service) {
     		
-		List<Object> objectList;
+		List<Object> objectList = knowledgeSessionService.checkServiceAccessRule(user, service, registry, "user-self", false);
 		
-		if (service.getAccessRule() == null) {
-			objectList = knowledgeSessionService.checkRule("default", "permitAllRule", "1.0.0", user, service, registry, "user-self", false);
-		}
-		else {
-			BusinessRulePackageEntity rulePackage = service.getAccessRule().getRulePackage();
-
-			if (rulePackage != null) {
-				objectList = knowledgeSessionService.checkRule(rulePackage.getPackageName(), rulePackage.getKnowledgeBaseName(), 
-					rulePackage.getKnowledgeBaseVersion(), user, service, registry, "user-self", false);
-			}
-			else {
-				throw new IllegalStateException("checkServiceAccess called with a rule (" +
-							service.getAccessRule().getName() + ") that has no rulePackage");
-			}
-		}
-
 		for (Object o : objectList) {
 			if (o instanceof OverrideAccess) {
 				return;

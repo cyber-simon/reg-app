@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.drools.OverrideAccess;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;
-import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.SamlAssertionEntity;
@@ -154,26 +153,11 @@ public class ServiceAdminUserDetailBean implements Serializable {
 	public void checkRegistry() {
 		logger.info("Trying to check registry {} for user {}", entity.getId(), getUser().getEppn());
 		
-		List<Object> objectList;
 		ServiceEntity service = entity.getService();
-		List<String> requirementsList;
-		
-		if (service.getAccessRule() == null) {
-			objectList = knowledgeSessionService.checkRule("default", "permitAllRule", "1.0.0", user, service, null, "user-self", false);
-		}
-		else {
-			BusinessRulePackageEntity rulePackage = service.getAccessRule().getRulePackage();
-			if (rulePackage != null) {
-				objectList = knowledgeSessionService.checkRule(rulePackage.getPackageName(), rulePackage.getKnowledgeBaseName(), 
-					rulePackage.getKnowledgeBaseVersion(), user, service, entity, "user-self", false);
-			}
-			else {
-				throw new IllegalStateException("checkServiceAccess called with a rule (" +
-							service.getAccessRule().getName() + ") that has no rulePackage");
-			}
-		}
 
-		requirementsList = new ArrayList<String>();
+		List<Object> objectList = knowledgeSessionService.checkServiceAccessRule(user, service, entity, "user-self", false);
+
+		List<String> requirementsList = new ArrayList<String>();
 		for (Object o : objectList) {
 			if (o instanceof OverrideAccess) {
 				requirementsList.clear();

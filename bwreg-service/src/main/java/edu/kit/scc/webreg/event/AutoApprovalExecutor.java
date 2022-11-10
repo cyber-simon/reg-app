@@ -40,20 +40,6 @@ public class AutoApprovalExecutor extends
 		Logger logger = LoggerFactory.getLogger(AutoApprovalExecutor.class);
 		logger.debug("Executing");
 		
-		String ruleName = getJobStore().get("rule_name");
-
-		if (ruleName == null) {
-			logger.warn("No rule_name configured for AutoApprovalExecutor");
-			return;
-		}
-
-		String[] ruleNames = ruleName.split(":");
-		
-		if (ruleNames.length != 3) {
-			logger.warn("rule_name must contain two :");
-			return;
-		}
-
 		try {
 			InitialContext ic = new InitialContext();
 			
@@ -63,7 +49,7 @@ public class AutoApprovalExecutor extends
 
 			KnowledgeSessionService knowledgeSessionService = (KnowledgeSessionService) ic.lookup("global/bwreg/bwreg-service/KnowledgeSessionServiceImpl!edu.kit.scc.webreg.service.drools.KnowledgeSessionService");
 
-			List<Object> objectList = knowledgeSessionService.checkRule(ruleNames[0], ruleNames[1], ruleNames[2], 
+			List<Object> objectList = knowledgeSessionService.checkServiceAccessRule(
 					registry.getUser(), registry.getService(), registry, "autoapproval", false);
 
 			List<String> requirementsList = new ArrayList<String>();

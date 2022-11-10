@@ -202,7 +202,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 		    	
 		    	tempList.addAll(knowledgeSessionSingleton.checkServiceFilterRule(
 			    			serviceFilterRule, identity, unregisteredServiceList,
-			    			sessionManager.getGroups(), sessionManager.getRoles(), request));
+			    			sessionManager.getGroups(), sessionManager.getRoles()));
 		    	
 		    	unregisteredServiceList = tempList;
 		    	
