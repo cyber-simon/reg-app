@@ -20,6 +20,8 @@ import javax.jms.ObjectMessage;
 
 import org.slf4j.Logger;
 
+import edu.kit.scc.regapp.mail.api.MailService;
+import edu.kit.scc.regapp.mail.api.SimpleQueuedMail;
 import edu.kit.scc.webreg.exc.MailServiceException;
 
 /**

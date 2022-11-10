@@ -8,7 +8,7 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.service.mail;
+package edu.kit.scc.regapp.tpl;
 
 import java.io.StringWriter;
 import java.util.Map;
@@ -44,6 +44,10 @@ public class TemplateRenderer {
 	
 	public String evaluate(String template, Map<String, Object> context)
 			throws TemplateRenderingException {
+		
+		if (engine == null) {
+			init();
+		}
 		
 		if (template == null)
 			return null;

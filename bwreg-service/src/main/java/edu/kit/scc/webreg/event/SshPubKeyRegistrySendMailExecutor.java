@@ -19,8 +19,8 @@ import javax.naming.NamingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.kit.scc.regapp.mail.api.TemplateMailService;
 import edu.kit.scc.webreg.entity.SshPubKeyRegistryEntity;
-import edu.kit.scc.webreg.service.mail.TemplateMailService;
 
 public class SshPubKeyRegistrySendMailExecutor extends
 		AbstractEventExecutor<SshPubKeyRegistryEvent, SshPubKeyRegistryEntity> {
@@ -46,7 +46,7 @@ public class SshPubKeyRegistrySendMailExecutor extends
 		try {
 			InitialContext ic = new InitialContext();
 			
-			TemplateMailService templateMailService = (TemplateMailService) ic.lookup("global/bwreg/bwreg-service/TemplateMailServiceImpl!edu.kit.scc.webreg.service.mail.TemplateMailService");
+			TemplateMailService templateMailService = (TemplateMailService) ic.lookup("global/bwreg/bwreg-service/TemplateMailServiceImpl!edu.kit.scc.regapp.mail.api.TemplateMailService");
 			
 			SshPubKeyRegistryEntity sshPubKeyRegistry = getEvent().getEntity();
 			Map<String, Object> context = new HashMap<String, Object>();

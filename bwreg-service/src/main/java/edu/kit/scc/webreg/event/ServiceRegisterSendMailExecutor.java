@@ -19,8 +19,8 @@ import javax.naming.NamingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.kit.scc.regapp.mail.api.TemplateMailService;
 import edu.kit.scc.webreg.entity.RegistryEntity;
-import edu.kit.scc.webreg.service.mail.TemplateMailService;
 
 public class ServiceRegisterSendMailExecutor extends
 		AbstractEventExecutor<ServiceRegisterEvent, RegistryEntity> {
@@ -46,7 +46,7 @@ public class ServiceRegisterSendMailExecutor extends
 		try {
 			InitialContext ic = new InitialContext();
 			
-			TemplateMailService templateMailService = (TemplateMailService) ic.lookup("global/bwreg/bwreg-service/TemplateMailServiceImpl!edu.kit.scc.webreg.service.mail.TemplateMailService");
+			TemplateMailService templateMailService = (TemplateMailService) ic.lookup("global/bwreg/bwreg-service/TemplateMailServiceImpl!edu.kit.scc.regapp.mail.api.TemplateMailService");
 			
 			RegistryEntity registry = getEvent().getEntity();
 			Map<String, Object> context = new HashMap<String, Object>(3);

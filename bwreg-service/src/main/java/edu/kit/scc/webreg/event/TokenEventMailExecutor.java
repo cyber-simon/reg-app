@@ -18,7 +18,7 @@ import javax.naming.NamingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.kit.scc.webreg.service.mail.TemplateMailService;
+import edu.kit.scc.regapp.mail.api.TemplateMailService;
 
 public class TokenEventMailExecutor extends
 		AbstractEventExecutor<TokenEvent, HashMap<String, Object>> {
@@ -44,7 +44,7 @@ public class TokenEventMailExecutor extends
 		try {
 			InitialContext ic = new InitialContext();
 			
-			TemplateMailService templateMailService = (TemplateMailService) ic.lookup("global/bwreg/bwreg-service/TemplateMailServiceImpl!edu.kit.scc.webreg.service.mail.TemplateMailService");
+			TemplateMailService templateMailService = (TemplateMailService) ic.lookup("global/bwreg/bwreg-service/TemplateMailServiceImpl!edu.kit.scc.regapp.mail.api.TemplateMailService");
 			
 			HashMap<String, Object> eventMap = getEvent().getEntity();
 			

@@ -1,4 +1,4 @@
-package edu.kit.scc.webreg.service.identity;
+package edu.kit.scc.webreg.tools;
 
 import java.util.HashMap;
 import java.util.Map;

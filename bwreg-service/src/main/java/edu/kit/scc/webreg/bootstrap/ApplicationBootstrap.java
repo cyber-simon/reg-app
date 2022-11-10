@@ -36,10 +36,10 @@ import edu.kit.scc.webreg.service.RoleService;
 import edu.kit.scc.webreg.service.SerialService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.identity.IdentityService;
-import edu.kit.scc.webreg.service.mail.TemplateRenderer;
 import edu.kit.scc.webreg.service.oidc.OidcOpConfigurationService;
 import edu.kit.scc.webreg.service.timer.ClusterSchedulerManager;
 import edu.kit.scc.webreg.service.timer.StandardScheduler;
+import edu.kit.scc.webreg.service.tpl.TemplateRenderer;
 import edu.kit.scc.webreg.service.tpl.TemplateUrlStreamHandlerFactory;
 
 @Singleton
@@ -75,9 +75,6 @@ public class ApplicationBootstrap {
 
 	@Inject
 	private BpmProcessService bpmProcessService;
-	
-	@Inject
-	private TemplateRenderer velocityRenderer;
 	
 	@Inject 
 	private HookManager hookManager;
@@ -150,8 +147,6 @@ public class ApplicationBootstrap {
     	oidcOpConfigService.fixStatus();
     	
         bpmProcessService.init();
-        
-        velocityRenderer.init();
         
         identityService.createMissingIdentities();
         

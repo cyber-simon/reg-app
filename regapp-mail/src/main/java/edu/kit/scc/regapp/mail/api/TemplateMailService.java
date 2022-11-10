@@ -8,18 +8,14 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.service.mail;
+package edu.kit.scc.regapp.mail.api;
 
 import java.io.Serializable;
+import java.util.Map;
 
-import edu.kit.scc.webreg.exc.MailServiceException;
+public interface TemplateMailService extends Serializable {
 
-public interface MailService extends Serializable {
-
-	void sendMail(String from, String to, String cc, String bcc,
-			String subject, String body) throws MailServiceException;
-
-	void sendMail(String from, String to, String cc, String bcc, String subject, String body, String replyTo)
-			throws MailServiceException;
+	void sendMail(String templateName, Map<String, Object> rendererContext,
+			Boolean queued);
 
 }

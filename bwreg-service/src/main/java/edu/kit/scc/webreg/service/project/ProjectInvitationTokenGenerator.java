@@ -12,6 +12,7 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 
+import edu.kit.scc.regapp.mail.api.TemplateMailService;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.project.ProjectInvitationTokenDao;
 import edu.kit.scc.webreg.entity.EventType;
@@ -23,7 +24,6 @@ import edu.kit.scc.webreg.entity.project.ProjectInvitationType;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.ProjectInvitationTokenEvent;
 import edu.kit.scc.webreg.event.exc.EventSubmitException;
-import edu.kit.scc.webreg.service.mail.TemplateMailService;
 
 @ApplicationScoped
 public class ProjectInvitationTokenGenerator implements Serializable {

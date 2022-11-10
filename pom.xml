@@ -26,9 +26,11 @@
 		<module>regapp-jpa-impl</module>
 		<module>regapp-config</module>
 		<module>regapp-audit</module>
+		<module>regapp-template</module>
 		<module>regapp-drools</module>
 		<module>regapp-job-api</module>
 		<module>regapp-event-api</module>
+		<module>regapp-mail</module>
 		<module>regapp-as</module>
 		<module>regapp-saml</module>
 		<module>regapp-saml-sp</module>

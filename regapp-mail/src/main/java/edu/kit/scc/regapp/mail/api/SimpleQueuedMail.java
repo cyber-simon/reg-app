@@ -8,7 +8,7 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.service.mail;
+package edu.kit.scc.regapp.mail.api;
 
 import java.io.Serializable;
 

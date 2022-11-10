@@ -19,8 +19,8 @@ import javax.naming.NamingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.kit.scc.regapp.mail.api.TemplateMailService;
 import edu.kit.scc.webreg.entity.SshPubKeyEntity;
-import edu.kit.scc.webreg.service.mail.TemplateMailService;
 import edu.kit.scc.webreg.service.ssh.SshPubKeyService;
 
 public class SshPubKeyExpiredSendMailExecutor extends
@@ -47,7 +47,7 @@ public class SshPubKeyExpiredSendMailExecutor extends
 		try {
 			InitialContext ic = new InitialContext();
 			
-			TemplateMailService templateMailService = (TemplateMailService) ic.lookup("global/bwreg/bwreg-service/TemplateMailServiceImpl!edu.kit.scc.webreg.service.mail.TemplateMailService");
+			TemplateMailService templateMailService = (TemplateMailService) ic.lookup("global/bwreg/bwreg-service/TemplateMailServiceImpl!edu.kit.scc.regapp.mail.api.TemplateMailService");
 			SshPubKeyService pubKeyService = (SshPubKeyService) ic.lookup("global/bwreg/bwreg-service/SshPubKeyServiceImpl!edu.kit.scc.webreg.service.ssh.SshPubKeyService");
 			
 			SshPubKeyEntity sshPubKey = getEvent().getEntity();

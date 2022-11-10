@@ -65,6 +65,18 @@
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-mail</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-template</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
 			<artifactId>regapp-job-api</artifactId>
 			<version>${project.version}</version>
 			<scope>provided</scope>
@@ -99,14 +111,6 @@
 			<version>${project.version}</version>
 			<scope>provided</scope>
 		</dependency>
-<!-- 
-		<dependency>
-			<groupId>edu.kit.scc</groupId>
-			<artifactId>regapp-reg-api</artifactId>
-			<version>${project.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		 -->
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
 			<artifactId>regapp-reg-impl</artifactId>

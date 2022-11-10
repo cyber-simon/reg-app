@@ -19,7 +19,7 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import edu.kit.scc.webreg.service.mail.TemplateRenderer;
+import edu.kit.scc.webreg.service.tpl.TemplateRenderer;
 
 @Named
 @ApplicationScoped

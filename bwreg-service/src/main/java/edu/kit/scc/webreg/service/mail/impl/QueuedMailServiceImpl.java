@@ -25,9 +25,9 @@ import javax.jms.Session;
 
 import org.slf4j.Logger;
 
+import edu.kit.scc.regapp.mail.api.QueuedMailService;
+import edu.kit.scc.regapp.mail.api.SimpleQueuedMail;
 import edu.kit.scc.webreg.exc.MailServiceException;
-import edu.kit.scc.webreg.service.mail.QueuedMailService;
-import edu.kit.scc.webreg.service.mail.SimpleQueuedMail;
 
 @Stateless
 public class QueuedMailServiceImpl implements QueuedMailService {

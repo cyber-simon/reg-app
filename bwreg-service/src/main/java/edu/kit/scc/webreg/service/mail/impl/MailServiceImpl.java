@@ -25,8 +25,8 @@ import javax.mail.internet.MimeMessage;
 
 import org.slf4j.Logger;
 
+import edu.kit.scc.regapp.mail.api.MailService;
 import edu.kit.scc.webreg.exc.MailServiceException;
-import edu.kit.scc.webreg.service.mail.MailService;
 
 @Stateless
 public class MailServiceImpl implements MailService {
