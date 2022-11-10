@@ -12,10 +12,10 @@ package edu.kit.scc.webreg.service.ssh;
 
 import java.util.List;
 
+import edu.kit.scc.regapp.sshkey.exc.SshPubKeyBlacklistedException;
 import edu.kit.scc.webreg.entity.SshPubKeyEntity;
 import edu.kit.scc.webreg.entity.SshPubKeyStatus;
 import edu.kit.scc.webreg.service.BaseService;
-import edu.kit.scc.webreg.ssh.SshPubKeyBlacklistedException;
 
 public interface SshPubKeyService extends BaseService<SshPubKeyEntity> {
 

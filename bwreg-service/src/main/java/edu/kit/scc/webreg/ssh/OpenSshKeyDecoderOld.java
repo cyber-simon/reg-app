@@ -20,6 +20,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 
+import edu.kit.scc.regapp.sshkey.exc.UnsupportedKeyTypeException;
+
 @ApplicationScoped
 public class OpenSshKeyDecoderOld implements Serializable {
     

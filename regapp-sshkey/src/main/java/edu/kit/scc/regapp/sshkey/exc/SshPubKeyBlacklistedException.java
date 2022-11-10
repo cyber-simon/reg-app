@@ -1,4 +1,4 @@
-package edu.kit.scc.webreg.ssh;
+package edu.kit.scc.regapp.sshkey.exc;
 
 public class SshPubKeyBlacklistedException extends Exception {
 

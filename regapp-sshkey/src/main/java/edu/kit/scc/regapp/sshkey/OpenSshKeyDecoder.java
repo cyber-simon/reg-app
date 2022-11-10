@@ -1,4 +1,4 @@
-package edu.kit.scc.webreg.ssh;
+package edu.kit.scc.regapp.sshkey;
 
 import java.io.Serializable;
 import java.math.BigInteger;
@@ -17,6 +17,8 @@ import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.crypto.util.OpenSSHPublicKeyUtil;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
+
+import edu.kit.scc.regapp.sshkey.exc.UnsupportedKeyTypeException;
 
 @ApplicationScoped
 public class OpenSshKeyDecoder implements Serializable {

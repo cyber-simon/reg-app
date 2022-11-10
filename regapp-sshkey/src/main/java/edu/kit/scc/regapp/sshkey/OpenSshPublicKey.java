@@ -1,4 +1,4 @@
-package edu.kit.scc.webreg.ssh;
+package edu.kit.scc.regapp.sshkey;
 
 import java.io.Serializable;
 import java.security.PublicKey;

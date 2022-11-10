@@ -8,11 +8,11 @@ import javax.faces.validator.Validator;
 import javax.faces.validator.ValidatorException;
 import javax.inject.Inject;
 
+import edu.kit.scc.regapp.sshkey.OpenSshKeyDecoder;
+import edu.kit.scc.regapp.sshkey.OpenSshPublicKey;
+import edu.kit.scc.regapp.sshkey.exc.UnsupportedKeyTypeException;
 import edu.kit.scc.webreg.entity.SshPubKeyEntity;
 import edu.kit.scc.webreg.service.ssh.SshPubKeyService;
-import edu.kit.scc.webreg.ssh.OpenSshKeyDecoder;
-import edu.kit.scc.webreg.ssh.OpenSshPublicKey;
-import edu.kit.scc.webreg.ssh.UnsupportedKeyTypeException;
 
 @FacesValidator("edu.kit.SshKeyValidator")
 public class SshKeyValidator implements Validator {

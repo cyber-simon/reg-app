@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
+import edu.kit.scc.regapp.sshkey.exc.UnsupportedKeyTypeException;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.service.UserService;
@@ -34,7 +35,6 @@ import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.ssh.OpenSshKeyDecoderOld;
 import edu.kit.scc.webreg.ssh.OpenSshPublicKeyOld;
-import edu.kit.scc.webreg.ssh.UnsupportedKeyTypeException;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
 @Named

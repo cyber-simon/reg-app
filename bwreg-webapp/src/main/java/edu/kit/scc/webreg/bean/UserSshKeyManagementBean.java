@@ -22,6 +22,10 @@ import javax.inject.Named;
 
 import org.slf4j.Logger;
 
+import edu.kit.scc.regapp.sshkey.OpenSshKeyDecoder;
+import edu.kit.scc.regapp.sshkey.OpenSshPublicKey;
+import edu.kit.scc.regapp.sshkey.exc.SshPubKeyBlacklistedException;
+import edu.kit.scc.regapp.sshkey.exc.UnsupportedKeyTypeException;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.SshPubKeyEntity;
 import edu.kit.scc.webreg.entity.SshPubKeyStatus;
@@ -29,10 +33,6 @@ import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.ssh.SshPubKeyService;
 import edu.kit.scc.webreg.session.SessionManager;
-import edu.kit.scc.webreg.ssh.OpenSshKeyDecoder;
-import edu.kit.scc.webreg.ssh.OpenSshPublicKey;
-import edu.kit.scc.webreg.ssh.SshPubKeyBlacklistedException;
-import edu.kit.scc.webreg.ssh.UnsupportedKeyTypeException;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
 @Named

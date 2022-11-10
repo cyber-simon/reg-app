@@ -44,6 +44,7 @@
 		<module>regapp-idty</module>
 		<module>regapp-session</module>
 		<module>regapp-twofa</module>
+		<module>regapp-sshkey</module>
 		<module>regapp-ejb-service</module>
 		<module>bwreg-lib</module>
 		<module>bwreg-jpa</module>
