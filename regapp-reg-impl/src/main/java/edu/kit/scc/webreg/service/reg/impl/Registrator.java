@@ -192,7 +192,11 @@ public class Registrator implements Serializable {
 			}
 			else {
 				for (Long policyId : policiesIdList) {
-					agrs.add(policyDao.findById(policyId).getActualAgreement());
+					PolicyEntity policy = policyDao.findById(policyId);
+					if (policy != null && policy.getActualAgreement() != null)
+						agrs.add(policyDao.findById(policyId).getActualAgreement());
+					else
+						throw new RegisterException("no such policy");
 				}
 			}
 			registry.setAgreedTexts(agrs);
