@@ -61,8 +61,8 @@ public abstract class AbstractEventSubmitterImpl implements EventSubmitter {
 				submit(eventExecutor);
 			}
 			else {
-				logger.warn("Could not execute job {} ({}): not instance of EventExecutor", 
-						eventEntity.getJobClass().getName(), eventEntity.getJobClass().getJobClassName());
+				logger.debug("EventType not matching type of EventEntity: {} <-> {}, ignoring", 
+						eventEntity.getEventType(), eventType);
 			}
 		}
 	}	
