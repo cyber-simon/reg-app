@@ -12,7 +12,6 @@ import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
-import edu.kit.scc.webreg.script.ScriptingEnv;
 import edu.kit.scc.webreg.service.reg.Infotainment;
 import edu.kit.scc.webreg.service.reg.InfotainmentCapable;
 import edu.kit.scc.webreg.service.reg.InfotainmentTreeNode;
@@ -22,8 +21,6 @@ import edu.kit.scc.webreg.tools.PropertyReader;
 public class NextcloudProxyIdpRegisterWorkflow  implements RegisterUserWorkflow, InfotainmentCapable {
 
 	private static final Logger logger = LoggerFactory.getLogger(NextcloudProxyIdpRegisterWorkflow.class);
-
-	protected ScriptingEnv scriptingEnv;
 
 	@Override
 	public Infotainment getInfo(RegistryEntity registry, UserEntity user, ServiceEntity service)

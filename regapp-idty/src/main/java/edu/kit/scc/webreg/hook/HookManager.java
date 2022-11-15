@@ -22,7 +22,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
-import edu.kit.scc.webreg.script.ScriptingEnv;
+import edu.kit.scc.webreg.service.identity.IdentityScriptingEnv;
 import edu.kit.scc.webreg.service.reg.ScriptingWorkflow;
 
 @ApplicationScoped
@@ -37,7 +37,7 @@ public class HookManager implements Serializable {
 	private ApplicationConfig appConfig;
 
 	@Inject
-	private ScriptingEnv scriptingEnv;
+	private IdentityScriptingEnv scriptingEnv;
 
 	private Set<UserServiceHook> userHooks;
 	private Set<GroupServiceHook> groupHooks;

@@ -1,12 +1,12 @@
 package edu.kit.scc.webreg.hook;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
-import edu.kit.scc.webreg.script.ScriptingEnv;
+import edu.kit.scc.webreg.service.identity.IdentityScriptingEnv;
 
 public abstract class AbstractGroupServiceHook implements GroupServiceHook {
 
 	protected ApplicationConfig appConfig;
-	protected ScriptingEnv scriptingEnv;
+	protected IdentityScriptingEnv scriptingEnv;
 
 	public AbstractGroupServiceHook() {
 		super();
@@ -18,7 +18,7 @@ public abstract class AbstractGroupServiceHook implements GroupServiceHook {
 	}
 
 	@Override
-	public void setScriptingEnv(ScriptingEnv scriptingEnv) {
+	public void setScriptingEnv(IdentityScriptingEnv scriptingEnv) {
 		this.scriptingEnv = scriptingEnv;
 	}
 

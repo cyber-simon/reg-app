@@ -44,12 +44,15 @@ public class ScriptingEnv implements Serializable {
 	@Inject
 	private ServiceGroupFlagDao groupFlagDao;
 
-//	@Inject
-//	private GroupUpdater groupUpdater;
-	
 	@Inject
 	private ProjectDao projectDao;
-
+	
+	@Inject
+	private ServiceDao serviceDao;
+	
+	@Inject
+	private RegistryDao registryDao;
+	
 	/**
 	 * TODO: Create Subclasses for special cases
 	 */
@@ -58,15 +61,10 @@ public class ScriptingEnv implements Serializable {
 //	
 //	@Inject
 //	private LocalProjectUpdater projectUpdater;
-	
-	@Inject
-	private ServiceDao serviceDao;
-	
-	@Inject
-	private RegistryDao registryDao;
-	
+//
 //	@Inject
-//	private SsoHelper ssoHelper;
+//	private GroupUpdater groupUpdater;
+//
 
 	public UserDao getUserDao() {
 		return userDao;

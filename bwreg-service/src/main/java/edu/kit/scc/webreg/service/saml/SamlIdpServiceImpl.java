@@ -77,7 +77,6 @@ import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.drools.OverrideAccess;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;
 import edu.kit.scc.webreg.drools.impl.KnowledgeSessionSingleton;
-import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.SamlAuthnRequestEntity;
@@ -88,7 +87,6 @@ import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceSamlSpEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
-import edu.kit.scc.webreg.script.ScriptingEnv;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
@@ -131,7 +129,7 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 	private CryptoHelper cryptoHelper;
 	
 	@Inject
-	private ScriptingEnv scriptingEnv;
+	private SamlScriptingEnv scriptingEnv;
 	
 	@Inject
 	private KnowledgeSessionSingleton knowledgeSessionService;

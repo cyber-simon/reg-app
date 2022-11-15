@@ -87,9 +87,9 @@ import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceSamlSpEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
-import edu.kit.scc.webreg.script.ScriptingEnv;
 import edu.kit.scc.webreg.service.saml.CryptoHelper;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
+import edu.kit.scc.webreg.service.saml.SamlScriptingEnv;
 import edu.kit.scc.webreg.service.saml.SsoHelper;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
@@ -133,7 +133,7 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 	private CryptoHelper cryptoHelper;
 	
 	@Inject
-	private ScriptingEnv scriptingEnv;
+	private SamlScriptingEnv scriptingEnv;
 	
 	@Inject
 	private KnowledgeSessionSingleton knowledgeSessionService;

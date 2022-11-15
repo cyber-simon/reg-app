@@ -56,7 +56,6 @@ import edu.kit.scc.webreg.entity.SamlMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ScriptEntity;
-import edu.kit.scc.webreg.script.ScriptingEnv;
 import edu.kit.scc.webreg.service.saml.exc.NoAssertionException;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 
@@ -76,7 +75,7 @@ public class Saml2AssertionService {
 	private Saml2ResponseValidationService saml2ValidationService;
 	
 	@Inject
-	private ScriptingEnv scriptingEnv;
+	private SamlScriptingEnv scriptingEnv;
 	
 	@Inject
 	private ApplicationConfig appConfig;

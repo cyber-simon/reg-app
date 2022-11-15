@@ -21,12 +21,12 @@ import edu.kit.scc.webreg.dao.HomeOrgGroupDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
-import edu.kit.scc.webreg.script.ScriptingEnv;
+import edu.kit.scc.webreg.service.identity.IdentityScriptingEnv;
 
 public interface GroupServiceHook {
 
 	void setAppConfig(ApplicationConfig appConfig);
-	void setScriptingEnv(ScriptingEnv scriptingEnv);
+	void setScriptingEnv(IdentityScriptingEnv scriptingEnv);
 	
 	GroupEntity preUpdateUserPrimaryGroupFromAttribute(HomeOrgGroupDao dao, GroupDao groupDao, GroupEntity group, UserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor, Set<GroupEntity> changedGroups) 
 			throws UserUpdateException;

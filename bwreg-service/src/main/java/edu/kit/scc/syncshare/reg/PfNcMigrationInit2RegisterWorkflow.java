@@ -12,7 +12,6 @@ import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
-import edu.kit.scc.webreg.script.ScriptingEnv;
 import edu.kit.scc.webreg.service.reg.Infotainment;
 import edu.kit.scc.webreg.service.reg.InfotainmentCapable;
 import edu.kit.scc.webreg.service.reg.InfotainmentTreeNode;
@@ -23,8 +22,6 @@ public class PfNcMigrationInit2RegisterWorkflow extends PowerFolderRegisterWorkf
 	implements RegisterUserWorkflow, InfotainmentCapable  {
 
 	private static final Logger logger = LoggerFactory.getLogger(PfNcMigrationInit2RegisterWorkflow.class);
-
-	protected ScriptingEnv scriptingEnv;
 
 	@Override
 	public void registerUser(UserEntity user, ServiceEntity service,
