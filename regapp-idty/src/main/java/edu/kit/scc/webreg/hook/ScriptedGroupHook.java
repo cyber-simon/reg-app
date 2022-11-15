@@ -30,11 +30,9 @@ import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
-import edu.kit.scc.webreg.script.ScriptingEnv;
 import edu.kit.scc.webreg.service.identity.IdentityScriptingEnv;
-import edu.kit.scc.webreg.service.reg.ScriptingWorkflow;
 
-public class ScriptedGroupHook implements GroupServiceHook, ScriptingWorkflow {
+public class ScriptedGroupHook implements GroupServiceHook, IdentityScriptingHookWorkflow {
 
 	private Logger logger = LoggerFactory.getLogger(ScriptedGroupHook.class);
 	
@@ -222,14 +220,6 @@ public class ScriptedGroupHook implements GroupServiceHook, ScriptingWorkflow {
 		else {
 			throw new UserUpdateHookException("scripted_group_hook_script not configured");
 		}
-	}
-
-	@Override
-	public void setScriptingEnv(ScriptingEnv env) {
-		if (env instanceof IdentityScriptingEnv)
-			setScriptingEnv((IdentityScriptingEnv) env);
-		else
-			throw new IllegalArgumentException("ScriptedGroupHook can only work with IdentityScriptingEnv");
 	}
 
 	@Override

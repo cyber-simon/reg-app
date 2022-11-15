@@ -14,14 +14,13 @@ import org.slf4j.LoggerFactory;
 import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.script.ScriptingEnv;
-import edu.kit.scc.webreg.service.reg.ScriptingWorkflow;
+import edu.kit.scc.webreg.service.identity.IdentityScriptingEnv;
 
-public class UserUpdateScriptHook implements UserUpdateHook, ScriptingWorkflow {
+public class UserUpdateScriptHook implements UserUpdateHook, IdentityScriptingHookWorkflow {
 
 	private static final Logger logger = LoggerFactory.getLogger(UserUpdateScriptHook.class);
 	
-	protected ScriptingEnv scriptingEnv;
+	protected IdentityScriptingEnv scriptingEnv;
 	
 	@Override
 	public boolean preUpdateUser(UserEntity user, Map<String, String> genericStore, Map<String, List<Object>> attributeMap, String executor,
@@ -64,7 +63,7 @@ public class UserUpdateScriptHook implements UserUpdateHook, ScriptingWorkflow {
 	}
 
 	@Override
-	public void setScriptingEnv(ScriptingEnv env) {
+	public void setScriptingEnv(IdentityScriptingEnv env) {
 		this.scriptingEnv = env;
 	}
 

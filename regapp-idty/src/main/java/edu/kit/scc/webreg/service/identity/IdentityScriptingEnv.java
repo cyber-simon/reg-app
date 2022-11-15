@@ -1,13 +1,15 @@
 package edu.kit.scc.webreg.service.identity;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import edu.kit.scc.webreg.script.AbstractScriptingEnv;
 import edu.kit.scc.webreg.service.group.GroupUpdater;
 import edu.kit.scc.webreg.service.project.LocalProjectCreater;
 import edu.kit.scc.webreg.service.project.LocalProjectUpdater;
-import edu.kit.scc.webreg.service.saml.SamlScriptingEnv;
 
-public class IdentityScriptingEnv extends SamlScriptingEnv {
+@ApplicationScoped
+public class IdentityScriptingEnv extends AbstractScriptingEnv {
 
 	private static final long serialVersionUID = 1L;
 

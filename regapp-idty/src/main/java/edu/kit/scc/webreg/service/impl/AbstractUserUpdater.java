@@ -12,10 +12,10 @@ import org.slf4j.Logger;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
+import edu.kit.scc.webreg.hook.IdentityScriptingHookWorkflow;
 import edu.kit.scc.webreg.hook.UserUpdateHook;
 import edu.kit.scc.webreg.hook.UserUpdateHookException;
-import edu.kit.scc.webreg.script.ScriptingEnv;
-import edu.kit.scc.webreg.service.reg.ScriptingWorkflow;
+import edu.kit.scc.webreg.service.identity.IdentityScriptingEnv;
 
 public abstract class AbstractUserUpdater<T extends UserEntity> implements Serializable {
 
@@ -25,7 +25,7 @@ public abstract class AbstractUserUpdater<T extends UserEntity> implements Seria
 	private Logger logger;
 
 	@Inject
-	private ScriptingEnv scriptingEnv;
+	private IdentityScriptingEnv scriptingEnv;
 	
 	public abstract T updateUser(T user, Map<String, List<Object>> attributeMap, String executor, StringBuffer debugLog, String lastLoginHost)
 			throws UserUpdateException;
@@ -59,7 +59,6 @@ public abstract class AbstractUserUpdater<T extends UserEntity> implements Seria
 		boolean returnValue = false;
 
 		if (lastLoginHost != null) {
-		    //user.setLastLoginHost(httpRequest.getHttpServletRequest().getLocalName());
 			user.setLastLoginHost(lastLoginHost);
 		}
 		
@@ -81,8 +80,8 @@ public abstract class AbstractUserUpdater<T extends UserEntity> implements Seria
 			String hookClass = homeOrgGenericStore.get("user_update_hook");
 			try {
 				updateHook = (UserUpdateHook) Class.forName(hookClass).getDeclaredConstructor().newInstance();
-				if (updateHook instanceof ScriptingWorkflow)
-					((ScriptingWorkflow) updateHook).setScriptingEnv(scriptingEnv);
+				if (updateHook instanceof IdentityScriptingHookWorkflow)
+					((IdentityScriptingHookWorkflow) updateHook).setScriptingEnv(scriptingEnv);
 
 			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 					| InvocationTargetException | NoSuchMethodException | SecurityException

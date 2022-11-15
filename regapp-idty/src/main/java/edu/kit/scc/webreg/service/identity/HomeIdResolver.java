@@ -17,7 +17,6 @@ import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.hook.UserUpdateHookException;
-import edu.kit.scc.webreg.script.ScriptingEnv;
 import edu.kit.scc.webreg.service.impl.AttributeMapHelper;
 
 @ApplicationScoped
@@ -30,7 +29,7 @@ public class HomeIdResolver {
 	private AttributeMapHelper attrHelper;
 	
 	@Inject
-	private ScriptingEnv scriptingEnv;
+	private IdentityScriptingEnv scriptingEnv;
 	
 	public String resolveHomeId(UserEntity user, Map<String, List<Object>> attributeMap) {
 		String homeId = null;

@@ -26,16 +26,15 @@ import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
-import edu.kit.scc.webreg.script.ScriptingEnv;
-import edu.kit.scc.webreg.service.reg.ScriptingWorkflow;
+import edu.kit.scc.webreg.service.identity.IdentityScriptingEnv;
 
-public class ScriptedUserHook implements UserServiceHook, ScriptingWorkflow {
+public class ScriptedUserHook implements UserServiceHook, IdentityScriptingHookWorkflow {
 
 	private Logger logger = LoggerFactory.getLogger(ScriptedUserHook.class);
 	
 	private ApplicationConfig appConfig;
 	
-	private ScriptingEnv scriptingEnv;
+	private IdentityScriptingEnv scriptingEnv;
 	
 	@Override
 	public void setAppConfig(ApplicationConfig appConfig) {
@@ -141,7 +140,7 @@ public class ScriptedUserHook implements UserServiceHook, ScriptingWorkflow {
 	}
 
 	@Override
-	public void setScriptingEnv(ScriptingEnv env) {
+	public void setScriptingEnv(IdentityScriptingEnv env) {
 		this.scriptingEnv = env;
 	}
 

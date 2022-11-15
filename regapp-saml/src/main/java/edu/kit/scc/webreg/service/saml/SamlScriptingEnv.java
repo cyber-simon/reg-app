@@ -2,13 +2,11 @@ package edu.kit.scc.webreg.service.saml;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.inject.Named;
 
-import edu.kit.scc.webreg.script.ScriptingEnv;
+import edu.kit.scc.webreg.script.AbstractScriptingEnv;
 
-@Named
 @ApplicationScoped
-public class SamlScriptingEnv extends ScriptingEnv {
+public class SamlScriptingEnv extends AbstractScriptingEnv {
 
 	private static final long serialVersionUID = 1L;
 

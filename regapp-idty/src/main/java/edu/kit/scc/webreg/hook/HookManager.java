@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.service.identity.IdentityScriptingEnv;
-import edu.kit.scc.webreg.service.reg.ScriptingWorkflow;
 
 @ApplicationScoped
 public class HookManager implements Serializable {
@@ -67,8 +66,8 @@ public class HookManager implements Serializable {
 				try {
 					logger.debug("installing hook {}", hook);
 					UserServiceHook h = (UserServiceHook) Class.forName(hook).getConstructor().newInstance();
-					if (h instanceof ScriptingWorkflow) {
-						((ScriptingWorkflow) h).setScriptingEnv(scriptingEnv);
+					if (h instanceof IdentityScriptingHookWorkflow) {
+						((IdentityScriptingHookWorkflow) h).setScriptingEnv(scriptingEnv);
 					}
 					h.setAppConfig(appConfig);
 					newUserHooks.add(h);
@@ -93,8 +92,8 @@ public class HookManager implements Serializable {
 				try {
 					logger.debug("installing hook {}", hook);
 					GroupServiceHook h = (GroupServiceHook) Class.forName(hook).getConstructor().newInstance();
-					if (h instanceof ScriptingWorkflow) {
-						((ScriptingWorkflow) h).setScriptingEnv(scriptingEnv);
+					if (h instanceof IdentityScriptingHookWorkflow) {
+						((IdentityScriptingHookWorkflow) h).setScriptingEnv(scriptingEnv);
 					}
 					h.setAppConfig(appConfig);
 					newGroupHooks.add(h);

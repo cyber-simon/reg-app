@@ -7,12 +7,11 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 
-import edu.kit.scc.webreg.dao.project.ExternalOidcProjectDao;
 import edu.kit.scc.webreg.dao.project.BaseProjectDao;
+import edu.kit.scc.webreg.dao.project.ExternalOidcProjectDao;
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.entity.project.ExternalOidcProjectEntity;
-import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipType;
 
 @ApplicationScoped
