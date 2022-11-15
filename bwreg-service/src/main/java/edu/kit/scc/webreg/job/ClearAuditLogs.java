@@ -48,7 +48,7 @@ public class ClearAuditLogs extends AbstractExecutableJob {
 		try {
 			InitialContext ic = new InitialContext();
 			
-			AuditEntryService auditEntryService = (AuditEntryService) ic.lookup("global/bwreg/bwreg-service/AuditEntryServiceImpl!edu.kit.scc.webreg.audit.AuditEntryService");
+			AuditEntryService auditEntryService = (AuditEntryService) ic.lookup("global/bwreg/regapp-ejb-service/AuditEntryServiceImpl!edu.kit.scc.webreg.audit.AuditEntryService");
 			
 			auditEntryService.deleteAllOlderThan(new Date(System.currentTimeMillis() - purgeMillis), limit);
 			

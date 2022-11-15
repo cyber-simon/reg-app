@@ -350,6 +350,12 @@
 							<bundleFileName>bwreg-service.jar</bundleFileName>
 							<moduleId>bwreg-service</moduleId>
 						</ejbModule>
+						<ejbModule>
+							<groupId>edu.kit.scc</groupId>
+							<artifactId>regapp-ejb-service</artifactId>
+							<bundleFileName>regapp-ejb-service.jar</bundleFileName>
+							<moduleId>regapp-ejb-service</moduleId>
+						</ejbModule>
 						<webModule>
 							<groupId>edu.kit.scc</groupId>
 							<artifactId>bwreg-webapp</artifactId>
