@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 
 import edu.kit.scc.webreg.drools.OverrideAccess;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;
-import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.PolicyEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
@@ -299,7 +298,7 @@ public class RegisterServiceBean implements Serializable {
     		
 			identity = identityService.findById(sessionManager.getIdentityId());
 			if (identity.getRegistrationLock() != null && 
-					(identity.getRegistrationLock().getTime() < System.currentTimeMillis() - (5 * 60 * 1000L))) {
+					(identity.getRegistrationLock().getTime() > System.currentTimeMillis() - (5 * 60 * 1000L))) {
 				// There is a registration running and a timeout is not reached
 	    		messageGenerator.addResolvedErrorMessage("errorState", "error", "registration_already_running", true);
 	    		logger.warn("Identity {} cannot register for service {}: There is a registration already running.", identity.getId(), service.getId());
@@ -309,31 +308,32 @@ public class RegisterServiceBean implements Serializable {
 				identity.setRegistrationLock(new Date());
 				identity = identityService.save(identity);
 
-	    		if (policyHolderList.size() == 0) {
-	    			registry = registerUserService.registerUser(selectedUserEntity, service, "user-self");
-	    		}
-	    		else {
-	    			List<Long> policyIdList = new ArrayList<Long>();
-	    			for (PolicyHolder ph : policyHolderList) {
-	    				policyIdList.add(ph.getPolicy().getId());
-	    			}
-	
-    				registry = registerUserService.registerUser(selectedUserEntity, service, policyIdList, "user-self");
-	    		}
-
-	    		//
-	    		// remove double registration lock
-	    		//
-	    		
-	    		identity.setRegistrationLock(null);
-				identity = identityService.save(identity);
+				try {
+					if (policyHolderList.size() == 0) {
+		    			registry = registerUserService.registerUser(selectedUserEntity, service, "user-self");
+		    		}
+		    		else {
+		    			List<Long> policyIdList = new ArrayList<Long>();
+		    			for (PolicyHolder ph : policyHolderList) {
+		    				policyIdList.add(ph.getPolicy().getId());
+		    			}
+		
+	    				registry = registerUserService.registerUser(selectedUserEntity, service, policyIdList, "user-self");
+		    		}
+		    	} catch (RegisterException e) {
+					FacesContext.getCurrentInstance().addMessage("need_check", 
+							new FacesMessage(FacesMessage.SEVERITY_FATAL, "Registrierung fehlgeschlagen", e.getMessage()));
+		    		logger.warn("Register failed!", e);
+					return null;
+				} finally {
+					//
+		    		// remove double registration lock
+		    		//
+		    		identity.setRegistrationLock(null);
+					identity = identityService.save(identity);
+				}
 			}
     		sessionManager.setUnregisteredServiceCreated(null);
-    	} catch (RegisterException e) {
-			FacesContext.getCurrentInstance().addMessage("need_check", 
-					new FacesMessage(FacesMessage.SEVERITY_FATAL, "Registrierung fehlgeschlagen", e.getMessage()));
-    		logger.warn("Register failed!", e);
-			return null;
 		} catch (Exception e) {
 			FacesContext.getCurrentInstance().addMessage("need_check", 
 					new FacesMessage(FacesMessage.SEVERITY_FATAL, "Registrierung fehlgeschlagen", e.getMessage()));
