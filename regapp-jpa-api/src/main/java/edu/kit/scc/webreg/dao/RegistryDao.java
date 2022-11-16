@@ -86,4 +86,6 @@ public interface RegistryDao extends BaseDao<RegistryEntity> {
 			RegistryStatus status);
 	
 	List<RegistryEntity> findAllExternalBySsn(String serviceShortName);
+
+	RegistryEntity findRegistryForDepro(String serviceShortName, String key, String value);
 }

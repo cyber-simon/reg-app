@@ -76,6 +76,19 @@ public class RegistryDtoServiceImpl extends BaseDtoServiceImpl<RegistryEntity, R
 		}
 		return dtoList;
 	}
+
+	@Override
+	public RegistryEntityDto findRegistryForDepro(String serviceShortName, String key, String value) {
+		RegistryEntity registry = dao.findRegistryForDepro(serviceShortName, key, value);
+		
+		if (registry == null) {
+			return null;
+		}
+		
+		RegistryEntityDto dto = createNewDto();
+		mapper.copyProperties(registry, dto);
+		return dto;
+	}
 	
 	@Override
 	public List<RegistryEntityDto> findByExternalId(String externalId) {

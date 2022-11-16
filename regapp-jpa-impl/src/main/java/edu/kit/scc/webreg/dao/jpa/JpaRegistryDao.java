@@ -167,6 +167,26 @@ public class JpaRegistryDao extends JpaBaseDao<RegistryEntity> implements Regist
 		return resultList;
 	}	
 	
+	@Override
+	public RegistryEntity findRegistryForDepro(String serviceShortName, String key, String value) {
+		try {
+			RegistryEntity registry = 
+				em.createQuery("select r from RegistryEntity r join r.registryValues rv "  
+					+ "where (key(rv) = :key and rv = :val) and r.service.shortName = :ssn and r.registryStatus = :status and "
+					+ "r.agreedTime = (select max(r1.agreedTime) from RegistryEntity r1 where r1.user = r.user and r1.service = r.service) and not exists "
+					+ "(select r2 from RegistryEntity r2 where r2.user = r.user and r2.agreedTime > r.agreedTime and r2.service = r.service)", RegistryEntity.class)
+					.setParameter("key", key)
+					.setParameter("val", value)
+					.setParameter("ssn", serviceShortName)
+					.setParameter("status", RegistryStatus.DELETED)
+					.getSingleResult();
+			
+			return registry;
+		} catch (NoResultException e) {
+			return null;
+		}
+	}	
+	
 
 	@SuppressWarnings("unchecked")
 	@Override

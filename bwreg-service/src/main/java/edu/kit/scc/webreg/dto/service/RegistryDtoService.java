@@ -24,4 +24,6 @@ public interface RegistryDtoService extends BaseDtoService<RegistryEntity, Regis
 	List<RegistryEntityDto> findRegistriesByAttribute(String key, String value, ServiceEntity service);
 
 	List<RegistryEntityDto> findAllExternalBySsn(String ssn);
+
+	RegistryEntityDto findRegistryForDepro(String serviceShortName, String key, String value);
 }
