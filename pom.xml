@@ -180,11 +180,6 @@
 				<version>${org.drools.version}</version>
 				<scope>import</scope>
 			</dependency>
-			<dependency>
-				<groupId>org.eclipse.jdt.core.compiler</groupId>
-				<artifactId>ecj</artifactId>
-				<version>${org.eclipse.jdt.version}</version>
-			</dependency>
 
  			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
