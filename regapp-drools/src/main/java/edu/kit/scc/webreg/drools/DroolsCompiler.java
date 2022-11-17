@@ -39,7 +39,7 @@ public class DroolsCompiler {
 			if (rule.getRule() != null) {
 				resources[i] = ResourceFactory.newReaderResource(new StringReader(rule.getRule()));
 				if (rule.getRuleType().equals("DRL") || rule.getRuleType().equals("BPMN2")) {
-					resources[i].setResourceType(ResourceType.getResourceType(rule.getRuleType()));
+					resources[i].setResourceType(ResourceType.determineResourceType(rule.getRuleType()));
 				}
 				resources[i].setSourcePath("kbase/" + rule.getName());
 				i++;
