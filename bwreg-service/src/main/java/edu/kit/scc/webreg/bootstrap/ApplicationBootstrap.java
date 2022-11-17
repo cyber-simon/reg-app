@@ -25,6 +25,7 @@ import org.opensaml.core.config.InitializationException;
 import org.opensaml.core.config.InitializationService;
 import org.slf4j.Logger;
 
+import edu.kit.scc.regapp.saml.SamlBootstrap;
 import edu.kit.scc.webreg.entity.AdminUserEntity;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
@@ -85,6 +86,9 @@ public class ApplicationBootstrap {
 	@Inject
 	private OidcOpConfigurationService oidcOpConfigService;
 	
+	@Inject
+	private SamlBootstrap samlBootstrap;
+	
 	@PostConstruct
 	public void init() {
 		
@@ -136,13 +140,7 @@ public class ApplicationBootstrap {
 		logger.info("Initializing Hooks");
     	hookManager.reloadHooks();
 		
-    	try {
-    		logger.info("OpenSAML Bootstrap...");
-			InitializationService.initialize();
-				        
-		} catch (InitializationException e) {
-			logger.error("Serious Error happened", e);
-		}
+    	samlBootstrap.init();
         
     	oidcOpConfigService.fixStatus();
     	
