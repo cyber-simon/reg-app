@@ -202,11 +202,6 @@
 				<artifactId>ganymed-ssh2</artifactId>
 				<version>262</version>
 			</dependency>
-			<dependency>
-				<groupId>org.apache.jclouds.api</groupId>
-				<artifactId>openstack-keystone</artifactId>
-				<version>1.9.0</version>
-			</dependency>
 
 			<dependency>
 				<groupId>org.jboss.resteasy</groupId>
