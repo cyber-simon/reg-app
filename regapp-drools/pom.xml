@@ -77,10 +77,6 @@
 			<artifactId>kie-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.kie</groupId>
-			<artifactId>kie-ci</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.drools</groupId>
 			<artifactId>drools-engine</artifactId>
 		</dependency>
