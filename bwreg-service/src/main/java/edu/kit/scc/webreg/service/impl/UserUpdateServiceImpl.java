@@ -354,6 +354,7 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("eppn", user.getEppn());
 		map.put("email", user.getEmail());
+		map.put("uidNumber", "" + user.getUidNumber());
 		map.put("last_update",  df.format(user.getLastUpdate()));
 		
 		return map;		
