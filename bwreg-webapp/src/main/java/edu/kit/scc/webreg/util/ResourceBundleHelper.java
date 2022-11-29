@@ -19,12 +19,17 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import edu.kit.scc.webreg.service.tpl.TemplateRenderer;
+import org.slf4j.Logger;
+
+import edu.kit.scc.regapp.tpl.TemplateRenderer;
 
 @Named
 @ApplicationScoped
 public class ResourceBundleHelper {
 
+	@Inject
+	private Logger logger;
+	
 	@Inject
 	private TemplateRenderer renderer;
 
@@ -45,6 +50,7 @@ public class ResourceBundleHelper {
 			String body = renderer.evaluate(template, rendererContext);
 			return body;
 		} catch (Exception e) {
+			logger.warn("Exception while rendering resolved message: {}", e.getMessage());
 			return "???" + key + "???";
 		}
 	}
@@ -61,9 +67,10 @@ public class ResourceBundleHelper {
 		if (bundle == null)
 			return "???" + key + "???";
 			
-			try {
+		try {
 			return bundle.getString(key);
 		} catch (Exception e) {
+			logger.warn("Exception resolving message: {}", e.getMessage());
 			return "???" + key + "???";
 		}
 	}

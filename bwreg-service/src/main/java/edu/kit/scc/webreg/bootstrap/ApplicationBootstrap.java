@@ -21,8 +21,6 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
 
-import org.opensaml.core.config.InitializationException;
-import org.opensaml.core.config.InitializationService;
 import org.slf4j.Logger;
 
 import edu.kit.scc.regapp.saml.SamlBootstrap;
@@ -40,7 +38,6 @@ import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.oidc.OidcOpConfigurationService;
 import edu.kit.scc.webreg.service.timer.ClusterSchedulerManager;
 import edu.kit.scc.webreg.service.timer.StandardScheduler;
-import edu.kit.scc.webreg.service.tpl.TemplateRenderer;
 import edu.kit.scc.webreg.service.tpl.TemplateUrlStreamHandlerFactory;
 
 @Singleton

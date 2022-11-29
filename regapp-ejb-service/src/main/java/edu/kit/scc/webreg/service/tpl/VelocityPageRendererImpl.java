@@ -5,6 +5,8 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 
+import edu.kit.scc.regapp.tpl.TemplateRenderer;
+
 @Stateless
 public class VelocityPageRendererImpl implements VelocityPageRenderer {
 
