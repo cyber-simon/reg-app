@@ -11,10 +11,10 @@
 package edu.kit.scc.webreg.dao.jpa;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
-import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import edu.kit.scc.webreg.dao.SamlAssertionDao;
@@ -26,7 +26,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 public class JpaSamlAssertionDao extends JpaBaseDao<SamlAssertionEntity> implements SamlAssertionDao, Serializable {
 
 	private static final long serialVersionUID = 1L;
-    
+
 	@Override
 	public void deleteAssertionForUser(UserEntity user) {
 		Query query = em.createQuery("delete from SamlAssertionEntity where user=:user");
@@ -35,17 +35,17 @@ public class JpaSamlAssertionDao extends JpaBaseDao<SamlAssertionEntity> impleme
 	}
 
 	@Override
-	public SamlAssertionEntity findByUserId(Long userId) {
-		try {
-			return (SamlAssertionEntity) em.createQuery("select e from SamlAssertionEntity e " +
-					"where e.user.id = :userId")
-					.setParameter("userId", userId)
-					.getSingleResult();
-		}
-		catch (NoResultException e) {
+	public SamlAssertionEntity getLatestByUserId(Long userId) {
+		List<SamlAssertionEntity> assertionList = em.createQuery(
+				"select e from SamlAssertionEntity e " + "where e.user.id = :userId order by e.updatedAt desc",
+				SamlAssertionEntity.class).setParameter("userId", userId).setMaxResults(1).getResultList();
+
+		if (assertionList.size() == 0) {
 			return null;
+		} else {
+			return assertionList.get(0);
 		}
-	}	
+	}
 
 	@Override
 	public Class<SamlAssertionEntity> getEntityClass() {

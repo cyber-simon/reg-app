@@ -27,8 +27,8 @@ public class SamlAssertionServiceImpl extends BaseServiceImpl<SamlAssertionEntit
 	private SamlAssertionDao dao;
 	
 	@Override
-	public SamlAssertionEntity findByUserId(Long userId) {
-		return dao.findByUserId(userId);
+	public SamlAssertionEntity getLatestByUserId(Long userId) {
+		return dao.getLatestByUserId(userId);
 	}
 	
 	@Override

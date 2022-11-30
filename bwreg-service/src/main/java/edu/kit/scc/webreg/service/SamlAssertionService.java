@@ -14,6 +14,6 @@ import edu.kit.scc.webreg.entity.SamlAssertionEntity;
 
 public interface SamlAssertionService extends BaseService<SamlAssertionEntity> {
 
-	SamlAssertionEntity findByUserId(Long userId);
+	SamlAssertionEntity getLatestByUserId(Long userId);
 
 }

@@ -252,7 +252,7 @@ public class ServiceAdminUserDetailBean implements Serializable {
 
 	public SamlAssertionEntity getSamlAssertion() {
 		if (samlAssertion == null) {
-			samlAssertion = samlAssertionService.findByUserId(getUser().getId());
+			samlAssertion = samlAssertionService.getLatestByUserId(getUser().getId());
 		}
 		return samlAssertion;
 	}

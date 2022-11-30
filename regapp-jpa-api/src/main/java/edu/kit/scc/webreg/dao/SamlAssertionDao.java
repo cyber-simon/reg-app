@@ -17,6 +17,6 @@ public interface SamlAssertionDao extends BaseDao<SamlAssertionEntity> {
 
 	void deleteAssertionForUser(UserEntity user);
 
-	SamlAssertionEntity findByUserId(Long userId);
+	SamlAssertionEntity getLatestByUserId(Long userId);
 
 }
