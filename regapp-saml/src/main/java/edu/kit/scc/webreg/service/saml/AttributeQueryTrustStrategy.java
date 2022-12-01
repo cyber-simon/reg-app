@@ -33,11 +33,21 @@ public class AttributeQueryTrustStrategy implements TrustStrategy {
 				x509.checkValidity();
 				for (PublicKey publicKey : keySet) {
 					if (x509.getPublicKey().equals(publicKey)) {
-						logger.debug("Public key from x509 equals public key from metadata {} = {}", x509.getPublicKey(), publicKey);
+						if (logger.isTraceEnabled()) {
+							logger.trace("Public key from x509 equals public key from metadata {} = {}", x509.getPublicKey(), publicKey);
+						}
+						else {
+							logger.debug("Public key from x509 equals public key from metadata");
+						}
 						return true;
 					}
 					else {
-						logger.debug("Public key from x509 does not equal public key from metadata {} <-> {}", x509.getPublicKey(), publicKey);
+						if (logger.isTraceEnabled()) {
+							logger.trace("Public key from x509 does not equal  public key from metadata {} <-> {}", x509.getPublicKey(), publicKey);
+						}
+						else {
+							logger.debug("Public key from x509 does not equal public key from metadata");
+						}
 					}
 				}
 			} catch (CertificateExpiredException | CertificateNotYetValidException e) {
