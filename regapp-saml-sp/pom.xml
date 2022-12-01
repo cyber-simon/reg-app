@@ -64,11 +64,6 @@
 			<artifactId>regapp-session</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>edu.kit.scc</groupId>
-			<artifactId>regapp-idty</artifactId>
-			<version>${project.version}</version>
-		</dependency>
 
 		<dependency>
 			<groupId>javax</groupId>
@@ -79,18 +74,15 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.opensaml</groupId>
 			<artifactId>opensaml-saml-api</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.opensaml</groupId>
 			<artifactId>opensaml-saml-impl</artifactId>
-			<scope>provided</scope>
 		</dependency>
 
 		

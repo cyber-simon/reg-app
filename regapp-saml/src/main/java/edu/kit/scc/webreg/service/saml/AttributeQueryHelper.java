@@ -13,11 +13,15 @@ package edu.kit.scc.webreg.service.saml;
 import java.io.IOException;
 import java.io.Serializable;
 import java.security.KeyManagementException;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -29,8 +33,9 @@ import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.ssl.SSLContexts;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.joda.time.DateTime;
+import org.opensaml.core.criterion.EntityIdCriterion;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.messaging.context.InOutOperationContext;
 import org.opensaml.messaging.context.MessageContext;
@@ -44,7 +49,10 @@ import org.opensaml.saml.common.messaging.context.SAMLBindingContext;
 import org.opensaml.saml.common.messaging.context.SAMLEndpointContext;
 import org.opensaml.saml.common.messaging.context.SAMLPeerEntityContext;
 import org.opensaml.saml.common.xml.SAMLConstants;
+import org.opensaml.saml.criterion.EntityRoleCriterion;
 import org.opensaml.saml.criterion.RoleDescriptorCriterion;
+import org.opensaml.saml.metadata.resolver.impl.DOMMetadataResolver;
+import org.opensaml.saml.metadata.resolver.impl.PredicateRoleDescriptorResolver;
 import org.opensaml.saml.saml2.binding.decoding.impl.HttpClientResponseSOAP11Decoder;
 import org.opensaml.saml.saml2.binding.encoding.impl.HttpClientRequestSOAP11Encoder;
 import org.opensaml.saml.saml2.core.AttributeQuery;
@@ -54,8 +62,12 @@ import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Subject;
 import org.opensaml.saml.saml2.metadata.AttributeService;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
+import org.opensaml.saml.security.impl.MetadataCredentialResolver;
 import org.opensaml.saml.security.impl.SAMLMetadataSignatureSigningParametersResolver;
 import org.opensaml.security.credential.Credential;
+import org.opensaml.security.credential.UsageType;
+import org.opensaml.security.criteria.UsageCriterion;
 import org.opensaml.security.x509.BasicX509Credential;
 import org.opensaml.soap.client.http.PipelineFactoryHttpSOAPClient;
 import org.opensaml.soap.messaging.context.SOAP11Context;
@@ -66,6 +78,7 @@ import org.opensaml.xmlsec.config.impl.DefaultSecurityConfigurationBootstrap;
 import org.opensaml.xmlsec.context.SecurityParametersContext;
 import org.opensaml.xmlsec.criterion.SignatureSigningConfigurationCriterion;
 import org.opensaml.xmlsec.impl.BasicSignatureSigningConfiguration;
+import org.opensaml.xmlsec.keyinfo.KeyInfoCredentialResolver;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
@@ -74,7 +87,9 @@ import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.service.saml.exc.MetadataException;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
+import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
+import net.shibboleth.utilities.java.support.resolver.ResolverException;
 
 @Named("attributeQueryHelper")
 @ApplicationScoped
@@ -180,7 +195,7 @@ public class AttributeQueryHelper implements Serializable {
 				.setConnectionRequestTimeout(getConnectionRequestTimeout())
 				.build();
 		CloseableHttpClient client = HttpClients.custom()
-				.setSSLSocketFactory(getSSLConnectionSocketFactory())
+				.setSSLSocketFactory(getSSLConnectionSocketFactory(idpEntityDescriptor))
 				.setDefaultRequestConfig(requestConfig)
 				.build();
 
@@ -284,7 +299,7 @@ public class AttributeQueryHelper implements Serializable {
 			return Integer.parseInt(aqString);
 	}
 	
-	private SSLConnectionSocketFactory getSSLConnectionSocketFactory() throws KeyManagementException, NoSuchAlgorithmException {
+	private SSLConnectionSocketFactory getSSLConnectionSocketFactory(EntityDescriptor idpEntityDescriptor) throws KeyManagementException, NoSuchAlgorithmException {
 		String proto = appConfig.getConfigValue("attributequery_tls_version");
 		String[] protos;
 		if (proto == null)
@@ -292,7 +307,47 @@ public class AttributeQueryHelper implements Serializable {
 		else 
 			protos = proto.split(",");
 
-		SSLContext sslContext = SSLContexts.custom().build();
+		DOMMetadataResolver mp = new DOMMetadataResolver(idpEntityDescriptor.getDOM());
+		mp.setId(idpEntityDescriptor.getEntityID() + "-resolver");
+		
+		PredicateRoleDescriptorResolver roleResolver = new PredicateRoleDescriptorResolver(mp);
+		KeyInfoCredentialResolver keyInfoCredResolver = DefaultSecurityConfigurationBootstrap.buildBasicInlineKeyInfoCredentialResolver();
+
+		MetadataCredentialResolver mdCredResolver = new MetadataCredentialResolver();
+		mdCredResolver.setKeyInfoCredentialResolver(keyInfoCredResolver);
+		mdCredResolver.setRoleDescriptorResolver(roleResolver);
+		try {
+			mp.initialize();
+			roleResolver.initialize();
+			mdCredResolver.initialize();
+		} catch (ComponentInitializationException e) {
+			logger.error("Cannot init MDCredResolver", e);
+			throw new IllegalStateException("Cannot init MDCredResolver", e);
+		}
+
+		CriteriaSet criteriaSet = new CriteriaSet();
+		criteriaSet.add(new EntityIdCriterion(idpEntityDescriptor.getEntityID()));
+		criteriaSet.add(new EntityRoleCriterion(IDPSSODescriptor.DEFAULT_ELEMENT_NAME));
+		criteriaSet.add(new UsageCriterion(UsageType.SIGNING));
+		
+		Set<PublicKey> keySet = new HashSet<PublicKey>();
+		
+		try {
+			Iterable<Credential> credentials = mdCredResolver.resolve(criteriaSet);
+			for (Credential credential : credentials) {
+				keySet.add(credential.getPublicKey());
+			}
+		} catch (ResolverException e1) {
+			logger.warn("Exception", e1);
+		}
+		
+		SSLContextBuilder sslContextBuilder = new SSLContextBuilder();
+		try {
+			sslContextBuilder.loadTrustMaterial(null, new AttributeQueryTrustStrategy(keySet));
+		} catch (NoSuchAlgorithmException | KeyStoreException e) {
+			logger.warn("Exception", e);
+		}
+		SSLContext sslContext = sslContextBuilder.build();
 
 		SSLConnectionSocketFactory f = new SSLConnectionSocketFactory(sslContext, protos,
 				null, new DefaultHostnameVerifier());
