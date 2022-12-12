@@ -39,6 +39,7 @@ import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.core.Subject;
 import org.opensaml.saml.saml2.encryption.Encrypter;
 import org.opensaml.saml.saml2.metadata.AssertionConsumerService;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
@@ -106,34 +107,34 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 
 	@Inject
 	private RegistryDao registryDao;
-	
+
 	@Inject
 	private SamlIdpConfigurationDao idpConfigDao;
-	
+
 	@Inject
 	private SamlAuthnRequestDao samlAuthnRequestDao;
 
 	@Inject
 	private SamlSpMetadataDao spDao;
-	
+
 	@Inject
 	private ServiceSamlSpDao serviceSamlSpDao;
-	
+
 	@Inject
 	private SamlHelper samlHelper;
-	
+
 	@Inject
 	private SsoHelper ssoHelper;
-	
+
 	@Inject
 	private CryptoHelper cryptoHelper;
-	
+
 	@Inject
 	private SamlScriptingEnv scriptingEnv;
-	
+
 	@Inject
 	private KnowledgeSessionSingleton knowledgeSessionService;
-	
+
 	@Override
 	public long registerAuthnRequest(AuthnRequest authnRequest) {
 		SamlAuthnRequestEntity authnRequestEntity = samlAuthnRequestDao.createNew();
@@ -146,127 +147,132 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 	@Override
 	public String resumeAuthnRequest(Long authnRequestId, Long identityId, Long authnRequestIdpConfigId,
 			String relayState, HttpServletResponse response) throws SamlAuthenticationException {
-		
+
 		SamlIdpConfigurationEntity idpConfig = idpConfigDao.findById(authnRequestIdpConfigId);
 		logger.debug("IDP Config loaded: {}", idpConfig.getEntityId());
-		
+
 		IdentityEntity identity = identityDao.findById(identityId);
 		logger.debug("Identity loaded: {}", identity.getId());
 
 		// First user object picked for now
-		// TODO Change to something more correct. Script must choose user from identity ie.
+		// TODO Change to something more correct. Script must choose user from identity
+		// ie.
 		List<UserEntity> userList = userDao.findByIdentity(identity);
 		UserEntity user = userList.get(0);
-		
+
 		SamlAuthnRequestEntity authnRequestEntity = samlAuthnRequestDao.findById(authnRequestId);
 		AuthnRequest authnRequest = samlHelper.unmarshal(authnRequestEntity.getAuthnrequestData(), AuthnRequest.class);
-		
+
 		logger.debug("Authn request reloaded: {}", samlHelper.prettyPrint(authnRequest));
 
 		SamlSpMetadataEntity spMetadata = spDao.findByEntityId(authnRequest.getIssuer().getValue());
 		logger.debug("Corresponding SP found in Metadata: {}", spMetadata.getEntityId());
 
 		List<ServiceSamlSpEntity> serviceSamlSpEntityList = serviceSamlSpDao.findBySamlSp(spMetadata);
-		
+
 		if (serviceSamlSpEntityList.size() == 0) {
 			/*
-			 * there is no configured service for this SAML SP. This is not supported at the moment
+			 * there is no configured service for this SAML SP. This is not supported at the
+			 * moment
 			 */
 			throw new SamlAuthenticationException("Nothiing configured for this SAML SP");
 		}
-		
+
 		List<ServiceSamlSpEntity> filteredServiceSamlSpEntityList = new ArrayList<ServiceSamlSpEntity>();
 		RegistryEntity registry = null;
 		for (ServiceSamlSpEntity serviceSamlSpEntity : serviceSamlSpEntityList) {
 			ServiceEntity service = serviceSamlSpEntity.getService();
-			
+
 			if (service == null) {
 				logger.debug("No Service for SP connected for {}", serviceSamlSpEntity.getId());
-			}
-			else {
-				logger.debug("Service for SP found: {}, (serviceSamlSpEntity id {})", service.getId(), serviceSamlSpEntity.getId());
+			} else {
+				logger.debug("Service for SP found: {}, (serviceSamlSpEntity id {})", service.getId(),
+						serviceSamlSpEntity.getId());
 			}
 
-			if (serviceSamlSpEntity.getIdp() != null && 
-					(! serviceSamlSpEntity.getIdp().getId().equals(idpConfig.getId()))) {
-				logger.debug("Specific IDP {} is set and not matching {}.", serviceSamlSpEntity.getIdp().getId(), idpConfig.getId());
-			}
-			else {
+			if (serviceSamlSpEntity.getIdp() != null
+					&& (!serviceSamlSpEntity.getIdp().getId().equals(idpConfig.getId()))) {
+				logger.debug("Specific IDP {} is set and not matching {}.", serviceSamlSpEntity.getIdp().getId(),
+						idpConfig.getId());
+			} else {
 				/*
-				 * If the service <-> saml sp connection has no specific idp set, or the idp matches the request
-				 * evaluate all the scripts and create the user attributes
+				 * If the service <-> saml sp connection has no specific idp set, or the idp
+				 * matches the request evaluate all the scripts and create the user attributes
 				 */
 				if (matchService(serviceSamlSpEntity.getScript(), user, serviceSamlSpEntity)) {
 					logger.debug("serviceSamlSpEntity matches: {}", serviceSamlSpEntity.getId());
-					
+
 					if (service != null) {
-						registry = registryDao.findByServiceAndIdentityAndStatus(service, identity, RegistryStatus.ACTIVE);
+						registry = registryDao.findByServiceAndIdentityAndStatus(service, identity,
+								RegistryStatus.ACTIVE);
 						if (registry != null) {
 							List<Object> objectList = checkRules(user, service, registry);
 							List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
 							List<UnauthorizedUser> unauthorizedUserList = extractUnauthorizedUser(objectList);
-							
+
 							if (overrideAccessList.size() == 0 && unauthorizedUserList.size() > 0) {
 								return "/user/check-access.xhtml?regId=" + registry.getId();
 							}
 
 							filteredServiceSamlSpEntityList.add(serviceSamlSpEntity);
-						}
-						else {
-							registry = registryDao.findByServiceAndIdentityAndStatus(service, identity, RegistryStatus.LOST_ACCESS);
-							
+						} else {
+							registry = registryDao.findByServiceAndIdentityAndStatus(service, identity,
+									RegistryStatus.LOST_ACCESS);
+
 							if (registry != null) {
-								logger.info("Registration for user {} and service {} in state LOST_ACCESS, checking again", 
+								logger.info(
+										"Registration for user {} and service {} in state LOST_ACCESS, checking again",
 										user.getEppn(), service.getName());
 								List<Object> objectList = checkRules(user, service, registry);
 								List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
 								List<UnauthorizedUser> unauthorizedUserList = extractUnauthorizedUser(objectList);
-								
+
 								if (overrideAccessList.size() == 0 && unauthorizedUserList.size() > 0) {
-									logger.info("Registration for user {} and service {} in state LOST_ACCESS stays, redirecting to check page", 
+									logger.info(
+											"Registration for user {} and service {} in state LOST_ACCESS stays, redirecting to check page",
 											user.getEppn(), service.getName());
 									return "/user/check-access.xhtml?regId=" + registry.getId();
 								}
 
 								filteredServiceSamlSpEntityList.add(serviceSamlSpEntity);
-							}
-							else {
-								logger.info("No active registration for user {} and service {}, redirecting to register page", 
+							} else {
+								logger.info(
+										"No active registration for user {} and service {}, redirecting to register page",
 										user.getEppn(), service.getName());
 								return "/user/register-service.xhtml?serviceId=" + service.getId();
 							}
 						}
-					}
-					else {
+					} else {
 						/*
 						 * There is no service set for this sp idp connection
 						 */
 						filteredServiceSamlSpEntityList.add(serviceSamlSpEntity);
 					}
+				} else {
+					logger.debug("serviceSamlSpEntity no match: {}", serviceSamlSpEntity.getId());
 				}
-				else {
-					logger.debug("serviceSamlSpEntity no match: {}", serviceSamlSpEntity.getId());				
-				}				
 			}
-			
+
 		}
-		
+
 		if (registry != null) {
 			// Redefine user to match registry
 			user = registry.getUser();
 		}
-		
+
 		Response samlResponse = ssoHelper.buildAuthnResponse(authnRequest, idpConfig.getEntityId());
-		
+
 		Assertion assertion = samlHelper.create(Assertion.class, Assertion.DEFAULT_ELEMENT_NAME);
 		assertion.setID(samlHelper.getRandomId());
 		assertion.setIssueInstant(new DateTime());
 		assertion.setIssuer(ssoHelper.buildIssuser(idpConfig.getEntityId()));
-		assertion.setSubject(ssoHelper.buildSubject(idpConfig, spMetadata, samlHelper.getRandomId(), NameID.TRANSIENT, authnRequest.getID(), authnRequest.getAssertionConsumerServiceURL()));
 		assertion.setConditions(ssoHelper.buildConditions(spMetadata));
-		assertion.getAttributeStatements().add(buildAttributeStatement(user, filteredServiceSamlSpEntityList, registry));
+
+		buildAttributeStatement(idpConfig, spMetadata, authnRequest, assertion, user, filteredServiceSamlSpEntityList,
+				registry);
+
 		assertion.getAuthnStatements().add(ssoHelper.buildAuthnStatement((30L * 60L * 1000L)));
-		
+
 		SecurityParametersContext securityContext = buildSecurityContext(idpConfig);
 		HTTPPostEncoder postEncoder = new HTTPPostEncoder();
 		postEncoder.setHttpServletResponse(response);
@@ -282,7 +288,7 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 		} catch (SamlAuthenticationException e) {
 			throw new SamlAuthenticationException(e);
 		}
-		
+
 		messageContext.setMessage(samlResponse);
 
 		/*
@@ -292,46 +298,49 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 
 		SAMLPeerEntityContext entityContext = new SAMLPeerEntityContext();
 		SAMLEndpointContext endpointContext = new SAMLEndpointContext();
-		
-		AssertionConsumerService acs = samlHelper.create(AssertionConsumerService.class, AssertionConsumerService.DEFAULT_ELEMENT_NAME);
+
+		AssertionConsumerService acs = samlHelper.create(AssertionConsumerService.class,
+				AssertionConsumerService.DEFAULT_ELEMENT_NAME);
 		acs.setLocation(authnRequest.getAssertionConsumerServiceURL());
 		endpointContext.setEndpoint(acs);
 		entityContext.addSubcontext(endpointContext);
 		messageContext.addSubcontext(entityContext);
-		
+
 		try {
 			SAMLMessageSecuritySupport.signMessage(messageContext);
 		} catch (SecurityException | MarshallingException | SignatureException e) {
 			throw new SamlAuthenticationException(e);
 		}
-		
+
 		if (relayState != null) {
 			messageContext.getSubcontext(SAMLBindingContext.class, true).setRelayState(relayState);
 		}
-		
+
 		postEncoder.setMessageContext(messageContext);
 
 		VelocityEngine engine = new VelocityEngine();
 		engine.setProperty("runtime.log.logsystem.log4j.logger", "root");
 		engine.setProperty("resource.loader", "class");
-		engine.setProperty("class.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
+		engine.setProperty("class.resource.loader.class",
+				"org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
 		engine.init();
 		postEncoder.setVelocityEngine(engine);
-		
+
 		logger.debug(samlHelper.prettyPrint(samlResponse));
-		
+
 		try {
 			postEncoder.initialize();
 			postEncoder.encode();
-			
+
 			return null;
 		} catch (MessageEncodingException | ComponentInitializationException e) {
 			logger.warn("Exception occured", e);
 			throw new SamlAuthenticationException(e);
 		}
 	}
-	
-	private SecurityParametersContext buildSecurityContext(SamlIdpConfigurationEntity idpConfig) throws SamlAuthenticationException {
+
+	private SecurityParametersContext buildSecurityContext(SamlIdpConfigurationEntity idpConfig)
+			throws SamlAuthenticationException {
 		PrivateKey privateKey;
 		X509Certificate publicKey;
 		try {
@@ -344,8 +353,9 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 		BasicX509Credential credential = new BasicX509Credential(publicKey, privateKey);
 		List<Credential> credentialList = new ArrayList<Credential>();
 		credentialList.add(credential);
-		
-		BasicSignatureSigningConfiguration ssConfig = DefaultSecurityConfigurationBootstrap.buildDefaultSignatureSigningConfiguration();
+
+		BasicSignatureSigningConfiguration ssConfig = DefaultSecurityConfigurationBootstrap
+				.buildDefaultSignatureSigningConfiguration();
 		ssConfig.setSigningCredentials(credentialList);
 		CriteriaSet criteriaSet = new CriteriaSet();
 		criteriaSet.add(new SignatureSigningConfigurationCriterion(ssConfig));
@@ -360,14 +370,15 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 		logger.debug("Resolved algo {} for signing", ssp.getSignatureAlgorithm());
 		SecurityParametersContext securityContext = new SecurityParametersContext();
 		securityContext.setSignatureSigningParameters(ssp);
-		
+
 		return securityContext;
 	}
-	
-	private EncryptedAssertion encryptAssertion(Assertion assertion, SamlSpMetadataEntity spMetadata, MessageContext<?> messageContext) throws SamlAuthenticationException {
+
+	private EncryptedAssertion encryptAssertion(Assertion assertion, SamlSpMetadataEntity spMetadata,
+			MessageContext<?> messageContext) throws SamlAuthenticationException {
 
 		EntityDescriptor ed = samlHelper.unmarshal(spMetadata.getEntityDescriptor(), EntityDescriptor.class);
-		
+
 		KeyDescriptor keyDescriptor = null;
 		SPSSODescriptor spsso = ed.getSPSSODescriptor(SAMLConstants.SAML20P_NS);
 		for (KeyDescriptor kd : spsso.getKeyDescriptors()) {
@@ -376,11 +387,11 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 				break;
 			}
 		}
-		
+
 		if (keyDescriptor == null) {
 			return null;
 		}
-		
+
 		KeyInfo keyInfo = keyDescriptor.getKeyInfo();
 		X509Data x509Data = keyInfo.getX509Datas().get(0);
 		org.opensaml.xmlsec.signature.X509Certificate x509cert = x509Data.getX509Certificates().get(0);
@@ -392,53 +403,53 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 			throw new SamlAuthenticationException("exception", e);
 		}
 	}
-	
-	private Encrypter buildEncrypter(String cert, MessageContext<?> messageContext, String spEntityId) 
+
+	private Encrypter buildEncrypter(String cert, MessageContext<?> messageContext, String spEntityId)
 			throws SamlAuthenticationException {
 		try {
 			byte[] decodedCert = Base64.decodeBase64(cert);
 			CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-		    InputStream in = new ByteArrayInputStream(decodedCert);
-		    X509Certificate certificate = (X509Certificate)certFactory.generateCertificate(in);
+			InputStream in = new ByteArrayInputStream(decodedCert);
+			X509Certificate certificate = (X509Certificate) certFactory.generateCertificate(in);
 
-		    BasicCredential encryptCredential = new BasicCredential(certificate.getPublicKey());
+			BasicCredential encryptCredential = new BasicCredential(certificate.getPublicKey());
 
-		    final BasicKeyInfoGeneratorFactory generator = new BasicKeyInfoGeneratorFactory();
+			final BasicKeyInfoGeneratorFactory generator = new BasicKeyInfoGeneratorFactory();
 			generator.setEmitPublicKeyValue(true);
 
-		    EncryptionParameters encParams = new EncryptionParameters();
+			EncryptionParameters encParams = new EncryptionParameters();
 			encParams.setDataEncryptionAlgorithm(EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES128);
 			encParams.setDataKeyInfoGenerator(generator.newInstance());
 			encParams.setKeyTransportEncryptionAlgorithm(EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSAOAEP);
 			encParams.setKeyTransportEncryptionCredential(encryptCredential);
 			encParams.setKeyTransportKeyInfoGenerator(generator.newInstance());
 
-			messageContext.getSubcontext(EncryptionContext.class, true)
-				.setAssertionEncryptionParameters(encParams);
+			messageContext.getSubcontext(EncryptionContext.class, true).setAssertionEncryptionParameters(encParams);
 
-			Encrypter encrypter = new Encrypter(new DataEncryptionParameters(encParams), 
+			Encrypter encrypter = new Encrypter(new DataEncryptionParameters(encParams),
 					new KeyEncryptionParameters(encParams, spEntityId));
 			return encrypter;
 		} catch (CertificateException e) {
 			throw new SamlAuthenticationException("Certificate cannot be read", e);
 		}
-	}	
+	}
 
-	private Boolean matchService(ScriptEntity scriptEntity, UserEntity user, ServiceSamlSpEntity serviceSamlSp) 
+	private Boolean matchService(ScriptEntity scriptEntity, UserEntity user, ServiceSamlSpEntity serviceSamlSp)
 			throws SamlAuthenticationException {
 		ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
 
 		if (engine == null)
-			throw new SamlAuthenticationException("service not configured properly. engine not found: " + scriptEntity.getScriptEngine());
+			throw new SamlAuthenticationException(
+					"service not configured properly. engine not found: " + scriptEntity.getScriptEngine());
 
 		try {
 			engine.eval(scriptEntity.getScript());
 
 			Invocable invocable = (Invocable) engine;
-			
-			Object object = invocable.invokeFunction("matchService", scriptingEnv, user, 
-					serviceSamlSp.getService(), logger);
-			
+
+			Object object = invocable.invokeFunction("matchService", scriptingEnv, user, serviceSamlSp.getService(),
+					logger);
+
 			if (object instanceof Boolean)
 				return (Boolean) object;
 			else
@@ -451,64 +462,83 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 			return true;
 		}
 	}
-	
-	private AttributeStatement buildAttributeStatement(UserEntity user, 
-			List<ServiceSamlSpEntity> serviceSamlSpEntityList, RegistryEntity registry) 
-				throws SamlAuthenticationException {
-		
+
+	private void buildAttributeStatement(SamlIdpConfigurationEntity idpConfig, SamlSpMetadataEntity spMetadata,
+			AuthnRequest authnRequest, Assertion assertion, UserEntity user,
+			List<ServiceSamlSpEntity> serviceSamlSpEntityList, RegistryEntity registry)
+			throws SamlAuthenticationException {
+
 		List<Attribute> attributeList = new ArrayList<>();
-		
+		Boolean subjectOverride = false;
+
 		for (ServiceSamlSpEntity serviceSamlSp : serviceSamlSpEntityList) {
 			ScriptEntity scriptEntity = serviceSamlSp.getScript();
 			if (scriptEntity.getScriptType().equalsIgnoreCase("javascript")) {
 				ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
 
 				if (engine == null)
-					throw new SamlAuthenticationException("service not configured properly. engine not found: " + scriptEntity.getScriptEngine());
-				
+					throw new SamlAuthenticationException(
+							"service not configured properly. engine not found: " + scriptEntity.getScriptEngine());
+
 				try {
 					engine.eval(scriptEntity.getScript());
 
 					Invocable invocable = (Invocable) engine;
-					
-					invocable.invokeFunction("buildAttributeStatement", scriptingEnv, user, registry, 
+
+					invocable.invokeFunction("buildAttributeStatement", scriptingEnv, user, registry,
 							serviceSamlSp.getService(), attributeList, logger);
+
+					try {
+						Object o = invocable.invokeFunction("buildNameId", scriptingEnv, user, registry,
+								serviceSamlSp.getService(), idpConfig, spMetadata, authnRequest.getID(), authnRequest.getAssertionConsumerServiceURL(), logger);
+						if (o instanceof Subject) {
+							assertion.setSubject((Subject) o);
+							subjectOverride = true;
+						}
+					} catch (NoSuchMethodException e) {
+						// Ignore, if this method is missing
+					}
 				} catch (NoSuchMethodException | ScriptException e) {
 					logger.warn("Script execution failed. Continue with other scripts.", e);
 				}
-			}
-			else {
+			} else {
 				throw new SamlAuthenticationException("unkown script type: " + scriptEntity.getScriptType());
 			}
-			
+
 		}
-		AttributeStatement attributeStatement = samlHelper.create(AttributeStatement.class, AttributeStatement.DEFAULT_ELEMENT_NAME);
+		AttributeStatement attributeStatement = samlHelper.create(AttributeStatement.class,
+				AttributeStatement.DEFAULT_ELEMENT_NAME);
 		for (Attribute attribute : attributeList) {
 			attributeStatement.getAttributes().add(attribute);
 		}
-				
-		return attributeStatement;
+
+		if (!subjectOverride) {
+			assertion.setSubject(ssoHelper.buildSubject(idpConfig, spMetadata, samlHelper.getRandomId(),
+					NameID.TRANSIENT, authnRequest.getID(), authnRequest.getAssertionConsumerServiceURL()));
+		}
+
+		assertion.getAttributeStatements().add(attributeStatement);
 	}
-	
+
 	private List<Object> checkRules(UserEntity user, ServiceEntity service, RegistryEntity registry) {
 		return knowledgeSessionService.checkServiceAccessRule(user, service, registry, "user-self", false);
 	}
-	
+
 	private List<OverrideAccess> extractOverideAccess(List<Object> objectList) {
 		List<OverrideAccess> returnList = new ArrayList<OverrideAccess>();
-		
+
 		for (Object o : objectList) {
 			if (o instanceof OverrideAccess) {
 				returnList.add((OverrideAccess) o);
 			}
 		}
-		
+
 		return returnList;
 	}
 
 	private List<UnauthorizedUser> extractUnauthorizedUser(List<Object> objectList) {
 		List<UnauthorizedUser> returnList = new ArrayList<UnauthorizedUser>();
-		
+
 		for (Object o : objectList) {
 			if (o instanceof UnauthorizedUser) {
 				returnList.add((UnauthorizedUser) o);
@@ -516,5 +546,5 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 		}
 
 		return returnList;
-	}		
+	}
 }
