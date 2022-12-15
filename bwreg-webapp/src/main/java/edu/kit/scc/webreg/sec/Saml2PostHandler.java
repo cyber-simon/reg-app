@@ -32,7 +32,7 @@ import edu.kit.scc.webreg.service.saml.SamlSpPostService;
 import edu.kit.scc.webreg.session.SessionManager;
 
 @Named
-@WebServlet(urlPatterns = {"/Shibboleth.sso/SAML2/POST", "/saml/sp/post"})
+@WebServlet(urlPatterns = { "/Shibboleth.sso/SAML2/POST", "/saml/sp/post" })
 public class Saml2PostHandler implements Servlet {
 
 	@Inject
@@ -41,7 +41,7 @@ public class Saml2PostHandler implements Servlet {
 	@Inject
 	private SessionManager session;
 
-	@Inject 
+	@Inject
 	private SamlSpConfigurationService spConfigService;
 
 	@Inject
@@ -55,28 +55,29 @@ public class Saml2PostHandler implements Servlet {
 		HttpServletResponse response = (HttpServletResponse) servletResponse;
 
 		String context = request.getServletContext().getContextPath();
-		String path = request.getRequestURI().substring(
-				context.length());
-		
+		String path = request.getRequestURI().substring(context.length());
+
 		logger.debug("Dispatching request context '{}' path '{}'", context, path);
-		
+
 		List<SamlSpConfigurationEntity> spConfigList = spConfigService.findByHostname(servletRequest.getServerName());
 		SamlSpConfigurationEntity spConfig = null;
-		
+
 		for (SamlSpConfigurationEntity s : spConfigList) {
 			if (s.getAcs().equals(path)) {
 				spConfig = s;
 				break;
 			}
 		}
-		
-		
+
 		if (spConfig != null) {
 			logger.debug("Executing POST Handler for entity {}", spConfig.getEntityId());
 			service(request, response, spConfig);
 		}
+
+		throw new ServletException("No Assertion consumer endpoint and host match the given combination "
+				+ servletRequest.getServerName() + " and " + path);
 	}
-	
+
 	private void service(HttpServletRequest request, HttpServletResponse response, SamlSpConfigurationEntity spConfig)
 			throws ServletException, IOException {
 
@@ -86,35 +87,35 @@ public class Saml2PostHandler implements Servlet {
 			response.sendRedirect("/welcome/index.xhtml");
 			return;
 		}
-		
+
 		StringBuffer debugLog = null;
-		if (session.getOriginalRequestPath() != null && session.getOriginalRequestPath().startsWith("/idp-debug-login/")) {
+		if (session.getOriginalRequestPath() != null
+				&& session.getOriginalRequestPath().startsWith("/idp-debug-login/")) {
 			debugLog = new StringBuffer();
 			debugLog.append("Starting debug log for login process...\n");
 			logger.debug("attempAuthentication, Client debug is on");
 		}
-		
+
 		logger.debug("attempAuthentication, Consuming SAML Assertion");
-		
+
 		try {
 			spPostService.consumePost(request, response, spConfig, debugLog);
-	
+
 			if (debugLog != null) {
 				request.setAttribute("_debugLog", debugLog.toString());
 				request.getServletContext().getRequestDispatcher("/idp-debug-login/").forward(request, response);
 			}
-			
+
 		} catch (Exception e) {
 			if (debugLog != null) {
 				debugLog.append("Exception: ").append(e.getMessage()).append("\n");
 				if (e.getCause() != null) {
 					debugLog.append("Cause: ").append(e.getMessage()).append("\n");
 				}
-				
+
 				request.setAttribute("_debugLog", debugLog.toString());
 				request.getServletContext().getRequestDispatcher("/idp-debug-login/").forward(request, response);
-			}
-			else {
+			} else {
 				throw new ServletException("Authentication problem", e);
 			}
 		}
@@ -122,9 +123,9 @@ public class Saml2PostHandler implements Servlet {
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
-		
+
 	}
-	
+
 	@Override
 	public ServletConfig getServletConfig() {
 		return null;
@@ -137,5 +138,5 @@ public class Saml2PostHandler implements Servlet {
 
 	@Override
 	public void destroy() {
-	}	
+	}
 }
