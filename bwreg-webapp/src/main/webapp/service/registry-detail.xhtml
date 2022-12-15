@@ -60,7 +60,7 @@
 		</p:outputPanel>
 	</p:panel>
 
-	<h:panelGroup rendered="#{registryDetailBean.entity.registryStatus == 'ACTIVE'}">
+	<h:panelGroup rendered="#{registryDetailBean.entity.registryStatus == 'ACTIVE' || registryDetailBean.entity.registryStatus == 'LOST_ACCESS'}">
 		<h3 class="full" style="margin-top: 1em;"><h:outputText value="#{messages.deregister}: #{registryDetailBean.entity.service.name}" /></h3>
 		<div class="firstline full" style="margin-top: 1em;">
 			<h:outputText value="#{messages.deregister_desc}" />
