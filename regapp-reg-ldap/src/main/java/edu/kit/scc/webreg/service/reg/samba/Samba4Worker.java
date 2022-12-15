@@ -211,6 +211,11 @@ public class Samba4Worker {
 	}
 
 	public void reconUser(String cn, String sn, String givenName, String mail, String uid, String uidNumber, String gidNumber,
+			String homeDir, String description) {
+		reconUser(cn, sn, givenName, mail, uid, uidNumber, gidNumber, homeDir, description, null);
+	}
+	
+	public void reconUser(String cn, String sn, String givenName, String mail, String uid, String uidNumber, String gidNumber,
 			String homeDir, String description, Map<String, String> extraAttributesMap) {
 		for (Ldap ldap : connectionManager.getConnections()) {
 			List<String> dnList = new ArrayList<String>();
