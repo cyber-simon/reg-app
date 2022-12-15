@@ -406,7 +406,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		OidcOpConfigurationEntity opConfig = opDao.findByRealmAndHost(realm, request.getServerName());
 		
 		if (opConfig == null) {
-			throw new OidcAuthenticationException("unknown realm/host combination: " + realm + " / " + request.getServerName());
+			return sendError(OAuth2Error.ACCESS_DENIED, response, "unknown realm/host combination: " + realm + " / " + request.getServerName());
 		}
 
 		if (session.isLoggedIn()) {
@@ -441,7 +441,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			return tokens.toJSONObject();
 		}
 		else
-			return null;
+			return sendError(OAuth2Error.INVALID_GRANT, response);
 	}
 
 	protected JSONObject serveTokenExchange(String realm,
