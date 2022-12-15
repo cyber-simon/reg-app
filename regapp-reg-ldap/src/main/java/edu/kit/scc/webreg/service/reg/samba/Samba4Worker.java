@@ -18,8 +18,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -209,7 +211,7 @@ public class Samba4Worker {
 	}
 
 	public void reconUser(String cn, String sn, String givenName, String mail, String uid, String uidNumber, String gidNumber,
-			String homeDir, String description) {
+			String homeDir, String description, Map<String, String> extraAttributesMap) {
 		for (Ldap ldap : connectionManager.getConnections()) {
 			List<String> dnList = new ArrayList<String>();
                         
@@ -465,7 +467,54 @@ public class Samba4Worker {
 		else
 			info.setMessage("Fetching Account from " + i + " Server(s): Failed!");
 	}
-		
+
+	public void getInfoForAdmin(Infotainment info, String uid) {
+		InfotainmentTreeNode root = new InfotainmentTreeNode("root", null);
+		info.setRoot(root);
+
+		int i = 0;
+		int fail = 0;
+		for (Ldap ldap : connectionManager.getConnections()) {
+			i++;
+			try {
+				String ldapDn = "uid=" + uid + "," + ldapUserBase;
+				Attributes attrs = ldap.getAttributes(ldapDn);
+				InfotainmentTreeNode ldapNode = new InfotainmentTreeNode(ldap.getLdapConfig().getLdapUrl(), "Fetching attributes ok", root);
+				NamingEnumeration<?> attrEnumeration = attrs.getAll();
+				while (attrEnumeration.hasMoreElements()) {
+					Attribute attr = (Attribute) attrEnumeration.nextElement();
+					new InfotainmentTreeNode(attr.getID(), attr.get().toString(), ldapNode);
+				}
+
+				Iterator<SearchResult> iterator = ldap.search(ldapGroupBase, new SearchFilter("(memberUid=" + uid + ")"),
+						new String[] {"gidNumber", "cn"});
+
+				InfotainmentTreeNode ldapGroupNode = new InfotainmentTreeNode(ldap.getLdapConfig().getLdapUrl(), "Fetching groups ok", root);
+
+				while (iterator.hasNext()) {
+					SearchResult sr = iterator.next();
+					Attributes groupAttrs = sr.getAttributes();
+					if (groupAttrs.get("gidNumber") != null && groupAttrs.get("gidNumber").get() != null &&
+							groupAttrs.get("cn") != null && groupAttrs.get("cn").get() != null) {
+						new InfotainmentTreeNode(groupAttrs.get("gidNumber").get().toString(), groupAttrs.get("cn").get().toString(), ldapGroupNode);
+					}
+				}
+			} catch (NamingException e) {
+				logger.warn("FAILED: Getting info for User {} in ldap {}: {}",
+						new Object[] {uid, ldapUserBase, e.getMessage()});
+				new InfotainmentTreeNode(ldap.getLdapConfig().getLdapUrl(), "Fetching attributes failed", root);
+				fail++;
+			}
+		}
+
+		if (fail == 0)
+			info.setMessage("Fetching Account from " + i + " Server(s): Success");
+		else if (fail < i)
+			info.setMessage("Fetching Account from " + i + " Server(s): Partially failed!");
+		else
+			info.setMessage("Fetching Account from " + i + " Server(s): Failed!");
+	}
+	
 	public void closeConnections() {
 		connectionManager.closeConnections();
 	}
