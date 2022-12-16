@@ -522,28 +522,28 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		OidcFlowStateEntity flowState = flowStateDao.findByAttr("refreshToken", refreshToken);
 
 		if (flowState == null) {
-			throw new OidcAuthenticationException("unknown flow state");
+			return sendError(OAuth2Error.INVALID_GRANT, response, "unknown refresh state");
 		}
 
 		OidcOpConfigurationEntity opConfig = flowState.getOpConfiguration();
 		
 		if (opConfig == null) {
-			throw new OidcAuthenticationException("unknown realm");
+			return sendError(OAuth2Error.ACCESS_DENIED, response, "unknown realm");
 		}
 		
 		OidcClientConfigurationEntity clientConfig = flowState.getClientConfiguration();
 
 		if (clientConfig == null) {
-			throw new OidcAuthenticationException("unknown client");
+			return sendError(OAuth2Error.INVALID_CLIENT, response);
 		}
 
 		if (! clientConfig.getName().equals(clientId)) {
-			throw new OidcAuthenticationException("unauthorized");
+			return sendError(OAuth2Error.INVALID_CLIENT, response);
 		}
 
 		if (clientSecret != null && (! clientConfig.getSecret().equals(clientSecret))) {
 			// client_id and client_secret is set, but secret is wrong
-			throw new OidcAuthenticationException("unauthorized");
+			return sendError(OAuth2Error.INVALID_CLIENT, response);
 		}
 
 		return buildAccessToken(flowState, opConfig, clientConfig);
