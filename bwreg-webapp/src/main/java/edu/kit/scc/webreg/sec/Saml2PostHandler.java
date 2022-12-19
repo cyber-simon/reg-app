@@ -73,9 +73,11 @@ public class Saml2PostHandler implements Servlet {
 			logger.debug("Executing POST Handler for entity {}", spConfig.getEntityId());
 			service(request, response, spConfig);
 		}
-
-		throw new ServletException("No Assertion consumer endpoint and host match the given combination "
-				+ servletRequest.getServerName() + " and " + path);
+		else {
+			// Try to send error message, if SAML subsystem is not configured correctly
+			throw new ServletException("No Assertion consumer endpoint and host match the given combination "
+					+ servletRequest.getServerName() + " and " + path);
+		}
 	}
 
 	private void service(HttpServletRequest request, HttpServletResponse response, SamlSpConfigurationEntity spConfig)
