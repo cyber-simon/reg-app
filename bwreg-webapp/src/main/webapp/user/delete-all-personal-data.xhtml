@@ -25,7 +25,7 @@
 	<ui:define name="content">
 	<h:form id="form" prependId="false" class="full form">
 
-	<h2 style="color: red;"><h:outputText value="#{messages.my_data_delete_all_header}"/></h2>
+	<h2 class="text-danger"><h:outputText value="#{messages.my_data_delete_all_header}"/></h2>
 
 	<p:panel id="blockPanel">
 
@@ -37,7 +37,7 @@
 			<p:commandButton id="cancel" action="#{deleteAllPersonalDataBean.cancel}" 
 				value="#{messages.cancel}"/>
 			<p:commandButton id="save" action="#{deleteAllPersonalDataBean.commit}" 
-				value="#{messages.my_data_delete_all_commit}" style="color: red;"/>
+				value="#{messages.my_data_delete_all_commit}" class="text-danger"/>
 		</div>
 	</p:panel>
 	<p:blockUI block="blockPanel" trigger="save">  

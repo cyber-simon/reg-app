@@ -80,7 +80,7 @@
 						<p:commandButton id="checkRegId" action="#{serviceAdminUserDetailBean.checkRegistry()}" 
 							value="Check Access" update="@form" />			
 				        <p:commandButton id="delUsr" action="#{serviceAdminUserDetailBean.deregister()}" value="#{messages.deregister}"
-				        	style="color: red;" update="@form">
+				        	class="text-danger" update="@form">
 							<p:confirm header="#{messages.confirm}" message="#{messages.are_you_sure}" icon="ui-icon-alert" />			        	
 				        </p:commandButton>					
 					</h:panelGroup>	

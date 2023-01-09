@@ -102,7 +102,7 @@
 			            <p:commandButton value="#{messages.approve}" action="#{sshPubKeyApprovalListBean.approve(sshPubKeyApprovalListBean.selectedKey)}" 
 			            	update="@form" oncomplete="PF('addKeyDlg').hide();" style="color:green;"/>
 			            <p:commandButton value="#{messages.deny}" action="#{sshPubKeyApprovalListBean.deny(sshPubKeyApprovalListBean.selectedKey)}" 
-			            	update="@form" oncomplete="PF('addKeyDlg').hide();" style="color:red;"/>
+			            	update="@form" oncomplete="PF('addKeyDlg').hide();" class="text-danger"/>
 			            <p:commandButton value="#{messages.cancel}" oncomplete="PF('addKeyDlg').hide();"/>
 			        </h:panelGroup>				    
 
