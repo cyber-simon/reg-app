@@ -5,6 +5,7 @@ import javax.inject.Inject;
 
 import edu.kit.scc.webreg.script.AbstractScriptingEnv;
 import edu.kit.scc.webreg.service.group.GroupUpdater;
+import edu.kit.scc.webreg.service.project.ExternalOidcProjectUpdater;
 import edu.kit.scc.webreg.service.project.LocalProjectCreater;
 import edu.kit.scc.webreg.service.project.LocalProjectUpdater;
 
@@ -18,6 +19,9 @@ public class IdentityScriptingEnv extends AbstractScriptingEnv {
 	
 	@Inject
 	private LocalProjectUpdater projectUpdater;
+	
+	@Inject
+	private ExternalOidcProjectUpdater externalOidcProjectUpdater;
 
 	@Inject
 	private GroupUpdater groupUpdater;
@@ -32,5 +36,9 @@ public class IdentityScriptingEnv extends AbstractScriptingEnv {
 
 	public GroupUpdater getGroupUpdater() {
 		return groupUpdater;
+	}
+
+	public ExternalOidcProjectUpdater getExternalOidcProjectUpdater() {
+		return externalOidcProjectUpdater;
 	}
 }

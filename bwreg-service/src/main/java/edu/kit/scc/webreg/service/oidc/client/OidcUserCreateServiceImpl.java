@@ -233,7 +233,7 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
 		for (Entry<String, List<Object>> entry : attributeMap.entrySet()) {
 			attributeStore.put(entry.getKey(), attrHelper.attributeListToString(entry.getValue()));
 		}
-		
+	
 		user.setLastLoginHost(httpRequest.getLocalName());
 		
 		user.setLastUpdate(new Date());
@@ -252,6 +252,9 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
     	roleDao.addUserToRole(user, "User");
 
     	oidcGroupUpdater.updateGroupsForUser(user, attributeMap, auditor);
+
+    	StringBuffer debugLog = new StringBuffer();
+    	userUpdater.updateUserNew(user, attributeMap, executor, auditor, debugLog, httpRequest.getLocalName());
     			
 		auditor.setUser(user);
 		auditor.auditUserCreate();

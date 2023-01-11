@@ -430,6 +430,18 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 			logger.warn("Could not submit event", e);
 		}
 	}
+	
+	public boolean updateUserNew(OidcUserEntity user, Map<String, List<Object>> attributeMap, String executor, 
+			Auditor auditor, StringBuffer debugLog, String lastLoginHost)
+			throws UserUpdateException {
+		boolean changed = false;
+		
+		changed |= preUpdateUser(user, attributeMap, user.getIssuer().getGenericStore(), executor, null, debugLog);
+		changed |= updateUserFromAttribute(user, attributeMap, auditor);
+		changed |= postUpdateUser(user, attributeMap, user.getIssuer().getGenericStore(), executor, null, debugLog, lastLoginHost);
+		
+		return changed;
+	}
 
 	public boolean updateUserFromAttribute(UserEntity user, Map<String, List<Object>> attributeMap, Auditor auditor) 
 				throws UserUpdateException {
