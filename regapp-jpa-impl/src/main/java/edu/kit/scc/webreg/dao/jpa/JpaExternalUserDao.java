@@ -10,7 +10,6 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
-import java.io.Serializable;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -28,10 +27,8 @@ import edu.kit.scc.webreg.entity.ExternalUserEntity_;
 
 @Named
 @ApplicationScoped
-public class JpaExternalUserDao extends JpaBaseDao<ExternalUserEntity> implements ExternalUserDao, Serializable {
+public class JpaExternalUserDao extends JpaBaseDao<ExternalUserEntity> implements ExternalUserDao {
 
-	private static final long serialVersionUID = 1L;
-    
 	@Override
 	public ExternalUserEntity findByExternalId(String externalId) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
@@ -39,11 +36,10 @@ public class JpaExternalUserDao extends JpaBaseDao<ExternalUserEntity> implement
 		Root<ExternalUserEntity> user = criteria.from(ExternalUserEntity.class);
 		criteria.where(builder.equal(user.get(ExternalUserEntity_.externalId), externalId));
 		criteria.select(user);
-		
+
 		try {
 			return em.createQuery(criteria).getSingleResult();
-		}
-		catch (NoResultException e) {
+		} catch (NoResultException e) {
 			return null;
 		}
 	}
@@ -55,11 +51,8 @@ public class JpaExternalUserDao extends JpaBaseDao<ExternalUserEntity> implement
 		Root<ExternalUserEntity> root = criteria.from(ExternalUserEntity.class);
 		criteria.select(root);
 		MapJoin<ExternalUserEntity, String, String> mapJoin = root.joinMap("attributeStore");
-		criteria.where(builder.and(
-				builder.equal(root.get(ExternalUserEntity_.admin), adminRole),
-				builder.equal(mapJoin.key(), key),
-				builder.equal(mapJoin.value(), value))
-		);
+		criteria.where(builder.and(builder.equal(root.get(ExternalUserEntity_.admin), adminRole),
+				builder.equal(mapJoin.key(), key), builder.equal(mapJoin.value(), value)));
 
 		return em.createQuery(criteria).getResultList();
 	}
@@ -71,11 +64,8 @@ public class JpaExternalUserDao extends JpaBaseDao<ExternalUserEntity> implement
 		Root<ExternalUserEntity> root = criteria.from(ExternalUserEntity.class);
 		criteria.select(root);
 		MapJoin<ExternalUserEntity, String, String> mapJoin = root.joinMap("genericStore");
-		criteria.where(builder.and(
-				builder.equal(root.get(ExternalUserEntity_.admin), adminRole),
-				builder.equal(mapJoin.key(), key),
-				builder.equal(mapJoin.value() , value))
-		);
+		criteria.where(builder.and(builder.equal(root.get(ExternalUserEntity_.admin), adminRole),
+				builder.equal(mapJoin.key(), key), builder.equal(mapJoin.value(), value)));
 
 		return em.createQuery(criteria).getResultList();
 	}
@@ -86,13 +76,10 @@ public class JpaExternalUserDao extends JpaBaseDao<ExternalUserEntity> implement
 		CriteriaQuery<ExternalUserEntity> criteria = builder.createQuery(ExternalUserEntity.class);
 		Root<ExternalUserEntity> root = criteria.from(ExternalUserEntity.class);
 		criteria.select(root);
-		criteria.where(builder.and(
-				builder.equal(root.get(ExternalUserEntity_.admin), adminRole)
-		));
+		criteria.where(builder.and(builder.equal(root.get(ExternalUserEntity_.admin), adminRole)));
 
 		return em.createQuery(criteria).getResultList();
 	}
-
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -100,7 +87,7 @@ public class JpaExternalUserDao extends JpaBaseDao<ExternalUserEntity> implement
 		return em.createQuery("select e from ExternalUserEntity e where e.admin = :admin")
 				.setParameter("admin", adminRole).getResultList();
 	}
-		
+
 	@Override
 	public Class<ExternalUserEntity> getEntityClass() {
 		return ExternalUserEntity.class;

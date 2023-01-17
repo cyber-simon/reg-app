@@ -10,8 +10,6 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa.oidc;
 
-import java.io.Serializable;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 import javax.persistence.NoResultException;
@@ -24,10 +22,8 @@ import edu.kit.scc.webreg.entity.oidc.OidcTokenEntity;
 
 @Named
 @ApplicationScoped
-public class JpaTokenEntityDao extends JpaBaseDao<OidcTokenEntity> implements OidcTokenDao, Serializable {
+public class JpaTokenEntityDao extends JpaBaseDao<OidcTokenEntity> implements OidcTokenDao {
 
-	private static final long serialVersionUID = 1L;
-    
 	@Override
 	public void deleteTokenForUser(UserEntity user) {
 		Query query = em.createQuery("delete from OidcTokenEntity where user=:user");
@@ -38,15 +34,12 @@ public class JpaTokenEntityDao extends JpaBaseDao<OidcTokenEntity> implements Oi
 	@Override
 	public OidcTokenEntity findByUserId(Long userId) {
 		try {
-			return (OidcTokenEntity) em.createQuery("select e from OidcTokenEntity e " +
-					"where e.user.id = :userId")
-					.setParameter("userId", userId)
-					.getSingleResult();
-		}
-		catch (NoResultException e) {
+			return (OidcTokenEntity) em.createQuery("select e from OidcTokenEntity e " + "where e.user.id = :userId")
+					.setParameter("userId", userId).getSingleResult();
+		} catch (NoResultException e) {
 			return null;
 		}
-	}	
+	}
 
 	@Override
 	public Class<OidcTokenEntity> getEntityClass() {

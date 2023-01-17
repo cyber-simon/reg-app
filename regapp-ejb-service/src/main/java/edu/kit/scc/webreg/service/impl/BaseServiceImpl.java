@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 
 import edu.kit.scc.webreg.dao.BaseDao;
-import edu.kit.scc.webreg.dao.GenericSortOrder;
 import edu.kit.scc.webreg.dao.ops.DaoFilterData;
 import edu.kit.scc.webreg.dao.ops.DaoSortData;
 import edu.kit.scc.webreg.entity.BaseEntity;
@@ -25,7 +24,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
 	private static final long serialVersionUID = 1L;
 
 	protected abstract BaseDao<T> getDao();
-	
+
 	@Override
 	public T createNew() {
 		return getDao().createNew();
@@ -52,22 +51,16 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
 	}
 
 	@Override
-	public List<T> findAllPaging(int first, int pageSize, Map<String, DaoSortData> sortBy,
+	public List<T> findAllPaging(int offset, int limit, Map<String, DaoSortData> sortBy,
 			Map<String, Object> filterMap, Map<String, DaoFilterData> additionalFilterMap, String... attrs) {
-		return getDao().findAllPaging(first, pageSize, sortBy, filterMap, additionalFilterMap, attrs);
+		return getDao().findAllPaging(offset, limit, sortBy, filterMap, additionalFilterMap, attrs);
 	}
 
-	@Override
-	public List<T> findAllPaging(int first, int pageSize, String sortField,
-			GenericSortOrder sortOrder, Map<String, Object> filterMap, Map<String, DaoFilterData> additionalFilterMap, String... attrs) {
-		return getDao().findAllPaging(first, pageSize, sortField, sortOrder, filterMap, additionalFilterMap, attrs);
-	}
-	
 	@Override
 	public Number countAll(Map<String, Object> filterMap, Map<String, DaoFilterData> additionalFilterMap) {
 		return getDao().countAll(filterMap, additionalFilterMap);
 	}
-	
+
 	@Override
 	public T findById(Long id) {
 		return getDao().findById(id);
@@ -89,7 +82,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
 	}
 
 	@Override
-	public T findByIdWithAttrs(Long id, String...attrs) {
+	public T findByIdWithAttrs(Long id, String... attrs) {
 		return getDao().findByIdWithAttrs(id, attrs);
 	}
 }

@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.dao.jpa;
 
 import java.util.Date;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 import javax.persistence.NoResultException;
@@ -22,32 +23,29 @@ import edu.kit.scc.webreg.entity.ApplicationConfigEntity;
 @ApplicationScoped
 public class JpaApplicationConfigDao extends JpaBaseDao<ApplicationConfigEntity> implements ApplicationConfigDao {
 
-    @Override
+	@Override
 	public ApplicationConfigEntity findActive() {
 		try {
-			return (ApplicationConfigEntity) em.createQuery("select e from ApplicationConfigEntity e where e.activeConfig = :act")
-					.setParameter("act", true)
-					.getSingleResult();
-		}
-		catch (NoResultException e) {
+			return (ApplicationConfigEntity) em
+					.createQuery("select e from ApplicationConfigEntity e where e.activeConfig = :act")
+					.setParameter("act", true).getSingleResult();
+		} catch (NoResultException e) {
 			return null;
 		}
 	}
 
-    @Override
-    @SuppressWarnings({"unchecked"})
+	@Override
 	public ApplicationConfigEntity findReloadActive(Date date) {
 		try {
-			return (ApplicationConfigEntity) em.createQuery("select e from ApplicationConfigEntity e "
-				+ "where e.activeConfig = :act and e.dirtyStamp > :date")
-				.setParameter("date", date).setParameter("act", true)
-				.getSingleResult();
-		}
-		catch (NoResultException e) {
+			return (ApplicationConfigEntity) em
+					.createQuery("select e from ApplicationConfigEntity e "
+							+ "where e.activeConfig = :act and e.dirtyStamp > :date")
+					.setParameter("date", date).setParameter("act", true).getSingleResult();
+		} catch (NoResultException e) {
 			return null;
 		}
 	}
-    
+
 	@Override
 	public Class<ApplicationConfigEntity> getEntityClass() {
 		return ApplicationConfigEntity.class;

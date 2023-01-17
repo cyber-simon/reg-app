@@ -22,7 +22,8 @@ import javax.inject.Named;
 
 import org.slf4j.Logger;
 
-import edu.kit.scc.webreg.dao.GenericSortOrder;
+import edu.kit.scc.webreg.dao.ops.DaoSortData;
+import edu.kit.scc.webreg.dao.ops.DaoSortOrder;
 import edu.kit.scc.webreg.dao.ops.MultipathOrPredicate;
 import edu.kit.scc.webreg.dao.ops.PathObjectValue;
 import edu.kit.scc.webreg.entity.UserEntity;
@@ -39,48 +40,46 @@ import edu.kit.scc.webreg.util.FacesMessageGenerator;
 @ViewScoped
 public class TokenAdminIndexBean implements Serializable {
 
- 	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
- 	@Inject
- 	private Logger logger;
- 	
- 	@Inject
- 	private UserService userService;
- 	
- 	@Inject
- 	private TwoFaService twoFaService;
- 	
- 	@Inject
- 	private SessionManager session;
- 	
+	@Inject
+	private Logger logger;
+
+	@Inject
+	private UserService userService;
+
+	@Inject
+	private TwoFaService twoFaService;
+
+	@Inject
+	private SessionManager session;
+
 	@Inject
 	private FacesMessageGenerator messageGenerator;
-	
+
 	@Inject
 	private AuthorizationBean authBean;
-	
- 	private UserEntity selectedUser;
- 	private TwoFaTokenList userTokenList;
- 	
+
+	private UserEntity selectedUser;
+	private TwoFaTokenList userTokenList;
+
 	public void preRenderView(ComponentSystemEvent ev) {
-		
+
 	}
 
 	public void searchToken() {
 		if (selectedUser == null) {
 			messageGenerator.addErrorMessage("Error", "User not found");
 			userTokenList = null;
-		}
-		else {
+		} else {
 			try {
 				userTokenList = twoFaService.findByIdentity(selectedUser.getIdentity());
-				
+
 				if (userTokenList.getReadOnly()) {
 					messageGenerator.addWarningMessage("Warning", "User is in read only realm");
 				}
-				
-				if (userTokenList.getAdminRole() != null && 
-						(! authBean.isUserInRole(userTokenList.getAdminRole()))) {
+
+				if (userTokenList.getAdminRole() != null && (!authBean.isUserInRole(userTokenList.getAdminRole()))) {
 					messageGenerator.addWarningMessage("Warning", "You are not admin for this realm");
 					userTokenList = null;
 				}
@@ -89,26 +88,24 @@ public class TokenAdminIndexBean implements Serializable {
 			}
 		}
 	}
-	
+
 	public List<UserEntity> completeUser(String part) {
 		Map<String, Object> filterMap = new HashMap<String, Object>();
-		filterMap.put("eppn", new MultipathOrPredicate(
-				new PathObjectValue("eppn", part),
-				new PathObjectValue("surName", part),
-				new PathObjectValue("givenName", part)
-		));
-		return userService.findAllPaging(0, 10, "eppn", GenericSortOrder.ASC, filterMap, null);
+		filterMap.put("eppn", new MultipathOrPredicate(new PathObjectValue("eppn", part),
+				new PathObjectValue("surName", part), new PathObjectValue("givenName", part)));
+		return userService.findAllPaging(0, 10, Map.of("eppn", new DaoSortData("eppn", DaoSortOrder.ASCENDING)),
+				filterMap, null);
 	}
 
 	public void enableToken(String serial) {
-		if (! getReadOnly()) {
+		if (!getReadOnly()) {
 			try {
-				TokenStatusResponse response = twoFaService.enableToken(selectedUser.getIdentity(), serial, "identity-" + session.getIdentityId());
+				TokenStatusResponse response = twoFaService.enableToken(selectedUser.getIdentity(), serial,
+						"identity-" + session.getIdentityId());
 				userTokenList = twoFaService.findByIdentity(selectedUser.getIdentity());
 				if (response.getSuccess()) {
 					messageGenerator.addInfoMessage("Info", "Token " + serial + " enabled");
-				}
-				else {
+				} else {
 					messageGenerator.addWarningMessage("Warn", "Token " + serial + " could not be enabled");
 				}
 			} catch (TwoFaException e) {
@@ -119,14 +116,14 @@ public class TokenAdminIndexBean implements Serializable {
 	}
 
 	public void disableToken(String serial) {
-		if (! getReadOnly()) {
+		if (!getReadOnly()) {
 			try {
-				TokenStatusResponse response = twoFaService.disableToken(selectedUser.getIdentity(), serial, "identity-" + session.getIdentityId());
+				TokenStatusResponse response = twoFaService.disableToken(selectedUser.getIdentity(), serial,
+						"identity-" + session.getIdentityId());
 				userTokenList = twoFaService.findByIdentity(selectedUser.getIdentity());
 				if (response.getSuccess()) {
 					messageGenerator.addInfoMessage("Info", "Token " + serial + " disabled");
-				}
-				else {
+				} else {
 					messageGenerator.addWarningMessage("Warn", "Token " + serial + " could not be disabled");
 				}
 			} catch (TwoFaException e) {
@@ -135,17 +132,18 @@ public class TokenAdminIndexBean implements Serializable {
 			}
 		}
 	}
-	
+
 	public void resetFailcounter(String serial) {
-		if (! getReadOnly()) {
+		if (!getReadOnly()) {
 			try {
-				TokenStatusResponse response = twoFaService.resetFailcounter(selectedUser.getIdentity(), serial, "identity-" + session.getIdentityId());
+				TokenStatusResponse response = twoFaService.resetFailcounter(selectedUser.getIdentity(), serial,
+						"identity-" + session.getIdentityId());
 				userTokenList = twoFaService.findByIdentity(selectedUser.getIdentity());
 				if (response.getSuccess()) {
 					messageGenerator.addInfoMessage("Info", "Token " + serial + " failcounter reset");
-				}
-				else {
-					messageGenerator.addWarningMessage("Warn", "Token " + serial + " failcounter could not be resetted");
+				} else {
+					messageGenerator.addWarningMessage("Warn",
+							"Token " + serial + " failcounter could not be resetted");
 				}
 			} catch (TwoFaException e) {
 				logger.warn("TwoFaException", e);
@@ -153,7 +151,7 @@ public class TokenAdminIndexBean implements Serializable {
 			}
 		}
 	}
-	
+
 	public Boolean getReadOnly() {
 		if (userTokenList != null)
 			return userTokenList.getReadOnly();

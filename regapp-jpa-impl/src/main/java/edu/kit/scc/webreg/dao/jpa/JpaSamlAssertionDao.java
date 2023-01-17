@@ -10,7 +10,6 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
-import java.io.Serializable;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -23,9 +22,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 
 @Named
 @ApplicationScoped
-public class JpaSamlAssertionDao extends JpaBaseDao<SamlAssertionEntity> implements SamlAssertionDao, Serializable {
-
-	private static final long serialVersionUID = 1L;
+public class JpaSamlAssertionDao extends JpaBaseDao<SamlAssertionEntity> implements SamlAssertionDao {
 
 	@Override
 	public void deleteAssertionForUser(UserEntity user) {

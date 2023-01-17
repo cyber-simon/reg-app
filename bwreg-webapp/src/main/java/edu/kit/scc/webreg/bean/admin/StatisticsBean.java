@@ -48,10 +48,10 @@ public class StatisticsBean implements Serializable {
 
 	private List<Object> userPerMonthList;
 	private LineChartModel userPerMonthChart;
-	
+
 	private List<Object> registriesPerMonthList;
 	private LineChartModel registriesPerMonthChart;
-	
+
 	public void preRenderView(ComponentSystemEvent ev) {
 	}
 
@@ -62,10 +62,11 @@ public class StatisticsBean implements Serializable {
 		return userIdpList;
 	}
 
+	@SuppressWarnings("unchecked")
 	public PieChartModel getUserIdpPie() {
 		if (userIdpPie == null) {
 			userIdpPie = new PieChartModel();
-			
+
 			for (Object o : getUserIdpList()) {
 				List<Object> ol = (List<Object>) o;
 				SamlIdpMetadataEntity i = (SamlIdpMetadataEntity) ol.get(1);
@@ -89,10 +90,11 @@ public class StatisticsBean implements Serializable {
 		return userServiceList;
 	}
 
+	@SuppressWarnings("unchecked")
 	public PieChartModel getUserServicePie() {
 		if (userServicePie == null) {
 			userServicePie = new PieChartModel();
-			
+
 			for (Object o : getUserServiceList()) {
 				List<Object> ol = (List<Object>) o;
 				ServiceEntity i = (ServiceEntity) ol.get(1);
@@ -116,10 +118,11 @@ public class StatisticsBean implements Serializable {
 		return userPerMonthList;
 	}
 
+	@SuppressWarnings("unchecked")
 	public LineChartModel getUserPerMonthChart() {
 		if (userPerMonthChart == null) {
 			userPerMonthChart = new LineChartModel();
-			
+
 			ChartSeries cs = new ChartSeries();
 			cs.setLabel("Users");
 			for (Object o : getUserPerMonthList()) {
@@ -142,6 +145,7 @@ public class StatisticsBean implements Serializable {
 		return registriesPerMonthList;
 	}
 
+	@SuppressWarnings("unchecked")
 	public LineChartModel getRegistriesPerMonthChart() {
 		if (registriesPerMonthChart == null) {
 			registriesPerMonthChart = new LineChartModel();
@@ -154,16 +158,17 @@ public class StatisticsBean implements Serializable {
 				if (seriesMap.get(serviceName) == null) {
 					LineChartSeries cs = new LineChartSeries();
 					cs.setLabel(serviceName);
-					//cs.setFill(true);
+					// cs.setFill(true);
 					seriesMap.put(serviceName, cs);
 				}
-				seriesMap.get(serviceName).set((Number) ol.get(1) + "-" + (Number) ol.get(2) + "-01", (Number) ol.get(0));
+				seriesMap.get(serviceName).set((Number) ol.get(1) + "-" + (Number) ol.get(2) + "-01",
+						(Number) ol.get(0));
 			}
-			
+
 			for (LineChartSeries cs : seriesMap.values()) {
 				registriesPerMonthChart.addSeries(cs);
 			}
-			
+
 			registriesPerMonthChart.getAxes().put(AxisType.X, new DateAxis());
 			registriesPerMonthChart.setLegendPosition("ne");
 			registriesPerMonthChart.getAxis(AxisType.Y).setMin(0);
@@ -173,6 +178,5 @@ public class StatisticsBean implements Serializable {
 		}
 		return registriesPerMonthChart;
 	}
-
 
 }
