@@ -18,8 +18,8 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import edu.kit.scc.webreg.dao.BaseDao;
-import edu.kit.scc.webreg.dao.GenericSortOrder;
 import edu.kit.scc.webreg.dao.RegistryDao;
+import edu.kit.scc.webreg.dao.ops.DaoSortData;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
@@ -34,7 +34,7 @@ public class RegistryServiceImpl extends BaseServiceImpl<RegistryEntity> impleme
 
 	@Inject
 	private RegistryDao dao;
-	
+
 	@Override
 	public List<RegistryEntity> findAllByStatus(RegistryStatus status) {
 		return dao.findAllByStatus(status);
@@ -46,27 +46,30 @@ public class RegistryServiceImpl extends BaseServiceImpl<RegistryEntity> impleme
 	}
 
 	@Override
-	public List<RegistryEntity> findByServiceAndStatus(String serviceShortName, RegistryStatus status, Date date, int limit) {
+	public List<RegistryEntity> findByServiceAndStatus(String serviceShortName, RegistryStatus status, Date date,
+			int limit) {
 		return dao.findByServiceAndStatus(serviceShortName, status, date, limit);
 	}
 
 	@Override
-	public List<RegistryEntity> findByServiceAndStatusAndIDPGood(String serviceShortName, RegistryStatus status, Date date, int limit) {
+	public List<RegistryEntity> findByServiceAndStatusAndIDPGood(String serviceShortName, RegistryStatus status,
+			Date date, int limit) {
 		return dao.findByServiceAndStatusAndIDPGood(serviceShortName, status, date, limit);
 	}
 
 	@Override
-	public List<RegistryEntity> findRegistriesForDepro(String serviceShortName) { 
+	public List<RegistryEntity> findRegistriesForDepro(String serviceShortName) {
 		return dao.findRegistriesForDepro(serviceShortName);
 	}
-	
+
 	@Override
 	public List<RegistryEntity> findByServiceAndStatus(ServiceEntity service, RegistryStatus status) {
 		return dao.findByServiceAndStatus(service, status);
 	}
 
 	@Override
-	public List<RegistryEntity> findByServiceAndStatusOrderByRecon(ServiceEntity service, RegistryStatus status, int limit) {
+	public List<RegistryEntity> findByServiceAndStatusOrderByRecon(ServiceEntity service, RegistryStatus status,
+			int limit) {
 		return dao.findByServiceAndStatusOrderByRecon(service, status, limit);
 	}
 
@@ -76,33 +79,32 @@ public class RegistryServiceImpl extends BaseServiceImpl<RegistryEntity> impleme
 	}
 
 	@Override
-	public List<RegistryEntity> findByServiceAndStatusPaging(ServiceEntity service, RegistryStatus status,
-			int first, int pageSize, String sortField,
-			GenericSortOrder sortOrder, Map<String, Object> filterMap) {
-		return dao.findByServiceAndStatusPaging(service, status, first, pageSize, sortField, sortOrder, filterMap);
-	}	
-	
+	public List<RegistryEntity> findByServiceAndStatusPaging(ServiceEntity service, RegistryStatus status, int first,
+			int pageSize, DaoSortData daoSortData, Map<String, Object> filterMap) {
+		return dao.findByServiceAndStatusPaging(service, status, first, pageSize, daoSortData, filterMap);
+	}
+
 	@Override
-	public Number countServiceAndStatus(ServiceEntity service, RegistryStatus status,
-			Map<String, Object> filterMap) {
+	public Number countServiceAndStatus(ServiceEntity service, RegistryStatus status, Map<String, Object> filterMap) {
 		return dao.countServiceAndStatus(service, status, filterMap);
 	}
-	
+
 	@Override
 	public List<RegistryEntity> findByServiceAndUser(ServiceEntity service, UserEntity user) {
 		return dao.findByServiceAndUser(service, user);
 	}
-	
+
 	@Override
 	public RegistryEntity findByServiceAndUserAndStatus(ServiceEntity service, UserEntity user, RegistryStatus status) {
 		return dao.findByServiceAndUserAndStatus(service, user, status);
 	}
-	
+
 	@Override
-	public List<RegistryEntity> findByServiceAndIdentityAndNotStatus(ServiceEntity service, IdentityEntity identity, RegistryStatus... status) {
+	public List<RegistryEntity> findByServiceAndIdentityAndNotStatus(ServiceEntity service, IdentityEntity identity,
+			RegistryStatus... status) {
 		return dao.findByServiceAndIdentityAndNotStatus(service, identity, status);
 	}
-	
+
 	@Override
 	public List<RegistryEntity> findByService(ServiceEntity service) {
 		return dao.findByService(service);
@@ -119,7 +121,8 @@ public class RegistryServiceImpl extends BaseServiceImpl<RegistryEntity> impleme
 	}
 
 	@Override
-	public List<RegistryEntity> findByIdentityAndNotStatusAndNotHidden(IdentityEntity identity, RegistryStatus... status) {
+	public List<RegistryEntity> findByIdentityAndNotStatusAndNotHidden(IdentityEntity identity,
+			RegistryStatus... status) {
 		return dao.findByIdentityAndNotStatusAndNotHidden(identity, status);
 	}
 

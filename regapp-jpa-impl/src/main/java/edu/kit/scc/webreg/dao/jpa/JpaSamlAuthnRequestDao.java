@@ -10,7 +10,6 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
-import java.io.Serializable;
 import java.util.Date;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -22,17 +21,15 @@ import edu.kit.scc.webreg.entity.SamlAuthnRequestEntity;
 
 @Named
 @ApplicationScoped
-public class JpaSamlAuthnRequestDao extends JpaBaseDao<SamlAuthnRequestEntity> implements SamlAuthnRequestDao, Serializable {
+public class JpaSamlAuthnRequestDao extends JpaBaseDao<SamlAuthnRequestEntity> implements SamlAuthnRequestDao {
 
-	private static final long serialVersionUID = 1L;
-    
 	@Override
 	public void deleteInvalid() {
 		Query query = em.createQuery("delete from SamlAuthnRequestEntity where validUntil <= :validUntil");
 		query.setParameter("validUntil", new Date());
 		query.executeUpdate();
 	}
-	
+
 	@Override
 	public Class<SamlAuthnRequestEntity> getEntityClass() {
 		return SamlAuthnRequestEntity.class;

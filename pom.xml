@@ -17,7 +17,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<org.wildfly.version>17.0.1.Final</org.wildfly.version>
-		<org.drools.version>8.30.0.Final</org.drools.version>
+		<org.drools.version>8.32.0.Final</org.drools.version>
 		<javax.javaee.version>8.0</javax.javaee.version>
 		<org.opensaml.version>3.4.6</org.opensaml.version>
 		<org.apache.velocity>1.7</org.apache.velocity>

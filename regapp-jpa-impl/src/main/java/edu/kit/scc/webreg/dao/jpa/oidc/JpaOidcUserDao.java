@@ -10,8 +10,6 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa.oidc;
 
-import java.io.Serializable;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 import javax.persistence.NoResultException;
@@ -27,30 +25,25 @@ import edu.kit.scc.webreg.entity.oidc.OidcUserEntity_;
 
 @Named
 @ApplicationScoped
-public class JpaOidcUserDao extends JpaBaseDao<OidcUserEntity> implements OidcUserDao, Serializable {
+public class JpaOidcUserDao extends JpaBaseDao<OidcUserEntity> implements OidcUserDao {
 
-	private static final long serialVersionUID = 1L;
-    
 	@Override
 	public OidcUserEntity findByIssuerAndSub(OidcRpConfigurationEntity issuer, String subjectId) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<OidcUserEntity> criteria = builder.createQuery(OidcUserEntity.class);
 		Root<OidcUserEntity> user = criteria.from(OidcUserEntity.class);
-		criteria.where(builder.and(
-				builder.equal(user.get(OidcUserEntity_.issuer), issuer),
-				builder.equal(user.get(OidcUserEntity_.subjectId), subjectId)
-				));
+		criteria.where(builder.and(builder.equal(user.get(OidcUserEntity_.issuer), issuer),
+				builder.equal(user.get(OidcUserEntity_.subjectId), subjectId)));
 		criteria.select(user);
 		criteria.distinct(true);
-		
+
 		try {
 			return em.createQuery(criteria).getSingleResult();
-		}
-		catch (NoResultException e) {
+		} catch (NoResultException e) {
 			return null;
-		}			
+		}
 	}
-		
+
 	@Override
 	public Class<OidcUserEntity> getEntityClass() {
 		return OidcUserEntity.class;

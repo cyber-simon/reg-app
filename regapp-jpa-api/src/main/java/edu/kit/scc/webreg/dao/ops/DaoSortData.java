@@ -2,8 +2,17 @@ package edu.kit.scc.webreg.dao.ops;
 
 public class DaoSortData {
 
-	DaoSortOrder order;
-	String field;
+	private DaoSortOrder order;
+	private String field;
+
+	public DaoSortData() {
+		super();
+	}
+
+	public DaoSortData(String field, DaoSortOrder order) {
+		this.order = order;
+		this.field = field;
+	}
 
 	public DaoSortOrder getOrder() {
 		return order;
@@ -20,5 +29,5 @@ public class DaoSortData {
 	public void setField(String field) {
 		this.field = field;
 	}
-	
+
 }

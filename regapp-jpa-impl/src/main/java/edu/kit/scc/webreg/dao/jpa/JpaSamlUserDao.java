@@ -10,7 +10,6 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -29,75 +28,76 @@ import edu.kit.scc.webreg.entity.UserStatus;
 
 @Named
 @ApplicationScoped
-public class JpaSamlUserDao extends JpaBaseDao<SamlUserEntity> implements SamlUserDao, Serializable {
-
-	private static final long serialVersionUID = 1L;
+public class JpaSamlUserDao extends JpaBaseDao<SamlUserEntity> implements SamlUserDao {
 
 	@Override
 	public List<SamlUserEntity> findUsersForPseudo(Long onHoldSince, int limit) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<SamlUserEntity> criteria = builder.createQuery(SamlUserEntity.class);
 		Root<SamlUserEntity> user = criteria.from(SamlUserEntity.class);
-		criteria.where(builder.and(
-				builder.equal(user.get("userStatus"), UserStatus.ON_HOLD),
-				builder.lessThanOrEqualTo(user.<Date>get("lastStatusChange"), new Date(System.currentTimeMillis() - onHoldSince)),
-				builder.isNotNull(user.get("eppn")),
-				builder.isNotNull(user.get("email")),
-				builder.isNotNull(user.get("givenName")),
-				builder.isNotNull(user.get("surName"))
-				));
+		criteria.where(builder.and(builder.equal(user.get("userStatus"), UserStatus.ON_HOLD),
+				builder.lessThanOrEqualTo(user.<Date>get("lastStatusChange"),
+						new Date(System.currentTimeMillis() - onHoldSince)),
+				builder.isNotNull(user.get("eppn")), builder.isNotNull(user.get("email")),
+				builder.isNotNull(user.get("givenName")), builder.isNotNull(user.get("surName"))));
 		criteria.select(user);
 		criteria.orderBy(builder.asc(user.<Date>get("lastStatusChange")));
-		
+
 		return em.createQuery(criteria).setMaxResults(limit).getResultList();
-	}	
+	}
 
 	@Override
 	public SamlUserEntity findBySubject(String spId, String idpId, String subjectId) {
-		
-		TypedQuery<SamlUserEntity> query = em.createQuery("select u from SamlUserEntity u where u.persistentSpId = :spId and u.idp.entityId = :idpId and "
-				+ "u.subjectId = :subjectId", SamlUserEntity.class).setParameter("spId", spId)
-				.setParameter("idpId", idpId).setParameter("subjectId", subjectId);
-		
+
+		TypedQuery<SamlUserEntity> query = em
+				.createQuery(
+						"select u from SamlUserEntity u where u.persistentSpId = :spId and u.idp.entityId = :idpId and "
+								+ "u.subjectId = :subjectId",
+						SamlUserEntity.class)
+				.setParameter("spId", spId).setParameter("idpId", idpId).setParameter("subjectId", subjectId);
+
 		try {
 			return query.getSingleResult();
-		}
-		catch (NoResultException e) {
+		} catch (NoResultException e) {
 			return null;
-		}			
-	}	
-	
+		}
+	}
+
 	@Override
 	public SamlUserEntity findByPersistent(String spId, String idpId, String persistentId) {
-		
-		TypedQuery<SamlUserEntity> query = em.createQuery("select u from SamlUserEntity u where u.persistentSpId = :spId and u.idp.entityId = :idpId and "
-				+ "u.persistentId = :persistentId", SamlUserEntity.class).setParameter("spId", spId)
-				.setParameter("idpId", idpId).setParameter("persistentId", persistentId);
-		
+
+		TypedQuery<SamlUserEntity> query = em
+				.createQuery(
+						"select u from SamlUserEntity u where u.persistentSpId = :spId and u.idp.entityId = :idpId and "
+								+ "u.persistentId = :persistentId",
+						SamlUserEntity.class)
+				.setParameter("spId", spId).setParameter("idpId", idpId).setParameter("persistentId", persistentId);
+
 		try {
 			return query.getSingleResult();
-		}
-		catch (NoResultException e) {
+		} catch (NoResultException e) {
 			return null;
-		}			
-	}	
-	
+		}
+	}
+
 	@Override
-	public SamlUserEntity findByAttributeSourcedId(String spId, String idpId, String attributeSourcedIdName, String attributeSourcedId) {
-		
-		TypedQuery<SamlUserEntity> query = em.createQuery("select u from SamlUserEntity u where u.persistentSpId = :spId and u.idp.entityId = :idpId and "
-				+ "u.attributeSourcedIdName = :attributeSourcedIdName and u.attributeSourcedId = :attributeSourcedId", SamlUserEntity.class)
-				.setParameter("spId", spId).setParameter("idpId", idpId)
-				.setParameter("attributeSourcedIdName", attributeSourcedIdName).setParameter("attributeSourcedId", attributeSourcedId);
-		
+	public SamlUserEntity findByAttributeSourcedId(String spId, String idpId, String attributeSourcedIdName,
+			String attributeSourcedId) {
+
+		TypedQuery<SamlUserEntity> query = em.createQuery(
+				"select u from SamlUserEntity u where u.persistentSpId = :spId and u.idp.entityId = :idpId and "
+						+ "u.attributeSourcedIdName = :attributeSourcedIdName and u.attributeSourcedId = :attributeSourcedId",
+				SamlUserEntity.class).setParameter("spId", spId).setParameter("idpId", idpId)
+				.setParameter("attributeSourcedIdName", attributeSourcedIdName)
+				.setParameter("attributeSourcedId", attributeSourcedId);
+
 		try {
 			return query.getSingleResult();
-		}
-		catch (NoResultException e) {
+		} catch (NoResultException e) {
 			return null;
-		}			
-	}	
-	
+		}
+	}
+
 	@Override
 	public SamlUserEntity findByEppn(String eppn) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
@@ -105,23 +105,20 @@ public class JpaSamlUserDao extends JpaBaseDao<SamlUserEntity> implements SamlUs
 		Root<SamlUserEntity> user = criteria.from(SamlUserEntity.class);
 		criteria.where(builder.equal(user.get("eppn"), eppn));
 		criteria.select(user);
-		
+
 		try {
 			return em.createQuery(criteria).getSingleResult();
-		}
-		catch (NoResultException e) {
+		} catch (NoResultException e) {
 			return null;
 		}
-	}	
+	}
 
 	@Override
 	public SamlUserEntity findByIdWithStore(Long id) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<SamlUserEntity> criteria = builder.createQuery(SamlUserEntity.class);
 		Root<SamlUserEntity> user = criteria.from(SamlUserEntity.class);
-		criteria.where(builder.and(
-				builder.equal(user.get("id"), id)
-				));
+		criteria.where(builder.and(builder.equal(user.get("id"), id)));
 		criteria.select(user);
 		criteria.distinct(true);
 		user.fetch("genericStore", JoinType.LEFT);
@@ -129,12 +126,11 @@ public class JpaSamlUserDao extends JpaBaseDao<SamlUserEntity> implements SamlUs
 
 		try {
 			return em.createQuery(criteria).getSingleResult();
-		}
-		catch (NoResultException e) {
+		} catch (NoResultException e) {
 			return null;
 		}
-	}	
-		
+	}
+
 	@Override
 	public Class<SamlUserEntity> getEntityClass() {
 		return SamlUserEntity.class;

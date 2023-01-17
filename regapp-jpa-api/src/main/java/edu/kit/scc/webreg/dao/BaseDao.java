@@ -19,25 +19,22 @@ import edu.kit.scc.webreg.entity.BaseEntity;
 
 public interface BaseDao<T extends BaseEntity> {
 
-    T createNew();
-    
-    T persist(T entity);
+	T createNew();
 
-    T merge(T entity);
+	T persist(T entity);
 
-    List<T> findAll();
+	T merge(T entity);
 
-    List<T> findAllPaging(int first, int pageSize, String sortField, GenericSortOrder sortOrder,
-    		Map<String, Object> filterMap, Map<String, DaoFilterData> additionalFilterMap, String... attrs);
+	List<T> findAll();
 
-	List<T> findAllPaging(int first, int pageSize, Map<String, DaoSortData> sortBy,
-			Map<String, Object> filterMap, Map<String, DaoFilterData> additionalFilterMap, String... attrs);
-    
+	List<T> findAllPaging(int offset, int limit, Map<String, DaoSortData> sortBy, Map<String, Object> filterMap,
+			Map<String, DaoFilterData> additionalFilterMap, String... attrs);
+
 	Number countAll(Map<String, Object> filterMap, Map<String, DaoFilterData> additionalFilterMap);
 
 	T findById(Long id);
 
-    void delete(T entity);
+	void delete(T entity);
 
 	boolean isPersisted(T entity);
 

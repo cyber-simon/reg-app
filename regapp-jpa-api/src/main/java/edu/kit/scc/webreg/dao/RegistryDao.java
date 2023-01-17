@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import edu.kit.scc.webreg.dao.ops.DaoSortData;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
@@ -26,8 +27,7 @@ public interface RegistryDao extends BaseDao<RegistryEntity> {
 
 	List<RegistryEntity> findAllByStatus(RegistryStatus status);
 
-	List<RegistryEntity> findByServiceAndStatus(ServiceEntity service,
-			RegistryStatus status);
+	List<RegistryEntity> findByServiceAndStatus(ServiceEntity service, RegistryStatus status);
 
 	List<RegistryEntity> findByServiceAndAttribute(String key, String value, ServiceEntity service);
 
@@ -35,33 +35,26 @@ public interface RegistryDao extends BaseDao<RegistryEntity> {
 
 	List<RegistryEntity> findByServiceAndUser(ServiceEntity service, UserEntity user);
 
-	RegistryEntity findByServiceAndUserAndStatus(ServiceEntity service,
-			UserEntity user, RegistryStatus status);
+	RegistryEntity findByServiceAndUserAndStatus(ServiceEntity service, UserEntity user, RegistryStatus status);
 
 	RegistryEntity findByIdWithAgreements(Long id);
 
-	List<RegistryEntity> findByServiceAndStatusPaging(ServiceEntity service,
-			RegistryStatus status, int first, int pageSize, String sortField,
-			GenericSortOrder sortOrder, Map<String, Object> filterMap);
+	List<RegistryEntity> findByServiceAndStatusPaging(ServiceEntity service, RegistryStatus status, int first,
+			int pageSize, DaoSortData daoSortData, Map<String, Object> filterMap);
 
-	Number countServiceAndStatus(ServiceEntity service, RegistryStatus status,
-			Map<String, Object> filterMap);
+	Number countServiceAndStatus(ServiceEntity service, RegistryStatus status, Map<String, Object> filterMap);
 
 	List<RegistryEntity> findByUser(UserEntity user);
 
-	List<UserEntity> findUserListByServiceAndStatus(ServiceEntity service,
-			RegistryStatus status);
+	List<UserEntity> findUserListByServiceAndStatus(ServiceEntity service, RegistryStatus status);
 
-	List<RegistryEntity> findByServiceAndStatus(String serviceShortName,
-			RegistryStatus status, Date date, int limit);
+	List<RegistryEntity> findByServiceAndStatus(String serviceShortName, RegistryStatus status, Date date, int limit);
 
 	List<RegistryEntity> findRegistriesForDepro(String serviceShortName);
 
-	List<RegistryEntity> findByIdentityAndNotStatusAndNotHidden(IdentityEntity identity,
-			RegistryStatus... status);
+	List<RegistryEntity> findByIdentityAndNotStatusAndNotHidden(IdentityEntity identity, RegistryStatus... status);
 
-	List<RegistryEntity> findByServiceAndNotStatus(ServiceEntity service,
-			RegistryStatus... status);
+	List<RegistryEntity> findByServiceAndNotStatus(ServiceEntity service, RegistryStatus... status);
 
 	List<RegistryEntity> findByServiceAndStatusAndIDPGood(String serviceShortName, RegistryStatus status, Date date,
 			int limit);
@@ -84,7 +77,7 @@ public interface RegistryDao extends BaseDao<RegistryEntity> {
 
 	RegistryEntity findByServiceAndIdentityAndStatus(ServiceEntity service, IdentityEntity identity,
 			RegistryStatus status);
-	
+
 	List<RegistryEntity> findAllExternalBySsn(String serviceShortName);
 
 	RegistryEntity findRegistryForDepro(String serviceShortName, String key, String value);

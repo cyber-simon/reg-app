@@ -22,7 +22,8 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import edu.kit.scc.webreg.dao.GenericSortOrder;
+import edu.kit.scc.webreg.dao.ops.DaoSortData;
+import edu.kit.scc.webreg.dao.ops.DaoSortOrder;
 import edu.kit.scc.webreg.dao.ops.MultipathOrPredicate;
 import edu.kit.scc.webreg.dao.ops.PathObjectValue;
 import edu.kit.scc.webreg.entity.UserEntity;
@@ -37,34 +38,31 @@ public class FindIdentityBean implements Serializable {
 
 	@Inject
 	private FacesMessageGenerator messageGenerator;
-	
-    @Inject
-    private UserService userService;
 
- 	private UserEntity selectedUser;
+	@Inject
+	private UserService userService;
+
+	private UserEntity selectedUser;
 
 	public void preRenderView(ComponentSystemEvent ev) {
 	}
 
 	public List<UserEntity> completeUser(String part) {
 		Map<String, Object> filterMap = new HashMap<String, Object>();
-		filterMap.put("eppn", new MultipathOrPredicate(
-				new PathObjectValue("eppn", part),
-				new PathObjectValue("surName", part),
-				new PathObjectValue("givenName", part)
-		));
-		return userService.findAllPaging(0, 10, "eppn", GenericSortOrder.ASC, filterMap, null);
+		filterMap.put("eppn", new MultipathOrPredicate(new PathObjectValue("eppn", part),
+				new PathObjectValue("surName", part), new PathObjectValue("givenName", part)));
+		return userService.findAllPaging(0, 10, Map.of("eppn", new DaoSortData("eppn", DaoSortOrder.ASCENDING)),
+				filterMap, null);
 	}
-
 
 	public String searchUser() {
 		if (selectedUser == null) {
 			messageGenerator.addErrorMessage("Error", "User not found");
 			return null;
-		}
-		else {
+		} else {
 			try {
-				FacesContext.getCurrentInstance().getExternalContext().redirect("show-admin-identity.xhtml?id=" + selectedUser.getIdentity().getId());
+				FacesContext.getCurrentInstance().getExternalContext()
+						.redirect("show-admin-identity.xhtml?id=" + selectedUser.getIdentity().getId());
 			} catch (IOException e) {
 				messageGenerator.addErrorMessage("Error", "Can't redirect to details page");
 			}
