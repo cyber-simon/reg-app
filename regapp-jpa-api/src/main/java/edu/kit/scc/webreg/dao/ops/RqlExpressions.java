@@ -263,6 +263,26 @@ public class RqlExpressions {
 	}
 
 	/**
+	 * Provides conjunction ("and").
+	 * 
+	 * @param operands List of operands
+	 * @return RQL predicate {@link And}
+	 */
+	public static And and(List<RqlExpression> operands) {
+		return new And(operands);
+	}
+
+	/**
+	 * Provides conjunction ("and").
+	 * 
+	 * @param operands Array of operands
+	 * @return RQL predicate {@link And}
+	 */
+	public static And and(RqlExpression... operands) {
+		return new And(Arrays.asList(operands));
+	}
+
+	/**
 	 * Provides disjunction ("or").
 	 * 
 	 * @param operand      First operand
@@ -274,6 +294,26 @@ public class RqlExpressions {
 		operands.add(operand);
 		operands.addAll(Arrays.asList(moreOperands));
 		return new Or(operands);
+	}
+
+	/**
+	 * Provides disjunction ("or").
+	 * 
+	 * @param operands List of operands
+	 * @return RQL predicate {@link Or}
+	 */
+	public static Or or(List<RqlExpression> operands) {
+		return new Or(operands);
+	}
+
+	/**
+	 * Provides disjunction ("or").
+	 * 
+	 * @param operands Array of operands
+	 * @return RQL predicate {@link Or}
+	 */
+	public static Or or(RqlExpression... operands) {
+		return new Or(Arrays.asList(operands));
 	}
 
 }

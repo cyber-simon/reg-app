@@ -65,7 +65,7 @@ public class GenericLazyDataModelImpl<E extends BaseEntity, T extends BaseServic
 				.map(e -> like(e.getKey(), e.getValue().getFilterValue().toString(),
 						getMatchMode(e.getValue().getMatchMode())))
 				.collect(Collectors.toList()).toArray(RqlExpression[]::new);
-		RqlExpression completeFilter = and(filter, additionalFilters);
+		RqlExpression completeFilter = filter == null ? and(additionalFilters) : and(filter, additionalFilters);
 
 		setPageSize(pageSize);
 		Number n = getService().countAll(completeFilter);
