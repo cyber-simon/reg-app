@@ -10,9 +10,10 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.bean;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.and;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.faces.event.ComponentSystemEvent;
 import javax.faces.view.ViewScoped;
@@ -36,36 +37,34 @@ public class ApprovalListBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private GenericLazyDataModel<RegistryEntity, RegistryService> list;
-    
-    @Inject
-    private RegistryService service;
 
-    @Inject
-    private ServiceService serviceService;
-    
-    @Inject
-    private AuthorizationBean authBean;
-    
-    private ServiceEntity serviceEntity;
-    
-    private Long serviceId;
+	@Inject
+	private RegistryService service;
+
+	@Inject
+	private ServiceService serviceService;
+
+	@Inject
+	private AuthorizationBean authBean;
+
+	private ServiceEntity serviceEntity;
+
+	private Long serviceId;
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (serviceEntity == null) {
-			serviceEntity = serviceService.findById(serviceId); 
+			serviceEntity = serviceService.findById(serviceId);
 		}
 
-		if (! authBean.isUserServiceApprover(serviceEntity))
+		if (!authBean.isUserServiceApprover(serviceEntity))
 			throw new NotAuthorizedException("Nicht autorisiert");
-		
+
 	}
-    
+
 	public GenericLazyDataModel<RegistryEntity, RegistryService> getList() {
 		if (list == null) {
-			Map<String, Object> filterMap = new HashMap<String, Object>();
-			filterMap.put("service", serviceEntity);
-			filterMap.put("registryStatus", RegistryStatus.PENDING);
-			list = new GenericLazyDataModelImpl<RegistryEntity, RegistryService>(service, filterMap);
+			list = new GenericLazyDataModelImpl<RegistryEntity, RegistryService>(service,
+					and(equal("service", serviceEntity), equal("registryStatus", RegistryStatus.PENDING)));
 		}
 		return list;
 	}

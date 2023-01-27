@@ -1,6 +1,6 @@
 package edu.kit.scc.webreg.dao.ops;
 
-public enum DaoSortOrder {
+public enum SortOrder {
 	
 	ASCENDING,
 	DESCENDING,

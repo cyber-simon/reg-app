@@ -12,9 +12,7 @@ package edu.kit.scc.webreg.service;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
-import edu.kit.scc.webreg.dao.ops.DaoSortData;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
@@ -36,11 +34,6 @@ public interface RegistryService extends BaseService<RegistryEntity> {
 	RegistryEntity findByServiceAndUserAndStatus(ServiceEntity service, UserEntity user, RegistryStatus status);
 
 	RegistryEntity findByIdWithAgreements(Long id);
-
-	List<RegistryEntity> findByServiceAndStatusPaging(ServiceEntity service, RegistryStatus status, int first,
-			int pageSize, DaoSortData daoSortData, Map<String, Object> filterMap);
-
-	Number countServiceAndStatus(ServiceEntity service, RegistryStatus status, Map<String, Object> filterMap);
 
 	List<RegistryEntity> findByUser(UserEntity user);
 

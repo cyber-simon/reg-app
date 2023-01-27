@@ -12,14 +12,12 @@ package edu.kit.scc.webreg.service.impl;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.RegistryDao;
-import edu.kit.scc.webreg.dao.ops.DaoSortData;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
@@ -76,17 +74,6 @@ public class RegistryServiceImpl extends BaseServiceImpl<RegistryEntity> impleme
 	@Override
 	public List<RegistryEntity> findByServiceAndNotStatus(ServiceEntity service, RegistryStatus... status) {
 		return dao.findByServiceAndNotStatus(service, status);
-	}
-
-	@Override
-	public List<RegistryEntity> findByServiceAndStatusPaging(ServiceEntity service, RegistryStatus status, int first,
-			int pageSize, DaoSortData daoSortData, Map<String, Object> filterMap) {
-		return dao.findByServiceAndStatusPaging(service, status, first, pageSize, daoSortData, filterMap);
-	}
-
-	@Override
-	public Number countServiceAndStatus(ServiceEntity service, RegistryStatus status, Map<String, Object> filterMap) {
-		return dao.countServiceAndStatus(service, status, filterMap);
 	}
 
 	@Override

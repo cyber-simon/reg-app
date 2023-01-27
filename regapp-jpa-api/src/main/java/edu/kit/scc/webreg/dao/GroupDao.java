@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 import edu.kit.scc.webreg.dao.as.AttributeSourceGroupDao;
+import edu.kit.scc.webreg.dao.ops.PaginateBy;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.LocalGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceBasedGroupEntity;
@@ -31,6 +32,10 @@ public interface GroupDao extends BaseDao<GroupEntity> {
 	GroupEntity findByNameAndPrefix(String name, String prefix);
 
 	List<GroupEntity> findByUser(UserEntity user);
+
+	List<GroupEntity> findByUser(PaginateBy paginateBy, UserEntity user);
+
+	List<GroupEntity> findByUserId(PaginateBy paginateBy, Long userId);
 
 	GroupEntity findWithUsers(Long id);
 
@@ -53,16 +58,13 @@ public interface GroupDao extends BaseDao<GroupEntity> {
 	AttributeSourceGroupDao getAttributeSourceGroupDao();
 
 	Set<GroupEntity> findByUserWithChildren(UserEntity user);
-	
+
 	Long getNextGID();
 
-	ServiceBasedGroupEntity persistWithServiceFlags(
-			ServiceBasedGroupEntity entity);
+	ServiceBasedGroupEntity persistWithServiceFlags(ServiceBasedGroupEntity entity);
 
-	ServiceBasedGroupEntity persistWithServiceFlags(
-			ServiceBasedGroupEntity entity, Set<ServiceEntity> services);
+	ServiceBasedGroupEntity persistWithServiceFlags(ServiceBasedGroupEntity entity, Set<ServiceEntity> services);
 
-	void setServiceFlags(ServiceBasedGroupEntity entity,
-			ServiceGroupStatus status);
+	void setServiceFlags(ServiceBasedGroupEntity entity, ServiceGroupStatus status);
 
 }
