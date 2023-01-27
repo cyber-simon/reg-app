@@ -10,50 +10,46 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.model;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.and;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.like;
+
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.primefaces.model.FilterMeta;
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.MatchMode;
 import org.primefaces.model.SelectableDataModel;
 import org.primefaces.model.SortMeta;
-import org.primefaces.model.SortOrder;
 
-import edu.kit.scc.webreg.dao.ops.DaoFilterData;
-import edu.kit.scc.webreg.dao.ops.DaoMatchMode;
-import edu.kit.scc.webreg.dao.ops.DaoSortData;
-import edu.kit.scc.webreg.dao.ops.DaoSortOrder;
+import edu.kit.scc.webreg.dao.ops.LikeMatchMode;
+import edu.kit.scc.webreg.dao.ops.PaginateBy;
+import edu.kit.scc.webreg.dao.ops.RqlExpression;
+import edu.kit.scc.webreg.dao.ops.SortBy;
+import edu.kit.scc.webreg.dao.ops.SortOrder;
 import edu.kit.scc.webreg.entity.BaseEntity;
 import edu.kit.scc.webreg.service.BaseService;
 
-public class GenericLazyDataModelImpl<E extends BaseEntity, T extends BaseService<E>>
-		extends LazyDataModel<E>
+public class GenericLazyDataModelImpl<E extends BaseEntity, T extends BaseService<E>> extends LazyDataModel<E>
 		implements GenericLazyDataModel<E, T>, SelectableDataModel<E> {
 
 	private static final long serialVersionUID = 1L;
 
 	private T service;
 
-	private Map<String, Object> filterMap;
+	private RqlExpression filter;
 	private String[] attrs;
-	
+
 	public GenericLazyDataModelImpl(T service) {
 		super();
 		this.service = service;
 	}
 
-	public GenericLazyDataModelImpl(T service, Map<String, Object> filterMap) {
+	public GenericLazyDataModelImpl(T service, RqlExpression filter) {
 		this(service);
-		this.filterMap = filterMap;
-	}
-
-	public GenericLazyDataModelImpl(T service, Map<String, Object> filterMap, String... attrs) {
-		this(service);
-		this.filterMap = filterMap;
-		this.attrs = attrs;
+		this.filter = filter;
 	}
 
 	public GenericLazyDataModelImpl(T service, String... attrs) {
@@ -62,56 +58,46 @@ public class GenericLazyDataModelImpl<E extends BaseEntity, T extends BaseServic
 	}
 
 	@Override
-	public List<E> load(int first, int pageSize,
-			Map<String, SortMeta> sortBy, Map<String, FilterMeta> additionalFilterMap) {
-		
-		List<E> returnList;
-		
-		Map<String, DaoSortData> sortMap = new HashMap<String, DaoSortData>();
-		sortBy.forEach((k, v) -> {  
-			DaoSortData dsd = new DaoSortData();
-			dsd.setField(v.getField());
-			DaoSortOrder dso;
-			if (v.getOrder().equals(SortOrder.ASCENDING))
-				dso = DaoSortOrder.ASCENDING;
-			else if (v.getOrder().equals(SortOrder.DESCENDING))
-				dso = DaoSortOrder.DESCENDING;
-			else
-				dso = DaoSortOrder.UNSORTED;
-			dsd.setOrder(dso);
-			sortMap.put(k, dsd);
-		});
-		
-		Map<String, DaoFilterData> additionalFilterMapDao = new HashMap<String, DaoFilterData>();
-		additionalFilterMap.forEach((k, v) -> {
-			DaoFilterData dfd = new DaoFilterData();
-			dfd.setFilterValue(v.getFilterValue());
-			if (v.getMatchMode().equals(MatchMode.EQUALS)) {
-				dfd.setMatchMode(DaoMatchMode.EQUALS);
-			}
-			else if (v.getMatchMode().equals(MatchMode.STARTS_WITH)) {
-				dfd.setMatchMode(DaoMatchMode.STARTS_WITH);
-			}
-			else if (v.getMatchMode().equals(MatchMode.ENDS_WITH)) {
-				dfd.setMatchMode(DaoMatchMode.ENDS_WITH);
-			}
-			else {
-				dfd.setMatchMode(DaoMatchMode.CONTAINS);
-			}
-			additionalFilterMapDao.put(k, dfd);
-		});
-		
-		returnList = getService().findAllPaging(first, pageSize, sortMap, filterMap, additionalFilterMapDao, attrs);
-		
+	public List<E> load(int first, int pageSize, Map<String, SortMeta> sortBy,
+			Map<String, FilterMeta> additionalFilterMap) {
+
+		RqlExpression[] additionalFilters = (RqlExpression[]) additionalFilterMap.entrySet().stream()
+				.map(e -> like(e.getKey(), e.getValue().getFilterValue().toString(),
+						getMatchMode(e.getValue().getMatchMode())))
+				.toArray();
+		RqlExpression completeFilter = and(filter, additionalFilters);
+
 		setPageSize(pageSize);
-		
-		Number n = getService().countAll(filterMap, additionalFilterMapDao);
-		if (n != null)
+		Number n = getService().countAll(completeFilter);
+		if (n != null) {
 			setRowCount(n.intValue());
-		
-		return returnList;
+		}
+
+		List<SortBy> sortList = sortBy.values().stream().map(this::getDaoSortData).collect(Collectors.toList());
+
+		return getService().findAllPaging(PaginateBy.of(first, pageSize), sortList, completeFilter, attrs);
 	}
-	
+
+	private SortBy getDaoSortData(SortMeta primefacesSortMeta) {
+		return SortBy.of(primefacesSortMeta.getField(), SortOrder.valueOf(primefacesSortMeta.getOrder().name()));
+	}
+
+	private LikeMatchMode getMatchMode(MatchMode primefacesMatchMode) {
+		switch (primefacesMatchMode) {
+		case EQUALS:
+			return LikeMatchMode.EQUALS;
+		case STARTS_WITH:
+			return LikeMatchMode.STARTS_WITH;
+		case ENDS_WITH:
+			return LikeMatchMode.ENDS_WITH;
+		case CONTAINS:
+			return LikeMatchMode.CONTAINS;
+		default:
+			throw new UnsupportedOperationException(
+					String.format("Match mode '%' is not supported", primefacesMatchMode));
+		}
+	}
+
 	public T getService() {
 		return service;
 	}

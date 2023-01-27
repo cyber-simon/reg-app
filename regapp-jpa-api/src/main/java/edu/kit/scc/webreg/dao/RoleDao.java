@@ -13,6 +13,7 @@ package edu.kit.scc.webreg.dao;
 import java.util.List;
 import java.util.Set;
 
+import edu.kit.scc.webreg.dao.ops.PaginateBy;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.RoleGroupEntity;
@@ -33,6 +34,8 @@ public interface RoleDao extends BaseDao<RoleEntity> {
 	void persistUserRole(UserRoleEntity userRole);
 
 	List<RoleEntity> findByUserId(Long userId);
+
+	List<RoleEntity> findByUserId(PaginateBy paginateBy, Long userId);
 
 	void deleteUserRole(Long userId, String roleName);
 
@@ -59,6 +62,6 @@ public interface RoleDao extends BaseDao<RoleEntity> {
 	List<RoleEntity> findByUserIdList(List<Long> userIdList);
 
 	List<RoleEntity> findByIdentityId(Long identityId);
-	
+
 	List<SamlIdpMetadataEntity> findIdpsForRole(RoleEntity role);
 }

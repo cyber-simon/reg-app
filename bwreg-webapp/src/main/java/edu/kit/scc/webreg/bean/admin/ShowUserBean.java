@@ -10,9 +10,10 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.bean.admin;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +29,6 @@ import org.primefaces.model.LazyDataModel;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.audit.AuditUserEntryService;
-import edu.kit.scc.webreg.dao.ops.AndPredicate;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
@@ -59,7 +59,7 @@ public class ShowUserBean implements Serializable {
 
 	@Inject
 	private Logger logger;
-	
+
 	@Inject
 	private UserService userService;
 
@@ -68,43 +68,43 @@ public class ShowUserBean implements Serializable {
 
 	@Inject
 	private RoleService roleService;
-	
+
 	@Inject
 	private RegistryService registryService;
-	
+
 	@Inject
 	private GroupService groupService;
-	
+
 	@Inject
 	private KnowledgeSessionService knowledgeSessionService;
-	
+
 	@Inject
 	private ASUserAttrService asUserAttrService;
-	
+
 	@Inject
 	private AttributeSourceService attributeSourceService;
-	
+
 	@Inject
 	private AuditUserEntryService auditUserEntryService;
-	
+
 	@Inject
 	private SessionManager sessionManager;
-	
+
 	private UserEntity user;
 
 	private DualListModel<RoleEntity> roleList;
-	
+
 	private Map<String, Attribute> attributeMap;
-	
+
 	private List<RegistryEntity> registryList;
-	
+
 	private List<GroupEntity> groupList;
-	
+
 	private List<ASUserAttrEntity> asUserAttrList;
 	private AttributeSourceEntity selectedAttributeSource;
 	private ASUserAttrEntity selectedUserAttr;
 	private LazyDataModel<AuditUserEntity> auditUserEntryList;
-	
+
 	private Long id;
 
 	public void preRenderView(ComponentSystemEvent ev) {
@@ -120,8 +120,7 @@ public class ShowUserBean implements Serializable {
 				RoleEntity role = (RoleEntity) o;
 				roleService.addUserToRole(user, role.getName());
 			}
-		}
-		else {
+		} else {
 			for (Object o : event.getItems()) {
 				RoleEntity role = (RoleEntity) o;
 				roleService.removeUserFromRole(user, role.getName());
@@ -129,7 +128,7 @@ public class ShowUserBean implements Serializable {
 		}
 		user = userService.findByIdWithAll(user.getId());
 	}
-	
+
 	public void updateFromIdp() {
 		user = userService.findByIdWithAll(user.getId());
 		logger.info("Trying user update for {}", user.getEppn());
@@ -146,8 +145,7 @@ public class ShowUserBean implements Serializable {
 					}
 				}
 			}
-		}
-		else {
+		} else {
 			logger.info("No update method available for class {}", user.getClass().getName());
 		}
 	}
@@ -168,8 +166,7 @@ public class ShowUserBean implements Serializable {
 					}
 				}
 			}
-		}
-		else {
+		} else {
 			logger.info("No update method available for class {}", user.getClass().getName());
 		}
 	}
@@ -177,17 +174,18 @@ public class ShowUserBean implements Serializable {
 	public void checkAllRegistries() {
 		user = userService.findByIdWithAll(user.getId());
 		logger.info("Trying to check all registries for user {}", user.getEppn());
-		
+
 		List<RegistryEntity> tempRegistryList = new ArrayList<RegistryEntity>();
 		for (RegistryEntity registry : registryList) {
-			if (RegistryStatus.ACTIVE.equals(registry.getRegistryStatus()) ||
-					RegistryStatus.LOST_ACCESS.equals(registry.getRegistryStatus())) {
+			if (RegistryStatus.ACTIVE.equals(registry.getRegistryStatus())
+					|| RegistryStatus.LOST_ACCESS.equals(registry.getRegistryStatus())) {
 				tempRegistryList.add(registry);
 			}
 		}
-		knowledgeSessionService.checkRules(tempRegistryList, user.getIdentity(), "identity-" + sessionManager.getIdentityId(), false);
+		knowledgeSessionService.checkRules(tempRegistryList, user.getIdentity(),
+				"identity-" + sessionManager.getIdentityId(), false);
 	}
-	
+
 	public UserEntity getEntity() {
 		return user;
 	}
@@ -203,7 +201,7 @@ public class ShowUserBean implements Serializable {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	
+
 	public List<Attribute> getAttributeValues() {
 		if (attributeMap != null)
 			return new ArrayList<Attribute>(attributeMap.values());
@@ -255,8 +253,8 @@ public class ShowUserBean implements Serializable {
 
 	public void setSelectedUserAttr(ASUserAttrEntity selectedUserAttr) {
 		selectedUserAttr = asUserAttrService.findByIdWithAttrs(selectedUserAttr.getId(), "values");
-		selectedAttributeSource = attributeSourceService.findByIdWithAttrs(
-				selectedUserAttr.getAttributeSource().getId(), "attributeSourceServices");
+		selectedAttributeSource = attributeSourceService
+				.findByIdWithAttrs(selectedUserAttr.getAttributeSource().getId(), "attributeSourceServices");
 		this.selectedUserAttr = selectedUserAttr;
 	}
 
@@ -266,10 +264,9 @@ public class ShowUserBean implements Serializable {
 
 	public LazyDataModel<AuditUserEntity> getAuditUserEntryList() {
 		if (auditUserEntryList == null) {
-			Map<String, Object> additionalFilterMap = new HashMap<String, Object>();
-			additionalFilterMap.put("user", new AndPredicate(user));
-			auditUserEntryList = new GenericLazyDataModelImpl<AuditUserEntity, AuditUserEntryService>(auditUserEntryService, additionalFilterMap);
-		}		
+			auditUserEntryList = new GenericLazyDataModelImpl<AuditUserEntity, AuditUserEntryService>(
+					auditUserEntryService, equal("user", user));
+		}
 		return auditUserEntryList;
 	}
 }

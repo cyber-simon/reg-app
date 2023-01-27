@@ -12,10 +12,10 @@ package edu.kit.scc.webreg.service;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
-import edu.kit.scc.webreg.dao.ops.DaoFilterData;
-import edu.kit.scc.webreg.dao.ops.DaoSortData;
+import edu.kit.scc.webreg.dao.ops.PaginateBy;
+import edu.kit.scc.webreg.dao.ops.RqlExpression;
+import edu.kit.scc.webreg.dao.ops.SortBy;
 import edu.kit.scc.webreg.entity.BaseEntity;
 
 public interface BaseService<T extends BaseEntity> extends Serializable {
@@ -34,10 +34,12 @@ public interface BaseService<T extends BaseEntity> extends Serializable {
 
 	T findByIdWithAttrs(Long id, String... attrs);
 
-	List<T> findAllPaging(int offset, int limit, Map<String, DaoSortData> sortBy, Map<String, Object> filterMap,
-			Map<String, DaoFilterData> additionalFilterMap, String... attrs);
+	List<T> findAllPaging(PaginateBy paginateBy, SortBy sortBy, RqlExpression rqlExpression);
 
-	Number countAll(Map<String, Object> filterMap, Map<String, DaoFilterData> additionalFilterMap);
+	List<T> findAllPaging(PaginateBy paginateBy, List<SortBy> sortBy, RqlExpression rqlExpression,
+			String... joinFetchBy);
+
+	Number countAll(RqlExpression filterBy);
 
 	List<T> findByMultipleId(List<Long> ids);
 

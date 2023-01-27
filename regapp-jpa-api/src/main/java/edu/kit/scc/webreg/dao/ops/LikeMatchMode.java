@@ -1,6 +1,6 @@
 package edu.kit.scc.webreg.dao.ops;
 
-public enum DaoMatchMode {
+public enum LikeMatchMode {
 
     STARTS_WITH,
     ENDS_WITH,

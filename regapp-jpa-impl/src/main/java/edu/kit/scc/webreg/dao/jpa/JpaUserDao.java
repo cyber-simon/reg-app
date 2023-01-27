@@ -10,16 +10,10 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
-import edu.kit.scc.webreg.dao.UserDao;
-import edu.kit.scc.webreg.entity.ExternalUserEntity;
-import edu.kit.scc.webreg.entity.GroupEntity;
-import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.entity.UserEntity_;
-import edu.kit.scc.webreg.entity.UserStatus;
-import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 import javax.persistence.NoResultException;
@@ -29,6 +23,15 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.MapJoin;
 import javax.persistence.criteria.Root;
 
+import edu.kit.scc.webreg.dao.UserDao;
+import edu.kit.scc.webreg.dao.ops.RqlExpressions;
+import edu.kit.scc.webreg.entity.ExternalUserEntity;
+import edu.kit.scc.webreg.entity.GroupEntity;
+import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserEntity_;
+import edu.kit.scc.webreg.entity.UserStatus;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+
 @Named
 @ApplicationScoped
 public class JpaUserDao extends JpaBaseDao<UserEntity> implements UserDao, Serializable {
@@ -36,44 +39,42 @@ public class JpaUserDao extends JpaBaseDao<UserEntity> implements UserDao, Seria
 	private static final long serialVersionUID = 1L;
 
 	@Override
-    @SuppressWarnings({"unchecked"})
+	@SuppressWarnings({ "unchecked" })
 	public List<UserEntity> findByPrimaryGroup(GroupEntity group) {
 		return em.createQuery("select e from UserEntity e where e.primaryGroup = :primaryGroup")
 				.setParameter("primaryGroup", group).getResultList();
 	}
 
 	@Override
-    @SuppressWarnings({"unchecked"})
 	public List<UserEntity> findByIdentity(IdentityEntity identity) {
-		return em.createQuery("select e from UserEntity e where e.identity = :identity")
-				.setParameter("identity", identity).getResultList();
+		return findAllPaging(RqlExpressions.equal("identity", identity));
 	}
 
-    @Override
-    @SuppressWarnings({"unchecked"})
+	@Override
+	@SuppressWarnings({ "unchecked" })
 	public List<UserEntity> findOrderByUpdatedWithLimit(Date date, Integer limit) {
-		return em.createQuery("select e from SamlUserEntity e where e.userStatus != :status and e.lastUpdate < :date and e.lastFailedUpdate is null order by e.lastUpdate asc")
-				.setParameter("date", date)
-				.setParameter("status", UserStatus.DEREGISTERED)
-				.setMaxResults(limit).getResultList();
+		return em.createQuery(
+				"select e from SamlUserEntity e where e.userStatus != :status and e.lastUpdate < :date and e.lastFailedUpdate is null order by e.lastUpdate asc")
+				.setParameter("date", date).setParameter("status", UserStatus.DEREGISTERED).setMaxResults(limit)
+				.getResultList();
 	}
 
-    @Override
-    @SuppressWarnings({"unchecked"})
+	@Override
+	@SuppressWarnings({ "unchecked" })
 	public List<UserEntity> findOrderByFailedUpdateWithLimit(Date date, Integer limit) {
-		return em.createQuery("select e from SamlUserEntity e where e.userStatus != :status and e.lastFailedUpdate < :date order by e.lastFailedUpdate asc")
-				.setParameter("date", date)
-				.setParameter("status", UserStatus.DEREGISTERED)
-				.setMaxResults(limit).getResultList();
+		return em.createQuery(
+				"select e from SamlUserEntity e where e.userStatus != :status and e.lastFailedUpdate < :date order by e.lastFailedUpdate asc")
+				.setParameter("date", date).setParameter("status", UserStatus.DEREGISTERED).setMaxResults(limit)
+				.getResultList();
 	}
 
-    @Override
-    @SuppressWarnings({"unchecked"})
+	@Override
+	@SuppressWarnings({ "unchecked" })
 	public List<UserEntity> findGenericStoreKeyWithLimit(String key, Integer limit) {
-		return em.createQuery("select e from UserEntity e join e.genericStore gs where key(gs) = :key order by lastUpdate asc")
+		return em.createQuery(
+				"select e from UserEntity e join e.genericStore gs where key(gs) = :key order by lastUpdate asc")
 				.setParameter("key", key).setMaxResults(limit).getResultList();
 	}
-
 
 	@Override
 	public List<UserEntity> findByAttribute(String key, String value) {
@@ -82,10 +83,7 @@ public class JpaUserDao extends JpaBaseDao<UserEntity> implements UserDao, Seria
 		Root<UserEntity> root = criteria.from(UserEntity.class);
 		criteria.select(root);
 		MapJoin<ExternalUserEntity, String, String> mapJoin = root.joinMap("attributeStore");
-		criteria.where(builder.and(
-				builder.equal(mapJoin.key(), key),
-				builder.equal(mapJoin.value(), value))
-		);
+		criteria.where(builder.and(builder.equal(mapJoin.key(), key), builder.equal(mapJoin.value(), value)));
 
 		return em.createQuery(criteria).getResultList();
 	}
@@ -97,33 +95,30 @@ public class JpaUserDao extends JpaBaseDao<UserEntity> implements UserDao, Seria
 		Root<UserEntity> root = criteria.from(UserEntity.class);
 		criteria.select(root);
 		MapJoin<ExternalUserEntity, String, String> mapJoin = root.joinMap("genericStore");
-		criteria.where(builder.and(
-				builder.equal(mapJoin.key(), key),
-				builder.equal(mapJoin.value() , value))
-		);
+		criteria.where(builder.and(builder.equal(mapJoin.key(), key), builder.equal(mapJoin.value(), value)));
 
 		return em.createQuery(criteria).getResultList();
 	}
-    
-    @Override
-    @SuppressWarnings({"unchecked"})
+
+	@Override
+	@SuppressWarnings({ "unchecked" })
 	public List<UserEntity> findLegacyUsers() {
 		return em.createQuery("select e from UserEntity e where e.idp is null").getResultList();
 	}
 
-    @Override
-    @SuppressWarnings({"unchecked"})
+	@Override
+	@SuppressWarnings({ "unchecked" })
 	public List<UserEntity> findMissingIdentity() {
 		return em.createQuery("select e from UserEntity e where e.identity is null").getResultList();
 	}
- 
-    @Override
-    @SuppressWarnings({"unchecked"})
+
+	@Override
+	@SuppressWarnings({ "unchecked" })
 	public List<UserEntity> findByGroup(GroupEntity group) {
 		return em.createQuery("select e.user from UserGroupEntity e where e.group = :group")
 				.setParameter("group", group).getResultList();
 	}
-    
+
 	@Override
 	public List<UserEntity> findByEppn(String eppn) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
@@ -131,9 +126,9 @@ public class JpaUserDao extends JpaBaseDao<UserEntity> implements UserDao, Seria
 		Root<UserEntity> user = criteria.from(UserEntity.class);
 		criteria.where(builder.equal(user.get(UserEntity_.eppn), eppn));
 		criteria.select(user);
-		
+
 		return em.createQuery(criteria).getResultList();
-	}	
+	}
 
 	@Override
 	public UserEntity findByUidNumber(Long uidNumber) {
@@ -142,14 +137,13 @@ public class JpaUserDao extends JpaBaseDao<UserEntity> implements UserDao, Seria
 		Root<UserEntity> user = criteria.from(UserEntity.class);
 		criteria.where(builder.equal(user.get(UserEntity_.uidNumber), uidNumber));
 		criteria.select(user);
-		
+
 		try {
 			return em.createQuery(criteria).getSingleResult();
-		}
-		catch (NoResultException e) {
+		} catch (NoResultException e) {
 			return null;
 		}
-	}	
+	}
 
 	@Override
 	public List<UserEntity> findByStatus(UserStatus status) {
@@ -165,11 +159,8 @@ public class JpaUserDao extends JpaBaseDao<UserEntity> implements UserDao, Seria
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<UserEntity> criteria = builder.createQuery(UserEntity.class);
 		Root<UserEntity> user = criteria.from(UserEntity.class);
-		criteria.where(builder.and(
-						builder.equal(user.get("userStatus"), status),
-						builder.lessThanOrEqualTo(user.<Date>get("lastStatusChange"),
-								new Date(System.currentTimeMillis() - statusSince))
-				));
+		criteria.where(builder.and(builder.equal(user.get("userStatus"), status), builder.lessThanOrEqualTo(
+				user.<Date>get("lastStatusChange"), new Date(System.currentTimeMillis() - statusSince))));
 		criteria.select(user);
 		criteria.orderBy(builder.asc(user.<Date>get("lastStatusChange")));
 		return em.createQuery(criteria).setMaxResults(limit).getResultList();
@@ -180,9 +171,7 @@ public class JpaUserDao extends JpaBaseDao<UserEntity> implements UserDao, Seria
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<UserEntity> criteria = builder.createQuery(UserEntity.class);
 		Root<UserEntity> user = criteria.from(UserEntity.class);
-		criteria.where(builder.and(
-				builder.equal(user.get("id"), id)
-				));
+		criteria.where(builder.and(builder.equal(user.get("id"), id)));
 		criteria.select(user);
 		criteria.distinct(true);
 		user.fetch("roles", JoinType.LEFT);
@@ -192,20 +181,17 @@ public class JpaUserDao extends JpaBaseDao<UserEntity> implements UserDao, Seria
 
 		try {
 			return em.createQuery(criteria).getSingleResult();
-		}
-		catch (NoResultException e) {
+		} catch (NoResultException e) {
 			return null;
 		}
-	}	
+	}
 
 	@Override
 	public UserEntity findByIdWithStore(Long id) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<UserEntity> criteria = builder.createQuery(UserEntity.class);
 		Root<UserEntity> user = criteria.from(UserEntity.class);
-		criteria.where(builder.and(
-				builder.equal(user.get("id"), id)
-				));
+		criteria.where(builder.and(builder.equal(user.get("id"), id)));
 		criteria.select(user);
 		criteria.distinct(true);
 		user.fetch("genericStore", JoinType.LEFT);
@@ -213,23 +199,22 @@ public class JpaUserDao extends JpaBaseDao<UserEntity> implements UserDao, Seria
 
 		try {
 			return em.createQuery(criteria).getSingleResult();
-		}
-		catch (NoResultException e) {
+		} catch (NoResultException e) {
 			return null;
 		}
-	}	
-	
+	}
+
 	@Override
 	public Class<UserEntity> getEntityClass() {
 		return UserEntity.class;
 	}
 
 	@Override
-    @SuppressWarnings({"unchecked"})
+	@SuppressWarnings({ "unchecked" })
 	public List<UserEntity> findScheduledUsers(Integer limit) {
-		return em.createQuery("select e from UserEntity e where e.userStatus != :status and (e.scheduledUpdate < :date or e.scheduledUpdate is null)")
-				.setParameter("date", new Date())
-				.setParameter("status", UserStatus.DEREGISTERED)
-				.setMaxResults(limit).getResultList();
+		return em.createQuery(
+				"select e from UserEntity e where e.userStatus != :status and (e.scheduledUpdate < :date or e.scheduledUpdate is null)")
+				.setParameter("date", new Date()).setParameter("status", UserStatus.DEREGISTERED).setMaxResults(limit)
+				.getResultList();
 	}
 }

@@ -10,6 +10,9 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa.as;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+import static edu.kit.scc.webreg.dao.ops.SortOrder.ASCENDING;
+
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -18,43 +21,40 @@ import javax.persistence.NoResultException;
 
 import edu.kit.scc.webreg.dao.as.ASUserAttrDao;
 import edu.kit.scc.webreg.dao.jpa.JpaBaseDao;
+import edu.kit.scc.webreg.dao.ops.SortBy;
+import edu.kit.scc.webreg.entity.AbstractBaseEntity_;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
+import edu.kit.scc.webreg.entity.as.ASUserAttrEntity_;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 
 @Named
 @ApplicationScoped
 public class JpaASUserAttrDao extends JpaBaseDao<ASUserAttrEntity> implements ASUserAttrDao {
 
-	@Override 
+	@Override
 	public ASUserAttrEntity findASUserAttr(UserEntity user, AttributeSourceEntity attributeSource) {
 		try {
-			return (ASUserAttrEntity) em.createQuery("select a from ASUserAttrEntity a where "
-					+ "a.user = :user and a.attributeSource = :attributeSource")
+			return (ASUserAttrEntity) em
+					.createQuery("select a from ASUserAttrEntity a where "
+							+ "a.user = :user and a.attributeSource = :attributeSource")
 					.setParameter("user", user).setParameter("attributeSource", attributeSource).getSingleResult();
-		}
-		catch (NoResultException e) {
+		} catch (NoResultException e) {
 			return null;
 		}
 	}
-	
-	@SuppressWarnings("unchecked")
-	@Override 
+
+	@Override
 	public List<ASUserAttrEntity> findForUser(UserEntity user) {
-		return (List<ASUserAttrEntity>) em.createQuery("select a from ASUserAttrEntity a where "
-					+ "a.user = :user")
-					.setParameter("user", user).getResultList();
+		return findAllPaging(null, equal(ASUserAttrEntity_.user, user));
 	}
 
-	@SuppressWarnings("unchecked")
-	@Override 
+	@Override
 	public List<ASUserAttrEntity> findForUserWithValues(UserEntity user) {
-		return (List<ASUserAttrEntity>) em.createQuery("select distinct a from ASUserAttrEntity a "
-				+ "join fetch a.values "
-				+ "where a.user = :user")
-			.setParameter("user", user).getResultList();
+		return findAllPaging(null, List.of(SortBy.of(AbstractBaseEntity_.id, ASCENDING)),
+				equal(ASUserAttrEntity_.user, user), "values");
 	}
-	
+
 	@Override
 	public Class<ASUserAttrEntity> getEntityClass() {
 		return ASUserAttrEntity.class;

@@ -10,10 +10,10 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.bean.project;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.faces.event.ComponentSystemEvent;
 import javax.faces.view.ViewScoped;
@@ -34,7 +34,6 @@ import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.project.LocalProjectService;
 import edu.kit.scc.webreg.service.project.ProjectService;
 import edu.kit.scc.webreg.session.SessionManager;
-import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
 @Named
 @ViewScoped
@@ -44,66 +43,64 @@ public class ProjectAdminEditProjectAdminsBean implements Serializable {
 
 	@Inject
 	private SessionManager session;
-	
+
 	@Inject
 	private LocalProjectService service;
 
-    @Inject
-    private UserService userService;
+	@Inject
+	private UserService userService;
 
 	@Inject
 	private ProjectService projectService;
 
-	@Inject
-	private FacesMessageGenerator messageGenerator;
-	
 	private LocalProjectEntity entity;
 	private List<ProjectIdentityAdminEntity> adminList;
 	private List<ProjectServiceEntity> serviceList;
 	private LazyDataModel<UserEntity> allUserList;
-    
+
 	private Long projectId;
 
 	private ProjectIdentityAdminEntity adminIdentity;
 	private ProjectAdminType selectedAdminType;
-	
+
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
 			entity = service.findById(projectId);
 			selectedAdminType = ProjectAdminType.READ_WRITE;
 		}
-		
+
 		for (ProjectIdentityAdminEntity a : getAdminList()) {
 			if (a.getIdentity().getId().equals(session.getIdentityId())) {
 				adminIdentity = a;
 				break;
 			}
 		}
-		
+
 		if (adminIdentity == null) {
 			throw new NotAuthorizedException("Nicht autorisiert");
-		}
-		else {
-			if (! (ProjectAdminType.ADMIN.equals(adminIdentity.getType()) || ProjectAdminType.OWNER.equals(adminIdentity.getType()))) {
+		} else {
+			if (!(ProjectAdminType.ADMIN.equals(adminIdentity.getType())
+					|| ProjectAdminType.OWNER.equals(adminIdentity.getType()))) {
 				throw new NotAuthorizedException("Nicht autorisiert");
 			}
 		}
 	}
-	
+
 	public void addAdmin(UserEntity user) {
-		projectService.addAdminToProject(entity, user.getIdentity(), getSelectedAdminType(), "idty-" + session.getIdentityId());
+		projectService.addAdminToProject(entity, user.getIdentity(), getSelectedAdminType(),
+				"idty-" + session.getIdentityId());
 		adminList = null;
 	}
-	
+
 	public void removeAdmin(ProjectIdentityAdminEntity pia) {
 		projectService.removeAdminFromProject(pia, "idty-" + session.getIdentityId());
 		adminList = null;
 	}
-	
+
 	public String cancel() {
 		return "show-project.xhtml?faces-redirect=true&projectId=" + entity.getId();
 	}
-	
+
 	public LocalProjectEntity getEntity() {
 		return entity;
 	}
@@ -136,9 +133,8 @@ public class ProjectAdminEditProjectAdminsBean implements Serializable {
 
 	public LazyDataModel<UserEntity> getAllUserList() {
 		if (allUserList == null) {
-			Map<String, Object> filterMap = new HashMap<String, Object>();
-			filterMap.put("userStatus", UserStatus.ACTIVE);
-			allUserList = new GenericLazyDataModelImpl<UserEntity, UserService>(userService, filterMap);
+			allUserList = new GenericLazyDataModelImpl<UserEntity, UserService>(userService,
+					equal("userStatus", UserStatus.ACTIVE));
 		}
 		return allUserList;
 	}
@@ -150,7 +146,7 @@ public class ProjectAdminEditProjectAdminsBean implements Serializable {
 	public void setSelectedAdminType(ProjectAdminType selectedAdminType) {
 		this.selectedAdminType = selectedAdminType;
 	}
-	
+
 	public ProjectAdminType[] getAdminTypes() {
 		return ProjectAdminType.values();
 	}

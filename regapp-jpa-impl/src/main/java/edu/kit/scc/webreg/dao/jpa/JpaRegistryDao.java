@@ -13,12 +13,10 @@ package edu.kit.scc.webreg.dao.jpa;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 import javax.persistence.NoResultException;
-import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
@@ -27,7 +25,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import edu.kit.scc.webreg.dao.RegistryDao;
-import edu.kit.scc.webreg.dao.ops.DaoSortData;
 import edu.kit.scc.webreg.entity.ExternalUserEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity_;
@@ -226,49 +223,6 @@ public class JpaRegistryDao extends JpaBaseDao<RegistryEntity> implements Regist
 		criteria.select(root);
 
 		return em.createQuery(criteria).getResultList();
-	}
-
-	@Override
-	public List<RegistryEntity> findByServiceAndStatusPaging(ServiceEntity service, RegistryStatus status, int first,
-			int pageSize, DaoSortData daoSortData, Map<String, Object> filterMap) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<RegistryEntity> criteria = builder.createQuery(RegistryEntity.class);
-		Root<RegistryEntity> root = criteria.from(RegistryEntity.class);
-
-		List<Predicate> predicateList = predicatesFromFilterMap(builder, root, filterMap);
-		predicateList.add(builder.equal(root.get("service"), service));
-		predicateList.add(builder.equal(root.get("registryStatus"), status));
-
-		criteria.where(builder.and(predicateList.toArray(new Predicate[predicateList.size()])));
-
-		if (daoSortData != null) {
-			criteria.orderBy(getSortOrder(builder, root, Map.of(daoSortData.getField(), daoSortData)));
-		}
-
-		criteria.select(root);
-
-		TypedQuery<RegistryEntity> q = em.createQuery(criteria);
-		q.setFirstResult(first).setMaxResults(pageSize);
-
-		return q.getResultList();
-	}
-
-	@Override
-	public Number countServiceAndStatus(ServiceEntity service, RegistryStatus status, Map<String, Object> filterMap) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<Long> criteria = builder.createQuery(Long.class);
-		Root<RegistryEntity> root = criteria.from(RegistryEntity.class);
-
-		criteria.select(builder.count(root));
-
-		List<Predicate> predicateList = predicatesFromFilterMap(builder, root, filterMap);
-		predicateList.add(builder.equal(root.get("service"), service));
-		predicateList.add(builder.equal(root.get("registryStatus"), status));
-
-		criteria.where(builder.and(predicateList.toArray(new Predicate[predicateList.size()])));
-
-		TypedQuery<Long> q = em.createQuery(criteria);
-		return q.getSingleResult();
 	}
 
 	@Override

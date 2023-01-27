@@ -11,10 +11,10 @@
 package edu.kit.scc.webreg.dao;
 
 import java.util.List;
-import java.util.Map;
 
-import edu.kit.scc.webreg.dao.ops.DaoFilterData;
-import edu.kit.scc.webreg.dao.ops.DaoSortData;
+import edu.kit.scc.webreg.dao.ops.PaginateBy;
+import edu.kit.scc.webreg.dao.ops.RqlExpression;
+import edu.kit.scc.webreg.dao.ops.SortBy;
 import edu.kit.scc.webreg.entity.BaseEntity;
 
 public interface BaseDao<T extends BaseEntity> {
@@ -27,10 +27,17 @@ public interface BaseDao<T extends BaseEntity> {
 
 	List<T> findAll();
 
-	List<T> findAllPaging(int offset, int limit, Map<String, DaoSortData> sortBy, Map<String, Object> filterMap,
-			Map<String, DaoFilterData> additionalFilterMap, String... attrs);
+	List<T> findAllPaging(RqlExpression filterBy);
 
-	Number countAll(Map<String, Object> filterMap, Map<String, DaoFilterData> additionalFilterMap);
+	List<T> findAllPaging(PaginateBy paginateBy);
+
+	List<T> findAllPaging(PaginateBy paginateBy, RqlExpression filterBy);
+
+	List<T> findAllPaging(PaginateBy paginateBy, SortBy sortBy, RqlExpression filterBy);
+
+	List<T> findAllPaging(PaginateBy paginateBy, List<SortBy> sortBy, RqlExpression filterBy, String... joinFetchBy);
+
+	Number countAll(RqlExpression filterBy);
 
 	T findById(Long id);
 
@@ -46,5 +53,4 @@ public interface BaseDao<T extends BaseEntity> {
 
 	T findByAttr(String attr, Object value);
 
-	List<T> findAllByAttr(String attr, Object value);
 }

@@ -10,37 +10,40 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.in;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaBuilder.In;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import edu.kit.scc.webreg.dao.BaseDao;
-import edu.kit.scc.webreg.dao.ops.AndPredicate;
-import edu.kit.scc.webreg.dao.ops.DaoFilterData;
-import edu.kit.scc.webreg.dao.ops.DaoMatchMode;
-import edu.kit.scc.webreg.dao.ops.DaoSortData;
-import edu.kit.scc.webreg.dao.ops.MultipathOrPredicate;
-import edu.kit.scc.webreg.dao.ops.NotEqualsObjectValue;
-import edu.kit.scc.webreg.dao.ops.NotLikeObjectValue;
-import edu.kit.scc.webreg.dao.ops.OrPredicate;
-import edu.kit.scc.webreg.dao.ops.PathObjectValue;
+import edu.kit.scc.webreg.dao.ops.And;
+import edu.kit.scc.webreg.dao.ops.Equal;
+import edu.kit.scc.webreg.dao.ops.In;
+import edu.kit.scc.webreg.dao.ops.IsNull;
+import edu.kit.scc.webreg.dao.ops.Like;
+import edu.kit.scc.webreg.dao.ops.LikeMatchMode;
+import edu.kit.scc.webreg.dao.ops.NotEqual;
+import edu.kit.scc.webreg.dao.ops.NotLike;
+import edu.kit.scc.webreg.dao.ops.Or;
+import edu.kit.scc.webreg.dao.ops.PaginateBy;
+import edu.kit.scc.webreg.dao.ops.RqlExpression;
+import edu.kit.scc.webreg.dao.ops.SortBy;
+import edu.kit.scc.webreg.dao.ops.SortOrder;
+import edu.kit.scc.webreg.entity.AbstractBaseEntity_;
 import edu.kit.scc.webreg.entity.BaseEntity;
 
 public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
@@ -80,58 +83,146 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 		em.refresh(entity);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<T> findAll() {
-		return em.createQuery("select e from " + getEntityClass().getSimpleName() + " e").getResultList();
+		return findAllPaging(null, SortBy.of(AbstractBaseEntity_.id, SortOrder.ASCENDING), null);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public List<T> findAllPaging(int offset, int limit, Map<String, DaoSortData> sortBy,
-			Map<String, Object> filterMap, Map<String, DaoFilterData> additionalFilterMap, String... attrs) {
+	public List<T> findAllPaging(RqlExpression filterBy) {
+		return findAllPaging(null, SortBy.of(AbstractBaseEntity_.id, SortOrder.ASCENDING), filterBy);
+	}
 
+	@Override
+	public List<T> findAllPaging(PaginateBy paginateBy) {
+		return findAllPaging(paginateBy, SortBy.of(AbstractBaseEntity_.id, SortOrder.ASCENDING), null);
+	}
+
+	@Override
+	public List<T> findAllPaging(PaginateBy paginateBy, RqlExpression filterBy) {
+		return findAllPaging(paginateBy, SortBy.of(AbstractBaseEntity_.id, SortOrder.ASCENDING), filterBy);
+	}
+
+	@Override
+	public List<T> findAllPaging(PaginateBy paginateBy, SortBy sortBy, RqlExpression filterBy) {
+		return findAllPaging(paginateBy, List.of(sortBy), filterBy);
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public final List<T> findAllPaging(PaginateBy paginateBy, List<SortBy> sortBy, RqlExpression filterBy,
+			String... joinFetchBy) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<T> criteria = builder.createQuery(getEntityClass());
 		Root<T> root = criteria.from(getEntityClass());
-
-		List<Predicate> predicates = predicatesFromFilterMap(builder, root, filterMap);
-		predicates.addAll(predicatesFromAdditionalFilterMap(builder, root, additionalFilterMap));
-		criteria.where(builder.and(predicates.toArray(new Predicate[predicates.size()])));
-
 		criteria.select(root);
-		if (attrs != null) {
-			criteria.distinct(true);
 
-			for (String attr : attrs)
-				root.fetch(attr, JoinType.LEFT);
+		if (filterBy != null) {
+			applyFilter(criteria, builder, root, filterBy);
 		}
-
+		if (joinFetchBy != null) {
+			applyJoinFetch(criteria, root, joinFetchBy);
+		}
 		if (sortBy != null) {
-			criteria.orderBy(getSortOrder(builder, root, sortBy));
+			applySorting(criteria, builder, root, sortBy);
 		}
 
-		Query q = em.createQuery(criteria);
-		q.setFirstResult(offset).setMaxResults(limit);
+		Query query = em.createQuery(criteria);
+		if (paginateBy != null) {
+			applyPaging(query, paginateBy);
+		}
+		return query.getResultList();
+	}
 
-		return q.getResultList();
+	private <Q> void applyFilter(CriteriaQuery<Q> criteria, CriteriaBuilder builder, Root<T> root,
+			RqlExpression filterBy) {
+		criteria.where(mapRqlExpressionToPredicate(builder, root, filterBy));
+	}
+
+	@SuppressWarnings("unchecked")
+	private Predicate mapRqlExpressionToPredicate(CriteriaBuilder builder, Root<T> root, RqlExpression rqlExpression) {
+		if (rqlExpression instanceof And) {
+			Predicate[] predicates = (Predicate[]) ((And) rqlExpression).getOperands().stream()
+					.map(e -> mapRqlExpressionToPredicate(builder, root, rqlExpression)).toArray();
+			return builder.and(predicates);
+		} else if (rqlExpression instanceof Or) {
+			Predicate[] predicates = (Predicate[]) ((Or) rqlExpression).getOperands().stream()
+					.map(e -> mapRqlExpressionToPredicate(builder, root, rqlExpression)).toArray();
+			return builder.or(predicates);
+		} else if (rqlExpression instanceof IsNull) {
+			IsNull<T, ?> isNull = (IsNull<T, ?>) rqlExpression;
+			return builder.isNull(isNull.getFieldPath(root));
+		} else if (rqlExpression instanceof In) {
+			In<T, ?> in = (In<T, ?>) rqlExpression;
+			javax.persistence.criteria.CriteriaBuilder.In<Object> inPredicate = builder.in(in.getFieldPath(root));
+			in.getAssignedValues().forEach(inPredicate::value);
+			return inPredicate;
+		} else if (rqlExpression instanceof Like) {
+			Like<T> like = (Like<T>) rqlExpression;
+			return builder.like(builder.lower(like.getFieldPath(root)),
+					applyWildcardsToPattern(like.getPattern().toLowerCase(), null));
+		} else if (rqlExpression instanceof NotLike) {
+			NotLike<T> notLike = (NotLike<T>) rqlExpression;
+			return builder.notLike(builder.lower(notLike.getFieldPath(root)),
+					applyWildcardsToPattern(notLike.getPattern().toLowerCase(), null));
+		} else if (rqlExpression instanceof Equal) {
+			Equal<T, ?> equal = (Equal<T, ?>) rqlExpression;
+			return builder.equal(equal.getFieldPath(root), equal.getAssignedValue());
+		} else if (rqlExpression instanceof NotEqual) {
+			NotEqual<T, ?> notEqual = (NotEqual<T, ?>) rqlExpression;
+			return builder.notEqual(notEqual.getFieldPath(root), notEqual.getAssignedValue());
+		} else {
+			throw new UnsupportedOperationException(
+					String.format("Expression '%s' is not supported", rqlExpression.getClass().getSimpleName()));
+		}
+	}
+
+	private String applyWildcardsToPattern(String pattern, LikeMatchMode matchMode) {
+		switch (matchMode) {
+		case STARTS_WITH:
+			return pattern + "%";
+		case ENDS_WITH:
+			return "%" + pattern;
+		case CONTAINS:
+			return "%" + pattern + "%";
+		case EQUALS:
+			return pattern;
+		default:
+			throw new UnsupportedOperationException(String.format("Match mode '%s' is not supported", matchMode));
+		}
+	}
+
+	@SafeVarargs
+	private void applyJoinFetch(CriteriaQuery<T> criteria, Root<T> root, String... joinFetchBy) {
+		criteria.distinct(true);
+		for (String field : joinFetchBy) {
+			root.fetch(field, JoinType.LEFT);
+		}
+	}
+
+	private void applySorting(CriteriaQuery<T> criteria, CriteriaBuilder builder, Root<T> root, List<SortBy> sortBy) {
+		List<Order> orders = sortBy.stream().map(by -> getOrder(builder, root, by)).filter(Optional::isPresent)
+				.map(Optional::get).map(Order.class::cast).collect(Collectors.toList());
+		criteria.orderBy(orders);
+	}
+
+	protected void applyPaging(Query query, PaginateBy paginateBy) {
+		query.setFirstResult(paginateBy.getOffset());
+		if (paginateBy.getLimit() > 0) {
+			query.setMaxResults(paginateBy.getLimit());
+		}
 	}
 
 	@Override
-	public Number countAll(Map<String, Object> filterMap, Map<String, DaoFilterData> additionalFilterMap) {
-
+	public final Number countAll(RqlExpression filterBy) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<Long> criteria = builder.createQuery(Long.class);
 		Root<T> root = criteria.from(getEntityClass());
-
-		List<Predicate> predicates = predicatesFromFilterMap(builder, root, filterMap);
-		predicates.addAll(predicatesFromAdditionalFilterMap(builder, root, additionalFilterMap));
-
 		criteria.select(builder.count(root));
-		criteria.where(builder.and(predicates.toArray(new Predicate[predicates.size()])));
-
-		TypedQuery<Long> q = em.createQuery(criteria);
-		return q.getSingleResult();
+		if (filterBy != null) {
+			applyFilter(criteria, builder, root, filterBy);
+		}
+		return em.createQuery(criteria).getSingleResult();
 	}
 
 	@Override
@@ -152,20 +243,7 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 
 	@Override
 	public List<T> findByMultipleId(List<Long> ids) {
-		if (ids.size() == 0)
-			return new ArrayList<T>();
-
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<T> criteria = builder.createQuery(getEntityClass());
-		Root<T> entity = criteria.from(getEntityClass());
-		In<Object> inClause = builder.in(entity.get("id"));
-		for (Object id : ids) {
-			inClause.value(id);
-		}
-		criteria.where(inClause);
-		criteria.select(entity);
-
-		return em.createQuery(criteria).getResultList();
+		return ids.size() == 0 ? new ArrayList<T>() : findAllPaging(in("id", ids));
 	}
 
 	@Override
@@ -173,26 +251,14 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<T> criteria = builder.createQuery(getEntityClass());
 		Root<T> entity = criteria.from(getEntityClass());
-		criteria.where(builder.and(builder.equal(entity.get(attr), value)));
 		criteria.select(entity);
+		criteria.where(builder.equal(entity.get(attr), value));
 
 		try {
 			return em.createQuery(criteria).getSingleResult();
 		} catch (NoResultException e) {
 			return null;
 		}
-	}
-
-	@Override
-	public List<T> findAllByAttr(String attr, Object value) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<T> criteria = builder.createQuery(getEntityClass());
-		Root<T> entity = criteria.from(getEntityClass());
-		Predicate p = predicateFromObject(builder, entity, attr, value);
-		criteria.where(p);
-		criteria.select(entity);
-
-		return em.createQuery(criteria).getResultList();
 	}
 
 	@Override
@@ -200,12 +266,12 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<T> criteria = builder.createQuery(getEntityClass());
 		Root<T> entity = criteria.from(getEntityClass());
-		criteria.where(builder.and(builder.equal(entity.get("id"), id)));
 		criteria.select(entity);
-		criteria.distinct(true);
+		criteria.where(builder.equal(entity.get("id"), id));
 
-		for (String attr : attrs)
-			entity.fetch(attr, JoinType.LEFT);
+		if (attrs != null) {
+			applyJoinFetch(criteria, entity, attrs);
+		}
 
 		try {
 			return em.createQuery(criteria).getSingleResult();
@@ -214,122 +280,12 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 		}
 	}
 
-	protected List<Predicate> predicatesFromFilterMap(CriteriaBuilder builder, Root<T> root,
-			Map<String, Object> filterMap) {
-
-		List<Predicate> predicates = new ArrayList<Predicate>();
-		if (filterMap != null) {
-			for (Entry<String, Object> entry : filterMap.entrySet()) {
-
-				predicates.add(predicateFromObject(builder, root, entry.getKey(), entry.getValue()));
-			}
-		}
-
-		return predicates;
-
-	}
-
-	protected List<Predicate> predicatesFromAdditionalFilterMap(CriteriaBuilder builder, Root<T> root,
-			Map<String, DaoFilterData> additionalFilterMap) {
-
-		List<Predicate> predicates = new ArrayList<Predicate>();
-
-		if (additionalFilterMap != null) {
-			for (Entry<String, DaoFilterData> entry : additionalFilterMap.entrySet()) {
-				if (entry.getValue() != null && entry.getValue().getFilterValue() != null) {
-					predicates.add(predicateFromFilterMeta(builder, root, entry.getKey(), entry.getValue()));
-				}
-			}
-		}
-
-		return predicates;
-	}
-
-	protected Predicate predicateFromFilterMeta(CriteriaBuilder builder, Root<T> root, String path,
-			DaoFilterData filterMeta) {
-		if (filterMeta.getMatchMode().equals(DaoMatchMode.STARTS_WITH)) {
-			return builder.like(builder.lower(this.<String>resolvePath(root, path)),
-					filterMeta.getFilterValue().toString().toLowerCase() + "%");
-		} else if (filterMeta.getMatchMode().equals(DaoMatchMode.ENDS_WITH)) {
-			return builder.like(builder.lower(this.<String>resolvePath(root, path)),
-					"%" + filterMeta.getFilterValue().toString().toLowerCase());
-		} else if (filterMeta.getMatchMode().equals(DaoMatchMode.CONTAINS)) {
-			return builder.like(builder.lower(this.<String>resolvePath(root, path)),
-					"%" + filterMeta.getFilterValue().toString().toLowerCase() + "%");
-		} else if (filterMeta.getMatchMode().equals(DaoMatchMode.EQUALS)) {
-			return builder.like(builder.lower(this.<String>resolvePath(root, path)),
-					filterMeta.getFilterValue().toString().toLowerCase());
-		} else {
-			return builder.equal(resolvePath(root, path), filterMeta.getFilterValue());
-		}
-	}
-
-	protected Predicate predicateFromObject(CriteriaBuilder builder, Root<T> root, String path, Object o) {
-		if (o == null) {
-			return builder.isNull(resolvePath(root, path));
-		} else if (o instanceof MultipathOrPredicate) {
-			MultipathOrPredicate p = (MultipathOrPredicate) o;
-			List<Predicate> pList = new ArrayList<Predicate>();
-			for (Object object : p.getOperandList()) {
-				PathObjectValue pov = (PathObjectValue) object;
-				pList.add(predicateFromObject(builder, root, pov.getPath(), pov.getValue()));
-			}
-			return builder.or(pList.toArray(new Predicate[pList.size()]));
-		} else if (o instanceof OrPredicate) {
-			OrPredicate p = (OrPredicate) o;
-			List<Predicate> pList = new ArrayList<Predicate>();
-			for (Object object : p.getOperandList()) {
-				pList.add(predicateFromObject(builder, root, path, object));
-			}
-			return builder.or(pList.toArray(new Predicate[pList.size()]));
-		} else if (o instanceof AndPredicate) {
-			AndPredicate p = (AndPredicate) o;
-			List<Predicate> pList = new ArrayList<Predicate>();
-			for (Object object : p.getOperandList()) {
-				pList.add(predicateFromObject(builder, root, path, object));
-			}
-			return builder.and(pList.toArray(new Predicate[pList.size()]));
-		} else if (o instanceof NotEqualsObjectValue) {
-			NotEqualsObjectValue p = (NotEqualsObjectValue) o;
-			return builder.notEqual(resolvePath(root, p.getPath()), p.getValue());
-		} else if (o instanceof NotLikeObjectValue) {
-			NotLikeObjectValue p = (NotLikeObjectValue) o;
-			String s = (String) p.getValue();
-			return builder.notLike(builder.lower(this.<String>resolvePath(root, p.getPath())),
-					"%" + s.toLowerCase() + "%");
-		} else if (o instanceof String) {
-			String s = (String) o;
-			return builder.like(builder.lower(this.<String>resolvePath(root, path)), "%" + s.toLowerCase() + "%");
-		} else {
-			return builder.equal(resolvePath(root, path), o);
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	protected <R> Path<R> resolvePath(Root<T> root, String key) {
-		Path<R> path = (Path<R>) root;
-		for (String fieldName : key.split("\\.")) {
-			path = path.get(fieldName);
-		}
-		return path;
-	}
-
-	protected List<Order> getSortOrder(CriteriaBuilder builder, Root<T> root, Map<String, DaoSortData> sortBy) {
-		List<Order> orderList = new ArrayList<Order>();
-		if (sortBy != null) {
-			for (Entry<String, DaoSortData> entry : sortBy.entrySet()) {
-				getSortOrder(builder, root, entry.getValue()).ifPresent(orderList::add);
-			}
-		}
-		return orderList;
-	}
-
-	protected Optional<Order> getSortOrder(CriteriaBuilder builder, Root<T> root, DaoSortData sortOrder) {
+	private Optional<Order> getOrder(CriteriaBuilder builder, Root<T> root, SortBy sortOrder) {
 		switch (sortOrder.getOrder()) {
 		case ASCENDING:
-			return Optional.of(builder.asc(resolvePath(root, sortOrder.getField())));
+			return Optional.of(builder.asc(sortOrder.getFieldPath(root)));
 		case DESCENDING:
-			return Optional.of(builder.desc(resolvePath(root, sortOrder.getField())));
+			return Optional.of(builder.desc(sortOrder.getFieldPath(root)));
 		default:
 			return Optional.empty();
 		}

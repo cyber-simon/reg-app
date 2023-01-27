@@ -10,12 +10,15 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.impl;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.contains;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import java.util.List;
-import java.util.Map;
 
 import edu.kit.scc.webreg.dao.BaseDao;
-import edu.kit.scc.webreg.dao.ops.DaoFilterData;
-import edu.kit.scc.webreg.dao.ops.DaoSortData;
+import edu.kit.scc.webreg.dao.ops.PaginateBy;
+import edu.kit.scc.webreg.dao.ops.RqlExpression;
+import edu.kit.scc.webreg.dao.ops.SortBy;
 import edu.kit.scc.webreg.entity.BaseEntity;
 import edu.kit.scc.webreg.service.BaseService;
 
@@ -51,14 +54,19 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
 	}
 
 	@Override
-	public List<T> findAllPaging(int offset, int limit, Map<String, DaoSortData> sortBy,
-			Map<String, Object> filterMap, Map<String, DaoFilterData> additionalFilterMap, String... attrs) {
-		return getDao().findAllPaging(offset, limit, sortBy, filterMap, additionalFilterMap, attrs);
+	public List<T> findAllPaging(PaginateBy paginateBy, SortBy sortBy, RqlExpression rqlExpression) {
+		return getDao().findAllPaging(paginateBy, sortBy, rqlExpression);
 	}
 
 	@Override
-	public Number countAll(Map<String, Object> filterMap, Map<String, DaoFilterData> additionalFilterMap) {
-		return getDao().countAll(filterMap, additionalFilterMap);
+	public List<T> findAllPaging(PaginateBy paginateBy, List<SortBy> sortBy, RqlExpression rqlExpression,
+			String... joinFetchBy) {
+		return getDao().findAllPaging(paginateBy, sortBy, rqlExpression, joinFetchBy);
+	}
+
+	@Override
+	public Number countAll(RqlExpression filterBy) {
+		return getDao().countAll(filterBy);
 	}
 
 	@Override
@@ -73,7 +81,8 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
 
 	@Override
 	public List<T> findAllByAttr(String attr, Object value) {
-		return getDao().findAllByAttr(attr, value);
+		return value instanceof String ? getDao().findAllPaging(contains(attr, value.toString()))
+				: getDao().findAllPaging(equal(attr, value));
 	}
 
 	@Override

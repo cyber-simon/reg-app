@@ -10,11 +10,16 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.bean.admin;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.contains;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.or;
+import static edu.kit.scc.webreg.dao.ops.SortOrder.ASCENDING;
+import static edu.kit.scc.webreg.entity.UserEntity_.eppn;
+import static edu.kit.scc.webreg.entity.UserEntity_.givenName;
+import static edu.kit.scc.webreg.entity.UserEntity_.surName;
+
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.ComponentSystemEvent;
@@ -22,10 +27,9 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import edu.kit.scc.webreg.dao.ops.DaoSortData;
-import edu.kit.scc.webreg.dao.ops.DaoSortOrder;
-import edu.kit.scc.webreg.dao.ops.MultipathOrPredicate;
-import edu.kit.scc.webreg.dao.ops.PathObjectValue;
+import edu.kit.scc.webreg.dao.ops.PaginateBy;
+import edu.kit.scc.webreg.dao.ops.RqlExpression;
+import edu.kit.scc.webreg.dao.ops.SortBy;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
@@ -48,11 +52,8 @@ public class FindIdentityBean implements Serializable {
 	}
 
 	public List<UserEntity> completeUser(String part) {
-		Map<String, Object> filterMap = new HashMap<String, Object>();
-		filterMap.put("eppn", new MultipathOrPredicate(new PathObjectValue("eppn", part),
-				new PathObjectValue("surName", part), new PathObjectValue("givenName", part)));
-		return userService.findAllPaging(0, 10, Map.of("eppn", new DaoSortData("eppn", DaoSortOrder.ASCENDING)),
-				filterMap, null);
+		RqlExpression filterBy = or(contains(eppn, part), contains(surName, part), contains(givenName, part));
+		return userService.findAllPaging(PaginateBy.of(0, 10), List.of(SortBy.of(eppn, ASCENDING)), filterBy);
 	}
 
 	public String searchUser() {

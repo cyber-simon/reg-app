@@ -10,6 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.oidc;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.isNull;
+
 import java.util.List;
 
 import javax.ejb.Stateless;
@@ -24,35 +26,36 @@ import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationStatusType;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
 
 @Stateless
-public class OidcOpConfigurationServiceImpl extends BaseServiceImpl<OidcOpConfigurationEntity> implements OidcOpConfigurationService {
+public class OidcOpConfigurationServiceImpl extends BaseServiceImpl<OidcOpConfigurationEntity>
+		implements OidcOpConfigurationService {
 
 	private static final long serialVersionUID = 1L;
 
 	@Inject
 	private Logger logger;
-	
+
 	@Inject
 	private OidcOpConfigurationDao dao;
-	
+
 	@Override
 	public OidcOpConfigurationEntity findByRealm(String realm) {
 		return dao.findByRealm(realm);
 	}
-	
+
 	@Override
 	public OidcOpConfigurationEntity findByRealmAndHost(String realm, String host) {
 		return dao.findByRealmAndHost(realm, host);
 	}
-	
+
 	@Override
 	public void fixStatus() {
-		List<OidcOpConfigurationEntity> opList = dao.findAllByAttr("opStatus", null);
+		List<OidcOpConfigurationEntity> opList = dao.findAllPaging(isNull("opStatus"));
 		for (OidcOpConfigurationEntity op : opList) {
 			logger.info("Setting status from null to ACTIVE for OIDC OP configuration {}", op.getName());
 			op.setOpStatus(OidcOpConfigurationStatusType.ACTIVE);
 		}
 	}
-	
+
 	@Override
 	protected BaseDao<OidcOpConfigurationEntity> getDao() {
 		return dao;

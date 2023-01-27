@@ -18,6 +18,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.JoinType;
@@ -25,6 +26,7 @@ import javax.persistence.criteria.Root;
 
 import edu.kit.scc.webreg.dao.RoleDao;
 import edu.kit.scc.webreg.dao.identity.IdentityDao;
+import edu.kit.scc.webreg.dao.ops.PaginateBy;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.RoleGroupEntity;
@@ -39,12 +41,12 @@ public class JpaRoleDao extends JpaBaseDao<RoleEntity> implements RoleDao {
 
 	@Inject
 	private IdentityDao identityDao;
-	
+
 	@Override
 	public UserRoleEntity createNewUserRole() {
 		return new UserRoleEntity();
 	}
-	
+
 	@Override
 	public void persistUserRole(UserRoleEntity userRole) {
 		em.persist(userRole);
@@ -66,14 +68,14 @@ public class JpaRoleDao extends JpaBaseDao<RoleEntity> implements RoleDao {
 		roleGroup.setGroup(group);
 		em.persist(roleGroup);
 	}
-	
+
 	@Override
 	public void removeGroupFromRole(GroupEntity group, RoleEntity role) {
 		RoleGroupEntity roleGroup = findRoleGroupEntity(group, role);
 		if (roleGroup != null)
 			em.remove(roleGroup);
 	}
-	
+
 	@Override
 	public RoleGroupEntity createNewRoleGroup() {
 		return new RoleGroupEntity();
@@ -82,107 +84,118 @@ public class JpaRoleDao extends JpaBaseDao<RoleEntity> implements RoleDao {
 	@Override
 	public RoleGroupEntity findRoleGroupEntity(GroupEntity group, RoleEntity role) {
 		try {
-			return (RoleGroupEntity) em.createQuery("select r from RoleGroupEntity r where r.role = :role "
-					+ "and r.group = :group")
-				.setParameter("role", role).setParameter("group", group).getSingleResult();
-		}
-		catch (NoResultException e) {
+			return (RoleGroupEntity) em
+					.createQuery("select r from RoleGroupEntity r where r.role = :role " + "and r.group = :group")
+					.setParameter("role", role).setParameter("group", group).getSingleResult();
+		} catch (NoResultException e) {
 			return null;
 		}
 	}
 
 	@Override
 	public void deleteUserRole(Long userId, String roleName) {
-		UserRoleEntity roleEntity = (UserRoleEntity) em.createQuery("select r from UserRoleEntity r where r.user.id = :userId "
-				+ "and r.role.name = :roleName")
-			.setParameter("userId", userId).setParameter("roleName", roleName).getSingleResult();
+		UserRoleEntity roleEntity = (UserRoleEntity) em
+				.createQuery(
+						"select r from UserRoleEntity r where r.user.id = :userId " + "and r.role.name = :roleName")
+				.setParameter("userId", userId).setParameter("roleName", roleName).getSingleResult();
 		em.remove(roleEntity);
 	}
-	
-    @SuppressWarnings("unchecked")
+
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<RoleEntity> findByGroups(Set<GroupEntity> groups) {
-    	if (groups == null || groups.isEmpty())
-    		return new ArrayList<RoleEntity>();
-    	
+		if (groups == null || groups.isEmpty())
+			return new ArrayList<RoleEntity>();
+
 		return em.createQuery("select r.role from RoleGroupEntity r where r.group in (:groups)")
 				.setParameter("groups", groups).getResultList();
 	}
 
-    @SuppressWarnings("unchecked")
 	@Override
 	public List<RoleEntity> findByUser(UserEntity user) {
-		return em.createQuery("select r.role from UserRoleEntity r where r.user = :user")
+		return em.createQuery("select r.role from UserRoleEntity r where r.user = :user", getEntityClass())
 				.setParameter("user", user).getResultList();
 	}
 
-    @SuppressWarnings("unchecked")
 	@Override
 	public List<RoleEntity> findByUserId(Long userId) {
-		return em.createQuery("select r.role from UserRoleEntity r where r.user.id = :userId")
-				.setParameter("userId", userId).getResultList();
+		return findByUserId(null, userId);
 	}
 
-    @SuppressWarnings("unchecked")
+	@Override
+	public List<RoleEntity> findByUserId(PaginateBy paginateBy, Long userId) {
+		TypedQuery<RoleEntity> query = em
+				.createQuery("select r.role from UserRoleEntity r where r.user.id = :userId", getEntityClass())
+				.setParameter("userId", userId);
+		if (paginateBy != null) {
+			applyPaging(query, paginateBy);
+		}
+		return query.getResultList();
+	}
+
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<RoleEntity> findByIdentityId(Long identityId) {
-    	List<RoleEntity> roleList = em.createQuery("select r.role from IdentityRoleEntity r where r.identity.id = :identityId")
-				.setParameter("identityId", identityId).getResultList(); 
+		List<RoleEntity> roleList = em
+				.createQuery("select r.role from IdentityRoleEntity r where r.identity.id = :identityId")
+				.setParameter("identityId", identityId).getResultList();
 
-    	IdentityEntity identity = identityDao.findById(identityId);
-    	roleList.addAll(em.createQuery("select r.role from UserRoleEntity r where r.user in :userIdList")
+		IdentityEntity identity = identityDao.findById(identityId);
+		roleList.addAll(em.createQuery("select r.role from UserRoleEntity r where r.user in :userIdList")
 				.setParameter("userIdList", identity.getUsers()).getResultList());
-    	
+
 		return roleList;
 	}
 
-    @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<RoleEntity> findByUserIdList(List<Long> userIdList) {
 		return em.createQuery("select r.role from UserRoleEntity r where r.user.id in :userIdList")
 				.setParameter("userIdList", userIdList).getResultList();
 	}
 
-    @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<UserEntity> findUsersForRole(RoleEntity role) {
 		return em.createQuery("select u from UserEntity u left join u.roles ur where ur.role = :role")
 				.setParameter("role", role).getResultList();
 	}
 
-    @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<GroupEntity> findGroupsForRole(RoleEntity role) {
 		return em.createQuery("select g from GroupEntity g left join g.roles gr where gr.role = :role")
 				.setParameter("role", role).getResultList();
 	}
 
-    @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<SamlIdpMetadataEntity> findIdpsForRole(RoleEntity role) {
 		return em.createQuery("select g from SamlIdpMetadataEntity g left join g.adminRoles gr where gr.role = :role")
 				.setParameter("role", role).getResultList();
 	}
 
-    @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	@Override
 	public Boolean checkUserInRole(Long userId, String roleName) {
-		List<RoleEntity> roleList =  em.createQuery("select r.role from UserRoleEntity r where r.user.id = :userId and r.role.name = :roleName")
+		List<RoleEntity> roleList = em
+				.createQuery(
+						"select r.role from UserRoleEntity r where r.user.id = :userId and r.role.name = :roleName")
 				.setParameter("userId", userId).setParameter("roleName", roleName).getResultList();
 		return (roleList.size() > 0 ? Boolean.TRUE : Boolean.FALSE);
 	}
 
-    @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	@Override
 	public Boolean checkAdminUserInRole(Long userId, String roleName) {
-		List<RoleEntity> roleList =  em.createQuery("select u.roles from AdminUserEntity u where u.id = :userId")
+		List<RoleEntity> roleList = em.createQuery("select u.roles from AdminUserEntity u where u.id = :userId")
 				.setParameter("userId", userId).getResultList();
 		if (roleList.size() > 0) {
-			List<RoleEntity> roleList2 =  em.createQuery("select r from RoleEntity r where r.name = :roleName and r in :roleList")
+			List<RoleEntity> roleList2 = em
+					.createQuery("select r from RoleEntity r where r.name = :roleName and r in :roleList")
 					.setParameter("roleList", roleList).setParameter("roleName", roleName).getResultList();
 			return (roleList2.size() > 0 ? Boolean.TRUE : Boolean.FALSE);
-		}
-		else {
+		} else {
 			return Boolean.FALSE;
 		}
 	}
@@ -192,11 +205,10 @@ public class JpaRoleDao extends JpaBaseDao<RoleEntity> implements RoleDao {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<RoleEntity> criteria = builder.createQuery(RoleEntity.class);
 		Root<RoleEntity> root = criteria.from(RoleEntity.class);
-		criteria.where(
-				builder.equal(root.get("id"), id));
+		criteria.where(builder.equal(root.get("id"), id));
 		criteria.select(root);
 		root.fetch("users", JoinType.LEFT);
-		
+
 		return em.createQuery(criteria).getSingleResult();
 	}
 
@@ -205,17 +217,15 @@ public class JpaRoleDao extends JpaBaseDao<RoleEntity> implements RoleDao {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<RoleEntity> criteria = builder.createQuery(RoleEntity.class);
 		Root<RoleEntity> role = criteria.from(RoleEntity.class);
-		criteria.where(
-				builder.equal(role.get("name"), name));
+		criteria.where(builder.equal(role.get("name"), name));
 		criteria.select(role);
-		
-		try {		
+
+		try {
 			return em.createQuery(criteria).getSingleResult();
-		}
-		catch (NoResultException e) {
+		} catch (NoResultException e) {
 			return null;
 		}
-	}	
+	}
 
 	@Override
 	public Class<RoleEntity> getEntityClass() {
