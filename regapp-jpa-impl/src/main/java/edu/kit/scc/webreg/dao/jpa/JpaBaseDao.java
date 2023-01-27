@@ -143,11 +143,11 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 	private Predicate mapRqlExpressionToPredicate(CriteriaBuilder builder, Root<T> root, RqlExpression rqlExpression) {
 		if (rqlExpression instanceof And) {
 			Predicate[] predicates = ((And) rqlExpression).getOperands().stream()
-					.map(e -> mapRqlExpressionToPredicate(builder, root, rqlExpression)).toArray(Predicate[]::new);
+					.map(e -> mapRqlExpressionToPredicate(builder, root, e)).toArray(Predicate[]::new);
 			return builder.and(predicates);
 		} else if (rqlExpression instanceof Or) {
-			Predicate[] predicates = ((Or) rqlExpression).getOperands().stream()
-					.map(e -> mapRqlExpressionToPredicate(builder, root, rqlExpression)).toArray(Predicate[]::new);
+			Predicate[] predicates = (Predicate[]) ((Or) rqlExpression).getOperands().stream()
+					.map(e -> mapRqlExpressionToPredicate(builder, root, e)).toArray(Predicate[]::new);
 			return builder.or(predicates);
 		} else if (rqlExpression instanceof IsNull) {
 			IsNull<T, ?> isNull = (IsNull<T, ?>) rqlExpression;
