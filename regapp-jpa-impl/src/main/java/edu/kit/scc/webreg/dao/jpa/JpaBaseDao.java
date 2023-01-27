@@ -160,11 +160,11 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 		} else if (rqlExpression instanceof Like) {
 			Like<T> like = (Like<T>) rqlExpression;
 			return builder.like(builder.lower(like.getFieldPath(root)),
-					applyWildcardsToPattern(like.getPattern().toLowerCase(), null));
+					applyWildcardsToPattern(like.getPattern().toLowerCase(), like.getMatchMode()));
 		} else if (rqlExpression instanceof NotLike) {
 			NotLike<T> notLike = (NotLike<T>) rqlExpression;
 			return builder.notLike(builder.lower(notLike.getFieldPath(root)),
-					applyWildcardsToPattern(notLike.getPattern().toLowerCase(), null));
+					applyWildcardsToPattern(notLike.getPattern().toLowerCase(), notLike.getMatchMode()));
 		} else if (rqlExpression instanceof Equal) {
 			Equal<T, ?> equal = (Equal<T, ?>) rqlExpression;
 			return builder.equal(equal.getFieldPath(root), equal.getAssignedValue());
