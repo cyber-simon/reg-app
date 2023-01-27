@@ -1,6 +1,5 @@
 package edu.kit.scc.webreg.dao.ops;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -251,20 +250,6 @@ public class RqlExpressions {
 	/**
 	 * Provides conjunction ("and").
 	 * 
-	 * @param operand      First operand
-	 * @param moreOperands Second operand and following
-	 * @return RQL predicate {@link And}
-	 */
-	public static And and(RqlExpression operand, RqlExpression... moreOperands) {
-		List<RqlExpression> operands = new ArrayList<>();
-		operands.add(operand);
-		operands.addAll(Arrays.asList(moreOperands));
-		return new And(operands);
-	}
-
-	/**
-	 * Provides conjunction ("and").
-	 * 
 	 * @param operands List of operands
 	 * @return RQL predicate {@link And}
 	 */
@@ -280,20 +265,6 @@ public class RqlExpressions {
 	 */
 	public static And and(RqlExpression... operands) {
 		return new And(Arrays.asList(operands));
-	}
-
-	/**
-	 * Provides disjunction ("or").
-	 * 
-	 * @param operand      First operand
-	 * @param moreOperands Second operand and following
-	 * @return RQL predicate {@link And}
-	 */
-	public static Or or(RqlExpression operand, RqlExpression... moreOperands) {
-		List<RqlExpression> operands = new ArrayList<>();
-		operands.add(operand);
-		operands.addAll(Arrays.asList(moreOperands));
-		return new Or(operands);
 	}
 
 	/**
