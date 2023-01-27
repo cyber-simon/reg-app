@@ -61,10 +61,10 @@ public class GenericLazyDataModelImpl<E extends BaseEntity, T extends BaseServic
 	public List<E> load(int first, int pageSize, Map<String, SortMeta> sortBy,
 			Map<String, FilterMeta> additionalFilterMap) {
 
-		RqlExpression[] additionalFilters = (RqlExpression[]) additionalFilterMap.entrySet().stream()
+		RqlExpression[] additionalFilters = additionalFilterMap.entrySet().stream()
 				.map(e -> like(e.getKey(), e.getValue().getFilterValue().toString(),
 						getMatchMode(e.getValue().getMatchMode())))
-				.toArray();
+				.collect(Collectors.toList()).toArray(RqlExpression[]::new);
 		RqlExpression completeFilter = and(filter, additionalFilters);
 
 		setPageSize(pageSize);
