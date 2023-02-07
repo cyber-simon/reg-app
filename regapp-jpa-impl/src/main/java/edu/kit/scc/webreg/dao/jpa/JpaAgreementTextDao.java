@@ -37,7 +37,15 @@ public class JpaAgreementTextDao extends JpaBaseDao<AgreementTextEntity> impleme
 	}
 
 	@Override
+	public Number countAllByRegistryId(Long registryId) {
+		return (Number) em.createNativeQuery(
+				"SELECT count(DISTINCT a.*) FROM agreement_text a JOIN registry_agreementtext r ON a.id = r.agreementtext_id WHERE r.registry_id = :registryId",
+				Number.class).getSingleResult();
+	}
+
+	@Override
 	public Class<AgreementTextEntity> getEntityClass() {
 		return AgreementTextEntity.class;
 	}
+
 }

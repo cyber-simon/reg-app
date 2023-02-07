@@ -19,4 +19,6 @@ public interface AgreementTextDao extends BaseDao<AgreementTextEntity> {
 
 	List<AgreementTextEntity> findByRegistryId(PaginateBy paginateBy, Long registryId);
 
+	Number countAllByRegistryId(Long registryId);
+
 }

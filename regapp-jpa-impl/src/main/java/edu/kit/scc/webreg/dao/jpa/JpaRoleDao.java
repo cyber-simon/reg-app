@@ -133,6 +133,12 @@ public class JpaRoleDao extends JpaBaseDao<RoleEntity> implements RoleDao {
 		return query.getResultList();
 	}
 
+	@Override
+	public Number countAllByUserId(Long userId) {
+		return em.createQuery("select count(r.role) from UserRoleEntity r where r.user.id = :userId", Number.class)
+				.setParameter("userId", userId).getSingleResult();
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<RoleEntity> findByIdentityId(Long identityId) {

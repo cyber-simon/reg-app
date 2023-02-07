@@ -64,4 +64,6 @@ public interface RoleDao extends BaseDao<RoleEntity> {
 	List<RoleEntity> findByIdentityId(Long identityId);
 
 	List<SamlIdpMetadataEntity> findIdpsForRole(RoleEntity role);
+
+	Number countAllByUserId(Long userId);
 }

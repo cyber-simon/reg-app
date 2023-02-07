@@ -67,4 +67,6 @@ public interface GroupDao extends BaseDao<GroupEntity> {
 
 	void setServiceFlags(ServiceBasedGroupEntity entity, ServiceGroupStatus status);
 
+	Number countAllByUserId(Long userId);
+
 }
