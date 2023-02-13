@@ -91,7 +91,7 @@ public class ProjectAdminEditProjectBean implements Serializable {
 
 	public LocalProjectEntity getEntity() {
 		if (entity == null) { 
-			entity = service.findById(projectId);
+			entity = service.fetch(projectId);
 		}
 		
 		return entity;

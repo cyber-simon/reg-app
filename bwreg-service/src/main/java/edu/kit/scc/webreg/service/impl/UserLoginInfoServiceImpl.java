@@ -1,5 +1,7 @@
 package edu.kit.scc.webreg.service.impl;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import java.util.List;
 
 import javax.ejb.Stateless;
@@ -9,7 +11,6 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.UserLoginInfoDao;
-import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
 import edu.kit.scc.webreg.service.UserLoginInfoService;
 
@@ -20,18 +21,13 @@ public class UserLoginInfoServiceImpl extends BaseServiceImpl<UserLoginInfoEntit
 
 	@Inject
 	private Logger logger;
-	
+
 	@Inject
 	private UserLoginInfoDao dao;
 
 	@Override
 	public List<UserLoginInfoEntity> findByIdentity(Long identityId) {
-		return dao.findByIdentity(identityId);
-	}
-
-	@Override
-	public List<UserLoginInfoEntity> findByUserList(List<UserEntity> userList) {
-		return dao.findByUserList(userList);
+		return dao.findAll(equal("identity.id", identityId));
 	}
 
 	@Override

@@ -29,6 +29,7 @@ import org.primefaces.model.DualListModel;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.AdminUserEntity;
+import edu.kit.scc.webreg.entity.AdminUserEntity_;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.service.AdminUserService;
 import edu.kit.scc.webreg.service.RoleService;
@@ -42,22 +43,22 @@ public class ShowAdminUserBean implements Serializable {
 
 	@Inject
 	private Logger logger;
-	
+
 	@Inject
 	private AdminUserService adminUserService;
 
 	@Inject
 	private RoleService roleService;
-	
+
 	@Inject
 	private PasswordUtil passwordUtil;
-	
+
 	private AdminUserEntity entity;
 
 	private DualListModel<RoleEntity> roleList;
-	
+
 	private Long id;
-	
+
 	private String newPassword;
 	private Boolean hashPassword;
 	private String[] hashMethod;
@@ -65,7 +66,7 @@ public class ShowAdminUserBean implements Serializable {
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
-			entity = adminUserService.findByIdWithAttrs(id, "roles");
+			entity = adminUserService.findByIdWithAttrs(id, AdminUserEntity_.roles);
 			roleList = new DualListModel<RoleEntity>();
 
 			List<RoleEntity> targetList = new ArrayList<RoleEntity>(entity.getRoles());
@@ -75,7 +76,7 @@ public class ShowAdminUserBean implements Serializable {
 
 			roleList.setSource(sourceList);
 			roleList.setTarget(targetList);
-		
+
 			fillHashMethod();
 			selectedHashMethod = hashMethod[0];
 		}
@@ -83,23 +84,23 @@ public class ShowAdminUserBean implements Serializable {
 
 	protected void fillHashMethod() {
 		Provider provider = Security.getProvider("BC");
-		
+
 		if (provider == null) {
 			Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
 			provider = Security.getProvider("BC");
 		}
-		
+
 		List<String> algoList = new ArrayList<String>();
-		
+
 		for (Service service : provider.getServices()) {
 			if (service.getType().equals("MessageDigest")) {
 				algoList.add(service.getAlgorithm());
 			}
 		}
-		
-		hashMethod = algoList.toArray(new String[]{});
+
+		hashMethod = algoList.toArray(new String[] {});
 	}
-	
+
 	public void onTransfer(TransferEvent event) {
 
 		if (event.isAdd()) {
@@ -108,21 +109,20 @@ public class ShowAdminUserBean implements Serializable {
 				entity.getRoles().add(role);
 				entity = adminUserService.save(entity);
 			}
-		}
-		else {
+		} else {
 			for (Object o : event.getItems()) {
 				RoleEntity role = (RoleEntity) o;
 				entity.getRoles().remove(role);
 				entity = adminUserService.save(entity);
 			}
 		}
-		entity = adminUserService.findByIdWithAttrs(id, "roles");
+		entity = adminUserService.findByIdWithAttrs(id, AdminUserEntity_.roles);
 	}
 
 	public void savePassword() {
 		if (newPassword != null) {
 			newPassword = newPassword.trim();
-			
+
 			if (hashPassword) {
 				try {
 					String hash = passwordUtil.generatePassword(selectedHashMethod, newPassword);
@@ -132,22 +132,21 @@ public class ShowAdminUserBean implements Serializable {
 				} catch (UnsupportedEncodingException e) {
 					logger.warn("Oh no", e);
 				}
-			}
-			else {
+			} else {
 				entity.setPassword(newPassword);
 			}
 			entity = adminUserService.save(entity);
-			entity = adminUserService.findByIdWithAttrs(id, "roles");
-			
+			entity = adminUserService.findByIdWithAttrs(id, AdminUserEntity_.roles);
+
 			newPassword = "";
 		}
 	}
-	
+
 	public void handleSave() {
 		entity = adminUserService.save(entity);
-		entity = adminUserService.findByIdWithAttrs(id, "roles");
+		entity = adminUserService.findByIdWithAttrs(id, AdminUserEntity_.roles);
 	}
-	
+
 	public AdminUserEntity getEntity() {
 		return entity;
 	}
@@ -202,5 +201,5 @@ public class ShowAdminUserBean implements Serializable {
 
 	public void setSelectedHashMethod(String selectedHashMethod) {
 		this.selectedHashMethod = selectedHashMethod;
-	}	
+	}
 }

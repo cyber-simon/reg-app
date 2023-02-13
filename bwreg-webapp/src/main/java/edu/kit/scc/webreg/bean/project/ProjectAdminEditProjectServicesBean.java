@@ -33,7 +33,6 @@ import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.project.LocalProjectService;
 import edu.kit.scc.webreg.service.project.ProjectService;
 import edu.kit.scc.webreg.session.SessionManager;
-import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
 @Named
 @ViewScoped
@@ -43,24 +42,21 @@ public class ProjectAdminEditProjectServicesBean implements Serializable {
 
 	@Inject
 	private SessionManager session;
-	
+
 	@Inject
 	private LocalProjectService service;
 
-    @Inject
-    private ServiceService serviceService;
+	@Inject
+	private ServiceService serviceService;
 
 	@Inject
 	private ProjectService projectService;
 
-	@Inject
-	private FacesMessageGenerator messageGenerator;
-	
 	private LocalProjectEntity entity;
 	private List<ProjectIdentityAdminEntity> adminList;
 	private Set<ServiceEntity> serviceList;
 	private List<ServiceEntity> allServiceList;
-    
+
 	private Long projectId;
 
 	private ProjectIdentityAdminEntity adminIdentity;
@@ -69,46 +65,47 @@ public class ProjectAdminEditProjectServicesBean implements Serializable {
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
-			entity = service.findById(projectId);
+			entity = service.fetch(projectId);
 		}
-		
+
 		for (ProjectIdentityAdminEntity a : getAdminList()) {
 			if (a.getIdentity().getId().equals(session.getIdentityId())) {
 				adminIdentity = a;
 				break;
 			}
 		}
-		
+
 		if (adminIdentity == null) {
 			throw new NotAuthorizedException("Nicht autorisiert");
-		}
-		else {
-			if (! (ProjectAdminType.ADMIN.equals(adminIdentity.getType()) || ProjectAdminType.OWNER.equals(adminIdentity.getType()))) {
+		} else {
+			if (!(ProjectAdminType.ADMIN.equals(adminIdentity.getType())
+					|| ProjectAdminType.OWNER.equals(adminIdentity.getType()))) {
 				throw new NotAuthorizedException("Nicht autorisiert");
 			}
 		}
 	}
-	
+
 	public void addService(ServiceEntity service) {
 		savePossible = true;
 		getServiceList().add(service);
 	}
-	
+
 	public void removeService(ServiceEntity service) {
 		savePossible = true;
 		getServiceList().remove(service);
 	}
-	
+
 	public String save() {
-		projectService.updateServices(entity, getServiceList(), ProjectServiceType.PASSIVE_GROUP, ProjectServiceStatusType.ACTIVE, "idty-" + session.getIdentityId());
+		projectService.updateServices(entity, getServiceList(), ProjectServiceType.PASSIVE_GROUP,
+				ProjectServiceStatusType.ACTIVE, "idty-" + session.getIdentityId());
 		return "show-project.xhtml?faces-redirect=true&projectId=" + entity.getId();
 	}
-	
+
 	public String cancel() {
 		savePossible = false;
 		return "show-project.xhtml?faces-redirect=true&projectId=" + entity.getId();
 	}
-	
+
 	public LocalProjectEntity getEntity() {
 		return entity;
 	}
@@ -135,7 +132,9 @@ public class ProjectAdminEditProjectServicesBean implements Serializable {
 	public Set<ServiceEntity> getServiceList() {
 		if (serviceList == null) {
 			serviceList = new HashSet<ServiceEntity>();
-			projectService.findServicesForProject(entity).forEach((ps) -> { serviceList.add(ps.getService()); } );
+			projectService.findServicesForProject(entity).forEach((ps) -> {
+				serviceList.add(ps.getService());
+			});
 		}
 		return serviceList;
 	}

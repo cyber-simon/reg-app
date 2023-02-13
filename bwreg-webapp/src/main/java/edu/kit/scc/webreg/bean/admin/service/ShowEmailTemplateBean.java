@@ -34,7 +34,7 @@ public class ShowEmailTemplateBean implements Serializable {
 	private Long id;
 
 	public void preRenderView(ComponentSystemEvent ev) {
-		entity = service.findById(id);
+		entity = service.fetch(id);
 	}
 	
 	public EmailTemplateEntity getEntity() {

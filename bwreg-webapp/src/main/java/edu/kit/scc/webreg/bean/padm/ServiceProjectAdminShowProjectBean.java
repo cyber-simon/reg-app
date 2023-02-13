@@ -20,6 +20,7 @@ import javax.inject.Named;
 
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
+import edu.kit.scc.webreg.entity.project.LocalProjectEntity_;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
 import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
@@ -36,9 +37,9 @@ public class ServiceProjectAdminShowProjectBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@Inject 
+	@Inject
 	private SessionManager session;
-	
+
 	@Inject
 	private LocalProjectService service;
 
@@ -47,13 +48,13 @@ public class ServiceProjectAdminShowProjectBean implements Serializable {
 
 	@Inject
 	private ServiceService serviceService;
-	
-    @Inject
-    private AuthorizationBean authBean;
 
-    @Inject
-    private FacesMessageGenerator messageGenerator;
-    
+	@Inject
+	private AuthorizationBean authBean;
+
+	@Inject
+	private FacesMessageGenerator messageGenerator;
+
 	private LocalProjectEntity entity;
 	private ServiceEntity serviceEntity;
 	private ProjectServiceEntity projectServiceEntity;
@@ -63,41 +64,42 @@ public class ServiceProjectAdminShowProjectBean implements Serializable {
 
 	private Long projectId;
 	private Long serviceId;
-	
+
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
-			entity = service.findByIdWithAttrs(projectId, "projectServices");
+			entity = service.findByIdWithAttrs(projectId, LocalProjectEntity_.projectServices);
 		}
-		
+
 		if (serviceEntity == null) {
-			serviceEntity = serviceService.findById(serviceId);
+			serviceEntity = serviceService.fetch(serviceId);
 		}
-		
+
 		if (entity == null || serviceEntity == null)
 			throw new NotAuthorizedException("Nicht autorisiert");
-		
-		if (! authBean.isUserServiceProjectAdmin(serviceEntity)) 
+
+		if (!authBean.isUserServiceProjectAdmin(serviceEntity))
 			throw new NotAuthorizedException("No service project admin");
-		
-		projectServiceEntity = entity.getProjectServices().stream().filter(
-				ps -> ps.getService().equals(serviceEntity))
+
+		projectServiceEntity = entity.getProjectServices().stream().filter(ps -> ps.getService().equals(serviceEntity))
 				.findFirst().orElseThrow(() -> new NotAuthorizedException("Nicht autorisiert"));
 	}
-	
+
 	public void approve() {
 		service.approve(projectServiceEntity, "idty-" + session.getIdentityId());
-		messageGenerator.addResolvedInfoMessage("project.local_project.approver_admin_approved", "project.local_project.approver_admin_approved_detail", true);
-		entity = service.findByIdWithAttrs(projectId, "projectServices");
+		messageGenerator.addResolvedInfoMessage("project.local_project.approver_admin_approved",
+				"project.local_project.approver_admin_approved_detail", true);
+		entity = service.findByIdWithAttrs(projectId, LocalProjectEntity_.projectServices);
 		serviceList = null;
 	}
-	
+
 	public void deny() {
 		service.deny(projectServiceEntity, null, "idty-" + session.getIdentityId());
-		messageGenerator.addResolvedInfoMessage("project.local_project.approver_admin_declined", "project.local_project.approver_admin_declined_detail", true);
-		entity = service.findByIdWithAttrs(projectId, "projectServices");
+		messageGenerator.addResolvedInfoMessage("project.local_project.approver_admin_declined",
+				"project.local_project.approver_admin_declined_detail", true);
+		entity = service.findByIdWithAttrs(projectId, LocalProjectEntity_.projectServices);
 		serviceList = null;
 	}
-	
+
 	public LocalProjectEntity getEntity() {
 		return entity;
 	}

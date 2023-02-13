@@ -10,7 +10,12 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.impl;
 
-import java.io.Serializable;
+import static edu.kit.scc.webreg.dao.ops.PaginateBy.withLimit;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.and;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.lessThanOrEqualTo;
+import static edu.kit.scc.webreg.dao.ops.SortBy.ascendingBy;
+
 import java.util.Date;
 import java.util.List;
 
@@ -32,6 +37,7 @@ import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserEntity_;
 import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
 import edu.kit.scc.webreg.entity.UserLoginInfoStatus;
 import edu.kit.scc.webreg.entity.UserLoginMethod;
@@ -42,37 +48,38 @@ import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.session.HttpRequestContext;
 
 @Stateless
-public class UserServiceImpl extends BaseServiceImpl<UserEntity> implements UserService, Serializable {
+public class UserServiceImpl extends BaseServiceImpl<UserEntity> implements UserService {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	@Inject
 	private Logger logger;
-	
+
 	@Inject
 	private UserDao dao;
-	
+
 	@Inject
 	private SamlUserDao samlUserDao;
-	
+
 	@Inject
 	private UserUpdater userUpdater;
-	
-	@Inject 
+
+	@Inject
 	private RegistryDao registryDao;
-	
+
 	@Inject
 	private UserLoginInfoDao userLoginInfoDao;
-	
+
 	@Inject
 	private IdentityDao identityDao;
-	
+
 	@Inject
 	private HttpRequestContext requestContext;
-	
+
 	@Override
-	public UserLoginInfoEntity addLoginInfo(Long userId, UserLoginMethod method, UserLoginInfoStatus status, String from) {
-		UserEntity user = dao.findById(userId);
+	public UserLoginInfoEntity addLoginInfo(Long userId, UserLoginMethod method, UserLoginInfoStatus status,
+			String from) {
+		UserEntity user = dao.fetch(userId);
 		UserLoginInfoEntity loginInfo = userLoginInfoDao.createNew();
 		loginInfo.setUser(user);
 		loginInfo.setIdentity(user.getIdentity());
@@ -85,7 +92,8 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity> implements User
 	}
 
 	@Override
-	public UserLoginInfoEntity addLoginInfo(IdentityEntity identity, UserLoginMethod method, UserLoginInfoStatus status, String from) {
+	public UserLoginInfoEntity addLoginInfo(IdentityEntity identity, UserLoginMethod method, UserLoginInfoStatus status,
+			String from) {
 		identity = identityDao.merge(identity);
 		UserLoginInfoEntity loginInfo = userLoginInfoDao.createNew();
 		loginInfo.setIdentity(identity);
@@ -101,35 +109,15 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity> implements User
 	public SamlUserEntity findByPersistent(String spId, String idpId, String persistentId) {
 		return samlUserDao.findByPersistent(spId, idpId, persistentId);
 	}
-	
+
 	@Override
 	public List<UserEntity> findByIdentity(IdentityEntity identity) {
 		return dao.findByIdentity(identity);
 	}
 
 	@Override
-	public List<UserEntity> findOrderByUpdatedWithLimit(Date date, Integer limit) {
-		return dao.findOrderByUpdatedWithLimit(date, limit);
-	}
-
-	@Override
-	public List<UserEntity> findOrderByFailedUpdateWithLimit(Date date, Integer limit) {
-		return dao.findOrderByFailedUpdateWithLimit(date, limit);
-	}
-
-    @Override
-	public List<UserEntity> findGenericStoreKeyWithLimit(String key, Integer limit) {
-		return dao.findGenericStoreKeyWithLimit(key, limit);
-	}
-
-	@Override
 	public List<UserEntity> findByGroup(GroupEntity group) {
 		return dao.findByGroup(group);
-	}
-	
-	@Override
-	public UserEntity findByUidNumber(Long uidNumber) {
-		return dao.findByUidNumber(uidNumber);
 	}
 
 	@Override
@@ -139,12 +127,14 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity> implements User
 
 	@Override
 	public List<UserEntity> findByStatus(UserStatus status) {
-		return dao.findByStatus(status);
+		return dao.findAll(equal(UserEntity_.userStatus, status));
 	}
 
 	@Override
 	public List<UserEntity> findByStatusAndTimeSince(UserStatus status, Long statusSince, Integer limit) {
-		return dao.findByStatusAndTimeSince(status, statusSince, limit);
+		return dao.findAll(withLimit(limit), ascendingBy(UserEntity_.lastStatusChange), and(
+				equal(UserEntity_.userStatus, status),
+				lessThanOrEqualTo(UserEntity_.lastStatusChange, new Date(System.currentTimeMillis() - statusSince))));
 	}
 
 	@Override
@@ -158,26 +148,25 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity> implements User
 	}
 
 	@Override
-	public SamlUserEntity updateUserFromIdp(SamlUserEntity user, String executor, StringBuffer debugLog) 
+	public SamlUserEntity updateUserFromIdp(SamlUserEntity user, String executor, StringBuffer debugLog)
 			throws UserUpdateException {
 		return userUpdater.updateUserFromIdp(user, null, executor, debugLog);
 	}
 
 	@Override
-	public SamlUserEntity updateUserFromIdp(SamlUserEntity user, String executor) 
-			throws UserUpdateException {
+	public SamlUserEntity updateUserFromIdp(SamlUserEntity user, String executor) throws UserUpdateException {
 		return userUpdater.updateUserFromIdp(user, null, executor, null);
 	}
 
 	@Override
-	public SamlUserEntity updateUserFromIdp(SamlUserEntity user, ServiceEntity service, String executor) 
+	public SamlUserEntity updateUserFromIdp(SamlUserEntity user, ServiceEntity service, String executor)
 			throws UserUpdateException {
 		return userUpdater.updateUserFromIdp(user, executor);
 	}
 
 	@Override
-	public SamlUserEntity updateUserFromAssertion(SamlUserEntity user, Assertion assertion, String executor) 
-				throws UserUpdateException {
+	public SamlUserEntity updateUserFromAssertion(SamlUserEntity user, Assertion assertion, String executor)
+			throws UserUpdateException {
 		String lastLoginHost = null;
 		if (requestContext != null && requestContext.getHttpServletRequest() != null) {
 			lastLoginHost = requestContext.getHttpServletRequest().getLocalName();
@@ -190,18 +179,18 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity> implements User
 	protected BaseDao<UserEntity> getDao() {
 		return dao;
 	}
-	
+
 	@Override
 	public void checkOnHoldRegistries(UserEntity user) {
 		if (user.getUserStatus().equals(UserStatus.ON_HOLD)) {
-			List<RegistryEntity> registryList = registryDao.findByUserAndStatus(user, 
-					RegistryStatus.ACTIVE, RegistryStatus.LOST_ACCESS, RegistryStatus.INVALID);
+			List<RegistryEntity> registryList = registryDao.findByUserAndStatus(user, RegistryStatus.ACTIVE,
+					RegistryStatus.LOST_ACCESS, RegistryStatus.INVALID);
 			for (RegistryEntity registry : registryList) {
-				logger.debug("Setting registry {} (user {}) ON_HOLD", registry.getId(), user.getEppn()); 
+				logger.debug("Setting registry {} (user {}) ON_HOLD", registry.getId(), user.getEppn());
 				registry.setRegistryStatus(RegistryStatus.ON_HOLD);
 				registry.setStatusMessage("user-on-hold");
 				registry.setLastStatusChange(new Date());
-			}			
+			}
 		}
 	}
 }

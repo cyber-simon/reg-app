@@ -10,6 +10,10 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.impl;
 
+import static edu.kit.scc.webreg.dao.ops.PaginateBy.unlimited;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+import static edu.kit.scc.webreg.dao.ops.SortBy.ascendingBy;
+
 import java.util.List;
 
 import javax.ejb.Stateless;
@@ -20,6 +24,7 @@ import edu.kit.scc.webreg.dao.SamlSpMetadataDao;
 import edu.kit.scc.webreg.entity.FederationEntity;
 import edu.kit.scc.webreg.entity.SamlMetadataEntityStatus;
 import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
+import edu.kit.scc.webreg.entity.SamlSpMetadataEntity_;
 import edu.kit.scc.webreg.service.SamlSpMetadataService;
 
 @Stateless
@@ -29,38 +34,21 @@ public class SamlSpMetadataServiceImpl extends BaseServiceImpl<SamlSpMetadataEnt
 
 	@Inject
 	private SamlSpMetadataDao dao;
-	
+
 	@Override
 	public List<SamlSpMetadataEntity> findAllByFederation(FederationEntity federation) {
 		return dao.findAllByFederation(federation);
 	}
-	
+
 	@Override
 	public List<SamlSpMetadataEntity> findAllByStatusOrderedByOrgname(SamlMetadataEntityStatus status) {
-		return dao.findAllByStatusOrderedByOrgname(status);
+		return findAll(unlimited(), ascendingBy(SamlSpMetadataEntity_.orgName),
+				equal(SamlSpMetadataEntity_.status, status));
 	}
-	
-	@Override
-	public SamlSpMetadataEntity findByIdWithAll(Long id) {
-		SamlSpMetadataEntity sp = dao.findByIdWithAll(id);
-		if (sp != null)
-			sp.getEntityDescriptor();
-		return sp;
-	}
-	
+
 	@Override
 	public SamlSpMetadataEntity findByEntityId(String entityId) {
 		return dao.findByEntityId(entityId);
-	}
-	
-	@Override
-	public List<SamlSpMetadataEntity> findAllByFederationOrderByOrgname(FederationEntity federation) {
-		return dao.findAllByFederationOrderByOrgname(federation);
-	}
-		
-	@Override
-	public SamlSpMetadataEntity findByScope(String scope) {
-		return dao.findByScope(scope);
 	}
 
 	@Override

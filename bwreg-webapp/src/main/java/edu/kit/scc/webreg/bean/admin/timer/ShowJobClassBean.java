@@ -45,11 +45,11 @@ public class ShowJobClassBean implements Serializable {
 	private Long id;
 
 	public void preRenderView(ComponentSystemEvent ev) {
-		entity = service.findById(id);
+		entity = service.fetch(id);
 	}
 	
 	public void fireJob() {
-		entity = service.findById(id);
+		entity = service.fetch(id);
 		logger.debug("Directly invoking: {} [{}]", entity.getName(), entity.getJobClassName());
 
 		try {

@@ -13,6 +13,22 @@ public interface SortBy {
 		return new SortByBasedOnAttribute(field, sortOrder);
 	}
 
+	public static SortBy ascendingBy(String field) {
+		return new SortByBasedOnString(field, SortOrder.ASCENDING);
+	}
+
+	public static SortBy ascendingBy(SingularAttribute<?, ?> field) {
+		return new SortByBasedOnAttribute(field, SortOrder.ASCENDING);
+	}
+
+	public static SortBy descendingBy(String field) {
+		return new SortByBasedOnString(field, SortOrder.DESCENDING);
+	}
+
+	public static SortBy descendingBy(SingularAttribute<?, ?> field) {
+		return new SortByBasedOnAttribute(field, SortOrder.DESCENDING);
+	}
+
 	SortOrder getOrder();
 
 	<E, F> Path<F> getFieldPath(Path<E> parent);

@@ -55,7 +55,7 @@ public class ProjectAdminShowProjectBean implements Serializable {
 	
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
-			entity = service.findById(projectId);
+			entity = service.fetch(projectId);
 		}
 		
 		for (ProjectIdentityAdminEntity a : getAdminList()) {

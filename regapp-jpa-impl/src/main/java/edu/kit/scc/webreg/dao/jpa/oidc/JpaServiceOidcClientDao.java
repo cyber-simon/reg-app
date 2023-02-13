@@ -10,13 +10,14 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa.oidc;
 
+import static edu.kit.scc.webreg.dao.ops.PaginateBy.unlimited;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+import static edu.kit.scc.webreg.dao.ops.SortBy.ascendingBy;
+
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 
 import edu.kit.scc.webreg.dao.jpa.JpaBaseDao;
 import edu.kit.scc.webreg.dao.oidc.ServiceOidcClientDao;
@@ -30,17 +31,13 @@ public class JpaServiceOidcClientDao extends JpaBaseDao<ServiceOidcClientEntity>
 
 	@Override
 	public List<ServiceOidcClientEntity> findByClientConfig(OidcClientConfigurationEntity clientConfig) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<ServiceOidcClientEntity> criteria = builder.createQuery(ServiceOidcClientEntity.class);
-		Root<ServiceOidcClientEntity> root = criteria.from(ServiceOidcClientEntity.class);
-		criteria.where(builder.equal(root.get(ServiceOidcClientEntity_.clientConfig), clientConfig));
-		criteria.orderBy(builder.asc(root.get(ServiceOidcClientEntity_.orderCriteria)));
-		criteria.select(root);
-		return em.createQuery(criteria).getResultList();
+		return findAll(unlimited(), ascendingBy(ServiceOidcClientEntity_.orderCriteria),
+				equal(ServiceOidcClientEntity_.clientConfig, clientConfig));
 	}
 
 	@Override
 	public Class<ServiceOidcClientEntity> getEntityClass() {
 		return ServiceOidcClientEntity.class;
 	}
+
 }

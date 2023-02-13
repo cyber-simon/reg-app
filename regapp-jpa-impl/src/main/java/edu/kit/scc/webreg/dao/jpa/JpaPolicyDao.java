@@ -12,10 +12,6 @@ package edu.kit.scc.webreg.dao.jpa;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Root;
 
 import edu.kit.scc.webreg.dao.PolicyDao;
 import edu.kit.scc.webreg.entity.PolicyEntity;
@@ -24,21 +20,9 @@ import edu.kit.scc.webreg.entity.PolicyEntity;
 @ApplicationScoped
 public class JpaPolicyDao extends JpaBaseDao<PolicyEntity> implements PolicyDao {
 
-    @Override
-	public PolicyEntity findWithAgreemets(Long id) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<PolicyEntity> criteria = builder.createQuery(PolicyEntity.class);
-		Root<PolicyEntity> root = criteria.from(PolicyEntity.class);
-		criteria.where(
-				builder.equal(root.get("id"), id));
-		criteria.select(root);
-		root.fetch("agreementTexts", JoinType.LEFT);
-
-		return em.createQuery(criteria).getSingleResult();
-	}
-
 	@Override
 	public Class<PolicyEntity> getEntityClass() {
 		return PolicyEntity.class;
 	}
+
 }

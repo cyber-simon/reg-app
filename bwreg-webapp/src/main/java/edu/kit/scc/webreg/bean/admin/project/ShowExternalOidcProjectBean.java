@@ -18,9 +18,8 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.slf4j.Logger;
-
 import edu.kit.scc.webreg.entity.project.ExternalOidcProjectEntity;
+import edu.kit.scc.webreg.entity.project.ExternalOidcProjectEntity_;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.service.project.ExternalOidcProjectService;
@@ -33,18 +32,15 @@ public class ShowExternalOidcProjectBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Inject
-	private Logger logger;
-	
-	@Inject
 	private ExternalOidcProjectService service;
 
 	@Inject
 	private ProjectService projectService;
-	
+
 	private ExternalOidcProjectEntity entity;
 	private List<ProjectMembershipEntity> memberList;
 	private List<ProjectIdentityAdminEntity> adminList;
-	
+
 	private Long id;
 
 	public void preRenderView(ComponentSystemEvent ev) {
@@ -60,7 +56,7 @@ public class ShowExternalOidcProjectBean implements Serializable {
 
 	public ExternalOidcProjectEntity getEntity() {
 		if (entity == null) {
-			entity = service.findByIdWithAttrs(id, "projectServices");
+			entity = service.findByIdWithAttrs(id, ExternalOidcProjectEntity_.projectServices);
 		}
 
 		return entity;
@@ -76,11 +72,11 @@ public class ShowExternalOidcProjectBean implements Serializable {
 		}
 		return memberList;
 	}
-	
+
 	public List<ProjectIdentityAdminEntity> getAdminList() {
 		if (adminList == null) {
 			adminList = projectService.findAdminsForProject(getEntity());
 		}
 		return adminList;
-	}		
+	}
 }

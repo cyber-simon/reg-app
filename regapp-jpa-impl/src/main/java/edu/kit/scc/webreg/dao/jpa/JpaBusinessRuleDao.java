@@ -10,9 +10,6 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
-import java.util.Date;
-import java.util.List;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 
@@ -23,22 +20,9 @@ import edu.kit.scc.webreg.entity.BusinessRuleEntity;
 @ApplicationScoped
 public class JpaBusinessRuleDao extends JpaBaseDao<BusinessRuleEntity> implements BusinessRuleDao {
 
-    @Override
-    @SuppressWarnings({"unchecked"})
-	public List<BusinessRuleEntity> findAllNewer(Date date) {
-		return em.createQuery("select e from BusinessRuleEntity e where updatedAt > :date")
-				.setParameter("date", date).getResultList();
-	}
-
-    @Override
-    @SuppressWarnings({"unchecked"})
-	public List<BusinessRuleEntity> findAllKnowledgeBaseNotNull() {
-		return em.createQuery("select e from BusinessRuleEntity e where knowledgeBaseName != null")
-				.getResultList();
-	}
-
 	@Override
 	public Class<BusinessRuleEntity> getEntityClass() {
 		return BusinessRuleEntity.class;
 	}
+
 }

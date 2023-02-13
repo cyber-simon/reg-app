@@ -44,7 +44,7 @@ public class EditFederationBean implements Serializable {
 	
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
-			entity = service.findById(id);
+			entity = service.fetch(id);
 			
 			rulePackageList = rulePackageService.findAll();
 			selectedRulePackage = entity.getEntityFilterRulePackage();

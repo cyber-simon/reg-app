@@ -54,7 +54,7 @@ public class ShowRoleBean implements Serializable {
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
-			entity = service.findById(id);
+			entity = service.fetch(id);
 			userList = service.findUsersForRole(entity);
 			groupList = service.findGroupsForRole(entity);
 

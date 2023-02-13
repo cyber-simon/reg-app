@@ -18,6 +18,4 @@ public interface SamlIdpConfigurationDao extends BaseDao<SamlIdpConfigurationEnt
 
 	List<SamlIdpConfigurationEntity> findByHostname(String hostname);
 
-	SamlIdpConfigurationEntity findByEntityId(String entityId);
-
 }

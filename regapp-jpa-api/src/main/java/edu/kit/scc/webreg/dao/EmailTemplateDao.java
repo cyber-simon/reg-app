@@ -14,6 +14,4 @@ import edu.kit.scc.webreg.entity.EmailTemplateEntity;
 
 public interface EmailTemplateDao extends BaseDao<EmailTemplateEntity> {
 
-	EmailTemplateEntity findByName(String name);
-
 }

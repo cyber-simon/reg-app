@@ -10,7 +10,6 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa.audit;
 
-import java.util.Date;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -26,22 +25,15 @@ import edu.kit.scc.webreg.entity.audit.AuditServiceRegisterEntity;
 @ApplicationScoped
 public class JpaAuditEntryDao extends JpaBaseDao<AuditEntryEntity> implements AuditEntryDao {
 
-    @Override
-    @SuppressWarnings({"unchecked"})
-	public List<AuditEntryEntity> findAllOlderThan(Date date, int limit) {
-		return em.createQuery("select e from AuditEntryEntity e where parentEntry is null and endTime < :date order by endTime asc")
-				.setParameter("date", date).setMaxResults(limit).getResultList();
-	}
-
-    @Override
-    @SuppressWarnings({"unchecked"})
+	@Override
 	public List<AuditServiceRegisterEntity> findAllServiceRegister(RegistryEntity registry) {
-		return em.createQuery("select e from AuditServiceRegisterEntity e where e.registry = :registry")
-				.setParameter("registry", registry).getResultList();
+		return em.createQuery("select e from AuditServiceRegisterEntity e where e.registry = :registry",
+				AuditServiceRegisterEntity.class).setParameter("registry", registry).getResultList();
 	}
 
 	@Override
 	public Class<AuditEntryEntity> getEntityClass() {
 		return AuditEntryEntity.class;
 	}
+
 }

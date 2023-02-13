@@ -29,7 +29,7 @@ public class SamlUserDeprovisionServiceImpl implements SamlUserDeprovisionServic
 	
 	@Override
 	public SamlUserEntity pseudoUser(SamlUserEntity user) {
-		user = dao.findById(user.getId());
+		user = dao.fetch(user.getId());
 		
 		logger.info("Pseudonymisiong user {} (identity {})", user.getId(), user.getIdentity().getId());
 		

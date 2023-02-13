@@ -61,8 +61,8 @@ public class OidcAccessDeniedBean implements Serializable {
 	
     public void preRenderView(ComponentSystemEvent ev) {
     	if (! initialized) {
-    		serviceOidcClient = serviceOidcClientService.findById(getId());
-    		identity = identityService.findById(sessionManager.getIdentityId());
+    		serviceOidcClient = serviceOidcClientService.fetch(getId());
+    		identity = identityService.fetch(sessionManager.getIdentityId());
     		
     		checkServiceAccess();
     	}

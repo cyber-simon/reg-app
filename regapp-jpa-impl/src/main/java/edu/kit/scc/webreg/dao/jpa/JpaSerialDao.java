@@ -10,27 +10,22 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
-import javax.persistence.NoResultException;
 
 import edu.kit.scc.webreg.dao.SerialDao;
 import edu.kit.scc.webreg.entity.SerialEntity;
+import edu.kit.scc.webreg.entity.SerialEntity_;
 
 @Named
 @ApplicationScoped
 public class JpaSerialDao extends JpaBaseDao<SerialEntity> implements SerialDao {
 
-    @Override
+	@Override
 	public SerialEntity findByName(String name) {
-		try {
-			return (SerialEntity) em.createQuery("select e from SerialEntity e where e.name = :name")
-					.setParameter("name", name)
-					.getSingleResult();
-		}
-		catch (NoResultException e) {
-			return null;
-		}
+		return find(equal(SerialEntity_.name, name));
 	}
 
 	@Override

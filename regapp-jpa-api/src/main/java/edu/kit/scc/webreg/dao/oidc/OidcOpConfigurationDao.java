@@ -15,6 +15,6 @@ import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
 
 public interface OidcOpConfigurationDao extends BaseDao<OidcOpConfigurationEntity> {
 
-	OidcOpConfigurationEntity findByRealm(String realm);
 	OidcOpConfigurationEntity findByRealmAndHost(String realm, String host);
+
 }

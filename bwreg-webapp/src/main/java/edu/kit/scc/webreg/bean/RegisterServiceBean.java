@@ -35,6 +35,7 @@ import edu.kit.scc.webreg.entity.PolicyEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity_;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceServiceEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
@@ -63,93 +64,95 @@ public class RegisterServiceBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private static final Logger logger = LoggerFactory.getLogger(RegisterServiceBean.class);
-	
+
 	private IdentityEntity identity;
 	private List<UserEntity> userList;
 	private UserEntity selectedUserEntity;
-	
+
 	private ServiceEntity service;
-	
+
 	private Long id;
-	
+
 	private String serviceShortName;
-	
+
 	private Boolean initialzed = false;
-	
+
 	private Boolean errorState = false;
 
 	private Boolean accessAllowed;
-	
-	private List<String> requirementsList;
-	
-    @Inject
-    private ServiceService serviceService;
 
-    @Inject
-    private IdentityService identityService;
-    
-    @Inject
-    private UserService userService;
-    
-    @Inject
-    private RegistryService registryService;
-    
-    @Inject
-    private RegisterUserService registerUserService;
-    
-    @Inject
-    private PolicyService policyService;
-    
-    @Inject 
-    private SessionManager sessionManager;
+	private List<String> requirementsList;
+
+	@Inject
+	private ServiceService serviceService;
+
+	@Inject
+	private IdentityService identityService;
+
+	@Inject
+	private UserService userService;
+
+	@Inject
+	private RegistryService registryService;
+
+	@Inject
+	private RegisterUserService registerUserService;
+
+	@Inject
+	private PolicyService policyService;
+
+	@Inject
+	private SessionManager sessionManager;
 
 	@Inject
 	private KnowledgeSessionService knowledgeSessionService;
-	
+
 	@Inject
 	private AttributeSourceQueryService asQueryService;
-	
+
 	@Inject
 	private FacesMessageGenerator messageGenerator;
-	
+
 	@Inject
 	private TwoFaService twoFaService;
-	
-    private List<RegisterServiceBean.PolicyHolder> policyHolderList;
-    
+
+	private List<RegisterServiceBean.PolicyHolder> policyHolderList;
+
 	public void preRenderView(ComponentSystemEvent ev) {
-		
+
 		if (getUserList().size() == 1) {
 			selectedUserEntity = getUserList().get(0);
-		}
-		else {
+		} else {
 			selectedUserEntity = getIdentity().getPrefUser();
 		}
-		
-    	if (! initialzed) {
-    		if (id == null && serviceShortName != null) {
-    			service = serviceService.findByShortName(serviceShortName);
-    			id = service.getId();
-    		}
-    		
-			service = serviceService.findByIdWithAttrs(id, "attributeSourceService", "serviceProps");
-			
-			List<RegistryEntity> r = registryService.findByServiceAndIdentityAndNotStatus(service, getIdentity(), 
+
+		if (!initialzed) {
+			if (id == null && serviceShortName != null) {
+				service = serviceService.findByShortName(serviceShortName);
+				id = service.getId();
+			}
+
+			service = serviceService.findByIdWithAttrs(id, ServiceEntity_.attributeSourceService,
+					ServiceEntity_.serviceProps);
+
+			List<RegistryEntity> r = registryService.findByServiceAndIdentityAndNotStatus(service, getIdentity(),
 					RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
 			if (r.size() != 0) {
 				errorState = true;
-	    		messageGenerator.addResolvedErrorMessage("errorState", "error", "already_registered", true);
+				messageGenerator.addResolvedErrorMessage("errorState", "error", "already_registered", true);
 				return;
 			}
-			
-			if (identity.getRegistrationLock() != null && identity.getRegistrationLock().after(new Date(System.currentTimeMillis() - (5 * 60 * 1000L)))) {
+
+			if (identity.getRegistrationLock() != null
+					&& identity.getRegistrationLock().after(new Date(System.currentTimeMillis() - (5 * 60 * 1000L)))) {
 				// There is a registration running and a timeout is not reached
 				errorState = true;
-	    		messageGenerator.addResolvedErrorMessage("errorState", "error", "registration_already_running", true);
-	    		logger.warn("Identity {} cannot register for service {}: There is a registration already running.", identity.getId(), service.getId());
+				messageGenerator.addResolvedErrorMessage("errorState", "error", "registration_already_running", true);
+				logger.warn("Identity {} cannot register for service {}: There is a registration already running.",
+						identity.getId(), service.getId());
 				return;
 			}
-			
+
 			for (UserEntity user : userList) {
 				for (AttributeSourceServiceEntity asse : service.getAttributeSourceService()) {
 					logger.info("Updating attribute source {}", asse.getAttributeSource().getName());
@@ -160,11 +163,11 @@ public class RegisterServiceBean implements Serializable {
 					}
 				}
 			}
-			
+
 			policyHolderList = new ArrayList<RegisterServiceBean.PolicyHolder>();
-			
+
 			List<PolicyEntity> policiesTemp = policyService.resolvePoliciesForService(service, selectedUserEntity);
-			
+
 			for (PolicyEntity policy : policiesTemp) {
 				PolicyHolder ph = new PolicyHolder();
 				ph.setPolicy(policy);
@@ -172,17 +175,19 @@ public class RegisterServiceBean implements Serializable {
 				policyHolderList.add(ph);
 			}
 
-			if (! registerUserService.checkWorkflow(service.getRegisterBean()))
-				throw new MisconfiguredServiceException("Der Registrierungsprozess für den Dienst ist nicht korrekt konfiguriert");
+			if (!registerUserService.checkWorkflow(service.getRegisterBean()))
+				throw new MisconfiguredServiceException(
+						"Der Registrierungsprozess für den Dienst ist nicht korrekt konfiguriert");
 
-    		checkUserAccess();
-			
+			checkUserAccess();
+
 			initialzed = true;
 		}
 	}
 
 	public void checkUserAccess() {
-		List<Object> objectList = knowledgeSessionService.checkServiceAccessRule(selectedUserEntity, service, null, "user-self", false);
+		List<Object> objectList = knowledgeSessionService.checkServiceAccessRule(selectedUserEntity, service, null,
+				"user-self", false);
 
 		requirementsList = new ArrayList<String>();
 		for (Object o : objectList) {
@@ -190,8 +195,7 @@ public class RegisterServiceBean implements Serializable {
 				requirementsList.clear();
 				logger.debug("Removing requirements due to OverrideAccess");
 				break;
-			}
-			else if (o instanceof UnauthorizedUser) {
+			} else if (o instanceof UnauthorizedUser) {
 				String s = ((UnauthorizedUser) o).getMessage();
 				requirementsList.add(s);
 			}
@@ -199,37 +203,34 @@ public class RegisterServiceBean implements Serializable {
 
 		if (requirementsList.size() == 0) {
 			accessAllowed = true;
-		}
-		else {
+		} else {
 			accessAllowed = false;
 		}
 
 		for (String s : requirementsList) {
-    		messageGenerator.addResolvedErrorMessage("reqs", "error", s, true);
+			messageGenerator.addResolvedErrorMessage("reqs", "error", s, true);
 		}
-		
 
-		if (service.getServiceProps().containsKey("twofa") && 
-				(service.getServiceProps().get("twofa").equalsIgnoreCase("enabled") 
-					|| service.getServiceProps().get("twofa").equalsIgnoreCase("enabled_twostep"))) {
+		if (service.getServiceProps().containsKey("twofa")
+				&& (service.getServiceProps().get("twofa").equalsIgnoreCase("enabled")
+						|| service.getServiceProps().get("twofa").equalsIgnoreCase("enabled_twostep"))) {
 			/*
-			 * second factor for service is enabled. Check if user has registered second factor
+			 * second factor for service is enabled. Check if user has registered second
+			 * factor
 			 */
 			try {
 				TwoFaTokenList tokenList = twoFaService.findByIdentity(getIdentity());
 
 				Map<String, Object> rendererContext = new HashMap<String, Object>();
 				rendererContext.put("service", service);
-				
+
 				if (tokenList.getReallyReadOnly() != null && tokenList.getReallyReadOnly()) {
 					// 2fa are managed by other org, we can not see if the user has an active token
-				}
-				else if (tokenList.size() == 0) {
+				} else if (tokenList.size() == 0) {
 					accessAllowed = false;
-		    		messageGenerator.addResolvedMessage("reqs", FacesMessage.SEVERITY_ERROR, "error", 
-		    				"twofa_mandatory", true, rendererContext);
-				}
-				else {
+					messageGenerator.addResolvedMessage("reqs", FacesMessage.SEVERITY_ERROR, "error", "twofa_mandatory",
+							true, rendererContext);
+				} else {
 					Boolean noActive = true;
 					for (GenericTwoFaToken lt : tokenList) {
 						if (lt.getIsactive()) {
@@ -237,130 +238,126 @@ public class RegisterServiceBean implements Serializable {
 							break;
 						}
 					}
-					
+
 					if (noActive) {
 						accessAllowed = false;
-			    		messageGenerator.addResolvedMessage("reqs", FacesMessage.SEVERITY_ERROR, "error", 
-			    				"twofa_mandatory", true, rendererContext);
+						messageGenerator.addResolvedMessage("reqs", FacesMessage.SEVERITY_ERROR, "error",
+								"twofa_mandatory", true, rendererContext);
 					}
 				}
 			} catch (TwoFaException e) {
 				logger.warn("There is a problem communicating with twofa server" + e.getMessage());
 				errorState = true;
-	    		messageGenerator.addResolvedErrorMessage("errorState", "error", "twofa_problem", true);
+				messageGenerator.addResolvedErrorMessage("errorState", "error", "twofa_problem", true);
 				return;
 			}
-		}		
+		}
 	}
-	
-    public String registerUser() {
+
+	public String registerUser() {
 
 		checkUserAccess();
 
-    	if (! accessAllowed) {
-    		messageGenerator.addErrorMessage("need_check", "Zugangsvorraussetzungen!", "Sie erfüllen nicht alle Zugangsvorraussetzungen.");
-			return null;
-    	}
-
-		List<RegistryEntity> r = registryService.findByServiceAndIdentityAndNotStatus(service, getIdentity(), 
-				RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
-		if (r.size() != 0) {
-    		messageGenerator.addResolvedErrorMessage("errorState", "error", "already_registered", true);
+		if (!accessAllowed) {
+			messageGenerator.addErrorMessage("need_check", "Zugangsvorraussetzungen!",
+					"Sie erfüllen nicht alle Zugangsvorraussetzungen.");
 			return null;
 		}
-    	
-    	logger.debug("testing all checkboxes");
-    	
-    	for(PolicyHolder ph : policyHolderList) {
-    		if (ph.getPolicy() != null && ph.getPolicy().getShowOnly() != null && ph.getPolicy().getShowOnly()) {
-    			logger.debug("Policy {} in Service {} is just for show", ph.getPolicy().getId(), service.getId());
-    		}
-    		else if (! ph.getChecked()) {
-    			logger.debug("Policy {} in Service {} is not checked", ph.getPolicy().getId(), service.getId());
-        		messageGenerator.addWarningMessage("need_check", "Zustimmung fehlt!", "Sie müssen allen Nutzungbedingungen zustimmen.");
-    			return null;
-    		}
-    		else {
-    			logger.debug("Policy {} in Service {} is checked", ph.getPolicy().getId(), service.getId());
-    		}
-    	}
-    	
-    	logger.debug("identity {} with user {} wants to register to service {} using bean {}", new Object[] {
-    			getIdentity().getId(), selectedUserEntity.getEppn(), service.getName(), service.getRegisterBean()
-    	});
-    	
-    	RegistryEntity registry;
-    	
-    	try {
-			//
-			// Insert/check gate to prevent double registrations per identity in this place 
-			//
-    		
-			identity = identityService.findById(sessionManager.getIdentityId());
-			if (identity.getRegistrationLock() != null && 
-					(identity.getRegistrationLock().getTime() > System.currentTimeMillis() - (5 * 60 * 1000L))) {
-				// There is a registration running and a timeout is not reached
-	    		messageGenerator.addResolvedErrorMessage("errorState", "error", "registration_already_running", true);
-	    		logger.warn("Identity {} cannot register for service {}: There is a registration already running.", identity.getId(), service.getId());
-				return null;   				
+
+		List<RegistryEntity> r = registryService.findByServiceAndIdentityAndNotStatus(service, getIdentity(),
+				RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED);
+		if (r.size() != 0) {
+			messageGenerator.addResolvedErrorMessage("errorState", "error", "already_registered", true);
+			return null;
+		}
+
+		logger.debug("testing all checkboxes");
+
+		for (PolicyHolder ph : policyHolderList) {
+			if (ph.getPolicy() != null && ph.getPolicy().getShowOnly() != null && ph.getPolicy().getShowOnly()) {
+				logger.debug("Policy {} in Service {} is just for show", ph.getPolicy().getId(), service.getId());
+			} else if (!ph.getChecked()) {
+				logger.debug("Policy {} in Service {} is not checked", ph.getPolicy().getId(), service.getId());
+				messageGenerator.addWarningMessage("need_check", "Zustimmung fehlt!",
+						"Sie müssen allen Nutzungbedingungen zustimmen.");
+				return null;
+			} else {
+				logger.debug("Policy {} in Service {} is checked", ph.getPolicy().getId(), service.getId());
 			}
-			else {
+		}
+
+		logger.debug("identity {} with user {} wants to register to service {} using bean {}", new Object[] {
+				getIdentity().getId(), selectedUserEntity.getEppn(), service.getName(), service.getRegisterBean() });
+
+		RegistryEntity registry;
+
+		try {
+			//
+			// Insert/check gate to prevent double registrations per identity in this place
+			//
+
+			identity = identityService.fetch(sessionManager.getIdentityId());
+			if (identity.getRegistrationLock() != null
+					&& (identity.getRegistrationLock().getTime() > System.currentTimeMillis() - (5 * 60 * 1000L))) {
+				// There is a registration running and a timeout is not reached
+				messageGenerator.addResolvedErrorMessage("errorState", "error", "registration_already_running", true);
+				logger.warn("Identity {} cannot register for service {}: There is a registration already running.",
+						identity.getId(), service.getId());
+				return null;
+			} else {
 				identity.setRegistrationLock(new Date());
 				identity = identityService.save(identity);
 
 				try {
 					if (policyHolderList.size() == 0) {
-		    			registry = registerUserService.registerUser(selectedUserEntity, service, "user-self");
-		    		}
-		    		else {
-		    			List<Long> policyIdList = new ArrayList<Long>();
-		    			for (PolicyHolder ph : policyHolderList) {
-		    				policyIdList.add(ph.getPolicy().getId());
-		    			}
-		
-	    				registry = registerUserService.registerUser(selectedUserEntity, service, policyIdList, "user-self");
-		    		}
-		    	} catch (RegisterException e) {
-					FacesContext.getCurrentInstance().addMessage("need_check", 
-							new FacesMessage(FacesMessage.SEVERITY_FATAL, "Registrierung fehlgeschlagen", e.getMessage()));
-		    		logger.warn("Register failed!", e);
+						registry = registerUserService.registerUser(selectedUserEntity, service, "user-self");
+					} else {
+						List<Long> policyIdList = new ArrayList<Long>();
+						for (PolicyHolder ph : policyHolderList) {
+							policyIdList.add(ph.getPolicy().getId());
+						}
+
+						registry = registerUserService.registerUser(selectedUserEntity, service, policyIdList,
+								"user-self");
+					}
+				} catch (RegisterException e) {
+					FacesContext.getCurrentInstance().addMessage("need_check", new FacesMessage(
+							FacesMessage.SEVERITY_FATAL, "Registrierung fehlgeschlagen", e.getMessage()));
+					logger.warn("Register failed!", e);
 					return null;
 				} finally {
 					//
-		    		// remove double registration lock
-		    		//
-		    		identity.setRegistrationLock(null);
+					// remove double registration lock
+					//
+					identity.setRegistrationLock(null);
 					identity = identityService.save(identity);
 				}
 			}
-    		sessionManager.setUnregisteredServiceCreated(null);
+			sessionManager.setUnregisteredServiceCreated(null);
 		} catch (Exception e) {
-			FacesContext.getCurrentInstance().addMessage("need_check", 
+			FacesContext.getCurrentInstance().addMessage("need_check",
 					new FacesMessage(FacesMessage.SEVERITY_FATAL, "Registrierung fehlgeschlagen", e.getMessage()));
-    		logger.warn("Register failed!", e);
+			logger.warn("Register failed!", e);
 			return null;
 		}
-  	
+
 		try {
-	    	if (service.getServiceProps().containsKey("redirect_after_register")) {
-	    		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+			if (service.getServiceProps().containsKey("redirect_after_register")) {
+				ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
 				context.redirect(service.getServiceProps().get("redirect_after_register"));
 				sessionManager.setOriginalRequestPath(null);
 				return null;
-	    	}
-	    	else if (service.getPasswordCapable() &&
-	    			service.getServiceProps().containsKey("ecp") &&
-	    			service.getServiceProps().get("ecp").equalsIgnoreCase("disabled")) {
-	    		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+			} else if (service.getPasswordCapable() && service.getServiceProps().containsKey("ecp")
+					&& service.getServiceProps().get("ecp").equalsIgnoreCase("disabled")) {
+				ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
 				context.redirect("../service/set-password.xhtml?registryId=" + registry.getId() + "&no=created");
 				return null;
-	    	}
-	    	else if (sessionManager.getOriginalRequestPath() != null) {
-	    		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+			} else if (sessionManager.getOriginalRequestPath() != null) {
+				ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
 				context.redirect(sessionManager.getOriginalRequestPath());
 				sessionManager.setOriginalRequestPath(null);
 				return null;
-	    	}
+			}
 
 			ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
 			context.redirect("../service/registry-detail.xhtml?regId=" + registry.getId());
@@ -369,9 +366,9 @@ public class RegisterServiceBean implements Serializable {
 			logger.info("Could not redirect client", e);
 		}
 
-    	return null;
-    }
-    
+		return null;
+	}
+
 	public Long getId() {
 		return id;
 	}
@@ -400,19 +397,19 @@ public class RegisterServiceBean implements Serializable {
 		private static final long serialVersionUID = 1L;
 		private PolicyEntity policy;
 		private Boolean checked;
-		
+
 		public PolicyEntity getPolicy() {
 			return policy;
 		}
-		
+
 		public void setPolicy(PolicyEntity policy) {
 			this.policy = policy;
 		}
-		
+
 		public Boolean getChecked() {
 			return checked;
 		}
-		
+
 		public void setChecked(Boolean checked) {
 			this.checked = checked;
 		}
@@ -436,7 +433,7 @@ public class RegisterServiceBean implements Serializable {
 
 	public IdentityEntity getIdentity() {
 		if (identity == null) {
-			identity = identityService.findById(sessionManager.getIdentityId());
+			identity = identityService.fetch(sessionManager.getIdentityId());
 		}
 		return identity;
 	}

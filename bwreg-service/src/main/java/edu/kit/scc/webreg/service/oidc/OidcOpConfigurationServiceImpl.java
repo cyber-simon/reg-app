@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.oidc.OidcOpConfigurationDao;
 import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity_;
 import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationStatusType;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
 
@@ -38,18 +39,13 @@ public class OidcOpConfigurationServiceImpl extends BaseServiceImpl<OidcOpConfig
 	private OidcOpConfigurationDao dao;
 
 	@Override
-	public OidcOpConfigurationEntity findByRealm(String realm) {
-		return dao.findByRealm(realm);
-	}
-
-	@Override
 	public OidcOpConfigurationEntity findByRealmAndHost(String realm, String host) {
 		return dao.findByRealmAndHost(realm, host);
 	}
 
 	@Override
 	public void fixStatus() {
-		List<OidcOpConfigurationEntity> opList = dao.findAllPaging(isNull("opStatus"));
+		List<OidcOpConfigurationEntity> opList = dao.findAll(isNull(OidcOpConfigurationEntity_.opStatus));
 		for (OidcOpConfigurationEntity op : opList) {
 			logger.info("Setting status from null to ACTIVE for OIDC OP configuration {}", op.getName());
 			op.setOpStatus(OidcOpConfigurationStatusType.ACTIVE);

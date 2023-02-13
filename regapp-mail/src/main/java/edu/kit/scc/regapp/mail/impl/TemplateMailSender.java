@@ -10,6 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.regapp.mail.impl;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -24,6 +26,7 @@ import edu.kit.scc.webreg.dao.EmailTemplateDao;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.entity.EmailTemplateEntity;
+import edu.kit.scc.webreg.entity.EmailTemplateEntity_;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.exc.MailServiceException;
@@ -37,35 +40,35 @@ public class TemplateMailSender {
 
 	@Inject
 	private Logger logger;
-	
+
 	@Inject
 	private TemplateRenderer renderer;
 
 	@Inject
 	private QueuedMailService queuedMailService;
-	
+
 	@Inject
 	private MailService mailService;
-	
+
 	@Inject
 	private EmailTemplateDao emailTemplateDao;
 
 	@Inject
 	private IdentityUserPrefsResolver userPrefsResolver;
-	
+
 	@Inject
 	private UserDao userDao;
-	
+
 	@Inject
 	private IdentityDao identityDao;
-	
+
 	public void sendMail(String templateName, Map<String, Object> rendererContext, Boolean queued) {
-		
+
 		try {
 			logger.debug("Looking up template {} in database", templateName);
-			
-			EmailTemplateEntity emailTemplateEntity = emailTemplateDao.findByName(templateName);
-			
+
+			EmailTemplateEntity emailTemplateEntity = findByName(templateName);
+
 			if (emailTemplateEntity == null) {
 				logger.warn("No template found by name {}", templateName);
 				return;
@@ -73,29 +76,29 @@ public class TemplateMailSender {
 
 			if (rendererContext.containsKey("identity")) {
 				/**
-				 * TODO check, if identityDao.merge can cause data conflicts. Better way would be dao.findById
+				 * TODO check, if identityDao.merge can cause data conflicts. Better way would
+				 * be dao.findById
 				 */
 				IdentityEntity identity = identityDao.merge((IdentityEntity) rendererContext.get("identity"));
 				rendererContext.putAll(userPrefsResolver.resolvePrefs(identity));
-				if ((! rendererContext.containsKey("user")) && (identity.getPrefUser() != null)) {
+				if ((!rendererContext.containsKey("user")) && (identity.getPrefUser() != null)) {
 					rendererContext.put("user", identity.getPrefUser());
-				}
-				else if ((! rendererContext.containsKey("user")) && (identity.getUsers().size() == 1)) {
+				} else if ((!rendererContext.containsKey("user")) && (identity.getUsers().size() == 1)) {
 					for (UserEntity user : identity.getUsers())
 						rendererContext.put("user", user);
 				}
-			}
-			else if (rendererContext.containsKey("user")) {
+			} else if (rendererContext.containsKey("user")) {
 				/**
-				 * TODO check, if userDao.merge can cause data conflicts. Better way would be dao.findById
+				 * TODO check, if userDao.merge can cause data conflicts. Better way would be
+				 * dao.findById
 				 */
 				UserEntity user = userDao.merge((UserEntity) rendererContext.get("user"));
 				rendererContext.putAll(userPrefsResolver.resolvePrefs(user.getIdentity()));
 				rendererContext.put("identity", user.getIdentity());
 			}
-			
+
 			logger.debug("Rendering Email");
-			
+
 			String body = renderer.evaluate(emailTemplateEntity.getBody(), rendererContext);
 			String to = renderer.evaluate(emailTemplateEntity.getTo(), rendererContext);
 			String cc = renderer.evaluate(emailTemplateEntity.getCc(), rendererContext);
@@ -115,4 +118,9 @@ public class TemplateMailSender {
 			logger.warn("Problem while sending template", e);
 		}
 	}
+
+	private EmailTemplateEntity findByName(String name) {
+		return emailTemplateDao.find(equal(EmailTemplateEntity_.name, name));
+	}
+
 }

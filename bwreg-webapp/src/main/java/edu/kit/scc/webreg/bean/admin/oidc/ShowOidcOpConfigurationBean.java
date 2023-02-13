@@ -17,9 +17,6 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
 import edu.kit.scc.webreg.service.oidc.OidcOpConfigurationService;
 
@@ -29,21 +26,19 @@ public class ShowOidcOpConfigurationBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = LoggerFactory.getLogger(ShowOidcOpConfigurationBean.class);
-	
 	@Inject
 	private OidcOpConfigurationService service;
 
 	private OidcOpConfigurationEntity entity;
-	
+
 	private Long id;
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
-			entity = service.findById(id);
+			entity = service.fetch(id);
 		}
 	}
-	
+
 	public OidcOpConfigurationEntity getEntity() {
 		return entity;
 	}

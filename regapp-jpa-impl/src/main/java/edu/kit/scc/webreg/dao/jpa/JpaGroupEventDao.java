@@ -10,29 +10,19 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
-import java.util.List;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 
 import edu.kit.scc.webreg.dao.GroupEventDao;
-import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.GroupEventEntity;
 
 @Named
 @ApplicationScoped
 public class JpaGroupEventDao extends JpaBaseDao<GroupEventEntity> implements GroupEventDao {
 
-    @Override
+	@Override
 	public Class<GroupEventEntity> getEntityClass() {
 		return GroupEventEntity.class;
 	}
 
-	@Override
-    @SuppressWarnings({"unchecked"})
-	public List<GroupEventEntity> findAllByEventType(EventType eventType) {
-		return em.createQuery("select e from GroupEventEntity e where e.eventType = :eventType")
-				.setParameter("eventType", eventType).getResultList();
-	}
-    
 }

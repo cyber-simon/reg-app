@@ -9,15 +9,14 @@ import edu.kit.scc.webreg.exc.RestInterfaceException;
 
 public interface SshPubKeyDtoService extends BaseDtoService<SshPubKeyEntity, SshPubKeyEntityDto> {
 
-	List<SshPubKeyEntityDto> findByUidNumber(Long uidNumber) throws RestInterfaceException;
+	List<SshPubKeyEntityDto> findByUidNumber(Integer uidNumber) throws RestInterfaceException;
 
-	List<SshPubKeyEntityDto> findByUidNumberAndStatus(Long uidNumber, SshPubKeyStatus keyStatus)
+	List<SshPubKeyEntityDto> findByUidNumberAndStatus(Integer uidNumber, SshPubKeyStatus keyStatus)
 			throws RestInterfaceException;
 
-	List<SshPubKeyEntityDto> findByUidNumberAndExpiryInDays(Long uidNumber, Integer days)
+	List<SshPubKeyEntityDto> findByUidNumberAndExpiryInDays(Integer uidNumber, Integer days)
 			throws RestInterfaceException;
 
-	List<SshPubKeyEntityDto> findByExpiryInDays(Integer days)
-			throws RestInterfaceException;
+	List<SshPubKeyEntityDto> findByExpiryInDays(Integer days) throws RestInterfaceException;
 
 }

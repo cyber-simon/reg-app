@@ -12,7 +12,6 @@ package edu.kit.scc.webreg.dao.jpa;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
-import javax.persistence.NoResultException;
 
 import edu.kit.scc.webreg.dao.EmailTemplateDao;
 import edu.kit.scc.webreg.entity.EmailTemplateEntity;
@@ -21,18 +20,9 @@ import edu.kit.scc.webreg.entity.EmailTemplateEntity;
 @ApplicationScoped
 public class JpaEmailTemplateDao extends JpaBaseDao<EmailTemplateEntity> implements EmailTemplateDao {
 
-    @Override
-	public EmailTemplateEntity findByName(String name) {
-		try {
-			return (EmailTemplateEntity) em.createQuery("select e from EmailTemplateEntity e where e.name = :name")
-				.setParameter("name", name).getSingleResult();
-		} catch (NoResultException e) {
-			return null;
-		}
-	}
-
 	@Override
 	public Class<EmailTemplateEntity> getEntityClass() {
 		return EmailTemplateEntity.class;
 	}
+
 }

@@ -37,17 +37,12 @@ import org.opensaml.xmlsec.criterion.SignatureSigningConfigurationCriterion;
 import org.opensaml.xmlsec.impl.BasicSignatureSigningConfiguration;
 import org.slf4j.Logger;
 
-import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
-import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
 import edu.kit.scc.webreg.dao.SamlSpConfigurationDao;
 import edu.kit.scc.webreg.dao.SamlUserDao;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.service.saml.CryptoHelper;
-import edu.kit.scc.webreg.service.saml.MetadataHelper;
-import edu.kit.scc.webreg.service.saml.SamlHelper;
 import edu.kit.scc.webreg.service.saml.exc.NoHostnameConfiguredException;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.session.SessionManager;
@@ -59,33 +54,27 @@ public class SamlSpLogoutServiceImpl implements SamlSpLogoutService {
 	@Inject
 	private Logger logger;
 
-	@Inject 
-	private SamlIdpMetadataDao idpDao;
-	
 	@Inject
 	private SamlSpConfigurationDao spConfigDao;
-	
+
 	@Inject
 	private SamlUserDao userDao;
-	
+
 	@Inject
 	private SamlHelper samlHelper;
-	
+
 	@Inject
 	private MetadataHelper metadataHelper;
-	
+
 	@Inject
 	private CryptoHelper cryptoHelper;
-	
-	@Inject
-	private ApplicationConfig appConfig;
-	
+
 	@Inject
 	private SessionManager session;
 
 	@Override
-	public void consumeRedirectLogout(HttpServletRequest request, HttpServletResponse response, SamlSpConfigurationEntity spConfig)
-			throws Exception {
+	public void consumeRedirectLogout(HttpServletRequest request, HttpServletResponse response,
+			SamlSpConfigurationEntity spConfig) throws Exception {
 		HTTPRedirectDeflateDecoder decoder = new HTTPRedirectDeflateDecoder();
 		decoder.setHttpServletRequest(request);
 
@@ -97,36 +86,34 @@ public class SamlSpLogoutServiceImpl implements SamlSpLogoutService {
 	}
 
 	@Override
-	public void redirectLogout(HttpServletRequest request, HttpServletResponse response, Long userId)
-			throws Exception {
+	public void redirectLogout(HttpServletRequest request, HttpServletResponse response, Long userId) throws Exception {
 
 		logger.debug("Init SAML redirect logout for {}", userId);
-		
-		if (! session.getLoggedInUserList().contains(userId)) {
+
+		if (!session.getLoggedInUserList().contains(userId)) {
 			logger.warn("SAML logout for userId {}, not in logged in list", userId);
 			return;
 		}
-		
-		UserEntity tempUser = userDao.findById(userId);
-		if (! (tempUser instanceof SamlUserEntity)) {
+
+		UserEntity tempUser = userDao.fetch(userId);
+		if (!(tempUser instanceof SamlUserEntity)) {
 			logger.warn("SAML logout for userId {}: User is not SAML Type, but {}", tempUser.getClass().getName());
 			return;
 		}
-		
+
 		SamlUserEntity user = (SamlUserEntity) tempUser;
 		SamlIdpMetadataEntity idpEntity = user.getIdp();
-		
+
 		List<SamlSpConfigurationEntity> spList = spConfigDao.findByHostname(request.getLocalName());
-		
+
 		if (spList.size() != 1) {
 			logger.warn("No hostname configured for {}", request.getLocalName());
 			throw new NoHostnameConfiguredException("No hostname configured");
 		}
 
 		SamlSpConfigurationEntity spEntity = spList.get(0);
-		
-		EntityDescriptor entityDesc = samlHelper.unmarshal(
-				idpEntity.getEntityDescriptor(), EntityDescriptor.class);
+
+		EntityDescriptor entityDesc = samlHelper.unmarshal(idpEntity.getEntityDescriptor(), EntityDescriptor.class);
 		SingleLogoutService slo = metadataHelper.getSLO(entityDesc, SAMLConstants.SAML2_REDIRECT_BINDING_URI);
 
 		LogoutRequest logoutRequest = samlHelper.create(LogoutRequest.class, LogoutRequest.DEFAULT_ELEMENT_NAME);
@@ -143,9 +130,9 @@ public class SamlSpLogoutServiceImpl implements SamlSpLogoutService {
 		Issuer issuer = samlHelper.create(Issuer.class, Issuer.DEFAULT_ELEMENT_NAME);
 		issuer.setValue(user.getPersistentSpId());
 		logoutRequest.setIssuer(issuer);
-		
+
 		logger.debug("Logout Request: {}", samlHelper.prettyPrint(logoutRequest));
-		
+
 		MessageContext<SAMLObject> messageContext = new MessageContext<SAMLObject>();
 		messageContext.setMessage(logoutRequest);
 		SAMLPeerEntityContext entityContext = new SAMLPeerEntityContext();
@@ -171,14 +158,15 @@ public class SamlSpLogoutServiceImpl implements SamlSpLogoutService {
 		BasicX509Credential credential = new BasicX509Credential(publicKey, privateKey);
 		List<Credential> credentialList = new ArrayList<Credential>();
 		credentialList.add(credential);
-		
-		BasicSignatureSigningConfiguration ssConfig = DefaultSecurityConfigurationBootstrap.buildDefaultSignatureSigningConfiguration();
+
+		BasicSignatureSigningConfiguration ssConfig = DefaultSecurityConfigurationBootstrap
+				.buildDefaultSignatureSigningConfiguration();
 		ssConfig.setSigningCredentials(credentialList);
 		CriteriaSet criteriaSet = new CriteriaSet();
 		criteriaSet.add(new SignatureSigningConfigurationCriterion(ssConfig));
 		criteriaSet.add(new RoleDescriptorCriterion(entityDesc.getIDPSSODescriptor(SAMLConstants.SAML20P_NS)));
 		SAMLMetadataSignatureSigningParametersResolver smsspr = new SAMLMetadataSignatureSigningParametersResolver();
-		
+
 		SignatureSigningParameters ssp = smsspr.resolveSingle(criteriaSet);
 		logger.debug("Resolved algo {} for signing", ssp.getSignatureAlgorithm());
 		SecurityParametersContext securityContext = new SecurityParametersContext();
@@ -186,7 +174,7 @@ public class SamlSpLogoutServiceImpl implements SamlSpLogoutService {
 		messageContext.addSubcontext(securityContext);
 
 		SAMLMessageSecuritySupport.signMessage(messageContext);
-		
+
 		HTTPRedirectDeflateEncoder encoder = new HTTPRedirectDeflateEncoder();
 		encoder.setHttpServletResponse(response);
 		encoder.setMessageContext(messageContext);

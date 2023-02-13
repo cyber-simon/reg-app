@@ -73,8 +73,8 @@ public class Saml2RedirectLoginHandlerServlet implements Servlet {
 		}
 		
 		try {
-			SamlIdpMetadataEntity idpEntity = idpService.findById(session.getIdpId());
-			SamlSpConfigurationEntity spEntity = spService.findById(session.getSpId());
+			SamlIdpMetadataEntity idpEntity = idpService.fetch(session.getIdpId());
+			SamlSpConfigurationEntity spEntity = spService.fetch(session.getSpId());
 			
 			saml2RedirectService.redirectClient(idpEntity, spEntity, request, response);
 

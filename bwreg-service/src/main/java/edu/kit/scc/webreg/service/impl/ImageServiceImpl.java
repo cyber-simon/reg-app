@@ -10,12 +10,15 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.impl;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.ImageDao;
 import edu.kit.scc.webreg.entity.ImageEntity;
+import edu.kit.scc.webreg.entity.ImageEntity_;
 import edu.kit.scc.webreg.service.ImageService;
 
 @Stateless
@@ -25,20 +28,15 @@ public class ImageServiceImpl extends BaseServiceImpl<ImageEntity> implements Im
 
 	@Inject
 	private ImageDao dao;
-	
-	@Override
-	public ImageEntity findByName(String name) {
-		return dao.findByName(name);
-	}
 
 	@Override
 	public ImageEntity findByIdWithData(Long id) {
-		return dao.findByIdWithData(id);
+		return dao.find(equal(ImageEntity_.id, id), ImageEntity_.imageData);
 	}
 
 	@Override
 	protected BaseDao<ImageEntity> getDao() {
 		return dao;
 	}
-	
+
 }

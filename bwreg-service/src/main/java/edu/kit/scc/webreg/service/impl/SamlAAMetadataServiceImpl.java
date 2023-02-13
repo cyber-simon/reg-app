@@ -19,7 +19,6 @@ import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.SamlAAMetadataDao;
 import edu.kit.scc.webreg.entity.FederationEntity;
 import edu.kit.scc.webreg.entity.SamlAAMetadataEntity;
-import edu.kit.scc.webreg.entity.SamlMetadataEntityStatus;
 import edu.kit.scc.webreg.service.SamlAAMetadataService;
 
 @Stateless
@@ -29,38 +28,15 @@ public class SamlAAMetadataServiceImpl extends BaseServiceImpl<SamlAAMetadataEnt
 
 	@Inject
 	private SamlAAMetadataDao dao;
-	
+
 	@Override
 	public List<SamlAAMetadataEntity> findAllByFederation(FederationEntity federation) {
 		return dao.findAllByFederation(federation);
 	}
-	
-	@Override
-	public List<SamlAAMetadataEntity> findAllByStatusOrderedByOrgname(SamlMetadataEntityStatus status) {
-		return dao.findAllByStatusOrderedByOrgname(status);
-	}
-	
-	@Override
-	public SamlAAMetadataEntity findByIdWithAll(Long id) {
-		SamlAAMetadataEntity aa = dao.findByIdWithAll(id);
-		if (aa != null)
-			aa.getEntityDescriptor();
-		return aa;
-	}
-	
+
 	@Override
 	public SamlAAMetadataEntity findByEntityId(String entityId) {
 		return dao.findByEntityId(entityId);
-	}
-	
-	@Override
-	public List<SamlAAMetadataEntity> findAllByFederationOrderByOrgname(FederationEntity federation) {
-		return dao.findAllByFederationOrderByOrgname(federation);
-	}
-		
-	@Override
-	public SamlAAMetadataEntity findByScope(String scope) {
-		return dao.findByScope(scope);
 	}
 
 	@Override

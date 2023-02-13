@@ -10,6 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,10 +21,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Root;
 
 import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.HomeOrgGroupDao;
@@ -33,7 +31,7 @@ import edu.kit.scc.webreg.dao.ServiceGroupFlagDao;
 import edu.kit.scc.webreg.dao.as.AttributeSourceGroupDao;
 import edu.kit.scc.webreg.dao.ops.PaginateBy;
 import edu.kit.scc.webreg.entity.GroupEntity;
-import edu.kit.scc.webreg.entity.LocalGroupEntity;
+import edu.kit.scc.webreg.entity.GroupEntity_;
 import edu.kit.scc.webreg.entity.ServiceBasedGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
@@ -107,7 +105,7 @@ public class JpaGroupDao extends JpaBaseDao<GroupEntity> implements GroupDao {
 
 	@Override
 	public void addUserToGroup(UserEntity user, GroupEntity group) {
-		UserGroupEntity userGroup = createNewUserGroup();
+		UserGroupEntity userGroup = new UserGroupEntity();
 		userGroup.setUser(user);
 		userGroup.setGroup(group);
 
@@ -136,27 +134,18 @@ public class JpaGroupDao extends JpaBaseDao<GroupEntity> implements GroupDao {
 
 	@Override
 	public boolean isUserInGroup(UserEntity user, GroupEntity group) {
-		if (findUserGroupEntity(user, group) != null) {
-			return true;
-		} else {
-			return false;
-		}
+		return findUserGroupEntity(user, group) != null;
 	}
 
 	@Override
 	public UserGroupEntity findUserGroupEntity(UserEntity user, GroupEntity group) {
 		try {
 			return (UserGroupEntity) em
-					.createQuery("select r from UserGroupEntity r where r.user = :user " + "and r.group = :group")
+					.createQuery("select r from UserGroupEntity r where r.user = :user and r.group = :group")
 					.setParameter("user", user).setParameter("group", group).getSingleResult();
 		} catch (NoResultException e) {
 			return null;
 		}
-	}
-
-	@Override
-	public UserGroupEntity createNewUserGroup() {
-		return new UserGroupEntity();
 	}
 
 	@Override
@@ -195,57 +184,8 @@ public class JpaGroupDao extends JpaBaseDao<GroupEntity> implements GroupDao {
 				Number.class).setParameter("userId", userId).getSingleResult();
 	}
 
-	@Override
-	public GroupEntity findWithUsers(Long id) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<GroupEntity> criteria = builder.createQuery(GroupEntity.class);
-		Root<GroupEntity> root = criteria.from(GroupEntity.class);
-		criteria.where(builder.equal(root.get("id"), id));
-		criteria.select(root);
-		root.fetch("users", JoinType.LEFT);
-
-		return em.createQuery(criteria).getSingleResult();
-	}
-
-	@Override
-	public GroupEntity findByGidNumber(Integer gid) {
-		try {
-			return (GroupEntity) em.createQuery("select e from GroupEntity e where e.gidNumber = :gidNumber")
-					.setParameter("gidNumber", gid).getSingleResult();
-		} catch (NoResultException e) {
-			return null;
-		}
-	}
-
-	@Override
 	public GroupEntity findByName(String name) {
-		try {
-			return (GroupEntity) em.createQuery("select e from GroupEntity e where e.name = :name")
-					.setParameter("name", name).getSingleResult();
-		} catch (NoResultException e) {
-			return null;
-		}
-	}
-
-	@Override
-	public LocalGroupEntity findLocalGroupByName(String name) {
-		try {
-			return (LocalGroupEntity) em.createQuery("select e from LocalGroupEntity e where e.name = :name")
-					.setParameter("name", name).getSingleResult();
-		} catch (NoResultException e) {
-			return null;
-		}
-	}
-
-	@Override
-	public GroupEntity findByNameAndPrefix(String name, String prefix) {
-		try {
-			return (GroupEntity) em
-					.createQuery("select e from GroupEntity e where e.name = :name and e.prefix = :prefix")
-					.setParameter("name", name).setParameter("prefix", prefix).getSingleResult();
-		} catch (NoResultException e) {
-			return null;
-		}
+		return find(equal(GroupEntity_.name, name));
 	}
 
 	@Override
@@ -289,4 +229,5 @@ public class JpaGroupDao extends JpaBaseDao<GroupEntity> implements GroupDao {
 	public AttributeSourceGroupDao getAttributeSourceGroupDao() {
 		return attributeSourceGroupDao;
 	}
+
 }

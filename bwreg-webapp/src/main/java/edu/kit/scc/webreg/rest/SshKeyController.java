@@ -1,6 +1,5 @@
 package edu.kit.scc.webreg.rest;
 
-import java.io.IOException;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -33,205 +32,197 @@ public class SshKeyController {
 
 	@Inject
 	private RoleService roleService;
-	
+
 	@Inject
 	private ServiceService serviceService;
-	
+
 	@Inject
 	private SshLoginService sshLoginService;
-	
+
 	@Inject
 	private SshPubKeyDtoService dtoService;
-        
+
 	@Inject
 	private RegistryDao registryDao;
-	
+
 	@Path(value = "/list/uidnumber/{uidNumber}/all")
-	@Produces({MediaType.APPLICATION_JSON})
+	@Produces({ MediaType.APPLICATION_JSON })
 	@GET
-	public List<SshPubKeyEntityDto> listKeysForUser(@PathParam("uidNumber") Long uidNumber, @Context HttpServletRequest request)
-					throws IOException, RestInterfaceException {
+	public List<SshPubKeyEntityDto> listKeysForUser(@PathParam("uidNumber") Integer uidNumber,
+			@Context HttpServletRequest request) throws RestInterfaceException {
 		return dtoService.findByUidNumber(uidNumber);
 	}
-	
+
 	@Path(value = "/list/uidnumber/{uidNumber}/key-status/{status}")
-	@Produces({MediaType.APPLICATION_JSON})
+	@Produces({ MediaType.APPLICATION_JSON })
 	@GET
-	public List<SshPubKeyEntityDto> listKeysForUserAndStatus(@PathParam("uidNumber") Long uidNumber,
+	public List<SshPubKeyEntityDto> listKeysForUserAndStatus(@PathParam("uidNumber") Integer uidNumber,
 			@PathParam("status") SshPubKeyStatus keyStatus, @Context HttpServletRequest request)
-					throws IOException, RestInterfaceException {
+			throws RestInterfaceException {
 		return dtoService.findByUidNumberAndStatus(uidNumber, keyStatus);
 	}
-	
+
 	@Path(value = "/list/uidnumber/{uidNumber}/keys-expiring-soon/{days}")
-	@Produces({MediaType.APPLICATION_JSON})
+	@Produces({ MediaType.APPLICATION_JSON })
 	@GET
-	// example: https://..../rest/ssh-key/list/uidnumber/900001/keys-expiring-soon/30	
-	public List<SshPubKeyEntityDto> listKeysForUserAndExpiryInDays(@PathParam("uidNumber") Long uidNumber,
-			@PathParam("days") Integer days, @Context HttpServletRequest request)
-					throws IOException, RestInterfaceException {
+	// example:
+	// https://..../rest/ssh-key/list/uidnumber/900001/keys-expiring-soon/30
+	public List<SshPubKeyEntityDto> listKeysForUserAndExpiryInDays(@PathParam("uidNumber") Integer uidNumber,
+			@PathParam("days") Integer days, @Context HttpServletRequest request) throws RestInterfaceException {
 		return dtoService.findByUidNumberAndExpiryInDays(uidNumber, days);
 	}
-	
+
 	@Path(value = "/list/keys-expiring-soon/{days}")
-	@Produces({MediaType.APPLICATION_JSON})
+	@Produces({ MediaType.APPLICATION_JSON })
 	@GET
-	// example: https://..../rest/ssh-key/list/keys-expiring-soon/30	
-	public List<SshPubKeyEntityDto> listKeysExpiryInDays(@PathParam("days") Integer days, @Context HttpServletRequest request)
-					throws IOException, RestInterfaceException {
+	// example: https://..../rest/ssh-key/list/keys-expiring-soon/30
+	public List<SshPubKeyEntityDto> listKeysExpiryInDays(@PathParam("days") Integer days,
+			@Context HttpServletRequest request) throws RestInterfaceException {
 		return dtoService.findByExpiryInDays(days);
 	}
-	
+
 	@Path(value = "/auth/all/{ssn}/uidnumber/{uidNumber}")
-	@Produces({MediaType.TEXT_PLAIN})
+	@Produces({ MediaType.TEXT_PLAIN })
 	@GET
-	public String authByUidNumber(@PathParam("ssn") String ssn, 
-			@PathParam("uidNumber") Long uidNumber, @Context HttpServletRequest request)
-					throws IOException, RestInterfaceException {
-		
+	public String authByUidNumber(@PathParam("ssn") String ssn, @PathParam("uidNumber") Integer uidNumber,
+			@Context HttpServletRequest request) throws RestInterfaceException {
+
 		ServiceEntity service = serviceService.findByShortName(ssn);
 		if (service == null)
 			throw new NoItemFoundException("No such service");
 
-		if (! checkAccess(request, service.getAdminRole().getName()))
+		if (!checkAccess(request, service.getAdminRole().getName()))
 			throw new UnauthorizedException("No access");
 
 		return sshLoginService.authByUidNumber(service, uidNumber, request);
 	}
 
 	@Path(value = "/auth/interactive/{ssn}/uidnumber/{uidNumber}")
-	@Produces({MediaType.TEXT_PLAIN})
+	@Produces({ MediaType.TEXT_PLAIN })
 	@GET
-	public String authByUidNumberInteractive(@PathParam("ssn") String ssn, 
-			@PathParam("uidNumber") Long uidNumber, @Context HttpServletRequest request)
-					throws IOException, RestInterfaceException {
-		
+	public String authByUidNumberInteractive(@PathParam("ssn") String ssn, @PathParam("uidNumber") Integer uidNumber,
+			@Context HttpServletRequest request) throws RestInterfaceException {
+
 		ServiceEntity service = serviceService.findByShortName(ssn);
 		if (service == null)
 			throw new NoItemFoundException("No such service");
 
-		if (! checkAccess(request, service.getAdminRole().getName()))
+		if (!checkAccess(request, service.getAdminRole().getName()))
 			throw new UnauthorizedException("No access");
 
 		return sshLoginService.authByUidNumberInteractive(service, uidNumber, request);
 	}
 
 	@Path(value = "/auth/command/{ssn}/uidnumber/{uidNumber}")
-	@Produces({MediaType.TEXT_PLAIN})
+	@Produces({ MediaType.TEXT_PLAIN })
 	@GET
-	public String authByUidNumberCommand(@PathParam("ssn") String ssn, 
-			@PathParam("uidNumber") Long uidNumber, @Context HttpServletRequest request)
-					throws IOException, RestInterfaceException {
-		
-		
+	public String authByUidNumberCommand(@PathParam("ssn") String ssn, @PathParam("uidNumber") Integer uidNumber,
+			@Context HttpServletRequest request) throws RestInterfaceException {
+
 		ServiceEntity service = serviceService.findByShortName(ssn);
 		if (service == null)
 			throw new NoItemFoundException("No such service");
 
-		if (! checkAccess(request, service.getAdminRole().getName()))
+		if (!checkAccess(request, service.getAdminRole().getName()))
 			throw new UnauthorizedException("No access");
 
 		return sshLoginService.authByUidNumberCommand(service, uidNumber, request);
 	}
-        
+
 	@Path(value = "/auth/all/{ssn}/localuid/{localuid}")
-	@Produces({MediaType.TEXT_PLAIN})
+	@Produces({ MediaType.TEXT_PLAIN })
 	@GET
-	public String authByLocalUid(@PathParam("ssn") String ssn, 
-			@PathParam("localuid") String localUid, @Context HttpServletRequest request)
-					throws IOException, RestInterfaceException {
+	public String authByLocalUid(@PathParam("ssn") String ssn, @PathParam("localuid") String localUid,
+			@Context HttpServletRequest request) throws RestInterfaceException {
 		ServiceEntity service = serviceService.findByShortName(ssn);
 		if (service == null)
 			throw new NoItemFoundException("No such service");
 
-		if (! checkAccess(request, service.getAdminRole().getName()))
+		if (!checkAccess(request, service.getAdminRole().getName()))
 			throw new UnauthorizedException("No access");
 
-                Long uidNumber = getUidNumberByLocalUid(service, localUid);
+		Integer uidNumber = getUidNumberByLocalUid(service, localUid);
 		return sshLoginService.authByUidNumber(service, uidNumber, request);
 	}
-        
-        @Path(value = "/auth/interactive/{ssn}/localuid/{localuid}")
-	@Produces({MediaType.TEXT_PLAIN})
+
+	@Path(value = "/auth/interactive/{ssn}/localuid/{localuid}")
+	@Produces({ MediaType.TEXT_PLAIN })
 	@GET
-	public String authByLocalUidInteractive(@PathParam("ssn") String ssn, 
-			@PathParam("localuid") String localUid, @Context HttpServletRequest request)
-					throws IOException, RestInterfaceException {
+	public String authByLocalUidInteractive(@PathParam("ssn") String ssn, @PathParam("localuid") String localUid,
+			@Context HttpServletRequest request) throws RestInterfaceException {
 		ServiceEntity service = serviceService.findByShortName(ssn);
 		if (service == null)
 			throw new NoItemFoundException("No such service");
 
-		if (! checkAccess(request, service.getAdminRole().getName()))
+		if (!checkAccess(request, service.getAdminRole().getName()))
 			throw new UnauthorizedException("No access");
 
-                Long uidNumber = getUidNumberByLocalUid(service, localUid);
+		Integer uidNumber = getUidNumberByLocalUid(service, localUid);
 		return sshLoginService.authByUidNumberInteractive(service, uidNumber, request);
 	}
 
 	@Path(value = "/auth/command/{ssn}/localuid/{localuid}")
-	@Produces({MediaType.TEXT_PLAIN})
+	@Produces({ MediaType.TEXT_PLAIN })
 	@GET
-	public String authByLocalUidCommand(@PathParam("ssn") String ssn, 
-			@PathParam("localuid") String localUid, @Context HttpServletRequest request)
-					throws IOException, RestInterfaceException {
+	public String authByLocalUidCommand(@PathParam("ssn") String ssn, @PathParam("localuid") String localUid,
+			@Context HttpServletRequest request) throws RestInterfaceException {
 		ServiceEntity service = serviceService.findByShortName(ssn);
 		if (service == null)
 			throw new NoItemFoundException("No such service");
 
-		if (! checkAccess(request, service.getAdminRole().getName()))
+		if (!checkAccess(request, service.getAdminRole().getName()))
 			throw new UnauthorizedException("No access");
-                
-                Long uidNumber = getUidNumberByLocalUid(service, localUid);
+
+		Integer uidNumber = getUidNumberByLocalUid(service, localUid);
 		return sshLoginService.authByUidNumberCommand(service, uidNumber, request);
 	}
-        
+
 	protected Boolean checkAccess(HttpServletRequest request, String roleName) {
 		Boolean check;
-		
-		if (request.getAttribute(SecurityFilter.IDENTITY_ID) != null &&
-				request.getAttribute(SecurityFilter.IDENTITY_ID) instanceof Long) {
+
+		if (request.getAttribute(SecurityFilter.IDENTITY_ID) != null
+				&& request.getAttribute(SecurityFilter.IDENTITY_ID) instanceof Long) {
 			Long identityId = (Long) request.getAttribute(SecurityFilter.IDENTITY_ID);
 			check = roleService.checkIdentityInRole(identityId, roleName);
-		}
-		else if (request.getAttribute(SecurityFilter.ADMIN_USER_ID) != null &&
-				request.getAttribute(SecurityFilter.ADMIN_USER_ID) instanceof Long) {
+		} else if (request.getAttribute(SecurityFilter.ADMIN_USER_ID) != null
+				&& request.getAttribute(SecurityFilter.ADMIN_USER_ID) instanceof Long) {
 			Long adminUserId = (Long) request.getAttribute(SecurityFilter.ADMIN_USER_ID);
 			check = roleService.checkAdminUserInRole(adminUserId, roleName);
-		}
-		else {
+		} else {
 			check = Boolean.FALSE;
 		}
-		
+
 		return check;
 	}
-	
+
 	protected String resolveUsername(HttpServletRequest request) {
-		if (request.getAttribute(SecurityFilter.IDENTITY_ID) != null &&
-				request.getAttribute(SecurityFilter.IDENTITY_ID) instanceof Long) {
+		if (request.getAttribute(SecurityFilter.IDENTITY_ID) != null
+				&& request.getAttribute(SecurityFilter.IDENTITY_ID) instanceof Long) {
 			Long identityId = (Long) request.getAttribute(SecurityFilter.IDENTITY_ID);
 			return "identity-" + identityId;
-		}
-		else if (request.getAttribute(SecurityFilter.ADMIN_USER_ID) != null &&
-				request.getAttribute(SecurityFilter.ADMIN_USER_ID) instanceof Long) {
+		} else if (request.getAttribute(SecurityFilter.ADMIN_USER_ID) != null
+				&& request.getAttribute(SecurityFilter.ADMIN_USER_ID) instanceof Long) {
 			Long adminUserId = (Long) request.getAttribute(SecurityFilter.ADMIN_USER_ID);
 			return "adminuser-" + adminUserId;
-		}
-		else
+		} else
 			return null;
 	}
-        
-        protected Long getUidNumberByLocalUid(ServiceEntity service, String localUid) throws NoUserFoundException {
-                List<RegistryEntity> registryList = registryDao.findAllByRegValueAndStatus(service, "localUid", localUid, RegistryStatus.ACTIVE);
-                if (registryList.size() == 0) {
-                        registryList.addAll(registryDao.findAllByRegValueAndStatus(service, "localUid", localUid, RegistryStatus.LOST_ACCESS));
-                }
-                if (registryList.size() == 0) {
-                        registryList.addAll(registryDao.findAllByRegValueAndStatus(service, "localUid", localUid, RegistryStatus.ON_HOLD));
-                }
-                if (registryList.size() == 0) {
-                        throw new NoUserFoundException("no such localUid in registries");
-                }
-                Integer uidNumber = registryList.get(0).getIdentity().getUidNumber();
-                return uidNumber.longValue();
-        }
+
+	protected Integer getUidNumberByLocalUid(ServiceEntity service, String localUid) throws NoUserFoundException {
+		List<RegistryEntity> registryList = registryDao.findAllByRegValueAndStatus(service, "localUid", localUid,
+				RegistryStatus.ACTIVE);
+		if (registryList.size() == 0) {
+			registryList.addAll(
+					registryDao.findAllByRegValueAndStatus(service, "localUid", localUid, RegistryStatus.LOST_ACCESS));
+		}
+		if (registryList.size() == 0) {
+			registryList.addAll(
+					registryDao.findAllByRegValueAndStatus(service, "localUid", localUid, RegistryStatus.ON_HOLD));
+		}
+		if (registryList.size() == 0) {
+			throw new NoUserFoundException("no such localUid in registries");
+		}
+		return registryList.get(0).getIdentity().getUidNumber();
+	}
+
 }

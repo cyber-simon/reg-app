@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
+import edu.kit.scc.webreg.entity.as.AttributeSourceEntity_;
 import edu.kit.scc.webreg.service.AttributeSourceService;
 import edu.kit.scc.webreg.util.ViewIds;
 
@@ -31,22 +32,22 @@ public class EditAttributeSourceBean implements Serializable {
 
 	@Inject
 	private AttributeSourceService service;
-	
+
 	private AttributeSourceEntity entity;
-	
+
 	private Map<String, String> propertyMap;
-	
+
 	private String newKey, newValue;
-		
+
 	private Long id;
-	
+
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
-			entity = service.findByIdWithAttrs(id, "asProps");
+			entity = service.findByIdWithAttrs(id, AttributeSourceEntity_.asProps);
 			propertyMap = new HashMap<String, String>(entity.getAsProps());
 		}
 	}
-	
+
 	public String save() {
 		entity.setAsProps(propertyMap);
 		entity = service.save(entity);
@@ -56,13 +57,13 @@ public class EditAttributeSourceBean implements Serializable {
 	public String cancel() {
 		return ViewIds.SHOW_ATTRIBUTE_SOURCE + "?faces-redirect=true&id=" + entity.getId();
 	}
-	
+
 	public void removeProp(String key) {
 		setNewKey(key);
 		setNewValue(propertyMap.get(key));
 		propertyMap.remove(key);
 	}
-	
+
 	public void addProp() {
 		if (newKey != null && newValue != null) {
 			propertyMap.put(newKey, newValue);

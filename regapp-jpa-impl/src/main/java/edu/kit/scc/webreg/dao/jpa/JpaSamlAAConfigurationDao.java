@@ -25,44 +25,26 @@ import edu.kit.scc.webreg.entity.SamlAAConfigurationEntity;
 @ApplicationScoped
 public class JpaSamlAAConfigurationDao extends JpaBaseDao<SamlAAConfigurationEntity> implements SamlAAConfigurationDao {
 
-    @Override
-	public SamlAAConfigurationEntity findByEntityId(String entityId) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<SamlAAConfigurationEntity> criteria = builder.createQuery(SamlAAConfigurationEntity.class);
-		Root<SamlAAConfigurationEntity> root = criteria.from(SamlAAConfigurationEntity.class);
-		criteria.where(
-				builder.equal(root.get("entityId"), entityId));
-		criteria.select(root);
-
-		try {
-			return em.createQuery(criteria).getSingleResult();
-		}
-		catch (NoResultException e) {
-			return null;
-		}
-	}	
-	
 	@Override
 	public SamlAAConfigurationEntity findByHostname(String hostname) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<SamlAAConfigurationEntity> criteria = builder.createQuery(SamlAAConfigurationEntity.class);
 		Root<SamlAAConfigurationEntity> root = criteria.from(SamlAAConfigurationEntity.class);
 		ListJoin<SamlAAConfigurationEntity, String> elementJoin = root.joinList("hostNameList");
-		
+
 		criteria.select(root);
-		criteria.where(
-				builder.equal(elementJoin.as(String.class), hostname));
+		criteria.where(builder.equal(elementJoin.as(String.class), hostname));
 
 		try {
 			return em.createQuery(criteria).getSingleResult();
-		}
-		catch (NoResultException e) {
+		} catch (NoResultException e) {
 			return null;
-		}		
+		}
 	}
 
 	@Override
 	public Class<SamlAAConfigurationEntity> getEntityClass() {
 		return SamlAAConfigurationEntity.class;
 	}
+
 }

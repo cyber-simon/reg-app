@@ -40,7 +40,7 @@ public class EditTemplateBean implements Serializable {
 
 	public VelocityTemplateEntity getEntity() {
 		if (entity == null) {
-			entity = service.findById(id);
+			entity = service.fetch(id);
 		}
 		return entity;
 	}

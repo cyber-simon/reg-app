@@ -12,7 +12,6 @@ package edu.kit.scc.webreg.dao.jpa;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
-import javax.persistence.NoResultException;
 
 import edu.kit.scc.webreg.dao.ExternalGroupDao;
 import edu.kit.scc.webreg.entity.ExternalGroupEntity;
@@ -22,18 +21,8 @@ import edu.kit.scc.webreg.entity.ExternalGroupEntity;
 public class JpaExternalGroupDao extends JpaBaseDao<ExternalGroupEntity> implements ExternalGroupDao {
 
 	@Override
-	public ExternalGroupEntity findByName(String name) {
-		try {
-			return (ExternalGroupEntity) em.createQuery("select e from ExternalGroupEntity e where e.name = :name")
-				.setParameter("name", name).getSingleResult();
-		}
-		catch (NoResultException e) {
-			return null;
-		}
-	}
-
-	@Override
 	public Class<ExternalGroupEntity> getEntityClass() {
 		return ExternalGroupEntity.class;
 	}
+
 }

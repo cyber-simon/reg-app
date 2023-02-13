@@ -63,10 +63,10 @@ public class DtoServiceAccessChecker {
 	}
 	
 	public Set<RoleEntity> resolveRoles(Long userId) {
-		AdminUserEntity adminUser = adminUserDao.findById(userId);
+		AdminUserEntity adminUser = adminUserDao.fetch(userId);
 		Set<RoleEntity> userRoles = null;
 		if (adminUser == null) {
-			IdentityEntity identity = identityDao.findById(userId);
+			IdentityEntity identity = identityDao.fetch(userId);
 			List<UserEntity> userList = userDao.findByIdentity(identity); 
 			userRoles = new HashSet<>();
 			

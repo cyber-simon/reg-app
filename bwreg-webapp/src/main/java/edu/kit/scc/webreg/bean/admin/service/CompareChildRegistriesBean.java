@@ -70,7 +70,7 @@ public class CompareChildRegistriesBean implements Serializable {
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (! initialized) {
 			logger.debug("Load service for id {}", id);
-			entity = service.findById(id);
+			entity = service.fetch(id);
 
 			logger.debug("Loading active registries for service {}", entity.getName());
 			registryList = registryService.findByServiceAndNotStatus(entity, 

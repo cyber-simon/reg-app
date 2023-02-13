@@ -12,12 +12,11 @@ package edu.kit.scc.webreg.service;
 
 import java.util.List;
 
-import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
 
 public interface UserLoginInfoService extends BaseService<UserLoginInfoEntity> {
 
 	List<UserLoginInfoEntity> findByIdentity(Long identityId);
-	List<UserLoginInfoEntity> findByUserList(List<UserEntity> userList);
+
 	void deleteLoginInfo(long millis);
 }

@@ -10,22 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao;
 
-import java.util.List;
-
 import edu.kit.scc.webreg.entity.SshPubKeyRegistryEntity;
 
 public interface SshPubKeyRegistryDao extends BaseDao<SshPubKeyRegistryEntity> {
-
-	List<SshPubKeyRegistryEntity> findByUserAndService(Long userId, Long serviceId);
-
-	List<SshPubKeyRegistryEntity> findByRegistry(Long registryId);
-
-	List<SshPubKeyRegistryEntity> findForApproval(Long serviceId);
-
-	List<SshPubKeyRegistryEntity> findByRegistryForInteractiveLogin(Long registryId);
-
-	List<SshPubKeyRegistryEntity> findByRegistryForCommandLogin(Long registryId);
-
-	List<SshPubKeyRegistryEntity> findByRegistryForLogin(Long registryId);
 
 }

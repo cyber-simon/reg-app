@@ -21,8 +21,7 @@ public interface ServiceGroupFlagService extends BaseService<ServiceGroupFlagEnt
 
 	List<ServiceGroupFlagEntity> findByGroup(ServiceBasedGroupEntity group);
 
-	List<ServiceGroupFlagEntity> findByGroupAndService(
-			ServiceBasedGroupEntity group, ServiceEntity service);
+	List<ServiceGroupFlagEntity> findByGroupAndService(ServiceBasedGroupEntity group, ServiceEntity service);
 
 	List<ServiceGroupFlagEntity> findByService(ServiceEntity service);
 
@@ -30,7 +29,4 @@ public interface ServiceGroupFlagService extends BaseService<ServiceGroupFlagEnt
 
 	List<ServiceGroupFlagEntity> findByStatus(ServiceGroupStatus status);
 
-	List<ServiceGroupFlagEntity> findByGroupAndStatus(
-			ServiceBasedGroupEntity group, ServiceGroupStatus status);
-	
 }

@@ -26,7 +26,6 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
 import edu.kit.scc.webreg.service.RegistryService;
-import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.session.SessionManager;
@@ -37,56 +36,54 @@ import edu.kit.scc.webreg.util.FacesMessageGenerator;
 public class CheckAccessBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private UserEntity user;
 	private IdentityEntity identity;
 	private ServiceEntity service;
 	private RegistryEntity registry;
 
 	private Long id;
-	
+
 	private boolean initialized = false;
-	
+
 	private Boolean accessProblem = false;
-	
+
 	@Inject
 	private FacesMessageGenerator messageGenerator;
-	
-    @Inject
-    private RegistryService registryService;
 
-    @Inject 
-    private SessionManager sessionManager;
-    
-    @Inject
-    private UserService userService;
+	@Inject
+	private RegistryService registryService;
 
-    @Inject
-    private IdentityService identityService;
-    
+	@Inject
+	private SessionManager sessionManager;
+
+	@Inject
+	private IdentityService identityService;
+
 	@Inject
 	private KnowledgeSessionService knowledgeSessionService;
 
-    public void preRenderView(ComponentSystemEvent ev) {
-    	if (! initialized) {
-    		identity = identityService.findById(sessionManager.getIdentityId());
-        	registry = registryService.findById(id);
-    		
-        	if (! registry.getIdentity().getId().equals(identity.getId())) {
-        		throw new NotAuthorizedException("no authorized to view this item");
-        	}
-        	
-        	service = registry.getService();
-        	user = registry.getUser();
-        	
-       		checkServiceAccess(registry.getService());    		
-    	}
+	public void preRenderView(ComponentSystemEvent ev) {
+		if (!initialized) {
+			identity = identityService.fetch(sessionManager.getIdentityId());
+			registry = registryService.fetch(id);
+
+			if (!registry.getIdentity().getId().equals(identity.getId())) {
+				throw new NotAuthorizedException("no authorized to view this item");
+			}
+
+			service = registry.getService();
+			user = registry.getUser();
+
+			checkServiceAccess(registry.getService());
+		}
 	}
 
 	private void checkServiceAccess(ServiceEntity service) {
-    		
-		List<Object> objectList = knowledgeSessionService.checkServiceAccessRule(user, service, registry, "user-self", false);
-		
+
+		List<Object> objectList = knowledgeSessionService.checkServiceAccessRule(user, service, registry, "user-self",
+				false);
+
 		for (Object o : objectList) {
 			if (o instanceof OverrideAccess) {
 				return;
@@ -96,8 +93,8 @@ public class CheckAccessBean implements Serializable {
 		for (Object o : objectList) {
 			if (o instanceof UnauthorizedUser) {
 				String s = ((UnauthorizedUser) o).getMessage();
-	    		messageGenerator.addResolvedErrorMessage("reqs", "error", s, true);
-	    		accessProblem = true;
+				messageGenerator.addResolvedErrorMessage("reqs", "error", s, true);
+				accessProblem = true;
 			}
 		}
 	}

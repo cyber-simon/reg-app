@@ -80,7 +80,7 @@ public class AddPolicyBean implements Serializable {
 
 	public ServiceEntity getService() {
 		if (service == null) {
-			service = serviceService.findById(serviceId);
+			service = serviceService.fetch(serviceId);
 		}
 		return service;
 	}

@@ -41,7 +41,7 @@ public class AddAgreementBean implements Serializable {
 	private Long policyId;
 
 	public void preRenderView(ComponentSystemEvent ev) {
-		policy = policyService.findById(policyId);
+		policy = policyService.fetch(policyId);
 		entity = service.createNew();
 	}
 	

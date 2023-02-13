@@ -1,5 +1,7 @@
 package edu.kit.scc.webreg.service.impl;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
@@ -49,7 +51,6 @@ import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
 import edu.kit.scc.webreg.dao.SamlSpConfigurationDao;
 import edu.kit.scc.webreg.dao.SamlUserDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
-import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.UserLoginInfoDao;
 import edu.kit.scc.webreg.drools.OverrideAccess;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;
@@ -61,6 +62,7 @@ import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntityStatus;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity_;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
@@ -105,31 +107,28 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 
 	@Inject
 	private Logger logger;
-	
+
 	@Inject
 	private PasswordUtil passwordUtil;
 
 	@Inject
 	private SamlUserDao samlUserDao;
-	
-	@Inject
-	private UserDao userDao;
-	
+
 	@Inject
 	private UserUpdater userUpdater;
 
 	@Inject
 	private KnowledgeSessionSingleton knowledgeSessionService;
-	
+
 	@Inject
 	private RegistryDao registryDao;
-	
+
 	@Inject
 	private ServiceDao serviceDao;
-	
+
 	@Inject
 	private SamlIdpMetadataDao idpDao;
-	
+
 	@Inject
 	private SamlSpConfigurationDao spDao;
 
@@ -141,8 +140,8 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 
 	@Inject
 	private SsoHelper ssoHelper;
-	
-	@Inject 
+
+	@Inject
 	private MetadataHelper metadataHelper;
 
 	@Inject
@@ -156,46 +155,41 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 
 	@Inject
 	private TwoFaService twoFaService;
-	
+
 	@Inject
 	private UserLoginInfoDao userLoginInfoDao;
-	
+
 	@Inject
 	private HttpRequestContext requestContext;
-	
+
 	@Override
-	public Map<String, String> ecpLogin(String eppn,
-			String serviceShortName,
-			String password, String localHostName)
+	public Map<String, String> ecpLogin(String eppn, String serviceShortName, String password, String localHostName)
 			throws IOException, ServletException, RestInterfaceException {
 
 		SamlUserEntity user = findUser(eppn);
 		if (user == null)
 			throw new NoUserFoundException("no such user");
-		
+
 		ServiceEntity service = findService(serviceShortName);
 		if (service == null)
 			throw new NoServiceFoundException("no such service");
-		
+
 		RegistryEntity registry = findRegistry(user, service);
 		if (registry == null)
 			throw new NoRegistryFoundException("user not registered for service");
-		
-		if (password != null && (password.toLowerCase().startsWith("<?xml version") ||
-				password.startsWith("<saml2:Assertion "))) {
-			return delegateLogin(user, service, registry,
-					password, localHostName);
-		}
-		else {			
+
+		if (password != null
+				&& (password.toLowerCase().startsWith("<?xml version") || password.startsWith("<saml2:Assertion "))) {
+			return delegateLogin(user, service, registry, password, localHostName);
+		} else {
 			return ecp(user, service, registry, password, localHostName);
 		}
 	}
 
 	@Override
-	public Map<String, String> ecpLogin(Long regId,
-			String password, String localHostName)
+	public Map<String, String> ecpLogin(Long regId, String password, String localHostName)
 			throws IOException, ServletException, RestInterfaceException {
-		RegistryEntity registry = registryDao.findById(regId);
+		RegistryEntity registry = registryDao.fetch(regId);
 
 		if (registry == null) {
 			logger.info("No registry found for id {}", regId);
@@ -203,32 +197,29 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 		}
 
 		MDC.put("userId", "" + registry.getUser().getId());
-		
+
 		/**
 		 * TODO also cover OIDC users here
 		 */
 		if (registry.getUser() instanceof SamlUserEntity) {
-		
-			if (password != null && (password.toLowerCase().startsWith("<?xml version") ||
-					password.startsWith("<saml2:Assertion "))) {
-				return delegateLogin((SamlUserEntity) registry.getUser(), registry.getService(), registry,
-						password, localHostName);
+
+			if (password != null && (password.toLowerCase().startsWith("<?xml version")
+					|| password.startsWith("<saml2:Assertion "))) {
+				return delegateLogin((SamlUserEntity) registry.getUser(), registry.getService(), registry, password,
+						localHostName);
+			} else {
+				return ecp((SamlUserEntity) registry.getUser(), registry.getService(), registry, password,
+						localHostName);
 			}
-			else {
-				return ecp((SamlUserEntity) registry.getUser(), registry.getService(), registry,
-					password, localHostName);
-			}
-		}
-		else if (registry.getUser() instanceof OidcUserEntity) {
-			return ecp((OidcUserEntity) registry.getUser(), registry.getService(), registry,
-					password, localHostName);
-		}
-		else {
+		} else if (registry.getUser() instanceof OidcUserEntity) {
+			return ecp((OidcUserEntity) registry.getUser(), registry.getService(), registry, password, localHostName);
+		} else {
 			throw new NoUserFoundException("user type is not implemented");
 		}
 	}
 
-	private void createLoginInfo(UserEntity user, RegistryEntity registry, UserLoginMethod method, UserLoginInfoStatus status) {
+	private void createLoginInfo(UserEntity user, RegistryEntity registry, UserLoginMethod method,
+			UserLoginInfoStatus status) {
 		UserLoginInfoEntity loginInfo = userLoginInfoDao.createNew();
 		loginInfo.setUser(user);
 		loginInfo.setRegistry(registry);
@@ -246,52 +237,51 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			throw new LoginFailedException("Password blank");
 		}
 
-		if (service.getServiceProps().containsKey("twofa") && 
-				service.getServiceProps().get("twofa").equalsIgnoreCase("enabled")) {
-			
+		if (service.getServiceProps().containsKey("twofa")
+				&& service.getServiceProps().get("twofa").equalsIgnoreCase("enabled")) {
+
 			String separator = ",";
 			if (service.getServiceProps().containsKey("twofa_separator")) {
 				separator = service.getServiceProps().get("twofa_separator");
 			}
-			
+
 			int index = password.lastIndexOf(separator);
-			
+
 			if (index < 2) {
 				createLoginInfo(user, registry, UserLoginMethod.TWOFA, UserLoginInfoStatus.FAILED);
 				throw new LoginFailedException("Password must contain separator char");
 			}
-			
+
 			String twoFa = password.substring(index + 1);
 			password = password.substring(0, index);
-			
+
 			try {
 				Boolean success = twoFaService.checkToken(user.getIdentity(), twoFa);
-				if (! success) {
-					logger.info("User {} ({}) failed 2fa authentication", user.getEppn(), user.getId()); 
+				if (!success) {
+					logger.info("User {} ({}) failed 2fa authentication", user.getEppn(), user.getId());
 					createLoginInfo(user, registry, UserLoginMethod.TWOFA, UserLoginInfoStatus.FAILED);
 					throw new LoginFailedException("2fa wrong");
-				}
-				else {
-					logger.info("User {} ({}) 2fa authentication success", user.getEppn(), user.getId()); 
+				} else {
+					logger.info("User {} ({}) 2fa authentication success", user.getEppn(), user.getId());
 					createLoginInfo(user, registry, UserLoginMethod.TWOFA, UserLoginInfoStatus.SUCCESS);
 				}
 			} catch (TwoFaException e) {
-				logger.info("Problems with 2fa authentication", e); 
+				logger.info("Problems with 2fa authentication", e);
 				throw new LoginFailedException("Problems with 2fa authentication");
-			}			
+			}
 		}
 
 		if (registry.getRegistryValues().containsKey("userPassword")) {
 			logger.debug("userPassword is set on registry. Comparing with given password");
 			Boolean match = passwordUtil.comparePassword(password, registry.getRegistryValues().get("userPassword"));
 			logger.debug("Passwords match: {}", match);
-			
+
 			if (match) {
 				createLoginInfo(user, registry, UserLoginMethod.LOCAL, UserLoginInfoStatus.SUCCESS);
 
 				/*
-				 * Update user via AttributeQuery. 
-				 * TODO: Add exceptions for service, if AQ is not necessary
+				 * Update user via AttributeQuery. TODO: Add exceptions for service, if AQ is
+				 * not necessary
 				 */
 				if (user instanceof SamlUserEntity)
 					updateSamlUser((SamlUserEntity) user, service, "login-with-service-password");
@@ -301,25 +291,24 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 				List<Object> objectList = checkRules(user, service, registry);
 				List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
 				List<UnauthorizedUser> unauthorizedUserList = extractUnauthorizedUser(objectList);
-				
+
 				if (overrideAccessList.size() == 0 && unauthorizedUserList.size() > 0) {
 					throw new UnauthorizedException(unauthorizedUserList);
 				}
-				
+
 				SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 				Map<String, String> map = new HashMap<String, String>();
 				map.put("eppn", user.getEppn());
 				map.put("email", user.getEmail());
-				map.put("last_update",  df.format(user.getLastUpdate()));
-				
-				return map;				
+				map.put("last_update", df.format(user.getLastUpdate()));
+
+				return map;
 			}
 		}
 
 		return null;
 	}
 
-	
 	private Map<String, String> ecp(OidcUserEntity user, ServiceEntity service, RegistryEntity registry,
 			String password, String localHostName) throws RestInterfaceException {
 
@@ -329,10 +318,10 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			createLoginInfo(user, registry, UserLoginMethod.LOCAL, UserLoginInfoStatus.FAILED);
 			throw new LoginFailedException("Local authentication failed (oidc user)");
 		}
-		
+
 		return attributeMap;
 	}
-	
+
 	private Map<String, String> ecp(SamlUserEntity user, ServiceEntity service, RegistryEntity registry,
 			String password, String localHostName) throws RestInterfaceException {
 
@@ -341,30 +330,31 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 		if (attributeMap != null) {
 			return attributeMap;
 		}
-		
-		if (service.getServiceProps().containsKey("ecp") && 
-				service.getServiceProps().get("ecp").equalsIgnoreCase("disabled")) {
+
+		if (service.getServiceProps().containsKey("ecp")
+				&& service.getServiceProps().get("ecp").equalsIgnoreCase("disabled")) {
 			createLoginInfo(user, registry, UserLoginMethod.LOCAL, UserLoginInfoStatus.FAILED);
 			throw new LoginFailedException("Local authentication failed and ecp is disabled (saml user)");
 		}
-		
-		logger.debug("Attempting ECP Authentication for {} and service {} (regId {})", user.getEppn(), service.getShortName(), registry.getId());
+
+		logger.debug("Attempting ECP Authentication for {} and service {} (regId {})", user.getEppn(),
+				service.getShortName(), registry.getId());
 
 		String[] splits = user.getEppn().split("@");
-		
+
 		if (splits.length != 2) {
 			throw new NoScopedUsernameException("username must be scoped");
 		}
 		String username = splits[0];
 		String scope = splits[1];
-		
+
 		SamlIdpMetadataEntity idp = user.getIdp();
-		
+
 		if (idp == null) {
 			// if idp is not connected with user (legacy) try lookup via scope
 			idp = idpDao.findByScope(scope);
 		}
-		
+
 		if (idp == null) {
 			throw new NoIdpForScopeException("scope unknown");
 		}
@@ -375,7 +365,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 				logger.warn("EntityDescriptor for {} is not parsable", idp.getEntityId());
 				throw new NoIdpFoundException("IDP metadata are not parseable");
 			}
-			
+
 			SingleSignOnService sso = metadataHelper.getSSO(idpEntityDesc, SAMLConstants.SAML2_SOAP11_BINDING_URI);
 			if (sso == null) {
 				logger.warn("No SOAP Endpoint defined for {}", idp.getEntityId());
@@ -386,7 +376,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			String hostname = localHostName;
 			logger.debug("hostname is {}", hostname);
 			List<SamlSpConfigurationEntity> spList = spDao.findByHostname(hostname);
-			
+
 			if (spList.size() != 1) {
 				logger.warn("No hostname configured for {}", hostname);
 				throw new NoHostnameConfiguredException("No hostname configured");
@@ -396,7 +386,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 
 			AuthnRequest authnRequest = ssoHelper.buildAuthnRequest(sp.getEntityId(), sp.getEcp(),
 					SAMLConstants.SAML2_PAOS_BINDING_URI);
-			//Envelope envelope = attrQueryHelper.buildSOAP11Envelope(authnRequest);
+			// Envelope envelope = attrQueryHelper.buildSOAP11Envelope(authnRequest);
 
 			MessageContext<SAMLObject> inbound = new MessageContext<SAMLObject>();
 			MessageContext<SAMLObject> outbound = new MessageContext<SAMLObject>();
@@ -405,31 +395,32 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			SOAP11Context soapContext = new SOAP11Context();
 			outbound.addSubcontext(soapContext);
 
-			InOutOperationContext<SAMLObject, SAMLObject> inOutContext =
-					new InOutOperationContext<SAMLObject, SAMLObject>(inbound, outbound);
-			
+			InOutOperationContext<SAMLObject, SAMLObject> inOutContext = new InOutOperationContext<SAMLObject, SAMLObject>(
+					inbound, outbound);
+
 			CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
 			credentialsProvider.setCredentials(new AuthScope(bindingHost, 443),
-	                new UsernamePasswordCredentials(username, password));
-			
+					new UsernamePasswordCredentials(username, password));
+
 			HttpClient client = HttpClients.custom().setDefaultCredentialsProvider(credentialsProvider).build();
-			
+
 			PipelineFactoryHttpSOAPClient<SAMLObject, SAMLObject> pf = new PipelineFactoryHttpSOAPClient<SAMLObject, SAMLObject>();
 			pf.setHttpClient(client);
 			pf.setPipelineFactory(new HttpClientMessagePipelineFactory<SAMLObject, SAMLObject>() {
-				
+
 				@Override
-				public HttpClientMessagePipeline<SAMLObject, SAMLObject> newInstance(
-						String pipelineName) {
-					return new BasicHttpClientMessagePipeline<SAMLObject, SAMLObject>(new HttpClientRequestSOAP11Encoder(), new HttpClientResponseSOAP11Decoder());
+				public HttpClientMessagePipeline<SAMLObject, SAMLObject> newInstance(String pipelineName) {
+					return new BasicHttpClientMessagePipeline<SAMLObject, SAMLObject>(
+							new HttpClientRequestSOAP11Encoder(), new HttpClientResponseSOAP11Decoder());
 				}
-				
+
 				@Override
 				public HttpClientMessagePipeline<SAMLObject, SAMLObject> newInstance() {
-					return new BasicHttpClientMessagePipeline<SAMLObject, SAMLObject>(new HttpClientRequestSOAP11Encoder(), new HttpClientResponseSOAP11Decoder());
+					return new BasicHttpClientMessagePipeline<SAMLObject, SAMLObject>(
+							new HttpClientRequestSOAP11Encoder(), new HttpClientResponseSOAP11Decoder());
 				}
 			});
-			
+
 			try {
 				pf.send(sso.getLocation(), inOutContext);
 			} catch (SOAPException se) {
@@ -457,48 +448,48 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 		} catch (SamlAuthenticationException e) {
 			logger.info("exception at attribute query", e);
 			throw new GenericRestInterfaceException("an error occured: " + e.getMessage());
-		}	
+		}
 	}
 
 	private Map<String, String> delegateLogin(SamlUserEntity user, ServiceEntity service, RegistryEntity registry,
-			String password, String localHostName)
-			throws IOException, ServletException, RestInterfaceException {
-		
-		if (! service.getServiceProps().containsKey("delegate_entities")) {
+			String password, String localHostName) throws RestInterfaceException {
+
+		if (!service.getServiceProps().containsKey("delegate_entities")) {
 			throw new NoDelegationConfiguredException("delegation not possible");
 		}
-		
+
 		List<String> delegateEntityList = Arrays.asList(service.getServiceProps().get("delegate_entities").split(" "));
-		
+
 		Long delegateAssertionTimeout;
-		
+
 		/* if not configured, use 4 hours */
-		if (! service.getServiceProps().containsKey("delegate_assertion_timeout"))
+		if (!service.getServiceProps().containsKey("delegate_assertion_timeout"))
 			delegateAssertionTimeout = 4 * 60 * 60 * 1000L;
 		else
 			delegateAssertionTimeout = Long.parseLong(service.getServiceProps().get("delegate_assertion_timeout"));
-			
+
 		logger.info("Attempting delgated Authentication for {} and service {}", user.getEppn(), service.getShortName());
 
 		Assertion assertion = samlHelper.unmarshal(password, Assertion.class);
-		
+
 		if (assertion == null)
 			throw new AssertionException("assertion-invalid");
 
-		if (assertion.getConditions() == null ||
-				assertion.getConditions().getAudienceRestrictions() == null ||
-				assertion.getConditions().getAudienceRestrictions().size() == 0)
+		if (assertion.getConditions() == null || assertion.getConditions().getAudienceRestrictions() == null
+				|| assertion.getConditions().getAudienceRestrictions().size() == 0)
 			throw new AssertionException("audience-restriction-missing");
-			
+
 		List<AudienceRestriction> audienceRestrictionList = assertion.getConditions().getAudienceRestrictions();
-		
-		if (System.currentTimeMillis() - assertion.getConditions().getNotBefore().getMillis() > delegateAssertionTimeout) {
-			logger.info("assertion is older than {} ms ({}, {})", delegateAssertionTimeout, user.getEppn(), service.getShortName());
+
+		if (System.currentTimeMillis()
+				- assertion.getConditions().getNotBefore().getMillis() > delegateAssertionTimeout) {
+			logger.info("assertion is older than {} ms ({}, {})", delegateAssertionTimeout, user.getEppn(),
+					service.getShortName());
 			throw new AssertionException("assertion-too-old");
 		}
-		
+
 		boolean audienceOk = false;
-		
+
 		for (AudienceRestriction audienceRestriction : audienceRestrictionList) {
 			for (Audience audience : audienceRestriction.getAudiences()) {
 				if (delegateEntityList.contains(audience.getAudienceURI())) {
@@ -508,23 +499,24 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 				}
 			}
 		}
-		
-		if (! audienceOk) { 
-			logger.info("assertion does not match a configured audience (delegate_entities) ({}, {})", user.getEppn(), service.getShortName());
+
+		if (!audienceOk) {
+			logger.info("assertion does not match a configured audience (delegate_entities) ({}, {})", user.getEppn(),
+					service.getShortName());
 			throw new AssertionException("assertion-not-from-configured-audience");
 		}
-		
+
 		String hostname = localHostName;
 		logger.debug("hostname is {}", hostname);
 		List<SamlSpConfigurationEntity> spList = spDao.findByHostname(hostname);
-		
+
 		if (spList.size() != 1) {
 			logger.warn("No hostname configured for {}", hostname);
 			throw new NoHostnameConfiguredException("No hostname configured");
 		}
 
 		SamlSpConfigurationEntity sp = spList.get(0);
-		
+
 		SamlIdpMetadataEntity idp = idpDao.findByEntityId(user.getIdp().getEntityId());
 
 		if (idp == null) {
@@ -532,44 +524,42 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			throw new NoIdpFoundException("idp unknown");
 		}
 
-		if (assertion.getIssuer() != null && 
-				(! assertion.getIssuer().getValue().equals(idp.getEntityId()))) {
+		if (assertion.getIssuer() != null && (!assertion.getIssuer().getValue().equals(idp.getEntityId()))) {
 			logger.info("User {} is from idp {}, but assertion from idp {}", user.getEppn(), idp.getEntityId(),
 					assertion.getIssuer().getValue());
 			throw new AssertionException("wrong-idp-for-user");
 		}
-		
+
 		EntityDescriptor idpEntityDesc = samlHelper.unmarshal(idp.getEntityDescriptor(), EntityDescriptor.class);
-		
+
 		if (idpEntityDesc == null) {
 			logger.warn("EntityDescriptor for {} is not parsable", idp.getEntityId());
 			throw new NoIdpFoundException("IDP metadata are not parseable");
 		}
 
 		try {
-			logger.debug("Validating Signature for " + assertion.getID());					
+			logger.debug("Validating Signature for " + assertion.getID());
 			saml2ResponseValidationService.validateIdpSignature(assertion, assertion.getIssuer(), idpEntityDesc);
 			logger.debug("Validating Signature success for " + assertion.getID());
 		} catch (SamlAuthenticationException e) {
 			logger.info("Could not validate signature for user {}", user.getEppn());
 			throw new AssertionException("assertion-signature-invalid");
-		}					
+		}
 
 		Map<String, List<Object>> attributeMap = saml2AssertionService.extractAttributes(assertion);
-		
+
 		String assertionEppn = attrHelper.getSingleStringFirst(attributeMap, "urn:oid:1.3.6.1.4.1.5923.1.1.1.6");
-		
-		if (assertionEppn != null &&
-				assertionEppn.equals(user.getEppn())) {
-			
+
+		if (assertionEppn != null && assertionEppn.equals(user.getEppn())) {
+
 			logger.debug("EPPN from assertion and login match");
-			
+
 			try {
 
 				Response response = attrQueryHelper.query(user, idp, idpEntityDesc, sp);
-				
+
 				return processResponse(response, idpEntityDesc, service, idp, sp, "ecp-delegate");
-			
+
 			} catch (SOAPException e) {
 				logger.info("exception at attribute query", e);
 				throw new GenericRestInterfaceException("an error occured: " + e.getMessage());
@@ -589,36 +579,37 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 				logger.info("exception at attribute query", e);
 				throw new GenericRestInterfaceException("an error occured: " + e.getMessage());
 			}
-		}
-		else {
+		} else {
 			if (attributeMap.containsKey("urn:oid:1.3.6.1.4.1.5923.1.1.1.6"))
-				logger.warn("User tried to login with wrong Eppn from Assertion {} <-> {}", user.getEppn(), attributeMap.get("urn:oid:1.3.6.1.4.1.5923.1.1.1.6"));
+				logger.warn("User tried to login with wrong Eppn from Assertion {} <-> {}", user.getEppn(),
+						attributeMap.get("urn:oid:1.3.6.1.4.1.5923.1.1.1.6"));
 			else
 				logger.warn("User {} tried to login with missing Eppn in Assertion", user.getEppn());
 			throw new LoginFailedException("Assertion is for wrong EPPN");
 		}
 	}
-	
+
 	private Map<String, String> processResponse(Response samlResponse, EntityDescriptor idpEntityDescriptor,
-			ServiceEntity service, SamlIdpMetadataEntity idp, SamlSpConfigurationEntity spEntity, String caller) 
-					throws RestInterfaceException, IOException, DecryptionException, SamlAuthenticationException {
-		
-		Assertion assertion = saml2AssertionService.processSamlResponse(samlResponse, idp, idpEntityDescriptor, spEntity);
+			ServiceEntity service, SamlIdpMetadataEntity idp, SamlSpConfigurationEntity spEntity, String caller)
+			throws RestInterfaceException, IOException, DecryptionException, SamlAuthenticationException {
+
+		Assertion assertion = saml2AssertionService.processSamlResponse(samlResponse, idp, idpEntityDescriptor,
+				spEntity);
 
 		SamlIdentifier samlIdentifier = saml2AssertionService.extractPersistentId(idp, assertion, spEntity, null);
 		SamlUserEntity user = saml2AssertionService.resolveUser(samlIdentifier, idp, spEntity.getEntityId(), null);
-		
+
 		if (user == null) {
 			throw new UserNotRegisteredException("user not registered in webapp");
 		}
-		
+
 		saml2AssertionService.updateUserIdentifier(samlIdentifier, user, spEntity.getEntityId(), null);
-		
+
 		String lastLoginHost = null;
 		if (requestContext != null && requestContext.getHttpServletRequest() != null) {
 			lastLoginHost = requestContext.getHttpServletRequest().getLocalName();
 		}
-		
+
 		try {
 			user = userUpdater.updateUser(user, assertion, caller, service, null, lastLoginHost);
 		} catch (UserUpdateException e) {
@@ -627,63 +618,66 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 		}
 
 		RegistryEntity registry = findRegistry(user, service);
-		
+
 		if (registry == null) {
 			throw new NoRegistryFoundException("No such registry");
 		}
-			
+
 		List<Object> objectList = checkRules(user, service, registry);
 		List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
 		List<UnauthorizedUser> unauthorizedUserList = extractUnauthorizedUser(objectList);
-		
+
 		if (overrideAccessList.size() == 0 && unauthorizedUserList.size() > 0) {
 			throw new UnauthorizedException(unauthorizedUserList);
 		}
-		
+
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("eppn", user.getEppn());
 		map.put("email", user.getEmail());
-		map.put("last_update",  df.format(user.getLastUpdate()));
-		
+		map.put("last_update", df.format(user.getLastUpdate()));
+
 		return map;
 	}
-	
+
 	private RegistryEntity findRegistry(UserEntity user, ServiceEntity service) {
 		RegistryEntity registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.ACTIVE);
-		
+
 		if (registry == null) {
 			/*
-			 * Also check for Lost_access registries. They should also be allowed to be rechecked.
+			 * Also check for Lost_access registries. They should also be allowed to be
+			 * rechecked.
 			 */
 			registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.LOST_ACCESS);
 		}
 
 		if (registry == null) {
 			/*
-			 * Also check for On_hold registries. They should also be allowed to be rechecked.
+			 * Also check for On_hold registries. They should also be allowed to be
+			 * rechecked.
 			 */
 			registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.ON_HOLD);
 		}
-		
+
 		return registry;
 	}
 
 	private ServiceEntity findService(String serviceShortName) {
 		ServiceEntity service = serviceDao.findByShortName(serviceShortName);
-		
+
 		if (service != null) {
 			service = serviceDao.findByIdWithServiceProps(service.getId());
 		}
-		
+
 		return service;
 	}
 
 	private SamlUserEntity findUser(String eppn) {
-		SamlUserEntity user = samlUserDao.findByEppn(eppn);
+		SamlUserEntity user = samlUserDao.find(equal("eppn", eppn));
 
 		if (user != null) {
-			user = samlUserDao.findByIdWithStore(user.getId());
+			user = samlUserDao.find(equal(SamlUserEntity_.id, user.getId()), SamlUserEntity_.genericStore,
+					SamlUserEntity_.attributeStore);
 		}
 
 		return user;
@@ -692,22 +686,22 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 	private List<Object> checkRules(UserEntity user, ServiceEntity service, RegistryEntity registry) {
 		return knowledgeSessionService.checkServiceAccessRule(user, service, registry, "user-self", false);
 	}
-	
+
 	private List<OverrideAccess> extractOverideAccess(List<Object> objectList) {
 		List<OverrideAccess> returnList = new ArrayList<OverrideAccess>();
-		
+
 		for (Object o : objectList) {
 			if (o instanceof OverrideAccess) {
 				returnList.add((OverrideAccess) o);
 			}
 		}
-		
+
 		return returnList;
 	}
 
 	private List<UnauthorizedUser> extractUnauthorizedUser(List<Object> objectList) {
 		List<UnauthorizedUser> returnList = new ArrayList<UnauthorizedUser>();
-		
+
 		for (Object o : objectList) {
 			if (o instanceof UnauthorizedUser) {
 				returnList.add((UnauthorizedUser) o);
@@ -715,9 +709,10 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 		}
 
 		return returnList;
-	}	
-	
-	private void updateSamlUser(SamlUserEntity user, ServiceEntity service, String executor) throws UserUpdateFailedException {
+	}
+
+	private void updateSamlUser(SamlUserEntity user, ServiceEntity service, String executor)
+			throws UserUpdateFailedException {
 		// Default expiry Time after which an attrq is issued to IDP in millis
 		Long expireTime = 10L * 1000L;
 		if (service.getServiceProps() != null && service.getServiceProps().containsKey("attrq_expire_time")) {
@@ -731,56 +726,63 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 
 		if (checkMethod.equalsIgnoreCase("no_attrq")) {
 			/*
-			 * Don't perform any user update per attribute query or refresh token, if this is set
+			 * Don't perform any user update per attribute query or refresh token, if this
+			 * is set
 			 */
 
-			logger.info("Performing no user update for {} with id {}, as configuration with service", new Object[] {user.getEppn(), user.getId()});
-		}
-		else if (checkMethod.equalsIgnoreCase("attrq_optional")) {
+			logger.info("Performing no user update for {} with id {}, as configuration with service",
+					new Object[] { user.getEppn(), user.getId() });
+		} else if (checkMethod.equalsIgnoreCase("attrq_optional")) {
 			/*
-			 * Perform user update per attribute query or refresh token, but proceed if it failed
+			 * Perform user update per attribute query or refresh token, but proceed if it
+			 * failed
 			 */
 			try {
-				if ((user.getLastUpdate() != null) &&
-						((System.currentTimeMillis() - user.getLastUpdate().getTime()) < expireTime)) {
-					logger.info("Skipping user update for {} with id {}", new Object[] {user.getEppn(), user.getId()});
-				}
-				else {
-					logger.info("Performing user update for {} with id {}", new Object[] {user.getEppn(), user.getId()}); 
+				if ((user.getLastUpdate() != null)
+						&& ((System.currentTimeMillis() - user.getLastUpdate().getTime()) < expireTime)) {
+					logger.info("Skipping user update for {} with id {}",
+							new Object[] { user.getEppn(), user.getId() });
+				} else {
+					logger.info("Performing user update for {} with id {}",
+							new Object[] { user.getEppn(), user.getId() });
 					user = userUpdater.updateUserFromIdp(user, service, executor, null);
 				}
 			} catch (UserUpdateException e) {
-				logger.warn("Could not update user (attrq is optional, continue with login process) {}: {}", e.getMessage(), user.getEppn());
-			}		
-		}
-		else {
+				logger.warn("Could not update user (attrq is optional, continue with login process) {}: {}",
+						e.getMessage(), user.getEppn());
+			}
+		} else {
 			/*
-			 * This is the standard case, where attribute query or refresh token is mandatory
+			 * This is the standard case, where attribute query or refresh token is
+			 * mandatory
 			 */
 			try {
-				if ((user.getLastUpdate() != null) &&
-						((System.currentTimeMillis() - user.getLastUpdate().getTime()) < expireTime)) {
-					logger.info("Skipping user update for {} with id {}", new Object[] {user.getEppn(), user.getId()});
-				}
-				else {
-					logger.info("Performing user update for {} with id {}", new Object[] {user.getEppn(), user.getId()}); 
-		
+				if ((user.getLastUpdate() != null)
+						&& ((System.currentTimeMillis() - user.getLastUpdate().getTime()) < expireTime)) {
+					logger.info("Skipping user update for {} with id {}",
+							new Object[] { user.getEppn(), user.getId() });
+				} else {
+					logger.info("Performing user update for {} with id {}",
+							new Object[] { user.getEppn(), user.getId() });
+
 					user = userUpdater.updateUserFromIdp(user, service, executor, null);
 				}
 			} catch (UserUpdateException e) {
-				logger.warn("Could not update user {}: {} (attrq is mandatory, denying access)", e.getMessage(), user.getEppn());
+				logger.warn("Could not update user {}: {} (attrq is mandatory, denying access)", e.getMessage(),
+						user.getEppn());
 				throw new UserUpdateFailedException("user update failed: " + e.getMessage());
-			}		
+			}
 		}
 	}
-	
-	private void updateOidcUser(OidcUserEntity user, ServiceEntity service, String executor) throws UserUpdateFailedException {
+
+	private void updateOidcUser(OidcUserEntity user, ServiceEntity service, String executor)
+			throws UserUpdateFailedException {
 
 		logger.info("No update implemented yet for oidc user {} ({})", user.getSubjectId(), user.getIssuer().getName());
 	}
-	
+
 	protected void updateIdpStatus(SamlIdpMetadataEntityStatus status, SamlIdpMetadataEntity idpEntity) {
-		if (! status.equals(idpEntity.getIdIdpStatus())) {
+		if (!status.equals(idpEntity.getIdIdpStatus())) {
 			idpEntity.setIdIdpStatus(status);
 			idpEntity.setLastIdStatusChange(new Date());
 		}

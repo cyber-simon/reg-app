@@ -10,16 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao;
 
-import java.util.Date;
-import java.util.List;
-
 import edu.kit.scc.webreg.entity.JobScheduleEntity;
 
 public interface JobScheduleDao extends BaseDao<JobScheduleEntity> {
-
-	List<JobScheduleEntity> findAllBySingleton(Boolean singleton,
-			Boolean disabled);
-
-	List<JobScheduleEntity> findAllBySingletonNewer(Boolean singleton, Date date);
 
 }

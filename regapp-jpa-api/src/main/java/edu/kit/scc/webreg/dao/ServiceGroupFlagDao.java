@@ -21,8 +21,7 @@ public interface ServiceGroupFlagDao extends BaseDao<ServiceGroupFlagEntity> {
 
 	List<ServiceGroupFlagEntity> findByGroup(ServiceBasedGroupEntity group);
 
-	List<ServiceGroupFlagEntity> findByGroupAndService(
-			ServiceBasedGroupEntity group, ServiceEntity service);
+	List<ServiceGroupFlagEntity> findByGroupAndService(ServiceBasedGroupEntity group, ServiceEntity service);
 
 	List<ServiceGroupFlagEntity> findByService(ServiceEntity service);
 
@@ -30,7 +29,4 @@ public interface ServiceGroupFlagDao extends BaseDao<ServiceGroupFlagEntity> {
 
 	List<ServiceGroupFlagEntity> findByStatus(ServiceGroupStatus status);
 
-	List<ServiceGroupFlagEntity> findByGroupAndStatus(
-			ServiceBasedGroupEntity group, ServiceGroupStatus status);
-	
 }

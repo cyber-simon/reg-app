@@ -24,20 +24,16 @@ import edu.kit.scc.webreg.entity.ServiceSamlSpEntity;
 import edu.kit.scc.webreg.service.SamlIdpConfigurationService;
 
 @Stateless
-public class SamlIdpConfigurationServiceImpl extends BaseServiceImpl<SamlIdpConfigurationEntity> implements SamlIdpConfigurationService {
+public class SamlIdpConfigurationServiceImpl extends BaseServiceImpl<SamlIdpConfigurationEntity>
+		implements SamlIdpConfigurationService {
 
 	private static final long serialVersionUID = 1L;
 
 	@Inject
 	private SamlIdpConfigurationDao dao;
-	
+
 	@Inject
 	private ServiceSamlSpDao serviceSamlSpDao;
-
-	@Override
-	public SamlIdpConfigurationEntity findByEntityId(String entityId) {
-		return dao.findByEntityId(entityId);
-	}
 
 	@Override
 	public List<SamlIdpConfigurationEntity> findByHostname(String hostname) {
@@ -45,11 +41,11 @@ public class SamlIdpConfigurationServiceImpl extends BaseServiceImpl<SamlIdpConf
 	}
 
 	@Override
-	public List<ServiceSamlSpEntity> findBySamlSpAndIdp(SamlIdpConfigurationEntity idpConfig, 
+	public List<ServiceSamlSpEntity> findBySamlSpAndIdp(SamlIdpConfigurationEntity idpConfig,
 			SamlSpMetadataEntity spMetadata) {
 		return serviceSamlSpDao.findBySamlSpAndIdp(idpConfig, spMetadata);
 	}
-	
+
 	@Override
 	protected BaseDao<SamlIdpConfigurationEntity> getDao() {
 		return dao;

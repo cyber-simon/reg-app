@@ -47,6 +47,88 @@ public class RqlExpressions {
 	}
 
 	/**
+	 * Provides greaterThan predicate.
+	 * 
+	 * @param <E>           Type of the entity the field belongs to
+	 * @param <F>           Type of the field
+	 * @param field         Field attribute according to the JPA meta-model
+	 * @param assignedValue Value the field is compared with
+	 * @return RQL predicate {@link GreaterThan}
+	 */
+	public static <E, F extends Comparable<? super F>> GreaterThan<E, F> greaterThan(SingularAttribute<E, F> field,
+			F assignedValue) {
+		return new GreaterThanBasedOnAttribute<>(field, assignedValue);
+	}
+
+	/**
+	 * Provides greaterThan predicate.
+	 * 
+	 * @param <E>           Type of the root entity the field is based on
+	 * @param <F>           Type of the field
+	 * @param field         Field name (supports chained fields)
+	 * @param assignedValue Value the field is compared with
+	 * @return RQL predicate {@link GreaterThan}
+	 */
+	public static <E, F extends Comparable<? super F>> GreaterThan<E, F> greaterThan(String field, F assignedValue) {
+		return new GreaterThanBasedOnString<>(field, assignedValue);
+	}
+
+	/**
+	 * Provides lessThan predicate.
+	 * 
+	 * @param <E>           Type of the entity the field belongs to
+	 * @param <F>           Type of the field
+	 * @param field         Field attribute according to the JPA meta-model
+	 * @param assignedValue Value the field is compared with
+	 * @return RQL predicate {@link GreaterThan}
+	 */
+	public static <E, F extends Comparable<? super F>> LessThan<E, F> lessThan(SingularAttribute<E, F> field,
+			F assignedValue) {
+		return new LessThanBasedOnAttribute<>(field, assignedValue);
+	}
+
+	/**
+	 * Provides lessThan predicate.
+	 * 
+	 * @param <E>           Type of the root entity the field is based on
+	 * @param <F>           Type of the field
+	 * @param field         Field name (supports chained fields)
+	 * @param assignedValue Value the field is compared with
+	 * @return RQL predicate {@link GreaterThan}
+	 */
+	public static <E, F extends Comparable<? super F>> LessThan<E, F> lessThan(String field, F assignedValue) {
+		return new LessThanBasedOnString<>(field, assignedValue);
+	}
+
+	/**
+	 * Provides lessThan predicate.
+	 * 
+	 * @param <E>           Type of the entity the field belongs to
+	 * @param <F>           Type of the field
+	 * @param field         Field attribute according to the JPA meta-model
+	 * @param assignedValue Value the field is compared with
+	 * @return RQL predicate {@link GreaterThan}
+	 */
+	public static <E, F extends Comparable<? super F>> LessThanOrEqualTo<E, F> lessThanOrEqualTo(
+			SingularAttribute<E, F> field, F assignedValue) {
+		return new LessThanOrEqualToBasedOnAttribute<>(field, assignedValue);
+	}
+
+	/**
+	 * Provides lessThan predicate.
+	 * 
+	 * @param <E>           Type of the root entity the field is based on
+	 * @param <F>           Type of the field
+	 * @param field         Field name (supports chained fields)
+	 * @param assignedValue Value the field is compared with
+	 * @return RQL predicate {@link GreaterThan}
+	 */
+	public static <E, F extends Comparable<? super F>> LessThanOrEqualTo<E, F> lessThanOrEqualTo(String field,
+			F assignedValue) {
+		return new LessThanOrEqualToBasedOnString<>(field, assignedValue);
+	}
+
+	/**
 	 * Provides not-equal predicate.
 	 * 
 	 * @param <E>           Type of the entity the field belongs to
@@ -226,6 +308,60 @@ public class RqlExpressions {
 	}
 
 	/**
+	 * Provides a notIn (list) predicate.
+	 * 
+	 * @param <E>            Type of the entity the field belongs to
+	 * @param <F>            Type of the field
+	 * @param field          Field attribute according to the JPA meta-model
+	 * @param assignedValues Values, the field is compared with
+	 * @return RQL predicate {@link NotIn}
+	 */
+	public static <E, F> NotIn<E, F> notIn(SingularAttribute<E, F> field, List<F> assignedValues) {
+		return new NotInBasedOnAttribute<>(field, assignedValues);
+	}
+
+	/**
+	 * Provides a notIn (list) predicate.
+	 * 
+	 * @param <E>            Type of the entity the field belongs to
+	 * @param <F>            Type of the field
+	 * @param field          Field attribute according to the JPA meta-model
+	 * @param assignedValues Values, the field is compared with
+	 * @return RQL predicate {@link NotIn}
+	 */
+	@SafeVarargs
+	public static <E, F> NotIn<E, F> notIn(SingularAttribute<E, F> field, F... assignedValues) {
+		return new NotInBasedOnAttribute<>(field, Arrays.asList(assignedValues));
+	}
+
+	/**
+	 * Provides a notIn (list) predicate.
+	 * 
+	 * @param <E>            Type of the root entity the field is based on
+	 * @param <F>            Type of the field
+	 * @param field          Field name (supports chained fields)
+	 * @param assignedValues Values, the field is compared with
+	 * @return RQL predicate {@link NotIn}
+	 */
+	public static <E, F> NotIn<E, F> notIn(String field, List<F> assignedValues) {
+		return new NotInBasedOnString<>(field, assignedValues);
+	}
+
+	/**
+	 * Provides a notIn (list) predicate.
+	 * 
+	 * @param <E>            Type of the root entity the field is based on
+	 * @param <F>            Type of the field
+	 * @param field          Field name (supports chained fields)
+	 * @param assignedValues Values, the field is compared with
+	 * @return RQL predicate {@link NotIn}
+	 */
+	@SafeVarargs
+	public static <E, F> NotIn<E, F> notIn(String field, F... assignedValues) {
+		return new NotInBasedOnString<>(field, Arrays.asList(assignedValues));
+	}
+
+	/**
 	 * Provides isNull predicate.
 	 * 
 	 * @param <E>   Type of the entity the field belongs to
@@ -245,6 +381,28 @@ public class RqlExpressions {
 	 */
 	public static <E> IsNull<E, ?> isNull(String field) {
 		return new IsNullBasedOnString<>(field);
+	}
+
+	/**
+	 * Provides isNotNull predicate.
+	 * 
+	 * @param <E>   Type of the entity the field belongs to
+	 * @param field Field attribute according to the JPA meta-model
+	 * @return RQL predicate {@link IsNotNull}
+	 */
+	public static <E> IsNotNull<E, ?> isNotNull(SingularAttribute<E, ?> field) {
+		return new IsNotNullBasedOnAttribute<>(field);
+	}
+
+	/**
+	 * Provides isNotNull predicate.
+	 * 
+	 * @param <E>   Type of the root entity the field is based on
+	 * @param field Field name (supports chained fields)
+	 * @return RQL predicate {@link IsNotNull}
+	 */
+	public static <E> IsNotNull<E, ?> isNotNull(String field) {
+		return new IsNotNullBasedOnString<>(field);
 	}
 
 	/**

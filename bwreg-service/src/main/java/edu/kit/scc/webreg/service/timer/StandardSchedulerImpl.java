@@ -100,7 +100,7 @@ public class StandardSchedulerImpl implements StandardScheduler, Serializable {
 		}
 		
 		JobScheduleEntity jobSchedule = (JobScheduleEntity) timer.getInfo();
-		JobClassEntity jobClass = jobClassService.findById(jobSchedule.getJobClass().getId());
+		JobClassEntity jobClass = jobClassService.fetch(jobSchedule.getJobClass().getId());
 		
 		logger.debug("----StandardScheduler invokes: {} [{}]", jobClass.getName(), jobClass.getJobClassName());
 

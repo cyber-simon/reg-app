@@ -47,34 +47,28 @@ public class ConnectAccountOidcBean implements Serializable {
 
 	@Inject
 	private Logger logger;
-	
+
 	@Inject
 	private UserService userService;
-    
+
 	@Inject
 	private IdentityService identityService;
 
-    @Inject 
-    private SessionManager sessionManager;
-
 	@Inject
-	private OidcRpConfigurationService oidcRpService;
+	private SessionManager sessionManager;
 
 	@Inject
 	private FacesMessageGenerator messageGenerator;
 
-    @Inject
-    private OidcTokenHelper tokenHelper;
-    
-    @Inject
-    private OidcRpConfigurationService rpConfigService;
+	@Inject
+	private OidcTokenHelper tokenHelper;
 
-    @Inject
-    private OidcUserCreateService userCreateService;
+	@Inject
+	private OidcRpConfigurationService rpConfigService;
 
-    @Inject
-    private UserService service;
-    
+	@Inject
+	private OidcUserCreateService userCreateService;
+
 	private IdentityEntity identity;
 	private List<UserEntity> userList;
 
@@ -83,7 +77,7 @@ public class ConnectAccountOidcBean implements Serializable {
 	private String pin;
 
 	private Boolean errorState = false;
-	
+
 	private Map<String, String> printableAttributesMap;
 	private Map<String, String> unprintableAttributesMap;
 	private List<String> printableAttributesList;
@@ -92,32 +86,34 @@ public class ConnectAccountOidcBean implements Serializable {
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (identity == null) {
-			identity = identityService.findById(sessionManager.getIdentityId());
+			identity = identityService.fetch(sessionManager.getIdentityId());
 			userList = userService.findByIdentity(identity);
 		}
-		
-    	if (sessionManager.getOidcRelyingPartyId() == null) {
-			errorState = true;
-			messageGenerator.addResolvedErrorMessage("page-not-directly-accessible", "page-not-directly-accessible-text", true);
-			return;    		
-    	}
-    	
-    	rpConfig = rpConfigService.findById(sessionManager.getOidcRelyingPartyId());
 
-    	if (rpConfig == null) {
+		if (sessionManager.getOidcRelyingPartyId() == null) {
 			errorState = true;
-			messageGenerator.addResolvedErrorMessage("page-not-directly-accessible", "page-not-directly-accessible-text", true);
-			return;    		
-    	}
-		
-    	printableAttributesMap = new HashMap<String, String>();
-    	unprintableAttributesMap = new HashMap<String, String>();
-    	printableAttributesList = new ArrayList<String>();
-    	
-    	try {
-        	entity = userCreateService.preCreateUser(rpConfig.getId(),
-        			sessionManager.getLocale(), sessionManager.getAttributeMap());
-        	
+			messageGenerator.addResolvedErrorMessage("page-not-directly-accessible",
+					"page-not-directly-accessible-text", true);
+			return;
+		}
+
+		rpConfig = rpConfigService.fetch(sessionManager.getOidcRelyingPartyId());
+
+		if (rpConfig == null) {
+			errorState = true;
+			messageGenerator.addResolvedErrorMessage("page-not-directly-accessible",
+					"page-not-directly-accessible-text", true);
+			return;
+		}
+
+		printableAttributesMap = new HashMap<String, String>();
+		unprintableAttributesMap = new HashMap<String, String>();
+		printableAttributesList = new ArrayList<String>();
+
+		try {
+			entity = userCreateService.preCreateUser(rpConfig.getId(), sessionManager.getLocale(),
+					sessionManager.getAttributeMap());
+
 		} catch (UserUpdateException e) {
 			errorState = true;
 			messageGenerator.addResolvedErrorMessage("missing-mandatory-attributes", e.getMessage(), true);
@@ -141,7 +137,7 @@ public class ConnectAccountOidcBean implements Serializable {
 		printableAttributesMap.put("issuer", rpConfig.getServiceUrl());
 
 	}
-	
+
 	public String save() {
 		logger.debug("Comparing pins {} <-> {}", sessionManager.getAccountLinkingPin(), pin);
 
@@ -149,7 +145,7 @@ public class ConnectAccountOidcBean implements Serializable {
 			/*
 			 * pin is correct, proceed
 			 */
-			
+
 			try {
 				entity = userCreateService.createAndLinkUser(identity, entity, sessionManager.getAttributeMap(), null);
 			} catch (UserUpdateException e) {
@@ -157,11 +153,11 @@ public class ConnectAccountOidcBean implements Serializable {
 				messageGenerator.addResolvedErrorMessage("error_msg", e.toString(), false);
 				return null;
 			}
-			
+
 			return "user/connect-account-success.xhtml";
-		}
-		else {
-			logger.warn("Pins for identity {} don't match: {} <-> {}", identity.getId(), sessionManager.getAccountLinkingPin(), pin);
+		} else {
+			logger.warn("Pins for identity {} don't match: {} <-> {}", identity.getId(),
+					sessionManager.getAccountLinkingPin(), pin);
 			messageGenerator.addResolvedErrorMessage("pin-wrong", "pin-wrong-detail", true);
 			return null;
 		}

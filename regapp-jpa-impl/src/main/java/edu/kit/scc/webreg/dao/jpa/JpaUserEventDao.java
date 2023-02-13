@@ -10,29 +10,19 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
-import java.util.List;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 
 import edu.kit.scc.webreg.dao.UserEventDao;
-import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.UserEventEntity;
 
 @Named
 @ApplicationScoped
 public class JpaUserEventDao extends JpaBaseDao<UserEventEntity> implements UserEventDao {
 
-    @Override
+	@Override
 	public Class<UserEventEntity> getEntityClass() {
 		return UserEventEntity.class;
 	}
 
-	@Override
-    @SuppressWarnings({"unchecked"})
-	public List<UserEventEntity> findAllByEventType(EventType eventType) {
-		return em.createQuery("select e from UserEventEntity e where e.eventType = :eventType")
-				.setParameter("eventType", eventType).getResultList();
-	}
-    
 }

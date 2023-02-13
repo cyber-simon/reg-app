@@ -10,34 +10,28 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.and;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
-import javax.persistence.NoResultException;
 
 import edu.kit.scc.webreg.dao.TextPropertyDao;
 import edu.kit.scc.webreg.entity.TextPropertyEntity;
+import edu.kit.scc.webreg.entity.TextPropertyEntity_;
 
 @Named
 @ApplicationScoped
 public class JpaTextPropertyDao extends JpaBaseDao<TextPropertyEntity> implements TextPropertyDao {
 
-    @Override
+	@Override
 	public TextPropertyEntity findByKeyAndLang(String key, String language) {
-		try {
-			return (TextPropertyEntity) em.createQuery("select e from TextPropertyEntity e "
-					+ "where e.key = :key and e.language = :language")
-				.setParameter("key", key)
-				.setParameter("language", language)
-				.getSingleResult();
-		} catch (NoResultException e) {
-			return null;
-		}
+		return find(and(equal(TextPropertyEntity_.key, key), equal(TextPropertyEntity_.language, language)));
 	}
 
-
-	
 	@Override
 	public Class<TextPropertyEntity> getEntityClass() {
 		return TextPropertyEntity.class;
 	}
+
 }

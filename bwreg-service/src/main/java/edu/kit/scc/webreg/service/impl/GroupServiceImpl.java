@@ -16,8 +16,6 @@ import java.util.Set;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.UserDao;
@@ -34,72 +32,64 @@ public class GroupServiceImpl extends BaseServiceImpl<GroupEntity> implements Gr
 	private static final long serialVersionUID = 1L;
 
 	@Inject
-	private Logger logger;
-	
-	@Inject
 	private GroupDao groupDao;
-	
+
 	@Inject
 	private GroupUtil groupUtil;
-	
+
 	@Inject
 	private UserDao userDao;
-	
+
 	@Inject
 	private GroupUpdater groupUpdater;
-	
+
 	@Override
 	public void updateGroupMembers(GroupEntity group, Set<UserEntity> newMembers) {
 		groupUpdater.updateGroupMembers(group, newMembers);
 	}
-	
+
 	@Override
 	public void addUserToGroup(UserEntity user, GroupEntity group, boolean emitUpdate) {
 		group = groupDao.merge(group);
 		user = userDao.merge(user);
 		groupUpdater.addUserToGroup(user, group, emitUpdate);
-	}	
-	
+	}
+
 	@Override
 	public void removeUserGromGroup(UserEntity user, GroupEntity group, boolean emitUpdate) {
 		group = groupDao.merge(group);
 		user = userDao.merge(user);
 		groupUpdater.removeUserFromGroup(user, group, emitUpdate);
-	}	
-	
-	@Override
-	public GroupEntity findWithUsers(Long id) {
-		return groupDao.findWithUsers(id);
-	}	
-	
+	}
+
 	@Override
 	public GroupEntity findByName(String name) {
 		return groupDao.findByName(name);
-	}	
-	
+	}
+
 	@Override
 	public Set<UserEntity> getEffectiveMembers(GroupEntity group) {
-		group = groupDao.findById(group.getId());
+		group = groupDao.fetch(group.getId());
 		return groupUtil.rollUsersForGroup(group);
 	}
-	
+
 	@Override
 	public List<GroupEntity> findByUser(UserEntity user) {
 		return groupDao.findByUser(user);
-	}	
+	}
 
 	@Override
 	public ServiceBasedGroupEntity persistWithServiceFlags(ServiceBasedGroupEntity entity) {
 		return groupDao.persistWithServiceFlags(entity);
-	}	
+	}
 
 	@Override
 	public Set<GroupEntity> findByUserWithChildren(UserEntity user) {
 		return groupDao.findByUserWithChildren(user);
-	}	
+	}
 
 	@Override
 	protected BaseDao<GroupEntity> getDao() {
 		return groupDao;
-	}	
+	}
 }

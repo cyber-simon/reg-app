@@ -10,29 +10,27 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
-import javax.persistence.NoResultException;
 
 import edu.kit.scc.webreg.dao.ScriptDao;
 import edu.kit.scc.webreg.entity.ScriptEntity;
+import edu.kit.scc.webreg.entity.ScriptEntity_;
 
 @Named
 @ApplicationScoped
 public class JpaScriptlDao extends JpaBaseDao<ScriptEntity> implements ScriptDao {
 
-    @Override
+	@Override
 	public ScriptEntity findByName(String name) {
-		try {
-			return (ScriptEntity) em.createQuery("select e from ScriptEntity e where e.name = :name")
-				.setParameter("name", name).getSingleResult();
-		} catch (NoResultException e) {
-			return null;
-		}
+		return find(equal(ScriptEntity_.name, name));
 	}
 
 	@Override
 	public Class<ScriptEntity> getEntityClass() {
 		return ScriptEntity.class;
 	}
+
 }

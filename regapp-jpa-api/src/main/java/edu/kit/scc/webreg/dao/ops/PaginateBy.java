@@ -4,7 +4,7 @@ public class PaginateBy {
 
 	public static final int DEFAULT_OFFSET = 0;
 	public static final int DEFAULT_LIMIT = 100;
-	
+
 	private final int offset;
 	private final int limit;
 
@@ -25,12 +25,8 @@ public class PaginateBy {
 		return new PaginateBy(DEFAULT_OFFSET, -1);
 	}
 
-	public PaginateBy withOffset(int offset) {
-		return new PaginateBy(offset, this.limit);
-	}
-
-	public PaginateBy withLimit(int limit) {
-		return new PaginateBy(this.offset, limit);
+	public static PaginateBy withLimit(int limit) {
+		return new PaginateBy(DEFAULT_OFFSET, limit);
 	}
 
 	public int getOffset() {

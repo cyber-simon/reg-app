@@ -93,7 +93,7 @@ public class UserPropertiesBean implements Serializable {
 
 	public IdentityEntity getIdentity() {
 		if (identity == null) {
-			identity = identityService.findById(sessionManager.getIdentityId());
+			identity = identityService.fetch(sessionManager.getIdentityId());
 		}
 		return identity;
 	}

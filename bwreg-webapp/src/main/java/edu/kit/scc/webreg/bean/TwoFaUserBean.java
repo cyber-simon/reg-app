@@ -71,7 +71,7 @@ public class TwoFaUserBean implements Serializable {
 		defaultButton = "yubicoStartButton";
 		
 		if (identity == null) {
-	    	identity = identityService.findById(sessionManager.getIdentityId());
+	    	identity = identityService.fetch(sessionManager.getIdentityId());
 
 	    	try {
 				tokenList = twoFaService.findByIdentity(identity);

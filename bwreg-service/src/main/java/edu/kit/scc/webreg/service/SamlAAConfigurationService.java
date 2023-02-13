@@ -16,6 +16,4 @@ public interface SamlAAConfigurationService extends BaseService<SamlAAConfigurat
 
 	SamlAAConfigurationEntity findByHostname(String hostname);
 
-	SamlAAConfigurationEntity findByEntityId(String entityId);
-
 }

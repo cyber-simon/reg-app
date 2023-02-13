@@ -89,10 +89,10 @@ public class SetServiceSshPubKeyBean implements Serializable {
 	
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (! initialized) {
-			identity = identityService.findById(sessionManager.getIdentityId());
+			identity = identityService.fetch(sessionManager.getIdentityId());
 
 			if (id != null) {
-				registryEntity = registryService.findById(id);
+				registryEntity = registryService.fetch(id);
 
 				if (registryEntity == null)
 					throw new IllegalArgumentException("Service Registry not found");

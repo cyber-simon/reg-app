@@ -87,7 +87,7 @@ public class AcceptInviteBean implements Serializable {
 	
 	public IdentityEntity getIdentity() {
 		if (identity == null) {
-			identity = identityService.findById(sessionManager.getIdentityId());
+			identity = identityService.fetch(sessionManager.getIdentityId());
 		}
 		return identity;
 	}

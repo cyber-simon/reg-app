@@ -58,7 +58,7 @@ public class LocalGroupCreator implements Serializable {
 	}
 	
 	public LocalGroupEntity save(LocalGroupEntity entity, ServiceEntity service) {
-		service = serviceDao.findById(service.getId());
+		service = serviceDao.fetch(service.getId());
 		
 		entity.setGidNumber(serialDao.next("gid-number-serial").intValue());
 		entity.setGroupStatus(GroupStatus.ACTIVE);

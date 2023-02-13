@@ -85,8 +85,8 @@ public class RegisterUserBean implements Serializable {
 	
     public void preRenderView(ComponentSystemEvent ev) {
     	if (entity == null) {
-	    	idpEntity = idpService.findById(sessionManager.getIdpId());
-	    	spConfigEntity = spService.findById(sessionManager.getSpId());
+	    	idpEntity = idpService.fetch(sessionManager.getIdpId());
+	    	spConfigEntity = spService.fetch(sessionManager.getSpId());
 	    	
 	    	try {
 	        	entity = userCreateService.preCreateUser(idpEntity, spConfigEntity, sessionManager.getSamlIdentifier(),

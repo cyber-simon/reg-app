@@ -58,7 +58,7 @@ public class DeleteAllPersonalDataAdminBean implements Serializable {
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (identity == null) {
-			identity = identityService.findById(id);
+			identity = identityService.fetch(id);
 	    	registryList = registryService.findByIdentity(identity);
 		}
 	}

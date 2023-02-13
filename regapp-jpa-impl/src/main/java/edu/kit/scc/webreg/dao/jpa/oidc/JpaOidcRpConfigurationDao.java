@@ -25,4 +25,5 @@ public class JpaOidcRpConfigurationDao extends JpaBaseDao<OidcRpConfigurationEnt
 	public Class<OidcRpConfigurationEntity> getEntityClass() {
 		return OidcRpConfigurationEntity.class;
 	}
+
 }

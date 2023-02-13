@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
+import edu.kit.scc.webreg.entity.as.AttributeSourceEntity_;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.AttributeSourceService;
 import edu.kit.scc.webreg.service.UserService;
@@ -38,45 +39,45 @@ public class ShowAttributeSourceBean implements Serializable {
 
 	@Inject
 	private UserService userService;
-	
+
 	@Inject
 	private AttributeSourceQueryService asQueryService;
 
 	@Inject
 	private Logger logger;
-	
+
 	private AttributeSourceEntity entity;
-	
+
 	private Long id;
 
 	private String testUsername;
-	
+
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
-			entity = service.findByIdWithAttrs(id, "asProps");
+			entity = service.findByIdWithAttrs(id, AttributeSourceEntity_.asProps);
 		}
 	}
-		
+
 	public void testSource() {
 		List<UserEntity> user = userService.findByEppn(testUsername);
-		
+
 		if (user.size() == 0) {
 			logger.info("User {} not found", testUsername);
 			return;
 		}
-		
+
 		if (user.size() > 1) {
 			logger.info("User {} not unique", testUsername);
 			return;
 		}
-		
+
 		try {
 			asQueryService.updateUserAttributes(user.get(0), entity, "test");
 		} catch (UserUpdateException e) {
 			logger.info("Exception!", e);
 		}
 	}
-	
+
 	public Long getId() {
 		return id;
 	}

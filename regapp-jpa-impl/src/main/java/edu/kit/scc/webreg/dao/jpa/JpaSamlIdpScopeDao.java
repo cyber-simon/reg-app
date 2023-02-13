@@ -10,28 +10,19 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
-import java.util.List;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 
 import edu.kit.scc.webreg.dao.SamlIdpScopeDao;
-import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlIdpScopeEntity;
 
 @Named
 @ApplicationScoped
 public class JpaSamlIdpScopeDao extends JpaBaseDao<SamlIdpScopeEntity> implements SamlIdpScopeDao {
 
-    @Override
-    @SuppressWarnings({"unchecked"})
-	public List<SamlIdpScopeEntity> findByIdp(SamlIdpMetadataEntity idp) {
-		return em.createQuery("select e from SamlIdpScopeEntity e where e.idp = :idp")
-				.setParameter("idp", idp).getResultList();
-	}
-
 	@Override
 	public Class<SamlIdpScopeEntity> getEntityClass() {
 		return SamlIdpScopeEntity.class;
 	}
+
 }

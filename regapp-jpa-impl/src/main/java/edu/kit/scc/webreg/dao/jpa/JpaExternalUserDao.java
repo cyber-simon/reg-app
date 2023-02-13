@@ -10,11 +10,12 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
-import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.MapJoin;
@@ -31,17 +32,7 @@ public class JpaExternalUserDao extends JpaBaseDao<ExternalUserEntity> implement
 
 	@Override
 	public ExternalUserEntity findByExternalId(String externalId) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<ExternalUserEntity> criteria = builder.createQuery(ExternalUserEntity.class);
-		Root<ExternalUserEntity> user = criteria.from(ExternalUserEntity.class);
-		criteria.where(builder.equal(user.get(ExternalUserEntity_.externalId), externalId));
-		criteria.select(user);
-
-		try {
-			return em.createQuery(criteria).getSingleResult();
-		} catch (NoResultException e) {
-			return null;
-		}
+		return find(equal(ExternalUserEntity_.externalId, externalId));
 	}
 
 	@Override
@@ -71,25 +62,8 @@ public class JpaExternalUserDao extends JpaBaseDao<ExternalUserEntity> implement
 	}
 
 	@Override
-	public List<ExternalUserEntity> findAll(ExternalUserAdminRoleEntity adminRole) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<ExternalUserEntity> criteria = builder.createQuery(ExternalUserEntity.class);
-		Root<ExternalUserEntity> root = criteria.from(ExternalUserEntity.class);
-		criteria.select(root);
-		criteria.where(builder.and(builder.equal(root.get(ExternalUserEntity_.admin), adminRole)));
-
-		return em.createQuery(criteria).getResultList();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<ExternalUserEntity> findByAdmin(ExternalUserAdminRoleEntity adminRole) {
-		return em.createQuery("select e from ExternalUserEntity e where e.admin = :admin")
-				.setParameter("admin", adminRole).getResultList();
-	}
-
-	@Override
 	public Class<ExternalUserEntity> getEntityClass() {
 		return ExternalUserEntity.class;
 	}
+
 }

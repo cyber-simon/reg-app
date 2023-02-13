@@ -25,4 +25,5 @@ public class JpaAttributeSourceDao extends JpaBaseDao<AttributeSourceEntity> imp
 	public Class<AttributeSourceEntity> getEntityClass() {
 		return AttributeSourceEntity.class;
 	}
+
 }

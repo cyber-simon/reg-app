@@ -10,20 +10,22 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
+import static edu.kit.scc.webreg.dao.ops.PaginateBy.withLimit;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.and;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.isNotNull;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.lessThanOrEqualTo;
+import static edu.kit.scc.webreg.dao.ops.SortBy.ascendingBy;
+
 import java.util.Date;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
-import javax.persistence.NoResultException;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Root;
 
 import edu.kit.scc.webreg.dao.SamlUserDao;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity_;
 import edu.kit.scc.webreg.entity.UserStatus;
 
 @Named
@@ -32,107 +34,23 @@ public class JpaSamlUserDao extends JpaBaseDao<SamlUserEntity> implements SamlUs
 
 	@Override
 	public List<SamlUserEntity> findUsersForPseudo(Long onHoldSince, int limit) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<SamlUserEntity> criteria = builder.createQuery(SamlUserEntity.class);
-		Root<SamlUserEntity> user = criteria.from(SamlUserEntity.class);
-		criteria.where(builder.and(builder.equal(user.get("userStatus"), UserStatus.ON_HOLD),
-				builder.lessThanOrEqualTo(user.<Date>get("lastStatusChange"),
-						new Date(System.currentTimeMillis() - onHoldSince)),
-				builder.isNotNull(user.get("eppn")), builder.isNotNull(user.get("email")),
-				builder.isNotNull(user.get("givenName")), builder.isNotNull(user.get("surName"))));
-		criteria.select(user);
-		criteria.orderBy(builder.asc(user.<Date>get("lastStatusChange")));
-
-		return em.createQuery(criteria).setMaxResults(limit).getResultList();
-	}
-
-	@Override
-	public SamlUserEntity findBySubject(String spId, String idpId, String subjectId) {
-
-		TypedQuery<SamlUserEntity> query = em
-				.createQuery(
-						"select u from SamlUserEntity u where u.persistentSpId = :spId and u.idp.entityId = :idpId and "
-								+ "u.subjectId = :subjectId",
-						SamlUserEntity.class)
-				.setParameter("spId", spId).setParameter("idpId", idpId).setParameter("subjectId", subjectId);
-
-		try {
-			return query.getSingleResult();
-		} catch (NoResultException e) {
-			return null;
-		}
+		return findAll(withLimit(limit), ascendingBy(SamlUserEntity_.lastStatusChange),
+				and(equal(SamlUserEntity_.userStatus, UserStatus.ON_HOLD),
+						lessThanOrEqualTo(SamlUserEntity_.lastStatusChange,
+								new Date(System.currentTimeMillis() - onHoldSince)),
+						isNotNull(SamlUserEntity_.eppn), isNotNull(SamlUserEntity_.email),
+						isNotNull(SamlUserEntity_.givenName), isNotNull(SamlUserEntity_.surName)));
 	}
 
 	@Override
 	public SamlUserEntity findByPersistent(String spId, String idpId, String persistentId) {
-
-		TypedQuery<SamlUserEntity> query = em
-				.createQuery(
-						"select u from SamlUserEntity u where u.persistentSpId = :spId and u.idp.entityId = :idpId and "
-								+ "u.persistentId = :persistentId",
-						SamlUserEntity.class)
-				.setParameter("spId", spId).setParameter("idpId", idpId).setParameter("persistentId", persistentId);
-
-		try {
-			return query.getSingleResult();
-		} catch (NoResultException e) {
-			return null;
-		}
-	}
-
-	@Override
-	public SamlUserEntity findByAttributeSourcedId(String spId, String idpId, String attributeSourcedIdName,
-			String attributeSourcedId) {
-
-		TypedQuery<SamlUserEntity> query = em.createQuery(
-				"select u from SamlUserEntity u where u.persistentSpId = :spId and u.idp.entityId = :idpId and "
-						+ "u.attributeSourcedIdName = :attributeSourcedIdName and u.attributeSourcedId = :attributeSourcedId",
-				SamlUserEntity.class).setParameter("spId", spId).setParameter("idpId", idpId)
-				.setParameter("attributeSourcedIdName", attributeSourcedIdName)
-				.setParameter("attributeSourcedId", attributeSourcedId);
-
-		try {
-			return query.getSingleResult();
-		} catch (NoResultException e) {
-			return null;
-		}
-	}
-
-	@Override
-	public SamlUserEntity findByEppn(String eppn) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<SamlUserEntity> criteria = builder.createQuery(SamlUserEntity.class);
-		Root<SamlUserEntity> user = criteria.from(SamlUserEntity.class);
-		criteria.where(builder.equal(user.get("eppn"), eppn));
-		criteria.select(user);
-
-		try {
-			return em.createQuery(criteria).getSingleResult();
-		} catch (NoResultException e) {
-			return null;
-		}
-	}
-
-	@Override
-	public SamlUserEntity findByIdWithStore(Long id) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<SamlUserEntity> criteria = builder.createQuery(SamlUserEntity.class);
-		Root<SamlUserEntity> user = criteria.from(SamlUserEntity.class);
-		criteria.where(builder.and(builder.equal(user.get("id"), id)));
-		criteria.select(user);
-		criteria.distinct(true);
-		user.fetch("genericStore", JoinType.LEFT);
-		user.fetch("attributeStore", JoinType.LEFT);
-
-		try {
-			return em.createQuery(criteria).getSingleResult();
-		} catch (NoResultException e) {
-			return null;
-		}
+		return find(and(equal(SamlUserEntity_.persistentSpId, spId), equal("idp.entityId", idpId),
+				equal(SamlUserEntity_.persistentId, persistentId)));
 	}
 
 	@Override
 	public Class<SamlUserEntity> getEntityClass() {
 		return SamlUserEntity.class;
 	}
+
 }

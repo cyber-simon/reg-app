@@ -32,6 +32,7 @@ import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.SshPubKeyRegistryEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserEntity_;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
 import edu.kit.scc.webreg.exc.RegisterException;
@@ -61,67 +62,66 @@ public class ServiceAdminUserDetailBean implements Serializable {
 
 	@Inject
 	private Logger logger;
-	
+
 	@Inject
 	private FacesMessageGenerator messageGenerator;
 
-    @Inject
-    private RegistryService service;
+	@Inject
+	private RegistryService service;
 
-    @Inject
-    private UserService userService;
-    
-    @Inject
-    private AuthorizationBean authBean;
+	@Inject
+	private UserService userService;
 
-    @Inject
-    private RegisterUserService registerUserService;
+	@Inject
+	private AuthorizationBean authBean;
+
+	@Inject
+	private RegisterUserService registerUserService;
 
 	@Inject
 	private GroupService groupService;
-	
+
 	@Inject
 	private ServiceService serviceService;
-	
+
 	@Inject
 	private KnowledgeSessionService knowledgeSessionService;
-	
+
 	@Inject
 	private ASUserAttrService asUserAttrService;
-	
+
 	@Inject
 	private SamlAssertionService samlAssertionService;
 
-    @Inject
-    private SshPubKeyRegistryService sshPubKeyRegistryService;
+	@Inject
+	private SshPubKeyRegistryService sshPubKeyRegistryService;
 
-    @Inject
-    private SessionManager sessionManager;
-    
-    private RegistryEntity entity;
-    
-    private UserEntity user;
-    
+	@Inject
+	private SessionManager sessionManager;
+
+	private RegistryEntity entity;
+
+	private UserEntity user;
+
 	private List<GroupEntity> groupList;
-	
+
 	private List<ASUserAttrEntity> asUserAttrList;
 
 	private SamlAssertionEntity samlAssertion;
-	
+
 	private List<SshPubKeyRegistryEntity> sshKeyRegistryList;
-	
+
 	private Infotainment infotainment;
 	private TreeNode infotainmentRoot;
-	
-    private Long id;
+
+	private Long id;
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
-			entity = service.findByIdWithAgreements(id);			
+			entity = service.findByIdWithAgreements(id);
 		}
-		
-		if (! (authBean.isUserServiceAdmin(entity.getService()) || 
-				authBean.isUserServiceHotline(entity.getService())))
+
+		if (!(authBean.isUserServiceAdmin(entity.getService()) || authBean.isUserServiceHotline(entity.getService())))
 			throw new NotAuthorizedException("Nicht autorisiert");
 	}
 
@@ -133,16 +133,18 @@ public class ServiceAdminUserDetailBean implements Serializable {
 	}
 
 	public void reconsiliation() {
-		logger.debug("Manual quick recon for Account {} Service {}", entity.getUser().getEppn(), entity.getService().getName());
+		logger.debug("Manual quick recon for Account {} Service {}", entity.getUser().getEppn(),
+				entity.getService().getName());
 		try {
 			registerUserService.reconsiliation(entity, false, "service-admin-" + sessionManager.getIdentityId());
 		} catch (RegisterException e) {
 			logger.error("An error occured", e);
 		}
 	}
-	
+
 	public void fullReconsiliation() {
-		logger.debug("Manual full recon for Account {} Service {}", entity.getUser().getEppn(), entity.getService().getName());
+		logger.debug("Manual full recon for Account {} Service {}", entity.getUser().getEppn(),
+				entity.getService().getName());
 		try {
 			registerUserService.reconsiliation(entity, true, "service-admin-" + sessionManager.getIdentityId());
 		} catch (RegisterException e) {
@@ -152,10 +154,11 @@ public class ServiceAdminUserDetailBean implements Serializable {
 
 	public void checkRegistry() {
 		logger.info("Trying to check registry {} for user {}", entity.getId(), getUser().getEppn());
-		
+
 		ServiceEntity service = entity.getService();
 
-		List<Object> objectList = knowledgeSessionService.checkServiceAccessRule(user, service, entity, "user-self", false);
+		List<Object> objectList = knowledgeSessionService.checkServiceAccessRule(user, service, entity, "user-self",
+				false);
 
 		List<String> requirementsList = new ArrayList<String>();
 		for (Object o : objectList) {
@@ -163,8 +166,7 @@ public class ServiceAdminUserDetailBean implements Serializable {
 				requirementsList.clear();
 				logger.debug("Removing requirements due to OverrideAccess");
 				break;
-			}
-			else if (o instanceof UnauthorizedUser) {
+			} else if (o instanceof UnauthorizedUser) {
 				String s = ((UnauthorizedUser) o).getMessage();
 				requirementsList.add(s);
 			}
@@ -173,16 +175,17 @@ public class ServiceAdminUserDetailBean implements Serializable {
 		if (requirementsList.size() == 0) {
 			messageGenerator.addInfoMessage("OK", "Access okay");
 		}
-		
+
 		for (String s : requirementsList) {
-    		messageGenerator.addResolvedErrorMessage("reqs", "error", s, true);
+			messageGenerator.addResolvedErrorMessage("reqs", "error", s, true);
 		}
 	}
-	
+
 	public void deregister() {
 		try {
 			logger.info("Deregister registry {} via AdminRegistry page", entity.getId());
-			registerUserService.deregisterUser(entity, "service-admin-" + sessionManager.getIdentityId(), "deregistered-by-service-admin");
+			registerUserService.deregisterUser(entity, "service-admin-" + sessionManager.getIdentityId(),
+					"deregistered-by-service-admin");
 		} catch (RegisterException e) {
 			logger.warn("Could not deregister User", e);
 		}
@@ -193,7 +196,8 @@ public class ServiceAdminUserDetailBean implements Serializable {
 
 		if (getUser() instanceof SamlUserEntity) {
 			try {
-				user = userService.updateUserFromIdp((SamlUserEntity) getUser(), "user-" + sessionManager.getIdentityId());
+				user = userService.updateUserFromIdp((SamlUserEntity) getUser(),
+						"user-" + sessionManager.getIdentityId());
 				messageGenerator.addInfoMessage("Info", "SAML AttributeQuery went through without errors");
 			} catch (UserUpdateException e) {
 				logger.info("Exception while Querying IDP: {}", e.getMessage());
@@ -206,12 +210,13 @@ public class ServiceAdminUserDetailBean implements Serializable {
 						extendedInfo = "<br/>Inner Cause: " + e.getCause().getCause().getMessage();
 					}
 				}
-				messageGenerator.addErrorMessage("Problem", "Exception while Querying IDP: " + e.getMessage() + extendedInfo);
+				messageGenerator.addErrorMessage("Problem",
+						"Exception while Querying IDP: " + e.getMessage() + extendedInfo);
 			}
-		}
-		else {
+		} else {
 			logger.info("No update method available for class {}", getUser().getClass().getName());
-			messageGenerator.addErrorMessage("Problem", "No update method available for class " + getUser().getClass().getName());
+			messageGenerator.addErrorMessage("Problem",
+					"No update method available for class " + getUser().getClass().getName());
 		}
 	}
 
@@ -233,7 +238,8 @@ public class ServiceAdminUserDetailBean implements Serializable {
 
 	public UserEntity getUser() {
 		if (user == null) {
-			user = userService.findByIdWithAttrs(entity.getUser().getId(), "genericStore", "attributeStore");			
+			user = userService.findByIdWithAttrs(entity.getUser().getId(), UserEntity_.genericStore,
+					UserEntity_.attributeStore);
 		}
 		return user;
 	}
@@ -266,22 +272,24 @@ public class ServiceAdminUserDetailBean implements Serializable {
 
 	public Infotainment getInfotainment() {
 		if (infotainment == null) {
-			RegisterUserWorkflow registerWorkflow = registerUserService.getWorkflowInstance(entity.getService().getRegisterBean());
+			RegisterUserWorkflow registerWorkflow = registerUserService
+					.getWorkflowInstance(entity.getService().getRegisterBean());
 			if (registerWorkflow instanceof InfotainmentCapable) {
 				try {
 					ServiceEntity serviceEntity = serviceService.findByIdWithServiceProps(entity.getService().getId());
-					infotainment = ((InfotainmentCapable) registerWorkflow).getInfoForAdmin(entity, entity.getUser(), serviceEntity);
-					
+					infotainment = ((InfotainmentCapable) registerWorkflow).getInfoForAdmin(entity, entity.getUser(),
+							serviceEntity);
+
 					if (infotainment.getRoot() != null) {
 						infotainmentRoot = new DefaultTreeNode("root", null);
 						fillChildren(infotainmentRoot, infotainment.getRoot());
 					}
-						
+
 				} catch (RegisterException e) {
 					logger.warn("Getting Infotainment failed: {}", e.toString());
 				}
 			}
-		}		
+		}
 		return infotainment;
 	}
 

@@ -10,14 +10,11 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.impl;
 
-import java.util.List;
-
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.SamlIdpScopeDao;
-import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlIdpScopeEntity;
 import edu.kit.scc.webreg.service.SamlIdpScopeService;
 
@@ -28,14 +25,10 @@ public class SamlIdpScopeServiceImpl extends BaseServiceImpl<SamlIdpScopeEntity>
 
 	@Inject
 	private SamlIdpScopeDao dao;
-	
-	@Override
-	public List<SamlIdpScopeEntity> findByIdp(SamlIdpMetadataEntity idp) {
-		return dao.findByIdp(idp);
-	}
 
 	@Override
 	protected BaseDao<SamlIdpScopeEntity> getDao() {
 		return dao;
 	}
+
 }

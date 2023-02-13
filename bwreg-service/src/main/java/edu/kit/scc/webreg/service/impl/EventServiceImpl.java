@@ -10,15 +10,12 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.impl;
 
-import java.util.List;
-
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.EventDao;
 import edu.kit.scc.webreg.entity.EventEntity;
-import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.service.EventService;
 
 @Stateless
@@ -28,14 +25,10 @@ public class EventServiceImpl extends BaseServiceImpl<EventEntity> implements Ev
 
 	@Inject
 	private EventDao dao;
-	
+
 	@Override
 	protected BaseDao<EventEntity> getDao() {
 		return dao;
 	}
-	
-	@Override
-	public List<EventEntity> findAllByService(EventType eventType) {
-		return dao.findAllByEventType(eventType);
-	}
+
 }

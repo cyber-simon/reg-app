@@ -10,23 +10,10 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao;
 
-import java.util.List;
-
 import edu.kit.scc.webreg.entity.LocalGroupEntity;
-import edu.kit.scc.webreg.entity.UserEntity;
 
 public interface LocalGroupDao extends BaseDao<LocalGroupEntity> {
 
-	LocalGroupEntity findByGidNumber(Integer gid);
-
 	LocalGroupEntity findByName(String name);
-
-	LocalGroupEntity findByNameAndPrefix(String name, String prefix);
-
-	List<LocalGroupEntity> findByUser(UserEntity user);
-
-	LocalGroupEntity findWithUsers(Long id);
-
-	LocalGroupEntity findWithUsersAndChildren(Long id);
 
 }

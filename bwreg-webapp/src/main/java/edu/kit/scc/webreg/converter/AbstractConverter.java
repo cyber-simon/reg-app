@@ -34,7 +34,7 @@ public abstract class AbstractConverter<T extends BaseEntity> implements Convert
             return null;
         }
         Long id = Long.decode(value);
-        T o = (T) getService().findById(id);
+        T o = (T) getService().fetch(id);
 		return o;
 	}
 

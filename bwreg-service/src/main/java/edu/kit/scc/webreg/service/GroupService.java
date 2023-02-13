@@ -23,8 +23,6 @@ public interface GroupService extends BaseService<GroupEntity> {
 
 	List<GroupEntity> findByUser(UserEntity user);
 
-	GroupEntity findWithUsers(Long id);
-
 	Set<UserEntity> getEffectiveMembers(GroupEntity group);
 
 	void updateGroupMembers(GroupEntity group, Set<UserEntity> newMembers);
@@ -35,7 +33,6 @@ public interface GroupService extends BaseService<GroupEntity> {
 
 	Set<GroupEntity> findByUserWithChildren(UserEntity user);
 
-	ServiceBasedGroupEntity persistWithServiceFlags(
-			ServiceBasedGroupEntity entity);
+	ServiceBasedGroupEntity persistWithServiceFlags(ServiceBasedGroupEntity entity);
 
 }

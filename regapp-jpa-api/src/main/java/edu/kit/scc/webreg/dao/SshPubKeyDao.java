@@ -10,32 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao;
 
-import java.util.List;
-
 import edu.kit.scc.webreg.entity.SshPubKeyEntity;
-import edu.kit.scc.webreg.entity.SshPubKeyStatus;
 
 public interface SshPubKeyDao extends BaseDao<SshPubKeyEntity> {
 
-	List<SshPubKeyEntity> findByKey(String encodedKey);
-
-	List<SshPubKeyEntity> findMissingIdentity();
-
-	List<SshPubKeyEntity> findByIdentityAndKey(Long identityId, String encodedKey);
-
-	List<SshPubKeyEntity> findByIdentityAndStatusWithRegs(Long identityId, SshPubKeyStatus keyStatus);
-
-	List<SshPubKeyEntity> findByIdentityAndStatus(Long identityId, SshPubKeyStatus keyStatus);
-
-	List<SshPubKeyEntity> findByIdentity(Long identityId);
-
-	List<SshPubKeyEntity> findKeysToExpire(int limit);
-
-	List<SshPubKeyEntity> findKeysToExpiryWarning(int limit, int days);
-
-	List<SshPubKeyEntity> findByIdentityAndExpiryInDays(Long id, Integer days);
-
-	List<SshPubKeyEntity> findByExpiryInDays(Integer days);
-
-	List<SshPubKeyEntity> findKeysToDelete(int limit, int days);
 }

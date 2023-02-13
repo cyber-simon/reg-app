@@ -13,6 +13,8 @@ package edu.kit.scc.webreg.service;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.persistence.metamodel.Attribute;
+
 import edu.kit.scc.webreg.dao.ops.PaginateBy;
 import edu.kit.scc.webreg.dao.ops.RqlExpression;
 import edu.kit.scc.webreg.dao.ops.SortBy;
@@ -30,20 +32,22 @@ public interface BaseService<T extends BaseEntity> extends Serializable {
 
 	List<T> findAll();
 
-	T findById(Long id);
+	T fetch(Long id);
 
-	T findByIdWithAttrs(Long id, String... attrs);
+	@SuppressWarnings("rawtypes")
+	T findByIdWithAttrs(Long id, Attribute... attrs);
 
-	List<T> findAllPaging(PaginateBy paginateBy, SortBy sortBy, RqlExpression rqlExpression);
+	List<T> findAll(PaginateBy paginateBy, SortBy sortBy, RqlExpression rqlExpression);
 
-	List<T> findAllPaging(PaginateBy paginateBy, List<SortBy> sortBy, RqlExpression rqlExpression,
-			String... joinFetchBy);
+	@SuppressWarnings("rawtypes")
+	List<T> findAll(PaginateBy paginateBy, List<SortBy> sortBy, RqlExpression rqlExpression, Attribute... joinFetchBy);
 
 	Number countAll(RqlExpression filterBy);
 
-	List<T> findByMultipleId(List<Long> ids);
+	List<T> fetchAll(List<Long> ids);
 
 	T findByAttr(String attr, Object value);
 
 	List<T> findAllByAttr(String attr, Object value);
+
 }

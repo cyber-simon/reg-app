@@ -13,23 +13,12 @@ package edu.kit.scc.webreg.dao;
 import java.util.List;
 
 import edu.kit.scc.webreg.entity.FederationEntity;
-import edu.kit.scc.webreg.entity.SamlMetadataEntityStatus;
 import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 
 public interface SamlSpMetadataDao extends BaseDao<SamlSpMetadataEntity> {
 
 	List<SamlSpMetadataEntity> findAllByFederation(FederationEntity federation);
 
-	List<SamlSpMetadataEntity> findAllByFederationOrderByOrgname(
-			FederationEntity federation);
-
 	SamlSpMetadataEntity findByEntityId(String entityId);
-
-	SamlSpMetadataEntity findByScope(String scope);
-
-	SamlSpMetadataEntity findByIdWithAll(Long id);
-
-	List<SamlSpMetadataEntity> findAllByStatusOrderedByOrgname(
-			SamlMetadataEntityStatus status);
 
 }

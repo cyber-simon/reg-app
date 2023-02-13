@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
+import edu.kit.scc.webreg.entity.project.LocalProjectEntity_;
 import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
@@ -36,7 +37,7 @@ public class UserShowLocalProjectBean implements Serializable {
 
 	@Inject
 	private SessionManager session;
-	
+
 	@Inject
 	private LocalProjectService service;
 
@@ -65,12 +66,12 @@ public class UserShowLocalProjectBean implements Serializable {
 
 		if (adminIdentity == null) {
 			throw new NotAuthorizedException("Nicht autorisiert");
-		}		
-		else {
-			if (! (ProjectAdminType.ADMIN.equals(adminIdentity.getType()) || ProjectAdminType.OWNER.equals(adminIdentity.getType()))) {
+		} else {
+			if (!(ProjectAdminType.ADMIN.equals(adminIdentity.getType())
+					|| ProjectAdminType.OWNER.equals(adminIdentity.getType()))) {
 				throw new NotAuthorizedException("Nicht autorisiert");
 			}
-		}		
+		}
 	}
 
 	public Long getId() {
@@ -83,7 +84,7 @@ public class UserShowLocalProjectBean implements Serializable {
 
 	public LocalProjectEntity getEntity() {
 		if (entity == null) {
-			entity = service.findByIdWithAttrs(id, "projectServices");
+			entity = service.findByIdWithAttrs(id, LocalProjectEntity_.projectServices);
 		}
 
 		return entity;
@@ -94,11 +95,11 @@ public class UserShowLocalProjectBean implements Serializable {
 		memberList = null;
 		effectiveMemberList = null;
 	}
-	
+
 	public void setEntity(LocalProjectEntity entity) {
 		this.entity = entity;
 	}
-	
+
 	public List<ProjectMembershipEntity> getMemberList() {
 		if (memberList == null) {
 			memberList = projectService.findMembersForProject(getEntity());
@@ -136,5 +137,5 @@ public class UserShowLocalProjectBean implements Serializable {
 			effectiveMemberList = projectService.findMembersForProject(getEntity(), true);
 		}
 		return effectiveMemberList;
-	}	
+	}
 }

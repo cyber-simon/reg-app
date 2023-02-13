@@ -10,20 +10,17 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
-import javax.persistence.NoResultException;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Root;
 
 import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
 import edu.kit.scc.webreg.entity.FederationEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
-import edu.kit.scc.webreg.entity.SamlMetadataEntityStatus;
+import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity_;
 
 @Named
 @ApplicationScoped
@@ -31,83 +28,41 @@ public class JpaSamlIdpMetadataDao extends JpaBaseDao<SamlIdpMetadataEntity> imp
 
 	@Override
 	public SamlIdpMetadataEntity findByIdWithAll(Long id) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<SamlIdpMetadataEntity> criteria = builder.createQuery(SamlIdpMetadataEntity.class);
-		Root<SamlIdpMetadataEntity> user = criteria.from(SamlIdpMetadataEntity.class);
-		criteria.where(builder.equal(user.get("id"), id));
-		criteria.select(user);
-		criteria.distinct(true);
-		user.fetch("scopes", JoinType.LEFT);
-		user.fetch("genericStore", JoinType.LEFT);
-		user.fetch("federations", JoinType.LEFT);
-		
-		try {
-			return em.createQuery(criteria).getSingleResult();
-		}
-		catch (NoResultException e) {
-			return null;
-		}			
-	}	
-	
-    @SuppressWarnings("unchecked")
+		return find(equal(SamlIdpMetadataEntity_.id, id), SamlIdpMetadataEntity_.scopes,
+				SamlIdpMetadataEntity_.genericStore, SamlIdpMetadataEntity_.federations);
+	}
+
 	@Override
 	public List<SamlIdpMetadataEntity> findAllByFederation(FederationEntity federation) {
-		return em.createQuery(
-				"select distinct e from SamlIdpMetadataEntity e join e.federations f where f = :fed")
-				.setParameter("fed", federation).getResultList();
-	}	
+		return em.createQuery("select distinct e from SamlIdpMetadataEntity e join e.federations f where f = :fed",
+				SamlIdpMetadataEntity.class).setParameter("fed", federation).getResultList();
+	}
 
-    @SuppressWarnings("unchecked")
-	@Override
-	public List<SamlIdpMetadataEntity> findAllByStatusOrderedByOrgname(SamlMetadataEntityStatus status) {
-		return em.createQuery(
-				"select distinct e from SamlIdpMetadataEntity e where e.status = :status order by e.orgName asc")
-				.setParameter("status", status).getResultList();
-	}	
-    
 	@Override
 	public SamlIdpMetadataEntity findByEntityId(String entityId) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<SamlIdpMetadataEntity> criteria = builder.createQuery(SamlIdpMetadataEntity.class);
-		Root<SamlIdpMetadataEntity> root = criteria.from(SamlIdpMetadataEntity.class);
-		criteria.where(
-				builder.equal(root.get("entityId"), entityId));
-		criteria.select(root);
-		
-		List<SamlIdpMetadataEntity> idps = em.createQuery(criteria).getResultList();
-		if (idps.size() < 1)
-			return null;
-		else
-			return idps.get(0);
-	}	
+		List<SamlIdpMetadataEntity> idps = findAll(equal(SamlIdpMetadataEntity_.entityId, entityId));
+		return (idps.size() < 1) ? null : idps.get(0);
+	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public SamlIdpMetadataEntity findByScope(String scope) {
-		List<SamlIdpMetadataEntity> idpList = em.createQuery(
-				"select e from SamlIdpMetadataEntity as e join e.scopes as s where s.scope = :scope")
+		List<SamlIdpMetadataEntity> idpList = em
+				.createQuery("select e from SamlIdpMetadataEntity as e join e.scopes as s where s.scope = :scope",
+						SamlIdpMetadataEntity.class)
 				.setParameter("scope", scope).getResultList();
-		
-		/*
-		 * Always return first idp found for scope. Could be more than one.
-		 */
-		
-		if (idpList.size() == 0)
-			return null;
-		else
-			return idpList.get(0);
-	}	
-	
-	@SuppressWarnings("unchecked")
+		return idpList.size() == 0 ? null : idpList.get(0);
+	}
+
 	@Override
 	public List<SamlIdpMetadataEntity> findAllByFederationOrderByOrgname(FederationEntity federation) {
 		return em.createQuery(
-				"select distinct e from SamlIdpMetadataEntity e join e.federations f where f = :fed order by e.orgName asc")
-				.setParameter("fed", federation).getResultList();
-	}	
-	
+				"select distinct e from SamlIdpMetadataEntity e join e.federations f where f = :fed order by e.orgName asc",
+				SamlIdpMetadataEntity.class).setParameter("fed", federation).getResultList();
+	}
+
 	@Override
 	public Class<SamlIdpMetadataEntity> getEntityClass() {
 		return SamlIdpMetadataEntity.class;
 	}
+
 }

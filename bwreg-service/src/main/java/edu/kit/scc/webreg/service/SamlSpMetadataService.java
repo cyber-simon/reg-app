@@ -20,16 +20,8 @@ public interface SamlSpMetadataService extends BaseService<SamlSpMetadataEntity>
 
 	List<SamlSpMetadataEntity> findAllByFederation(FederationEntity federation);
 
-	List<SamlSpMetadataEntity> findAllByFederationOrderByOrgname(
-			FederationEntity federation);
-
 	SamlSpMetadataEntity findByEntityId(String entityId);
 
-	SamlSpMetadataEntity findByScope(String scope);
-
-	SamlSpMetadataEntity findByIdWithAll(Long id);
-
-	List<SamlSpMetadataEntity> findAllByStatusOrderedByOrgname(
-			SamlMetadataEntityStatus status);
+	List<SamlSpMetadataEntity> findAllByStatusOrderedByOrgname(SamlMetadataEntityStatus status);
 
 }

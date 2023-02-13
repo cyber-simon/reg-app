@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity_;
 import edu.kit.scc.webreg.service.oidc.OidcRpConfigurationService;
 
 @Named
@@ -30,7 +31,7 @@ public class ShowOidcRpConfigurationBean implements Serializable {
 	private OidcRpConfigurationService service;
 
 	private OidcRpConfigurationEntity entity;
-	
+
 	private Long id;
 
 	private String newKey;
@@ -45,7 +46,7 @@ public class ShowOidcRpConfigurationBean implements Serializable {
 		newKey = "";
 		newValue = "";
 	}
-	
+
 	public void removeGenericStore(String key) {
 		newKey = key;
 		newValue = getEntity().getGenericStore().remove(key);
@@ -54,7 +55,7 @@ public class ShowOidcRpConfigurationBean implements Serializable {
 
 	public OidcRpConfigurationEntity getEntity() {
 		if (entity == null) {
-			entity = service.findByIdWithAttrs(id, "genericStore");
+			entity = service.findByIdWithAttrs(id, OidcRpConfigurationEntity_.genericStore);
 		}
 		return entity;
 	}

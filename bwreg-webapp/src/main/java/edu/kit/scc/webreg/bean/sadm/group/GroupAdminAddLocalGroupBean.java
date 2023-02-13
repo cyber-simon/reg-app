@@ -22,8 +22,6 @@ import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
 import edu.kit.scc.webreg.sec.AuthorizationBean;
 import edu.kit.scc.webreg.service.LocalGroupService;
-import edu.kit.scc.webreg.service.SerialService;
-import edu.kit.scc.webreg.service.ServiceGroupFlagService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.util.ViewIds;
 
@@ -35,37 +33,31 @@ public class GroupAdminAddLocalGroupBean implements Serializable {
 
 	@Inject
 	private LocalGroupService service;
-	
-	@Inject
-	private ServiceGroupFlagService groupFlagService;
 
 	@Inject
 	private ServiceService serviceService;
 
 	@Inject
-    private AuthorizationBean authBean;
-	
-	@Inject
-	private SerialService serialService;
-	
+	private AuthorizationBean authBean;
+
 	private LocalGroupEntity entity;
 
 	private ServiceEntity serviceEntity;
-	
-	private Long serviceId;
-	
-	public void preRenderView(ComponentSystemEvent ev) {
-		if (serviceEntity == null) 
-			serviceEntity = serviceService.findById(serviceId);
 
-		if (! authBean.isUserServiceGroupAdmin(serviceEntity))
+	private Long serviceId;
+
+	public void preRenderView(ComponentSystemEvent ev) {
+		if (serviceEntity == null)
+			serviceEntity = serviceService.fetch(serviceId);
+
+		if (!authBean.isUserServiceGroupAdmin(serviceEntity))
 			throw new NotAuthorizedException("Nicht autorisiert");
-		
+
 		if (entity == null)
 			entity = service.createNew(serviceEntity);
 
 	}
-	
+
 	public String save() {
 
 		entity = service.save(entity, serviceEntity);

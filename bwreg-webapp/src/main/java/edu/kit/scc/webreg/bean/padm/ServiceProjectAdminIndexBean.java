@@ -46,7 +46,7 @@ public class ServiceProjectAdminIndexBean implements Serializable {
 
 	public void setServiceId(Long serviceId) {
 		if (serviceEntity == null) {
-			serviceEntity = serviceService.findById(serviceId);
+			serviceEntity = serviceService.fetch(serviceId);
 		}
 		
 		this.serviceId = serviceId;

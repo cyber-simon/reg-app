@@ -106,7 +106,7 @@ public class GroupAdminShowLocalGroupBean implements Serializable {
 	
 	protected void init() {
 		entity = service.findWithUsersAndChildren(groupId);
-		serviceEntity = serviceService.findById(serviceId);
+		serviceEntity = serviceService.fetch(serviceId);
 		groupFlagList = groupFlagService.findByGroup(entity);
 		if (groupFlagList.size() == 0)
 			throw new NotAuthorizedException("Gruppe ist diesem Service nicht zugeordnet");

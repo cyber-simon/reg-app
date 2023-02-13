@@ -35,13 +35,12 @@ public class ImageController {
 
 	@Inject
 	private ImageService imageService;
-	
+
 	@Path(value = "/original/{imageId}")
-	@Produces({"image/png"})
+	@Produces({ "image/png" })
 	@GET
-	public Response deliverOriginal(@PathParam("imageId") Long imageId)
-					throws IOException, NoItemFoundException {
-		
+	public Response deliverOriginal(@PathParam("imageId") Long imageId) throws IOException, NoItemFoundException {
+
 		ImageEntity imageEntity = imageService.findByIdWithData(imageId);
 		if (imageEntity == null) {
 			throw new NoItemFoundException("no item found");
@@ -51,10 +50,9 @@ public class ImageController {
 	}
 
 	@Path(value = "/small/{imageId}")
-	@Produces({"image/png"})
+	@Produces({ "image/png" })
 	@GET
-	public Response deliverSmall(@PathParam("imageId") Long imageId)
-					throws IOException, NoItemFoundException {
+	public Response deliverSmall(@PathParam("imageId") Long imageId) throws IOException, NoItemFoundException {
 		ImageEntity imageEntity = imageService.findByIdWithData(imageId);
 		if (imageEntity == null) {
 			throw new NoItemFoundException("no item found");
@@ -64,22 +62,21 @@ public class ImageController {
 
 		return Response.ok(data, "image/png").build();
 	}
-	
+
 	@Path(value = "/icon/{imageId}")
-	@Produces({"image/png"})
+	@Produces({ "image/png" })
 	@GET
-	public Response deliverIcon(@PathParam("imageId") Long imageId)
-					throws IOException, NoItemFoundException {
+	public Response deliverIcon(@PathParam("imageId") Long imageId) throws IOException, NoItemFoundException {
 		ImageEntity imageEntity = imageService.findByIdWithData(imageId);
 		if (imageEntity == null) {
 			throw new NoItemFoundException("no item found");
 		}
-		
+
 		byte[] data = scale(imageEntity.getImageData().getData(), 32, 32, "image/png");
 
 		return Response.ok(data, "image/png").build();
 	}
-	
+
 	private byte[] scale(byte[] input, int width, int height, String format) throws IOException {
 		ImageIO.setUseCache(false);
 		BufferedImage img = ImageIO.read(new ByteArrayInputStream(input));
@@ -89,7 +86,7 @@ public class ImageController {
 		if (height == 0) {
 			height = (width * img.getHeight()) / img.getWidth();
 		}
-		if(width == 0) {
+		if (width == 0) {
 			width = (height * img.getWidth()) / img.getHeight();
 		}
 

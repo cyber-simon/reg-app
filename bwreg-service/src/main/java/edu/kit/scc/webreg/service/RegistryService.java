@@ -23,21 +23,15 @@ public interface RegistryService extends BaseService<RegistryEntity> {
 
 	List<RegistryEntity> findByService(ServiceEntity service);
 
-	List<RegistryEntity> findAllByStatus(RegistryStatus status);
-
 	List<RegistryEntity> findByServiceAndStatus(ServiceEntity service, RegistryStatus status);
 
 	List<RegistryEntity> findByIdentityAndStatus(IdentityEntity identity, RegistryStatus... status);
-
-	List<RegistryEntity> findByServiceAndUser(ServiceEntity service, UserEntity user);
 
 	RegistryEntity findByServiceAndUserAndStatus(ServiceEntity service, UserEntity user, RegistryStatus status);
 
 	RegistryEntity findByIdWithAgreements(Long id);
 
 	List<RegistryEntity> findByUser(UserEntity user);
-
-	List<RegistryEntity> findByServiceAndStatus(String serviceShortName, RegistryStatus status, Date date, int limit);
 
 	List<RegistryEntity> findByIdentityAndNotStatusAndNotHidden(IdentityEntity identity, RegistryStatus... status);
 

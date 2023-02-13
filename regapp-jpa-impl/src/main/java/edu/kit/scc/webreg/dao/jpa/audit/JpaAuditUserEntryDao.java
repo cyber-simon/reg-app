@@ -25,4 +25,5 @@ public class JpaAuditUserEntryDao extends JpaBaseDao<AuditUserEntity> implements
 	public Class<AuditUserEntity> getEntityClass() {
 		return AuditUserEntity.class;
 	}
+
 }

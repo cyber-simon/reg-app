@@ -57,7 +57,7 @@ public class LdapUidNumberGroupHook extends AbstractGroupServiceHook {
 			 }
 			 else {
 				 logger.warn("User {} hat keine Gid in SAML Assertion, aber schon eine primäre Gruppe ({}).", user.getEppn(), user.getPrimaryGroup().getName());
-				 return dao.findById(user.getPrimaryGroup().getId());
+				 return dao.fetch(user.getPrimaryGroup().getId());
 			 }
 		}
 		

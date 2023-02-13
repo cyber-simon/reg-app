@@ -10,6 +10,9 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.impl;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.and;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import java.util.Date;
 import java.util.List;
 
@@ -19,6 +22,7 @@ import javax.inject.Inject;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.JobScheduleDao;
 import edu.kit.scc.webreg.entity.JobScheduleEntity;
+import edu.kit.scc.webreg.entity.JobScheduleEntity_;
 import edu.kit.scc.webreg.service.JobScheduleService;
 
 @Stateless
@@ -28,19 +32,23 @@ public class JobScheduleServiceImpl extends BaseServiceImpl<JobScheduleEntity> i
 
 	@Inject
 	private JobScheduleDao dao;
-	
+
 	@Override
 	public List<JobScheduleEntity> findAllBySingleton(Boolean singleton, Boolean disabled) {
-		return dao.findAllBySingleton(singleton, disabled);
+		return dao.findAll(
+				and(equal("jobClass.singleton", singleton), equal(JobScheduleEntity_.disabled, disabled)));
 	}
 
 	@Override
 	public List<JobScheduleEntity> findAllBySingletonNewer(Boolean singleton, Date date) {
-		return dao.findAllBySingletonNewer(singleton, date);
+		return dao
+				.findAll(and(equal("jobClass.singleton", singleton), equal(JobScheduleEntity_.updatedAt, date)));
+
 	}
 
 	@Override
 	protected BaseDao<JobScheduleEntity> getDao() {
 		return dao;
 	}
+
 }

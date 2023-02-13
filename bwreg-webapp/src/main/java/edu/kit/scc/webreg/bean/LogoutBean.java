@@ -73,7 +73,7 @@ public class LogoutBean implements Serializable {
 
 	public IdentityEntity getIdentity() {
 		if (identity == null) {
-			identity = identityService.findById(sessionManager.getIdentityId());
+			identity = identityService.fetch(sessionManager.getIdentityId());
 		}
 		
 		return identity;
@@ -88,7 +88,7 @@ public class LogoutBean implements Serializable {
 	
 	public List<UserEntity> getUserLoginList() {
 		if (userLoginList == null) {
-			userLoginList = userService.findByMultipleId(new ArrayList<Long>(sessionManager.getLoggedInUserList()));
+			userLoginList = userService.fetchAll(new ArrayList<Long>(sessionManager.getLoggedInUserList()));
 		}
 		return userLoginList;
 	}

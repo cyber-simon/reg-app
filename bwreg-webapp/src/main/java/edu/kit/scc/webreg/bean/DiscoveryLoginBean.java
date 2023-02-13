@@ -176,7 +176,7 @@ public class DiscoveryLoginBean implements Serializable {
 				cookieValue = cookieValue.replaceAll("[^0-9]", "");
 
 				Long idpId = Long.parseLong(cookieValue);
-				SamlIdpMetadataEntity idp = idpService.findById(idpId);
+				SamlIdpMetadataEntity idp = idpService.fetch(idpId);
 				if (idp != null) {
 					selectedIdp = idp;
 					storeIdpSelection = true;
@@ -184,7 +184,7 @@ public class DiscoveryLoginBean implements Serializable {
 					PrimeFaces.current().focus("quicklogin");
 				}
 				else {
-					OidcRpConfigurationEntity op = oidcRpService.findById(idpId);
+					OidcRpConfigurationEntity op = oidcRpService.fetch(idpId);
 					if (op != null) {
 						selectedIdp = op;
 						storeIdpSelection = true;
@@ -272,8 +272,8 @@ public class DiscoveryLoginBean implements Serializable {
 				/*
 				 * reg-app login called via OIDC relying party
 				 */
-				opConfig = oidcOpConfigService.findById(sessionManager.getOidcAuthnOpConfigId());
-				clientConfig = oidcClientConfigService.findById(sessionManager.getOidcAuthnClientConfigId());
+				opConfig = oidcOpConfigService.fetch(sessionManager.getOidcAuthnOpConfigId());
+				clientConfig = oidcClientConfigService.fetch(sessionManager.getOidcAuthnClientConfigId());
 				List<ServiceOidcClientEntity> serviceOidcClientList = serviceOidcClientService.findByClientConfig(clientConfig);
 				idpList = new ArrayList<Object>();
 				
@@ -292,8 +292,8 @@ public class DiscoveryLoginBean implements Serializable {
 				/*
 				 * reg-app login called via SAML service provider
 				 */
-				idpConfig = idpConfigService.findById(sessionManager.getAuthnRequestIdpConfigId());
-				spMetadata = spMetadataService.findById(sessionManager.getAuthnRequestSpMetadataId());
+				idpConfig = idpConfigService.fetch(sessionManager.getAuthnRequestIdpConfigId());
+				spMetadata = spMetadataService.fetch(sessionManager.getAuthnRequestSpMetadataId());
 				List<ServiceSamlSpEntity> serviceSamlList = idpConfigService.findBySamlSpAndIdp(idpConfig, spMetadata);
 				idpList = new ArrayList<Object>();
 				

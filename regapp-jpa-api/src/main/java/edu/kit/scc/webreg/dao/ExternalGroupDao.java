@@ -14,5 +14,4 @@ import edu.kit.scc.webreg.entity.ExternalGroupEntity;
 
 public interface ExternalGroupDao extends BaseDao<ExternalGroupEntity> {
 
-	ExternalGroupEntity findByName(String name);
 }

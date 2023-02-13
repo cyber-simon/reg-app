@@ -10,6 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.impl;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import java.util.List;
 
 import javax.ejb.Stateless;
@@ -19,6 +21,7 @@ import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.as.ASUserAttrDao;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
+import edu.kit.scc.webreg.entity.as.ASUserAttrEntity_;
 import edu.kit.scc.webreg.service.ASUserAttrService;
 
 @Stateless
@@ -33,12 +36,12 @@ public class ASUserAttrServiceImpl extends BaseServiceImpl<ASUserAttrEntity> imp
 	public List<ASUserAttrEntity> findForUser(UserEntity user) {
 		return dao.findForUser(user);
 	}
-	
+
 	@Override
 	public List<ASUserAttrEntity> findForUserWithValues(UserEntity user) {
-		return dao.findForUserWithValues(user);
+		return dao.findAll(equal(ASUserAttrEntity_.user, user), ASUserAttrEntity_.values);
 	}
-	
+
 	@Override
 	protected BaseDao<ASUserAttrEntity> getDao() {
 		return dao;

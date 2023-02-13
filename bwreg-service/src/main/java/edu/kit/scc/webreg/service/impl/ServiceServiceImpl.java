@@ -10,6 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.impl;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import java.util.List;
 
 import javax.ejb.Stateless;
@@ -18,8 +20,8 @@ import javax.inject.Inject;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
 import edu.kit.scc.webreg.entity.ImageEntity;
-import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity_;
 import edu.kit.scc.webreg.service.ServiceService;
 
 @Stateless
@@ -29,20 +31,15 @@ public class ServiceServiceImpl extends BaseServiceImpl<ServiceEntity> implement
 
 	@Inject
 	private ServiceDao dao;
-	
+
 	@Override
 	public List<ServiceEntity> findAllPublishedWithServiceProps() {
 		return dao.findAllPublishedWithServiceProps();
-	}	
+	}
 
 	@Override
 	public ServiceEntity findByShortName(String shortName) {
 		return dao.findByShortName(shortName);
-	}
-	
-	@Override
-	public List<ServiceEntity> findByAdminRole(RoleEntity role) {
-		return dao.findByAdminRole(role);
 	}
 
 	@Override
@@ -51,40 +48,15 @@ public class ServiceServiceImpl extends BaseServiceImpl<ServiceEntity> implement
 	}
 
 	@Override
-	public List<ServiceEntity> findByHotlineRole(RoleEntity role) {
-		return dao.findByHotlineRole(role);
-	}
-
-	@Override
-	public List<ServiceEntity> findByApproverRole(RoleEntity role) {
-		return dao.findByApproverRole(role);
-	}
-
-	@Override
-	public List<ServiceEntity> findBySshPubKeyApproverRole(RoleEntity role) {
-		return dao.findBySshPubKeyApproverRole(role);
-	}
-
-	@Override
-	public List<ServiceEntity> findByGroupAdminRole(RoleEntity role) {
-		return dao.findByGroupAdminRole(role);
-	}
-
-	@Override
-	public List<ServiceEntity> findAllWithPolicies() {
-		return dao.findAllWithPolicies();
-	}
-
-	@Override
 	public List<ServiceEntity> findAllByImage(ImageEntity image) {
-		return dao.findAllByImage(image);
+		return dao.findAll(equal(ServiceEntity_.image, image));
 	}
 
 	@Override
 	public ServiceEntity findWithPolicies(Long id) {
-		return dao.findWithPolicies(id);
+		return dao.find(equal(ServiceEntity_.id, id), ServiceEntity_.policies);
 	}
-	
+
 	@Override
 	public ServiceEntity findByIdWithServiceProps(Long id) {
 		return dao.findByIdWithServiceProps(id);

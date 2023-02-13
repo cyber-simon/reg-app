@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.persistence.metamodel.Attribute;
+
 import org.primefaces.model.FilterMeta;
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.MatchMode;
@@ -40,10 +42,10 @@ public class GenericLazyDataModelImpl<E extends BaseEntity, T extends BaseServic
 	private T service;
 
 	private RqlExpression filter;
-	private String[] attrs;
+	@SuppressWarnings("rawtypes")
+	private Attribute[] attrs;
 
 	public GenericLazyDataModelImpl(T service) {
-		super();
 		this.service = service;
 	}
 
@@ -52,7 +54,8 @@ public class GenericLazyDataModelImpl<E extends BaseEntity, T extends BaseServic
 		this.filter = filter;
 	}
 
-	public GenericLazyDataModelImpl(T service, String... attrs) {
+	@SuppressWarnings("rawtypes")
+	public GenericLazyDataModelImpl(T service, Attribute... attrs) {
 		this(service);
 		this.attrs = attrs;
 	}
@@ -75,7 +78,7 @@ public class GenericLazyDataModelImpl<E extends BaseEntity, T extends BaseServic
 
 		List<SortBy> sortList = sortBy.values().stream().map(this::getDaoSortData).collect(Collectors.toList());
 
-		return getService().findAllPaging(PaginateBy.of(first, pageSize), sortList, completeFilter, attrs);
+		return getService().findAll(PaginateBy.of(first, pageSize), sortList, completeFilter, attrs);
 	}
 
 	private SortBy getDaoSortData(SortMeta primefacesSortMeta) {
@@ -106,7 +109,7 @@ public class GenericLazyDataModelImpl<E extends BaseEntity, T extends BaseServic
 	public E getRowData(String rowKey) {
 		Long id = Long.parseLong(rowKey);
 		if (id instanceof Serializable) {
-			return getService().findById(id);
+			return getService().fetch(id);
 		}
 		return null;
 	}

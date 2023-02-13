@@ -10,6 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa.project;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -23,51 +25,38 @@ import edu.kit.scc.webreg.dao.jpa.JpaBaseDao;
 import edu.kit.scc.webreg.dao.project.ProjectAdminRoleDao;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.project.ProjectAdminRoleEntity;
+import edu.kit.scc.webreg.entity.project.ProjectAdminRoleEntity_;
 
 @Named
 @ApplicationScoped
 public class JpaProjectAdminRoleDao extends JpaBaseDao<ProjectAdminRoleEntity> implements ProjectAdminRoleDao {
 
-    @Override
+	@Override
 	public List<ProjectAdminRoleEntity> findWithServices(UserEntity user) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<ProjectAdminRoleEntity> criteria = builder.createQuery(ProjectAdminRoleEntity.class);
 		Root<ProjectAdminRoleEntity> root = criteria.from(ProjectAdminRoleEntity.class);
 		Root<UserEntity> userRoot = criteria.from(UserEntity.class);
-		
+
 		CriteriaQuery<ProjectAdminRoleEntity> select = criteria.select(root);
-		select.where(builder.equal(userRoot.get("id"), user.getId())).distinct(true);
-		root.fetch("adminForServices", JoinType.LEFT);
+		select.where(builder.equal(userRoot.get(ProjectAdminRoleEntity_.id), user.getId())).distinct(true);
+		root.fetch(ProjectAdminRoleEntity_.adminForServices, JoinType.LEFT);
 		return em.createQuery(select).getResultList();
 	}
 
 	@Override
 	public ProjectAdminRoleEntity findWithUsers(Long id) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<ProjectAdminRoleEntity> criteria = builder.createQuery(ProjectAdminRoleEntity.class);
-		Root<ProjectAdminRoleEntity> root = criteria.from(ProjectAdminRoleEntity.class);
-		criteria.where(
-				builder.equal(root.get("id"), id));
-		criteria.select(root);
-		root.fetch("users", JoinType.LEFT);
-		
-		return em.createQuery(criteria).getSingleResult();
+		return find(equal(ProjectAdminRoleEntity_.id, id), ProjectAdminRoleEntity_.users);
 	}
 
 	@Override
 	public ProjectAdminRoleEntity findByName(String name) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<ProjectAdminRoleEntity> criteria = builder.createQuery(ProjectAdminRoleEntity.class);
-		Root<ProjectAdminRoleEntity> role = criteria.from(ProjectAdminRoleEntity.class);
-		criteria.where(
-				builder.equal(role.get("name"), name));
-		criteria.select(role);
-		
-		return em.createQuery(criteria).getSingleResult();
+		return find(equal(ProjectAdminRoleEntity_.name, name));
 	}
 
 	@Override
 	public Class<ProjectAdminRoleEntity> getEntityClass() {
 		return ProjectAdminRoleEntity.class;
-	}	
+	}
+
 }

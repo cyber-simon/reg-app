@@ -10,15 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao;
 
-import java.util.Date;
-import java.util.List;
-
 import edu.kit.scc.webreg.entity.BusinessRuleEntity;
 
 public interface BusinessRuleDao extends BaseDao<BusinessRuleEntity> {
-
-	List<BusinessRuleEntity> findAllNewer(Date date);
-
-	List<BusinessRuleEntity> findAllKnowledgeBaseNotNull();
 
 }

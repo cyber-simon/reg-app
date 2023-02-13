@@ -10,7 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.impl;
 
-import java.util.Date;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.isNotNull;
+
 import java.util.List;
 
 import javax.ejb.Stateless;
@@ -21,6 +22,7 @@ import org.slf4j.Logger;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.BusinessRuleDao;
 import edu.kit.scc.webreg.entity.BusinessRuleEntity;
+import edu.kit.scc.webreg.entity.BusinessRuleEntity_;
 import edu.kit.scc.webreg.service.BusinessRuleService;
 
 @Stateless
@@ -30,18 +32,13 @@ public class BusinessRuleServiceImpl extends BaseServiceImpl<BusinessRuleEntity>
 
 	@Inject
 	private Logger logger;
-	
+
 	@Inject
 	private BusinessRuleDao dao;
-	
-	@Override
-	public List<BusinessRuleEntity> findAllNewer(Date date) {
-		return dao.findAllNewer(date);
-	}
 
 	@Override
 	public List<BusinessRuleEntity> findAllKnowledgeBaseNotNull() {
-		return dao.findAllKnowledgeBaseNotNull();
+		return dao.findAll(isNotNull(BusinessRuleEntity_.knowledgeBaseName));
 	}
 
 	@Override
@@ -51,8 +48,8 @@ public class BusinessRuleServiceImpl extends BaseServiceImpl<BusinessRuleEntity>
 
 	@Override
 	public void replaceRegexSingle(Long ruleId, String regex, String replace) {
-		BusinessRuleEntity rule = dao.findById(ruleId);
-		if (rule !=  null) {
+		BusinessRuleEntity rule = dao.fetch(ruleId);
+		if (rule != null) {
 			replaceRegexIntern(rule, regex, replace);
 		}
 	}
@@ -64,10 +61,11 @@ public class BusinessRuleServiceImpl extends BaseServiceImpl<BusinessRuleEntity>
 			replaceRegexIntern(rule, regex, replace);
 		}
 	}
-	
+
 	private void replaceRegexIntern(BusinessRuleEntity rule, String regex, String replace) {
 		logger.info("Processing rule {}", rule.getName());
 		String newRule = rule.getRule().replaceAll(regex, replace);
-		rule.setRule(newRule);;
+		rule.setRule(newRule);
+		;
 	}
 }

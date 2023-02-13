@@ -68,7 +68,7 @@ public class SshPubKeyRegistryManager implements Serializable {
 	public SshPubKeyRegistryEntity approveRegistry(SshPubKeyRegistryEntity entity, Long approverId) {
 		entity = dao.merge(entity);
 		entity.setKeyStatus(SshPubKeyRegistryStatus.ACTIVE);
-		entity.setApprover(identityDao.findById(approverId));
+		entity.setApprover(identityDao.fetch(approverId));
 		entity.setApprovedAt(new Date());
 		
 		SshPubKeyRegistryEvent event = new SshPubKeyRegistryEvent(entity);
@@ -86,7 +86,7 @@ public class SshPubKeyRegistryManager implements Serializable {
 	public SshPubKeyRegistryEntity denyRegistry(SshPubKeyRegistryEntity entity, Long approverId) {
 		entity = dao.merge(entity);
 		entity.setKeyStatus(SshPubKeyRegistryStatus.DENIED);
-		entity.setApprover(identityDao.findById(approverId));
+		entity.setApprover(identityDao.fetch(approverId));
 		entity.setApprovedAt(new Date());
 		
 		SshPubKeyRegistryEvent event = new SshPubKeyRegistryEvent(entity);
