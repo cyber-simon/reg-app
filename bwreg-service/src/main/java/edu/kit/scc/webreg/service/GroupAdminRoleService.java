@@ -10,17 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service;
 
-import java.util.List;
-
 import edu.kit.scc.webreg.entity.GroupAdminRoleEntity;
-import edu.kit.scc.webreg.entity.UserEntity;
 
 public interface GroupAdminRoleService extends BaseService<GroupAdminRoleEntity> {
 
-	GroupAdminRoleEntity findByName(String name);
-
-	GroupAdminRoleEntity findWithUsers(Long id);
-
-	List<GroupAdminRoleEntity> findWithServices(UserEntity user);
-	
 }

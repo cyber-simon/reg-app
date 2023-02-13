@@ -24,21 +24,17 @@ import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 import edu.kit.scc.webreg.service.ServiceGroupFlagService;
 
 @Stateless
-public class ServiceGroupFlagServiceImpl extends BaseServiceImpl<ServiceGroupFlagEntity> implements ServiceGroupFlagService {
+public class ServiceGroupFlagServiceImpl extends BaseServiceImpl<ServiceGroupFlagEntity>
+		implements ServiceGroupFlagService {
 
 	private static final long serialVersionUID = 1L;
 
 	@Inject
 	private ServiceGroupFlagDao dao;
-	
+
 	@Override
 	public List<ServiceGroupFlagEntity> findByGroup(ServiceBasedGroupEntity group) {
 		return dao.findByGroup(group);
-	}
-
-	@Override
-	public List<ServiceGroupFlagEntity> findByGroupAndStatus(ServiceBasedGroupEntity group, ServiceGroupStatus status) {
-		return dao.findByGroupAndStatus(group, status);
 	}
 
 	@Override
@@ -55,12 +51,12 @@ public class ServiceGroupFlagServiceImpl extends BaseServiceImpl<ServiceGroupFla
 	public List<ServiceGroupFlagEntity> findLocalGroupsForService(ServiceEntity service) {
 		return dao.findLocalGroupsForService(service);
 	}
-	
+
 	@Override
 	public List<ServiceGroupFlagEntity> findByGroupAndService(ServiceBasedGroupEntity group, ServiceEntity service) {
 		return dao.findByGroupAndService(group, service);
 	}
-	
+
 	@Override
 	protected BaseDao<ServiceGroupFlagEntity> getDao() {
 		return dao;

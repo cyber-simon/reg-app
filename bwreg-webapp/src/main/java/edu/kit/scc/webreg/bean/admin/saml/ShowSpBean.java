@@ -33,6 +33,7 @@ import org.opensaml.xmlsec.signature.X509Data;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
+import edu.kit.scc.webreg.entity.SamlSpMetadataEntity_;
 import edu.kit.scc.webreg.service.SamlSpMetadataService;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
 
@@ -44,30 +45,32 @@ public class ShowSpBean implements Serializable {
 
 	@Inject
 	private Logger logger;
-	
+
 	@Inject
 	private SamlSpMetadataService service;
-	
+
 	@Inject
 	private SamlHelper samlHelper;
 
 	private SamlSpMetadataEntity entity;
-	
+
 	private EntityDescriptor entityDescriptor;
 	private SPSSODescriptor spssoDescriptor;
 
 	private Map<KeyDescriptor, List<java.security.cert.X509Certificate>> certMap;
-	
+
 	private Long id;
-	
+
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
 			certMap = new HashMap<KeyDescriptor, List<java.security.cert.X509Certificate>>();
-			
-			entity = service.findByIdWithAttrs(id, "genericStore", "federations");
+
+			entity = service.findByIdWithAttrs(id, SamlSpMetadataEntity_.genericStore,
+					SamlSpMetadataEntity_.federations);
 			if (entity.getEntityDescriptor() != null) {
 				entityDescriptor = samlHelper.unmarshal(entity.getEntityDescriptor(), EntityDescriptor.class);
-				spssoDescriptor = (SPSSODescriptor) entityDescriptor.getRoleDescriptors(SPSSODescriptor.DEFAULT_ELEMENT_NAME).get(0);
+				spssoDescriptor = (SPSSODescriptor) entityDescriptor
+						.getRoleDescriptors(SPSSODescriptor.DEFAULT_ELEMENT_NAME).get(0);
 			}
 		}
 	}
@@ -75,10 +78,10 @@ public class ShowSpBean implements Serializable {
 	public List<java.security.cert.X509Certificate> getCert(KeyDescriptor kd) {
 		if (kd == null)
 			return null;
-		
+
 		if (certMap.containsKey(kd))
 			return certMap.get(kd);
-		
+
 		List<java.security.cert.X509Certificate> certList = new ArrayList<java.security.cert.X509Certificate>();
 		KeyInfo keyInfo = kd.getKeyInfo();
 
@@ -91,8 +94,8 @@ public class ShowSpBean implements Serializable {
 				try {
 					String certValue = x509cert.getValue();
 					byte[] certBytes = Base64.decodeBase64(certValue.getBytes());
-					java.security.cert.X509Certificate crt = (java.security.cert.X509Certificate) 
-							CertificateFactory.getInstance("X.509").generateCertificate(new ByteArrayInputStream(certBytes));
+					java.security.cert.X509Certificate crt = (java.security.cert.X509Certificate) CertificateFactory
+							.getInstance("X.509").generateCertificate(new ByteArrayInputStream(certBytes));
 					certList.add(crt);
 				} catch (Exception e) {
 					String cause = "";
@@ -102,12 +105,12 @@ public class ShowSpBean implements Serializable {
 				}
 			}
 		}
-		
+
 		certMap.put(kd, certList);
-		
+
 		return certList;
 	}
-	
+
 	public Long getId() {
 		return id;
 	}

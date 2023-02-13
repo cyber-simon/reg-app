@@ -88,7 +88,7 @@ public class RegisterOidcUserBean implements Serializable {
 				return;    		
 	    	}
 	    	
-	    	rpConfig = rpConfigService.findById(sessionManager.getOidcRelyingPartyId());
+	    	rpConfig = rpConfigService.fetch(sessionManager.getOidcRelyingPartyId());
 	
 	    	if (rpConfig == null) {
 				errorState = true;

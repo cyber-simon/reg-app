@@ -10,7 +10,6 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.audit;
 
-import java.util.Date;
 import java.util.List;
 
 import edu.kit.scc.webreg.dao.BaseDao;
@@ -20,8 +19,6 @@ import edu.kit.scc.webreg.entity.audit.AuditServiceRegisterEntity;
 
 public interface AuditEntryDao extends BaseDao<AuditEntryEntity> {
 
-	List<AuditEntryEntity> findAllOlderThan(Date date, int limit);
+	List<AuditServiceRegisterEntity> findAllServiceRegister(RegistryEntity registry);
 
-	List<AuditServiceRegisterEntity> findAllServiceRegister(
-			RegistryEntity registry);
 }

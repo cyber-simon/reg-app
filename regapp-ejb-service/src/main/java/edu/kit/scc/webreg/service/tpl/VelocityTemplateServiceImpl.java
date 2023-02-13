@@ -10,29 +10,34 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.tpl;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.VelocityTemplateDao;
 import edu.kit.scc.webreg.entity.VelocityTemplateEntity;
+import edu.kit.scc.webreg.entity.VelocityTemplateEntity_;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
 
 @Stateless
-public class VelocityTemplateServiceImpl extends BaseServiceImpl<VelocityTemplateEntity> implements VelocityTemplateService {
+public class VelocityTemplateServiceImpl extends BaseServiceImpl<VelocityTemplateEntity>
+		implements VelocityTemplateService {
 
 	private static final long serialVersionUID = 1L;
 
 	@Inject
 	private VelocityTemplateDao dao;
-	
+
 	@Override
 	protected BaseDao<VelocityTemplateEntity> getDao() {
 		return dao;
 	}
-	
+
 	@Override
 	public VelocityTemplateEntity findByName(String name) {
-		return dao.findByName(name);
+		return dao.find(equal(VelocityTemplateEntity_.name, name));
 	}
+
 }

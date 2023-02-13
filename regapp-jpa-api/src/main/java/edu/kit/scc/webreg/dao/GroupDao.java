@@ -16,7 +16,6 @@ import java.util.Set;
 import edu.kit.scc.webreg.dao.as.AttributeSourceGroupDao;
 import edu.kit.scc.webreg.dao.ops.PaginateBy;
 import edu.kit.scc.webreg.entity.GroupEntity;
-import edu.kit.scc.webreg.entity.LocalGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceBasedGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupStatus;
@@ -25,11 +24,7 @@ import edu.kit.scc.webreg.entity.UserGroupEntity;
 
 public interface GroupDao extends BaseDao<GroupEntity> {
 
-	GroupEntity findByGidNumber(Integer gid);
-
 	GroupEntity findByName(String name);
-
-	GroupEntity findByNameAndPrefix(String name, String prefix);
 
 	List<GroupEntity> findByUser(UserEntity user);
 
@@ -37,19 +32,13 @@ public interface GroupDao extends BaseDao<GroupEntity> {
 
 	List<GroupEntity> findByUserId(PaginateBy paginateBy, Long userId);
 
-	GroupEntity findWithUsers(Long id);
-
 	void addUserToGroup(UserEntity user, GroupEntity group);
 
 	void removeUserGromGroup(UserEntity user, GroupEntity group);
 
-	UserGroupEntity createNewUserGroup();
-
 	boolean isUserInGroup(UserEntity user, GroupEntity group);
 
 	UserGroupEntity findUserGroupEntity(UserEntity user, GroupEntity group);
-
-	LocalGroupEntity findLocalGroupByName(String name);
 
 	LocalGroupDao getLocalGroupDao();
 

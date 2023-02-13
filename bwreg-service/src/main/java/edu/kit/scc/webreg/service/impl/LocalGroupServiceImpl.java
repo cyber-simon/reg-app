@@ -10,6 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.impl;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import java.util.HashSet;
 import java.util.List;
 
@@ -24,10 +26,10 @@ import edu.kit.scc.webreg.dao.ServiceGroupFlagDao;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.LocalGroupEntity;
+import edu.kit.scc.webreg.entity.LocalGroupEntity_;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupStatus;
-import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.MultipleGroupEvent;
 import edu.kit.scc.webreg.event.exc.EventSubmitException;
@@ -41,52 +43,52 @@ public class LocalGroupServiceImpl extends BaseServiceImpl<LocalGroupEntity> imp
 
 	@Inject
 	private Logger logger;
-	
+
 	@Inject
 	private LocalGroupDao dao;
-	
+
 	@Inject
 	private LocalGroupCreator creator;
-	
+
 	@Inject
 	private ServiceGroupFlagDao groupFlagDao;
-	
-	@Inject 
+
+	@Inject
 	private EventSubmitter eventSubmitter;
 
 	@Override
 	public LocalGroupEntity createNew(ServiceEntity service) {
 		return creator.createNew(service);
 	}
-	
+
 	@Override
 	public void createServiceGroupFlagsBulk(ServiceEntity fromService, ServiceEntity toService, String filterRegex) {
 		List<ServiceGroupFlagEntity> fromFlagList = groupFlagDao.findLocalGroupsForService(fromService);
-		
+
 		HashSet<GroupEntity> allChangedGroups = new HashSet<GroupEntity>();
-		
+
 		for (ServiceGroupFlagEntity fromFlag : fromFlagList) {
 			if (fromFlag.getGroup() instanceof LocalGroupEntity) {
 				LocalGroupEntity group = (LocalGroupEntity) fromFlag.getGroup();
-				
+
 				if (group.getName().matches(filterRegex)) {
 					List<ServiceGroupFlagEntity> toFlagList = groupFlagDao.findByGroupAndService(group, toService);
-					
+
 					if (toFlagList.size() == 0) {
-						logger.info("Creating group flags for group {} and service {}", group.getName(), toService.getShortName());
+						logger.info("Creating group flags for group {} and service {}", group.getName(),
+								toService.getShortName());
 						ServiceGroupFlagEntity groupFlag = groupFlagDao.createNew();
 						groupFlag.setService(toService);
 						groupFlag.setGroup(group);
 						groupFlag.setStatus(ServiceGroupStatus.DIRTY);
-						
+
 						groupFlag = groupFlagDao.persist(groupFlag);
 						allChangedGroups.add(group);
+					} else {
+						logger.info("Skipping group flags for group {} and service {}, they already exist",
+								group.getName(), toService.getShortName());
 					}
-					else {
-						logger.info("Skipping group flags for group {} and service {}, they already exist", group.getName(), toService.getShortName());
-					}
-				}
-				else {
+				} else {
 					logger.info("Skipping group {}. Doesn't match regex {}", group.getName(), filterRegex);
 				}
 			}
@@ -99,34 +101,26 @@ public class LocalGroupServiceImpl extends BaseServiceImpl<LocalGroupEntity> imp
 			logger.warn("Exeption", e);
 		}
 	}
-	
+
 	@Override
 	public LocalGroupEntity save(LocalGroupEntity entity, ServiceEntity service) {
 		return creator.save(entity, service);
 	}
-	
-	@Override
-	public LocalGroupEntity findWithUsers(Long id) {
-		return dao.findWithUsers(id);
-	}	
-	
+
 	@Override
 	public LocalGroupEntity findWithUsersAndChildren(Long id) {
-		return dao.findWithUsersAndChildren(id);
-	}	
-	
+		return dao.find(equal(LocalGroupEntity_.id, id), LocalGroupEntity_.users, LocalGroupEntity_.children,
+				LocalGroupEntity_.adminRoles);
+	}
+
 	@Override
 	public LocalGroupEntity findByName(String name) {
 		return dao.findByName(name);
-	}	
-	
-	@Override
-	public List<LocalGroupEntity> findByUser(UserEntity user) {
-		return dao.findByUser(user);
-	}	
-	
+	}
+
 	@Override
 	protected BaseDao<LocalGroupEntity> getDao() {
 		return dao;
-	}	
+	}
+
 }

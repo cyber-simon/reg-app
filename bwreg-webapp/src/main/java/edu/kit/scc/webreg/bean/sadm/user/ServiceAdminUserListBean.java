@@ -58,7 +58,7 @@ public class ServiceAdminUserListBean implements Serializable {
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (serviceEntity == null) {
-			serviceEntity = serviceService.findById(serviceId);
+			serviceEntity = serviceService.fetch(serviceId);
 		}
 
 		if (!(authBean.isUserServiceAdmin(serviceEntity) || authBean.isUserServiceHotline(serviceEntity)))

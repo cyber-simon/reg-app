@@ -78,7 +78,7 @@ public class GroupDtoServiceImpl extends BaseDtoServiceImpl<GroupEntity, GroupEn
 
 	@Override
 	public GroupEntityDto findById(Long id, Long userId, Boolean withDetails) throws RestInterfaceException {
-		GroupEntity entity = dao.findById(id);
+		GroupEntity entity = dao.fetch(id);
 		if (entity == null)
 			throw new NoUserFoundException("no such group");
 		
@@ -95,14 +95,14 @@ public class GroupDtoServiceImpl extends BaseDtoServiceImpl<GroupEntity, GroupEn
 	
 	@Override
 	public GroupEntityDto addUserToGroup(Long groupId, Long userId, Long callerId) throws RestInterfaceException {
-		GroupEntity group = dao.findById(groupId);
+		GroupEntity group = dao.fetch(groupId);
 		if (group == null)
 			throw new NoUserFoundException("no such group");
 		
 		if (! accessChecker.checkAccess(group, callerId))
 			throw new UnauthorizedException("Not authorized");
 		
-		UserEntity user = userDao.findById(userId);
+		UserEntity user = userDao.fetch(userId);
 		if (user == null)
 			throw new NoUserFoundException("no such user");
 
@@ -134,14 +134,14 @@ public class GroupDtoServiceImpl extends BaseDtoServiceImpl<GroupEntity, GroupEn
 
 	@Override
 	public GroupEntityDto removeUserToGroup(Long groupId, Long userId, Long callerId) throws RestInterfaceException {
-		GroupEntity group = dao.findById(groupId);
+		GroupEntity group = dao.fetch(groupId);
 		if (group == null)
 			throw new NoUserFoundException("no such group");
 		
 		if (! accessChecker.checkAccess(group, callerId))
 			throw new UnauthorizedException("Not authorized");
 		
-		UserEntity user = userDao.findById(userId);
+		UserEntity user = userDao.fetch(userId);
 		if (user == null)
 			throw new NoUserFoundException("no such user");
 

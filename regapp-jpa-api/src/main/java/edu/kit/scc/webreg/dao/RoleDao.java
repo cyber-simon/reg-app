@@ -25,15 +25,9 @@ public interface RoleDao extends BaseDao<RoleEntity> {
 
 	RoleEntity findByName(String name);
 
-	RoleEntity findWithUsers(Long id);
-
 	List<RoleEntity> findByUser(UserEntity user);
 
-	UserRoleEntity createNewUserRole();
-
 	void persistUserRole(UserRoleEntity userRole);
-
-	List<RoleEntity> findByUserId(Long userId);
 
 	List<RoleEntity> findByUserId(PaginateBy paginateBy, Long userId);
 
@@ -47,8 +41,6 @@ public interface RoleDao extends BaseDao<RoleEntity> {
 
 	void removeGroupFromRole(GroupEntity group, RoleEntity role);
 
-	RoleGroupEntity createNewRoleGroup();
-
 	RoleGroupEntity findRoleGroupEntity(GroupEntity group, RoleEntity role);
 
 	List<RoleEntity> findByGroups(Set<GroupEntity> groups);
@@ -58,8 +50,6 @@ public interface RoleDao extends BaseDao<RoleEntity> {
 	List<UserEntity> findUsersForRole(RoleEntity role);
 
 	List<GroupEntity> findGroupsForRole(RoleEntity role);
-
-	List<RoleEntity> findByUserIdList(List<Long> userIdList);
 
 	List<RoleEntity> findByIdentityId(Long identityId);
 

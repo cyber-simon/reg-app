@@ -67,7 +67,7 @@ public class UserIndexBean {
 
     @PostConstruct
     public void init() {
-    	identity = identityService.findById(sessionManager.getIdentityId());
+    	identity = identityService.fetch(sessionManager.getIdentityId());
     	allServiceList = serviceService.findAllPublishedWithServiceProps();
     	userRegistryList = registryService.findByIdentityAndNotStatusAndNotHidden(
     			identity, RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED, RegistryStatus.PENDING);

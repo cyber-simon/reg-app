@@ -22,6 +22,7 @@ import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity_;
 import edu.kit.scc.webreg.entity.oidc.ServiceOidcClientEntity;
 import edu.kit.scc.webreg.service.BusinessRulePackageService;
 import edu.kit.scc.webreg.service.ScriptService;
@@ -40,48 +41,48 @@ public class ShowOidcClientConfigurationBean implements Serializable {
 
 	@Inject
 	private ServiceOidcClientService serviceOidcClientService;
-	
+
 	@Inject
 	private ScriptService scriptService;
-	
+
 	@Inject
 	private ServiceService serviceService;
 
 	@Inject
 	private BusinessRulePackageService rulePackageService;
-	
+
 	private OidcClientConfigurationEntity entity;
 	private List<ServiceOidcClientEntity> serviceOidcClientList;
 	private List<ScriptEntity> scriptList;
 	private List<ServiceEntity> serviceList;
 	private List<BusinessRulePackageEntity> rulePackageList;
-	
+
 	private Long id;
 
 	private String newKey;
 	private String newValue;
 
 	private ServiceOidcClientEntity newSoce;
-	
+
 	public void preRenderView(ComponentSystemEvent ev) {
 	}
-	
+
 	public void addGenericStore() {
 		getEntity().getGenericStore().put(newKey, newValue);
 		entity = service.save(getEntity());
 		newKey = "";
 		newValue = "";
 	}
-	
+
 	public void removeGenericStore(String key) {
 		newKey = key;
 		newValue = getEntity().getGenericStore().remove(key);
 		entity = service.save(getEntity());
 	}
-	
+
 	public OidcClientConfigurationEntity getEntity() {
 		if (entity == null) {
-			entity = service.findByIdWithAttrs(id, "genericStore");
+			entity = service.findByIdWithAttrs(id, OidcClientConfigurationEntity_.genericStore);
 		}
 		return entity;
 	}
@@ -99,13 +100,13 @@ public class ShowOidcClientConfigurationBean implements Serializable {
 		newSoce = null;
 		serviceOidcClientList = null;
 	}
-	
+
 	public void removeSoce(ServiceOidcClientEntity oldSoce) {
 		serviceOidcClientService.delete(oldSoce);
 		newSoce = oldSoce;
 		serviceOidcClientList = null;
 	}
-	
+
 	public void setId(Long id) {
 		this.id = id;
 	}

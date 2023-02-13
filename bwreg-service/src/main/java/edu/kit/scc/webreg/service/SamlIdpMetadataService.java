@@ -15,14 +15,10 @@ import java.util.List;
 import edu.kit.scc.webreg.entity.FederationEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntityStatus;
-import edu.kit.scc.webreg.entity.SamlMetadataEntityStatus;
 
 public interface SamlIdpMetadataService extends BaseService<SamlIdpMetadataEntity> {
 
 	List<SamlIdpMetadataEntity> findAllByFederation(FederationEntity federation);
-
-	List<SamlIdpMetadataEntity> findAllByFederationOrderByOrgname(
-			FederationEntity federation);
 
 	SamlIdpMetadataEntity findByEntityId(String entityId);
 
@@ -30,10 +26,6 @@ public interface SamlIdpMetadataService extends BaseService<SamlIdpMetadataEntit
 
 	SamlIdpMetadataEntity findByIdWithAll(Long id);
 
-	List<SamlIdpMetadataEntity> findAllByStatusOrderedByOrgname(
-			SamlMetadataEntityStatus status);
-
-	void updateIdpStatus(SamlIdpMetadataEntityStatus status,
-			SamlIdpMetadataEntity idpEntity);
+	void updateIdpStatus(SamlIdpMetadataEntityStatus status, SamlIdpMetadataEntity idpEntity);
 
 }

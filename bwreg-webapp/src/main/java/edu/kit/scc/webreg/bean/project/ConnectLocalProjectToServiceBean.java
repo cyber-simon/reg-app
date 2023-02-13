@@ -19,10 +19,9 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.slf4j.Logger;
-
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
+import edu.kit.scc.webreg.entity.project.LocalProjectEntity_;
 import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
 import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
@@ -41,11 +40,8 @@ public class ConnectLocalProjectToServiceBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Inject
-	private Logger logger;
-	
-	@Inject
 	private SessionManager session;
-	
+
 	@Inject
 	private LocalProjectService service;
 
@@ -60,7 +56,7 @@ public class ConnectLocalProjectToServiceBean implements Serializable {
 	private List<ServiceEntity> serviceList;
 	private List<ServiceEntity> selectedServices;
 	private List<ProjectServiceEntity> projectServiceList;
-	
+
 	private Long id;
 
 	private List<ProjectIdentityAdminEntity> adminList;
@@ -68,19 +64,19 @@ public class ConnectLocalProjectToServiceBean implements Serializable {
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		selectedServices = new ArrayList<ServiceEntity>();
-		
+
 		for (ProjectIdentityAdminEntity a : getAdminList()) {
 			if (a.getIdentity().getId().equals(session.getIdentityId())) {
 				adminIdentity = a;
 				break;
 			}
 		}
-		
+
 		if (adminIdentity == null) {
 			throw new NotAuthorizedException("Nicht autorisiert");
-		}		
-		else {
-			if (! (ProjectAdminType.ADMIN.equals(adminIdentity.getType()) || ProjectAdminType.OWNER.equals(adminIdentity.getType()))) {
+		} else {
+			if (!(ProjectAdminType.ADMIN.equals(adminIdentity.getType())
+					|| ProjectAdminType.OWNER.equals(adminIdentity.getType()))) {
 				throw new NotAuthorizedException("Nicht autorisiert");
 			}
 		}
@@ -95,12 +91,12 @@ public class ConnectLocalProjectToServiceBean implements Serializable {
 
 	public String save() {
 		for (ServiceEntity s : selectedServices) {
-			projectService.addOrChangeService(entity, s, ProjectServiceType.PASSIVE_GROUP, 
+			projectService.addOrChangeService(entity, s, ProjectServiceType.PASSIVE_GROUP,
 					ProjectServiceStatusType.APPROVAL_PENDING, "idty-" + session.getIdentityId());
 		}
 		return "show-local-project.xhtml?faces-redirect=true&id=" + getEntity().getId();
 	}
-	
+
 	public Long getId() {
 		return id;
 	}
@@ -111,7 +107,7 @@ public class ConnectLocalProjectToServiceBean implements Serializable {
 
 	public LocalProjectEntity getEntity() {
 		if (entity == null) {
-			entity = service.findByIdWithAttrs(id, "projectServices");
+			entity = service.findByIdWithAttrs(id, LocalProjectEntity_.projectServices);
 		}
 
 		return entity;

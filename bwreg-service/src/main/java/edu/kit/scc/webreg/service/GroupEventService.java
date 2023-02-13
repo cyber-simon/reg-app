@@ -10,13 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service;
 
-import java.util.List;
-
-import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.GroupEventEntity;
 
 public interface GroupEventService extends BaseService<GroupEventEntity> {
-
-	List<GroupEventEntity> findAllByService(EventType eventType);
 
 }

@@ -10,7 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.impl;
 
-import java.util.List;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -18,7 +18,7 @@ import javax.inject.Inject;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.HomeOrgGroupDao;
 import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;
-import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.HomeOrgGroupEntity_;
 import edu.kit.scc.webreg.service.HomeOrgGroupService;
 
 @Stateless
@@ -28,24 +28,15 @@ public class HomeOrgGroupServiceImpl extends BaseServiceImpl<HomeOrgGroupEntity>
 
 	@Inject
 	private HomeOrgGroupDao dao;
-	
+
 	@Override
 	public HomeOrgGroupEntity findWithUsers(Long id) {
-		return dao.findWithUsers(id);
-	}	
-	
-	@Override
-	public HomeOrgGroupEntity findByName(String name) {
-		return dao.findByName(name);
-	}	
-	
-	@Override
-	public List<HomeOrgGroupEntity> findByUser(UserEntity user) {
-		return dao.findByUser(user);
-	}	
-	
+		return dao.find(equal(HomeOrgGroupEntity_.id, id), HomeOrgGroupEntity_.users);
+	}
+
 	@Override
 	protected BaseDao<HomeOrgGroupEntity> getDao() {
 		return dao;
-	}	
+	}
+
 }

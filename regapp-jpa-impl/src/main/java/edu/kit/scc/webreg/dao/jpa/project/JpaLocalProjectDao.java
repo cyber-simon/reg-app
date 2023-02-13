@@ -23,15 +23,16 @@ import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
 @ApplicationScoped
 public class JpaLocalProjectDao extends JpaBaseProjectDao<LocalProjectEntity> implements LocalProjectDao {
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<LocalProjectEntity> findByService(ServiceEntity service) {
-		return em.createQuery("select r.project from LocalProjectEntity r where r.service = :service order by r.project.name")
-			.setParameter("service", service).getResultList();
+		return em.createQuery(
+				"select r.project from LocalProjectEntity r where r.service = :service order by r.project.name",
+				LocalProjectEntity.class).setParameter("service", service).getResultList();
 	}
 
 	@Override
 	public Class<LocalProjectEntity> getEntityClass() {
 		return LocalProjectEntity.class;
 	}
+
 }

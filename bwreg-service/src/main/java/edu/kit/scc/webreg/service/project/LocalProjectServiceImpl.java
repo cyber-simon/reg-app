@@ -48,7 +48,7 @@ public class LocalProjectServiceImpl extends BaseServiceImpl<LocalProjectEntity>
 
 	@Override 
 	public LocalProjectEntity save(LocalProjectEntity project, Long identityId) {
-		IdentityEntity identity = identityDao.findById(identityId);
+		IdentityEntity identity = identityDao.fetch(identityId);
 		
 		return (LocalProjectEntity) creater.create(project, identity);
 	}

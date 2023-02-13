@@ -11,14 +11,11 @@
 package edu.kit.scc.webreg.audit;
 
 import java.util.Date;
-import java.util.List;
 
 import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
 import edu.kit.scc.webreg.service.BaseService;
 
 public interface AuditEntryService extends BaseService<AuditEntryEntity> {
-
-	List<AuditEntryEntity> findAllOlderThan(Date date, int limit);
 
 	void deleteAllOlderThan(Date date, int limit);
 

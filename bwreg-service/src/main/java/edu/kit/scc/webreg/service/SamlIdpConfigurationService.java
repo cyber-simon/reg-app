@@ -20,8 +20,6 @@ public interface SamlIdpConfigurationService extends BaseService<SamlIdpConfigur
 
 	List<SamlIdpConfigurationEntity> findByHostname(String hostname);
 
-	SamlIdpConfigurationEntity findByEntityId(String entityId);
-
 	List<ServiceSamlSpEntity> findBySamlSpAndIdp(SamlIdpConfigurationEntity idpConfig, SamlSpMetadataEntity spMetadata);
 
 }

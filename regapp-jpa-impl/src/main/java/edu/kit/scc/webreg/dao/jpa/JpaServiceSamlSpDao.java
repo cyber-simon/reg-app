@@ -10,62 +10,37 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.and;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 
 import edu.kit.scc.webreg.dao.ServiceSamlSpDao;
 import edu.kit.scc.webreg.entity.SamlIdpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
-import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceSamlSpEntity;
+import edu.kit.scc.webreg.entity.ServiceSamlSpEntity_;
 
 @Named
 @ApplicationScoped
 public class JpaServiceSamlSpDao extends JpaBaseDao<ServiceSamlSpEntity> implements ServiceSamlSpDao {
 
-    @Override
-	public List<ServiceSamlSpEntity> findByService(ServiceEntity service) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<ServiceSamlSpEntity> criteria = builder.createQuery(ServiceSamlSpEntity.class);
-		Root<ServiceSamlSpEntity> root = criteria.from(ServiceSamlSpEntity.class);
-		criteria.where(
-				builder.equal(root.get("service"), service));
-		criteria.select(root);
-		return em.createQuery(criteria).getResultList();
-	}
-
-    @Override
+	@Override
 	public List<ServiceSamlSpEntity> findBySamlSpAndIdp(SamlIdpConfigurationEntity idp, SamlSpMetadataEntity sp) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<ServiceSamlSpEntity> criteria = builder.createQuery(ServiceSamlSpEntity.class);
-		Root<ServiceSamlSpEntity> root = criteria.from(ServiceSamlSpEntity.class);
-		criteria.where(
-				builder.and(
-						builder.equal(root.get("sp"), sp),
-						builder.equal(root.get("idp"), idp)
-				));
-		criteria.select(root);
-		return em.createQuery(criteria).getResultList();
+		return findAll(and(equal(ServiceSamlSpEntity_.idp, idp), equal(ServiceSamlSpEntity_.sp, sp)));
 	}
 
-    @Override
+	@Override
 	public List<ServiceSamlSpEntity> findBySamlSp(SamlSpMetadataEntity sp) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<ServiceSamlSpEntity> criteria = builder.createQuery(ServiceSamlSpEntity.class);
-		Root<ServiceSamlSpEntity> root = criteria.from(ServiceSamlSpEntity.class);
-		criteria.where(
-				builder.equal(root.get("sp"), sp));
-		criteria.select(root);
-		return em.createQuery(criteria).getResultList();
+		return findAll(equal(ServiceSamlSpEntity_.sp, sp));
 	}
 
 	@Override
 	public Class<ServiceSamlSpEntity> getEntityClass() {
 		return ServiceSamlSpEntity.class;
 	}
+
 }

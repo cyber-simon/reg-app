@@ -10,13 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao;
 
-import java.util.List;
-
 import edu.kit.scc.webreg.entity.EventEntity;
-import edu.kit.scc.webreg.entity.EventType;
 
 public interface EventDao extends BaseDao<EventEntity> {
-
-	List<EventEntity> findAllByEventType(EventType eventType);
 
 }

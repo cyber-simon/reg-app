@@ -107,7 +107,7 @@ public class UserCreateServiceImpl implements UserCreateService {
 				samlIdentifier.getPairwiseId(), samlIdentifier.getSubjectId(), samlIdentifier.getAttributeSourcedIdName(),
 				samlIdentifier.getAttributeSourcedId(), idpEntity.getEntityId());
 		
-		idpEntity = idpMetadataService.findById(idpEntity.getId());
+		idpEntity = idpMetadataService.fetch(idpEntity.getId());
 		
 		SamlUserEntity entity = samlUserDao.createNew();
 		entity.setIdp(idpEntity);

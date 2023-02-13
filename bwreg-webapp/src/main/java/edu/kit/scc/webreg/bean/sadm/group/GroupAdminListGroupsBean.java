@@ -48,7 +48,7 @@ public class GroupAdminListGroupsBean implements Serializable {
     
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (serviceEntity == null) {
-			serviceEntity = serviceService.findById(serviceId);
+			serviceEntity = serviceService.fetch(serviceId);
 		}
 	
 		if (! authBean.isUserServiceGroupAdmin(serviceEntity))

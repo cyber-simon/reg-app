@@ -25,14 +25,10 @@ public class EmailTemplateServiceImpl extends BaseServiceImpl<EmailTemplateEntit
 
 	@Inject
 	private EmailTemplateDao dao;
-	
+
 	@Override
 	protected BaseDao<EmailTemplateEntity> getDao() {
 		return dao;
 	}
-	
-	@Override
-	public EmailTemplateEntity findByName(String name) {
-		return dao.findByName(name);
-	}
+
 }

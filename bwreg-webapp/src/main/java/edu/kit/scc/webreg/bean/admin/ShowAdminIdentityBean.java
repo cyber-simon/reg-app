@@ -22,7 +22,6 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.identity.IdentityService;
-import edu.kit.scc.webreg.util.FacesMessageGenerator;
 
 @Named
 @ViewScoped
@@ -31,16 +30,13 @@ public class ShowAdminIdentityBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Inject
-	private FacesMessageGenerator messageGenerator;
-	
-	@Inject
 	private UserService userService;
-	
-    @Inject
-    private IdentityService service;
 
-    private IdentityEntity identity;
-    private List<UserEntity> userList;
+	@Inject
+	private IdentityService service;
+
+	private IdentityEntity identity;
+	private List<UserEntity> userList;
 	private Long id;
 
 	public void preRenderView(ComponentSystemEvent ev) {
@@ -56,7 +52,7 @@ public class ShowAdminIdentityBean implements Serializable {
 
 	public IdentityEntity getIdentity() {
 		if (identity == null) {
-			identity = service.findById(id);
+			identity = service.fetch(id);
 		}
 		return identity;
 	}

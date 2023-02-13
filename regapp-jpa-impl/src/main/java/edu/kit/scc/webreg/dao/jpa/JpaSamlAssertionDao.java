@@ -10,6 +10,9 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
+import static edu.kit.scc.webreg.dao.ops.PaginateBy.withLimit;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -33,19 +36,13 @@ public class JpaSamlAssertionDao extends JpaBaseDao<SamlAssertionEntity> impleme
 
 	@Override
 	public SamlAssertionEntity getLatestByUserId(Long userId) {
-		List<SamlAssertionEntity> assertionList = em.createQuery(
-				"select e from SamlAssertionEntity e " + "where e.user.id = :userId order by e.updatedAt desc",
-				SamlAssertionEntity.class).setParameter("userId", userId).setMaxResults(1).getResultList();
-
-		if (assertionList.size() == 0) {
-			return null;
-		} else {
-			return assertionList.get(0);
-		}
+		List<SamlAssertionEntity> assertionList = findAll(withLimit(1), equal("user.id", userId));
+		return (assertionList.size() == 0) ? null : assertionList.get(0);
 	}
 
 	@Override
 	public Class<SamlAssertionEntity> getEntityClass() {
 		return SamlAssertionEntity.class;
 	}
+
 }

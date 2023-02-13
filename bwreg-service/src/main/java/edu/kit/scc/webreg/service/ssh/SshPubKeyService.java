@@ -26,8 +26,6 @@ public interface SshPubKeyService extends BaseService<SshPubKeyEntity> {
 
 	List<SshPubKeyEntity> findByKey(String encodedKey);
 
-	List<SshPubKeyEntity> findByIdentity(Long identityId);
-
 	List<SshPubKeyEntity> findByIdentityAndStatus(Long identityId, SshPubKeyStatus keyStatus);
 
 	List<SshPubKeyEntity> findByIdentityAndStatusWithRegs(Long identityId, SshPubKeyStatus keyStatus);
@@ -41,9 +39,9 @@ public interface SshPubKeyService extends BaseService<SshPubKeyEntity> {
 	SshPubKeyEntity keyExpirySent(SshPubKeyEntity entity);
 
 	SshPubKeyEntity keyExpiryWarningSent(SshPubKeyEntity entity);
-	
+
 	List<SshPubKeyEntity> findKeysToExpiryWarning(int limit, int days);
 
 	List<SshPubKeyEntity> findKeysToDelete(int limit, int days);
-	
+
 }

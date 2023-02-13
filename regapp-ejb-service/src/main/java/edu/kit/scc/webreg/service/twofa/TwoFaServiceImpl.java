@@ -70,7 +70,7 @@ public class TwoFaServiceImpl implements TwoFaService {
 	
 	@Override
 	public Boolean hasActiveTokenById(Long identityId) throws TwoFaException {
-		IdentityEntity identity = identityDao.findById(identityId);
+		IdentityEntity identity = identityDao.fetch(identityId);
 		
 		return hasActiveToken(identity);
 	}

@@ -66,12 +66,12 @@ public class DeregisterServiceBean implements Serializable {
 
 	public void preRenderView(ComponentSystemEvent ev) {
 	   	if (! initialzed) {
-			registry = registryService.findById(id);
+			registry = registryService.fetch(id);
 			
 			if (registry == null)
 				throw new NotAuthorizedException("No such item");
 	
-			identityEntity = identityService.findById(sessionManager.getIdentityId());
+			identityEntity = identityService.fetch(sessionManager.getIdentityId());
 	
 			if (! registry.getIdentity().getId().equals(identityEntity.getId()))
 				throw new NotAuthorizedException("Not authorized to view this item");

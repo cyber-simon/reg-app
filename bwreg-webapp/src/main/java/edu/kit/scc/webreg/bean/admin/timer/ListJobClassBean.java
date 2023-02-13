@@ -19,6 +19,7 @@ import javax.inject.Named;
 import org.primefaces.model.LazyDataModel;
 
 import edu.kit.scc.webreg.entity.JobClassEntity;
+import edu.kit.scc.webreg.entity.JobClassEntity_;
 import edu.kit.scc.webreg.model.GenericLazyDataModelImpl;
 import edu.kit.scc.webreg.service.JobClassService;
 
@@ -29,18 +30,18 @@ public class ListJobClassBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private LazyDataModel<JobClassEntity> list;
-    
-    @Inject
-    private JobClassService service;
-	
-    public LazyDataModel<JobClassEntity> getList() {
+
+	@Inject
+	private JobClassService service;
+
+	public LazyDataModel<JobClassEntity> getList() {
 		if (list == null) {
-			list = new GenericLazyDataModelImpl<JobClassEntity, JobClassService>(service, "schedules");
+			list = new GenericLazyDataModelImpl<JobClassEntity, JobClassService>(service, JobClassEntity_.schedules);
 		}
-   		return list;
-    }
-    
-    public void delete(JobClassEntity entity) {
-    	service.delete(entity);
-    }
+		return list;
+	}
+
+	public void delete(JobClassEntity entity) {
+		service.delete(entity);
+	}
 }

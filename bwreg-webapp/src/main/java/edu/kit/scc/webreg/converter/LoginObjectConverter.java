@@ -44,10 +44,10 @@ public class LoginObjectConverter implements Converter<BaseEntity>, Serializable
         Long id = Long.decode(value.substring(2));
         Object o;
         if (value.startsWith("i_")) {
-            o = idpService.findById(id);
+            o = idpService.fetch(id);
         }
         else {
-            o = rpService.findById(id);
+            o = rpService.fetch(id);
         }
 		return (BaseEntity) o;
 	}

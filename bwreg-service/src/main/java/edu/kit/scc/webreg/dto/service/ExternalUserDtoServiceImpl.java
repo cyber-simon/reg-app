@@ -1,5 +1,7 @@
 package edu.kit.scc.webreg.dto.service;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -21,6 +23,7 @@ import edu.kit.scc.webreg.dto.mapper.ExternalUserReverseEntityMapper;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.ExternalUserAdminRoleEntity;
 import edu.kit.scc.webreg.entity.ExternalUserEntity;
+import edu.kit.scc.webreg.entity.ExternalUserEntity_;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.event.EventSubmitter;
@@ -31,31 +34,32 @@ import edu.kit.scc.webreg.exc.RestInterfaceException;
 import edu.kit.scc.webreg.exc.UserCreateException;
 
 @Stateless
-public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserEntity, ExternalUserEntityDto> implements ExternalUserDtoService {
+public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserEntity, ExternalUserEntityDto>
+		implements ExternalUserDtoService {
 
 	private static final long serialVersionUID = 1L;
 
 	@Inject
 	private Logger logger;
-	
+
 	@Inject
 	private ExternalUserEntityMapper mapper;
 
 	@Inject
 	private ExternalUserReverseEntityMapper reverseMapper;
-	
+
 	@Inject
 	private ExternalUserDao dao;
 
 	@Inject
 	private SerialDao serialDao;
-	
+
 	@Inject
 	private RoleDao roleDao;
-	
+
 	@Inject
 	private EventSubmitter eventSubmitter;
-	
+
 	@Override
 	public ExternalUserEntityDto findByExternalId(String externalId) throws NoUserFoundException {
 		ExternalUserEntity entity = dao.findByExternalId(externalId);
@@ -67,10 +71,11 @@ public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserE
 	}
 
 	@Override
-	public List<ExternalUserEntityDto> findByAttribute(String key, String value, ExternalUserAdminRoleEntity adminRole) throws NoUserFoundException {
+	public List<ExternalUserEntityDto> findByAttribute(String key, String value, ExternalUserAdminRoleEntity adminRole)
+			throws NoUserFoundException {
 		List<ExternalUserEntity> userList = dao.findByAttribute(key, value, adminRole);
 		List<ExternalUserEntityDto> dtoList = new ArrayList<>();
-		
+
 		for (ExternalUserEntity user : userList) {
 			ExternalUserEntityDto dto = createNewDto();
 			mapper.copyProperties(user, dto);
@@ -78,12 +83,13 @@ public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserE
 		}
 		return dtoList;
 	}
-	
+
 	@Override
-	public List<ExternalUserEntityDto> findByGeneric(String key, String value, ExternalUserAdminRoleEntity adminRole) throws NoUserFoundException {
+	public List<ExternalUserEntityDto> findByGeneric(String key, String value, ExternalUserAdminRoleEntity adminRole)
+			throws NoUserFoundException {
 		List<ExternalUserEntity> userList = dao.findByGeneric(key, value, adminRole);
 		List<ExternalUserEntityDto> dtoList = new ArrayList<>();
-		
+
 		for (ExternalUserEntity user : userList) {
 			ExternalUserEntityDto dto = createNewDto();
 			mapper.copyProperties(user, dto);
@@ -94,9 +100,9 @@ public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserE
 
 	@Override
 	public List<ExternalUserEntityDto> findAll(ExternalUserAdminRoleEntity adminRole) throws NoUserFoundException {
-		List<ExternalUserEntity> userList = dao.findAll(adminRole);
+		List<ExternalUserEntity> userList = dao.findAll(equal(ExternalUserEntity_.admin, adminRole));
 		List<ExternalUserEntityDto> dtoList = new ArrayList<>();
-		
+
 		for (ExternalUserEntity user : userList) {
 			ExternalUserEntityDto dto = createNewDto();
 			mapper.copyProperties(user, dto);
@@ -106,13 +112,14 @@ public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserE
 	}
 
 	@Override
-	public void createExternalUser(ExternalUserEntityDto dto, ExternalUserAdminRoleEntity role) throws RestInterfaceException {
+	public void createExternalUser(ExternalUserEntityDto dto, ExternalUserAdminRoleEntity role)
+			throws RestInterfaceException {
 		ExternalUserEntity entity = dao.findByExternalId(dto.getExternalId());
 		if (entity != null)
 			throw new UserCreateException("user already exists");
-		
-		role = (ExternalUserAdminRoleEntity) roleDao.findById(role.getId());
-		
+
+		role = (ExternalUserAdminRoleEntity) roleDao.fetch(role.getId());
+
 		entity = dao.createNew();
 		reverseMapper.copyProperties(dto, entity);
 		entity.setUidNumber(serialDao.next("uid-number-serial").intValue());
@@ -121,59 +128,59 @@ public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserE
 		entity.setAdmin(role);
 		entity = dao.persist(entity);
 	}
-	
+
 	@Override
-	public void updateExternalUser(ExternalUserEntityDto dto, ExternalUserAdminRoleEntity role) throws RestInterfaceException {
+	public void updateExternalUser(ExternalUserEntityDto dto, ExternalUserAdminRoleEntity role)
+			throws RestInterfaceException {
 		ExternalUserEntity entity = dao.findByExternalId(dto.getExternalId());
 		if (entity == null)
 			throw new NoUserFoundException("no such user");
-		
+
 		if (role.equals(entity.getAdmin())) {
 			reverseMapper.copyProperties(dto, entity);
 			entity.setLastUpdate(new Date());
 			fireUserChangeEvent(entity, "external");
-		}
-		else {
+		} else {
 			throw new UnauthorizedException("You are not authorized to modify this external user");
 		}
 	}
 
 	@Override
-	public void activateExternalUser(String externalId, ExternalUserAdminRoleEntity role) throws RestInterfaceException {
+	public void activateExternalUser(String externalId, ExternalUserAdminRoleEntity role)
+			throws RestInterfaceException {
 		ExternalUserEntity entity = dao.findByExternalId(externalId);
 		if (entity == null)
 			throw new NoUserFoundException("no such user");
 
 		if (role.equals(entity.getAdmin())) {
-			if (! UserStatus.ACTIVE.equals(entity.getUserStatus())) {
+			if (!UserStatus.ACTIVE.equals(entity.getUserStatus())) {
 				entity.setUserStatus(UserStatus.ACTIVE);
 				entity.setLastStatusChange(new Date());
 				fireUserChangeEvent(entity, "external");
 			}
-		}
-		else {
+		} else {
 			throw new UnauthorizedException("You are not authorized to modify this external user");
 		}
 	}
-		
+
 	@Override
-	public void deactivateExternalUser(String externalId, ExternalUserAdminRoleEntity role) throws RestInterfaceException {
+	public void deactivateExternalUser(String externalId, ExternalUserAdminRoleEntity role)
+			throws RestInterfaceException {
 		ExternalUserEntity entity = dao.findByExternalId(externalId);
 		if (entity == null)
 			throw new NoUserFoundException("no such user");
 
 		if (role.equals(entity.getAdmin())) {
-			if (! UserStatus.ON_HOLD.equals(entity.getUserStatus())) {
+			if (!UserStatus.ON_HOLD.equals(entity.getUserStatus())) {
 				entity.setUserStatus(UserStatus.ON_HOLD);
 				entity.setLastStatusChange(new Date());
 				fireUserChangeEvent(entity, "external");
 			}
-		}
-		else {
+		} else {
 			throw new UnauthorizedException("You are not authorized to modify this external user");
 		}
 	}
-		
+
 	@Override
 	protected BaseEntityMapper<ExternalUserEntity, ExternalUserEntityDto> getMapper() {
 		return mapper;
@@ -184,11 +191,10 @@ public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserE
 		return dao;
 	}
 
-
 	protected void fireUserChangeEvent(UserEntity user, String executor) {
-		
+
 		UserEvent userEvent = new UserEvent(user);
-		
+
 		try {
 			eventSubmitter.submit(userEvent, EventType.USER_UPDATE, executor);
 		} catch (EventSubmitException e) {

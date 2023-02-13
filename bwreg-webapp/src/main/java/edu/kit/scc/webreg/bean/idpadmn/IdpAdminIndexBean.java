@@ -36,6 +36,7 @@ import edu.kit.scc.webreg.entity.SamlIdpAdminRoleEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserEntity_;
 import edu.kit.scc.webreg.entity.UserRoleEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.service.RoleService;
@@ -49,40 +50,40 @@ import edu.kit.scc.webreg.session.SessionManager;
 @ViewScoped
 public class IdpAdminIndexBean implements Serializable {
 
- 	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
- 	@Inject
- 	private Logger logger;
- 	
- 	@Inject
- 	private SessionManager session;
- 	
- 	@Inject
- 	private UserService userService;
- 	
- 	@Inject
- 	private IdentityService identityService;
- 	
- 	@Inject
- 	private SamlIdpMetadataService idpService;
+	@Inject
+	private Logger logger;
+
+	@Inject
+	private SessionManager session;
+
+	@Inject
+	private UserService userService;
+
+	@Inject
+	private IdentityService identityService;
+
+	@Inject
+	private SamlIdpMetadataService idpService;
 
 	@Inject
 	private SamlHelper samlHelper;
 
 	@Inject
 	private RoleService roleService;
-	
- 	private IdentityEntity identity;
- 	private List<UserEntity> userList;
- 	private List<SamlIdpMetadataEntity> idpList;
- 	
- 	private SamlIdpMetadataEntity selectedIdp;
- 	private SamlIdpMetadataEntity idp;
+
+	private IdentityEntity identity;
+	private List<UserEntity> userList;
+	private List<SamlIdpMetadataEntity> idpList;
+
+	private SamlIdpMetadataEntity selectedIdp;
+	private SamlIdpMetadataEntity idp;
 	private EntityDescriptor entityDescriptor;
 	private IDPSSODescriptor idpssoDescriptor;
 
 	private Map<KeyDescriptor, List<java.security.cert.X509Certificate>> certMap;
- 	
+
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (selectedIdp == null && getIdpList().size() > 0) {
 			selectedIdp = getIdpList().get(0);
@@ -91,7 +92,7 @@ public class IdpAdminIndexBean implements Serializable {
 
 	public IdentityEntity getIdentity() {
 		if (identity == null) {
-			identity = identityService.findById(session.getIdentityId());
+			identity = identityService.fetch(session.getIdentityId());
 		}
 		return identity;
 	}
@@ -100,7 +101,8 @@ public class IdpAdminIndexBean implements Serializable {
 		if (userList == null) {
 			userList = new ArrayList<UserEntity>();
 			for (UserEntity user : userService.findByIdentity(getIdentity())) {
-				userList.add(userService.findByIdWithAttrs(user.getId(), "attributeStore", "roles"));
+				userList.add(
+						userService.findByIdWithAttrs(user.getId(), UserEntity_.attributeStore, UserEntity_.roles));
 			}
 		}
 		return userList;
@@ -110,19 +112,20 @@ public class IdpAdminIndexBean implements Serializable {
 		if (idpList == null) {
 			idpList = new ArrayList<SamlIdpMetadataEntity>();
 			for (UserEntity user : getUserList()) {
-				if (user instanceof SamlUserEntity &&
-						user.getAttributeStore().containsKey("urn:oid:1.3.6.1.4.1.5923.1.1.1.7") &&
-						user.getAttributeStore().get("urn:oid:1.3.6.1.4.1.5923.1.1.1.7").contains("urn:geant:kit.edu:res:fels:idp-admin")) {
+				if (user instanceof SamlUserEntity
+						&& user.getAttributeStore().containsKey("urn:oid:1.3.6.1.4.1.5923.1.1.1.7")
+						&& user.getAttributeStore().get("urn:oid:1.3.6.1.4.1.5923.1.1.1.7")
+								.contains("urn:geant:kit.edu:res:fels:idp-admin")) {
 					idpList.add(((SamlUserEntity) user).getIdp());
 				}
-				
+
 				for (UserRoleEntity role : user.getRoles()) {
 					if (role.getRole() instanceof SamlIdpAdminRoleEntity) {
 						idpList.addAll(roleService.findIdpsForRole(role.getRole()));
 					}
 				}
 			}
-		}		
+		}
 		return idpList;
 	}
 
@@ -131,20 +134,21 @@ public class IdpAdminIndexBean implements Serializable {
 	}
 
 	public void setSelectedIdp(SamlIdpMetadataEntity selectedIdp) {
-		if (selectedIdp != null && (! selectedIdp.equals(this.selectedIdp))) {
+		if (selectedIdp != null && (!selectedIdp.equals(this.selectedIdp))) {
 			idp = null;
 			this.selectedIdp = selectedIdp;
 		}
 	}
-	
+
 	public SamlIdpMetadataEntity getIdp() {
-		if (idp == null || (! idp.equals(getSelectedIdp()))) {
+		if (idp == null || (!idp.equals(getSelectedIdp()))) {
 			idp = idpService.findByIdWithAll(getSelectedIdp().getId());
 			certMap = new HashMap<KeyDescriptor, List<java.security.cert.X509Certificate>>();
-			
+
 			entityDescriptor = samlHelper.unmarshal(idp.getEntityDescriptor(), EntityDescriptor.class);
-			idpssoDescriptor = (IDPSSODescriptor) entityDescriptor.getRoleDescriptors(IDPSSODescriptor.DEFAULT_ELEMENT_NAME).get(0);
-			
+			idpssoDescriptor = (IDPSSODescriptor) entityDescriptor
+					.getRoleDescriptors(IDPSSODescriptor.DEFAULT_ELEMENT_NAME).get(0);
+
 		}
 		return idp;
 	}
@@ -152,10 +156,10 @@ public class IdpAdminIndexBean implements Serializable {
 	public List<java.security.cert.X509Certificate> getCert(KeyDescriptor kd) {
 		if (kd == null)
 			return null;
-		
+
 		if (certMap.containsKey(kd))
 			return certMap.get(kd);
-		
+
 		List<java.security.cert.X509Certificate> certList = new ArrayList<java.security.cert.X509Certificate>();
 		KeyInfo keyInfo = kd.getKeyInfo();
 
@@ -168,8 +172,8 @@ public class IdpAdminIndexBean implements Serializable {
 				try {
 					String certValue = x509cert.getValue();
 					byte[] certBytes = Base64.decodeBase64(certValue.getBytes());
-					java.security.cert.X509Certificate crt = (java.security.cert.X509Certificate) 
-							CertificateFactory.getInstance("X.509").generateCertificate(new ByteArrayInputStream(certBytes));
+					java.security.cert.X509Certificate crt = (java.security.cert.X509Certificate) CertificateFactory
+							.getInstance("X.509").generateCertificate(new ByteArrayInputStream(certBytes));
 					certList.add(crt);
 				} catch (Exception e) {
 					String cause = "";
@@ -179,9 +183,9 @@ public class IdpAdminIndexBean implements Serializable {
 				}
 			}
 		}
-		
+
 		certMap.put(kd, certList);
-		
+
 		return certList;
 	}
 
@@ -192,5 +196,5 @@ public class IdpAdminIndexBean implements Serializable {
 	public IDPSSODescriptor getIdpssoDescriptor() {
 		return idpssoDescriptor;
 	}
-	
+
 }

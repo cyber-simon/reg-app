@@ -30,20 +30,20 @@ public class ApplicationConfig implements Serializable {
 
 	@Inject
 	private Logger logger;
-	
+
 	@Inject
 	private ApplicationConfigDao dao;
-	
-	private ApplicationConfigEntity appConfig; 
-	
+
+	private ApplicationConfigEntity appConfig;
+
 	private Date lastLoad;
-	
+
 	private Map<String, String> localeMap;
-	
+
 	public void init() {
 		logger.debug("Checking for Active Configuration");
 		appConfig = dao.findActive();
-		
+
 		if (appConfig == null) {
 			logger.info("No active configuration found. Creating new config");
 			appConfig = dao.createNew();
@@ -53,59 +53,54 @@ public class ApplicationConfig implements Serializable {
 			appConfig.setConfigOptions(new HashMap<String, String>());
 			appConfig = dao.persist(appConfig);
 		}
-		
+
 		lastLoad = new Date();
-		
+
 		localeMap = new HashMap<String, String>();
 		localeMap.put("en", "English");
 		localeMap.put("de", "Deutsch");
 		localeMap.put("fr", "Francais");
 	}
-	
+
 	public boolean reload() {
 		ApplicationConfigEntity newAppConfig = dao.findReloadActive(lastLoad);
-		
-		if (newAppConfig != null) {
+		boolean reload = newAppConfig != null;
+		if (reload) {
 			logger.info("Reloading Application Configuration");
 			appConfig = newAppConfig;
-			
 			lastLoad = new Date();
-			return true;
 		}
-		else {
-			return false;
-		}
+		return reload;
 	}
-	
+
 	public void scheduleReload() {
 		appConfig.setDirtyStamp(new Date());
 		appConfig = dao.persist(appConfig);
 	}
-	
+
 	public String getConfigValue(String key) {
 		return appConfig.getConfigOptions().get(key);
 	}
-	
+
 	public String getConfigValueOrDefault(String key, String defaultValue) {
 		if (appConfig.getConfigOptions().containsKey(key)) {
 			return getConfigValue(key);
-		}
-		else {
+		} else {
 			return defaultValue;
 		}
 	}
-	
+
 	public String deleteConfigValue(String key) {
 		String value = appConfig.getConfigOptions().remove(key);
 		appConfig = dao.persist(appConfig);
 		return value;
 	}
-	
+
 	public void storeConfigValue(String key, String value) {
 		appConfig.getConfigOptions().put(key, value);
 		appConfig = dao.persist(appConfig);
 	}
-	
+
 	public Map<String, String> getConfigOptions() {
 		return appConfig.getConfigOptions();
 	}
@@ -113,7 +108,7 @@ public class ApplicationConfig implements Serializable {
 	public Date getLastLoad() {
 		return lastLoad;
 	}
-	
+
 	public Date getNextScheduledReload() {
 		return appConfig.getDirtyStamp();
 	}

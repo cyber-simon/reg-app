@@ -10,15 +10,12 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.impl;
 
-import java.util.List;
-
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import edu.kit.scc.webreg.dao.AdminRoleDao;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.entity.AdminRoleEntity;
-import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.service.AdminRoleService;
 
 @Stateless
@@ -28,24 +25,10 @@ public class AdminRoleServiceImpl extends BaseServiceImpl<AdminRoleEntity> imple
 
 	@Inject
 	private AdminRoleDao dao;
-	
-	@Override
-	public List<AdminRoleEntity> findWithServices(UserEntity user) {
-		return dao.findWithServices(user);
-	}
-	
-	@Override
-	public AdminRoleEntity findWithUsers(Long id) {
-		return dao.findWithUsers(id);
-	}
-	
-	@Override
-	public AdminRoleEntity findByName(String name) {
-		return dao.findByName(name);
-	}
 
 	@Override
 	protected BaseDao<AdminRoleEntity> getDao() {
 		return dao;
 	}
+
 }

@@ -83,7 +83,7 @@ public class GroupAdminEditLocalGroupBean implements Serializable {
 	
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
-			serviceEntity = serviceService.findById(serviceId);
+			serviceEntity = serviceService.fetch(serviceId);
 			entity = service.findWithUsersAndChildren(groupId);
 			userList = new GenericLazyDataModelImpl<UserEntity, UserService>(userService);
 			groupList = new GenericLazyDataModelImpl<GroupEntity, GroupService>(allGroupService);

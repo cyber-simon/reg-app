@@ -16,6 +16,4 @@ public interface SamlAAConfigurationDao extends BaseDao<SamlAAConfigurationEntit
 
 	SamlAAConfigurationEntity findByHostname(String hostname);
 
-	SamlAAConfigurationEntity findByEntityId(String entityId);
-
 }

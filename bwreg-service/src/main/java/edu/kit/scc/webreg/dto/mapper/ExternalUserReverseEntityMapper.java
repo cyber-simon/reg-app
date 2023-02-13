@@ -40,7 +40,7 @@ public class ExternalUserReverseEntityMapper extends AbstractBaseReverseEntityMa
 		}
 		
 		if (fromDtoEntity.getPrimaryGroup() != null && fromDtoEntity.getPrimaryGroup().getId() != null) {
-			GroupEntity group = groupDao.findById(fromDtoEntity.getPrimaryGroup().getId());
+			GroupEntity group = groupDao.fetch(fromDtoEntity.getPrimaryGroup().getId());
 			if (group == null) {
 				throw new NoUserFoundException("no such group");
 			}

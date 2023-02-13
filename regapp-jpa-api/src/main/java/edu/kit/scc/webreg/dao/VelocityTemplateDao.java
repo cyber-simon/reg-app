@@ -14,6 +14,4 @@ import edu.kit.scc.webreg.entity.VelocityTemplateEntity;
 
 public interface VelocityTemplateDao extends BaseDao<VelocityTemplateEntity> {
 
-	VelocityTemplateEntity findByName(String name);
-
 }

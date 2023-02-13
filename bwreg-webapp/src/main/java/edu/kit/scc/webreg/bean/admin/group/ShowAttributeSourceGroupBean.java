@@ -23,6 +23,7 @@ import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserGroupEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceGroupEntity;
+import edu.kit.scc.webreg.entity.as.AttributeSourceGroupEntity_;
 import edu.kit.scc.webreg.service.AttributeSourceGroupService;
 import edu.kit.scc.webreg.service.GroupService;
 import edu.kit.scc.webreg.service.ServiceGroupFlagService;
@@ -35,7 +36,7 @@ public class ShowAttributeSourceGroupBean implements Serializable {
 
 	@Inject
 	private GroupService service;
-	
+
 	@Inject
 	private AttributeSourceGroupService groupService;
 
@@ -51,12 +52,12 @@ public class ShowAttributeSourceGroupBean implements Serializable {
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
-			entity = groupService.findByIdWithAttrs(id, "users");
+			entity = groupService.findByIdWithAttrs(id, AttributeSourceGroupEntity_.users);
 			groupFlagList = groupFlagService.findByGroup(entity);
 			memberList = new ArrayList<UserEntity>();
 			for (UserGroupEntity ug : entity.getUsers()) {
 				memberList.add(ug.getUser());
-			}			
+			}
 		}
 	}
 
@@ -64,7 +65,7 @@ public class ShowAttributeSourceGroupBean implements Serializable {
 		entity = (AttributeSourceGroupEntity) service.persistWithServiceFlags(entity);
 		groupFlagList = groupFlagService.findByGroup(entity);
 	}
-	
+
 	public AttributeSourceGroupEntity getEntity() {
 		return entity;
 	}

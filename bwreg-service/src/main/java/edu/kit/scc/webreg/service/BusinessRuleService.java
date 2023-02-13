@@ -10,18 +10,16 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service;
 
-import java.util.Date;
 import java.util.List;
 
 import edu.kit.scc.webreg.entity.BusinessRuleEntity;
 
 public interface BusinessRuleService extends BaseService<BusinessRuleEntity> {
 
-	List<BusinessRuleEntity> findAllNewer(Date date);
-
 	List<BusinessRuleEntity> findAllKnowledgeBaseNotNull();
 
 	void replaceRegexSingle(Long ruleId, String regex, String replace);
 
 	void replaceRegex(String regex, String replace);
+
 }

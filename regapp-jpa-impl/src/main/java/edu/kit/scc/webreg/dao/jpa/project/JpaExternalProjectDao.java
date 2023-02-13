@@ -10,17 +10,23 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa.project;
 
+import static edu.kit.scc.webreg.dao.ops.PaginateBy.unlimited;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+import static edu.kit.scc.webreg.dao.ops.SortBy.ascendingBy;
+
 import java.util.List;
 
 import edu.kit.scc.webreg.dao.project.ExternalProjectDao;
 import edu.kit.scc.webreg.entity.project.ExternalProjectEntity;
+import edu.kit.scc.webreg.entity.project.ExternalProjectEntity_;
 
-public abstract class JpaExternalProjectDao<T extends ExternalProjectEntity> extends JpaBaseProjectDao<T> implements ExternalProjectDao<T> {
+public abstract class JpaExternalProjectDao<T extends ExternalProjectEntity> extends JpaBaseProjectDao<T>
+		implements ExternalProjectDao<T> {
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<T> findByExternalName(String externalName) {
-		return em.createQuery("select r from ExternalProjectEntity r where r.externalName = :externalName order by r.name")
-			.setParameter("externalName", externalName).getResultList();
+		return findAll(unlimited(), ascendingBy(ExternalProjectEntity_.name),
+				equal(ExternalProjectEntity_.externalName, externalName));
 	}
+
 }

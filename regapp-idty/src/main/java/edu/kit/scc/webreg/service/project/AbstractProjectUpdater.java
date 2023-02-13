@@ -190,7 +190,7 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 		
 	public void updateServices(ProjectEntity project, Set<ServiceEntity> serviceList, ProjectServiceType type, 
 			ProjectServiceStatusType status, String executor) {
-		project = getDao().findById(project.getId());
+		project = getDao().fetch(project.getId());
 		updateServices(project, serviceList, type, status, executor, 0, 3);
 	}
 	

@@ -20,6 +20,7 @@ import javax.inject.Named;
 import org.primefaces.model.LazyDataModel;
 
 import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
+import edu.kit.scc.webreg.entity.BusinessRulePackageEntity_;
 import edu.kit.scc.webreg.model.GenericLazyDataModelImpl;
 import edu.kit.scc.webreg.service.BusinessRulePackageService;
 import edu.kit.scc.webreg.service.BusinessRuleService;
@@ -31,29 +32,30 @@ public class ListBusinessRuleBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private LazyDataModel<BusinessRulePackageEntity> list;
-    
+
 	private String regex;
 	private String replace;
-	
-    @Inject
-    private BusinessRulePackageService service;
 
-    @Inject
-    private BusinessRuleService businessRuleService;
+	@Inject
+	private BusinessRulePackageService service;
+
+	@Inject
+	private BusinessRuleService businessRuleService;
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (list == null) {
-			list = new GenericLazyDataModelImpl<BusinessRulePackageEntity, BusinessRulePackageService>(service, "rules");
+			list = new GenericLazyDataModelImpl<BusinessRulePackageEntity, BusinessRulePackageService>(service,
+					BusinessRulePackageEntity_.rules);
 		}
 	}
 
-    public LazyDataModel<BusinessRulePackageEntity> getList() {
-   		return list;
-    }
+	public LazyDataModel<BusinessRulePackageEntity> getList() {
+		return list;
+	}
 
-    public void regexReplace() {
-    	businessRuleService.replaceRegex(regex, replace);
-    }
+	public void regexReplace() {
+		businessRuleService.replaceRegex(regex, replace);
+	}
 
 	public String getRegex() {
 		return regex;

@@ -35,8 +35,11 @@ import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserEntity_;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
+import edu.kit.scc.webreg.entity.as.ASUserAttrEntity_;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
+import edu.kit.scc.webreg.entity.as.AttributeSourceEntity_;
 import edu.kit.scc.webreg.entity.audit.AuditUserEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
@@ -109,7 +112,7 @@ public class ShowUserBean implements Serializable {
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (user == null) {
-			user = userService.findByIdWithAttrs(id, "genericStore", "attributeStore");
+			user = userService.findByIdWithAttrs(id, UserEntity_.genericStore, UserEntity_.attributeStore);
 		}
 	}
 
@@ -252,9 +255,9 @@ public class ShowUserBean implements Serializable {
 	}
 
 	public void setSelectedUserAttr(ASUserAttrEntity selectedUserAttr) {
-		selectedUserAttr = asUserAttrService.findByIdWithAttrs(selectedUserAttr.getId(), "values");
-		selectedAttributeSource = attributeSourceService
-				.findByIdWithAttrs(selectedUserAttr.getAttributeSource().getId(), "attributeSourceServices");
+		selectedUserAttr = asUserAttrService.findByIdWithAttrs(selectedUserAttr.getId(), ASUserAttrEntity_.values);
+		selectedAttributeSource = attributeSourceService.findByIdWithAttrs(
+				selectedUserAttr.getAttributeSource().getId(), AttributeSourceEntity_.attributeSourceServices);
 		this.selectedUserAttr = selectedUserAttr;
 	}
 

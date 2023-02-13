@@ -18,10 +18,9 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.slf4j.Logger;
-
 import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectGroupEntity;
+import edu.kit.scc.webreg.entity.project.LocalProjectGroupEntity_;
 import edu.kit.scc.webreg.service.GroupService;
 import edu.kit.scc.webreg.service.ServiceGroupFlagService;
 
@@ -32,18 +31,15 @@ public class ShowLocalProjectGroupBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Inject
-	private Logger logger;
-	
-	@Inject
 	private GroupService groupService;
-	
+
 	@Inject
 	private ServiceGroupFlagService groupFlagService;
-	
+
 	private LocalProjectGroupEntity entity;
 
 	private List<ServiceGroupFlagEntity> groupFlagList;
-	
+
 	private Long id;
 
 	public void preRenderView(ComponentSystemEvent ev) {
@@ -66,7 +62,7 @@ public class ShowLocalProjectGroupBean implements Serializable {
 
 	public LocalProjectGroupEntity getEntity() {
 		if (entity == null) {
-			entity = (LocalProjectGroupEntity) groupService.findByIdWithAttrs(id, "users");
+			entity = (LocalProjectGroupEntity) groupService.findByIdWithAttrs(id, LocalProjectGroupEntity_.users);
 		}
 		return entity;
 	}

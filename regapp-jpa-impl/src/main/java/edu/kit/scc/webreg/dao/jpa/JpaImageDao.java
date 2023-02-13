@@ -12,10 +12,6 @@ package edu.kit.scc.webreg.dao.jpa;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
-import javax.persistence.NoResultException;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 
 import edu.kit.scc.webreg.dao.ImageDao;
 import edu.kit.scc.webreg.entity.ImageEntity;
@@ -24,43 +20,9 @@ import edu.kit.scc.webreg.entity.ImageEntity;
 @ApplicationScoped
 public class JpaImageDao extends JpaBaseDao<ImageEntity> implements ImageDao {
 
-    @Override
-	public ImageEntity findByName(String name) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<ImageEntity> criteria = builder.createQuery(ImageEntity.class);
-		Root<ImageEntity> root = criteria.from(ImageEntity.class);
-		criteria.where(
-				builder.equal(root.get("name"), name));
-		criteria.select(root);
-		
-		try {
-			return em.createQuery(criteria).getSingleResult();
-		}
-		catch (NoResultException e) {
-			return null;
-		}
-	}	
-
-	@Override
-	public ImageEntity findByIdWithData(Long id) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<ImageEntity> criteria = builder.createQuery(ImageEntity.class);
-		Root<ImageEntity> root = criteria.from(ImageEntity.class);
-		criteria.where(
-				builder.equal(root.get("id"), id));
-		criteria.select(root);
-		root.fetch("imageData");
-
-		try {
-			return em.createQuery(criteria).getSingleResult();
-		}
-		catch (NoResultException e) {
-			return null;
-		}
-	}	
-	
 	@Override
 	public Class<ImageEntity> getEntityClass() {
 		return ImageEntity.class;
 	}
+
 }

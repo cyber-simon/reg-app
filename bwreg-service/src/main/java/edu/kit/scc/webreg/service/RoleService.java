@@ -28,8 +28,6 @@ public interface RoleService extends BaseService<RoleEntity> {
 
 	void addUserToRole(UserEntity user, String roleName);
 
-	List<RoleEntity> findByUserId(Long userId);
-
 	void removeUserFromRole(UserEntity user, String roleName);
 
 	Boolean checkUserInRole(Long userId, String roleName);
@@ -46,11 +44,10 @@ public interface RoleService extends BaseService<RoleEntity> {
 
 	void removeGroupFromRole(GroupEntity group, RoleEntity role);
 
-	List<RoleEntity> findByUserIdList(List<Long> userIdList);
-
 	List<RoleEntity> findByIdentityId(Long identityId);
 
 	Boolean checkIdentityInRole(Long identityId, String roleName);
-	
+
 	List<SamlIdpMetadataEntity> findIdpsForRole(RoleEntity role);
+
 }

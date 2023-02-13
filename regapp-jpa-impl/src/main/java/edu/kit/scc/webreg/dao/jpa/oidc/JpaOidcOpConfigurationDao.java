@@ -10,12 +10,11 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa.oidc;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.and;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
-import javax.persistence.NoResultException;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 
 import edu.kit.scc.webreg.dao.jpa.JpaBaseDao;
 import edu.kit.scc.webreg.dao.oidc.OidcOpConfigurationDao;
@@ -27,39 +26,14 @@ import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity_;
 public class JpaOidcOpConfigurationDao extends JpaBaseDao<OidcOpConfigurationEntity> implements OidcOpConfigurationDao {
 
 	@Override
-	public OidcOpConfigurationEntity findByRealm(String realm) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<OidcOpConfigurationEntity> criteria = builder.createQuery(OidcOpConfigurationEntity.class);
-		Root<OidcOpConfigurationEntity> root = criteria.from(OidcOpConfigurationEntity.class);
-		criteria.where(builder.equal(root.get(OidcOpConfigurationEntity_.realm), realm));
-		criteria.select(root);
-		try {
-			return em.createQuery(criteria).getSingleResult();
-		} catch (NoResultException e) {
-			return null;
-		}
-	}	
-	
-	@Override
 	public OidcOpConfigurationEntity findByRealmAndHost(String realm, String host) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<OidcOpConfigurationEntity> criteria = builder.createQuery(OidcOpConfigurationEntity.class);
-		Root<OidcOpConfigurationEntity> root = criteria.from(OidcOpConfigurationEntity.class);
-		criteria.where(builder.and(
-				builder.equal(root.get(OidcOpConfigurationEntity_.realm), realm),
-				builder.equal(root.get(OidcOpConfigurationEntity_.host), host)
-				));
-				
-		criteria.select(root);
-		try {
-			return em.createQuery(criteria).getSingleResult();
-		} catch (NoResultException e) {
-			return null;
-		}
-	}	
-	
+		return find(
+				and(equal(OidcOpConfigurationEntity_.realm, realm), equal(OidcOpConfigurationEntity_.host, host)));
+	}
+
 	@Override
 	public Class<OidcOpConfigurationEntity> getEntityClass() {
 		return OidcOpConfigurationEntity.class;
 	}
+
 }

@@ -20,7 +20,9 @@ import javax.inject.Named;
 
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
+import edu.kit.scc.webreg.entity.as.ASUserAttrEntity_;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
+import edu.kit.scc.webreg.entity.as.AttributeSourceEntity_;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.service.ASUserAttrService;
 import edu.kit.scc.webreg.service.AttributeSourceService;
@@ -37,32 +39,32 @@ public class UserAttributeSourcesBean implements Serializable {
 	private IdentityEntity identity;
 	private List<UserEntity> userList;
 	private UserEntity selectedUser;
-	
+
 	private List<ASUserAttrEntity> userAttrList;
 	private ASUserAttrEntity selectedUserAttr;
 	private AttributeSourceEntity selectedAttributeSource;
-	
+
 	@Inject
 	private UserService userService;
-    
+
 	@Inject
 	private IdentityService identityService;
-    
-    @Inject
-    private ASUserAttrService asUserAttrService;
 
-    @Inject
-    private AttributeSourceService attributeSourceService;
-    
-    @Inject 
-    private SessionManager sessionManager;
+	@Inject
+	private ASUserAttrService asUserAttrService;
+
+	@Inject
+	private AttributeSourceService attributeSourceService;
+
+	@Inject
+	private SessionManager sessionManager;
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (identity == null) {
-			identity = identityService.findById(sessionManager.getIdentityId());
+			identity = identityService.fetch(sessionManager.getIdentityId());
 			userList = userService.findByIdentity(identity);
 			selectedUser = userList.get(0);
-	    	userAttrList = asUserAttrService.findForUser(selectedUser);
+			userAttrList = asUserAttrService.findForUser(selectedUser);
 		}
 	}
 
@@ -79,9 +81,9 @@ public class UserAttributeSourcesBean implements Serializable {
 	}
 
 	public void setSelectedUserAttr(ASUserAttrEntity selectedUserAttr) {
-		selectedUserAttr = asUserAttrService.findByIdWithAttrs(selectedUserAttr.getId(), "values");
+		selectedUserAttr = asUserAttrService.findByIdWithAttrs(selectedUserAttr.getId(), ASUserAttrEntity_.values);
 		selectedAttributeSource = attributeSourceService.findByIdWithAttrs(
-				selectedUserAttr.getAttributeSource().getId(), "attributeSourceServices");
+				selectedUserAttr.getAttributeSource().getId(), AttributeSourceEntity_.attributeSourceServices);
 		this.selectedUserAttr = selectedUserAttr;
 	}
 

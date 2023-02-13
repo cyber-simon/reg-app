@@ -48,7 +48,7 @@ public class EditScriptBean implements Serializable {
 
 	public ScriptEntity getEntity() {
 		if (entity == null) {
-			entity = service.findById(id);
+			entity = service.fetch(id);
 		}
 		
 		return entity;

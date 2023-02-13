@@ -62,7 +62,7 @@ public class ServiceAdminUserListDeproBean implements Serializable {
     
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (serviceEntity == null) {
-			serviceEntity = serviceService.findById(serviceId);
+			serviceEntity = serviceService.fetch(serviceId);
 			deproList = service.findRegistriesForDepro(serviceEntity.getShortName());
 
 		}

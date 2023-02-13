@@ -45,7 +45,7 @@ public class OidcClientRedirectServiceImpl implements OidcClientRedirectService 
 	@Override
 	public void redirectClient(Long oidcRelyingPartyId, HttpServletRequest servletRequest, HttpServletResponse response) throws OidcAuthenticationException {
 		
-		OidcRpConfigurationEntity rpConfig = rpConfigDao.findById(oidcRelyingPartyId);
+		OidcRpConfigurationEntity rpConfig = rpConfigDao.fetch(oidcRelyingPartyId);
 		
 		if (rpConfig == null) {
 			throw new OidcAuthenticationException("relying party not configured");

@@ -14,6 +14,4 @@ import edu.kit.scc.webreg.entity.EmailTemplateEntity;
 
 public interface EmailTemplateService extends BaseService<EmailTemplateEntity> {
 
-	EmailTemplateEntity findByName(String name);
-
 }

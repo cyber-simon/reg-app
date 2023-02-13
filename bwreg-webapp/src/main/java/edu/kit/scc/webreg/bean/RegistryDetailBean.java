@@ -76,7 +76,7 @@ public class RegistryDetailBean implements Serializable {
 	
 	public void preRenderView(ComponentSystemEvent ev) {
     	if (! initialzed) {
-			entity = service.findById(id);
+			entity = service.fetch(id);
 			
 			if ((System.currentTimeMillis() - entity.getAgreedTime().getTime()) < 5L * 60L * 1000L) {
 				newRegistry = true;
@@ -86,7 +86,7 @@ public class RegistryDetailBean implements Serializable {
 				throw new NotAuthorizedException("No such item");
 			
 			serviceEntity = serviceService.findByIdWithServiceProps(entity.getService().getId());
-			identityEntity = identityService.findById(sessionManager.getIdentityId());
+			identityEntity = identityService.fetch(sessionManager.getIdentityId());
 			
 			if (! entity.getIdentity().getId().equals(identityEntity.getId()))
 				throw new NotAuthorizedException("Not authorized to view this item");

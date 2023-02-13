@@ -151,10 +151,10 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 	public String resumeAuthnRequest(Long authnRequestId, Long identityId, Long authnRequestIdpConfigId,
 			String relayState, HttpServletResponse response) throws SamlAuthenticationException {
 		
-		SamlIdpConfigurationEntity idpConfig = idpConfigDao.findById(authnRequestIdpConfigId);
+		SamlIdpConfigurationEntity idpConfig = idpConfigDao.fetch(authnRequestIdpConfigId);
 		logger.debug("IDP Config loaded: {}", idpConfig.getEntityId());
 		
-		IdentityEntity identity = identityDao.findById(identityId);
+		IdentityEntity identity = identityDao.fetch(identityId);
 		logger.debug("Identity loaded: {}", identity.getId());
 
 		// First user object picked for now
@@ -162,7 +162,7 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 		List<UserEntity> userList = userDao.findByIdentity(identity);
 		UserEntity user = userList.get(0);
 		
-		SamlAuthnRequestEntity authnRequestEntity = samlAuthnRequestDao.findById(authnRequestId);
+		SamlAuthnRequestEntity authnRequestEntity = samlAuthnRequestDao.fetch(authnRequestId);
 		AuthnRequest authnRequest = samlHelper.unmarshal(authnRequestEntity.getAuthnrequestData(), AuthnRequest.class);
 		
 		logger.debug("Authn request reloaded: {}", samlHelper.prettyPrint(authnRequest));

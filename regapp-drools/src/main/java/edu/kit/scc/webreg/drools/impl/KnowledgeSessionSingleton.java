@@ -335,7 +335,7 @@ public class KnowledgeSessionSingleton {
 
 		
 		if (withCache) {
-			service = serviceDao.findById(service.getId());
+			service = serviceDao.fetch(service.getId());
 
 			// Default expiry Time after which an registry is checked
 			Long expireTime = 10000L;
@@ -440,7 +440,7 @@ public class KnowledgeSessionSingleton {
 		
 		Map<RegistryEntity, List<Object>> returnMap = new HashMap<RegistryEntity, List<Object>>();
 		
-		user = userDao.findById(user.getId());
+		user = userDao.fetch(user.getId());
 
 		for (RegistryEntity registry : registryList) {
 			ServiceEntity service = registry.getService();

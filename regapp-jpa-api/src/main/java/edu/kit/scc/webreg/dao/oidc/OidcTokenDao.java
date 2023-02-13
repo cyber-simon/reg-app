@@ -11,13 +11,8 @@
 package edu.kit.scc.webreg.dao.oidc;
 
 import edu.kit.scc.webreg.dao.BaseDao;
-import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcTokenEntity;
 
 public interface OidcTokenDao extends BaseDao<OidcTokenEntity> {
-
-	void deleteTokenForUser(UserEntity user);
-
-	OidcTokenEntity findByUserId(Long userId);
 
 }

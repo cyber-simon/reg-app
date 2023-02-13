@@ -10,12 +10,11 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa.oidc;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.and;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
-import javax.persistence.NoResultException;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 
 import edu.kit.scc.webreg.dao.jpa.JpaBaseDao;
 import edu.kit.scc.webreg.dao.oidc.OidcClientConfigurationDao;
@@ -25,29 +24,18 @@ import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
 
 @Named
 @ApplicationScoped
-public class JpaOidcClientConfigurationDao extends JpaBaseDao<OidcClientConfigurationEntity> implements OidcClientConfigurationDao {
+public class JpaOidcClientConfigurationDao extends JpaBaseDao<OidcClientConfigurationEntity>
+		implements OidcClientConfigurationDao {
 
 	@Override
 	public OidcClientConfigurationEntity findByNameAndOp(String name, OidcOpConfigurationEntity opConfiguration) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<OidcClientConfigurationEntity> criteria = builder.createQuery(OidcClientConfigurationEntity.class);
-		Root<OidcClientConfigurationEntity> root = criteria.from(OidcClientConfigurationEntity.class);
-		criteria.where(
-			builder.and(
-					builder.equal(root.get(OidcClientConfigurationEntity_.name), name),
-					builder.equal(root.get(OidcClientConfigurationEntity_.opConfiguration), opConfiguration)
-			)
-		);
-		criteria.select(root);
-		try {
-			return em.createQuery(criteria).getSingleResult();
-		} catch (NoResultException e) {
-			return null;
-		}
+		return find(and(equal(OidcClientConfigurationEntity_.name, name),
+				equal(OidcClientConfigurationEntity_.opConfiguration, opConfiguration)));
 	}
 
 	@Override
 	public Class<OidcClientConfigurationEntity> getEntityClass() {
 		return OidcClientConfigurationEntity.class;
 	}
+
 }

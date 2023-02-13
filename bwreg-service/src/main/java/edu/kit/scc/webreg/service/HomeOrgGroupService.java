@@ -10,16 +10,9 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service;
 
-import java.util.List;
-
 import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;
-import edu.kit.scc.webreg.entity.UserEntity;
 
 public interface HomeOrgGroupService extends BaseService<HomeOrgGroupEntity> {
-
-	HomeOrgGroupEntity findByName(String name);
-
-	List<HomeOrgGroupEntity> findByUser(UserEntity user);
 
 	HomeOrgGroupEntity findWithUsers(Long id);
 

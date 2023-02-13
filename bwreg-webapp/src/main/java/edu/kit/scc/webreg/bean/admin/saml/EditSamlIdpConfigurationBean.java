@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import edu.kit.scc.webreg.entity.SamlIdpConfigurationEntity;
+import edu.kit.scc.webreg.entity.SamlIdpConfigurationEntity_;
 import edu.kit.scc.webreg.service.SamlIdpConfigurationService;
 
 @Named
@@ -30,22 +31,22 @@ public class EditSamlIdpConfigurationBean implements Serializable {
 
 	@Inject
 	private SamlIdpConfigurationService service;
-	
+
 	private SamlIdpConfigurationEntity entity;
-	
+
 	private Long id;
 
 	private List<String> hostNameList;
-	
+
 	private String hostName;
-	
+
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
-			entity = service.findByIdWithAttrs(id, "hostNameList");
+			entity = service.findByIdWithAttrs(id, SamlIdpConfigurationEntity_.hostNameList);
 			hostNameList = new ArrayList<String>(entity.getHostNameList());
 		}
 	}
-	
+
 	public String save() {
 		entity.setHostNameList(hostNameList);
 		service.save(entity);
@@ -58,12 +59,12 @@ public class EditSamlIdpConfigurationBean implements Serializable {
 			hostName = null;
 		}
 	}
-	
+
 	public void removeHost(String key) {
 		setHostName(key);
 		hostNameList.remove(key);
 	}
-	
+
 	public SamlIdpConfigurationEntity getEntity() {
 		return entity;
 	}

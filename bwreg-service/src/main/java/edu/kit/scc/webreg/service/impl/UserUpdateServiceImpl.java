@@ -1,6 +1,5 @@
 package edu.kit.scc.webreg.service.impl;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -48,91 +47,89 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 
 	@Inject
 	private Logger logger;
-	
+
 	@Inject
 	private UserDao userDao;
-	
+
 	@Inject
 	private UserUpdater userUpdater;
 
 	@Inject
 	private KnowledgeSessionSingleton knowledgeSessionService;
-	
+
 	@Inject
 	private RegistryDao registryDao;
-	
+
 	@Inject
 	private ServiceDao serviceDao;
-	
+
 	@Inject
 	private ApplicationConfig appConfig;
-	
+
 	@Inject
 	private EventSubmitter eventSubmitter;
-	
+
 	@Override
-	public Map<String, String> updateUser(Long uidNumber,
-			String serviceShortName, String localHostName, String executor)
-			throws IOException, RestInterfaceException {
+	public Map<String, String> updateUser(Integer uidNumber, String serviceShortName, String localHostName,
+			String executor) throws RestInterfaceException {
 
 		UserEntity user = findUser(uidNumber);
 		if (user == null)
 			throw new NoUserFoundException("no such user");
-		
+
 		ServiceEntity service = findService(serviceShortName);
 		if (service == null)
 			throw new NoServiceFoundException("no such service");
-		
+
 		RegistryEntity registry = findRegistry(user, service);
 		if (registry == null)
 			throw new NoRegistryFoundException("user not registered for service");
-		
+
 		return update(user, service, registry, localHostName, executor);
 	}
-	
+
 	@Override
-	public Map<String, String> updateUser(String eppn,
-			String serviceShortName, String localHostName, String executor)
-			throws IOException, RestInterfaceException {
+	public Map<String, String> updateUser(String eppn, String serviceShortName, String localHostName, String executor)
+			throws RestInterfaceException {
 
 		UserEntity user = findUser(eppn);
 		if (user == null)
 			throw new NoUserFoundException("no such user");
-		
+
 		ServiceEntity service = findService(serviceShortName);
 		if (service == null)
 			throw new NoServiceFoundException("no such service");
-		
+
 		RegistryEntity registry = findRegistry(user, service);
 		if (registry == null)
 			throw new NoRegistryFoundException("user not registered for service");
-		
+
 		return update(user, service, registry, localHostName, executor);
 	}
 
 	@Override
 	public Map<String, String> updateUser(String eppn, String localHostName, String executor)
-			throws IOException, RestInterfaceException {
+			throws RestInterfaceException {
 
 		UserEntity user = findUser(eppn);
 		if (user == null)
 			throw new NoUserFoundException("no such user");
-		
+
 		if (user instanceof SamlUserEntity) {
 			try {
 				user = userUpdater.updateUserFromIdp((SamlUserEntity) user, executor);
 			} catch (UserUpdateException e) {
 				logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
 				throw new UserUpdateFailedException("user update failed: " + e.getMessage());
-			}		
+			}
 		}
-		
+
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("eppn", user.getEppn());
 		map.put("email", user.getEmail());
-		map.put("last_update",  df.format(user.getLastUpdate()));
-		
+		map.put("last_update", df.format(user.getLastUpdate()));
+
 		return map;
 	}
 
@@ -145,21 +142,20 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 			logger.info("Not updating user. No such user: {}", eppn);
 			return;
 		}
-		
+
 		Long expireTime = 24 * 60 * 60 * 1000L; // one stay standard expire time for async checks
 		if (appConfig.getConfigValue("async_userupdate_expire_time") != null) {
 			expireTime = Long.parseLong(appConfig.getConfigValue("async_userupdate_expire_time"));
 		}
-		
+
 		if (((System.currentTimeMillis() - user.getLastUpdate().getTime()) < expireTime)) {
-			logger.info("Skipping async user update for {} with id {}", new Object[] {user.getEppn(), user.getId()});
-		}
-		else if ((user.getLastFailedUpdate() != null) &&
-				(System.currentTimeMillis() - user.getLastFailedUpdate().getTime()) < expireTime) {
-			logger.info("Skipping async user update for {} with id {} (last failed)", new Object[] {user.getEppn(), user.getId()});
-		}
-		else {
-			logger.info("Performing async update for {} with id {}", new Object[] {user.getEppn(), user.getId()}); 
+			logger.info("Skipping async user update for {} with id {}", new Object[] { user.getEppn(), user.getId() });
+		} else if ((user.getLastFailedUpdate() != null)
+				&& (System.currentTimeMillis() - user.getLastFailedUpdate().getTime()) < expireTime) {
+			logger.info("Skipping async user update for {} with id {} (last failed)",
+					new Object[] { user.getEppn(), user.getId() });
+		} else {
+			logger.info("Performing async update for {} with id {}", new Object[] { user.getEppn(), user.getId() });
 
 			if (user instanceof SamlUserEntity) {
 				try {
@@ -172,75 +168,73 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 	}
 
 	@Override
-	public Map<String, String> updateUserByGenericStore(String key, String value, String serviceShortName, String localHostName, String executor)
-			throws IOException, RestInterfaceException {
+	public Map<String, String> updateUserByGenericStore(String key, String value, String serviceShortName,
+			String localHostName, String executor) throws RestInterfaceException {
 
 		List<UserEntity> userList = userDao.findByGeneric(key, value);
 
 		if (userList.size() > 1) {
 			throw new UserNotUniqueException("Found more than one user for key,value");
-		}
-		else if (userList.size() == 0) {
+		} else if (userList.size() == 0) {
 			throw new NoUserFoundException("No user found for key,value");
 		}
-		
+
 		UserEntity user = userList.get(0);
-		
+
 		ServiceEntity service = findService(serviceShortName);
 		if (service == null)
 			throw new NoServiceFoundException("no such service");
-		
+
 		RegistryEntity registry = findRegistry(user, service);
 		if (registry == null)
 			throw new NoRegistryFoundException("user not registered for service");
-		
+
 		return update(user, service, registry, localHostName, executor);
 	}
 
 	@Override
-	public Map<String, String> updateUserByAttributeStore(String key, String value, String serviceShortName, String localHostName, String executor)
-			throws IOException, RestInterfaceException {
+	public Map<String, String> updateUserByAttributeStore(String key, String value, String serviceShortName,
+			String localHostName, String executor) throws RestInterfaceException {
 
 		List<UserEntity> userList = userDao.findByAttribute(key, value);
 
 		if (userList.size() > 1) {
 			throw new UserNotUniqueException("Found more than one user for key,value");
-		}
-		else if (userList.size() == 0) {
+		} else if (userList.size() == 0) {
 			throw new NoUserFoundException("No user found for key,value");
 		}
-		
+
 		UserEntity user = userList.get(0);
-		
+
 		ServiceEntity service = findService(serviceShortName);
 		if (service == null)
 			throw new NoServiceFoundException("no such service");
-		
+
 		RegistryEntity registry = findRegistry(user, service);
 		if (registry == null)
 			throw new NoRegistryFoundException("user not registered for service");
-		
+
 		return update(user, service, registry, localHostName, executor);
 	}
 
 	@Override
 	public Map<String, String> updateUser(Long regId, String localHostName, String executor)
-			throws IOException, RestInterfaceException {
-		RegistryEntity registry = registryDao.findById(regId);
+			throws RestInterfaceException {
+		RegistryEntity registry = registryDao.fetch(regId);
 
 		if (registry == null) {
 			logger.info("No registry found for id {}", regId);
 			throw new NoRegistryFoundException("registry unknown");
 		}
-		
+
 		return update(registry.getUser(), registry.getService(), registry, localHostName, executor);
 	}
 
-	private Map<String, String> update(UserEntity user, ServiceEntity service, RegistryEntity registry, String localHostName, String executor)
-			throws RestInterfaceException {
+	private Map<String, String> update(UserEntity user, ServiceEntity service, RegistryEntity registry,
+			String localHostName, String executor) throws RestInterfaceException {
 
 		MDC.put("userId", "" + user.getId());
-		
+
 		// Default expiry Time after which an attrq is issued to IDP in millis
 		Long expireTime = 10L * 1000L;
 		if (service.getServiceProps() != null && service.getServiceProps().containsKey("attrq_expire_time")) {
@@ -257,69 +251,75 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 		if (service.getServiceProps() != null && service.getServiceProps().containsKey("attrq_check_method")) {
 			checkMethod = service.getServiceProps().get("attrq_check_method");
 		}
-		
+
 		if (checkMethod.equalsIgnoreCase("no_attrq")) {
 			/*
-			 * Don't perform any user update per attribute query or refresh token, if this is set
+			 * Don't perform any user update per attribute query or refresh token, if this
+			 * is set
 			 */
 
-			logger.info("Performing no user update for {} with id {}, as configuration with service", new Object[] {user.getEppn(), user.getId()});
-		}
-		else if (checkMethod.equalsIgnoreCase("attrq_optional")) {
+			logger.info("Performing no user update for {} with id {}, as configuration with service",
+					new Object[] { user.getEppn(), user.getId() });
+		} else if (checkMethod.equalsIgnoreCase("attrq_optional")) {
 			/*
-			 * Perform user update per attribute query or refresh token, but proceed if it failed
+			 * Perform user update per attribute query or refresh token, but proceed if it
+			 * failed
 			 */
 			try {
-				if ((user.getLastUpdate() != null) &&
-						((System.currentTimeMillis() - user.getLastUpdate().getTime()) < expireTime)) {
-					logger.info("Skipping user update for {} with id {}", new Object[] {user.getEppn(), user.getId()});
-				}
-				else {
-					logger.info("Performing user update for {} with id {}", new Object[] {user.getEppn(), user.getId()}); 
-		
-					//TODO check for OIDC user entity (refresh token?)
+				if ((user.getLastUpdate() != null)
+						&& ((System.currentTimeMillis() - user.getLastUpdate().getTime()) < expireTime)) {
+					logger.info("Skipping user update for {} with id {}",
+							new Object[] { user.getEppn(), user.getId() });
+				} else {
+					logger.info("Performing user update for {} with id {}",
+							new Object[] { user.getEppn(), user.getId() });
+
+					// TODO check for OIDC user entity (refresh token?)
 					if (user instanceof SamlUserEntity)
 						user = userUpdater.updateUserFromIdp((SamlUserEntity) user, service, executor, null);
 				}
 			} catch (UserUpdateException e) {
-				logger.warn("Could not update user (attrq is optional, continue with login process) {}: {}", e.getMessage(), user.getEppn());
-			}		
-		}
-		else {
+				logger.warn("Could not update user (attrq is optional, continue with login process) {}: {}",
+						e.getMessage(), user.getEppn());
+			}
+		} else {
 			/*
-			 * This is the standard case, where attribute query or refresh token is mandatory
+			 * This is the standard case, where attribute query or refresh token is
+			 * mandatory
 			 */
 			try {
-				if ((user.getLastUpdate() != null) &&
-						((System.currentTimeMillis() - user.getLastUpdate().getTime()) < expireTime)) {
-					logger.info("Skipping user update for {} with id {}", new Object[] {user.getEppn(), user.getId()});
-				}
-				else {
-					logger.info("Performing user update for {} with id {}", new Object[] {user.getEppn(), user.getId()}); 
-		
-					//TODO check for OIDC user entity (refresh token?)
+				if ((user.getLastUpdate() != null)
+						&& ((System.currentTimeMillis() - user.getLastUpdate().getTime()) < expireTime)) {
+					logger.info("Skipping user update for {} with id {}",
+							new Object[] { user.getEppn(), user.getId() });
+				} else {
+					logger.info("Performing user update for {} with id {}",
+							new Object[] { user.getEppn(), user.getId() });
+
+					// TODO check for OIDC user entity (refresh token?)
 					if (user instanceof SamlUserEntity)
 						user = userUpdater.updateUserFromIdp((SamlUserEntity) user, service, executor, null);
 				}
 			} catch (UserUpdateException e) {
 				logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
 				throw new UserUpdateFailedException("user update failed: " + e.getMessage());
-			}		
+			}
 		}
 
 		if (registry == null)
 			throw new NoRegistryFoundException("No such registry");
 
-		if ((user.getLastUpdate() == null) || ((lastUserUpdate != null) &&
-				((System.currentTimeMillis() - user.getLastUpdate().getTime()) > lastUserUpdate))) {
-			logger.info("Last user update is due for {} with id {}. Setting to LOST_ACCESS.", new Object[] {user.getEppn(), user.getId()});
+		if ((user.getLastUpdate() == null) || ((lastUserUpdate != null)
+				&& ((System.currentTimeMillis() - user.getLastUpdate().getTime()) > lastUserUpdate))) {
+			logger.info("Last user update is due for {} with id {}. Setting to LOST_ACCESS.",
+					new Object[] { user.getEppn(), user.getId() });
 
 			registry.setRegistryStatus(RegistryStatus.LOST_ACCESS);
 			registry.setStatusMessage("update-due");
 			registry.setLastStatusChange(new Date());
 
 			ServiceRegisterEvent registerEvent = new ServiceRegisterEvent(registry);
-			
+
 			try {
 				eventSubmitter.submit(registerEvent, EventType.USER_LOST_ACCESS, executor);
 			} catch (EventSubmitException e) {
@@ -330,7 +330,7 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 		}
 
 		List<Object> objectList = checkRules(user, service, registry);
-		
+
 		StringBuilder sb = new StringBuilder();
 		for (Object o : objectList) {
 			if (o instanceof OverrideAccess) {
@@ -338,8 +338,7 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 				sb.setLength(0);
 				logger.debug("Removing requirements due to OverrideAccess");
 				break;
-			}
-			else if (o instanceof UnauthorizedUser) {
+			} else if (o instanceof UnauthorizedUser) {
 				String s = ((UnauthorizedUser) o).getMessage();
 				sb.append(s);
 				sb.append("\n");
@@ -355,42 +354,44 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 		map.put("eppn", user.getEppn());
 		map.put("email", user.getEmail());
 		map.put("uidNumber", "" + user.getUidNumber());
-		map.put("last_update",  df.format(user.getLastUpdate()));
-		
-		return map;		
+		map.put("last_update", df.format(user.getLastUpdate()));
+
+		return map;
 	}
-	
+
 	private List<Object> checkRules(UserEntity user, ServiceEntity service, RegistryEntity registry) {
 		return knowledgeSessionService.checkServiceAccessRule(user, service, registry, "user-self", false);
 	}
-	
+
 	private RegistryEntity findRegistry(UserEntity user, ServiceEntity service) {
 		RegistryEntity registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.ACTIVE);
-		
+
 		if (registry == null) {
 			/*
-			 * Also check for Lost_access registries. They should also be allowed to be rechecked.
+			 * Also check for Lost_access registries. They should also be allowed to be
+			 * rechecked.
 			 */
 			registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.LOST_ACCESS);
 		}
 
 		if (registry == null) {
 			/*
-			 * Also check for On_hold registries. They should also be allowed to be rechecked.
+			 * Also check for On_hold registries. They should also be allowed to be
+			 * rechecked.
 			 */
 			registry = registryDao.findByServiceAndUserAndStatus(service, user, RegistryStatus.ON_HOLD);
 		}
-		
+
 		return registry;
 	}
 
 	private ServiceEntity findService(String serviceShortName) {
 		ServiceEntity service = serviceDao.findByShortName(serviceShortName);
-		
+
 		if (service != null) {
 			service = serviceDao.findByIdWithServiceProps(service.getId());
 		}
-		
+
 		return service;
 	}
 
@@ -407,7 +408,7 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 		return user;
 	}
 
-	private UserEntity findUser(Long uidNumber) {
+	private UserEntity findUser(Integer uidNumber) {
 		UserEntity user = userDao.findByUidNumber(uidNumber);
 
 		if (user != null) {
@@ -416,4 +417,5 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 
 		return user;
 	}
+
 }

@@ -12,38 +12,35 @@ package edu.kit.scc.webreg.dao;
 
 import java.util.List;
 
-import edu.kit.scc.webreg.entity.ImageEntity;
-import edu.kit.scc.webreg.entity.RoleEntity;
+import edu.kit.scc.webreg.entity.AdminRoleEntity;
+import edu.kit.scc.webreg.entity.ApproverRoleEntity;
+import edu.kit.scc.webreg.entity.GroupAdminRoleEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.SshPubKeyApproverRoleEntity;
+import edu.kit.scc.webreg.entity.project.ProjectAdminRoleEntity;
 
 public interface ServiceDao extends BaseDao<ServiceEntity> {
 
-	ServiceEntity findWithPolicies(Long id);
-
-	List<ServiceEntity> findAllWithPolicies();
-
-	List<ServiceEntity> findAllByImage(ImageEntity image);
-
 	ServiceEntity findByIdWithServiceProps(Long id);
 
-	List<ServiceEntity> findByAdminRole(RoleEntity role);
+	List<ServiceEntity> findByAdminRole(AdminRoleEntity role);
 
-	List<ServiceEntity> findByApproverRole(RoleEntity role);
+	List<ServiceEntity> findByApproverRole(ApproverRoleEntity role);
 
 	ServiceEntity findByShortName(String shortName);
 
 	List<ServiceEntity> findAllPublishedWithServiceProps();
 
-	List<ServiceEntity> findByHotlineRole(RoleEntity role);
+	List<ServiceEntity> findByHotlineRole(AdminRoleEntity role);
 
 	List<ServiceEntity> findByGroupCapability(Boolean capable);
 
-	List<ServiceEntity> findByGroupAdminRole(RoleEntity role);
+	List<ServiceEntity> findByGroupAdminRole(GroupAdminRoleEntity role);
 
 	List<ServiceEntity> findByParentService(ServiceEntity service);
 
-	List<ServiceEntity> findBySshPubKeyApproverRole(RoleEntity role);
+	List<ServiceEntity> findBySshPubKeyApproverRole(SshPubKeyApproverRoleEntity role);
 
-	List<ServiceEntity> findByProjectAdminRole(RoleEntity role);
+	List<ServiceEntity> findByProjectAdminRole(ProjectAdminRoleEntity role);
 
 }

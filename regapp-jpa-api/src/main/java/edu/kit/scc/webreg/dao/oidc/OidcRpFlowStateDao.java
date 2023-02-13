@@ -15,7 +15,4 @@ import edu.kit.scc.webreg.entity.oidc.OidcRpFlowStateEntity;
 
 public interface OidcRpFlowStateDao extends BaseDao<OidcRpFlowStateEntity> {
 
-	OidcRpFlowStateEntity findByState(String state);
-
-	void deleteExpiredTokens();
 }

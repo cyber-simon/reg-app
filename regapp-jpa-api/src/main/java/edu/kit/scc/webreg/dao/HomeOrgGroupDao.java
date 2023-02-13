@@ -13,20 +13,13 @@ package edu.kit.scc.webreg.dao;
 import java.util.List;
 
 import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;
-import edu.kit.scc.webreg.entity.UserEntity;
 
 public interface HomeOrgGroupDao extends BaseDao<HomeOrgGroupEntity> {
 
 	HomeOrgGroupEntity findByGidNumber(Integer gid);
 
-	HomeOrgGroupEntity findByName(String name);
-
 	HomeOrgGroupEntity findByNameAndPrefix(String name, String prefix);
 
-	List<HomeOrgGroupEntity> findByUser(UserEntity user);
+	List<HomeOrgGroupEntity> findByNameListAndPrefix(List<String> nameList, String prefix);
 
-	HomeOrgGroupEntity findWithUsers(Long id);
-
-	List<HomeOrgGroupEntity> findByNameListAndPrefix(List<String> nameList,
-			String prefix);
 }

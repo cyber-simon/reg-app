@@ -21,37 +21,33 @@ import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
 import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.project.LocalProjectService;
-import edu.kit.scc.webreg.service.project.ProjectService;
 import edu.kit.scc.webreg.session.SessionManager;
 
 @Named
 @ViewScoped
 public class UserProjectCreateNewBean implements Serializable {
 
- 	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
- 	@Inject
- 	private SessionManager session;
- 	
- 	@Inject
- 	private ProjectService projectService;
+	@Inject
+	private SessionManager session;
 
- 	@Inject
- 	private LocalProjectService localProjectService;
- 	
- 	@Inject
- 	private IdentityService identityService;
- 	
- 	private IdentityEntity identity;
- 	private LocalProjectEntity entity;
-    
+	@Inject
+	private LocalProjectService localProjectService;
+
+	@Inject
+	private IdentityService identityService;
+
+	private IdentityEntity identity;
+	private LocalProjectEntity entity;
+
 	public void preRenderView(ComponentSystemEvent ev) {
-	
+
 	}
 
 	public IdentityEntity getIdentity() {
 		if (identity == null) {
-			identity = identityService.findById(session.getIdentityId());
+			identity = identityService.fetch(session.getIdentityId());
 		}
 		return identity;
 	}
@@ -64,7 +60,7 @@ public class UserProjectCreateNewBean implements Serializable {
 	public String cancel() {
 		return "index.xhtml?faces-redirect=true";
 	}
-	
+
 	public LocalProjectEntity getEntity() {
 		if (entity == null) {
 			entity = localProjectService.createNew();
@@ -74,5 +70,5 @@ public class UserProjectCreateNewBean implements Serializable {
 
 	public void setEntity(LocalProjectEntity entity) {
 		this.entity = entity;
-	}	
+	}
 }

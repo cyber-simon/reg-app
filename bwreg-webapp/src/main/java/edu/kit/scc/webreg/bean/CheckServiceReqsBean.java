@@ -38,7 +38,7 @@ public class CheckServiceReqsBean {
 	private Boolean registered;
 	
 	public void preRenderView(ComponentSystemEvent ev) {
-		serviceEntity = serviceService.findById(id);
+		serviceEntity = serviceService.fetch(id);
 		registered = authBean.isUserInService(serviceEntity);
 	}
 	

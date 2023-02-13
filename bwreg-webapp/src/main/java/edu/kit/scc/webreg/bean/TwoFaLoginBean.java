@@ -66,7 +66,7 @@ public class TwoFaLoginBean implements Serializable {
 	
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (identity == null) {
-			identity = identityService.findById(sessionManager.getIdentityId());
+			identity = identityService.fetch(sessionManager.getIdentityId());
 			try {
 				tokenList = twoFaService.findByIdentity(identity);
 			} catch (TwoFaException e) {

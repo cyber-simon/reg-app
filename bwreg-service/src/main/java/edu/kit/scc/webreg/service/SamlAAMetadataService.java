@@ -14,22 +14,11 @@ import java.util.List;
 
 import edu.kit.scc.webreg.entity.FederationEntity;
 import edu.kit.scc.webreg.entity.SamlAAMetadataEntity;
-import edu.kit.scc.webreg.entity.SamlMetadataEntityStatus;
 
 public interface SamlAAMetadataService extends BaseService<SamlAAMetadataEntity> {
 
 	List<SamlAAMetadataEntity> findAllByFederation(FederationEntity federation);
 
-	List<SamlAAMetadataEntity> findAllByFederationOrderByOrgname(
-			FederationEntity federation);
-
 	SamlAAMetadataEntity findByEntityId(String entityId);
-
-	SamlAAMetadataEntity findByScope(String scope);
-
-	SamlAAMetadataEntity findByIdWithAll(Long id);
-
-	List<SamlAAMetadataEntity> findAllByStatusOrderedByOrgname(
-			SamlMetadataEntityStatus status);
 
 }

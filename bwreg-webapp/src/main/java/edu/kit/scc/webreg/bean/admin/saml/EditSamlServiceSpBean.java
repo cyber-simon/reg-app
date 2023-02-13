@@ -76,7 +76,7 @@ public class EditSamlServiceSpBean implements Serializable {
 				entity = service.createNew();
 			}
 			else {
-				entity = service.findById(id);
+				entity = service.fetch(id);
 			}
 		}
 		return entity;

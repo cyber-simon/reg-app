@@ -36,7 +36,7 @@ public class ShowServiceDetailBean {
 	private Long id;
 	
 	public void preRenderView(ComponentSystemEvent ev) {
-		serviceEntity = serviceService.findById(id);
+		serviceEntity = serviceService.fetch(id);
 		serviceDescBB = bbCodeConverter.convert(serviceEntity.getDescription());
 	}
 	

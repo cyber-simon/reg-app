@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.kit.scc.webreg.entity.SamlAAConfigurationEntity;
+import edu.kit.scc.webreg.entity.SamlAAConfigurationEntity_;
 import edu.kit.scc.webreg.service.SamlAAConfigurationService;
 import edu.kit.scc.webreg.service.saml.CryptoHelper;
 
@@ -33,23 +34,23 @@ public class ShowSamlAAConfigurationBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private static Logger logger = LoggerFactory.getLogger(ShowSamlAAConfigurationBean.class);
-	
+
 	@Inject
 	private SamlAAConfigurationService service;
 
-	@Inject 
+	@Inject
 	private CryptoHelper cryptoHelper;
-	
+
 	private SamlAAConfigurationEntity entity;
-	
+
 	private Long id;
 
 	private X509Certificate certificate;
 	private X509Certificate standbyCertificate;
-		
+
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
-			entity = service.findByIdWithAttrs(id, "hostNameList");
+			entity = service.findByIdWithAttrs(id, SamlAAConfigurationEntity_.hostNameList);
 			if (entity != null && entity.getCertificate() != null) {
 				try {
 					certificate = cryptoHelper.getCertificate(entity.getCertificate());
@@ -58,8 +59,8 @@ public class ShowSamlAAConfigurationBean implements Serializable {
 					certificate = null;
 				}
 			}
-			if (entity != null && entity.getStandbyCertificate() != null && 
-					(! entity.getStandbyCertificate().equals(""))) {
+			if (entity != null && entity.getStandbyCertificate() != null
+					&& (!"".equals(entity.getStandbyCertificate()))) {
 				try {
 					standbyCertificate = cryptoHelper.getCertificate(entity.getStandbyCertificate());
 				} catch (IOException e) {
@@ -69,7 +70,7 @@ public class ShowSamlAAConfigurationBean implements Serializable {
 			}
 		}
 	}
-	
+
 	public SamlAAConfigurationEntity getEntity() {
 		return entity;
 	}
@@ -100,5 +101,5 @@ public class ShowSamlAAConfigurationBean implements Serializable {
 
 	public void setStandbyCertificate(X509Certificate standbyCertificate) {
 		this.standbyCertificate = standbyCertificate;
-	}	
+	}
 }

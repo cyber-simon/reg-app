@@ -15,10 +15,6 @@ import edu.kit.scc.webreg.entity.oidc.OidcFlowStateEntity;
 
 public interface OidcFlowStateDao extends BaseDao<OidcFlowStateEntity> {
 
-	OidcFlowStateEntity findByCode(String code);
-
-	OidcFlowStateEntity findByAccessToken(String accessToken, String accessTokenType);
-
 	void deleteExpiredTokens();
 
 }

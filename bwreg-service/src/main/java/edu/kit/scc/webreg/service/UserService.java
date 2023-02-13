@@ -10,6 +10,10 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service;
 
+import java.util.List;
+
+import org.opensaml.saml.saml2.core.Assertion;
+
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
@@ -20,25 +24,16 @@ import edu.kit.scc.webreg.entity.UserLoginMethod;
 import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
-import java.util.Date;
-import java.util.List;
-import org.opensaml.saml.saml2.core.Assertion;
 
 public interface UserService extends BaseService<UserEntity> {
 
 	List<UserEntity> findByEppn(String eppn);
-	
+
 	UserEntity findByIdWithAll(Long id);
-	
+
 	UserEntity findByIdWithStore(Long id);
 
 	List<UserEntity> findByGroup(GroupEntity group);
-
-	List<UserEntity> findOrderByUpdatedWithLimit(Date date, Integer limit);
-
-	List<UserEntity> findGenericStoreKeyWithLimit(String key, Integer limit);
-
-	List<UserEntity> findOrderByFailedUpdateWithLimit(Date date, Integer limit);
 
 	SamlUserEntity updateUserFromIdp(SamlUserEntity user, String executor) throws UserUpdateException;
 
@@ -53,8 +48,6 @@ public interface UserService extends BaseService<UserEntity> {
 
 	SamlUserEntity updateUserFromAssertion(SamlUserEntity user, Assertion assertion, String executor)
 			throws UserUpdateException;
-
-	UserEntity findByUidNumber(Long uidNumber);
 
 	UserLoginInfoEntity addLoginInfo(Long userId, UserLoginMethod method, UserLoginInfoStatus status, String from);
 

@@ -10,6 +10,12 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.impl;
 
+import static edu.kit.scc.webreg.dao.ops.PaginateBy.withLimit;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.and;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.lessThan;
+import static edu.kit.scc.webreg.dao.ops.SortBy.ascendingBy;
+
 import java.util.Date;
 import java.util.List;
 
@@ -19,7 +25,9 @@ import javax.inject.Inject;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.RegistryEntity_;
 import edu.kit.scc.webreg.entity.RegistryStatus;
+import edu.kit.scc.webreg.entity.SamlIdpMetadataEntityStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
@@ -34,25 +42,17 @@ public class RegistryServiceImpl extends BaseServiceImpl<RegistryEntity> impleme
 	private RegistryDao dao;
 
 	@Override
-	public List<RegistryEntity> findAllByStatus(RegistryStatus status) {
-		return dao.findAllByStatus(status);
-	}
-
-	@Override
 	public RegistryEntity findByIdWithAgreements(Long id) {
-		return dao.findByIdWithAgreements(id);
-	}
-
-	@Override
-	public List<RegistryEntity> findByServiceAndStatus(String serviceShortName, RegistryStatus status, Date date,
-			int limit) {
-		return dao.findByServiceAndStatus(serviceShortName, status, date, limit);
+		return dao.find(equal(RegistryEntity_.id, id), RegistryEntity_.agreedTexts);
 	}
 
 	@Override
 	public List<RegistryEntity> findByServiceAndStatusAndIDPGood(String serviceShortName, RegistryStatus status,
 			Date date, int limit) {
-		return dao.findByServiceAndStatusAndIDPGood(serviceShortName, status, date, limit);
+		return dao.findAll(withLimit(limit), ascendingBy(RegistryEntity_.lastReconcile),
+				and(equal("service.shortName", serviceShortName), equal(RegistryEntity_.registryStatus, status),
+						lessThan(RegistryEntity_.lastStatusChange, date),
+						equal("user.idp.aqIdpStatus", SamlIdpMetadataEntityStatus.GOOD)));
 	}
 
 	@Override
@@ -68,17 +68,13 @@ public class RegistryServiceImpl extends BaseServiceImpl<RegistryEntity> impleme
 	@Override
 	public List<RegistryEntity> findByServiceAndStatusOrderByRecon(ServiceEntity service, RegistryStatus status,
 			int limit) {
-		return dao.findByServiceAndStatusOrderByRecon(service, status, limit);
+		return dao.findAll(withLimit(limit), ascendingBy(RegistryEntity_.lastReconcile),
+				and(equal(RegistryEntity_.service, service), equal(RegistryEntity_.registryStatus, status)));
 	}
 
 	@Override
 	public List<RegistryEntity> findByServiceAndNotStatus(ServiceEntity service, RegistryStatus... status) {
 		return dao.findByServiceAndNotStatus(service, status);
-	}
-
-	@Override
-	public List<RegistryEntity> findByServiceAndUser(ServiceEntity service, UserEntity user) {
-		return dao.findByServiceAndUser(service, user);
 	}
 
 	@Override
@@ -99,7 +95,8 @@ public class RegistryServiceImpl extends BaseServiceImpl<RegistryEntity> impleme
 
 	@Override
 	public List<RegistryEntity> findByServiceOrderByRecon(ServiceEntity service, int limit) {
-		return dao.findByServiceOrderByRecon(service, limit);
+		return dao.findAll(withLimit(limit), ascendingBy(RegistryEntity_.lastReconcile),
+				equal(RegistryEntity_.service, service));
 	}
 
 	@Override
@@ -120,11 +117,12 @@ public class RegistryServiceImpl extends BaseServiceImpl<RegistryEntity> impleme
 
 	@Override
 	public List<RegistryEntity> findByIdentity(IdentityEntity identity) {
-		return dao.findByIdentity(identity);
+		return dao.findAll(equal(RegistryEntity_.identity, identity));
 	}
 
 	@Override
 	protected BaseDao<RegistryEntity> getDao() {
 		return dao;
 	}
+
 }

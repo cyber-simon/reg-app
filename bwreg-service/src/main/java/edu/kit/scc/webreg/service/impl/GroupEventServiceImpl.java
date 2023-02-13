@@ -10,14 +10,11 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.impl;
 
-import java.util.List;
-
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.GroupEventDao;
-import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.GroupEventEntity;
 import edu.kit.scc.webreg.service.GroupEventService;
 
@@ -28,14 +25,10 @@ public class GroupEventServiceImpl extends BaseServiceImpl<GroupEventEntity> imp
 
 	@Inject
 	private GroupEventDao dao;
-	
+
 	@Override
 	protected BaseDao<GroupEventEntity> getDao() {
 		return dao;
 	}
-	
-	@Override
-	public List<GroupEventEntity> findAllByService(EventType eventType) {
-		return dao.findAllByEventType(eventType);
-	}
+
 }

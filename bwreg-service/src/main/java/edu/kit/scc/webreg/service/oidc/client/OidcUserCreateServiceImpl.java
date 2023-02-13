@@ -105,7 +105,7 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
 			String locale, Map<String, List<Object>> attributeMap)
 			throws UserUpdateException {
 		
-		OidcRpConfigurationEntity rpConfig = rpConfigDao.findById(rpConfigId);
+		OidcRpConfigurationEntity rpConfig = rpConfigDao.fetch(rpConfigId);
 		
 		if (rpConfig == null) {
 			throw new UserUpdateException("No such issuer/replying party");

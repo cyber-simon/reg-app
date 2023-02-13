@@ -19,17 +19,13 @@ import edu.kit.scc.webreg.entity.SamlAAConfigurationEntity;
 import edu.kit.scc.webreg.service.SamlAAConfigurationService;
 
 @Stateless
-public class SamlAAConfigurationServiceImpl extends BaseServiceImpl<SamlAAConfigurationEntity> implements SamlAAConfigurationService {
+public class SamlAAConfigurationServiceImpl extends BaseServiceImpl<SamlAAConfigurationEntity>
+		implements SamlAAConfigurationService {
 
 	private static final long serialVersionUID = 1L;
 
 	@Inject
 	private SamlAAConfigurationDao dao;
-	
-	@Override
-	public SamlAAConfigurationEntity findByEntityId(String entityId) {
-		return dao.findByEntityId(entityId);
-	}
 
 	@Override
 	public SamlAAConfigurationEntity findByHostname(String hostname) {

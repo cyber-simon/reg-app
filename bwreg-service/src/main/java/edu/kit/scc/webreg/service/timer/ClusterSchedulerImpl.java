@@ -90,7 +90,7 @@ public class ClusterSchedulerImpl implements ClusterScheduler {
 		}
 		
 		JobScheduleEntity jobSchedule = (JobScheduleEntity) timer.getInfo();
-		JobClassEntity jobClass = jobClassService.findById(jobSchedule.getJobClass().getId());
+		JobClassEntity jobClass = jobClassService.fetch(jobSchedule.getJobClass().getId());
 		
 		logger.debug("----ClusterScheduler invokes: {} [{}]", jobClass.getName(), jobClass.getJobClassName());
 

@@ -189,7 +189,7 @@ public class InviteToProjectBean implements Serializable {
 
 	public IdentityEntity getIdentity() {
 		if (identity == null) {
-			identity = identityService.findById(session.getIdentityId());
+			identity = identityService.fetch(session.getIdentityId());
 		}
 		return identity;
 	}

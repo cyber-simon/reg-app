@@ -56,7 +56,7 @@ public class EditServiceEventBean implements Serializable {
 	
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
-			entity = service.findById(id);
+			entity = service.fetch(id);
 			eventList = eventService.findAllByService(entity);
 			jobClassList = jobClassService.findAll();
 		}

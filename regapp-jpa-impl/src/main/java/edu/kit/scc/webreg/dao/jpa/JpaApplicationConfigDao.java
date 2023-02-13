@@ -10,14 +10,18 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.and;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.greaterThan;
+
 import java.util.Date;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
-import javax.persistence.NoResultException;
 
 import edu.kit.scc.webreg.dao.ApplicationConfigDao;
 import edu.kit.scc.webreg.entity.ApplicationConfigEntity;
+import edu.kit.scc.webreg.entity.ApplicationConfigEntity_;
 
 @Named
 @ApplicationScoped
@@ -25,29 +29,18 @@ public class JpaApplicationConfigDao extends JpaBaseDao<ApplicationConfigEntity>
 
 	@Override
 	public ApplicationConfigEntity findActive() {
-		try {
-			return (ApplicationConfigEntity) em
-					.createQuery("select e from ApplicationConfigEntity e where e.activeConfig = :act")
-					.setParameter("act", true).getSingleResult();
-		} catch (NoResultException e) {
-			return null;
-		}
+		return find(equal(ApplicationConfigEntity_.activeConfig, Boolean.TRUE));
 	}
 
 	@Override
 	public ApplicationConfigEntity findReloadActive(Date date) {
-		try {
-			return (ApplicationConfigEntity) em
-					.createQuery("select e from ApplicationConfigEntity e "
-							+ "where e.activeConfig = :act and e.dirtyStamp > :date")
-					.setParameter("date", date).setParameter("act", true).getSingleResult();
-		} catch (NoResultException e) {
-			return null;
-		}
+		return find(and(equal(ApplicationConfigEntity_.activeConfig, Boolean.TRUE),
+				greaterThan(ApplicationConfigEntity_.dirtyStamp, date)));
 	}
 
 	@Override
 	public Class<ApplicationConfigEntity> getEntityClass() {
 		return ApplicationConfigEntity.class;
 	}
+
 }

@@ -10,9 +10,10 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.bean.tadm;
 
+import static edu.kit.scc.webreg.dao.ops.PaginateBy.withLimit;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.contains;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.or;
-import static edu.kit.scc.webreg.dao.ops.SortOrder.ASCENDING;
+import static edu.kit.scc.webreg.dao.ops.SortBy.ascendingBy;
 import static edu.kit.scc.webreg.entity.UserEntity_.eppn;
 import static edu.kit.scc.webreg.entity.UserEntity_.givenName;
 import static edu.kit.scc.webreg.entity.UserEntity_.surName;
@@ -27,9 +28,7 @@ import javax.inject.Named;
 
 import org.slf4j.Logger;
 
-import edu.kit.scc.webreg.dao.ops.PaginateBy;
 import edu.kit.scc.webreg.dao.ops.RqlExpression;
-import edu.kit.scc.webreg.dao.ops.SortBy;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.sec.AuthorizationBean;
 import edu.kit.scc.webreg.service.UserService;
@@ -95,7 +94,7 @@ public class TokenAdminIndexBean implements Serializable {
 
 	public List<UserEntity> completeUser(String part) {
 		RqlExpression filterBy = or(contains(eppn, part), contains(surName, part), contains(givenName, part));
-		return userService.findAllPaging(PaginateBy.of(0, 10), List.of(SortBy.of(eppn, ASCENDING)), filterBy);
+		return userService.findAll(withLimit(10), ascendingBy(eppn), filterBy);
 	}
 
 	public void enableToken(String serial) {

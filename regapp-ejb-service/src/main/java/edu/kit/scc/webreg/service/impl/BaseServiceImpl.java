@@ -15,10 +15,13 @@ import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
 
 import java.util.List;
 
+import javax.persistence.metamodel.Attribute;
+
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.ops.PaginateBy;
 import edu.kit.scc.webreg.dao.ops.RqlExpression;
 import edu.kit.scc.webreg.dao.ops.SortBy;
+import edu.kit.scc.webreg.entity.AbstractBaseEntity_;
 import edu.kit.scc.webreg.entity.BaseEntity;
 import edu.kit.scc.webreg.service.BaseService;
 
@@ -54,14 +57,15 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
 	}
 
 	@Override
-	public List<T> findAllPaging(PaginateBy paginateBy, SortBy sortBy, RqlExpression rqlExpression) {
-		return getDao().findAllPaging(paginateBy, sortBy, rqlExpression);
+	public List<T> findAll(PaginateBy paginateBy, SortBy sortBy, RqlExpression rqlExpression) {
+		return getDao().findAll(paginateBy, sortBy, rqlExpression);
 	}
 
 	@Override
-	public List<T> findAllPaging(PaginateBy paginateBy, List<SortBy> sortBy, RqlExpression rqlExpression,
-			String... joinFetchBy) {
-		return getDao().findAllPaging(paginateBy, sortBy, rqlExpression, joinFetchBy);
+	@SuppressWarnings("rawtypes")
+	public List<T> findAll(PaginateBy paginateBy, List<SortBy> sortBy, RqlExpression rqlExpression,
+			Attribute... joinFetchBy) {
+		return getDao().findAll(paginateBy, sortBy, rqlExpression, joinFetchBy);
 	}
 
 	@Override
@@ -70,28 +74,30 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
 	}
 
 	@Override
-	public T findById(Long id) {
-		return getDao().findById(id);
+	public T fetch(Long id) {
+		return getDao().fetch(id);
 	}
 
 	@Override
 	public T findByAttr(String attr, Object value) {
-		return getDao().findByAttr(attr, value);
+		return getDao().find(equal(attr, value));
 	}
 
 	@Override
 	public List<T> findAllByAttr(String attr, Object value) {
-		return value instanceof String ? getDao().findAllPaging(contains(attr, value.toString()))
-				: getDao().findAllPaging(equal(attr, value));
+		return value instanceof String ? getDao().findAll(contains(attr, value.toString()))
+				: getDao().findAll(equal(attr, value));
 	}
 
 	@Override
-	public List<T> findByMultipleId(List<Long> ids) {
-		return getDao().findByMultipleId(ids);
+	public List<T> fetchAll(List<Long> ids) {
+		return getDao().fetchAll(ids);
 	}
 
 	@Override
-	public T findByIdWithAttrs(Long id, String... attrs) {
-		return getDao().findByIdWithAttrs(id, attrs);
+	@SuppressWarnings("rawtypes")
+	public T findByIdWithAttrs(Long id, Attribute... attrs) {
+		return getDao().find(equal(AbstractBaseEntity_.id, id), attrs);
 	}
+
 }

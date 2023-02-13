@@ -70,7 +70,7 @@ public class UserSshKeyManagementOldBean implements Serializable {
     
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (user == null) {
-			IdentityEntity identity = identityService.findById(sessionManager.getIdentityId());
+			IdentityEntity identity = identityService.fetch(sessionManager.getIdentityId());
 			List<UserEntity> userList = userService.findByIdentity(identity);
 	    	user = userService.findByIdWithStore(userList.get(0).getId());
 

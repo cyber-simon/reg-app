@@ -18,16 +18,6 @@ import edu.kit.scc.webreg.entity.oidc.OidcGroupEntity;
 
 public interface OidcGroupDao extends BaseDao<OidcGroupEntity> {
 
-	OidcGroupEntity findByGidNumber(Integer gid);
-
-	OidcGroupEntity findByName(String name);
-
-	OidcGroupEntity findByNameAndPrefix(String name, String prefix);
-
 	List<OidcGroupEntity> findByUser(UserEntity user);
 
-	OidcGroupEntity findWithUsers(Long id);
-
-	List<OidcGroupEntity> findByNameListAndPrefix(List<String> nameList,
-			String prefix);
 }

@@ -44,7 +44,7 @@ public class EditBusinessRuleBean implements Serializable {
 	private Long id;
 	
 	public void preRenderView(ComponentSystemEvent ev) {
-		entity = service.findById(id);
+		entity = service.fetch(id);
 		packageList = packageService.findAll();
 		selectedPackage = entity.getRulePackage();
 	}

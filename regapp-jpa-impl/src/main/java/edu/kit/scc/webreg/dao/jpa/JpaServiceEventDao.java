@@ -10,6 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -18,21 +20,20 @@ import javax.inject.Named;
 import edu.kit.scc.webreg.dao.ServiceEventDao;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceEventEntity;
+import edu.kit.scc.webreg.entity.ServiceEventEntity_;
 
 @Named
 @ApplicationScoped
 public class JpaServiceEventDao extends JpaBaseDao<ServiceEventEntity> implements ServiceEventDao {
 
-    @Override
+	@Override
 	public Class<ServiceEventEntity> getEntityClass() {
 		return ServiceEventEntity.class;
 	}
-    
+
 	@Override
-    @SuppressWarnings({"unchecked"})
 	public List<ServiceEventEntity> findAllByService(ServiceEntity service) {
-		return em.createQuery("select e from ServiceEventEntity e where e.service = :service")
-				.setParameter("service", service).getResultList();
+		return findAll(equal(ServiceEventEntity_.service, service));
 	}
 
 }

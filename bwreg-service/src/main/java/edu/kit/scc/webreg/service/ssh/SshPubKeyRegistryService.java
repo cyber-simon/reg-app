@@ -17,8 +17,6 @@ import edu.kit.scc.webreg.service.BaseService;
 
 public interface SshPubKeyRegistryService extends BaseService<SshPubKeyRegistryEntity> {
 
-	List<SshPubKeyRegistryEntity> findByUserAndService(Long userId, Long serviceId);
-
 	List<SshPubKeyRegistryEntity> findByRegistry(Long registryId);
 
 	SshPubKeyRegistryEntity deployRegistry(SshPubKeyRegistryEntity entity, String executor);

@@ -10,11 +10,12 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
-import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.ListJoin;
@@ -22,6 +23,7 @@ import javax.persistence.criteria.Root;
 
 import edu.kit.scc.webreg.dao.SamlSpConfigurationDao;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
+import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity_;
 
 @Named
 @ApplicationScoped
@@ -29,31 +31,18 @@ public class JpaSamlSpConfigurationDao extends JpaBaseDao<SamlSpConfigurationEnt
 
 	@Override
 	public SamlSpConfigurationEntity findByEntityId(String entityId) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<SamlSpConfigurationEntity> criteria = builder.createQuery(SamlSpConfigurationEntity.class);
-		Root<SamlSpConfigurationEntity> root = criteria.from(SamlSpConfigurationEntity.class);
-		criteria.where(
-				builder.equal(root.get("entityId"), entityId));
-		criteria.select(root);
+		return find(equal(SamlSpConfigurationEntity_.entityId, entityId));
+	}
 
-		try {
-			return em.createQuery(criteria).getSingleResult();
-		}
-		catch (NoResultException e) {
-			return null;
-		}
-	}	
-	
 	@Override
 	public List<SamlSpConfigurationEntity> findByHostname(String hostname) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<SamlSpConfigurationEntity> criteria = builder.createQuery(SamlSpConfigurationEntity.class);
 		Root<SamlSpConfigurationEntity> root = criteria.from(SamlSpConfigurationEntity.class);
 		ListJoin<SamlSpConfigurationEntity, String> elementJoin = root.joinList("hostNameList");
-		
+
 		criteria.select(root);
-		criteria.where(
-				builder.equal(elementJoin.as(String.class), hostname));
+		criteria.where(builder.equal(elementJoin.as(String.class), hostname));
 
 		return em.createQuery(criteria).getResultList();
 	}
@@ -62,4 +51,5 @@ public class JpaSamlSpConfigurationDao extends JpaBaseDao<SamlSpConfigurationEnt
 	public Class<SamlSpConfigurationEntity> getEntityClass() {
 		return SamlSpConfigurationEntity.class;
 	}
+
 }

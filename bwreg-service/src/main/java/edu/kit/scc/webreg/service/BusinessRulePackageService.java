@@ -19,9 +19,6 @@ public interface BusinessRulePackageService extends BaseService<BusinessRulePack
 
 	List<BusinessRulePackageEntity> findAllNewer(Date date);
 
-	BusinessRulePackageEntity findByNameAndVersion(String baseName,
-			String version);
-
-	List<BusinessRulePackageEntity> findAllWithRules();
+	BusinessRulePackageEntity findByNameAndVersion(String baseName, String version);
 
 }

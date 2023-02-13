@@ -12,6 +12,8 @@ package edu.kit.scc.webreg.dao;
 
 import java.util.List;
 
+import javax.persistence.metamodel.Attribute;
+
 import edu.kit.scc.webreg.dao.ops.PaginateBy;
 import edu.kit.scc.webreg.dao.ops.RqlExpression;
 import edu.kit.scc.webreg.dao.ops.SortBy;
@@ -25,32 +27,33 @@ public interface BaseDao<T extends BaseEntity> {
 
 	T merge(T entity);
 
-	List<T> findAll();
-
-	List<T> findAllPaging(RqlExpression filterBy);
-
-	List<T> findAllPaging(PaginateBy paginateBy);
-
-	List<T> findAllPaging(PaginateBy paginateBy, RqlExpression filterBy);
-
-	List<T> findAllPaging(PaginateBy paginateBy, SortBy sortBy, RqlExpression filterBy);
-
-	List<T> findAllPaging(PaginateBy paginateBy, List<SortBy> sortBy, RqlExpression filterBy, String... joinFetchBy);
-
-	Number countAll(RqlExpression filterBy);
-
-	T findById(Long id);
-
 	void delete(T entity);
 
 	boolean isPersisted(T entity);
 
-	T findByIdWithAttrs(Long id, String... attrs);
-
 	void refresh(T entity);
 
-	List<T> findByMultipleId(List<Long> ids);
+	List<T> findAll();
 
-	T findByAttr(String attr, Object value);
+	@SuppressWarnings("rawtypes")
+	List<T> findAll(RqlExpression filterBy, Attribute... joinFetchBy);
+
+	List<T> findAll(PaginateBy paginateBy);
+
+	List<T> findAll(PaginateBy paginateBy, RqlExpression filterBy);
+
+	List<T> findAll(PaginateBy paginateBy, SortBy sortBy, RqlExpression filterBy);
+
+	@SuppressWarnings("rawtypes")
+	List<T> findAll(PaginateBy paginateBy, List<SortBy> sortBy, RqlExpression filterBy, Attribute... joinFetchBy);
+
+	List<T> fetchAll(List<Long> ids);
+
+	Number countAll(RqlExpression filterBy);
+
+	T fetch(Long id);
+
+	@SuppressWarnings("rawtypes")
+	T find(RqlExpression findBy, Attribute... attrs);
 
 }

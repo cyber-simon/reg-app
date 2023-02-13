@@ -44,7 +44,7 @@ public class LocalLogoutBean implements Serializable {
     
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (identity == null) {
-			identity = identityService.findById(sessionManager.getIdentityId());
+			identity = identityService.fetch(sessionManager.getIdentityId());
 		}
 	}
 	

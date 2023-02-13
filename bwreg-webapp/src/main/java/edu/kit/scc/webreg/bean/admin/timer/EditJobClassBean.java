@@ -42,7 +42,7 @@ public class EditJobClassBean implements Serializable {
 	
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
-			entity = service.findById(id);
+			entity = service.fetch(id);
 			propertyMap = new HashMap<String, String>(entity.getJobStore());
 		}
 	}

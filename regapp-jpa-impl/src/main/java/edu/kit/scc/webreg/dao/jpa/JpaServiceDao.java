@@ -10,166 +10,85 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
-import javax.persistence.NoResultException;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Root;
 
 import edu.kit.scc.webreg.dao.ServiceDao;
-import edu.kit.scc.webreg.entity.ImageEntity;
-import edu.kit.scc.webreg.entity.RoleEntity;
+import edu.kit.scc.webreg.entity.AdminRoleEntity;
+import edu.kit.scc.webreg.entity.ApproverRoleEntity;
+import edu.kit.scc.webreg.entity.GroupAdminRoleEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity_;
+import edu.kit.scc.webreg.entity.SshPubKeyApproverRoleEntity;
+import edu.kit.scc.webreg.entity.project.ProjectAdminRoleEntity;
 
 @Named
 @ApplicationScoped
 public class JpaServiceDao extends JpaBaseDao<ServiceEntity> implements ServiceDao {
 
-    @Override
+	@Override
 	public ServiceEntity findByShortName(String shortName) {
-		try {
-			return (ServiceEntity) em.createQuery("select e from ServiceEntity e where e.shortName = :shortName")
-				.setParameter("shortName", shortName).getSingleResult();
-		} catch (NoResultException e) {
-			return null;
-		}
+		return find(equal(ServiceEntity_.shortName, shortName));
 	}
 
 	@Override
 	public List<ServiceEntity> findAllPublishedWithServiceProps() {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<ServiceEntity> criteria = builder.createQuery(ServiceEntity.class);
-		Root<ServiceEntity> root = criteria.from(ServiceEntity.class);
-		criteria.where(
-				builder.equal(root.get("published"), true));
-		criteria.select(root);
-		criteria.distinct(true);
-		root.fetch("serviceProps", JoinType.LEFT);
-
-		return em.createQuery(criteria).getResultList();
+		return findAll(equal(ServiceEntity_.published, Boolean.TRUE), ServiceEntity_.serviceProps);
 	}
 
 	@Override
-    @SuppressWarnings({"unchecked"})
 	public List<ServiceEntity> findByParentService(ServiceEntity service) {
-		return em.createQuery("select e from ServiceEntity e where e.parentService = :service")
-				.setParameter("service", service).getResultList();
-	}
-	
-	@Override
-    @SuppressWarnings({"unchecked"})
-	public List<ServiceEntity> findByAdminRole(RoleEntity role) {
-		return em.createQuery("select e from ServiceEntity e where e.adminRole = :role")
-				.setParameter("role", role).getResultList();
-	}
-	
-	@Override
-    @SuppressWarnings({"unchecked"})
-	public List<ServiceEntity> findByHotlineRole(RoleEntity role) {
-		return em.createQuery("select e from ServiceEntity e where e.hotlineRole = :role")
-				.setParameter("role", role).getResultList();
-	}
-	
-	@Override
-    @SuppressWarnings({"unchecked"})
-	public List<ServiceEntity> findByApproverRole(RoleEntity role) {
-		return em.createQuery("select e from ServiceEntity e where e.approverRole = :role")
-				.setParameter("role", role).getResultList();
+		return findAll(equal(ServiceEntity_.parentService, service));
 	}
 
 	@Override
-    @SuppressWarnings({"unchecked"})
-	public List<ServiceEntity> findBySshPubKeyApproverRole(RoleEntity role) {
-		return em.createQuery("select e from ServiceEntity e where e.sshPubKeyApproverRole = :role")
-				.setParameter("role", role).getResultList();
+	public List<ServiceEntity> findByAdminRole(AdminRoleEntity role) {
+		return findAll(equal(ServiceEntity_.adminRole, role));
 	}
 
 	@Override
-    @SuppressWarnings({"unchecked"})
-	public List<ServiceEntity> findByGroupAdminRole(RoleEntity role) {
-		return em.createQuery("select e from ServiceEntity e where e.groupAdminRole = :role")
-				.setParameter("role", role).getResultList();
+	public List<ServiceEntity> findByHotlineRole(AdminRoleEntity role) {
+		return findAll(equal(ServiceEntity_.hotlineRole, role));
 	}
 
 	@Override
-    @SuppressWarnings({"unchecked"})
-	public List<ServiceEntity> findByProjectAdminRole(RoleEntity role) {
-		return em.createQuery("select e from ServiceEntity e where e.projectAdminRole = :role")
-				.setParameter("role", role).getResultList();
+	public List<ServiceEntity> findByApproverRole(ApproverRoleEntity role) {
+		return findAll(equal(ServiceEntity_.approverRole, role));
 	}
 
 	@Override
-    @SuppressWarnings({"unchecked"})
+	public List<ServiceEntity> findBySshPubKeyApproverRole(SshPubKeyApproverRoleEntity role) {
+		return findAll(equal(ServiceEntity_.sshPubKeyApproverRole, role));
+	}
+
+	@Override
+	public List<ServiceEntity> findByGroupAdminRole(GroupAdminRoleEntity role) {
+		return findAll(equal(ServiceEntity_.groupAdminRole, role));
+	}
+
+	@Override
+	public List<ServiceEntity> findByProjectAdminRole(ProjectAdminRoleEntity role) {
+		return findAll(equal(ServiceEntity_.projectAdminRole, role));
+	}
+
+	@Override
 	public List<ServiceEntity> findByGroupCapability(Boolean capable) {
-		return em.createQuery("select e from ServiceEntity e where e.groupCapable = :capable")
-				.setParameter("capable", capable).getResultList();
-	}
-	
-	@Override
-	public List<ServiceEntity> findAllWithPolicies() {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<ServiceEntity> criteria = builder.createQuery(ServiceEntity.class);
-		Root<ServiceEntity> root = criteria.from(ServiceEntity.class);
-		criteria.select(root);
-		criteria.distinct(true);
-		root.fetch("policies", JoinType.LEFT);
-
-		return em.createQuery(criteria).getResultList();
+		return findAll(equal(ServiceEntity_.groupCapable, capable));
 	}
 
-
-	@Override
-	public ServiceEntity findWithPolicies(Long id) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<ServiceEntity> criteria = builder.createQuery(ServiceEntity.class);
-		Root<ServiceEntity> root = criteria.from(ServiceEntity.class);
-		criteria.where(
-				builder.equal(root.get("id"), id));
-		criteria.select(root);
-		criteria.distinct(true);
-		root.fetch("policies", JoinType.LEFT);
-
-		return em.createQuery(criteria).getSingleResult();
-	}
-
-	@Override
-	public List<ServiceEntity> findAllByImage(ImageEntity image) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<ServiceEntity> criteria = builder.createQuery(ServiceEntity.class);
-		Root<ServiceEntity> root = criteria.from(ServiceEntity.class);
-		criteria.select(root);
-		criteria.where(builder.equal(root.get("image"), image));
-
-		return em.createQuery(criteria).getResultList();
-	}
-	
 	@Override
 	public ServiceEntity findByIdWithServiceProps(Long id) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<ServiceEntity> criteria = builder.createQuery(ServiceEntity.class);
-		Root<ServiceEntity> root = criteria.from(ServiceEntity.class);
-		criteria.where(
-				builder.equal(root.get("id"), id));
-		criteria.select(root);
-		criteria.distinct(true);
-		root.fetch("serviceProps", JoinType.LEFT);
-		root.fetch("policies", JoinType.LEFT);
-		root.fetch("projectPolicies", JoinType.LEFT);
-
-		try {
-			return em.createQuery(criteria).getSingleResult();
-		}
-		catch (NoResultException e) {
-			return null;
-		}			
+		return find(equal(ServiceEntity_.id, id), ServiceEntity_.serviceProps, ServiceEntity_.policies,
+				ServiceEntity_.projectPolicies);
 	}
 
 	@Override
 	public Class<ServiceEntity> getEntityClass() {
 		return ServiceEntity.class;
 	}
+
 }

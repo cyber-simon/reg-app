@@ -1,5 +1,7 @@
 package edu.kit.scc.regapp.sshkey;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -14,6 +16,7 @@ import edu.kit.scc.webreg.dao.SshPubKeyDao;
 import edu.kit.scc.webreg.dao.SshPubKeyRegistryDao;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.SshPubKeyEntity;
+import edu.kit.scc.webreg.entity.SshPubKeyEntity_;
 import edu.kit.scc.webreg.entity.SshPubKeyRegistryEntity;
 import edu.kit.scc.webreg.entity.SshPubKeyStatus;
 import edu.kit.scc.webreg.event.EventSubmitter;
@@ -75,13 +78,13 @@ public class SshPubKeyManager implements Serializable {
 		entity.setExpiredSent(new Date());
 		return entity;
 	}
-	
+
 	public SshPubKeyEntity keyExpiryWarningSent(SshPubKeyEntity entity) {
 		entity = dao.merge(entity);
 		entity.setExpireWarningSent(new Date());
 		return entity;
 	}
-	
+
 	public SshPubKeyEntity deleteKey(SshPubKeyEntity entity, String executor, String requestServerName) {
 
 		entity = dao.merge(entity);
@@ -99,7 +102,7 @@ public class SshPubKeyManager implements Serializable {
 				logger.warn("Could not submit event", e);
 			}
 		}
-		
+
 		SshPubKeyEvent event = new SshPubKeyEvent(entity);
 		try {
 			eventSubmitter.submit(event, EventType.SSH_KEY_DELETED, executor);
@@ -109,9 +112,9 @@ public class SshPubKeyManager implements Serializable {
 		return entity;
 	}
 
-	public SshPubKeyEntity deployKey(Long identityId, SshPubKeyEntity entity, String executor, String requestServerName) 
+	public SshPubKeyEntity deployKey(Long identityId, SshPubKeyEntity entity, String executor, String requestServerName)
 			throws SshPubKeyBlacklistedException {
-		List<SshPubKeyEntity> keyList = dao.findByKey(entity.getEncodedKey());
+		List<SshPubKeyEntity> keyList = dao.findAll(equal(SshPubKeyEntity_.encodedKey, entity.getEncodedKey()));
 		if (keyList != null && keyList.size() > 0) {
 			logger.warn("User {} tried to re-add blacklisted key", identityId);
 			throw new SshPubKeyBlacklistedException("Key already used by user");

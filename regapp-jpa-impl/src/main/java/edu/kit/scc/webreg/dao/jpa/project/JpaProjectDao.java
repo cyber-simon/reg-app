@@ -10,6 +10,10 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa.project;
 
+import static edu.kit.scc.webreg.dao.ops.PaginateBy.unlimited;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+import static edu.kit.scc.webreg.dao.ops.SortBy.ascendingBy;
+
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -23,15 +27,14 @@ import edu.kit.scc.webreg.entity.project.ProjectEntity;
 @ApplicationScoped
 public class JpaProjectDao extends JpaBaseProjectDao<ProjectEntity> implements ProjectDao {
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<ProjectEntity> findByService(ServiceEntity service) {
-		return em.createQuery("select r.project from ProjectEntity r where r.service = :service order by r.project.name")
-			.setParameter("service", service).getResultList();
+		return findAll(unlimited(), ascendingBy("project.name"), equal("service", service));
 	}
 
 	@Override
 	public Class<ProjectEntity> getEntityClass() {
 		return ProjectEntity.class;
 	}
+
 }
