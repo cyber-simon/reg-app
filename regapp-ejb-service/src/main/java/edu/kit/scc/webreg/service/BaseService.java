@@ -40,7 +40,8 @@ public interface BaseService<T extends BaseEntity> extends Serializable {
 	List<T> findAll(PaginateBy paginateBy, SortBy sortBy, RqlExpression rqlExpression);
 
 	@SuppressWarnings("rawtypes")
-	List<T> findAll(PaginateBy paginateBy, List<SortBy> sortBy, RqlExpression rqlExpression, Attribute... joinFetchBy);
+	List<T> findAllEagerly(PaginateBy paginateBy, List<SortBy> sortBy, RqlExpression rqlExpression,
+			Attribute... joinFetchBy);
 
 	Number countAll(RqlExpression filterBy);
 

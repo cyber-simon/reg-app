@@ -51,6 +51,7 @@ import edu.kit.scc.webreg.dao.ops.Or;
 import edu.kit.scc.webreg.dao.ops.PaginateBy;
 import edu.kit.scc.webreg.dao.ops.RqlExpression;
 import edu.kit.scc.webreg.dao.ops.SortBy;
+import edu.kit.scc.webreg.entity.AbstractBaseEntity;
 import edu.kit.scc.webreg.entity.AbstractBaseEntity_;
 import edu.kit.scc.webreg.entity.BaseEntity;
 
@@ -108,14 +109,13 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 	}
 
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List<T> findAll(RqlExpression filterBy, Attribute... joinFetchBy) {
-		return findAll(null, List.of(ascendingBy(AbstractBaseEntity_.id)), filterBy, joinFetchBy);
+	public List<T> findAll(PaginateBy paginateBy) {
+		return findAll(paginateBy, ascendingBy(AbstractBaseEntity_.id), null);
 	}
 
 	@Override
-	public List<T> findAll(PaginateBy paginateBy) {
-		return findAll(paginateBy, ascendingBy(AbstractBaseEntity_.id), null);
+	public List<T> findAll(RqlExpression filterBy) {
+		return findAll(null, List.of(ascendingBy(AbstractBaseEntity_.id)), filterBy);
 	}
 
 	@Override
@@ -129,9 +129,8 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 	}
 
 	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public List<T> findAll(PaginateBy paginateBy, List<SortBy> sortBy, RqlExpression filterBy,
-			Attribute... joinFetchBy) {
+	@SuppressWarnings({ "unchecked" })
+	public List<T> findAll(PaginateBy paginateBy, List<SortBy> sortBy, RqlExpression filterBy) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<T> criteria = builder.createQuery(getEntityClass());
 		Root<T> root = criteria.from(getEntityClass());
@@ -139,9 +138,6 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 
 		if (filterBy != null) {
 			applyFilter(criteria, builder, root, filterBy);
-		}
-		if (joinFetchBy != null) {
-			applyJoinFetch(criteria, root, joinFetchBy);
 		}
 		if (sortBy != null) {
 			applySorting(criteria, builder, root, sortBy);
@@ -267,7 +263,7 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 
 	@Override
 	public List<T> fetchAll(List<Long> ids) {
-		return ids.size() == 0 ? new ArrayList<T>() : findAll(in(AbstractBaseEntity_.id, ids));
+		return ids.size() == 0 ? new ArrayList<T>() : findAllEagerly(in(AbstractBaseEntity_.id, ids));
 	}
 
 	@Override
@@ -305,6 +301,59 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 	@Override
 	public T fetch(Long id) {
 		return em.find(getEntityClass(), id);
+	}
+
+	@Override
+	@SuppressWarnings("rawtypes")
+	public List<T> findAllEagerly(RqlExpression filterBy, Attribute... joinFetchBy) {
+		return findAllEagerly(null, List.of(ascendingBy(AbstractBaseEntity_.id)), filterBy, joinFetchBy);
+	}
+
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<T> findAllEagerly(PaginateBy paginateBy, List<SortBy> sortBy, RqlExpression filterBy,
+			Attribute... joinFetchBy) {
+		List<Long> ids = findIds(paginateBy, sortBy, filterBy);
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<T> criteria = builder.createQuery(getEntityClass());
+		Root<T> root = criteria.from(getEntityClass());
+		criteria.select(root);
+		applyFilter(criteria, builder, root, in(AbstractBaseEntity_.id, ids));
+
+		if (joinFetchBy != null) {
+			applyJoinFetch(criteria, root, joinFetchBy);
+		}
+		if (sortBy != null) {
+			applySorting(criteria, builder, root, sortBy);
+		}
+
+		Query query = em.createQuery(criteria);
+		if (paginateBy != null) {
+			applyPaging(query, paginateBy);
+		}
+		return query.getResultList();
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<Long> findIds(PaginateBy paginateBy, List<SortBy> sortBy, RqlExpression filterBy) {
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<T> criteria = builder.createQuery(getEntityClass());
+		Root<T> root = criteria.from(getEntityClass());
+		criteria.select(root);
+
+		if (filterBy != null) {
+			applyFilter(criteria, builder, root, filterBy);
+		}
+		if (sortBy != null) {
+			applySorting(criteria, builder, root, sortBy);
+		}
+
+		Query query = em.createQuery(criteria);
+		if (paginateBy != null) {
+			applyPaging(query, paginateBy);
+		}
+		return (List<Long>) query.getResultStream().map(e -> ((AbstractBaseEntity) e).getId())
+				.collect(Collectors.toList());
 	}
 
 }

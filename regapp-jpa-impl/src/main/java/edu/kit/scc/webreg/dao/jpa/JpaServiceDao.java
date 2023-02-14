@@ -37,7 +37,7 @@ public class JpaServiceDao extends JpaBaseDao<ServiceEntity> implements ServiceD
 
 	@Override
 	public List<ServiceEntity> findAllPublishedWithServiceProps() {
-		return findAll(equal(ServiceEntity_.published, Boolean.TRUE), ServiceEntity_.serviceProps);
+		return findAllEagerly(equal(ServiceEntity_.published, Boolean.TRUE), ServiceEntity_.serviceProps);
 	}
 
 	@Override

@@ -35,8 +35,7 @@ public interface BaseDao<T extends BaseEntity> {
 
 	List<T> findAll();
 
-	@SuppressWarnings("rawtypes")
-	List<T> findAll(RqlExpression filterBy, Attribute... joinFetchBy);
+	List<T> findAll(RqlExpression filterBy);
 
 	List<T> findAll(PaginateBy paginateBy);
 
@@ -44,8 +43,14 @@ public interface BaseDao<T extends BaseEntity> {
 
 	List<T> findAll(PaginateBy paginateBy, SortBy sortBy, RqlExpression filterBy);
 
+	List<T> findAll(PaginateBy paginateBy, List<SortBy> sortBy, RqlExpression filterBy);
+
 	@SuppressWarnings("rawtypes")
-	List<T> findAll(PaginateBy paginateBy, List<SortBy> sortBy, RqlExpression filterBy, Attribute... joinFetchBy);
+	List<T> findAllEagerly(RqlExpression filterBy, Attribute... joinFetchBy);
+
+	@SuppressWarnings("rawtypes")
+	List<T> findAllEagerly(PaginateBy paginateBy, List<SortBy> sortBy, RqlExpression filterBy,
+			Attribute... joinFetchBy);
 
 	List<T> fetchAll(List<Long> ids);
 

@@ -179,9 +179,8 @@ public class JpaGroupDao extends JpaBaseDao<GroupEntity> implements GroupDao {
 
 	@Override
 	public Number countAllByUserId(Long userId) {
-		return em.createQuery(
-				"select count(r.group) from UserGroupEntity r where r.user.id = :userId order by r.group.name",
-				Number.class).setParameter("userId", userId).getSingleResult();
+		return em.createQuery("select count(r.group) from UserGroupEntity r where r.user.id = :userId", Number.class)
+				.setParameter("userId", userId).getSingleResult();
 	}
 
 	public GroupEntity findByName(String name) {

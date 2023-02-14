@@ -63,9 +63,9 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
 
 	@Override
 	@SuppressWarnings("rawtypes")
-	public List<T> findAll(PaginateBy paginateBy, List<SortBy> sortBy, RqlExpression rqlExpression,
+	public List<T> findAllEagerly(PaginateBy paginateBy, List<SortBy> sortBy, RqlExpression rqlExpression,
 			Attribute... joinFetchBy) {
-		return getDao().findAll(paginateBy, sortBy, rqlExpression, joinFetchBy);
+		return getDao().findAllEagerly(paginateBy, sortBy, rqlExpression, joinFetchBy);
 	}
 
 	@Override

@@ -78,7 +78,7 @@ public class GenericLazyDataModelImpl<E extends BaseEntity, T extends BaseServic
 
 		List<SortBy> sortList = sortBy.values().stream().map(this::getDaoSortData).collect(Collectors.toList());
 
-		return getService().findAll(PaginateBy.of(first, pageSize), sortList, completeFilter, attrs);
+		return getService().findAllEagerly(PaginateBy.of(first, pageSize), sortList, completeFilter, attrs);
 	}
 
 	private SortBy getDaoSortData(SortMeta primefacesSortMeta) {

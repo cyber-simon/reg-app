@@ -39,7 +39,7 @@ public class ASUserAttrServiceImpl extends BaseServiceImpl<ASUserAttrEntity> imp
 
 	@Override
 	public List<ASUserAttrEntity> findForUserWithValues(UserEntity user) {
-		return dao.findAll(equal(ASUserAttrEntity_.user, user), ASUserAttrEntity_.values);
+		return dao.findAllEagerly(equal(ASUserAttrEntity_.user, user), ASUserAttrEntity_.values);
 	}
 
 	@Override

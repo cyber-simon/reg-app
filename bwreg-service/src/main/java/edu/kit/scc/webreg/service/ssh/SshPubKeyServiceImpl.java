@@ -61,7 +61,7 @@ public class SshPubKeyServiceImpl extends BaseServiceImpl<SshPubKeyEntity> imple
 
 	@Override
 	public List<SshPubKeyEntity> findByIdentityAndStatusWithRegs(Long identityId, SshPubKeyStatus keyStatus) {
-		return dao.findAll(and(equal("identity.id", identityId), equal(SshPubKeyEntity_.keyStatus, keyStatus)),
+		return dao.findAllEagerly(and(equal("identity.id", identityId), equal(SshPubKeyEntity_.keyStatus, keyStatus)),
 				SshPubKeyEntity_.sshPubKeyRegistries);
 	}
 

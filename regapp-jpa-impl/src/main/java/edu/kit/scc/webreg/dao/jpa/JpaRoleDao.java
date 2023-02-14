@@ -109,9 +109,9 @@ public class JpaRoleDao extends JpaBaseDao<RoleEntity> implements RoleDao {
 
 	@Override
 	public List<RoleEntity> findByUserId(PaginateBy paginateBy, Long userId) {
-		TypedQuery<RoleEntity> query = em
-				.createQuery("select r.role from UserRoleEntity r where r.user.id = :userId", getEntityClass())
-				.setParameter("userId", userId);
+		TypedQuery<RoleEntity> query = em.createQuery(
+				"select r.role from UserRoleEntity r left join fetch r.role.adminForGroups where r.user.id = :userId",
+				getEntityClass()).setParameter("userId", userId);
 		if (paginateBy != null) {
 			applyPaging(query, paginateBy);
 		}
