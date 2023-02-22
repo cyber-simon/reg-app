@@ -25,7 +25,7 @@ public class JpaAdminUserDao extends JpaBaseDao<AdminUserEntity> implements Admi
 
 	@Override
 	public List<RoleEntity> findRolesForUserById(Long id) {
-		return em.createQuery("select e.roles from AdminUserEntity e where e.id = :id", RoleEntity.class)
+		return em.createQuery("select e.roles from AdminUserEntity e where e.id = :id")
 				.setParameter("id", id).getResultList();
 	}
 
