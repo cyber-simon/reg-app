@@ -176,6 +176,19 @@ public class JpaGroupDao extends JpaBaseDao<GroupEntity> implements GroupDao {
 	}
 
 	@Override
+	public List<UserEntity> getUsersOfGroup(Long groupId) {
+		return em.createQuery("select r.user from UserGroupEntity r where r.group.id = :groupId", UserEntity.class)
+				.setParameter("groupId", groupId).getResultList();
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<GroupEntity> getChildrenOfGroup(Long groupId) {
+		return em.createQuery("select g.children from GroupEntity g where g.id = :groupId")
+				.setParameter("groupId", groupId).getResultList();
+	}
+
+	@Override
 	public List<GroupEntity> findByUserId(PaginateBy paginateBy, Long userId) {
 		TypedQuery<GroupEntity> query = em
 				.createQuery("select r.group from UserGroupEntity r where r.user.id = :userId order by r.group.name",

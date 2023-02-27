@@ -60,4 +60,8 @@ public interface GroupDao extends BaseDao<GroupEntity> {
 
 	GroupEntity findByGidNumber(Integer gid);
 
+	List<UserEntity> getUsersOfGroup(Long groupId);
+
+	List<GroupEntity> getChildrenOfGroup(Long groupId);
+
 }
