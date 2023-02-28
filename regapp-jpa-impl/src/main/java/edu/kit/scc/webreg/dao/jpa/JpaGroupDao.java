@@ -96,6 +96,16 @@ public class JpaGroupDao extends JpaBaseDao<GroupEntity> implements GroupDao {
 	}
 
 	@Override
+	public GroupEntity findByGidNumber(Integer gid) {
+		try {
+			return (GroupEntity) em.createQuery("select e from GroupEntity e where e.gidNumber = :gidNumber")
+					.setParameter("gidNumber", gid).getSingleResult();
+		} catch (NoResultException e) {
+			return null;
+		}
+	}
+
+	@Override
 	public void setServiceFlags(ServiceBasedGroupEntity entity, ServiceGroupStatus status) {
 		List<ServiceGroupFlagEntity> flagList = groupFlagDao.findByGroup(entity);
 		for (ServiceGroupFlagEntity groupFlag : flagList) {

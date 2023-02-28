@@ -58,4 +58,6 @@ public interface GroupDao extends BaseDao<GroupEntity> {
 
 	Number countAllByUserId(Long userId);
 
+	GroupEntity findByGidNumber(Integer gid);
+
 }
