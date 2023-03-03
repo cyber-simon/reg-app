@@ -22,9 +22,9 @@ public class MultipleGroupEvent extends AbstractEvent<HashSet<GroupEntity>> {
 	private static final long serialVersionUID = 1L;
 
 	private Map<GroupEntity, Set<UserEntity>> usersToRemove;
-	
-	public MultipleGroupEvent(HashSet<GroupEntity> groupList) {
-		super(groupList);
+
+	public MultipleGroupEvent(Set<GroupEntity> groupList) {
+		super(new HashSet<>(groupList));
 	}
 
 	public Map<GroupEntity, Set<UserEntity>> getUsersToRemove() {

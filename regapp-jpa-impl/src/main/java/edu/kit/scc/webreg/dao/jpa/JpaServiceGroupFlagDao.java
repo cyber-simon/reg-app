@@ -42,11 +42,10 @@ public class JpaServiceGroupFlagDao extends JpaBaseDao<ServiceGroupFlagEntity> i
 
 	@Override
 	public List<ServiceGroupFlagEntity> findLocalGroupsForService(ServiceEntity service) {
-		return em
-				.createQuery("select gf from ServiceGroupFlagEntity gf, LocalGroupEntity g " + "where gf.group = g"
-						+ " and gf.service = :service and (g.groupStatus = :groupStatus or g.groupStatus is null)",
-						ServiceGroupFlagEntity.class)
-				.setParameter("service", service).setParameter("groupStatus", GroupStatus.ACTIVE).getResultList();
+		return em.createQuery(
+				"select gf from ServiceGroupFlagEntity gf, LocalGroupEntity g where gf.group = g and gf.service = :service and (g.groupStatus = :groupStatus or g.groupStatus is null)",
+				ServiceGroupFlagEntity.class).setParameter("service", service)
+				.setParameter("groupStatus", GroupStatus.ACTIVE).getResultList();
 	}
 
 	@Override

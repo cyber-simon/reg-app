@@ -22,7 +22,6 @@ import javax.inject.Named;
 
 import org.primefaces.model.LazyDataModel;
 
-import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.LocalGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
@@ -46,7 +45,7 @@ public class GroupAdminEditLocalGroupBean implements Serializable {
 
 	@Inject
 	private LocalGroupService service;
-	
+
 	@Inject
 	private GroupService allGroupService;
 
@@ -57,75 +56,70 @@ public class GroupAdminEditLocalGroupBean implements Serializable {
 	private ServiceService serviceService;
 
 	@Inject
-    private AuthorizationBean authBean;
-	
+	private AuthorizationBean authBean;
+
 	@Inject
 	private FacesMessageGenerator messageGenerator;
 
 	@Inject
 	private UserService userService;
-	
+
 	private LocalGroupEntity entity;
 
 	private ServiceEntity serviceEntity;
-	
+
 	private List<ServiceGroupFlagEntity> groupFlagList;
 
 	private LazyDataModel<UserEntity> userList;
-	private LazyDataModel<GroupEntity> groupList;
-	
+
 	private List<UserEntity> usersInGroup;
-	
+
 	private Long serviceId;
 	private Long groupId;
-	
+
 	private Boolean savePossible = false;
-	
+
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
 			serviceEntity = serviceService.fetch(serviceId);
 			entity = service.findWithUsersAndChildren(groupId);
 			userList = new GenericLazyDataModelImpl<UserEntity, UserService>(userService);
-			groupList = new GenericLazyDataModelImpl<GroupEntity, GroupService>(allGroupService);
 			groupFlagList = groupFlagService.findByGroup(entity);
 			if (groupFlagList.size() == 0)
 				throw new NotAuthorizedException("Gruppe ist diesem Service nicht zugeordnet");
 			usersInGroup = new ArrayList<UserEntity>(userService.findByGroup(entity));
 		}
 
-		if (! authBean.isUserServiceGroupAdmin(serviceEntity))
+		if (!authBean.isUserServiceGroupAdmin(serviceEntity))
 			throw new NotAuthorizedException("Nicht autorisiert");
 
-		if (! authBean.isUserInRoles(entity.getAdminRoles())) {
+		if (!authBean.isUserInRoles(entity.getAdminRoles())) {
 			throw new NotAuthorizedException("Nicht autorisiert");
 		}
 	}
-	
+
 	public String save() {
 		allGroupService.updateGroupMembers(entity, new HashSet<UserEntity>(usersInGroup));
-		
+
 		messageGenerator.addResolvedInfoMessage("item_saved", "item_saved_long", true);
-		
+
 		savePossible = false;
-		
-		return ViewIds.GROUP_ADMIN_SHOW_LOCAL_GROUP + "?faces-redirect=true&serviceId=" + serviceEntity.getId() + "&groupId=" + entity.getId();
+
+		return ViewIds.GROUP_ADMIN_SHOW_LOCAL_GROUP + "?faces-redirect=true&serviceId=" + serviceEntity.getId()
+				+ "&groupId=" + entity.getId();
 	}
-	
+
 	public String cancel() {
 		savePossible = false;
-		return ViewIds.GROUP_ADMIN_SHOW_LOCAL_GROUP + "?faces-redirect=true&serviceId=" + serviceEntity.getId() + "&groupId=" + entity.getId();
+		return ViewIds.GROUP_ADMIN_SHOW_LOCAL_GROUP + "?faces-redirect=true&serviceId=" + serviceEntity.getId()
+				+ "&groupId=" + entity.getId();
 	}
-	
+
 	public void addUserToGroup(UserEntity user) {
 		savePossible = true;
 		usersInGroup.add(user);
 	}
-	
-	public void removeUserFromGroup(UserEntity user) {
-		savePossible = true;
-		usersInGroup.remove(user);
-	}
-	
+
 	public LocalGroupEntity getEntity() {
 		return entity;
 	}
@@ -156,10 +150,6 @@ public class GroupAdminEditLocalGroupBean implements Serializable {
 
 	public LazyDataModel<UserEntity> getUserList() {
 		return userList;
-	}
-
-	public LazyDataModel<GroupEntity> getGroupList() {
-		return groupList;
 	}
 
 	public List<UserEntity> getUsersInGroup() {

@@ -10,10 +10,18 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao;
 
+import java.util.List;
+
+import edu.kit.scc.webreg.dao.ops.PaginateBy;
 import edu.kit.scc.webreg.entity.LocalGroupEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity;
 
 public interface LocalGroupDao extends BaseDao<LocalGroupEntity> {
 
 	LocalGroupEntity findByName(String name);
+
+	List<LocalGroupEntity> findAllActiveGroupsByService(PaginateBy paginateBy, ServiceEntity service);
+
+	Number countAllByService(ServiceEntity service);
 
 }
