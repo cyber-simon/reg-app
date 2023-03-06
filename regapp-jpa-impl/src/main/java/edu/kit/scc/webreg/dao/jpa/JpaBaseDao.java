@@ -19,9 +19,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
-import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -57,7 +57,7 @@ import edu.kit.scc.webreg.entity.BaseEntity;
 
 public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 
-	@PersistenceContext
+	@Inject
 	protected EntityManager em;
 
 	public abstract Class<T> getEntityClass();
