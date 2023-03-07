@@ -10,12 +10,15 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.impl;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.and;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -30,11 +33,15 @@ import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.PolicyDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
 import edu.kit.scc.webreg.dao.UserDao;
+import edu.kit.scc.webreg.dao.project.ProjectDao;
 import edu.kit.scc.webreg.entity.PolicyEntity;
 import edu.kit.scc.webreg.entity.PolicyEntity_;
 import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.project.ProjectEntity;
+import edu.kit.scc.webreg.entity.project.ProjectPolicyType;
+import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
 import edu.kit.scc.webreg.script.ScriptingEnv;
 import edu.kit.scc.webreg.service.PolicyService;
 
@@ -56,7 +63,26 @@ public class PolicyServiceImpl extends BaseServiceImpl<PolicyEntity> implements 
 	private UserDao userDao;
 
 	@Inject
+	private ProjectDao projectDao;
+	
+	@Inject
 	private ScriptingEnv scriptingEnv;
+
+	@Override
+	public Map<ProjectServiceEntity, List<PolicyEntity>> findPolicyMapForProject(ProjectEntity project,
+			ProjectPolicyType policyType) {
+
+		project = projectDao.merge(project);
+		
+		Map<ProjectServiceEntity, List<PolicyEntity>> returnMap = new HashMap<>();
+		project.getProjectServices().stream().forEach(projectService -> {
+			returnMap.put(projectService,
+					dao.findAll(and(equal(PolicyEntity_.projectPolicy, projectService.getService()),
+							equal(PolicyEntity_.projectPolicyType, policyType))));
+		});
+
+		return returnMap;
+	}
 
 	@Override
 	public List<PolicyEntity> resolvePoliciesForService(ServiceEntity service, UserEntity user) {

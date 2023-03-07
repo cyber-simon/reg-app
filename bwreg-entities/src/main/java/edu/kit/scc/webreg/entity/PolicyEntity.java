@@ -23,7 +23,6 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import edu.kit.scc.webreg.entity.project.ProjectPolicyType;
-import edu.kit.scc.webreg.entity.project.ProjectStatus;
 
 @Entity(name = "PolicyEntity")
 @Table(name = "policy")
