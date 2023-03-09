@@ -23,10 +23,11 @@ import edu.kit.scc.webreg.entity.RoleEntity;
 @ApplicationScoped
 public class JpaAdminUserDao extends JpaBaseDao<AdminUserEntity> implements AdminUserDao {
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<RoleEntity> findRolesForUserById(Long id) {
-		return em.createQuery("select e.roles from AdminUserEntity e where e.id = :id")
-				.setParameter("id", id).getResultList();
+		return em.createQuery("select e.roles from AdminUserEntity e where e.id = :id").setParameter("id", id)
+				.getResultList();
 	}
 
 	@Override
