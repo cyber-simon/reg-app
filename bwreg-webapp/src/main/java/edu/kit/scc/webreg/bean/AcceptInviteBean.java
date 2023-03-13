@@ -11,20 +11,30 @@
 package edu.kit.scc.webreg.bean;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.faces.event.ComponentSystemEvent;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import edu.kit.scc.webreg.entity.PolicyEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+import edu.kit.scc.webreg.entity.project.ProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectInvitationTokenEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
+import edu.kit.scc.webreg.entity.project.ProjectPolicyType;
+import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
+import edu.kit.scc.webreg.service.PolicyService;
 import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.project.ProjectInvitationTokenService;
 import edu.kit.scc.webreg.service.project.ProjectService;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
+import edu.kit.scc.webreg.util.PolicyHolder;
 
 @Named
 @ViewScoped
@@ -33,26 +43,34 @@ public class AcceptInviteBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Inject
-    private IdentityService identityService;
-    
-    @Inject 
-    private SessionManager sessionManager;
+	private IdentityService identityService;
 
-    @Inject
-    private ProjectInvitationTokenService tokenService;
-    
-    @Inject
-    private FacesMessageGenerator messageGenerator;
-    
-    @Inject
-    private ProjectService projectService;
-    
+	@Inject
+	private SessionManager sessionManager;
+
+	@Inject
+	private ProjectInvitationTokenService tokenService;
+
+	@Inject
+	private FacesMessageGenerator messageGenerator;
+
+	@Inject
+	private ProjectService projectService;
+
+	@Inject
+	private PolicyService policyService;
+
 	private IdentityEntity identity;
 	private String tokenString;
 	private ProjectInvitationTokenEntity token;
-	
+	private ProjectEntity project;
+	private Map<ProjectServiceEntity, List<PolicyEntity>> servicePolicyMap;
+	private List<ProjectServiceEntity> projectServiceList;
+
+	private List<PolicyHolder> policyHolderList;
+
 	public void preRenderView(ComponentSystemEvent ev) {
-		
+
 	}
 
 	public void check() {
@@ -61,11 +79,27 @@ public class AcceptInviteBean implements Serializable {
 			messageGenerator.addResolvedErrorMessage("no-token", "no-token-detail", true);
 			return;
 		}
-		
-		ProjectMembershipEntity pme = projectService.findByIdentityAndProject(getIdentity(), token.getProject());
+
+		project = token.getProject();
+
+		ProjectMembershipEntity pme = projectService.findByIdentityAndProject(getIdentity(), project);
 		if (pme != null) {
-			messageGenerator.addResolvedErrorMessage("project.accept_invite.already_project_member", "project.accept_invite.already_project_member_detail", true);
+			messageGenerator.addResolvedErrorMessage("project.accept_invite.already_project_member",
+					"project.accept_invite.already_project_member_detail", true);
 		}
+
+		servicePolicyMap = policyService.findPolicyMapForProject(project, ProjectPolicyType.MEMBER_ACCEPT);
+		projectServiceList = servicePolicyMap.keySet().stream().collect(Collectors.toList());
+		policyHolderList = new ArrayList<PolicyHolder>();
+		
+		projectServiceList.stream().forEach(projectServiceEntity -> {
+			servicePolicyMap.get(projectServiceEntity).stream().forEach(policy -> {
+				PolicyHolder ph = new PolicyHolder();
+				ph.setPolicy(policy);
+				ph.setChecked(false);
+				policyHolderList.add(ph);
+			});
+		});
 	}
 
 	public void accept() {
@@ -73,25 +107,24 @@ public class AcceptInviteBean implements Serializable {
 			tokenService.acceptEmailToken(token, "idty-" + sessionManager.getIdentityId());
 			token = null;
 			tokenString = "";
-		}
-		else {
+		} else {
 			messageGenerator.addResolvedErrorMessage("no-token", "no-token-detail", true);
 		}
 	}
-	
+
 	public void decline() {
 		tokenService.declineEmailToken(token, "idty-" + sessionManager.getIdentityId());
 		token = null;
 		tokenString = "";
 	}
-	
+
 	public IdentityEntity getIdentity() {
 		if (identity == null) {
 			identity = identityService.fetch(sessionManager.getIdentityId());
 		}
 		return identity;
 	}
-	
+
 	public String getTokenString() {
 		if (tokenString != null) {
 			tokenString = tokenString.replaceAll("[^a-zA-Z0-9-_]", "");
@@ -105,5 +138,17 @@ public class AcceptInviteBean implements Serializable {
 
 	public ProjectInvitationTokenEntity getToken() {
 		return token;
+	}
+
+	public Map<ProjectServiceEntity, List<PolicyEntity>> getServicePolicyMap() {
+		return servicePolicyMap;
+	}
+
+	public List<ProjectServiceEntity> getProjectServiceList() {
+		return projectServiceList;
+	}
+
+	public List<PolicyHolder> getPolicyHolderList() {
+		return policyHolderList;
 	}
 }
