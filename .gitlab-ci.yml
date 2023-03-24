@@ -1,8 +1,28 @@
+variables:
+  RELEASE_VERSION:
+    description: | 
+      Non-Snapshot version of the release. If none ist given, a regular 
+      non-release build is performed. Releases are only performed on the 
+      main branch. Example value: 2.7.8
+
 image: maven:3-jdk-11
+  
+trigger-release-pipeline:
+  stage: build
+  rules:
+    - if: $RELEASE_VERSION != "" && $CI_COMMIT_BRANCH == "branch-2.7"
+  trigger:
+    include: .gitlab-ci-release.yml
+    strategy: depend
+    forward:
+      pipeline_variables: true
 
 build:
   stage: build
   tags:
     - mvn-docker
+  rules:
+    - if: $RELEASE_VERSION == "" && $CI_COMMIT_TAG == null
   script:
     mvn -s maven/settings.xml -Dmaven.repo.local=/cache/.m2/repository -B clean install source:jar deploy
+    

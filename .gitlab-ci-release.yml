@@ -1,0 +1,51 @@
+image: maven:3-jdk-11
+
+variables:
+  GIT_STRATEGY: clone
+  GIT_AUTHOR_NAME: Release Bot
+  GIT_AUTHOR_EMAIL: regapp-support@lists.kit.edu
+  GIT_COMMITTER_NAME: Release Bot
+  GIT_COMMITTER_EMAIL: regapp-support@lists.kit.edu
+
+stages:
+  - validate-version
+  - perform-test-build
+  - release
+
+validate-version:
+  stage: validate-version
+  script: |
+    set +x
+    ## Validating version string ...
+    [[ $RELEASE_VERSION =~ ^[0-9](\.[0-9]+){2}$ ]] || exit_code=$?
+    if [[ $exit_code -ne 0 ]]; then echo "Value $RELEASE_VERSION is not a valid version string"; exit 1; fi;
+    echo "Value $RELEASE_VERSION is a valid version string"
+
+perform-test-build:
+  stage: perform-test-build
+  script: |
+    set +x
+    ## Performing test build ...
+    mvn test
+
+release:
+  stage: release
+  script: |
+    set +x
+    ## Performing release ...
+    git checkout "$CI_COMMIT_REF_NAME"
+    echo "Release version $RELEASE_VERSION"
+    echo "  Updating and committing pom.xml (version $RELEASE_VERSION)"
+    mvn versions:set-property -q -DgenerateBackupPoms=false -Dproperty=revision -DnewVersion=$RELEASE_VERSION
+    git add *
+    git commit -q -m "NO_STORY Update version to $RELEASE_VERSION"
+    git push -q "https://regapp_release_token:$RELEASE_ACCESS_TOKEN@git.scc.kit.edu/reg-app/reg-app.git"
+    echo "  Tagging commit"
+    git tag -a $RELEASE_VERSION -m "NO_STORY Release version $RELEASE_VERSION"
+    git push -q "https://regapp_release_token:$RELEASE_ACCESS_TOKEN@git.scc.kit.edu/reg-app/reg-app.git" "$RELEASE_VERSION"
+    SNAPSHOT_VERSION=$(echo $RELEASE_VERSION | perl -pe 's/^(\d+)\.(\d+)\.(\d+)$/"$1.".($2+1).".0-SNAPSHOT"/e')
+    echo "  Updating and committing pom.xml (version $SNAPSHOT_VERSION)"
+    mvn versions:set-property -q -DgenerateBackupPoms=false -Dproperty=revision -DnewVersion=$SNAPSHOT_VERSION
+    git add *
+    git commit -q -m "NO_STORY Update version to $SNAPSHOT_VERSION"
+    git push -q "https://regapp_release_token:$RELEASE_ACCESS_TOKEN@git.scc.kit.edu/reg-app/reg-app.git"
