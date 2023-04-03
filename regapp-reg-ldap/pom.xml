@@ -31,6 +31,16 @@
 			<artifactId>regapp-reg-impl</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-template</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>bwreg-service</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>jakarta.platform</groupId>

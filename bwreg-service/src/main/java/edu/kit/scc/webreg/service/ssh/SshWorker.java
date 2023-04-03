@@ -9,8 +9,7 @@ import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
 import edu.kit.scc.webreg.exc.PropertyReaderException;
 import edu.kit.scc.webreg.exc.RegisterException;
-import edu.kit.scc.webreg.service.reg.ldap.LdapWorker;
-import edu.kit.scc.webreg.service.reg.ldap.PropertyReader;
+import edu.kit.scc.webreg.tools.PropertyReader;
 import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +21,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SshWorker {
 
-    private static final Logger logger = LoggerFactory.getLogger(LdapWorker.class);
+    private static final Logger logger = LoggerFactory.getLogger(SshWorker.class);
     private Auditor auditor;
 
     // sending commands/passwords to ssh host's input
