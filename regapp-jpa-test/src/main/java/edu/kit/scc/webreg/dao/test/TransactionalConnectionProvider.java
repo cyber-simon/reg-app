@@ -29,7 +29,7 @@ public class TransactionalConnectionProvider implements ConnectionProvider {
 
 	public static void bindDataSource() {
 		JdbcDataSource dataSource = new JdbcDataSource();
-		dataSource.setURL("jdbc:h2:mem:db1;DB_CLOSE_DELAY=-1");
+		dataSource.setURL("jdbc:h2:mem:db1;MODE=PostgreSQL;DB_CLOSE_DELAY=-1");
 		dataSource.setUser(USERNAME);
 		dataSource.setPassword(PASSWORD);
 
@@ -76,4 +76,5 @@ public class TransactionalConnectionProvider implements ConnectionProvider {
 
 		throw new UnknownUnwrapTypeException(aClass);
 	}
+
 }

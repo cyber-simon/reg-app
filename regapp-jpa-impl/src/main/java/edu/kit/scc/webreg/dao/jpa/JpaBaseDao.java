@@ -1,12 +1,8 @@
 /*******************************************************************************
- * Copyright (c) 2014 Michael Simon.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the GNU Public License v3.0
- * which accompanies this distribution, and is available at
- * http://www.gnu.org/licenses/gpl.html
- * 
- * Contributors:
- *     Michael Simon - initial
+ * Copyright (c) 2014 Michael Simon. All rights reserved. This program and the
+ * accompanying materials are made available under the terms of the GNU Public
+ * License v3.0 which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/gpl.html Contributors: Michael Simon - initial
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
@@ -15,6 +11,7 @@ import static edu.kit.scc.webreg.dao.ops.SortBy.ascendingBy;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -66,8 +63,7 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 	public T createNew() {
 		try {
 			return getEntityClass().getConstructor().newInstance();
-		} catch (InstantiationException | IllegalAccessException | NoSuchMethodException
-				| InvocationTargetException e) {
+		} catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
 			return null;
 		}
 	}
@@ -81,10 +77,11 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 
 	@Override
 	public T merge(T entity) {
-		if (em.contains(entity))
+		if (em.contains(entity)) {
 			return entity;
-		else
+		} else {
 			return em.merge(entity);
+		}
 	}
 
 	@Override
@@ -150,20 +147,23 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 		return query.getResultList();
 	}
 
-	private <Q> void applyFilter(CriteriaQuery<Q> criteria, CriteriaBuilder builder, Root<T> root,
-			RqlExpression filterBy) {
+	private <Q> void applyFilter(CriteriaQuery<Q> criteria, CriteriaBuilder builder, Root<T> root, RqlExpression filterBy) {
 		criteria.where(mapRqlExpressionToPredicate(builder, root, filterBy));
 	}
 
 	@SuppressWarnings("unchecked")
 	private Predicate mapRqlExpressionToPredicate(CriteriaBuilder builder, Root<T> root, RqlExpression rqlExpression) {
 		if (rqlExpression instanceof And) {
-			Predicate[] predicates = ((And) rqlExpression).getOperands().stream()
-					.map(e -> mapRqlExpressionToPredicate(builder, root, e)).toArray(Predicate[]::new);
+			Predicate[] predicates = ((And) rqlExpression).getOperands()
+					.stream()
+					.map(e -> mapRqlExpressionToPredicate(builder, root, e))
+					.toArray(Predicate[]::new);
 			return builder.and(predicates);
 		} else if (rqlExpression instanceof Or) {
-			Predicate[] predicates = (Predicate[]) ((Or) rqlExpression).getOperands().stream()
-					.map(e -> mapRqlExpressionToPredicate(builder, root, e)).toArray(Predicate[]::new);
+			Predicate[] predicates = ((Or) rqlExpression).getOperands()
+					.stream()
+					.map(e -> mapRqlExpressionToPredicate(builder, root, e))
+					.toArray(Predicate[]::new);
 			return builder.or(predicates);
 		} else if (rqlExpression instanceof IsNull) {
 			IsNull<T, ?> isNull = (IsNull<T, ?>) rqlExpression;
@@ -188,8 +188,7 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 		} else if (rqlExpression instanceof LessThanOrEqualTo) {
 			@SuppressWarnings("rawtypes")
 			LessThanOrEqualTo lessThanOrEqualTo = (LessThanOrEqualTo) rqlExpression;
-			return builder.lessThanOrEqualTo(lessThanOrEqualTo.getFieldPath(root),
-					lessThanOrEqualTo.getAssignedValue());
+			return builder.lessThanOrEqualTo(lessThanOrEqualTo.getFieldPath(root), lessThanOrEqualTo.getAssignedValue());
 		} else if (rqlExpression instanceof Like) {
 			Like<T> like = (Like<T>) rqlExpression;
 			return builder.like(builder.lower(like.getFieldPath(root)),
@@ -212,16 +211,16 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 
 	private String applyWildcardsToPattern(String pattern, LikeMatchMode matchMode) {
 		switch (matchMode) {
-		case STARTS_WITH:
-			return pattern + "%";
-		case ENDS_WITH:
-			return "%" + pattern;
-		case CONTAINS:
-			return "%" + pattern + "%";
-		case EQUALS:
-			return pattern;
-		default:
-			throw new UnsupportedOperationException(String.format("Match mode '%s' is not supported", matchMode));
+			case STARTS_WITH:
+				return pattern + "%";
+			case ENDS_WITH:
+				return "%" + pattern;
+			case CONTAINS:
+				return "%" + pattern + "%";
+			case EQUALS:
+				return pattern;
+			default:
+				throw new UnsupportedOperationException(String.format("Match mode '%s' is not supported", matchMode));
 		}
 	}
 
@@ -238,19 +237,23 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 	}
 
 	private void applySorting(CriteriaQuery<T> criteria, CriteriaBuilder builder, Root<T> root, List<SortBy> sortBy) {
-		List<Order> orders = sortBy.stream().map(by -> getOrder(builder, root, by)).filter(Optional::isPresent)
-				.map(Optional::get).map(Order.class::cast).collect(Collectors.toList());
+		List<Order> orders = sortBy.stream()
+				.map(by -> getOrder(builder, root, by))
+				.filter(Optional::isPresent)
+				.map(Optional::get)
+				.map(Order.class::cast)
+				.collect(Collectors.toList());
 		criteria.orderBy(orders);
 	}
 
 	private Optional<Order> getOrder(CriteriaBuilder builder, Root<T> root, SortBy sortOrder) {
 		switch (sortOrder.getOrder()) {
-		case ASCENDING:
-			return Optional.of(builder.asc(sortOrder.getFieldPath(root)));
-		case DESCENDING:
-			return Optional.of(builder.desc(sortOrder.getFieldPath(root)));
-		default:
-			return Optional.empty();
+			case ASCENDING:
+				return Optional.of(builder.asc(sortOrder.getFieldPath(root)));
+			case DESCENDING:
+				return Optional.of(builder.desc(sortOrder.getFieldPath(root)));
+			default:
+				return Optional.empty();
 		}
 	}
 
@@ -263,7 +266,7 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 
 	@Override
 	public List<T> fetchAll(List<Long> ids) {
-		return ids.size() == 0 ? new ArrayList<T>() : findAllEagerly(in(AbstractBaseEntity_.id, ids));
+		return ids.size() == 0 ? new ArrayList<>() : findAllEagerly(in(AbstractBaseEntity_.id, ids));
 	}
 
 	@Override
@@ -311,9 +314,11 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public List<T> findAllEagerly(PaginateBy paginateBy, List<SortBy> sortBy, RqlExpression filterBy,
-			Attribute... joinFetchBy) {
+	public List<T> findAllEagerly(PaginateBy paginateBy, List<SortBy> sortBy, RqlExpression filterBy, Attribute... joinFetchBy) {
 		List<Long> ids = findIds(paginateBy, sortBy, filterBy);
+		if (ids.isEmpty()) {
+			return Collections.emptyList();
+		}
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<T> criteria = builder.createQuery(getEntityClass());
 		Root<T> root = criteria.from(getEntityClass());
@@ -352,8 +357,7 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 		if (paginateBy != null) {
 			applyPaging(query, paginateBy);
 		}
-		return (List<Long>) query.getResultStream().map(e -> ((AbstractBaseEntity) e).getId())
-				.collect(Collectors.toList());
+		return (List<Long>) query.getResultStream().map(e -> ((AbstractBaseEntity) e).getId()).collect(Collectors.toList());
 	}
 
 }
