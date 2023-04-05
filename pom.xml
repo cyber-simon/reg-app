@@ -45,6 +45,9 @@
 		<org.jboss.weld.version>3.1.2.Final</org.jboss.weld.version>
 		<org.jboss.weld.weld-junit5.version>2.0.1.Final</org.jboss.weld.weld-junit5.version>
 		<org.junit.jupiter.version>5.9.2</org.junit.jupiter.version>
+		<org.mockito.version>5.2.0</org.mockito.version>
+		<!-- bytebuddy-Version muss zu mockito passen -->
+		<net.bytebuddy.version>1.14.1</net.bytebuddy.version>
 		<org.reflections.version>0.10.2</org.reflections.version>
 		<javax.xml.bind.version>2.3.1</javax.xml.bind.version>
 	</properties>
@@ -303,6 +306,16 @@
 				<groupId>javax.xml.bind</groupId>
 				<artifactId>jaxb-api</artifactId>
 				<version>${javax.xml.bind.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-core</artifactId>
+				<version>${org.mockito.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>net.bytebuddy</groupId>
+				<artifactId>byte-buddy</artifactId>
+				<version>${net.bytebuddy.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

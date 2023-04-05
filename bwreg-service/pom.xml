@@ -8,8 +8,7 @@
   Contributors:
       Michael Simon - initial
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>bwreg-service</artifactId>
 	<packaging>ejb</packaging>
@@ -21,8 +20,8 @@
 	</parent>
 
 	<properties>
-	    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
 
 	<dependencies>
@@ -187,7 +186,7 @@
 			<artifactId>httpclient</artifactId>
 			<scope>provided</scope>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.kie</groupId>
 			<artifactId>kie-api</artifactId>
@@ -206,13 +205,13 @@
 			<artifactId>vt-ldap</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
@@ -220,8 +219,8 @@
 		</dependency>
 
 		<dependency>
-   			<groupId>commons-beanutils</groupId>
-		    <artifactId>commons-beanutils</artifactId>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
 			<scope>provided</scope>
 		</dependency>
 
@@ -236,10 +235,10 @@
 			<artifactId>jcifs</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		
+
 		<dependency>
-		    <groupId>com.nimbusds</groupId>
-		    <artifactId>oauth2-oidc-sdk</artifactId>
+			<groupId>com.nimbusds</groupId>
+			<artifactId>oauth2-oidc-sdk</artifactId>
 			<scope>provided</scope>
 		</dependency>
 
@@ -265,6 +264,17 @@
 			<scope>provided</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-jpa-test</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
