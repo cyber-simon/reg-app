@@ -5,23 +5,34 @@ import javax.persistence.metamodel.SingularAttribute;
 
 public class SortByBasedOnAttribute implements SortBy {
 
-	private SortOrder order;
+	private SortOrder sortOrder;
+	private NullOrder nullOrder;
 	private SingularAttribute<?, ?> field;
 
-	public SortByBasedOnAttribute(SingularAttribute<?, ?> field, SortOrder order) {
-		this.order = order;
+	public SortByBasedOnAttribute(SingularAttribute<?, ?> field, SortOrder sortOrder, NullOrder nullOrder) {
+		this.sortOrder = sortOrder;
+		this.nullOrder = nullOrder;
 		this.field = field;
 	}
 
 	@Override
-	public SortOrder getOrder() {
-		return order;
+	public SortOrder getSortOrder() {
+		return sortOrder;
+	}
+
+	@Override
+	public NullOrder getNullOrder() {
+		return nullOrder;
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public <E, F> Path<F> getFieldPath(Path<E> parent) {
 		return parent.get((SingularAttribute<E, F>) field);
+	}
+
+	public SingularAttribute<?, ?> getField() {
+		return field;
 	}
 
 }

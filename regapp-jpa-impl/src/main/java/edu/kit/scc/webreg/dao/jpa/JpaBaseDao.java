@@ -6,12 +6,17 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
+import static edu.kit.scc.webreg.dao.ops.NullOrder.NULL_FIRST;
+import static edu.kit.scc.webreg.dao.ops.NullOrder.NULL_LAST;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.in;
 import static edu.kit.scc.webreg.dao.ops.SortBy.ascendingBy;
+import static edu.kit.scc.webreg.dao.ops.SortOrder.ASCENDING;
+import static edu.kit.scc.webreg.dao.ops.SortOrder.DESCENDING;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -22,6 +27,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
@@ -44,10 +50,13 @@ import edu.kit.scc.webreg.dao.ops.LikeMatchMode;
 import edu.kit.scc.webreg.dao.ops.NotEqual;
 import edu.kit.scc.webreg.dao.ops.NotIn;
 import edu.kit.scc.webreg.dao.ops.NotLike;
+import edu.kit.scc.webreg.dao.ops.NullOrder;
 import edu.kit.scc.webreg.dao.ops.Or;
 import edu.kit.scc.webreg.dao.ops.PaginateBy;
 import edu.kit.scc.webreg.dao.ops.RqlExpression;
 import edu.kit.scc.webreg.dao.ops.SortBy;
+import edu.kit.scc.webreg.dao.ops.SortByBasedOnAttribute;
+import edu.kit.scc.webreg.dao.ops.SortByBasedOnString;
 import edu.kit.scc.webreg.entity.AbstractBaseEntity;
 import edu.kit.scc.webreg.entity.AbstractBaseEntity_;
 import edu.kit.scc.webreg.entity.BaseEntity;
@@ -246,15 +255,57 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 		criteria.orderBy(orders);
 	}
 
-	private Optional<Order> getOrder(CriteriaBuilder builder, Root<T> root, SortBy sortOrder) {
-		switch (sortOrder.getOrder()) {
-			case ASCENDING:
-				return Optional.of(builder.asc(sortOrder.getFieldPath(root)));
-			case DESCENDING:
-				return Optional.of(builder.desc(sortOrder.getFieldPath(root)));
+	private Optional<Order> getOrder(CriteriaBuilder builder, Root<T> root, SortBy sortBy) {
+		switch (sortBy.getSortOrder()) {
+			case ASCENDING: {
+				Expression<T> nullAdjustedField = getNullAdjustedFieldExpression(builder, root, sortBy);
+				return Optional.of(builder.asc(nullAdjustedField));
+			}
+			case DESCENDING: {
+				Expression<T> nullAdjustedField = getNullAdjustedFieldExpression(builder, root, sortBy);
+				return Optional.of(builder.desc(nullAdjustedField));
+			}
 			default:
 				return Optional.empty();
 		}
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private Expression<T> getNullAdjustedFieldExpression(CriteriaBuilder builder, Root<T> root, SortBy sortBy) {
+		if (sortBy.getNullOrder() != null && !NullOrder.DB_DEFAULT.equals(sortBy.getNullOrder())) {
+			if (sortBy instanceof SortByBasedOnString) {
+				throw new UnsupportedOperationException(
+						String.format("NULL FIRST or NULL LAST is only supported for %s", SortByBasedOnAttribute.class.getSimpleName()));
+			}
+			return (Expression) builder.coalesce(sortBy.getFieldPath(root), getNullReplacementForField(sortBy));
+		} else {
+			return sortBy.getFieldPath(root);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private Object getNullReplacementForField(SortBy sortBy) {
+		Class<T> javaTypeOfField = (Class<T>) ((SortByBasedOnAttribute) sortBy).getField().getJavaType();
+		boolean replaceWithMaxValue = ASCENDING.equals(sortBy.getSortOrder()) && NULL_LAST.equals(sortBy.getNullOrder())
+				|| DESCENDING.equals(sortBy.getSortOrder()) && NULL_FIRST.equals(sortBy.getNullOrder());
+		Object replacement = null;
+		if (Integer.class.equals(javaTypeOfField)) {
+			replacement = replaceWithMaxValue ? Integer.MAX_VALUE : Integer.MIN_VALUE;
+		} else if (Long.class.equals(javaTypeOfField)) {
+			replacement = replaceWithMaxValue ? Long.MAX_VALUE : Long.MIN_VALUE;
+		} else if (Date.class.equals(javaTypeOfField)) {
+			replacement = replaceWithMaxValue ? new Date(Long.MAX_VALUE) : new Date(Long.MIN_VALUE);
+		} else if (String.class.equals(javaTypeOfField)) {
+			if (replaceWithMaxValue) {
+				throw new UnsupportedOperationException(String.format("Combination of %s with %s is not supported for String typed fields",
+						sortBy.getSortOrder(), sortBy.getNullOrder()));
+			}
+			replacement = "";
+		} else {
+			throw new UnsupportedOperationException(
+					String.format("NULL FIRST or NULL LAST is not supported for type %s", javaTypeOfField.getSimpleName()));
+		}
+		return replacement;
 	}
 
 	protected void applyPaging(Query query, PaginateBy paginateBy) {
