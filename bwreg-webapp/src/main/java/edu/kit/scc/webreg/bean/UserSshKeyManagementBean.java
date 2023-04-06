@@ -42,74 +42,75 @@ public class UserSshKeyManagementBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private IdentityEntity identity;
-	
+
 	@Inject
 	private Logger logger;
-	
+
 	@Inject
 	private IdentityService identityService;
-	
-    @Inject 
-    private SessionManager sessionManager;
 
-    @Inject
-    private OpenSshKeyDecoder keyDecoder;
+	@Inject
+	private SessionManager sessionManager;
+
+	@Inject
+	private OpenSshKeyDecoder keyDecoder;
 
 	@Inject
 	private FacesMessageGenerator messageGenerator;
 
 	@Inject
 	private SshPubKeyService sshPubKeyService;
-	
+
 	@Inject
 	private ApplicationConfig appConfig;
-	
-    private List<OpenSshPublicKey> keyList;
-    private String newKey;
-    private String newName;
-    private OpenSshPublicKey selectedKey;
-    
+
+	private List<OpenSshPublicKey> keyList;
+	private String newKey;
+	private String newName;
+	private OpenSshPublicKey selectedKey;
+
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (identity == null) {
 			identity = identityService.fetch(sessionManager.getIdentityId());
-	    	List<SshPubKeyEntity> sshPubKeyList = sshPubKeyService.findByIdentityAndStatusWithRegs(identity.getId(), SshPubKeyStatus.ACTIVE);
-	    	sshPubKeyList.addAll(sshPubKeyService.findByIdentityAndStatusWithRegs(identity.getId(), SshPubKeyStatus.EXPIRED));
-	    	
-	    	keyList = new ArrayList<OpenSshPublicKey>();
-	    	for (SshPubKeyEntity sshKey : sshPubKeyList) {
-	    		OpenSshPublicKey key = new OpenSshPublicKey();
-	    		key.setPubKeyEntity(sshKey);
-	    		keyList.add(key);
+			List<SshPubKeyEntity> sshPubKeyList = new ArrayList<>();
+			sshPubKeyList.addAll(sshPubKeyService.findByIdentityAndStatusWithRegs(identity.getId(), SshPubKeyStatus.ACTIVE));
+			sshPubKeyList.addAll(sshPubKeyService.findByIdentityAndStatusWithRegs(identity.getId(), SshPubKeyStatus.EXPIRED));
+
+			keyList = new ArrayList<>();
+			for (SshPubKeyEntity sshKey : sshPubKeyList) {
+				OpenSshPublicKey key = new OpenSshPublicKey();
+				key.setPubKeyEntity(sshKey);
+				keyList.add(key);
 				try {
-		    		keyDecoder.decode(key);
+					keyDecoder.decode(key);
 				} catch (UnsupportedKeyTypeException e) {
 					logger.warn("Unsupported key exception: ", e.getMessage());
 					messageGenerator.addResolvedErrorMessage("error_msg", "SSH Key not readable.", false);
 				}
-	    	}
+			}
 		}
 	}
 
 	public void deleteKey(String name) {
 		int removeIndex = -1;
 		SshPubKeyEntity removeEntity = null;
-		
-		for (int i=0; i<keyList.size(); i++) {
+
+		for (int i = 0; i < keyList.size(); i++) {
 			if (keyList.get(i).getPubKeyEntity().getName().equals(name)) {
 				removeIndex = i;
 				removeEntity = keyList.get(i).getPubKeyEntity();
 				break;
 			}
 		}
-		
+
 		if (removeIndex != -1) {
 			keyList.remove(removeIndex);
 			sshPubKeyService.deleteKey(removeEntity, "identity-" + identity.getId());
 		}
-		
-		messageGenerator.addResolvedInfoMessage("info", "ssh_keys.key_deleted", false);				
+
+		messageGenerator.addResolvedInfoMessage("info", "ssh_keys.key_deleted", false);
 	}
-	
+
 	public void deployKey() {
 		OpenSshPublicKey key = new OpenSshPublicKey();
 		SshPubKeyEntity sshPubKeyEntity = sshPubKeyService.createNew();
@@ -120,25 +121,25 @@ public class UserSshKeyManagementBean implements Serializable {
 			sshPubKeyEntity.setEncodedKey(newKey);
 			sshPubKeyEntity.setIdentity(identity);
 			sshPubKeyEntity.setKeyStatus(SshPubKeyStatus.ACTIVE);
-	
+
 			keyDecoder.decode(key);
 
 			sshPubKeyEntity.setEncodedKey(key.getBaseDate());
-			
+
 			Long expireTime = 90 * 24 * 60 * 60 * 1000L; // 90 days standard expiry time for ssh keys. -1 for never expire
 			if (appConfig.getConfigValue("sshpubkey_expire_time") != null) {
 				expireTime = Long.parseLong(appConfig.getConfigValue("sshpubkey_expire_time"));
 			}
-	
+
 			if (expireTime != -1) {
-				sshPubKeyEntity.setExpiresAt(new Date(System.currentTimeMillis() + expireTime));			
+				sshPubKeyEntity.setExpiresAt(new Date(System.currentTimeMillis() + expireTime));
 			}
-			
+
 			sshPubKeyEntity = sshPubKeyService.deployKey(identity.getId(), sshPubKeyEntity, "identity-" + identity.getId());
 			keyList.add(key);
 			newKey = "";
 			newName = "";
-			messageGenerator.addResolvedInfoMessage("info", "ssh_key_deployed", true);				
+			messageGenerator.addResolvedInfoMessage("info", "ssh_key_deployed", true);
 		} catch (UnsupportedKeyTypeException e) {
 			logger.warn("An error occured whilst deploying key: " + e.getMessage());
 			messageGenerator.addResolvedErrorMessage("sshKeyMessage", "error_msg", e.toString(), false);
@@ -183,4 +184,5 @@ public class UserSshKeyManagementBean implements Serializable {
 	public IdentityEntity getIdentity() {
 		return identity;
 	}
+
 }
