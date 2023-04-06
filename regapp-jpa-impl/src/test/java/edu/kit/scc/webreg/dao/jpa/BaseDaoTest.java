@@ -1,5 +1,10 @@
 package edu.kit.scc.webreg.dao.jpa;
 
+import static edu.kit.scc.webreg.dao.ops.NullOrder.NULL_FIRST;
+import static edu.kit.scc.webreg.dao.ops.NullOrder.NULL_LAST;
+import static edu.kit.scc.webreg.dao.ops.PaginateBy.unlimited;
+import static edu.kit.scc.webreg.dao.ops.SortBy.ascendingBy;
+import static edu.kit.scc.webreg.dao.ops.SortBy.descendingBy;
 import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
@@ -22,6 +27,7 @@ import edu.kit.scc.webreg.dao.test.EnableAutoWeldWithJpaSupport;
 import edu.kit.scc.webreg.dao.test.JpaTestConfiguration;
 import edu.kit.scc.webreg.entity.AbstractBaseEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity_;
 
 @EnableAutoWeldWithJpaSupport
 @AddBeanClasses({ JpaIdentityDao.class, JpaUserDao.class })
@@ -43,7 +49,7 @@ class BaseDaoTest {
 	public class CountAll {
 
 		@Test
-		void returnsCorrectNumber() {
+		public void returnsCorrectNumber() {
 			createPersistedIdentityEntity("chosen local username");
 
 			Integer actual = identityDao.countAll(null).intValue();
@@ -57,11 +63,60 @@ class BaseDaoTest {
 	public class FindAll {
 
 		@Test
-		void returnsCorrectList() {
+		public void returnsCorrectList() {
 			IdentityEntity persistedEntity1 = createPersistedIdentityEntity("me");
 			IdentityEntity persistedEntity2 = createPersistedIdentityEntity("you");
 
 			List<IdentityEntity> foundEntities = identityDao.findAll();
+
+			assertThat(foundEntities).containsExactly(persistedEntity1, persistedEntity2);
+		}
+
+		@Test
+		public void respectsNullFirstOptionSortingInAscendingOrder() {
+			IdentityEntity newEntity1 = createNewIdentityEntity("me");
+			newEntity1.setUidNumber(0);
+			IdentityEntity persistedEntity1 = identityDao.persist(newEntity1);
+			IdentityEntity persistedEntity2 = createPersistedIdentityEntity("you");
+
+			List<IdentityEntity> foundEntities = identityDao.findAll(unlimited(), ascendingBy(IdentityEntity_.uidNumber, NULL_FIRST), null);
+
+			assertThat(foundEntities).containsExactly(persistedEntity2, persistedEntity1);
+		}
+
+		@Test
+		public void respectsNullFirstOptionSortingInDescendingOrder() {
+			IdentityEntity newEntity1 = createNewIdentityEntity("me");
+			newEntity1.setUidNumber(0);
+			IdentityEntity persistedEntity1 = identityDao.persist(newEntity1);
+			IdentityEntity persistedEntity2 = createPersistedIdentityEntity("you");
+
+			List<IdentityEntity> foundEntities = identityDao.findAll(unlimited(), descendingBy(IdentityEntity_.uidNumber, NULL_FIRST),
+					null);
+
+			assertThat(foundEntities).containsExactly(persistedEntity2, persistedEntity1);
+		}
+
+		@Test
+		public void respectsNullLastOptionSortingInAscendingOrder() {
+			IdentityEntity newEntity1 = createNewIdentityEntity("me");
+			newEntity1.setUidNumber(0);
+			IdentityEntity persistedEntity1 = identityDao.persist(newEntity1);
+			IdentityEntity persistedEntity2 = createPersistedIdentityEntity("you");
+
+			List<IdentityEntity> foundEntities = identityDao.findAll(unlimited(), ascendingBy(IdentityEntity_.uidNumber, NULL_LAST), null);
+
+			assertThat(foundEntities).containsExactly(persistedEntity1, persistedEntity2);
+		}
+
+		@Test
+		public void respectsNullLastOptionSortingInDescendingOrder() {
+			IdentityEntity newEntity1 = createNewIdentityEntity("me");
+			newEntity1.setUidNumber(0);
+			IdentityEntity persistedEntity1 = identityDao.persist(newEntity1);
+			IdentityEntity persistedEntity2 = createPersistedIdentityEntity("you");
+
+			List<IdentityEntity> foundEntities = identityDao.findAll(unlimited(), descendingBy(IdentityEntity_.uidNumber, NULL_LAST), null);
 
 			assertThat(foundEntities).containsExactly(persistedEntity1, persistedEntity2);
 		}
@@ -72,7 +127,7 @@ class BaseDaoTest {
 	public class Persist {
 
 		@Test
-		void persistsEntity() {
+		public void persistsEntity() {
 			IdentityEntity newEntity = createNewIdentityEntity("chosen local username");
 
 			IdentityEntity persistedEntity = identityDao.persist(newEntity);
@@ -80,13 +135,12 @@ class BaseDaoTest {
 			assertThat(persistedEntity).isNotNull();
 			assertSoftly(softly -> {
 				softly.assertThat(persistedEntity.getId()).isNotNull();
-				softly.assertThat(persistedEntity.getChosenLocalUsername())
-						.isEqualTo(newEntity.getChosenLocalUsername());
+				softly.assertThat(persistedEntity.getChosenLocalUsername()).isEqualTo(newEntity.getChosenLocalUsername());
 			});
 		}
 
 		@Test
-		void setsVersion() {
+		public void setsVersion() {
 			IdentityEntity newEntity = createNewIdentityEntity("chosen local username");
 
 			IdentityEntity persistedEntity = identityDao.persist(newEntity);
@@ -96,7 +150,7 @@ class BaseDaoTest {
 		}
 
 		@Test
-		void setsUpdatedAt() {
+		public void setsUpdatedAt() {
 			IdentityEntity newEntity = createNewIdentityEntity("chosen local username");
 
 			IdentityEntity persistedEntity = identityDao.persist(newEntity);
@@ -106,7 +160,7 @@ class BaseDaoTest {
 		}
 
 		@Test
-		void setsCreatedAt() {
+		public void setsCreatedAt() {
 			IdentityEntity newEntity = createNewIdentityEntity("chosen local username");
 
 			IdentityEntity persistedEntity = identityDao.persist(newEntity);

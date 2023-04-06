@@ -5,31 +5,41 @@ import javax.persistence.metamodel.SingularAttribute;
 
 public interface SortBy {
 
-	public static SortBy of(String field, SortOrder sortOrder) {
+	static SortBy of(String field, SortOrder sortOrder) {
 		return new SortByBasedOnString(field, sortOrder);
 	}
 
-	public static SortBy of(SingularAttribute<?, ?> field, SortOrder sortOrder) {
-		return new SortByBasedOnAttribute(field, sortOrder);
+	static SortBy of(SingularAttribute<?, ?> field, SortOrder sortOrder, NullOrder nullOrder) {
+		return new SortByBasedOnAttribute(field, sortOrder, nullOrder);
 	}
 
-	public static SortBy ascendingBy(String field) {
+	static SortBy ascendingBy(String field) {
 		return new SortByBasedOnString(field, SortOrder.ASCENDING);
 	}
 
-	public static SortBy ascendingBy(SingularAttribute<?, ?> field) {
-		return new SortByBasedOnAttribute(field, SortOrder.ASCENDING);
+	static SortBy ascendingBy(SingularAttribute<?, ?> field) {
+		return new SortByBasedOnAttribute(field, SortOrder.ASCENDING, NullOrder.DB_DEFAULT);
 	}
 
-	public static SortBy descendingBy(String field) {
+	static SortBy ascendingBy(SingularAttribute<?, ?> field, NullOrder nullOrder) {
+		return new SortByBasedOnAttribute(field, SortOrder.ASCENDING, nullOrder);
+	}
+
+	static SortBy descendingBy(String field) {
 		return new SortByBasedOnString(field, SortOrder.DESCENDING);
 	}
 
-	public static SortBy descendingBy(SingularAttribute<?, ?> field) {
-		return new SortByBasedOnAttribute(field, SortOrder.DESCENDING);
+	static SortBy descendingBy(SingularAttribute<?, ?> field) {
+		return new SortByBasedOnAttribute(field, SortOrder.DESCENDING, NullOrder.DB_DEFAULT);
 	}
 
-	SortOrder getOrder();
+	static SortBy descendingBy(SingularAttribute<?, ?> field, NullOrder nullOrder) {
+		return new SortByBasedOnAttribute(field, SortOrder.DESCENDING, nullOrder);
+	}
+
+	SortOrder getSortOrder();
+
+	NullOrder getNullOrder();
 
 	<E, F> Path<F> getFieldPath(Path<E> parent);
 
