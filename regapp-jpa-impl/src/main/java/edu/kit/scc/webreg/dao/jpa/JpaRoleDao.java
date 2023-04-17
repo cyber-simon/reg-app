@@ -169,7 +169,7 @@ public class JpaRoleDao extends JpaBaseDao<RoleEntity> implements RoleDao {
 	@Override
 	public Boolean checkAdminUserInRole(Long userId, String roleName) {
 		List<RoleEntity> roleList = em
-				.createQuery("select u.roles from AdminUserEntity u where u.id = :userId", RoleEntity.class)
+				.createQuery("select u.roles from AdminUserEntity u where u.id = :userId")
 				.setParameter("userId", userId).getResultList();
 		return roleList.size() > 0 && em
 				.createQuery("select r from RoleEntity r where r.name = :roleName and r in :roleList", RoleEntity.class)
