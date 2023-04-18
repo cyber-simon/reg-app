@@ -294,7 +294,8 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 		} else if (Long.class.equals(javaTypeOfField)) {
 			replacement = replaceWithMaxValue ? Long.MAX_VALUE : Long.MIN_VALUE;
 		} else if (Date.class.equals(javaTypeOfField)) {
-			replacement = replaceWithMaxValue ? new Date(Long.MAX_VALUE) : new Date(Long.MIN_VALUE);
+			replacement = replaceWithMaxValue ? new Date(9224318015999999L) // 294276-12-31 23:59:59.999
+					: new Date(-210866803200000L); // -4713-01-01 00:00:00
 		} else if (String.class.equals(javaTypeOfField)) {
 			if (replaceWithMaxValue) {
 				throw new UnsupportedOperationException(String.format("Combination of %s with %s is not supported for String typed fields",
