@@ -728,7 +728,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 
 		long refreshTokenLifetime = 7200;
 		if (clientConfig.getGenericStore().containsKey("refresh_token_lifetime")) {
-			accessTokenLifetime = Long.parseLong(clientConfig.getGenericStore().get("refresh_token_lifetime"));
+			refreshTokenLifetime = Long.parseLong(clientConfig.getGenericStore().get("refresh_token_lifetime"));
 		}
 
 		BearerAccessToken bat;
