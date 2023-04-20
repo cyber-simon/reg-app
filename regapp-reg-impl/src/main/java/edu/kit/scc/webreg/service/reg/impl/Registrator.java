@@ -254,7 +254,10 @@ public class Registrator implements Serializable {
 		for (ServiceEntity service : groupUpdateList.getServices()) {
 			RegisterUserWorkflow workflow = getWorkflowInstance(service.getRegisterBean());
 			if (!(workflow instanceof GroupCapable)) {
-				logger.warn("Workflow " + workflow.getClass() + " is not GroupCapable!");
+				logger.warn("Workflow " + workflow.getClass() + " is not GroupCapable! Resetting all Flags to CLEAN");
+				for (ServiceGroupFlagEntity groupFlag : groupUpdateList.getGroupFlagsForService(service)) {
+					groupFlag.setStatus(ServiceGroupStatus.CLEAN);
+				}
 				continue;
 			}
 
