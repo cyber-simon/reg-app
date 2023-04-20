@@ -174,6 +174,32 @@ public class ServiceAdminController {
 			throw e;
 		}
 	}
+        
+	@Path(value = "/deregister/{ssn}/by-id/{regId}")
+	@Produces({ "text/plain" })
+	@GET
+	public Response deregister(@PathParam("ssn") String ssn, @PathParam("regId") Long regId,
+			@Context HttpServletRequest request) throws RestInterfaceException, RegisterException {
+
+		ServiceEntity serviceEntity = serviceService.findByShortName(ssn);
+		if (serviceEntity == null)
+			throw new NoItemFoundException("No such service");
+
+		if (!checkAccess(request, serviceEntity.getAdminRole().getName()))
+			throw new UnauthorizedException("No access");
+
+		RegistryEntity registryEntity = registryService.fetch(regId);
+		if (registryEntity == null)
+			throw new NoItemFoundException("No such registry");
+
+		try {
+			registerUserService.deregisterUser(registryEntity, resolveUsername(request), "deregister-via-api");
+			return Response.ok("registry deregistered", MediaType.TEXT_PLAIN_TYPE).build();
+		} catch (RegisterException e) {
+			logger.warn("Deregister failed!", e);
+			throw e;
+		}
+	}
 
 	@Path(value = "/recon/all/{ssn}")
 	@Produces({ "text/plain" })

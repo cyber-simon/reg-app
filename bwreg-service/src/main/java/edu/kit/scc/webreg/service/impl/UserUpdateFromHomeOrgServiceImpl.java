@@ -17,6 +17,8 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dao.UserDao;
+import edu.kit.scc.webreg.dao.ops.NullOrder;
+import edu.kit.scc.webreg.dao.ops.SortBy;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserEntity_;
@@ -67,7 +69,8 @@ public class UserUpdateFromHomeOrgServiceImpl implements UserUpdateFromHomeOrgSe
 	@Override
 	public List<UserEntity> findScheduledUsers(Integer limit) {
 		Date now = new Date();
-		return userDao.findAll(withLimit(limit), and(notEqual(UserEntity_.userStatus, UserStatus.DEREGISTERED),
+		return userDao.findAll(withLimit(limit), SortBy.ascendingBy(UserEntity_.scheduledUpdate, NullOrder.NULL_FIRST),
+				and(notEqual(UserEntity_.userStatus, UserStatus.DEREGISTERED),
 				or(lessThan(UserEntity_.scheduledUpdate, now), isNull(UserEntity_.scheduledUpdate))));
 	}
 
