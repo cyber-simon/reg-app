@@ -71,7 +71,7 @@
 							</h:panelGrid>
 
 							<p:panel style="margin: 8px;" rendered="#{! token.isactive and (token.description.contains('INIT'))}">
-								<h:outputText value="#{messages.twofa_token_not_init}" style="color:red;"/>
+								<h:outputText value="#{messages.twofa_token_not_init}" class="text-danger"/>
 							</p:panel>
 							</p:outputPanel>
 					</h:panelGrid>
@@ -111,14 +111,14 @@
 
 						</h:panelGrid>
 						<p:panel style="margin: 8px;" rendered="#{! token.isactive and (token.description.contains('INIT'))}">
-							<h:outputText value="#{messages.twofa_token_not_init}" style="color:red;" />
+							<h:outputText value="#{messages.twofa_token_not_init}" class="text-danger"/>
 						</p:panel>
 						<p:commandButton action="#{twoFaUserBean.disableToken(token.serial)}" value="#{messages.disable}" 
 							update="@form" rendered="#{token.isactive}"/>
 						<p:commandButton action="#{twoFaUserBean.enableToken(token.serial)}" value="#{messages.enable}" 
 							update="@form" rendered="#{! token.isactive and (! token.description.contains('INIT'))}"/>
 						<p:commandButton action="#{twoFaUserBean.deleteToken(token.serial)}" value="#{messages.delete}" 
-							update="@form" rendered="#{! token.isactive and (token.description.contains('DELABLE'))}" style="color:red;">
+							update="@form" rendered="#{! token.isactive and (token.description.contains('DELABLE'))}" class="text-danger">
 							<p:confirm header="#{messages.confirm_header}" message="#{messages.confirm}" />
 						</p:commandButton>
 						<p:commandButton action="#{twoFaUserBean.getBackupTanList(token.serial)}" value="#{messages.token_get_tanlist_values}" 

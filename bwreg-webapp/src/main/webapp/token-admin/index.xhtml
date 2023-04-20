@@ -94,7 +94,7 @@
 							<h:outputText value="#{token.isactive ? messages.yes : messages.no}" />
 						</h:panelGrid>
 						<p:panel style="margin: 8px;" rendered="#{! token.isactive and (token.description.contains('INIT'))}">
-							<h:outputText value="#{messages.twofa_token_not_init}" style="color:red;" />
+							<h:outputText value="#{messages.twofa_token_not_init}" class="text-danger" />
 						</p:panel>
 						<p:commandButton action="#{tokenAdminIndexBean.disableToken(token.serial)}" value="#{messages.disable}" 
 							update="@form" rendered="#{token.isactive}" style="font-size:75%;"/>

@@ -101,7 +101,7 @@
 		<div id="panelInline">
 			<p:panel header="#{messages.tools}">
 		        <p:commandButton id="delGrp" action="#{groupAdminShowLocalGroupBean.deleteGroup()}" value="#{messages.delete_group}"
-		        	style="color: red;" ajax="false" disabled="#{not groupAdminShowLocalGroupBean.editable}" />					
+		        	class="text-danger" ajax="false" disabled="#{not groupAdminShowLocalGroupBean.editable}" />
 			</p:panel>
 		</div>
 

@@ -229,9 +229,9 @@
 		<div id="panelInline">
 			<p:panel header="#{messages.tools}">
 		        <p:commandButton id="delGrp" action="#{showLocalGroupBean.deleteGroup()}" value="#{messages.delete_group}"
-		        	style="color: red;" update="@form" />					
+		        	class="text-danger" update="@form" />
 		        <p:commandButton id="rmvMembers" action="#{showLocalGroupBean.removeAllMembers()}" value="#{messages.remove_all_members}"
-		        	style="color: red;" update="@form" />					
+		        	class="text-danger" update="@form" />
 			</p:panel>
 		</div>
 
