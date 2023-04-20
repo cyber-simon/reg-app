@@ -385,9 +385,7 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 		}
 
 		Query query = em.createQuery(criteria);
-		if (paginateBy != null) {
-			applyPaging(query, paginateBy);
-		}
+		
 		return query.getResultList();
 	}
 
