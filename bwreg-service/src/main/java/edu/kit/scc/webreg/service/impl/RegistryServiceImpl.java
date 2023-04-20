@@ -1,19 +1,19 @@
-/*******************************************************************************
+/*
+ * *****************************************************************************
  * Copyright (c) 2014 Michael Simon.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the GNU Public License v3.0
- * which accompanies this distribution, and is available at
- * http://www.gnu.org/licenses/gpl.html
- * 
- * Contributors:
- *     Michael Simon - initial
- ******************************************************************************/
+ *
+ * All rights reserved. This program and the accompanying materials are made
+ * available under the terms of the GNU Public License v3.0 which accompanies
+ * this distribution, and is available at http://www.gnu.org/licenses/gpl.html
+ *
+ * Contributors: Michael Simon - initial
+ * ****************************************************************************
+ */
 package edu.kit.scc.webreg.service.impl;
 
 import static edu.kit.scc.webreg.dao.ops.PaginateBy.withLimit;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.and;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
-import static edu.kit.scc.webreg.dao.ops.RqlExpressions.lessThan;
 import static edu.kit.scc.webreg.dao.ops.SortBy.ascendingBy;
 
 import java.util.Date;
@@ -24,10 +24,10 @@ import javax.inject.Inject;
 
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.RegistryDao;
+import edu.kit.scc.webreg.entity.AbstractBaseEntity_;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity_;
 import edu.kit.scc.webreg.entity.RegistryStatus;
-import edu.kit.scc.webreg.entity.SamlIdpMetadataEntityStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
@@ -43,16 +43,12 @@ public class RegistryServiceImpl extends BaseServiceImpl<RegistryEntity> impleme
 
 	@Override
 	public RegistryEntity findByIdWithAgreements(Long id) {
-		return dao.find(equal(RegistryEntity_.id, id), RegistryEntity_.agreedTexts);
+		return dao.find(equal(AbstractBaseEntity_.id, id), RegistryEntity_.agreedTexts);
 	}
 
 	@Override
-	public List<RegistryEntity> findByServiceAndStatusAndIDPGood(String serviceShortName, RegistryStatus status,
-			Date date, int limit) {
-		return dao.findAll(withLimit(limit), ascendingBy(RegistryEntity_.lastReconcile),
-				and(equal("service.shortName", serviceShortName), equal(RegistryEntity_.registryStatus, status),
-						lessThan(RegistryEntity_.lastStatusChange, date),
-						equal("user.idp.aqIdpStatus", SamlIdpMetadataEntityStatus.GOOD)));
+	public List<RegistryEntity> findByServiceAndStatusAndIDPGood(String serviceShortName, RegistryStatus status, Date date, int limit) {
+		return dao.findByServiceAndStatusAndIDPGood(serviceShortName, status, date, limit);
 	}
 
 	@Override
@@ -66,8 +62,7 @@ public class RegistryServiceImpl extends BaseServiceImpl<RegistryEntity> impleme
 	}
 
 	@Override
-	public List<RegistryEntity> findByServiceAndStatusOrderByRecon(ServiceEntity service, RegistryStatus status,
-			int limit) {
+	public List<RegistryEntity> findByServiceAndStatusOrderByRecon(ServiceEntity service, RegistryStatus status, int limit) {
 		return dao.findAll(withLimit(limit), ascendingBy(RegistryEntity_.lastReconcile),
 				and(equal(RegistryEntity_.service, service), equal(RegistryEntity_.registryStatus, status)));
 	}
@@ -95,8 +90,7 @@ public class RegistryServiceImpl extends BaseServiceImpl<RegistryEntity> impleme
 
 	@Override
 	public List<RegistryEntity> findByServiceOrderByRecon(ServiceEntity service, int limit) {
-		return dao.findAll(withLimit(limit), ascendingBy(RegistryEntity_.lastReconcile),
-				equal(RegistryEntity_.service, service));
+		return dao.findAll(withLimit(limit), ascendingBy(RegistryEntity_.lastReconcile), equal(RegistryEntity_.service, service));
 	}
 
 	@Override
@@ -105,8 +99,7 @@ public class RegistryServiceImpl extends BaseServiceImpl<RegistryEntity> impleme
 	}
 
 	@Override
-	public List<RegistryEntity> findByIdentityAndNotStatusAndNotHidden(IdentityEntity identity,
-			RegistryStatus... status) {
+	public List<RegistryEntity> findByIdentityAndNotStatusAndNotHidden(IdentityEntity identity, RegistryStatus... status) {
 		return dao.findByIdentityAndNotStatusAndNotHidden(identity, status);
 	}
 
