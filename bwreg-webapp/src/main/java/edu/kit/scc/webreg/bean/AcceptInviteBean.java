@@ -91,7 +91,7 @@ public class AcceptInviteBean implements Serializable {
 		servicePolicyMap = policyService.findPolicyMapForProject(project, ProjectPolicyType.MEMBER_ACCEPT);
 		projectServiceList = servicePolicyMap.keySet().stream().collect(Collectors.toList());
 		policyHolderList = new ArrayList<PolicyHolder>();
-		
+
 		projectServiceList.stream().forEach(projectServiceEntity -> {
 			servicePolicyMap.get(projectServiceEntity).stream().forEach(policy -> {
 				PolicyHolder ph = new PolicyHolder();
@@ -104,7 +104,8 @@ public class AcceptInviteBean implements Serializable {
 
 	public void accept() {
 		if (token != null) {
-			tokenService.acceptEmailToken(token, "idty-" + sessionManager.getIdentityId());
+			tokenService.acceptEmailToken(token, sessionManager.getIdentityId(),
+					"idty-" + sessionManager.getIdentityId());
 			token = null;
 			tokenString = "";
 		} else {
@@ -113,7 +114,7 @@ public class AcceptInviteBean implements Serializable {
 	}
 
 	public void decline() {
-		tokenService.declineEmailToken(token, "idty-" + sessionManager.getIdentityId());
+		tokenService.declineEmailToken(token, sessionManager.getIdentityId(), "idty-" + sessionManager.getIdentityId());
 		token = null;
 		tokenString = "";
 	}
