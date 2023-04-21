@@ -1,13 +1,14 @@
-/*******************************************************************************
+/*
+ * *****************************************************************************
  * Copyright (c) 2014 Michael Simon.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the GNU Public License v3.0
- * which accompanies this distribution, and is available at
- * http://www.gnu.org/licenses/gpl.html
- * 
- * Contributors:
- *     Michael Simon - initial
- ******************************************************************************/
+ *
+ * All rights reserved. This program and the accompanying materials are made
+ * available under the terms of the GNU Public License v3.0 which accompanies
+ * this distribution, and is available at http://www.gnu.org/licenses/gpl.html
+ *
+ * Contributors: Michael Simon - initial
+ * *****************************************************************************
+ */
 package edu.kit.scc.webreg.service.project;
 
 import java.util.ArrayList;
@@ -38,19 +39,19 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity> implement
 
 	@Inject
 	private IdentityDao identityDao;
-	
+
 	@Inject
 	private ProjectDao dao;
-	
+
 	@Inject
 	private LocalProjectUpdater updater;
-	
+
 	@Override
 	public void updateProjectMemberList(ProjectEntity project, Set<IdentityEntity> memberList, String executor) {
 		project = dao.merge(project);
 		updater.updateProjectMemberList(project, memberList, executor);
 	}
-	
+
 	@Override
 	public void addProjectMember(ProjectEntity project, IdentityEntity identity, String executor) {
 		project = dao.merge(project);
@@ -63,20 +64,15 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity> implement
 	}
 
 	@Override
-	public void updateServices(ProjectEntity project, Set<ServiceEntity> services, ProjectServiceType type, 
-			ProjectServiceStatusType status, String executor) {
+	public void updateServices(ProjectEntity project, Set<ServiceEntity> services, ProjectServiceType type, ProjectServiceStatusType status,
+			String executor) {
 		updater.updateServices(project, services, type, status, executor);
 	}
-	
+
 	@Override
-	public void addOrChangeService(ProjectEntity project, ServiceEntity service, ProjectServiceType type, 
-			ProjectServiceStatusType status, String executor) {
+	public void addOrChangeService(ProjectEntity project, ServiceEntity service, ProjectServiceType type, ProjectServiceStatusType status,
+			String executor) {
 		updater.addOrChangeService(project, service, type, status, executor);
-	}
-	
-	@Override
-	public List<ProjectEntity> findByService(ServiceEntity service) {
-		return dao.findByService(service);
 	}
 
 	@Override
@@ -94,12 +90,12 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity> implement
 	public List<ProjectMembershipEntity> findByIdentity(IdentityEntity identity) {
 		return dao.findByIdentity(identity);
 	}
-	
+
 	@Override
 	public ProjectMembershipEntity findByIdentityAndProject(IdentityEntity identity, ProjectEntity project) {
 		return dao.findByIdentityAndProject(identity, project);
 	}
-	
+
 	@Override
 	public List<ProjectIdentityAdminEntity> findAdminsForProject(ProjectEntity project) {
 		return dao.findAdminsForProject(project);
@@ -117,15 +113,14 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity> implement
 
 	@Override
 	public List<ProjectServiceEntity> findServicesForProject(ProjectEntity project) {
-		return new ArrayList<ProjectServiceEntity>(dao.findServicesForProject(project, false));
+		return new ArrayList<>(dao.findServicesForProject(project, false));
 	}
 
 	@Override
 	public List<ProjectServiceEntity> findServicesFromParentsForProject(ProjectEntity project) {
 		if (project.getParentProject() != null) {
-			return new ArrayList<ProjectServiceEntity>(dao.findServicesForProject(project.getParentProject(), true));
-		}
-		else {
+			return new ArrayList<>(dao.findServicesForProject(project.getParentProject(), true));
+		} else {
 			return null;
 		}
 	}
@@ -140,17 +135,18 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity> implement
 		dao.removeAdminFromProject(pia);
 	}
 
-	@Override 
+	@Override
 	public ProjectEntity save(ProjectEntity project, Long identityId) {
 		IdentityEntity identity = identityDao.fetch(identityId);
-		
+
 		project = dao.persist(project);
 		dao.addAdminToProject(project, identity, ProjectAdminType.OWNER);
 		return project;
 	}
-		
+
 	@Override
 	protected BaseDao<ProjectEntity> getDao() {
 		return dao;
 	}
+
 }

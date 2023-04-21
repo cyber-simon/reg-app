@@ -12,7 +12,8 @@ import javax.persistence.metamodel.SingularAttribute;
  * <p/>
  * Predicates come in two flavors: With fields declared as strings and with
  * fields as JPA-metamodel attributes. The former supports chained fields (like
- * "user.givenName"), the latter does not.
+ * "user.givenName"), the latter does not. Beware, that using chained fields as
+ * string does not support downcasting of entities.
  */
 public class RqlExpressions {
 
@@ -22,7 +23,7 @@ public class RqlExpressions {
 
 	/**
 	 * Provides equal predicate.
-	 * 
+	 *
 	 * @param <E>           Type of the entity the field belongs to
 	 * @param <F>           Type of the field
 	 * @param field         Field attribute according to the JPA meta-model
@@ -35,7 +36,7 @@ public class RqlExpressions {
 
 	/**
 	 * Provides equal predicate.
-	 * 
+	 *
 	 * @param <E>           Type of the root entity the field is based on
 	 * @param <F>           Type of the field
 	 * @param field         Field name (supports chained fields)
@@ -48,21 +49,20 @@ public class RqlExpressions {
 
 	/**
 	 * Provides greaterThan predicate.
-	 * 
+	 *
 	 * @param <E>           Type of the entity the field belongs to
 	 * @param <F>           Type of the field
 	 * @param field         Field attribute according to the JPA meta-model
 	 * @param assignedValue Value the field is compared with
 	 * @return RQL predicate {@link GreaterThan}
 	 */
-	public static <E, F extends Comparable<? super F>> GreaterThan<E, F> greaterThan(SingularAttribute<E, F> field,
-			F assignedValue) {
+	public static <E, F extends Comparable<? super F>> GreaterThan<E, F> greaterThan(SingularAttribute<E, F> field, F assignedValue) {
 		return new GreaterThanBasedOnAttribute<>(field, assignedValue);
 	}
 
 	/**
 	 * Provides greaterThan predicate.
-	 * 
+	 *
 	 * @param <E>           Type of the root entity the field is based on
 	 * @param <F>           Type of the field
 	 * @param field         Field name (supports chained fields)
@@ -75,21 +75,20 @@ public class RqlExpressions {
 
 	/**
 	 * Provides lessThan predicate.
-	 * 
+	 *
 	 * @param <E>           Type of the entity the field belongs to
 	 * @param <F>           Type of the field
 	 * @param field         Field attribute according to the JPA meta-model
 	 * @param assignedValue Value the field is compared with
 	 * @return RQL predicate {@link GreaterThan}
 	 */
-	public static <E, F extends Comparable<? super F>> LessThan<E, F> lessThan(SingularAttribute<E, F> field,
-			F assignedValue) {
+	public static <E, F extends Comparable<? super F>> LessThan<E, F> lessThan(SingularAttribute<E, F> field, F assignedValue) {
 		return new LessThanBasedOnAttribute<>(field, assignedValue);
 	}
 
 	/**
 	 * Provides lessThan predicate.
-	 * 
+	 *
 	 * @param <E>           Type of the root entity the field is based on
 	 * @param <F>           Type of the field
 	 * @param field         Field name (supports chained fields)
@@ -102,35 +101,34 @@ public class RqlExpressions {
 
 	/**
 	 * Provides lessThan predicate.
-	 * 
+	 *
 	 * @param <E>           Type of the entity the field belongs to
 	 * @param <F>           Type of the field
 	 * @param field         Field attribute according to the JPA meta-model
 	 * @param assignedValue Value the field is compared with
 	 * @return RQL predicate {@link GreaterThan}
 	 */
-	public static <E, F extends Comparable<? super F>> LessThanOrEqualTo<E, F> lessThanOrEqualTo(
-			SingularAttribute<E, F> field, F assignedValue) {
+	public static <E, F extends Comparable<? super F>> LessThanOrEqualTo<E, F> lessThanOrEqualTo(SingularAttribute<E, F> field,
+			F assignedValue) {
 		return new LessThanOrEqualToBasedOnAttribute<>(field, assignedValue);
 	}
 
 	/**
 	 * Provides lessThan predicate.
-	 * 
+	 *
 	 * @param <E>           Type of the root entity the field is based on
 	 * @param <F>           Type of the field
 	 * @param field         Field name (supports chained fields)
 	 * @param assignedValue Value the field is compared with
 	 * @return RQL predicate {@link GreaterThan}
 	 */
-	public static <E, F extends Comparable<? super F>> LessThanOrEqualTo<E, F> lessThanOrEqualTo(String field,
-			F assignedValue) {
+	public static <E, F extends Comparable<? super F>> LessThanOrEqualTo<E, F> lessThanOrEqualTo(String field, F assignedValue) {
 		return new LessThanOrEqualToBasedOnString<>(field, assignedValue);
 	}
 
 	/**
 	 * Provides not-equal predicate.
-	 * 
+	 *
 	 * @param <E>           Type of the entity the field belongs to
 	 * @param <F>           Type of the field
 	 * @param field         Field attribute according to the JPA meta-model
@@ -143,7 +141,7 @@ public class RqlExpressions {
 
 	/**
 	 * Provides not-equal predicate.
-	 * 
+	 *
 	 * @param <E>           Type of the root entity the field is based on
 	 * @param <F>           Type of the field
 	 * @param field         Field name (supports chained fields)
@@ -157,7 +155,7 @@ public class RqlExpressions {
 	/**
 	 * Convenience methode for
 	 * {@link #like(SingularAttribute, String, LikeMatchMode)}.
-	 * 
+	 *
 	 * @param <E>     Type of the entity the field belongs to
 	 * @param field   Field attribute according to the JPA meta-model
 	 * @param pattern Pattern that is contained by the field value
@@ -173,7 +171,7 @@ public class RqlExpressions {
 	 * Works only on fields of type {@link String}. The like predicate matches a
 	 * field against a given pattern ignoring case under consideration of the
 	 * matching mode.
-	 * 
+	 *
 	 * @param <E>       Type of the entity the field belongs to
 	 * @param field     Field attribute according to the JPA meta-model
 	 * @param pattern   Pattern the field is matched with (under consideration of
@@ -188,7 +186,7 @@ public class RqlExpressions {
 
 	/**
 	 * Convenience methode for {@link #like(String, String, LikeMatchMode)}.
-	 * 
+	 *
 	 * @param <E>     Type of the root entity the field is based on
 	 * @param field   Field name (supports chained fields)
 	 * @param pattern Pattern that is contained by the field value
@@ -204,7 +202,7 @@ public class RqlExpressions {
 	 * Works only on fields of type {@link String}. The like predicate matches a
 	 * field against a given pattern ignoring case under consideration of the
 	 * matching mode.
-	 * 
+	 *
 	 * @param <E>       Type of the root entity the field is based on
 	 * @param field     Field name (supports chained fields)
 	 * @param pattern   Pattern the field is matched with (under consideration of
@@ -222,7 +220,7 @@ public class RqlExpressions {
 	 * <p/>
 	 * Works only on fields of type {@link String}. The not-like predicate matches a
 	 * field against a pattern using wildcards and ignoring case.
-	 * 
+	 *
 	 * @param <E>       Type of the entity the field belongs to
 	 * @param field     Field attribute according to the JPA meta-model
 	 * @param pattern   Pattern the field is matched with (under consideration of
@@ -240,7 +238,7 @@ public class RqlExpressions {
 	 * <p/>
 	 * Works only on fields of type {@link String}. The not-like predicate matches a
 	 * field against a pattern using wildcards and ignoring case.
-	 * 
+	 *
 	 * @param <E>       Type of the root entity the field is based on
 	 * @param field     Field name (supports chained fields)
 	 * @param pattern   Pattern, the field is matched with (under consideration of
@@ -255,7 +253,7 @@ public class RqlExpressions {
 
 	/**
 	 * Provides an in (list) predicate.
-	 * 
+	 *
 	 * @param <E>            Type of the entity the field belongs to
 	 * @param <F>            Type of the field
 	 * @param field          Field attribute according to the JPA meta-model
@@ -268,7 +266,7 @@ public class RqlExpressions {
 
 	/**
 	 * Provides an in (list) predicate.
-	 * 
+	 *
 	 * @param <E>            Type of the entity the field belongs to
 	 * @param <F>            Type of the field
 	 * @param field          Field attribute according to the JPA meta-model
@@ -282,7 +280,7 @@ public class RqlExpressions {
 
 	/**
 	 * Provides an in (list) predicate.
-	 * 
+	 *
 	 * @param <E>            Type of the root entity the field is based on
 	 * @param <F>            Type of the field
 	 * @param field          Field name (supports chained fields)
@@ -295,7 +293,7 @@ public class RqlExpressions {
 
 	/**
 	 * Provides an in (list) predicate.
-	 * 
+	 *
 	 * @param <E>            Type of the root entity the field is based on
 	 * @param <F>            Type of the field
 	 * @param field          Field name (supports chained fields)
@@ -309,7 +307,7 @@ public class RqlExpressions {
 
 	/**
 	 * Provides a notIn (list) predicate.
-	 * 
+	 *
 	 * @param <E>            Type of the entity the field belongs to
 	 * @param <F>            Type of the field
 	 * @param field          Field attribute according to the JPA meta-model
@@ -322,7 +320,7 @@ public class RqlExpressions {
 
 	/**
 	 * Provides a notIn (list) predicate.
-	 * 
+	 *
 	 * @param <E>            Type of the entity the field belongs to
 	 * @param <F>            Type of the field
 	 * @param field          Field attribute according to the JPA meta-model
@@ -336,7 +334,7 @@ public class RqlExpressions {
 
 	/**
 	 * Provides a notIn (list) predicate.
-	 * 
+	 *
 	 * @param <E>            Type of the root entity the field is based on
 	 * @param <F>            Type of the field
 	 * @param field          Field name (supports chained fields)
@@ -349,7 +347,7 @@ public class RqlExpressions {
 
 	/**
 	 * Provides a notIn (list) predicate.
-	 * 
+	 *
 	 * @param <E>            Type of the root entity the field is based on
 	 * @param <F>            Type of the field
 	 * @param field          Field name (supports chained fields)
@@ -363,7 +361,7 @@ public class RqlExpressions {
 
 	/**
 	 * Provides isNull predicate.
-	 * 
+	 *
 	 * @param <E>   Type of the entity the field belongs to
 	 * @param field Field attribute according to the JPA meta-model
 	 * @return RQL predicate {@link IsNull}
@@ -374,7 +372,7 @@ public class RqlExpressions {
 
 	/**
 	 * Provides isNull predicate.
-	 * 
+	 *
 	 * @param <E>   Type of the root entity the field is based on
 	 * @param field Field name (supports chained fields)
 	 * @return RQL predicate {@link IsNull}
@@ -385,7 +383,7 @@ public class RqlExpressions {
 
 	/**
 	 * Provides isNotNull predicate.
-	 * 
+	 *
 	 * @param <E>   Type of the entity the field belongs to
 	 * @param field Field attribute according to the JPA meta-model
 	 * @return RQL predicate {@link IsNotNull}
@@ -396,7 +394,7 @@ public class RqlExpressions {
 
 	/**
 	 * Provides isNotNull predicate.
-	 * 
+	 *
 	 * @param <E>   Type of the root entity the field is based on
 	 * @param field Field name (supports chained fields)
 	 * @return RQL predicate {@link IsNotNull}
@@ -407,7 +405,7 @@ public class RqlExpressions {
 
 	/**
 	 * Provides conjunction ("and").
-	 * 
+	 *
 	 * @param operands List of operands
 	 * @return RQL predicate {@link And}
 	 */
@@ -417,7 +415,7 @@ public class RqlExpressions {
 
 	/**
 	 * Provides conjunction ("and").
-	 * 
+	 *
 	 * @param operands Array of operands
 	 * @return RQL predicate {@link And}
 	 */
@@ -427,7 +425,7 @@ public class RqlExpressions {
 
 	/**
 	 * Provides disjunction ("or").
-	 * 
+	 *
 	 * @param operands List of operands
 	 * @return RQL predicate {@link Or}
 	 */
@@ -437,7 +435,7 @@ public class RqlExpressions {
 
 	/**
 	 * Provides disjunction ("or").
-	 * 
+	 *
 	 * @param operands Array of operands
 	 * @return RQL predicate {@link Or}
 	 */
