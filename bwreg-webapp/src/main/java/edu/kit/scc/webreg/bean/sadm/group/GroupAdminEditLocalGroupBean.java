@@ -120,6 +120,11 @@ public class GroupAdminEditLocalGroupBean implements Serializable {
 		usersInGroup.add(user);
 	}
 
+	public void removeUserFromGroup(UserEntity user) {
+		savePossible = true;
+		usersInGroup.remove(user);
+	}
+
 	public LocalGroupEntity getEntity() {
 		return entity;
 	}
