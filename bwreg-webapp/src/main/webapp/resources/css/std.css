@@ -9535,4 +9535,6 @@ div.kalender_frame ul li{
         margin: 0 0.625em 0 0;
     }
 }
-
+.text-danger {
+    color: red;
+}
