@@ -9536,5 +9536,5 @@ div.kalender_frame ul li{
     }
 }
 .text-danger {
-    color: red;
+    color: red !important;
 }
