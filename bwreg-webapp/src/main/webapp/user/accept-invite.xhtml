@@ -25,10 +25,11 @@
 	
 	<h:form id="form" class="full fancy form">
 		<h2><h:outputText value="#{messages['project.accept_invite']}"/></h2>
-
+		<h:outputText value="#{messages['project.accept_invite.intro']}"/>
+		
 		<p:messages id="messageBox" showDetail="true" />
 
-		<p:panelGrid columns="2">
+		<p:panelGrid columns="2" id="tokenStringPnl">
 			<p:outputLabel for="@next" value="#{messages['token']}" />
 			<p:inputText value="#{acceptInviteBean.tokenString}"/>
 		</p:panelGrid>
@@ -40,14 +41,14 @@
 	
 			<p:panel rendered="#{acceptInviteBean.token != null and (acceptInviteBean.token.status == 'MAIL_SENT' or acceptInviteBean.token.status == 'NEW')}">
 
-				<p:outputPanel>
+				<p:outputPanel style="margin-top: 1em;">
 					<h:outputText value="#{messages['project.accept_invite.accept_txt_pre']}" />
 					<h5><h:outputText value="#{acceptInviteBean.token.project.name}" /></h5>
 					<h:outputText value="#{messages['project.accept_invite.accept_txt_post']}" />
 				</p:outputPanel>
 	
-				<p:outputPanel rendered="#{registerServiceBean.policyHolderList.size() gt 0}">
-					<b><h:outputText value="#{messages.register_consent_mandatory}" /></b>
+				<p:outputPanel rendered="#{acceptInviteBean.policyHolderList.size() gt 0}" style="margin-top: 1em;">
+					<b><h:outputText value="#{messages['project.accept_invite.accept_consent_mandatory']}" /></b>
 				</p:outputPanel>
 
 				<div style="margin: 1.5em 0.5em;">
@@ -63,15 +64,17 @@
 					</ui:repeat>
 				</div>
 			
-				<p:commandButton value="#{messages['accept']}" action="#{acceptInviteBean.accept()}" update="messageBox, tokenPnl"/>		
-				<p:commandButton value="#{messages['decline']}" action="#{acceptInviteBean.decline()}" update="messageBox, tokenPnl"/>		
+				<p:commandButton value="#{messages['accept']}" action="#{acceptInviteBean.accept()}" update="messageBox, tokenPnl, tokenStringPnl"/>		
+				<p:commandButton value="#{messages['decline']}" action="#{acceptInviteBean.decline()}" update="messageBox, tokenPnl, tokenStringPnl"/>		
 			</p:panel>
 			
 			<p:panel rendered="#{acceptInviteBean.token != null and acceptInviteBean.token.status == 'ACCEPTED'}">
+				<h3><h:outputText value="#{messages['project.accept_invite.token_already_accepted_header']}" /></h3>
 				<h:outputText value="#{messages['project.accept_invite.token_already_accepted']}" />
 			</p:panel>
 						
 			<p:panel rendered="#{acceptInviteBean.token != null and acceptInviteBean.token.status == 'DECLINED'}">
+				<h3><h:outputText value="#{messages['project.accept_invite.token_already_declined_header']}" /></h3>
 				<h:outputText value="#{messages['project.accept_invite.token_already_declined']}" />
 			</p:panel>
 						
