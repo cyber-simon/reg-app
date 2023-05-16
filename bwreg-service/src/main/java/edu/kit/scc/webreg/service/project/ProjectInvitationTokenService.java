@@ -20,9 +20,9 @@ public interface ProjectInvitationTokenService extends BaseService<ProjectInvita
 	ProjectInvitationTokenEntity sendEmailToken(ProjectEntity project, IdentityEntity identity, String rcptMail,
 			String rcptName, String senderName, String customMessage, String executor);
 
-	ProjectInvitationTokenEntity acceptEmailToken(ProjectInvitationTokenEntity token, String executor);
+	ProjectInvitationTokenEntity acceptEmailToken(ProjectInvitationTokenEntity token, Long identityId, String executor);
 
-	ProjectInvitationTokenEntity declineEmailToken(ProjectInvitationTokenEntity token, String executor);
+	ProjectInvitationTokenEntity declineEmailToken(ProjectInvitationTokenEntity token, Long identityId, String executor);
 
 
 }

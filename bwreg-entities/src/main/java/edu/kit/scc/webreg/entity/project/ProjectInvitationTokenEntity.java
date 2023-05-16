@@ -45,6 +45,9 @@ public class ProjectInvitationTokenEntity extends AbstractBaseEntity {
 	@ManyToOne(targetEntity = IdentityEntity.class)
 	private IdentityEntity identity;
 
+	@ManyToOne(targetEntity = IdentityEntity.class)
+	private IdentityEntity invitedIdentity;
+
 	@Column(name="sender_name", length=1024)
 	private String senderName;
 	
@@ -143,5 +146,13 @@ public class ProjectInvitationTokenEntity extends AbstractBaseEntity {
 
 	public void setLastStatusChange(Date lastStatusChange) {
 		this.lastStatusChange = lastStatusChange;
+	}
+
+	public IdentityEntity getInvitedIdentity() {
+		return invitedIdentity;
+	}
+
+	public void setInvitedIdentity(IdentityEntity invitedIdentity) {
+		this.invitedIdentity = invitedIdentity;
 	}
 }

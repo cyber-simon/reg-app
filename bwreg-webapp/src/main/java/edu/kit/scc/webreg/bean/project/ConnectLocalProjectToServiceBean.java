@@ -19,28 +19,40 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import edu.kit.scc.webreg.entity.PolicyEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity_;
 import edu.kit.scc.webreg.entity.project.ProjectAdminType;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
+import edu.kit.scc.webreg.entity.project.ProjectPolicyType;
 import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
 import edu.kit.scc.webreg.entity.project.ProjectServiceStatusType;
 import edu.kit.scc.webreg.entity.project.ProjectServiceType;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
+import edu.kit.scc.webreg.service.PolicyService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.project.LocalProjectService;
 import edu.kit.scc.webreg.service.project.ProjectService;
 import edu.kit.scc.webreg.session.SessionManager;
+import edu.kit.scc.webreg.util.FacesMessageGenerator;
+import edu.kit.scc.webreg.util.PolicyHolder;
 
 @Named
 @ViewScoped
 public class ConnectLocalProjectToServiceBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+	private static final Logger logger = LoggerFactory.getLogger(ConnectLocalProjectToServiceBean.class);
 
 	@Inject
 	private SessionManager session;
+
+	@Inject
+	private FacesMessageGenerator messageGenerator;
 
 	@Inject
 	private LocalProjectService service;
@@ -50,6 +62,9 @@ public class ConnectLocalProjectToServiceBean implements Serializable {
 
 	@Inject
 	private ProjectService projectService;
+
+	@Inject
+	private PolicyService policyService;
 
 	private LocalProjectEntity entity;
 
@@ -62,6 +77,10 @@ public class ConnectLocalProjectToServiceBean implements Serializable {
 	private List<ProjectIdentityAdminEntity> adminList;
 	private ProjectIdentityAdminEntity adminIdentity;
 
+	private List<PolicyHolder> policyHolderList;
+
+	private Boolean savePossible = false;
+	
 	public void preRenderView(ComponentSystemEvent ev) {
 		selectedServices = new ArrayList<ServiceEntity>();
 
@@ -82,6 +101,29 @@ public class ConnectLocalProjectToServiceBean implements Serializable {
 		}
 	}
 
+	public void connectionAdded() {
+		policyHolderList = new ArrayList<PolicyHolder>();
+		if (selectedServices.size() > 0) {
+			setSavePossible(true);
+		}
+		else {
+			setSavePossible(false);
+		}
+		
+		for (ServiceEntity s : selectedServices) {
+			List<PolicyEntity> policyList = policyService.findAllByAttr("projectPolicy", s);
+
+			policyList.stream().forEach(policy -> {
+				if (ProjectPolicyType.SERVICE_CONNECT.equals(policy.getProjectPolicyType())) {
+					PolicyHolder ph = new PolicyHolder();
+					ph.setPolicy(policy);
+					policyHolderList.add(ph);
+				}
+			});
+
+		}
+	}
+
 	public List<ProjectIdentityAdminEntity> getAdminList() {
 		if (adminList == null) {
 			adminList = projectService.findAdminsForProject(getEntity());
@@ -90,6 +132,23 @@ public class ConnectLocalProjectToServiceBean implements Serializable {
 	}
 
 	public String save() {
+		logger.debug("testing all checkboxes");
+		for (PolicyHolder ph : policyHolderList) {
+			if (ph.getPolicy() != null && ph.getPolicy().getShowOnly() != null && ph.getPolicy().getShowOnly()) {
+				logger.debug("Policy {} in Service {} is just for show", ph.getPolicy().getId(),
+						ph.getPolicy().getProjectPolicy().getId());
+			} else if (!ph.getChecked()) {
+				logger.debug("Policy {} in Service {} is not checked", ph.getPolicy().getId(),
+						ph.getPolicy().getProjectPolicy().getId());
+				messageGenerator.addWarningMessage("need_check", "Zustimmung fehlt!",
+						"Sie müssen allen Nutzungbedingungen zustimmen.");
+				return "";
+			} else {
+				logger.debug("Policy {} in Service {} is checked", ph.getPolicy().getId(),
+						ph.getPolicy().getProjectPolicy().getId());
+			}
+		}
+
 		for (ServiceEntity s : selectedServices) {
 			projectService.addOrChangeService(entity, s, ProjectServiceType.PASSIVE_GROUP,
 					ProjectServiceStatusType.APPROVAL_PENDING, "idty-" + session.getIdentityId());
@@ -144,5 +203,20 @@ public class ConnectLocalProjectToServiceBean implements Serializable {
 
 	public void setProjectServiceList(List<ProjectServiceEntity> projectServiceList) {
 		this.projectServiceList = projectServiceList;
+	}
+
+	public List<PolicyHolder> getPolicyHolderList() {
+		if (policyHolderList == null) {
+			policyHolderList = new ArrayList<PolicyHolder>();
+		}
+		return policyHolderList;
+	}
+
+	public Boolean getSavePossible() {
+		return savePossible;
+	}
+
+	public void setSavePossible(Boolean savePossible) {
+		this.savePossible = savePossible;
 	}
 }

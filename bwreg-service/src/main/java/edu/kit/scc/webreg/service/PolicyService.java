@@ -11,15 +11,22 @@
 package edu.kit.scc.webreg.service;
 
 import java.util.List;
+import java.util.Map;
 
 import edu.kit.scc.webreg.entity.PolicyEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.project.ProjectEntity;
+import edu.kit.scc.webreg.entity.project.ProjectPolicyType;
+import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
 
 public interface PolicyService extends BaseService<PolicyEntity> {
 
 	PolicyEntity findWithAgreemets(Long id);
 	
 	List<PolicyEntity> resolvePoliciesForService(ServiceEntity service, UserEntity user);
+
+	Map<ProjectServiceEntity, List<PolicyEntity>> findPolicyMapForProject(ProjectEntity project,
+			ProjectPolicyType policyType);
 	
 }

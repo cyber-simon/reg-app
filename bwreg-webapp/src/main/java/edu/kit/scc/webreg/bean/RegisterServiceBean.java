@@ -56,6 +56,7 @@ import edu.kit.scc.webreg.service.twofa.token.GenericTwoFaToken;
 import edu.kit.scc.webreg.service.twofa.token.TwoFaTokenList;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
+import edu.kit.scc.webreg.util.PolicyHolder;
 
 @Named
 @ViewScoped
@@ -116,7 +117,7 @@ public class RegisterServiceBean implements Serializable {
 	@Inject
 	private TwoFaService twoFaService;
 
-	private List<RegisterServiceBean.PolicyHolder> policyHolderList;
+	private List<PolicyHolder> policyHolderList;
 
 	public void preRenderView(ComponentSystemEvent ev) {
 
@@ -164,7 +165,7 @@ public class RegisterServiceBean implements Serializable {
 				}
 			}
 
-			policyHolderList = new ArrayList<RegisterServiceBean.PolicyHolder>();
+			policyHolderList = new ArrayList<PolicyHolder>();
 
 			List<PolicyEntity> policiesTemp = policyService.resolvePoliciesForService(service, selectedUserEntity);
 
@@ -381,7 +382,7 @@ public class RegisterServiceBean implements Serializable {
 		return service;
 	}
 
-	public List<RegisterServiceBean.PolicyHolder> getPolicyHolderList() {
+	public List<PolicyHolder> getPolicyHolderList() {
 		return policyHolderList;
 	}
 
@@ -391,28 +392,6 @@ public class RegisterServiceBean implements Serializable {
 
 	public List<String> getRequirementsList() {
 		return requirementsList;
-	}
-
-	public class PolicyHolder implements Serializable {
-		private static final long serialVersionUID = 1L;
-		private PolicyEntity policy;
-		private Boolean checked;
-
-		public PolicyEntity getPolicy() {
-			return policy;
-		}
-
-		public void setPolicy(PolicyEntity policy) {
-			this.policy = policy;
-		}
-
-		public Boolean getChecked() {
-			return checked;
-		}
-
-		public void setChecked(Boolean checked) {
-			this.checked = checked;
-		}
 	}
 
 	public String getServiceShortName() {

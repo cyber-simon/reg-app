@@ -39,6 +39,7 @@
 		        <p:selectManyMenu id="servicePicker" value="#{connectLocalProjectToServiceBean.selectedServices}"
                             converter="#{serviceConverter}" style="min-width: 300px;"
                             var="s" showCheckbox="true">
+					<p:ajax listener="#{connectLocalProjectToServiceBean.connectionAdded()}" update="btnPanel policyHolderList" />                            
 					<f:selectItems value="#{connectLocalProjectToServiceBean.serviceList}" var="service" itemLabel="#{service.name}"
                             itemValue="#{service}"/>
 					<p:column>
@@ -57,9 +58,26 @@
 		<p:panel>
 			<h:outputText value="#{messages['project.connect_to_service_connect_text']}" />
 		</p:panel>
+
+
+		<p:panel id="policyHolderList">
+  		  <p:panel style="margin: 1.5em 0.5em;" rendered="#{connectLocalProjectToServiceBean.policyHolderList.size() != 0}">
+			<ui:repeat var="policyHolder" value="#{connectLocalProjectToServiceBean.policyHolderList}">
+				<b><h:outputText value="#{policyHolder.policy.name} - #{policyHolder.policy.actualAgreement.name}" /></b>
+				<div style="margin-top: 1em;">
+					<h:outputText value="#{bbCodeConverter.convert(policyHolder.policy.actualAgreement.agreement)}" escape="false"/>
+				</div>
+				<p:outputPanel rendered="#{not policyHolder.policy.showOnly}" style="margin-top: 1em;">
+					<h:selectBooleanCheckbox value="#{policyHolder.checked}" />
+					<h:outputText value="#{messages.accept_tou}" />
+				</p:outputPanel>
+			</ui:repeat>
+  		  </p:panel>
+		</p:panel>
 		
-		<p:panel>
-			<p:commandButton id="save" action="#{connectLocalProjectToServiceBean.save}" value="#{messages['project.connect_to_service_connect_button']}" />
+		<p:panel id="btnPanel">
+			<p:commandButton id="saveBtn" action="#{connectLocalProjectToServiceBean.save}" value="#{messages['project.connect_to_service_connect_button']}" 
+				update="messageBox" disabled="#{not connectLocalProjectToServiceBean.savePossible}" />
 		</p:panel>
 
 		<div class="text full" style="margin-top: 0.4em;">
