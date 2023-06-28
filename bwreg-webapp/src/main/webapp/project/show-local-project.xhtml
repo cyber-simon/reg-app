@@ -123,7 +123,16 @@
 				<h:outputText value="#{admin.type}" />
 			</p:column>			
 		</p:dataTable>	
-		
+
+		<h5 style="margin-top: 1em;"><h:outputText value="#{messages['more_properties']}" /></h5>
+		<p:panelGrid id="descData" columns="2">	
+	        <h:outputText value="#{messages['project.short_description']}:"/>
+			<h:outputText value="#{userShowLocalProjectBean.entity.shortDescription}" />	
+
+	        <h:outputText value="#{messages['project.long_description']}:"/>
+			<h:outputText value="#{userShowLocalProjectBean.entity.description}" />	
+		</p:panelGrid>		
+					
 	    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" closable="false" 
 	    	closeOnEscape="true" width="320">
 	        <p:commandButton value="#{messages.yes}" type="button" styleClass="ui-confirmdialog-yes"/>
