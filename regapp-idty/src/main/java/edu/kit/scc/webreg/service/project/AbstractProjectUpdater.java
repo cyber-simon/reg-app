@@ -31,6 +31,7 @@ import edu.kit.scc.webreg.entity.project.ProjectServiceStatusType;
 import edu.kit.scc.webreg.entity.project.ProjectServiceType;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.MultipleGroupEvent;
+import edu.kit.scc.webreg.event.ProjectMembershipEvent;
 import edu.kit.scc.webreg.event.ProjectServiceEvent;
 import edu.kit.scc.webreg.event.exc.EventSubmitException;
 
@@ -46,20 +47,20 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 
 	@Inject
 	private RegistryDao registryDao;
-	
+
 	@Inject
 	private ServiceGroupFlagDao groupFlagDao;
-	
+
 	@Inject
 	private EventSubmitter eventSubmitter;
 
 	protected abstract BaseProjectDao<T> getDao();
-	
+
 	public void approve(ProjectServiceEntity pse, String executor) {
-		if (! pse.getStatus().equals(ProjectServiceStatusType.APPROVAL_PENDING)) {
+		if (!pse.getStatus().equals(ProjectServiceStatusType.APPROVAL_PENDING)) {
 			return;
 		}
-		
+
 		ProjectServiceEvent event = new ProjectServiceEvent(pse);
 		try {
 			eventSubmitter.submit(event, EventType.PROJECT_SERVICE_APPROVAL, executor);
@@ -70,12 +71,12 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 		syncGroupFlags(pse, executor);
 		triggerGroupUpdate(pse.getProject(), executor);
 	}
-	
+
 	public void deny(ProjectServiceEntity pse, String denyMessage, String executor) {
-		if (! pse.getStatus().equals(ProjectServiceStatusType.APPROVAL_PENDING)) {
+		if (!pse.getStatus().equals(ProjectServiceStatusType.APPROVAL_PENDING)) {
 			return;
 		}
-		
+
 		ProjectServiceEvent event = new ProjectServiceEvent(pse);
 		try {
 			eventSubmitter.submit(event, EventType.PROJECT_SERVICE_APPROVAL, executor);
@@ -83,26 +84,42 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 			logger.warn("Could not submit event", e);
 		}
 		pse.setStatus(ProjectServiceStatusType.APPROVAL_DENIED);
-		
+
 	}
 
 	public void removeProjectMember(ProjectMembershipEntity pme, String executor) {
 		logger.debug("Remove member {} from project {}", pme.getIdentity().getId(), pme.getProject().getId());
 		getDao().removeMemberFromProject(pme);
+
+		ProjectMembershipEvent event = new ProjectMembershipEvent(pme);
+		try {
+			eventSubmitter.submit(event, EventType.PROJECT_MEMBER_REMOVED, executor);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}
+
 		updateProjectMemberList(pme.getProject(), executor, 0, 3);
 	}
-	
+
 	public void addProjectMember(ProjectEntity project, IdentityEntity identity, String executor) {
 		logger.debug("Adding member {} to project {}", identity.getId(), project.getId());
-		getDao().addMemberToProject(project, identity, ProjectMembershipType.MEMBER);
+		ProjectMembershipEntity pme = getDao().addMemberToProject(project, identity, ProjectMembershipType.MEMBER);
+
+		ProjectMembershipEvent event = new ProjectMembershipEvent(pme);
+		try {
+			eventSubmitter.submit(event, EventType.PROJECT_MEMBER_ADD, executor);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}
+
 		updateProjectMemberList(project, executor, 0, 3);
 	}
-	
+
 	public void updateProjectMemberList(ProjectEntity project, Set<IdentityEntity> memberList, String executor) {
 		// calculate member difference lists, for propagation to parent projects
 		List<IdentityEntity> oldMemberList = getDao().findIdentitiesForProject(project);
 		List<IdentityEntity> newMemberList = new ArrayList<IdentityEntity>(memberList);
-		
+
 		List<IdentityEntity> membersToRemove = new ArrayList<IdentityEntity>(oldMemberList);
 		membersToRemove.removeAll(newMemberList);
 
@@ -120,7 +137,7 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 				}
 			}
 		}
-		
+
 		for (IdentityEntity memberToAdd : membersToAdd) {
 			logger.debug("Adding member {} to project {}", memberToAdd.getId(), project.getId());
 			getDao().addMemberToProject(project, memberToAdd, ProjectMembershipType.MEMBER);
@@ -133,15 +150,15 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 		if (depth >= maxDepth) {
 			return;
 		}
-		
+
 		syncAllMembersToGroup(project, executor);
 		triggerGroupUpdate(project, executor);
-		
+
 		if (project.getParentProject() != null) {
 			updateProjectMemberList(project.getParentProject(), executor, 0, 3);
 		}
 	}
-	
+
 	public void syncAllMembersToGroup(ProjectEntity project, String executor) {
 		List<ProjectMembershipEntity> memberList = getDao().findMembersForProject(project, true);
 
@@ -149,52 +166,54 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 			syncMemberToGroup(project, pme.getIdentity(), executor);
 		}
 	}
-	
+
 	public void syncMemberToGroup(ProjectEntity project, IdentityEntity identity, String executor) {
 		Set<ProjectServiceEntity> pseList = getDao().findServicesForProject(project, true);
 
 		for (ProjectServiceEntity pse : pseList) {
-			
-			RegistryEntity registry = registryDao.findByServiceAndIdentityAndStatus(pse.getService(), identity, RegistryStatus.ACTIVE);
+
+			RegistryEntity registry = registryDao.findByServiceAndIdentityAndStatus(pse.getService(), identity,
+					RegistryStatus.ACTIVE);
 			if (registry == null) {
-				registry = registryDao.findByServiceAndIdentityAndStatus(pse.getService(), identity, RegistryStatus.LOST_ACCESS);
+				registry = registryDao.findByServiceAndIdentityAndStatus(pse.getService(), identity,
+						RegistryStatus.LOST_ACCESS);
 			}
 
 			if (registry != null) {
 				/*
 				 * if user is registered for service, also add it to group member list
 				 */
-				if (! groupDao.isUserInGroup(registry.getUser(), project.getProjectGroup())) {
+				if (!groupDao.isUserInGroup(registry.getUser(), project.getProjectGroup())) {
 					groupDao.addUserToGroup(registry.getUser(), project.getProjectGroup());
 				}
 			}
-		}		
+		}
 	}
 
-	public void addOrChangeService(ProjectEntity project, ServiceEntity service, ProjectServiceType type, 
+	public void addOrChangeService(ProjectEntity project, ServiceEntity service, ProjectServiceType type,
 			ProjectServiceStatusType status, String executor) {
 		ProjectServiceEntity pse = getDao().findByServiceAndProject(service, project);
-		
+
 		if (pse != null) {
 			logger.info("Found an entry for project {} and service {}, changing", project.getName(), service.getName());
 			pse.setStatus(status);
 			pse.setType(type);
-		}
-		else {
+		} else {
 			pse = getDao().addServiceToProject(project, service, type, status);
-			logger.info("Added new ProjectService connection for project {} and service {}", project.getName(), service.getName());
+			logger.info("Added new ProjectService connection for project {} and service {}", project.getName(),
+					service.getName());
 		}
 		syncGroupFlags(pse, executor);
 		triggerGroupUpdate(project, executor);
 	}
-		
-	public void updateServices(ProjectEntity project, Set<ServiceEntity> serviceList, ProjectServiceType type, 
+
+	public void updateServices(ProjectEntity project, Set<ServiceEntity> serviceList, ProjectServiceType type,
 			ProjectServiceStatusType status, String executor) {
 		project = getDao().fetch(project.getId());
 		updateServices(project, serviceList, type, status, executor, 0, 3);
 	}
-	
-	private void updateServices(ProjectEntity project, Set<ServiceEntity> serviceList, ProjectServiceType type, 
+
+	private void updateServices(ProjectEntity project, Set<ServiceEntity> serviceList, ProjectServiceType type,
 			ProjectServiceStatusType status, String executor, int depth, int maxDepth) {
 		if (depth >= maxDepth) {
 			return;
@@ -204,11 +223,10 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 		Set<ProjectServiceEntity> actualParentServices;
 		if (project.getParentProject() != null) {
 			actualParentServices = getDao().findServicesForProject(project.getParentProject(), true);
-		}
-		else {
+		} else {
 			actualParentServices = new HashSet<ProjectServiceEntity>();
 		}
-		
+
 		List<ServiceEntity> actualServiceList = new ArrayList<ServiceEntity>(actualServices.size());
 		actualServices.stream().forEach(o -> actualServiceList.add(o.getService()));
 		List<ServiceEntity> actualParentServiceList = new ArrayList<ServiceEntity>(actualParentServices.size());
@@ -217,10 +235,10 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 		// only change services for directly called project, not for children
 		if (depth == 0) {
 			List<ServiceEntity> newServiceList = new ArrayList<ServiceEntity>(serviceList);
-			
+
 			for (ProjectServiceEntity oldService : actualServices) {
-				if (! serviceList.contains(oldService.getService())) {
-						getDao().deleteProjectService(oldService);
+				if (!serviceList.contains(oldService.getService())) {
+					getDao().deleteProjectService(oldService);
 				}
 				newServiceList.remove(oldService.getService());
 			}
@@ -238,30 +256,32 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 			// if not, our own services would be dropped
 			allServiceList.addAll(actualServiceList);
 		}
-		
+
 		syncGroupFlags(project, allServiceList);
-		
+
 		triggerGroupUpdate(project, executor);
-		
+
 		for (ProjectEntity childProject : project.getChildProjects()) {
 			updateServices(childProject, serviceList, type, status, executor, depth + 1, maxDepth);
 		}
 	}
 
 	private void syncGroupFlags(ProjectServiceEntity pse, String executor) {
-		List<ServiceGroupFlagEntity> groupFlagList = groupFlagDao.findByGroupAndService(pse.getProject().getProjectGroup(), pse.getService());
+		List<ServiceGroupFlagEntity> groupFlagList = groupFlagDao
+				.findByGroupAndService(pse.getProject().getProjectGroup(), pse.getService());
 
 		if (groupFlagList.size() > 1) {
-			logger.warn("There are more than one GroupFlag for Project {} and Service {}. There should be only one or zero.", pse.getProject().getName(), pse.getService().getName());
+			logger.warn(
+					"There are more than one GroupFlag for Project {} and Service {}. There should be only one or zero.",
+					pse.getProject().getName(), pse.getService().getName());
 		}
-		
+
 		if (pse.getStatus() != ProjectServiceStatusType.ACTIVE) {
 			// PSE is not active, delete all groups, if there are any
 			for (ServiceGroupFlagEntity gf : groupFlagList) {
 				gf.setStatus(ServiceGroupStatus.TO_DELETE);
-			}			
-		}
-		else {
+			}
+		} else {
 			// PSE is ACTIVE, create group flags if missing
 			if (groupFlagList.size() == 0) {
 				ServiceGroupFlagEntity groupFlag = groupFlagDao.createNew();
@@ -272,7 +292,7 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 			}
 		}
 	}
-	
+
 	private void syncGroupFlags(ProjectEntity project, Set<ServiceEntity> allServiceList) {
 		List<ServiceGroupFlagEntity> groupFlagList = groupFlagDao.findByGroup(project.getProjectGroup());
 		List<ServiceEntity> groupFlagServiceList = new ArrayList<ServiceEntity>(groupFlagList.size());
@@ -280,17 +300,17 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 
 		Set<ServiceEntity> flagsToRemove = new HashSet<ServiceEntity>(groupFlagServiceList);
 		flagsToRemove.removeAll(allServiceList);
-		
+
 		Set<ServiceEntity> flagsToAdd = new HashSet<ServiceEntity>(allServiceList);
 		flagsToAdd.removeAll(groupFlagServiceList);
-		
+
 		for (ServiceEntity s : flagsToRemove) {
 			List<ServiceGroupFlagEntity> gfl = groupFlagDao.findByGroupAndService(project.getProjectGroup(), s);
 			for (ServiceGroupFlagEntity gf : gfl) {
 				gf.setStatus(ServiceGroupStatus.TO_DELETE);
-			}			
+			}
 		}
-		
+
 		for (ServiceEntity s : flagsToAdd) {
 			ServiceGroupFlagEntity groupFlag = groupFlagDao.createNew();
 			groupFlag.setGroup(project.getProjectGroup());
@@ -300,7 +320,7 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 		}
 
 	}
-	
+
 	public void triggerGroupUpdate(ProjectEntity project, String executor) {
 		List<ServiceGroupFlagEntity> groupFlagList = groupFlagDao.findByGroup(project.getProjectGroup());
 		for (ServiceGroupFlagEntity groupFlag : groupFlagList) {
@@ -308,7 +328,7 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 				groupFlag.setStatus(ServiceGroupStatus.DIRTY);
 			}
 		}
-		
+
 		HashSet<GroupEntity> userGroups = new HashSet<GroupEntity>();
 		userGroups.add(project.getProjectGroup());
 		MultipleGroupEvent mge = new MultipleGroupEvent(userGroups);
