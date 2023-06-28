@@ -203,6 +203,21 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 			logger.info("Added new ProjectService connection for project {} and service {}", project.getName(),
 					service.getName());
 		}
+
+		ProjectServiceEvent event = new ProjectServiceEvent(pse);
+		try {
+			if (ProjectServiceStatusType.APPROVAL_PENDING.equals(status))
+				eventSubmitter.submit(event, EventType.PROJECT_SERVICE_APPROVAL, executor);
+			else if (ProjectServiceStatusType.APPROVAL_DENIED.equals(status))
+				eventSubmitter.submit(event, EventType.PROJECT_SERVICE_DENIED, executor);
+			else if (ProjectServiceStatusType.ACTIVE.equals(status))
+				eventSubmitter.submit(event, EventType.PROJECT_SERVICE_APPROVAL, executor);
+			else if (ProjectServiceStatusType.DELETED.equals(status))
+				eventSubmitter.submit(event, EventType.PROJECT_SERVICE_DELETED, executor);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}
+
 		syncGroupFlags(pse, executor);
 		triggerGroupUpdate(project, executor);
 	}
