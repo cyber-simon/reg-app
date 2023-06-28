@@ -35,28 +35,28 @@ public class SamlMetadataEntity extends AbstractBaseEntity {
 
 	private static final long serialVersionUID = 1L;
 
-	@Column(name = "entity_id", length = 2048)
+	@Column(name = "entity_id", length = 4096)
 	private String entityId;
 	
 	@Enumerated(EnumType.STRING)
 	private SamlMetadataEntityStatus status;
 
-	@Column(name = "org_name", length = 512)
+	@Column(name = "org_name", length = 4096)
 	private String orgName;
 	
-	@Column(name = "display_name", length = 512)
+	@Column(name = "display_name", length = 4096)
 	private String displayName;
 	
 	@Column(name = "description", length = 4096)
 	private String description;
 	
-	@Column(name = "information_url", length = 1024)
+	@Column(name = "information_url", length = 4096)
 	private String informationUrl;
 	
-	@Column(name = "logo_url", length = 1024)
+	@Column(name = "logo_url", length = 2097152)
 	private String logoUrl;
 	
-	@Column(name = "logo_small_url", length = 1024)
+	@Column(name = "logo_small_url", length = 2097152)
 	private String logoSmallUrl;
 	
 	@Column(name = "entity_desc")
