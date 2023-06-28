@@ -35,6 +35,10 @@
 				        	<p:inputText value="#{indexConfigBean.configMap[key]}" label="#{messages.name}" />
 				        </p:inplace>
 					</p:column>
+					<p:column style="width:36px;">
+						<p:commandButton icon="ui-icon-trash" actionListener="#{indexConfigBean.deleteKey(key)}" 
+							update=":form:basePanel :form:newPropTable"/>
+					</p:column>
 				</p:dataTable>
 				
 				<h:panelGrid id="newPropTable" columns="3" columnClasses="labelColumn, elementColumn">

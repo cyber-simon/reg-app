@@ -22,7 +22,7 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
+import edu.kit.scc.webreg.bootstrap.ApplicationConfigService;
 
 @Named
 @ViewScoped
@@ -31,7 +31,7 @@ public class IndexConfigBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Inject
-	private ApplicationConfig appConfig;
+	private ApplicationConfigService appConfig;
 	
 	private Boolean initialized = false;
 	
@@ -75,6 +75,11 @@ public class IndexConfigBean implements Serializable {
 		newKey = null;
 		newValue = null;
 		
+		init();
+	}
+	
+	public void deleteKey(String key) {
+		appConfig.deleteConfigValue(key);
 		init();
 	}
 
