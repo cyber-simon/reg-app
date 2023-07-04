@@ -1,12 +1,8 @@
 /*******************************************************************************
- * Copyright (c) 2014 Michael Simon.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the GNU Public License v3.0
- * which accompanies this distribution, and is available at
- * http://www.gnu.org/licenses/gpl.html
- * 
- * Contributors:
- *     Michael Simon - initial
+ * Copyright (c) 2014 Michael Simon. All rights reserved. This program and the
+ * accompanying materials are made available under the terms of the GNU Public
+ * License v3.0 which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/gpl.html Contributors: Michael Simon - initial
  ******************************************************************************/
 package edu.kit.scc.webreg.bean;
 
@@ -73,8 +69,8 @@ public class UserSshKeyManagementBean implements Serializable {
 		if (identity == null) {
 			identity = identityService.fetch(sessionManager.getIdentityId());
 			List<SshPubKeyEntity> sshPubKeyList = new ArrayList<>();
-			sshPubKeyList.addAll(sshPubKeyService.findByIdentityAndStatusWithRegs(identity.getId(), SshPubKeyStatus.ACTIVE));
-			sshPubKeyList.addAll(sshPubKeyService.findByIdentityAndStatusWithRegs(identity.getId(), SshPubKeyStatus.EXPIRED));
+			sshPubKeyList.addAll(sshPubKeyService.findByIdentityAndStatusWithRegsAndUser(identity.getId(), SshPubKeyStatus.ACTIVE));
+			sshPubKeyList.addAll(sshPubKeyService.findByIdentityAndStatusWithRegsAndUser(identity.getId(), SshPubKeyStatus.EXPIRED));
 
 			keyList = new ArrayList<>();
 			for (SshPubKeyEntity sshKey : sshPubKeyList) {
@@ -92,22 +88,10 @@ public class UserSshKeyManagementBean implements Serializable {
 	}
 
 	public void deleteKey(String name) {
-		int removeIndex = -1;
-		SshPubKeyEntity removeEntity = null;
-
-		for (int i = 0; i < keyList.size(); i++) {
-			if (keyList.get(i).getPubKeyEntity().getName().equals(name)) {
-				removeIndex = i;
-				removeEntity = keyList.get(i).getPubKeyEntity();
-				break;
-			}
-		}
-
-		if (removeIndex != -1) {
-			keyList.remove(removeIndex);
-			sshPubKeyService.deleteKey(removeEntity, "identity-" + identity.getId());
-		}
-
+		keyList.stream().filter(k -> name.equals(k.getPubKeyEntity().getName())).findAny().ifPresent(k -> {
+			keyList.remove(k);
+			sshPubKeyService.deleteKey(k.getPubKeyEntity(), "identity-" + identity.getId());
+		});
 		messageGenerator.addResolvedInfoMessage("info", "ssh_keys.key_deleted", false);
 	}
 
@@ -120,6 +104,7 @@ public class UserSshKeyManagementBean implements Serializable {
 			sshPubKeyEntity.setName(newName);
 			sshPubKeyEntity.setEncodedKey(newKey);
 			sshPubKeyEntity.setIdentity(identity);
+			sshPubKeyEntity.setUser(identity.getPrefUser());
 			sshPubKeyEntity.setKeyStatus(SshPubKeyStatus.ACTIVE);
 
 			keyDecoder.decode(key);

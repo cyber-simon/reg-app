@@ -28,7 +28,7 @@ public interface SshPubKeyService extends BaseService<SshPubKeyEntity> {
 
 	List<SshPubKeyEntity> findByIdentityAndStatus(Long identityId, SshPubKeyStatus keyStatus);
 
-	List<SshPubKeyEntity> findByIdentityAndStatusWithRegs(Long identityId, SshPubKeyStatus keyStatus);
+	List<SshPubKeyEntity> findByIdentityAndStatusWithRegsAndUser(Long identityId, SshPubKeyStatus keyStatus);
 
 	SshPubKeyEntity expireKey(SshPubKeyEntity entity, String executor);
 
