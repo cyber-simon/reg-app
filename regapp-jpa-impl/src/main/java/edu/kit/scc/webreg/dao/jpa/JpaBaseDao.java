@@ -39,6 +39,7 @@ import javax.persistence.metamodel.SingularAttribute;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.ops.And;
 import edu.kit.scc.webreg.dao.ops.Equal;
+import edu.kit.scc.webreg.dao.ops.EqualIgnoreCase;
 import edu.kit.scc.webreg.dao.ops.GreaterThan;
 import edu.kit.scc.webreg.dao.ops.In;
 import edu.kit.scc.webreg.dao.ops.IsNotNull;
@@ -212,6 +213,9 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 		} else if (rqlExpression instanceof NotEqual) {
 			NotEqual<T, ?> notEqual = (NotEqual<T, ?>) rqlExpression;
 			return builder.notEqual(notEqual.getFieldPath(root), notEqual.getAssignedValue());
+		} else if (rqlExpression instanceof EqualIgnoreCase) {
+			EqualIgnoreCase<T> equal = (EqualIgnoreCase<T>) rqlExpression;
+			return builder.equal(builder.lower(equal.getFieldPath(root)), equal.getAssignedValue().toLowerCase());
 		} else {
 			throw new UnsupportedOperationException(
 					String.format("Expression '%s' is not supported", rqlExpression.getClass().getSimpleName()));
@@ -385,7 +389,7 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 		}
 
 		Query query = em.createQuery(criteria);
-		
+
 		return query.getResultList();
 	}
 

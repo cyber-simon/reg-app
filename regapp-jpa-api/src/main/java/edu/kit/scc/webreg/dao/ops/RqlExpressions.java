@@ -48,6 +48,32 @@ public class RqlExpressions {
 	}
 
 	/**
+	 * Provides equal predicate that ignores case. Works only with string typed
+	 * values.
+	 *
+	 * @param <E>           Type of the entity the field belongs to
+	 * @param field         Field attribute according to the JPA meta-model
+	 * @param assignedValue Value the field is compared with
+	 * @return RQL predicate {@link EqualIgnoreCase}
+	 */
+	public static <E> EqualIgnoreCase<E> equalIgnoreCase(SingularAttribute<E, String> field, String assignedValue) {
+		return new EqualIgnoreCaseBasedOnAttribute<>(field, assignedValue);
+	}
+
+	/**
+	 * Provides equal predicate that ignores case. Works only with string typed
+	 * values.
+	 *
+	 * @param <E>           Type of the root entity the field is based on
+	 * @param field         Field name (supports chained fields)
+	 * @param assignedValue Value the field is compared with
+	 * @return RQL predicate {@link EqualIgnoreCase}
+	 */
+	public static <E> EqualIgnoreCase<E> equalIgnoreCase(String field, String assignedValue) {
+		return new EqualIgnoreCaseBasedOnString<>(field, assignedValue);
+	}
+
+	/**
 	 * Provides greaterThan predicate.
 	 *
 	 * @param <E>           Type of the entity the field belongs to
