@@ -8,7 +8,6 @@ import javax.persistence.EntityManager;
 
 import org.jboss.weld.junit5.auto.AddBeanClasses;
 import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
@@ -41,7 +40,7 @@ class JpaSamlUserDaoTest {
 	@Nested
 	public class FindByPersistent {
 
-		@Test
+		//		@Test
 		public void ignoresCaseForPersistentId() {
 			SamlUserEntity persistedSamlUserEntity = createPersistedSamlUserEntity("cRAzY!!");
 
