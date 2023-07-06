@@ -382,7 +382,8 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 		KeyDescriptor keyDescriptor = null;
 		SPSSODescriptor spsso = ed.getSPSSODescriptor(SAMLConstants.SAML20P_NS);
 		for (KeyDescriptor kd : spsso.getKeyDescriptors()) {
-			if (kd.getUse() == null || kd.getUse().equals(UsageType.ENCRYPTION)) {
+			if (kd.getUse() == null || kd.getUse().equals(UsageType.ENCRYPTION) ||
+					kd.getUse().equals(UsageType.UNSPECIFIED)) {
 				keyDescriptor = kd;
 				break;
 			}
@@ -490,7 +491,8 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 
 					try {
 						Object o = invocable.invokeFunction("buildNameId", scriptingEnv, user, registry,
-								serviceSamlSp.getService(), idpConfig, spMetadata, authnRequest.getID(), authnRequest.getAssertionConsumerServiceURL(), logger);
+								serviceSamlSp.getService(), idpConfig, spMetadata, authnRequest.getID(),
+								authnRequest.getAssertionConsumerServiceURL(), logger);
 						if (o instanceof Subject) {
 							assertion.setSubject((Subject) o);
 							subjectOverride = true;
