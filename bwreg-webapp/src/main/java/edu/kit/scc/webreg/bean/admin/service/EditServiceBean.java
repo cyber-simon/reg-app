@@ -124,6 +124,7 @@ public class EditServiceBean implements Serializable {
 			selectedAdminRole = entity.getAdminRole();
 			selectedHotlineRole = entity.getHotlineRole();
 			selectedGroupAdminRole = entity.getGroupAdminRole();
+			selectedProjectAdminRole = entity.getProjectAdminRole();
 			selectedImage = entity.getImage();
 			selectedRule = entity.getAccessRule();
 			selectedRulePackage = entity.getGroupFilterRulePackage();
