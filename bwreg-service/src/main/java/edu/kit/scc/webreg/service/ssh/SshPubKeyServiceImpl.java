@@ -1,12 +1,8 @@
 /*******************************************************************************
- * Copyright (c) 2014 Michael Simon.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the GNU Public License v3.0
- * which accompanies this distribution, and is available at
- * http://www.gnu.org/licenses/gpl.html
- * 
- * Contributors:
- *     Michael Simon - initial
+ * Copyright (c) 2014 Michael Simon. All rights reserved. This program and the
+ * accompanying materials are made available under the terms of the GNU Public
+ * License v3.0 which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/gpl.html Contributors: Michael Simon - initial
  ******************************************************************************/
 package edu.kit.scc.webreg.service.ssh;
 
@@ -24,7 +20,6 @@ import java.util.List;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 
 import edu.kit.scc.regapp.sshkey.SshPubKeyManager;
 import edu.kit.scc.regapp.sshkey.exc.SshPubKeyBlacklistedException;
@@ -46,9 +41,6 @@ public class SshPubKeyServiceImpl extends BaseServiceImpl<SshPubKeyEntity> imple
 	@Inject
 	private SshPubKeyManager manager;
 
-	@Inject
-	private HttpServletRequest request;
-
 	@Override
 	public List<SshPubKeyEntity> findByKey(String encodedKey) {
 		return dao.findAll(equal(SshPubKeyEntity_.encodedKey, encodedKey));
@@ -60,31 +52,30 @@ public class SshPubKeyServiceImpl extends BaseServiceImpl<SshPubKeyEntity> imple
 	}
 
 	@Override
-	public List<SshPubKeyEntity> findByIdentityAndStatusWithRegs(Long identityId, SshPubKeyStatus keyStatus) {
+	public List<SshPubKeyEntity> findByIdentityAndStatusWithRegsAndUser(Long identityId, SshPubKeyStatus keyStatus) {
 		return dao.findAllEagerly(and(equal("identity.id", identityId), equal(SshPubKeyEntity_.keyStatus, keyStatus)),
-				SshPubKeyEntity_.sshPubKeyRegistries);
+				SshPubKeyEntity_.sshPubKeyRegistries, SshPubKeyEntity_.user);
 	}
 
 	@Override
 	public List<SshPubKeyEntity> findKeysToExpire(int limit) {
-		return dao.findAll(withLimit(limit), and(equal(SshPubKeyEntity_.keyStatus, SshPubKeyStatus.ACTIVE),
-				lessThan(SshPubKeyEntity_.expiresAt, new Date())));
+		return dao.findAll(withLimit(limit),
+				and(equal(SshPubKeyEntity_.keyStatus, SshPubKeyStatus.ACTIVE), lessThan(SshPubKeyEntity_.expiresAt, new Date())));
 	}
 
 	@Override
 	public List<SshPubKeyEntity> findKeysToDelete(int limit, int days) {
 		Date dateNDaysBefore = Date.from(Instant.now().minus(days, DAYS));
-		return dao.findAll(withLimit(limit), and(equal(SshPubKeyEntity_.keyStatus, SshPubKeyStatus.ACTIVE),
-				lessThan(SshPubKeyEntity_.expiresAt, dateNDaysBefore)));
+		return dao.findAll(withLimit(limit),
+				and(equal(SshPubKeyEntity_.keyStatus, SshPubKeyStatus.EXPIRED), lessThan(SshPubKeyEntity_.expiresAt, dateNDaysBefore)));
 	}
 
 	@Override
 	public List<SshPubKeyEntity> findKeysToExpiryWarning(int limit, int days) {
 		Date dateInNDays = Date.from(Instant.now().plus(days, DAYS));
 		return dao.findAll(withLimit(limit),
-				and(equal(SshPubKeyEntity_.keyStatus, SshPubKeyStatus.ACTIVE),
-						isNull(SshPubKeyEntity_.expireWarningSent), greaterThan(SshPubKeyEntity_.expiresAt, new Date()),
-						lessThan(SshPubKeyEntity_.expiresAt, dateInNDays)));
+				and(equal(SshPubKeyEntity_.keyStatus, SshPubKeyStatus.ACTIVE), isNull(SshPubKeyEntity_.expireWarningSent),
+						greaterThan(SshPubKeyEntity_.expiresAt, new Date()), lessThan(SshPubKeyEntity_.expiresAt, dateInNDays)));
 	}
 
 	@Override
@@ -109,17 +100,17 @@ public class SshPubKeyServiceImpl extends BaseServiceImpl<SshPubKeyEntity> imple
 
 	@Override
 	public SshPubKeyEntity deleteKey(SshPubKeyEntity entity, String executor) {
-		return manager.deleteKey(entity, executor, request.getServerName());
+		return manager.deleteKey(entity, executor, entity.getUser() != null ? entity.getUser().getLastLoginHost() : null);
 	}
 
 	@Override
-	public SshPubKeyEntity deployKey(Long identityId, SshPubKeyEntity entity, String executor)
-			throws SshPubKeyBlacklistedException {
-		return manager.deployKey(identityId, entity, executor, request.getServerName());
+	public SshPubKeyEntity deployKey(Long identityId, SshPubKeyEntity entity, String executor) throws SshPubKeyBlacklistedException {
+		return manager.deployKey(identityId, entity, executor, entity.getUser() != null ? entity.getUser().getLastLoginHost() : null);
 	}
 
 	@Override
 	protected BaseDao<SshPubKeyEntity> getDao() {
 		return dao;
 	}
+
 }

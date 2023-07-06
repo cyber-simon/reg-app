@@ -76,7 +76,7 @@ class SshPubKeyServiceTest {
 			UserEntity user = createPersistedUserEntity(4711, "Max", "Mustermann");
 			SshPubKeyEntity sshPubKeyEntity = createPersistedSshPubKeyEntity(identity, user);
 
-			List<SshPubKeyEntity> foundKeys = sshPubKeyService.findByIdentityAndStatusWithRegs(identity.getId(), SshPubKeyStatus.ACTIVE);
+			List<SshPubKeyEntity> foundKeys = sshPubKeyService.findByIdentityAndStatusWithRegsAndUser(identity.getId(), SshPubKeyStatus.ACTIVE);
 
 			assertThat(foundKeys).isNotNull().contains(sshPubKeyEntity);
 		}
@@ -87,7 +87,7 @@ class SshPubKeyServiceTest {
 			UserEntity user = createPersistedUserEntity(4711, "Max", "Mustermann");
 			createPersistedSshPubKeyEntity(identity, user);
 
-			List<SshPubKeyEntity> foundKeys = sshPubKeyService.findByIdentityAndStatusWithRegs(identity.getId(), SshPubKeyStatus.DELETED);
+			List<SshPubKeyEntity> foundKeys = sshPubKeyService.findByIdentityAndStatusWithRegsAndUser(identity.getId(), SshPubKeyStatus.DELETED);
 
 			assertThat(foundKeys).isEmpty();
 		}
