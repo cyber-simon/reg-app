@@ -33,10 +33,15 @@ public class OpenSshKeyDecoder implements Serializable {
             String type = decodeType(key);
             key.getPubKeyEntity().setKeyType(type);
 
-            MessageDigest digest = MessageDigest.getInstance("SHA256");
-        	AsymmetricKeyParameter params = OpenSSHPublicKeyUtil.parsePublicKey(key.getBytes());
-            byte[] result = digest.digest(key.getBytes());
-            key.setFingerprint(java.util.Base64.getEncoder().encodeToString(result));
+            if (! "sk-ssh-ed25519@openssh.com".equals(type)) {
+	            MessageDigest digest = MessageDigest.getInstance("SHA256");
+	            AsymmetricKeyParameter params = OpenSSHPublicKeyUtil.parsePublicKey(key.getBytes());
+	            byte[] result = digest.digest(key.getBytes());
+	            key.setFingerprint(java.util.Base64.getEncoder().encodeToString(result));
+            }
+            else {
+            	key.setFingerprint("not available");
+            }
 
         } catch (Throwable t) {
         	throw new UnsupportedKeyTypeException(t);
