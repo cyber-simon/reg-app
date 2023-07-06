@@ -22,6 +22,7 @@ import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity_;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
+import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
 import edu.kit.scc.webreg.sec.AuthorizationBean;
@@ -58,10 +59,15 @@ public class ServiceProjectAdminShowProjectBean implements Serializable {
 	private LocalProjectEntity entity;
 	private ServiceEntity serviceEntity;
 	private ProjectServiceEntity projectServiceEntity;
-	private List<ProjectServiceEntity> serviceList;
 
 	private ProjectIdentityAdminEntity adminIdentity;
 
+	private List<ProjectMembershipEntity> memberList;
+	private List<ProjectMembershipEntity> effectiveMemberList;
+	private List<ProjectIdentityAdminEntity> adminList;
+	private List<ProjectServiceEntity> serviceList;
+	private List<ProjectServiceEntity> serviceFromParentsList;
+	
 	private Long projectId;
 	private Long serviceId;
 
@@ -151,4 +157,31 @@ public class ServiceProjectAdminShowProjectBean implements Serializable {
 		this.projectServiceEntity = projectServiceEntity;
 	}
 
+	public List<ProjectMembershipEntity> getMemberList() {
+		if (memberList == null) {
+			memberList = projectService.findMembersForProject(getEntity());
+		}
+		return memberList;
+	}
+
+	public List<ProjectIdentityAdminEntity> getAdminList() {
+		if (adminList == null) {
+			adminList = projectService.findAdminsForProject(getEntity());
+		}
+		return adminList;
+	}
+
+	public List<ProjectServiceEntity> getServiceFromParentsList() {
+		if (serviceFromParentsList == null) {
+			serviceFromParentsList = projectService.findServicesFromParentsForProject(getEntity());
+		}
+		return serviceFromParentsList;
+	}
+
+	public List<ProjectMembershipEntity> getEffectiveMemberList() {
+		if (effectiveMemberList == null) {
+			effectiveMemberList = projectService.findMembersForProject(getEntity(), true);
+		}
+		return effectiveMemberList;
+	}
 }

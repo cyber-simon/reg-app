@@ -124,6 +124,7 @@ public class SessionManager implements Serializable {
 		serviceAdminList.clear();
 		serviceHotlineList.clear();
 		serviceGroupAdminList.clear();
+		serviceProjectAdminList.clear();
 	}
 	
 	public void clearGroups() {

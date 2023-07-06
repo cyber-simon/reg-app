@@ -27,17 +27,33 @@
 	
 		<p:dataTable id="dataTable" var="entity" value="#{listBusinessRuleBean.list}" paginator="true"
 					lazy="true" rows="15">
-			<p:column>
+			<p:column style="width:36px;">
 				<f:facet name="header">
 					<h:outputText value="#{messages.id}" />
 				</f:facet>
 				<h:outputText value="#{entity.id}" />
 			</p:column>
-			<p:column>
+			<p:column sortBy="#{entity.packageName}" filterBy="#{entity.packageName}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.package_name}" />
+				</f:facet>
+				<h:link outcome="show-rule-package.xhtml" value="#{entity.packageName}">
+      				<f:param name="ruleId" value="#{entity.id}"/>
+    			</h:link>
+			</p:column>			
+			<p:column sortBy="#{entity.knowledgeBaseName}" filterBy="#{entity.knowledgeBaseName}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.knowledgebase_name}" />
 				</f:facet>
-				<h:link outcome="show-rule-package.xhtml" value="#{entity.packageName}:#{entity.knowledgeBaseName}:#{entity.knowledgeBaseVersion}">
+				<h:link outcome="show-rule-package.xhtml" value="#{entity.knowledgeBaseName}">
+      				<f:param name="ruleId" value="#{entity.id}"/>
+    			</h:link>
+			</p:column>			
+			<p:column sortBy="#{entity.knowledgeBaseVersion}" filterBy="#{entity.knowledgeBaseVersion}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.version}" />
+				</f:facet>
+				<h:link outcome="show-rule-package.xhtml" value="#{entity.knowledgeBaseVersion}">
       				<f:param name="ruleId" value="#{entity.id}"/>
     			</h:link>
 			</p:column>			

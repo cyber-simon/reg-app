@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.bean.admin.audit;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.enterprise.context.RequestScoped;
 import javax.faces.event.ComponentSystemEvent;
@@ -18,7 +19,9 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import edu.kit.scc.webreg.audit.AuditDetailService;
+import edu.kit.scc.webreg.audit.AuditEntryService;
 import edu.kit.scc.webreg.entity.audit.AuditDetailEntity;
+import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
 
 @Named("showAuditDetailBean")
 @RequestScoped
@@ -27,17 +30,24 @@ public class ShowAuditDetailBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 
     @Inject
-    private AuditDetailService service;
+    private AuditDetailService auditDetailService;
+
+    @Inject
+    private AuditEntryService auditEntryservice;
 
 	private AuditDetailEntity entity;
+	private AuditEntryEntity auditEntryEntity;
+	private List<AuditDetailEntity> detailList;
 	
 	private Long id;
 
 	public void preRenderView(ComponentSystemEvent ev) {
-		entity = service.fetch(id);
+		
 	}
 	
 	public AuditDetailEntity getEntity() {
+		if (entity == null)
+			entity = auditDetailService.fetch(id);
 		return entity;
 	}
 
@@ -51,5 +61,17 @@ public class ShowAuditDetailBean implements Serializable {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public AuditEntryEntity getAuditEntryEntity() {
+		if (auditEntryEntity == null)
+			auditEntryEntity = auditEntryservice.fetch(getEntity().getAuditEntry().getId());
+		return auditEntryEntity;
+	}
+	
+	public List<AuditDetailEntity> getDetailList() {
+		if (detailList == null)
+			detailList = auditDetailService.findAllByAuditEntry(getAuditEntryEntity());
+		return detailList;
 	}
 }

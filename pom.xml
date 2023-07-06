@@ -21,7 +21,7 @@
 		<org.apache.velocity>1.7</org.apache.velocity>
 		<vt-ldap.version>3.3.9</vt-ldap.version>
 		<org.slf4j.version>1.7.2</org.slf4j.version>
-		<org.bouncycastle.version>1.67</org.bouncycastle.version>
+		<org.bouncycastle.version>1.75</org.bouncycastle.version>
 		<org.primefaces.version>10.0.0</org.primefaces.version>
 		<org.primefaces.extensions.version>10.0.1</org.primefaces.extensions.version>
 		<org.primefaces.themes.version>1.0.10</org.primefaces.themes.version>
@@ -211,7 +211,7 @@
 			</dependency>
 			<dependency>
 				<groupId>org.bouncycastle</groupId>
-				<artifactId>bcpkix-jdk15on</artifactId>
+				<artifactId>bcpkix-jdk18on</artifactId>
 				<version>${org.bouncycastle.version}</version>
 			</dependency>
 			<dependency>

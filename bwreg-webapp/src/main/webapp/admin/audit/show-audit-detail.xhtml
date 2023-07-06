@@ -71,14 +71,7 @@
 
 				</p:panelGrid>
 		
-			</p:panel>
-			
-		</div>
-	
-		<div class="panel">
-			<p:panel header="#{messages.audit_detail}">
-		
-				<p:dataTable var="a" value="#{showAuditDetailBean.entity.auditEntry.auditDetails.toArray()}">
+				<p:dataTable var="a" value="#{showAuditDetailBean.detailList}">
 					<p:column>
 						<f:facet name="header">
 							<h:outputText value="#{messages.id}" />
