@@ -129,7 +129,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 			List<ProjectMembershipEntity> projectList = projectService.findByIdentity(identity);
 
 			sessionManager.getProjects().addAll(projectList);
-			sessionManager.setGroupSetCreated(System.currentTimeMillis());
+			sessionManager.setProjectSetCreated(System.currentTimeMillis());
 
 			end = System.currentTimeMillis();
 			logger.trace("projects loading took {} ms", (end - start));
@@ -199,7 +199,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 				List<ServiceEntity> tempList = new ArrayList<ServiceEntity>();
 
 				tempList.addAll(knowledgeSessionSingleton.checkServiceFilterRule(serviceFilterRule, identity,
-						unregisteredServiceList, sessionManager.getGroups(), sessionManager.getRoles()));
+						unregisteredServiceList, sessionManager.getGroups(), sessionManager.getRoles(), sessionManager.getProjects()));
 
 				unregisteredServiceList = tempList;
 
