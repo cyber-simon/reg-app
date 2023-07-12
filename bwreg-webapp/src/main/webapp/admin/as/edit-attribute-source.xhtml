@@ -44,6 +44,14 @@
 					<h:outputText value="#{messages.user_source}:" />
 					<p:selectBooleanButton onLabel="#{messages.yes}" offLabel="#{messages.no}"
 						value="#{editAttributeSourceBean.entity.userSource}" />
+					
+					<h:outputText value="#{messages.identity_source}:" />
+					<p:selectBooleanButton onLabel="#{messages.yes}" offLabel="#{messages.no}"
+						value="#{editAttributeSourceBean.entity.identitySource}" />
+
+					<h:outputText value="#{messages.project_source}:" />
+					<p:selectBooleanButton onLabel="#{messages.yes}" offLabel="#{messages.no}"
+						value="#{editAttributeSourceBean.entity.projectSource}" />
 
 			        <h:outputText value="#{messages.properties}:"/>
 					<p:dataTable id="propTable" var="key" style="min-width: 500px;"
@@ -66,7 +74,7 @@
 							</h:commandLink>
 						</p:column>
 					</p:dataTable>
-					
+										
 			        <h:outputText value="#{messages.new_property}:"/>
 					<h:panelGrid id="newPropTable" columns="3" columnClasses="labelColumn, elementColumn">
 				        <h:inputText id="key_input" value="#{editAttributeSourceBean.newKey}"/>
@@ -76,6 +84,11 @@
 						</h:commandLink>
 					</h:panelGrid>
 
+			        <h:outputText value="#{messages.connected_services}:"/>
+					<p:pickList var="s" value="#{editAttributeSourceBean.serviceList}" itemLabel="#{s.name}" 
+						itemValue="#{s}" converter="#{serviceConverter}"
+						showSourceFilter="true" showTargetFilter="true" filterMatchMode="contains">
+					</p:pickList>
 				</p:panelGrid>
 
 				<p:commandButton id="save" action="#{editAttributeSourceBean.save}" value="#{messages.save}"/>
