@@ -3,6 +3,7 @@ package edu.kit.scc.webreg.as;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.and;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,6 +43,7 @@ import edu.kit.scc.webreg.event.MultipleGroupEvent;
 import edu.kit.scc.webreg.event.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.PropertyReaderException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
+import edu.kit.scc.webreg.service.project.AttributeSourceProjectUpdater;
 import edu.kit.scc.webreg.tools.PropertyReader;
 
 public abstract class AbstractAttributeSourceWorkflow implements AttributeSourceWorkflow {
@@ -55,8 +57,8 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 	protected String groupKey;
 	protected String groupSeparator;
 
-	protected String projectKey;
-	protected String projectSeparator;
+	protected String piKey;
+	protected String piSeparator;
 
 	private ASUserAttrEntity asUserAttr;
 	private ASUserAttrValueDao asValueDao;
@@ -82,11 +84,11 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 			else
 				groupSeparator = ";";
 
-			projectKey = prop.readPropOrNull("project_key");
-			if (prop.readPropOrNull("project_separator") != null)
-				projectSeparator = prop.readPropOrNull("project_separator");
+			piKey = prop.readPropOrNull("pi_key");
+			if (prop.readPropOrNull("pi_separator") != null)
+				piSeparator = prop.readPropOrNull("pi_separator");
 			else
-				projectSeparator = ";";
+				piSeparator = ";";
 
 		} catch (PropertyReaderException e) {
 			throw new UserUpdateException(e);
@@ -153,8 +155,8 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 				processGroups(asValue);
 			}
 
-			if (projectKey != null && key.equals(projectKey)) {
-				processGroups(asValue);
+			if (piKey != null && key.equals(piKey)) {
+				processProjects(asValue);
 			}
 		} else {
 			logger.warn("Cannot process value of type {}", o.getClass());
@@ -172,6 +174,10 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 
 		if (groupKey != null && key.equals(groupKey)) {
 			processGroups(null);
+		}
+		
+		if (piKey != null && key.equals(piKey)) {
+			processProjects(null);
 		}
 
 		return true;
@@ -197,6 +203,10 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 			if (groupKey != null && key.equals(groupKey)) {
 				changed |= processGroups(asStringValue);
 			}
+			
+			if (piKey != null && key.equals(piKey)) {
+				changed |= processProjects(asStringValue);
+			}
 		} else {
 			logger.warn("Value change for key {} from {} to ASUserAttrValueStringEntity not supported yet", key,
 					o.getClass());
@@ -211,15 +221,15 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 		UserEntity user = asUserAttr.getUser();
 		AttributeSourceEntity attributeSource = asUserAttr.getAttributeSource();
 
-		//CDI.current().select(AttributeSourceProjectUpdater.class).get();
+		AttributeSourceProjectUpdater asUpdater = CDI.current().select(AttributeSourceProjectUpdater.class).get();
 		
-		if (asValue == null || asValue.getValueString() == null || asValue.getValueString().equals("")) {
-			// delete all projects for this user
-			
-			changed = true;
-		} else {
-			
+		List<String> projectList = new ArrayList<String>();
+		if (asValue != null) {
+			String[] projects = asValue.getValueString().toLowerCase().split(piSeparator);
+			projectList.addAll(Arrays.asList(projects));
 		}
+		
+		changed |= asUpdater.syncAttributeSourceProjects(projectList, user, attributeSource);
 		
 		return changed;
 	}	

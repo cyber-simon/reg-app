@@ -1,6 +1,7 @@
 package edu.kit.scc.webreg.service.project;
 
-import java.util.UUID;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -11,8 +12,10 @@ import edu.kit.scc.webreg.dao.project.AttributeSourceProjectDao;
 import edu.kit.scc.webreg.dao.project.BaseProjectDao;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.project.AttributeSourceProjectEntity;
-import edu.kit.scc.webreg.entity.project.ProjectMembershipType;
+import edu.kit.scc.webreg.entity.project.ProjectAdminType;
+import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
 
 @ApplicationScoped
 public class AttributeSourceProjectUpdater extends AbstractProjectUpdater<AttributeSourceProjectEntity> {
@@ -28,6 +31,49 @@ public class AttributeSourceProjectUpdater extends AbstractProjectUpdater<Attrib
 	@Inject
 	private AttributeSourceProjectCreater projectCreater;
 
+	public boolean syncAttributeSourceProjects(List<String> externalNamesList, UserEntity user,
+			AttributeSourceEntity attributeSource) {
+		boolean changed = false;
+
+		IdentityEntity identity = user.getIdentity();
+
+		List<ProjectIdentityAdminEntity> adminList = dao.findAdminByIdentity(identity);
+		// TODO move this logic to dao query
+		List<ProjectIdentityAdminEntity> filteredAdminList = adminList.stream()
+				.filter(pia -> (pia.getProject() instanceof AttributeSourceProjectEntity)
+						&& (((AttributeSourceProjectEntity) pia.getProject()).getAttributeSource()
+								.equals(attributeSource)))
+				.collect(Collectors.toList());
+
+		logger.debug("Identity {} is admin in {} projects and {} in attribute sourced proects", identity.getId(),
+				adminList.size(), filteredAdminList.size());
+
+		for (ProjectIdentityAdminEntity pia : filteredAdminList) {
+			if (!externalNamesList.contains(((AttributeSourceProjectEntity) pia.getProject()).getExternalName())) {
+				logger.debug("Project {} no longer in external attribute source. Removing ProjectIdentityAdminEntity", pia.getProject().getId());
+				dao.removeAdminFromProject(pia);
+				changed = true;
+			}
+		}
+
+		for (String name : externalNamesList) {
+			if (filteredAdminList.stream()
+					.filter(pia -> ((AttributeSourceProjectEntity) pia.getProject()).getExternalName().equals(name))
+					.findFirst().isEmpty()) {
+				logger.debug("Project {} not in ProjectIdentityAdminEntity for identity {}", name, identity.getId());
+				
+				AttributeSourceProjectEntity project = dao.findByExternalNameAttributeSource(name, attributeSource);
+				if (project == null) {
+					project = projectCreater.create(name, name, name, name, attributeSource);
+				}
+				
+				dao.addAdminToProject(project, identity, ProjectAdminType.OWNER);
+			}
+		}
+
+		return changed;
+	}
+/*
 	public void syncExternalOidcProject(String projectName, String externalName, String groupName, String shortName,
 			UserEntity user, AttributeSourceEntity attributeSource) {
 
@@ -56,7 +102,7 @@ public class AttributeSourceProjectUpdater extends AbstractProjectUpdater<Attrib
 		syncAllMembersToGroup(project, "idty-" + user.getIdentity());
 		triggerGroupUpdate(project, "idty-" + user.getIdentity());
 	}
-
+*/
 	@Override
 	protected BaseProjectDao<AttributeSourceProjectEntity> getDao() {
 		return dao;
