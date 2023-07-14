@@ -74,7 +74,6 @@ public class SessionManager implements Serializable {
 	
 	private String originalRequestPath;
 	private String originalIdpEntityId;
-	private String originalFederationShortName;
 	
 	private Set<RoleEntity> roles;
 	private Long roleSetCreated;
@@ -385,14 +384,6 @@ public class SessionManager implements Serializable {
 
 	public void setAccountLinkingPin(String accountLinkingPin) {
 		this.accountLinkingPin = accountLinkingPin;
-	}
-
-	public String getOriginalFederationShortName() {
-		return originalFederationShortName;
-	}
-
-	public void setOriginalFederationShortName(String originalFederationShortName) {
-		this.originalFederationShortName = originalFederationShortName;
 	}
 
 	public Set<Long> getLoggedInUserList() {
