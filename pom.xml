@@ -81,6 +81,7 @@
 		<module>regapp-twofa</module>
 		<module>regapp-sshkey</module>
 		<module>regapp-ejb-service</module>
+		<module>regapp-project</module>
 		<module>bwreg-lib</module>
 		<module>bwreg-jpa</module>
 		<module>bwreg-service</module>

@@ -8,7 +8,7 @@
 		<version>${revision}</version>
 	</parent>
 	<packaging>jar</packaging>
-	<artifactId>regapp-as</artifactId>
+	<artifactId>regapp-project</artifactId>
 
 	<dependencyManagement>
 		<dependencies>
@@ -51,6 +51,11 @@
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-jpa-impl</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
 			<artifactId>regapp-config</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -61,19 +66,15 @@
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
-			<artifactId>regapp-drools</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>edu.kit.scc</groupId>
 			<artifactId>regapp-event-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
-			<artifactId>regapp-project</artifactId>
+			<artifactId>regapp-reg-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+
 		<dependency>
 			<groupId>javax</groupId>
 			<artifactId>javaee-api</artifactId>
@@ -83,25 +84,23 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.velocity</groupId>
 			<artifactId>velocity</artifactId>
-			<scope>provided</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>edu.vt.middleware</groupId>
+			<artifactId>vt-ldap</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+		</dependency>
+		<dependency>
+   			<groupId>commons-beanutils</groupId>
+		    <artifactId>commons-beanutils</artifactId>
+		</dependency>
 		
 	</dependencies>
 </project>
