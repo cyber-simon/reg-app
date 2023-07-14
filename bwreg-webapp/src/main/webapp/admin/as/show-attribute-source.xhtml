@@ -44,12 +44,6 @@
 					<h:outputText value="#{messages.user_source}:" />
 					<h:outputText value="#{showAttributeSourceBean.entity.userSource}" />
 
-					<h:outputText value="#{messages.identity_source}:" />
-					<h:outputText value="#{showAttributeSourceBean.entity.identitySource}" />
-
-					<h:outputText value="#{messages.project_source}:" />
-					<h:outputText value="#{showAttributeSourceBean.entity.projectSource}" />
-
 					<h:outputText value="#{messages.properties}:" />
 					<p:dataTable id="propTable" var="key" style="min-width: 400px;"
 						value="#{showAttributeSourceBean.entity.asProps.keySet().toArray()}">

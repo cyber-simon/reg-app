@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.enterprise.inject.spi.CDI;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
@@ -54,6 +55,9 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 	protected String groupKey;
 	protected String groupSeparator;
 
+	protected String projectKey;
+	protected String projectSeparator;
+
 	private ASUserAttrEntity asUserAttr;
 	private ASUserAttrValueDao asValueDao;
 	private GroupDao groupDao;
@@ -72,15 +76,17 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 		try {
 			prop = new PropertyReader(asUserAttr.getAttributeSource().getAsProps());
 
-			if (prop.readPropOrNull("group_key") != null)
-				groupKey = prop.readPropOrNull("group_key");
-			else
-				groupKey = null;
-
+			groupKey = prop.readPropOrNull("group_key");
 			if (prop.readPropOrNull("group_separator") != null)
 				groupSeparator = prop.readPropOrNull("group_separator");
 			else
 				groupSeparator = ";";
+
+			projectKey = prop.readPropOrNull("project_key");
+			if (prop.readPropOrNull("project_separator") != null)
+				projectSeparator = prop.readPropOrNull("project_separator");
+			else
+				projectSeparator = ";";
 
 		} catch (PropertyReaderException e) {
 			throw new UserUpdateException(e);
@@ -146,6 +152,10 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 			if (groupKey != null && key.equals(groupKey)) {
 				processGroups(asValue);
 			}
+
+			if (projectKey != null && key.equals(projectKey)) {
+				processGroups(asValue);
+			}
 		} else {
 			logger.warn("Cannot process value of type {}", o.getClass());
 			return false;
@@ -195,6 +205,25 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 		return changed;
 	}
 
+	private Boolean processProjects(ASUserAttrValueStringEntity asValue) {
+		Boolean changed = false;
+		
+		UserEntity user = asUserAttr.getUser();
+		AttributeSourceEntity attributeSource = asUserAttr.getAttributeSource();
+
+		//CDI.current().select(AttributeSourceProjectUpdater.class).get();
+		
+		if (asValue == null || asValue.getValueString() == null || asValue.getValueString().equals("")) {
+			// delete all projects for this user
+			
+			changed = true;
+		} else {
+			
+		}
+		
+		return changed;
+	}	
+	
 	private Boolean processGroups(ASUserAttrValueStringEntity asValue) {
 
 		Boolean changed = false;

@@ -44,14 +44,6 @@
 					<h:outputText value="#{messages.user_source}:" />
 					<p:selectBooleanButton onLabel="#{messages.yes}" offLabel="#{messages.no}"
 						value="#{editAttributeSourceBean.entity.userSource}" />
-					
-					<h:outputText value="#{messages.identity_source}:" />
-					<p:selectBooleanButton onLabel="#{messages.yes}" offLabel="#{messages.no}"
-						value="#{editAttributeSourceBean.entity.identitySource}" />
-
-					<h:outputText value="#{messages.project_source}:" />
-					<p:selectBooleanButton onLabel="#{messages.yes}" offLabel="#{messages.no}"
-						value="#{editAttributeSourceBean.entity.projectSource}" />
 
 			        <h:outputText value="#{messages.properties}:"/>
 					<p:dataTable id="propTable" var="key" style="min-width: 500px;"
