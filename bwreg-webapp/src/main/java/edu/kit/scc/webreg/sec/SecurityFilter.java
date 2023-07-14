@@ -227,7 +227,6 @@ public class SecurityFilter implements Filter {
 			logger.debug("User from {} not logged in. Redirecting to welcome page", request.getRemoteAddr());
 			
 			session.setOriginalIdpEntityId(request.getParameter("idp"));
-			session.setOriginalFederationShortName(request.getParameter("federation"));
 			session.setOriginalRequestPath(getFullURL(request));
 			request.getServletContext().getRequestDispatcher("/welcome/").forward(servletRequest, servletResponse);
 		}

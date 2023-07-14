@@ -96,15 +96,6 @@
 				<p:outputLabel value="#{messages.store_idp_selection}: " />
 				<h:selectBooleanCheckbox value="#{discoveryLoginBean.storeIdpSelection}" />				
 	
-				<p:outputLabel value="#{messages.federation}:" for="selectFed" />
-		        <p:selectOneMenu id="selectFed" value="#{discoveryLoginBean.selectedFederation}"
-		        	converter="#{federationConverter}" >
-		        	<f:selectItem itemLabel="#{messages.all}" itemValue="#{null}"/>
-	            	<f:selectItems value="#{discoveryLoginBean.federationList}" 
-	            		var="federation" itemLabel="#{federation.name}" itemValue="#{federation}"/>
-	            	<f:ajax execute="@this" render="idpBox" event="change" />
-	            </p:selectOneMenu>
-	
 				<p:outputLabel value="#{messages.search_filter}:" for="filterText" />
 				<p:inputText value="#{discoveryLoginBean.filter}" id="filterText" >
 					<f:ajax event="keyup" execute="@this" render="idpBox" />
