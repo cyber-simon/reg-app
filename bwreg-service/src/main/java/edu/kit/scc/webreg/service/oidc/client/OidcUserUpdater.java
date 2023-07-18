@@ -169,6 +169,7 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 				ErrorObject error = errorResponse.getErrorObject();
 				logger.info("Got error: code {}, desc {}, http-status {}, uri {}", error.getCode(),
 						error.getDescription());
+				updateFail(user);
 			} else {
 				OIDCTokenResponse oidcTokenResponse = (OIDCTokenResponse) tokenResponse.toSuccessResponse();
 				logger.debug("response: {}", oidcTokenResponse.toJSONObject());
@@ -583,5 +584,10 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 		}
 		Random r = new Random();
 		return new Date(System.currentTimeMillis() + futureMillis + r.nextInt(futureMillisRandom));
+	}
+
+	protected void updateFail(OidcUserEntity user) {
+		user.setLastFailedUpdate(new Date());
+		user.setScheduledUpdate(getNextScheduledUpdate());
 	}
 }
