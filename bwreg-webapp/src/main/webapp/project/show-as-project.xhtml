@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="id" value="#{userShowASProjectBean.id}"/>
+		<f:event type="javax.faces.event.PreRenderViewEvent"
+            listener="#{userShowASProjectBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form" class="full form">
+
+		<h2><h:outputText value="#{messages['project.local_project']}: #{userShowASProjectBean.entity.name}"/></h2>
+
+		<p:messages id="messageBox" showDetail="true" />
+		
+		<p:panel header="#{messages.properties}">
+			<p:panelGrid id="baseData" columns="2">
+		
+		        <h:outputText value="#{messages.id}:"/>
+		        <h:outputText value="#{userShowASProjectBean.entity.id}"/>
+		
+		        <h:outputText value="#{messages.name}:"/>
+		        <h:outputText value="#{userShowASProjectBean.entity.name}"/>
+					
+		        <h:outputText value="#{messages.group_name}:"/>
+		        <h:outputText value="#{userShowASProjectBean.entity.groupName}"/>
+					
+		        <h:outputText value="#{messages.parent_vo}:" rendered="#{userShowASProjectBean.entity.parentProject != null}"/>
+		        <h:outputText value="#{userShowASProjectBean.entity.parentProject}" rendered="#{userShowASProjectBean.entity.parentProject != null}"/>
+				
+		        <h:outputText value="#{messages.services}:"/>
+		        <p:repeat value="#{userShowASProjectBean.entity.projectServices}" var="s">
+		        	<div><h:outputText value="#{s.service.name} (#{s.status})"/></div>
+				</p:repeat>
+			</p:panelGrid>
+		</p:panel>
+
+		<p:panel>
+			<p:panelGrid columns="2">
+				<p:linkButton href="invite-to-project.xhtml" value="#{messages['project.show_local_project.invite_to_project_link']}">
+					<f:param name="id" value="#{userShowASProjectBean.entity.id}"/>
+				</p:linkButton>
+				<h:outputText value="#{messages['project.show_local_project.invite_to_project_link_text']}" />
+			</p:panelGrid>
+		</p:panel>
+
+		<div class="text full" style="margin-top: 0.4em;">
+			<a href="index.xhtml"><h:outputText value="#{messages.back}"/></a>
+		</div>		
+
+		<h5 style="margin-top: 1em;"><h:outputText value="#{messages['project.members']}" /></h5>
+		<p:dataTable id="dataTableMember" var="member" value="#{userShowASProjectBean.memberList}">
+			<p:column sortBy="#{member.identity.prefUser.eppn}" filterBy="#{member.identity.prefUser.eppn}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.name}" />
+				</f:facet>
+				<h:outputText value="#{member.identity.prefUser.eppn}" />
+			</p:column>			
+			<p:column sortBy="#{member.identity.prefUser.surName}" filterBy="#{member.identity.prefUser.surName}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.sur_name}" />
+				</f:facet>
+				<h:outputText value="#{member.identity.prefUser.surName}" />
+			</p:column>			
+			<p:column sortBy="#{member.identity.prefUser.givenName}" filterBy="#{member.identity.prefUser.givenName}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.given_name}" />
+				</f:facet>
+				<h:outputText value="#{member.identity.prefUser.givenName}" />
+			</p:column>			
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.type}" />
+				</f:facet>
+				<h:outputText value="#{member.membershipType}" />
+			</p:column>			
+			<p:column width="12%">
+   				<p:tooltip for="@next" value="#{messages.delete}" position="top"/>
+       			<p:commandButton action="#{userShowASProjectBean.deleteMember(member)}" immediate="true" update="@form"
+       				icon="fa fa-fw fa-trash" style="font-size: 0.6em;">
+       				<p:confirm header="#{messages.confirm_header}" escape="false"
+       					message="#{messages['project.show_local_project.delete_member_confirm']}" />
+       			</p:commandButton>
+       		</p:column>
+		</p:dataTable>	
+		
+		<h5 style="margin-top: 1em;"><h:outputText value="#{messages['project.admins']}" /></h5>
+		<p:dataTable id="dataTableAdmin" var="admin" value="#{userShowASProjectBean.adminList}">
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.id}" />
+				</f:facet>
+				<h:outputText value="#{admin.identity.id}" />
+			</p:column>			
+			<p:column sortBy="#{admin.identity.prefUser.eppn}" filterBy="#{admin.identity.prefUser.eppn}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.name}" />
+				</f:facet>
+				<h:outputText value="#{admin.identity.prefUser.eppn}" />
+			</p:column>			
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.type}" />
+				</f:facet>
+				<h:outputText value="#{admin.type}" />
+			</p:column>			
+		</p:dataTable>	
+
+		<h5 style="margin-top: 1em;"><h:outputText value="#{messages['more_properties']}" /></h5>
+		<p:panelGrid id="descData" columns="2">	
+	        <h:outputText value="#{messages['project.short_description']}:"/>
+			<h:outputText value="#{userShowASProjectBean.entity.shortDescription}" />	
+
+	        <h:outputText value="#{messages['project.long_description']}:"/>
+			<h:outputText value="#{userShowASProjectBean.entity.description}" />	
+		</p:panelGrid>		
+					
+	    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" closable="false" 
+	    	closeOnEscape="true" width="320">
+	        <p:commandButton value="#{messages.yes}" type="button" styleClass="ui-confirmdialog-yes"/>
+	        <p:commandButton value="#{messages.no}" type="button" styleClass="ui-confirmdialog-no"/>
+	    </p:confirmDialog>    
+		
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>

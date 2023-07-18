@@ -24,14 +24,15 @@ import javax.validation.constraints.NotNull;
 
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+import edu.kit.scc.webreg.entity.project.AttributeSourceProjectEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectAdminType;
+import edu.kit.scc.webreg.entity.project.ProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
 import edu.kit.scc.webreg.entity.project.ProjectInvitationTokenEntity;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.identity.IdentityService;
-import edu.kit.scc.webreg.service.project.LocalProjectService;
 import edu.kit.scc.webreg.service.project.ProjectInvitationTokenService;
 import edu.kit.scc.webreg.service.project.ProjectService;
 import edu.kit.scc.webreg.session.SessionManager;
@@ -45,88 +46,88 @@ public class InviteToProjectBean implements Serializable {
 
 	@Inject
 	private SessionManager session;
-	
-	@Inject
-	private LocalProjectService service;
 
 	@Inject
-	private ProjectService projectService;
+	private ProjectService service;
 
 	@Inject
 	private ProjectInvitationTokenService tokenService;
-	
+
 	@Inject
 	private FacesMessageGenerator messageGenerator;
-	
+
 	@Inject
 	private IdentityService identityService;
-	
+
 	@Inject
 	private UserService userService;
-	
-	private LocalProjectEntity entity;
+
+	private ProjectEntity entity;
 	private List<ProjectInvitationTokenEntity> tokenList;
-	
+
 	private Long id;
 
 	private List<ProjectIdentityAdminEntity> adminList;
 	private ProjectIdentityAdminEntity adminIdentity;
 	private IdentityEntity identity;
-	
+
 	@Email
 	@NotNull
 	private String rcptMail;
-	
+
 	private String rcptName;
 	private String senderName;
 	private String senderMail;
 	private String customMessage;
-	
+
 	private Set<String> senderEmailList;
 	private Set<String> senderNameList;
-	
+
 	public void preRenderView(ComponentSystemEvent ev) {
-		
+
 		for (ProjectIdentityAdminEntity a : getAdminList()) {
 			if (a.getIdentity().getId().equals(getIdentity().getId())) {
 				adminIdentity = a;
 				break;
 			}
 		}
-		
+
 		if (adminIdentity == null) {
 			throw new NotAuthorizedException("Nicht autorisiert");
-		}		
-		else {
-			if (! (ProjectAdminType.ADMIN.equals(adminIdentity.getType()) || ProjectAdminType.OWNER.equals(adminIdentity.getType()))) {
+		} else {
+			if (!(ProjectAdminType.ADMIN.equals(adminIdentity.getType())
+					|| ProjectAdminType.OWNER.equals(adminIdentity.getType()))) {
 				throw new NotAuthorizedException("Nicht autorisiert");
 			}
 		}
 	}
 
 	public void sendToken() {
-		tokenService.sendEmailToken(getEntity(), getIdentity(), rcptMail, rcptName, senderName, customMessage, "idty-" + session.getIdentityId());
-		messageGenerator.addResolvedInfoMessage("project.invite_project.token_send", "project.invite_project.token_send_detail", true);
+		tokenService.sendEmailToken(getEntity(), getIdentity(), rcptMail, rcptName, senderName, customMessage,
+				"idty-" + session.getIdentityId());
+		messageGenerator.addResolvedInfoMessage("project.invite_project.token_send",
+				"project.invite_project.token_send_detail", true);
 		tokenList = null;
 	}
-	
+
 	public void deleteToken(ProjectInvitationTokenEntity token) {
 		tokenService.delete(token);
-		messageGenerator.addResolvedInfoMessage("project.invite_project.token_deleted", "project.invite_project.token_deleted_detail", true);
+		messageGenerator.addResolvedInfoMessage("project.invite_project.token_deleted",
+				"project.invite_project.token_deleted_detail", true);
 		tokenList = null;
 	}
-	
+
 	public void resendToken(ProjectInvitationTokenEntity token) {
-		
+
 	}
-	
+
 	public List<ProjectIdentityAdminEntity> getAdminList() {
 		if (adminList == null) {
-			adminList = projectService.findAdminsForProject(getEntity());
+			adminList = service.findAdminsForProject(getEntity());
 		}
 		return adminList;
 	}
-	
+
 	public Long getId() {
 		return id;
 	}
@@ -135,9 +136,13 @@ public class InviteToProjectBean implements Serializable {
 		this.id = id;
 	}
 
-	public LocalProjectEntity getEntity() {
+	public ProjectEntity getEntity() {
 		if (entity == null) {
 			entity = service.findByIdWithAttrs(id);
+
+			if (!(entity instanceof LocalProjectEntity || entity instanceof AttributeSourceProjectEntity)) {
+				throw new NotAuthorizedException("Nicht autorisiert");
+			}
 		}
 
 		return entity;
@@ -151,7 +156,7 @@ public class InviteToProjectBean implements Serializable {
 		if (tokenList == null) {
 			tokenList = tokenService.findAllByAttr("project", getEntity());
 		}
-		
+
 		return tokenList;
 	}
 
@@ -207,21 +212,21 @@ public class InviteToProjectBean implements Serializable {
 		}
 		return senderNameList;
 	}
-	
+
 	private void fillSenderLists() {
 		List<UserEntity> userList = userService.findByIdentity(getIdentity());
 		senderEmailList = new HashSet<String>();
 		senderNameList = new HashSet<String>();
-		
+
 		for (UserEntity user : userList) {
 			if (user.getEmail() != null) {
 				senderEmailList.add(user.getEmail());
 			}
-			
+
 			if (user.getEmailAddresses() != null) {
 				senderEmailList.addAll(user.getEmailAddresses());
 			}
-			
+
 			if (user.getGivenName() != null && user.getSurName() != null) {
 				senderNameList.add(user.getGivenName() + " " + user.getSurName());
 			}

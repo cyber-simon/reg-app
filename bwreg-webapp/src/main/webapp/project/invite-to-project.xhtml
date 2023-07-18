@@ -93,7 +93,12 @@
 		</p:panel>
 
 		<div class="text full" style="margin-top: 0.4em;">
-			<a href="show-local-project.xhtml?id=#{inviteToProjectBean.entity.id}"><h:outputText value="#{messages.back}"/></a>
+			<p:outputPanel rendered="#{inviteToProjectBean.entity.class.simpleName == 'LocalProjectEntity'}">
+				<a href="show-local-project.xhtml?id=#{inviteToProjectBean.entity.id}"><h:outputText value="#{messages.back}"/></a>
+			</p:outputPanel>
+			<p:outputPanel rendered="#{inviteToProjectBean.entity.class.simpleName == 'AttributeSourceProjectEntity'}">
+				<a href="show-as-project.xhtml?id=#{inviteToProjectBean.entity.id}"><h:outputText value="#{messages.back}"/></a>
+			</p:outputPanel>		
 		</div>		
 
 	    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" closable="false" 
