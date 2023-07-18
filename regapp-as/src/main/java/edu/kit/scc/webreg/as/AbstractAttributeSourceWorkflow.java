@@ -3,6 +3,7 @@ package edu.kit.scc.webreg.as;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.and;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,6 +12,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.enterprise.inject.spi.CDI;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
@@ -41,6 +43,7 @@ import edu.kit.scc.webreg.event.MultipleGroupEvent;
 import edu.kit.scc.webreg.event.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.PropertyReaderException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
+import edu.kit.scc.webreg.service.project.AttributeSourceProjectUpdater;
 import edu.kit.scc.webreg.tools.PropertyReader;
 
 public abstract class AbstractAttributeSourceWorkflow implements AttributeSourceWorkflow {
@@ -53,6 +56,9 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 
 	protected String groupKey;
 	protected String groupSeparator;
+
+	protected String piKey;
+	protected String piSeparator;
 
 	private ASUserAttrEntity asUserAttr;
 	private ASUserAttrValueDao asValueDao;
@@ -72,15 +78,17 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 		try {
 			prop = new PropertyReader(asUserAttr.getAttributeSource().getAsProps());
 
-			if (prop.readPropOrNull("group_key") != null)
-				groupKey = prop.readPropOrNull("group_key");
-			else
-				groupKey = null;
-
+			groupKey = prop.readPropOrNull("group_key");
 			if (prop.readPropOrNull("group_separator") != null)
 				groupSeparator = prop.readPropOrNull("group_separator");
 			else
 				groupSeparator = ";";
+
+			piKey = prop.readPropOrNull("pi_key");
+			if (prop.readPropOrNull("pi_separator") != null)
+				piSeparator = prop.readPropOrNull("pi_separator");
+			else
+				piSeparator = ";";
 
 		} catch (PropertyReaderException e) {
 			throw new UserUpdateException(e);
@@ -146,6 +154,10 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 			if (groupKey != null && key.equals(groupKey)) {
 				processGroups(asValue);
 			}
+
+			if (piKey != null && key.equals(piKey)) {
+				processProjects(asValue);
+			}
 		} else {
 			logger.warn("Cannot process value of type {}", o.getClass());
 			return false;
@@ -162,6 +174,10 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 
 		if (groupKey != null && key.equals(groupKey)) {
 			processGroups(null);
+		}
+		
+		if (piKey != null && key.equals(piKey)) {
+			processProjects(null);
 		}
 
 		return true;
@@ -187,6 +203,10 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 			if (groupKey != null && key.equals(groupKey)) {
 				changed |= processGroups(asStringValue);
 			}
+			
+			if (piKey != null && key.equals(piKey)) {
+				changed |= processProjects(asStringValue);
+			}
 		} else {
 			logger.warn("Value change for key {} from {} to ASUserAttrValueStringEntity not supported yet", key,
 					o.getClass());
@@ -195,6 +215,25 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 		return changed;
 	}
 
+	private Boolean processProjects(ASUserAttrValueStringEntity asValue) {
+		Boolean changed = false;
+		
+		UserEntity user = asUserAttr.getUser();
+		AttributeSourceEntity attributeSource = asUserAttr.getAttributeSource();
+
+		AttributeSourceProjectUpdater asUpdater = CDI.current().select(AttributeSourceProjectUpdater.class).get();
+		
+		List<String> projectList = new ArrayList<String>();
+		if (asValue != null) {
+			String[] projects = asValue.getValueString().toLowerCase().split(piSeparator);
+			projectList.addAll(Arrays.asList(projects));
+		}
+		
+		changed |= asUpdater.syncAttributeSourceProjects(projectList, user, attributeSource);
+		
+		return changed;
+	}	
+	
 	private Boolean processGroups(ASUserAttrValueStringEntity asValue) {
 
 		Boolean changed = false;

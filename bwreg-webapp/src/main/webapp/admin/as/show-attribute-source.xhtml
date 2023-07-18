@@ -61,6 +61,22 @@
 						</p:column>
 					</p:dataTable>
 
+			        <h:outputText value="#{messages.connected_services}:"/>
+					<p:dataTable id="servicesTable" var="s" style="min-width: 400px;"
+						value="#{showAttributeSourceBean.entity.attributeSourceServices.toArray()}">
+						<p:column>
+							<f:facet name="header"> 
+								<h:outputText value="#{messages.short_name}" />
+							</f:facet>
+							<h:outputText value="#{s.service.shortName}" />
+						</p:column>
+						<p:column>
+							<f:facet name="header"> 
+								<h:outputText value="#{messages.name}" />
+							</f:facet>
+							<h:outputText value="#{s.service.name}" />
+						</p:column>
+					</p:dataTable>
 				</p:panelGrid>
 
 				<h:link outcome="edit-attribute-source.xhtml" value="#{messages.edit}">

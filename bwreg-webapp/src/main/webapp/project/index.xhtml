@@ -36,6 +36,12 @@
 					<h:outputText value="#{p.project.name}" /> (<h:outputText value="#{p.project.rpConfig.displayName}" />)
 					<h:outputText value="#{p.project.externalName}" />
 				</p:outputPanel>
+				<p:outputPanel rendered="#{p.project.class.simpleName == 'AttributeSourceProjectEntity'}">
+					<h:link outcome="show-as-project.xhtml" value="#{p.project.name}">
+			      		<f:param name="id" value="#{p.project.id}"/>
+					</h:link>
+					(<h:outputText value="#{p.project.attributeSource.name}" /> - <h:outputText value="#{p.project.externalName}" />)
+				</p:outputPanel>
 				<p:outputPanel rendered="#{p.project.class.simpleName == 'LocalProjectEntity'}">
 					<h:link outcome="show-local-project.xhtml" value="#{p.project.name}">
 			      		<f:param name="id" value="#{p.project.id}"/>

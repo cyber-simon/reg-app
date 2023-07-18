@@ -6,13 +6,14 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dao.GroupDao;
-import edu.kit.scc.webreg.dao.project.ExternalOidcProjectDao;
+import edu.kit.scc.webreg.dao.project.AttributeSourceProjectDao;
 import edu.kit.scc.webreg.dao.project.LocalProjectGroupDao;
-import edu.kit.scc.webreg.entity.project.ExternalOidcProjectEntity;
+import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
+import edu.kit.scc.webreg.entity.project.AttributeSourceProjectEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectGroupEntity;
 
 @ApplicationScoped
-public class ExternalOidcProjectCreater extends AbstractProjectCreater<ExternalOidcProjectEntity> {
+public class AttributeSourceProjectCreater extends AbstractProjectCreater<AttributeSourceProjectEntity> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -20,7 +21,7 @@ public class ExternalOidcProjectCreater extends AbstractProjectCreater<ExternalO
 	private Logger logger;
 	
 	@Inject
-	private ExternalOidcProjectDao dao;
+	private AttributeSourceProjectDao dao;
 
 	@Inject
 	private LocalProjectGroupDao projectGroupDao;
@@ -28,8 +29,8 @@ public class ExternalOidcProjectCreater extends AbstractProjectCreater<ExternalO
 	@Inject
 	private GroupDao groupDao;
 
-	public ExternalOidcProjectEntity create(String projectName, String externalName, String groupName, String shortName) {
-		ExternalOidcProjectEntity project = new ExternalOidcProjectEntity();
+	public AttributeSourceProjectEntity create(String projectName, String externalName, String groupName, String shortName, AttributeSourceEntity attributeSource) {
+		AttributeSourceProjectEntity project = new AttributeSourceProjectEntity();
 		
 		LocalProjectGroupEntity projectGroup = projectGroupDao.createNew();
 		projectGroup.setName(groupName);
@@ -41,8 +42,9 @@ public class ExternalOidcProjectCreater extends AbstractProjectCreater<ExternalO
 		project.setGroupName(groupName);
 		project.setExternalName(externalName);
 		project.setShortName(shortName);
+		project.setAttributeSource(attributeSource);
 		
-		project = (ExternalOidcProjectEntity) dao.persist(project);
+		project = (AttributeSourceProjectEntity) dao.persist(project);
 		
 		return project;
 	}

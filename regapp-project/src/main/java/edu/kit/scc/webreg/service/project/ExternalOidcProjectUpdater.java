@@ -40,7 +40,7 @@ public class ExternalOidcProjectUpdater extends AbstractProjectUpdater<ExternalO
 		}
 		
 		if (project == null) {
-			project = projectCreater.create(projectName, externalName, groupName, shortName);
+			project = projectCreater.create(projectName, externalName, groupName, shortName, rpConfig);
 		}
 
 		project.setName(projectName);

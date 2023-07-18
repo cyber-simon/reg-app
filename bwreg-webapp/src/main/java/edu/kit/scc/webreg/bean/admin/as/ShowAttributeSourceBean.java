@@ -54,7 +54,7 @@ public class ShowAttributeSourceBean implements Serializable {
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
-			entity = service.findByIdWithAttrs(id, AttributeSourceEntity_.asProps);
+			entity = service.findByIdWithAttrs(id, AttributeSourceEntity_.asProps, AttributeSourceEntity_.attributeSourceServices);
 		}
 	}
 

@@ -12,16 +12,24 @@ package edu.kit.scc.webreg.bean.admin.as;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.faces.event.ComponentSystemEvent;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.primefaces.model.DualListModel;
+import org.slf4j.Logger;
+
+import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity_;
 import edu.kit.scc.webreg.service.AttributeSourceService;
+import edu.kit.scc.webreg.service.AttributeSourceServiceService;
+import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.util.ViewIds;
 
 @Named
@@ -31,11 +39,21 @@ public class EditAttributeSourceBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Inject
+	private Logger logger;
+
+	@Inject
 	private AttributeSourceService service;
+
+	@Inject
+	private AttributeSourceServiceService asseService;
+
+	@Inject
+	private ServiceService serviceService;
 
 	private AttributeSourceEntity entity;
 
 	private Map<String, String> propertyMap;
+	private DualListModel<ServiceEntity> serviceList;
 
 	private String newKey, newValue;
 
@@ -43,14 +61,37 @@ public class EditAttributeSourceBean implements Serializable {
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
-			entity = service.findByIdWithAttrs(id, AttributeSourceEntity_.asProps);
+			entity = service.findByIdWithAttrs(id, AttributeSourceEntity_.asProps,
+					AttributeSourceEntity_.attributeSourceServices);
 			propertyMap = new HashMap<String, String>(entity.getAsProps());
+
+			serviceList = new DualListModel<ServiceEntity>();
+			serviceList.setSource(entity.getAttributeSourceServices().stream().map(asse -> asse.getService())
+					.collect(Collectors.toList()));
+			serviceList.setTarget(serviceService.findAll().stream().filter(s -> !serviceList.getSource().contains(s))
+					.collect(Collectors.toList()));
 		}
 	}
 
 	public String save() {
+		List<ServiceEntity> oldList = entity.getAttributeSourceServices().stream().map(asse -> asse.getService())
+				.collect(Collectors.toList());
+
 		entity.setAsProps(propertyMap);
 		entity = service.save(entity);
+
+		serviceList.getSource().stream().filter(s -> !oldList.contains(s)).forEach(s -> {
+			if (logger.isTraceEnabled())
+				logger.trace("new on list {}", s.getName());
+			asseService.connectService(entity, s);
+		});
+
+		oldList.stream().filter(s -> !serviceList.getSource().contains(s)).forEach(s -> {
+			if (logger.isTraceEnabled())
+				logger.trace("remove from list {}", s.getName());
+			asseService.disconnectService(entity, s);
+		});
+
 		return ViewIds.SHOW_ATTRIBUTE_SOURCE + "?faces-redirect=true&id=" + entity.getId();
 	}
 
@@ -110,5 +151,13 @@ public class EditAttributeSourceBean implements Serializable {
 
 	public void setEntity(AttributeSourceEntity entity) {
 		this.entity = entity;
+	}
+
+	public DualListModel<ServiceEntity> getServiceList() {
+		return serviceList;
+	}
+
+	public void setServiceList(DualListModel<ServiceEntity> serviceList) {
+		this.serviceList = serviceList;
 	}
 }

@@ -83,7 +83,7 @@ public class AttributeSourceUpdater implements Serializable {
 		if (asUserAttr != null && asUserAttr.getLastQuery() != null
 				&& (System.currentTimeMillis() - asUserAttr.getLastQuery().getTime()) < expireTime) {
 			logger.info("Skipping attribute source query {} for user {}. Data not expired.", attributeSource.getName(),
-					user.getEppn());
+					user.getId());
 			return changed;
 		}
 
