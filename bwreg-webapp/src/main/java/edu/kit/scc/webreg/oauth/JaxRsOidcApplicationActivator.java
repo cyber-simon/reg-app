@@ -27,6 +27,7 @@ public class JaxRsOidcApplicationActivator extends Application {
 	        resources.add(OidcCertsController.class);
 	        resources.add(OidcTokenController.class);
 	        resources.add(OidcUserinfoController.class);
+	        resources.add(OidcTokenIntrospectionController.class);
 	        resources.add(JwtAuthController.class);
 	        return resources;
 	    }
