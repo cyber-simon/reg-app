@@ -27,7 +27,7 @@ public class OidcTokenIntrospectionController {
 	private OidcOpLogin opLogin;
 
 	@POST
-	@Path("/{realm}/protocol/openid-connect/token_info")
+	@Path("/{realm}/protocol/openid-connect/tokeninfo")
 	@Produces(MediaType.APPLICATION_JSON)
 	public JSONObject userinfo(@PathParam("realm") String realm, MultivaluedMap<String, String> formParams,
 			@Context HttpServletRequest request, @Context HttpServletResponse response)
