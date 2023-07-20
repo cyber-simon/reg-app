@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MultivaluedMap;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
 import com.nimbusds.jose.JOSEException;
@@ -38,6 +39,8 @@ import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.oauth2.sdk.TokenIntrospectionSuccessResponse;
+import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
@@ -332,6 +335,76 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		} else {
 			return sendError(OAuth2Error.UNSUPPORTED_GRANT_TYPE, response);
 		}
+	}
+
+	@Override
+	public JSONObject serveIntrospection(String realm, HttpServletRequest request, HttpServletResponse response,
+			String authType, String authData, MultivaluedMap<String, String> formParams)
+			throws OidcAuthenticationException {
+
+		OidcOpConfigurationEntity opConfig = opDao.findByRealmAndHost(realm, request.getServerName());
+		if (opConfig == null) {
+			return sendError(OAuth2Error.ACCESS_DENIED, response,
+					"unknown realm/host combination: " + realm + " / " + request.getServerName());
+		}
+
+		String token = formParams.getFirst("token");
+
+		// Bearer token is sent with request. In this case, the token bearer calls the
+		// introspection
+		// endpoint for his own token. Token from form and bearer token must be the
+		// same.
+		OidcFlowStateEntity flowState = findOidcFlowStateByAccessToken(authType, authData);
+
+		if (flowState != null && !flowState.getAccessToken().equals(token)) {
+			return sendError(OAuth2Error.INVALID_CLIENT, response, "authentication failed");
+		}
+
+		// the second case is, that the enpoint is called with client_id and
+		// client_secret
+		// this is done via Basic Auth
+		if (flowState == null && authType.equals("Basic")) {
+			String[] credentials = StringUtils.split(new String(Base64.getDecoder().decode(authData.getBytes())), ":",
+					2);
+
+			if (credentials.length != 2) {
+				return sendError(OAuth2Error.INVALID_CLIENT, response, "invalid client");
+			}
+
+			String clientId = credentials[0];
+			String clientSecret = credentials[1];
+
+			OidcClientConfigurationEntity clientConfig = clientDao.findByNameAndOp(clientId, opConfig);
+
+			if (clientConfig == null) {
+				return sendError(OAuth2Error.INVALID_CLIENT, response, "unknown client");
+			}
+
+			if (!clientConfig.getSecret().equals(clientSecret)) {
+				return sendError(OAuth2Error.INVALID_CLIENT, response, "authentication failed");
+			}
+
+			flowState = flowStateDao.find(equal(OidcFlowStateEntity_.accessToken, token));
+		}
+
+		logger.debug("Token introspection called for {} with by {}", realm, authType);
+
+		if (flowState == null) {
+			TokenIntrospectionSuccessResponse.Builder builder = new TokenIntrospectionSuccessResponse.Builder(false);
+			return builder.build().toJSONObject();
+		}
+
+		if (flowState.getValidUntil().before(new Date())) {
+			TokenIntrospectionSuccessResponse.Builder builder = new TokenIntrospectionSuccessResponse.Builder(false);
+			return builder.build().toJSONObject();
+		}
+
+		TokenIntrospectionSuccessResponse.Builder builder = new TokenIntrospectionSuccessResponse.Builder(true);
+		if (flowState.getScope() != null)
+			builder.scope(new Scope(flowState.getScope().split(" ")));
+		builder.clientID(new ClientID(flowState.getClientConfiguration().getName()));
+		builder.expirationTime(flowState.getValidUntil());
+		return builder.build().toJSONObject();
 	}
 
 	@Override
@@ -750,7 +823,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 
 		if (flowState.getRefreshToken() == null) {
 			flowState.setRefreshToken(refreshToken.getValue());
-			flowState.setValidUntil(new Date(System.currentTimeMillis() + (refreshTokenLifetime * 1000L)));
+			flowState.setValidUntil(new Date(System.currentTimeMillis() + (accessTokenLifetime * 1000L)));
 		} else if (flowState.getRefreshToken() != null
 				&& clientConfig.getGenericStore().containsKey("refresh_token_extend")
 				&& clientConfig.getGenericStore().get("refresh_token_extend").equalsIgnoreCase("true")) {
