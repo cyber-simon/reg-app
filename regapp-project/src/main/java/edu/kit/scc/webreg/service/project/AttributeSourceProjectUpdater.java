@@ -52,7 +52,7 @@ public class AttributeSourceProjectUpdater extends AbstractProjectUpdater<Attrib
 								.equals(attributeSource)))
 				.collect(Collectors.toList());
 
-		logger.debug("Identity {} is admin in {} projects and {} in attribute sourced proects", identity.getId(),
+		logger.debug("Identity {} is admin in {} projects and in {} attribute sourced projects", identity.getId(),
 				adminList.size(), filteredAdminList.size());
 
 		for (ProjectIdentityAdminEntity pia : filteredAdminList) {
