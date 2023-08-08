@@ -276,9 +276,11 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 
 		triggerGroupUpdate(project, executor);
 
-		for (ProjectEntity childProject : project.getChildProjects()) {
-			updateServices(childProject, serviceList, type, status, executor, depth + 1, maxDepth);
-		}
+		if (project.getChildProjects() != null) {
+                        for (ProjectEntity childProject : project.getChildProjects()) {
+                                updateServices(childProject, serviceList, type, status, executor, depth + 1, maxDepth);
+                        }
+                }
 	}
 
 	private void syncGroupFlags(ProjectServiceEntity pse, String executor) {
