@@ -107,7 +107,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	private ScriptingEnv scriptingEnv;
 
 	@Inject
-	private KnowledgeSessionSingleton knowledgeSessionService;
+	private KnowledgeSessionSingleton knowledgeSessionSingleton;
 
 	@Inject
 	private ApplicationConfig appConfig;
@@ -273,7 +273,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 				}
 
 				if (serviceOidcClient.getScript() != null) {
-					List<String> unauthorizedList = knowledgeSessionService
+					List<String> unauthorizedList = knowledgeSessionSingleton
 							.checkScriptAccess(serviceOidcClient.getScript(), identity);
 
 					if (unauthorizedList.size() > 0) {
@@ -764,11 +764,11 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	}
 
 	private List<Object> checkRules(UserEntity user, ServiceEntity service, RegistryEntity registry) {
-		return knowledgeSessionService.checkServiceAccessRule(user, service, registry, "user-self", false);
+		return knowledgeSessionSingleton.checkServiceAccessRule(user, service, registry, "user-self", false);
 	}
 
 	private List<Object> checkRules(IdentityEntity identity, BusinessRulePackageEntity rulePackage) {
-		return knowledgeSessionService.checkIdentityRule(rulePackage, identity);
+		return knowledgeSessionSingleton.checkIdentityRule(rulePackage, identity);
 	}
 
 	private List<OverrideAccess> extractOverideAccess(List<Object> objectList) {
