@@ -29,4 +29,8 @@ public interface OidcOpLogin {
 			String clientSecret, String codeVerifier, MultivaluedMap<String, String> formParams)
 			throws OidcAuthenticationException;
 
+	JSONObject serveIntrospection(String realm, HttpServletRequest request, HttpServletResponse response,
+			String clientId, String clientSecret, MultivaluedMap<String, String> formParams)
+			throws OidcAuthenticationException;
+
 }

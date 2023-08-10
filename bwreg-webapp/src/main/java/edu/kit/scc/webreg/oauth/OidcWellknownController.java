@@ -64,6 +64,7 @@ public class OidcWellknownController {
 			metadata.setAuthorizationEndpointURI(new URI("https://" + opConfig.getHost() + "/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/auth"));
 			metadata.setTokenEndpointURI(new URI("https://" + opConfig.getHost() + "/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/token"));
 			metadata.setUserInfoEndpointURI(new URI("https://" + opConfig.getHost() + "/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/userinfo"));
+			metadata.setIntrospectionEndpointURI(new URI("https://" + opConfig.getHost() + "/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/tokeninfo"));
 			List<ResponseMode> rms = Arrays.asList(new ResponseMode[] { ResponseMode.QUERY, ResponseMode.FRAGMENT });
 			metadata.setResponseModes(rms);
 
