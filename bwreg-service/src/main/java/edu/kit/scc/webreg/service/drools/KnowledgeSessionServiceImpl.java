@@ -71,6 +71,7 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 	@Override
 	public List<Object> checkRule(BusinessRulePackageEntity rulePackage, IdentityEntity identity)
 			throws MisconfiguredServiceException {
+		identity = identityDao.merge(identity);
 
 		return singleton.checkIdentityRule(rulePackage, identity);
 
