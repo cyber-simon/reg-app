@@ -25,152 +25,172 @@
 	<h:form id="form">
 		<h2><h:outputText value="#{messages.sp}: #{showSpBean.entity.entityId}"/></h2>
 	
-		<div id="panelInline">
-			<p:panel header="#{messages.federation}">
-				<p:panelGrid id="baseData" columns="2">
+		<p:panel id="mainPanel" header="#{messages.federation}">
+			<p:panelGrid id="baseData" columns="2">
+	
+		        <h:outputText value="#{messages.id}:"/>
+		        <h:outputText value="#{showSpBean.entity.id}"/>
 		
-			        <h:outputText value="#{messages.id}:"/>
-			        <h:outputText value="#{showSpBean.entity.id}"/>
-			
-			        <h:outputText value="#{messages.entity_id}:"/>
-			        <h:outputText value="#{showSpBean.entity.entityId}"/>
-						
-			        <h:outputText value="#{messages.status}:"/>
-			        <h:outputText value="#{showSpBean.entity.status}"/>
+		        <h:outputText value="#{messages.entity_id}:"/>
+		        <h:outputText value="#{showSpBean.entity.entityId}"/>
+					
+		        <h:outputText value="#{messages.status}:"/>
+		        <h:outputText value="#{showSpBean.entity.status}"/>
 
-			        <h:outputText value="#{messages.name}:"/>
-			        <h:outputText value="#{showSpBean.entity.displayName}"/>
-						
-			        <h:outputText value="#{messages.information_url}:"/>
-			        <h:outputText value="#{showSpBean.entity.informationUrl}"/>
-						
-			        <h:outputText value="#{messages.org_name}:"/>
-			        <h:outputText value="#{showSpBean.entity.orgName}"/>
+		        <h:outputText value="#{messages.name}:"/>
+		        <h:outputText value="#{showSpBean.entity.displayName}"/>
+					
+		        <h:outputText value="#{messages.information_url}:"/>
+		        <h:outputText value="#{showSpBean.entity.informationUrl}"/>
+					
+		        <h:outputText value="#{messages.org_name}:"/>
+		        <h:outputText value="#{showSpBean.entity.orgName}"/>
 
-			        <h:outputText value="#{messages.description}:"/>
-			        <h:outputText value="#{showSpBean.entity.description}"/>
+		        <h:outputText value="#{messages.description}:"/>
+		        <h:outputText value="#{showSpBean.entity.description}"/>
 
-					<h:outputLabel value="#{messages.federation}" />
-					<h:panelGroup>
-						<ul>
-							<ui:repeat var="fed" value="#{showSpBean.entity.federations}">
-								<li><h:outputText value="#{fed.name}"/></li>
-							</ui:repeat>
-						</ul>
-					</h:panelGroup>
+				<h:outputLabel value="#{messages.federation}" />
+				<h:panelGroup>
+					<ul>
+						<ui:repeat var="fed" value="#{showSpBean.entity.federations}">
+							<li><h:outputText value="#{fed.name}"/></li>
+						</ui:repeat>
+					</ul>
+				</h:panelGroup>
 
-				</p:panelGrid>
-				<h:link outcome="edit-sp.xhtml" value="#{messages.edit}" rendered="#{showSpBean.entity.managedInteral}">
-					<f:param name="id" value="#{showSpBean.entity.id}"/>
-				</h:link>
-			</p:panel>
-		</div>
+		        <h:outputText value="#{messages.generic_store}:"/>
+		        <h:panelGroup>
+		        	<ul>
+		        		<ui:repeat var="key" value="#{showSpBean.entity.genericStore.keySet().toArray()}">
+			        		<li>
+			        			<h:panelGrid id="newPropTable" columns="3" columnClasses="labelColumn, elementColumn">
+					        		<h:outputText value="#{key}:"/> 
+					        		<h:outputText value="#{showSpBean.entity.genericStore.get(key)}"/> 
+				        			<h:commandLink value="(#{messages.delete})" action="#{showSpBean.removeGenericStore(key)}">
+										<f:ajax render=":form:mainPanel" />
+									</h:commandLink>
+								</h:panelGrid>
+							</li>
+			        	</ui:repeat>
+			        </ul>
+					<h:panelGrid id="newPropTable" columns="3" columnClasses="labelColumn, elementColumn">
+				        <h:inputText id="key_input" value="#{showSpBean.newKey}"/>
+		       			<h:inputText id="value_input" value="#{showSpBean.newValue}"/>
+						<h:commandLink value="#{messages.add}" action="#{showSpBean.addGenericStore()}">
+							<f:ajax execute=":form:mainPanel" render=":form:mainPanel" />
+						</h:commandLink>
+					</h:panelGrid>
+		        </h:panelGroup>
+
+			</p:panelGrid>
+			<h:link outcome="edit-sp.xhtml" value="#{messages.edit}" rendered="#{showSpBean.entity.managedInteral}">
+				<f:param name="id" value="#{showSpBean.entity.id}"/>
+			</h:link>
+		</p:panel>
 
 		<br/>
 
-		<div id="panelInline">
-			<p:panel header="#{messages.detail}" collapsed="true" toggleable="true">
-				<p:panelGrid columns="2">
+		<p:panel header="#{messages.detail}" collapsed="true" toggleable="true">
+			<p:panelGrid columns="2">
 
-					<h:outputLabel value="#{messages.supported_protocols}" />
-					<h:panelGroup>
-						<ul>
-							<ui:repeat var="proto" value="#{showSpBean.spssoDescriptor.supportedProtocols}">
-								<li><h:outputText value="#{proto}"/></li>
-							</ui:repeat>
-						</ul>
-					</h:panelGroup>
-
-					<h:outputLabel value="#{messages.keys}" />
-					<h:panelGroup>
-						<ui:repeat var="key" value="#{showSpBean.spssoDescriptor.keyDescriptors}">
-							<p:panel header="#{key.use}" collapsed="true" toggleable="true">
-								<p:messages for="certMsg-#{key.hashCode()}" showDetail="true" />
-								<ui:repeat var="cert" value="#{showSpBean.getCert(key)}">
-									<div style="max-width: 700px; max-height:400px; font-family: courier, monospace; font-size:10px; white-space: pre; overflow: scroll;">
-										<h:outputText value="#{cert}" />
-									</div>
-								</ui:repeat>
-							</p:panel>
+				<h:outputLabel value="#{messages.supported_protocols}" />
+				<h:panelGroup>
+					<ul>
+						<ui:repeat var="proto" value="#{showSpBean.spssoDescriptor.supportedProtocols}">
+							<li><h:outputText value="#{proto}"/></li>
 						</ui:repeat>
-					</h:panelGroup>
+					</ul>
+				</h:panelGroup>
 
-					<h:outputLabel value="#{messages.artifact_resolution}" />
-					<h:panelGroup>
-						<ul>
-							<ui:repeat var="endpoint" value="#{showSpBean.spssoDescriptor.artifactResolutionServices}">
-								<li><h:outputText value="#{endpoint.binding}"/> - <h:outputText value="#{endpoint.location}"/></li>
+				<h:outputLabel value="#{messages.keys}" />
+				<h:panelGroup>
+					<ui:repeat var="key" value="#{showSpBean.spssoDescriptor.keyDescriptors}">
+						<p:panel header="#{key.use}" collapsed="true" toggleable="true">
+							<p:messages for="certMsg-#{key.hashCode()}" showDetail="true" />
+							<ui:repeat var="cert" value="#{showSpBean.getCert(key)}">
+								<div style="max-width: 700px; max-height:400px; font-family: courier, monospace; font-size:10px; white-space: pre; overflow: scroll;">
+									<h:outputText value="#{cert}" />
+								</div>
 							</ui:repeat>
-						</ul>
-					</h:panelGroup>
+						</p:panel>
+					</ui:repeat>
+				</h:panelGroup>
 
-					<h:outputLabel value="#{messages.assertion_consumer_service}" />
-					<h:panelGroup>
-						<ul>
-							<ui:repeat var="endpoint" value="#{showSpBean.spssoDescriptor.assertionConsumerServices}">
-								<li><h:outputText value="#{endpoint.binding}"/> - <h:outputText value="#{endpoint.location}"/></li>
-							</ui:repeat>
-						</ul>
-					</h:panelGroup>
+				<h:outputLabel value="#{messages.artifact_resolution}" />
+				<h:panelGroup>
+					<ul>
+						<ui:repeat var="endpoint" value="#{showSpBean.spssoDescriptor.artifactResolutionServices}">
+							<li><h:outputText value="#{endpoint.binding}"/> - <h:outputText value="#{endpoint.location}"/></li>
+						</ui:repeat>
+					</ul>
+				</h:panelGroup>
 
-					<h:outputLabel value="#{messages.single_logout}" />
-					<h:panelGroup>
-						<ul>
-							<ui:repeat var="endpoint" value="#{showSpBean.spssoDescriptor.singleLogoutServices}">
-								<li><h:outputText value="#{endpoint.binding}"/> - <h:outputText value="#{endpoint.location}"/></li>
-							</ui:repeat>
-						</ul>
-					</h:panelGroup>
+				<h:outputLabel value="#{messages.assertion_consumer_service}" />
+				<h:panelGroup>
+					<ul>
+						<ui:repeat var="endpoint" value="#{showSpBean.spssoDescriptor.assertionConsumerServices}">
+							<li><h:outputText value="#{endpoint.binding}"/> - <h:outputText value="#{endpoint.location}"/></li>
+						</ui:repeat>
+					</ul>
+				</h:panelGroup>
 
-					<h:outputLabel value="#{messages.nameid_format}" />
-					<h:panelGroup>
-						<ul>
-							<ui:repeat var="nidf" value="#{showSpBean.spssoDescriptor.nameIDFormats}">
-								<li><h:outputText value="#{nidf.format}"/></li>
-							</ui:repeat>
-						</ul>
-					</h:panelGroup>
+				<h:outputLabel value="#{messages.single_logout}" />
+				<h:panelGroup>
+					<ul>
+						<ui:repeat var="endpoint" value="#{showSpBean.spssoDescriptor.singleLogoutServices}">
+							<li><h:outputText value="#{endpoint.binding}"/> - <h:outputText value="#{endpoint.location}"/></li>
+						</ui:repeat>
+					</ul>
+				</h:panelGroup>
 
-					<h:outputLabel value="#{messages.organisation}" />
-					<h:panelGroup>
-						<ul>
-							<ui:repeat var="org" value="#{showSpBean.entityDescriptor.organization.organizationNames}">
-								<li>OrgName: <h:outputText value="#{org.value}"/> (<h:outputText value="#{org.XMLLang}"/>)</li>
-							</ui:repeat>
-						</ul>
-						<ul>
-							<ui:repeat var="org" value="#{showSpBean.entityDescriptor.organization.displayNames}">
-								<li>DisplayName: <h:outputText value="#{org.value}"/> (<h:outputText value="#{org.XMLLang}"/>)</li>
-							</ui:repeat>
-						</ul>
-						<ul>
-							<ui:repeat var="org" value="#{showSpBean.entityDescriptor.organization.URLs}">
-								<li>URL: <h:outputText value="#{org.value}"/> (<h:outputText value="#{org.XMLLang}"/>)</li>
-							</ui:repeat>
-						</ul>
-					</h:panelGroup>
+				<h:outputLabel value="#{messages.nameid_format}" />
+				<h:panelGroup>
+					<ul>
+						<ui:repeat var="nidf" value="#{showSpBean.spssoDescriptor.nameIDFormats}">
+							<li><h:outputText value="#{nidf.format}"/></li>
+						</ui:repeat>
+					</ul>
+				</h:panelGroup>
 
-					<h:outputLabel value="#{messages.contact_person}" />
-					<h:panelGroup>
-						<ul>
-							<ui:repeat var="person" value="#{showSpBean.entityDescriptor.contactPersons}">
-								<li><h:outputText value="#{person.type}: #{person.surName.name}, #{person.givenName.name}"/>
-									<ul>
-										<ui:repeat var="email" value="#{person.emailAddresses}">
-											<li>Email: <h:outputText value="#{email.address}" /></li>
-										</ui:repeat>
-										<ui:repeat var="tel" value="#{person.telephoneNumbers}">
-											<li>Telefon: <h:outputText value="#{tel.number}" /></li>
-										</ui:repeat>
-									</ul>
-								</li>
-							</ui:repeat>
-						</ul>
-					</h:panelGroup>
+				<h:outputLabel value="#{messages.organisation}" />
+				<h:panelGroup>
+					<ul>
+						<ui:repeat var="org" value="#{showSpBean.entityDescriptor.organization.organizationNames}">
+							<li>OrgName: <h:outputText value="#{org.value}"/> (<h:outputText value="#{org.XMLLang}"/>)</li>
+						</ui:repeat>
+					</ul>
+					<ul>
+						<ui:repeat var="org" value="#{showSpBean.entityDescriptor.organization.displayNames}">
+							<li>DisplayName: <h:outputText value="#{org.value}"/> (<h:outputText value="#{org.XMLLang}"/>)</li>
+						</ui:repeat>
+					</ul>
+					<ul>
+						<ui:repeat var="org" value="#{showSpBean.entityDescriptor.organization.URLs}">
+							<li>URL: <h:outputText value="#{org.value}"/> (<h:outputText value="#{org.XMLLang}"/>)</li>
+						</ui:repeat>
+					</ul>
+				</h:panelGroup>
 
-				</p:panelGrid>
-			</p:panel>
-		</div>
+				<h:outputLabel value="#{messages.contact_person}" />
+				<h:panelGroup>
+					<ul>
+						<ui:repeat var="person" value="#{showSpBean.entityDescriptor.contactPersons}">
+							<li><h:outputText value="#{person.type}: #{person.surName.name}, #{person.givenName.name}"/>
+								<ul>
+									<ui:repeat var="email" value="#{person.emailAddresses}">
+										<li>Email: <h:outputText value="#{email.address}" /></li>
+									</ui:repeat>
+									<ui:repeat var="tel" value="#{person.telephoneNumbers}">
+										<li>Telefon: <h:outputText value="#{tel.number}" /></li>
+									</ui:repeat>
+								</ul>
+							</li>
+						</ui:repeat>
+					</ul>
+				</h:panelGroup>
+
+			</p:panelGrid>
+		</p:panel>
 
 		<br/>
 

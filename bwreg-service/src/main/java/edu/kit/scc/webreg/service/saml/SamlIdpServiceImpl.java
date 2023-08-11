@@ -273,7 +273,7 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 
 		long validity = 30L * 60L * 1000L;
 		if (spMetadata.getGenericStore().containsKey("session_validity")) {
-			validity = Long.getLong(spMetadata.getGenericStore().get("session_validity"));
+			validity = Long.parseLong(spMetadata.getGenericStore().get("session_validity"));
 		}
 		assertion.getAuthnStatements().add(ssoHelper.buildAuthnStatement((validity)));
 

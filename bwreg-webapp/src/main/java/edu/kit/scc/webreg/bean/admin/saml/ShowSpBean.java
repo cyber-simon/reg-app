@@ -18,8 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.enterprise.context.RequestScoped;
 import javax.faces.event.ComponentSystemEvent;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -38,7 +38,7 @@ import edu.kit.scc.webreg.service.SamlSpMetadataService;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
 
 @Named
-@RequestScoped
+@ViewScoped
 public class ShowSpBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -61,6 +61,9 @@ public class ShowSpBean implements Serializable {
 
 	private Long id;
 
+	private String newKey;
+	private String newValue;
+
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
 			certMap = new HashMap<KeyDescriptor, List<java.security.cert.X509Certificate>>();
@@ -74,6 +77,19 @@ public class ShowSpBean implements Serializable {
 			}
 		}
 	}
+	
+	public void addGenericStore() {
+		getEntity().getGenericStore().put(newKey, newValue);
+		entity = service.save(getEntity());
+		newKey = "";
+		newValue = "";
+	}
+
+	public void removeGenericStore(String key) {
+		newKey = key;
+		newValue = getEntity().getGenericStore().remove(key);
+		entity = service.save(getEntity());
+	}	
 
 	public List<java.security.cert.X509Certificate> getCert(KeyDescriptor kd) {
 		if (kd == null)
@@ -134,4 +150,20 @@ public class ShowSpBean implements Serializable {
 	public SPSSODescriptor getSpssoDescriptor() {
 		return spssoDescriptor;
 	}
+	
+	public String getNewKey() {
+		return newKey;
+	}
+
+	public void setNewKey(String newKey) {
+		this.newKey = newKey;
+	}
+
+	public String getNewValue() {
+		return newValue;
+	}
+
+	public void setNewValue(String newValue) {
+		this.newValue = newValue;
+	}	
 }
