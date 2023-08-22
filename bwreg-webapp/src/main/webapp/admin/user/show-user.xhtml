@@ -46,10 +46,10 @@
 				        <h:outputText value="#{messages.eppn}:"/>
 				        <h:outputText value="#{showUserBean.entity.eppn}"/>
 							
-				        <h:outputText value="#{messages.email}:"/>
+				        <h:outputText value="#{messages.email_address}:"/>
 				        <h:outputText value="#{showUserBean.entity.email}"/>
 							
-				        <h:outputText value="#{messages.email_more}:"/>
+				        <h:outputText value="#{messages.email_address_more}:"/>
 				        <h:panelGroup>
 				        	<ul>
 				        		<ui:repeat var="emailAddress" value="#{showUserBean.entity.emailAddresses.toArray()}">

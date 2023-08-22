@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+	<title></title>
+</head>
+<body>
+	<ui:composition template="/template/default-admin.xhtml">
+		<ui:param name="title" value="#{messages.title}"/>
+
+		<ui:define name="content">
+	
+			<h:form id="templates-form">
+				<p:panel header="#{messages.email_template}">
+					<p:dataTable id="dataTable" var="entity" value="#{showEmailOverviewBean.emailTemplates}" paginator="true" lazy="true" rows="15">
+						<p:column>
+							<f:facet name="header">
+								<h:outputText value="#{messages.id}" />
+							</f:facet>
+							<h:outputText value="#{entity.id}" />
+						</p:column>
+						<p:column sortBy="#{entity.name}" filterBy="#{entity.name}" filterMatchMode="contains">
+							<f:facet name="header">
+								<h:outputText value="#{messages.name}" />
+							</f:facet>
+							<h:link outcome="show-email-template.xhtml" value="#{entity.name}">
+			      				<f:param name="id" value="#{entity.id}"/>
+			    			</h:link>
+						</p:column>			
+					</p:dataTable>
+			        <h:link outcome="add-email-template.xhtml" value="#{messages.add_email_template}"/>
+		        </p:panel>
+			</h:form>
+			
+			<h:form id="signature-form">
+				<p:panel header="#{messages.email_signature_keys}">
+                    <f:facet name="footer">
+						<p:commandButton id="download-certificates" value="#{messages.download}" action="#{showEmailOverviewBean.downloadCertificates}" ajax="false" disabled="#{! showEmailOverviewBean.hasSignatureKeys}"/>
+						<p:linkButton id="edit-signature-keys" value="#{messages.edit}" outcome="edit-email-signature.xhtml"/>
+						<p:linkButton id="delete-signature-keys" value="#{messages.delete}" outcome="delete-email-signature.xhtml" disabled="#{! showEmailOverviewBean.hasSignatureKeys}"/>
+					</f:facet>
+                    <p><h:outputText value="#{showEmailOverviewBean.hasSignatureKeys ? messages.email_signature_keys_deposited : messages.email_signature_keys_not_deposited}"/></p>
+				</p:panel>
+			</h:form>
+
+		</ui:define>
+	</ui:composition>		
+</body>
+</html>

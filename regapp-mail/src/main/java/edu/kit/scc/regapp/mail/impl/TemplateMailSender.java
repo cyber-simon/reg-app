@@ -1,12 +1,8 @@
 /*******************************************************************************
- * Copyright (c) 2014 Michael Simon.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the GNU Public License v3.0
- * which accompanies this distribution, and is available at
- * http://www.gnu.org/licenses/gpl.html
- * 
- * Contributors:
- *     Michael Simon - initial
+ * Copyright (c) 2014 Michael Simon. All rights reserved. This program and the
+ * accompanying materials are made available under the terms of the GNU Public
+ * License v3.0 which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/gpl.html Contributors: Michael Simon - initial
  ******************************************************************************/
 package edu.kit.scc.regapp.mail.impl;
 
@@ -35,8 +31,6 @@ import edu.kit.scc.webreg.tools.IdentityUserPrefsResolver;
 
 @ApplicationScoped
 public class TemplateMailSender {
-
-	private static final long serialVersionUID = 1L;
 
 	@Inject
 	private Logger logger;
@@ -81,11 +75,12 @@ public class TemplateMailSender {
 				 */
 				IdentityEntity identity = identityDao.merge((IdentityEntity) rendererContext.get("identity"));
 				rendererContext.putAll(userPrefsResolver.resolvePrefs(identity));
-				if ((!rendererContext.containsKey("user")) && (identity.getPrefUser() != null)) {
+				if (!rendererContext.containsKey("user") && identity.getPrefUser() != null) {
 					rendererContext.put("user", identity.getPrefUser());
-				} else if ((!rendererContext.containsKey("user")) && (identity.getUsers().size() == 1)) {
-					for (UserEntity user : identity.getUsers())
+				} else if (!rendererContext.containsKey("user") && identity.getUsers().size() == 1) {
+					for (UserEntity user : identity.getUsers()) {
 						rendererContext.put("user", user);
+					}
 				}
 			} else if (rendererContext.containsKey("user")) {
 				/**
@@ -107,10 +102,11 @@ public class TemplateMailSender {
 			String subject = renderer.evaluate(emailTemplateEntity.getSubject(), rendererContext);
 			String replyTo = renderer.evaluate(emailTemplateEntity.getReplyTo(), rendererContext);
 
-			if (queued)
+			if (queued) {
 				queuedMailService.sendMail(from, to, cc, bcc, subject, body, replyTo);
-			else
+			} else {
 				mailService.sendMail(from, to, cc, bcc, subject, body, replyTo);
+			}
 
 		} catch (TemplateRenderingException e) {
 			logger.warn("Problem while processing template", e);
