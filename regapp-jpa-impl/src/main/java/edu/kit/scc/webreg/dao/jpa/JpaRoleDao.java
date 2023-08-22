@@ -1,12 +1,8 @@
 /*******************************************************************************
- * Copyright (c) 2014 Michael Simon.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the GNU Public License v3.0
- * which accompanies this distribution, and is available at
- * http://www.gnu.org/licenses/gpl.html
- * 
- * Contributors:
- *     Michael Simon - initial
+ * Copyright (c) 2014 Michael Simon. All rights reserved. This program and the
+ * accompanying materials are made available under the terms of the GNU Public
+ * License v3.0 which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/gpl.html Contributors: Michael Simon - initial
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa;
 
@@ -66,17 +62,18 @@ public class JpaRoleDao extends JpaBaseDao<RoleEntity> implements RoleDao {
 	@Override
 	public void removeGroupFromRole(GroupEntity group, RoleEntity role) {
 		RoleGroupEntity roleGroup = findRoleGroupEntity(group, role);
-		if (roleGroup != null)
+		if (roleGroup != null) {
 			em.remove(roleGroup);
+		}
 	}
 
 	@Override
 	public RoleGroupEntity findRoleGroupEntity(GroupEntity group, RoleEntity role) {
 		try {
-			return em
-					.createQuery("select r from RoleGroupEntity r where r.role = :role " + "and r.group = :group",
-							RoleGroupEntity.class)
-					.setParameter("role", role).setParameter("group", group).getSingleResult();
+			return em.createQuery("select r from RoleGroupEntity r where r.role = :role " + "and r.group = :group", RoleGroupEntity.class)
+					.setParameter("role", role)
+					.setParameter("group", group)
+					.getSingleResult();
 		} catch (NoResultException e) {
 			return null;
 		}
@@ -85,33 +82,38 @@ public class JpaRoleDao extends JpaBaseDao<RoleEntity> implements RoleDao {
 	@Override
 	public void deleteUserRole(Long userId, String roleName) {
 		UserRoleEntity roleEntity = em
-				.createQuery(
-						"select r from UserRoleEntity r where r.user.id = :userId " + "and r.role.name = :roleName",
+				.createQuery("select r from UserRoleEntity r where r.user.id = :userId " + "and r.role.name = :roleName",
 						UserRoleEntity.class)
-				.setParameter("userId", userId).setParameter("roleName", roleName).getSingleResult();
+				.setParameter("userId", userId)
+				.setParameter("roleName", roleName)
+				.getSingleResult();
 		em.remove(roleEntity);
 	}
 
 	@Override
 	public List<RoleEntity> findByGroups(Set<GroupEntity> groups) {
-		if (groups == null || groups.isEmpty())
-			return new ArrayList<RoleEntity>();
+		if (groups == null || groups.isEmpty()) {
+			return new ArrayList<>();
+		}
 
 		return em.createQuery("select r.role from RoleGroupEntity r where r.group in (:groups)", RoleEntity.class)
-				.setParameter("groups", groups).getResultList();
+				.setParameter("groups", groups)
+				.getResultList();
 	}
 
 	@Override
 	public List<RoleEntity> findByUser(UserEntity user) {
 		return em.createQuery("select r.role from UserRoleEntity r where r.user = :user", getEntityClass())
-				.setParameter("user", user).getResultList();
+				.setParameter("user", user)
+				.getResultList();
 	}
 
 	@Override
 	public List<RoleEntity> findByUserId(PaginateBy paginateBy, Long userId) {
-		TypedQuery<RoleEntity> query = em.createQuery(
-				"select r.role from UserRoleEntity r left join fetch r.role.adminForGroups where r.user.id = :userId",
-				getEntityClass()).setParameter("userId", userId);
+		TypedQuery<RoleEntity> query = em
+				.createQuery("select r.role from UserRoleEntity r left join fetch r.role.adminForGroups where r.user.id = :userId",
+						getEntityClass())
+				.setParameter("userId", userId);
 		if (paginateBy != null) {
 			applyPaging(query, paginateBy);
 		}
@@ -121,20 +123,21 @@ public class JpaRoleDao extends JpaBaseDao<RoleEntity> implements RoleDao {
 	@Override
 	public Number countAllByUserId(Long userId) {
 		return em.createQuery("select count(r.role) from UserRoleEntity r where r.user.id = :userId", Number.class)
-				.setParameter("userId", userId).getSingleResult();
+				.setParameter("userId", userId)
+				.getSingleResult();
 	}
 
 	@Override
 	public List<RoleEntity> findByIdentityId(Long identityId) {
 		List<RoleEntity> roleList = em
-				.createQuery("select r.role from IdentityRoleEntity r where r.identity.id = :identityId",
-						RoleEntity.class)
-				.setParameter("identityId", identityId).getResultList();
+				.createQuery("select r.role from IdentityRoleEntity r where r.identity.id = :identityId", RoleEntity.class)
+				.setParameter("identityId", identityId)
+				.getResultList();
 
 		IdentityEntity identity = identityDao.fetch(identityId);
-		roleList.addAll(
-				em.createQuery("select r.role from UserRoleEntity r where r.user in :userIdList", RoleEntity.class)
-						.setParameter("userIdList", identity.getUsers()).getResultList());
+		roleList.addAll(em.createQuery("select r.role from UserRoleEntity r where r.user in :userIdList", RoleEntity.class)
+				.setParameter("userIdList", identity.getUsers())
+				.getResultList());
 
 		return roleList;
 	}
@@ -142,38 +145,47 @@ public class JpaRoleDao extends JpaBaseDao<RoleEntity> implements RoleDao {
 	@Override
 	public List<UserEntity> findUsersForRole(RoleEntity role) {
 		return em.createQuery("select u from UserEntity u left join u.roles ur where ur.role = :role", UserEntity.class)
-				.setParameter("role", role).getResultList();
+				.setParameter("role", role)
+				.getResultList();
 	}
 
 	@Override
 	public List<GroupEntity> findGroupsForRole(RoleEntity role) {
-		return em.createQuery("select g from GroupEntity g left join g.roles gr where gr.role = :role",
-				GroupEntity.class).setParameter("role", role).getResultList();
+		return em.createQuery("select g from GroupEntity g left join g.roles gr where gr.role = :role", GroupEntity.class)
+				.setParameter("role", role)
+				.getResultList();
 	}
 
 	@Override
 	public List<SamlIdpMetadataEntity> findIdpsForRole(RoleEntity role) {
-		return em.createQuery("select g from SamlIdpMetadataEntity g left join g.adminRoles gr where gr.role = :role",
-				SamlIdpMetadataEntity.class).setParameter("role", role).getResultList();
+		return em
+				.createQuery("select g from SamlIdpMetadataEntity g left join g.adminRoles gr where gr.role = :role",
+						SamlIdpMetadataEntity.class)
+				.setParameter("role", role)
+				.getResultList();
 	}
 
 	@Override
 	public Boolean checkUserInRole(Long userId, String roleName) {
-		return em
-				.createQuery(
-						"select r.role from UserRoleEntity r where r.user.id = :userId and r.role.name = :roleName",
-						RoleEntity.class)
-				.setParameter("userId", userId).setParameter("roleName", roleName).getResultList().size() > 0;
+		return em.createQuery("select r.role from UserRoleEntity r where r.user.id = :userId and r.role.name = :roleName", RoleEntity.class)
+				.setParameter("userId", userId)
+				.setParameter("roleName", roleName)
+				.getResultList()
+				.size() > 0;
 	}
 
 	@Override
 	public Boolean checkAdminUserInRole(Long userId, String roleName) {
-		List<RoleEntity> roleList = em
-				.createQuery("select u.roles from AdminUserEntity u where u.id = :userId")
-				.setParameter("userId", userId).getResultList();
-		return roleList.size() > 0 && em
-				.createQuery("select r from RoleEntity r where r.name = :roleName and r in :roleList", RoleEntity.class)
-				.setParameter("roleList", roleList).setParameter("roleName", roleName).getResultList().size() > 0;
+		@SuppressWarnings("unchecked")
+		List<RoleEntity> roleList = em.createQuery("select u.roles from AdminUserEntity u where u.id = :userId")
+				.setParameter("userId", userId)
+				.getResultList();
+		return roleList.size() > 0
+				&& em.createQuery("select r from RoleEntity r where r.name = :roleName and r in :roleList", RoleEntity.class)
+						.setParameter("roleList", roleList)
+						.setParameter("roleName", roleName)
+						.getResultList()
+						.size() > 0;
 	}
 
 	@Override

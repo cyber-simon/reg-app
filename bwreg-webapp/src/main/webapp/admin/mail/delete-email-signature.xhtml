@@ -1,0 +1,33 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+	<title></title>
+</head>
+<body>
+	<ui:composition template="/template/default-admin.xhtml">
+		<ui:param name="title" value="#{messages.title}"/>
+
+		<ui:define name="content">
+			
+			<h:form id="form">
+				<div id="panelInline">
+					<p:panel header="#{messages.email_signature_keys}">
+						<f:facet name="footer">
+							<p:commandButton id="delete" action="#{deleteEmailSignatureBean.delete}" value="#{messages.delete}"/>
+							<p:commandButton id="cancel" action="#{deleteEmailSignatureBean.cancel}" value="#{messages.cancel}"/>
+						</f:facet>
+						<p><h:outputText value="#{messages.confirm_signature_deletion}"/></p>
+					</p:panel>
+				</div>
+			</h:form>
+
+		</ui:define>
+	</ui:composition>		
+</body>
+</html>
