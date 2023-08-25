@@ -823,7 +823,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 
 		if (flowState.getRefreshToken() == null) {
 			flowState.setRefreshToken(refreshToken.getValue());
-			flowState.setValidUntil(new Date(System.currentTimeMillis() + (accessTokenLifetime * 1000L)));
+			flowState.setValidUntil(new Date(System.currentTimeMillis() + (refreshTokenLifetime * 1000L)));
 		} else if (flowState.getRefreshToken() != null
 				&& clientConfig.getGenericStore().containsKey("refresh_token_extend")
 				&& clientConfig.getGenericStore().get("refresh_token_extend").equalsIgnoreCase("true")) {
