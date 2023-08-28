@@ -20,6 +20,7 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
+import javax.persistence.Version;
 
 @MappedSuperclass
 public abstract class AbstractBaseEntity implements BaseEntity, Serializable {
@@ -38,6 +39,7 @@ public abstract class AbstractBaseEntity implements BaseEntity, Serializable {
 	protected Date updatedAt;
 	
 	@Column(name = "version")
+	@Version
 	protected Integer version;
 	
 	public boolean equals(Object other) {
