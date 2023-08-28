@@ -39,8 +39,11 @@ public abstract class AbstractBaseEntity implements BaseEntity, Serializable {
 	protected Date updatedAt;
 	
 	@Column(name = "version")
-	@Version
 	protected Integer version;
+	
+	@Column(name = "optlock", columnDefinition = "integer DEFAULT 0", nullable = false)
+	@Version
+	protected Integer optlock = 0;
 	
 	public boolean equals(Object other) {
 		if (other == null) return false;
@@ -104,5 +107,13 @@ public abstract class AbstractBaseEntity implements BaseEntity, Serializable {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public Integer getOptlock() {
+		return optlock;
+	}
+
+	public void setOptlock(Integer optlock) {
+		this.optlock = optlock;
 	}		
 }
