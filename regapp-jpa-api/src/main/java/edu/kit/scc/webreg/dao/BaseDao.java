@@ -12,6 +12,7 @@ package edu.kit.scc.webreg.dao;
 
 import java.util.List;
 
+import javax.persistence.LockModeType;
 import javax.persistence.metamodel.Attribute;
 
 import edu.kit.scc.webreg.dao.ops.PaginateBy;
@@ -60,5 +61,7 @@ public interface BaseDao<T extends BaseEntity> {
 
 	@SuppressWarnings("rawtypes")
 	T find(RqlExpression findBy, Attribute... attrs);
+
+	T fetch(Long id, LockModeType lockMode);
 
 }

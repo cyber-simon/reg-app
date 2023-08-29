@@ -330,7 +330,6 @@ public class KnowledgeSessionSingleton {
 	public List<Object> checkServiceAccessRule(UserEntity user, ServiceEntity service, RegistryEntity registry,
 			String executor, Boolean withCache) throws MisconfiguredServiceException {
 
-		user = userDao.merge(user);
 		String packageName = "default";
 		String knowledgeBaseName = "permitAllRule";
 		String knowledgeBaseVersion = "1.0.0";
@@ -349,8 +348,6 @@ public class KnowledgeSessionSingleton {
 		}
 
 		if (withCache) {
-			service = serviceDao.fetch(service.getId());
-
 			// Default expiry Time after which an registry is checked
 			Long expireTime = 10000L;
 
@@ -447,7 +444,6 @@ public class KnowledgeSessionSingleton {
 			}
 
 			registry.setLastAccessCheck(new Date());
-			registry = registryDao.persist(registry);
 		}
 
 		return objectList;
@@ -486,10 +482,7 @@ public class KnowledgeSessionSingleton {
 
 		Map<RegistryEntity, List<Object>> returnMap = new HashMap<RegistryEntity, List<Object>>();
 
-		identity = identityDao.merge(identity);
-
 		for (RegistryEntity registry : registryList) {
-			registry = registryDao.merge(registry);
 			ServiceEntity service = registry.getService();
 
 			List<Object> objectList = checkServiceAccessRule(registry.getUser(), service, registry, executor,

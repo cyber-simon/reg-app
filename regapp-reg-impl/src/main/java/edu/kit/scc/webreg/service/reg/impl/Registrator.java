@@ -154,15 +154,11 @@ public class Registrator implements Serializable {
 	public RegistryEntity registerUser(UserEntity user, ServiceEntity service, String executor,
 			List<Long> policiesIdList, Boolean sendGroupUpdate, Auditor parentAuditor) throws RegisterException {
 
-		user = userDao.merge(user);
-
 		if (!UserStatus.ACTIVE.equals(user.getUserStatus())) {
 			logger.warn("Only Users in status ACTIVE can register with a service. User {} ({}) is {}", user.getEppn(),
 					user.getId(), user.getUserStatus());
 			throw new RegisterException("Only Users in status ACTIVE can register with a service");
 		}
-
-		service = serviceDao.merge(service);
 
 		ServiceRegisterAuditor auditor = new ServiceRegisterAuditor(auditDao, auditDetailDao, appConfig);
 		auditor.startAuditTrail(executor, true);
@@ -490,7 +486,7 @@ public class Registrator implements Serializable {
 		RegisterUserWorkflow workflow = getWorkflowInstance(registry.getRegisterBean());
 
 		try {
-			registry = registryDao.merge(registry);
+			registry = registryDao.fetch(registry.getId());
 			ServiceEntity serviceEntity = registry.getService();
 			UserEntity userEntity = registry.getUser();
 
@@ -587,7 +583,7 @@ public class Registrator implements Serializable {
 	public void deregisterUser(RegistryEntity registry, String executor, Auditor parentAuditor, String statusMessage)
 			throws RegisterException {
 
-		registry = registryDao.merge(registry);
+		registry = registryDao.fetch(registry.getId());
 
 		if (RegistryStatus.DELETED.equals(registry.getRegistryStatus())) {
 			throw new RegisterException("Registry " + registry.getId() + " is already deregistered!");
@@ -706,8 +702,6 @@ public class Registrator implements Serializable {
 	public void setPassword(UserEntity user, ServiceEntity service, RegistryEntity registry, String password,
 			String executor) throws RegisterException {
 
-		registry = registryDao.merge(registry);
-
 		RegisterUserWorkflow workflow = getWorkflowInstance(registry.getRegisterBean());
 
 		try {
@@ -763,8 +757,6 @@ public class Registrator implements Serializable {
 
 	public void deletePassword(UserEntity user, ServiceEntity service, RegistryEntity registry, String executor)
 			throws RegisterException {
-
-		registry = registryDao.merge(registry);
 
 		RegisterUserWorkflow workflow = getWorkflowInstance(registry.getRegisterBean());
 
@@ -822,7 +814,6 @@ public class Registrator implements Serializable {
 	}
 
 	public void reconGroupsForRegistry(RegistryEntity registry, String executor) {
-		registry = registryDao.merge(registry);
 		ServiceEntity serviceEntity = registry.getService();
 		UserEntity userEntity = registry.getUser();
 

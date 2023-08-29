@@ -51,7 +51,7 @@ public class TwoFaServiceImpl implements TwoFaService {
 	
 	@Override
 	public TwoFaTokenList findByIdentity(IdentityEntity identity) throws TwoFaException {
-		identity = identityDao.merge(identity);
+		identity = identityDao.fetch(identity.getId());
 		TwoFaManager manager = resolveTwoFaManager(identity);
 		
 		TwoFaTokenList list = manager.findByIdentity(identity);
@@ -62,7 +62,7 @@ public class TwoFaServiceImpl implements TwoFaService {
 
 	@Override
 	public Boolean hasActiveToken(IdentityEntity identity) throws TwoFaException {
-		identity = identityDao.merge(identity);
+		identity = identityDao.fetch(identity.getId());
 		TwoFaManager manager = resolveTwoFaManager(identity);
 
 		return manager.hasActiveToken(identity);
@@ -77,7 +77,7 @@ public class TwoFaServiceImpl implements TwoFaService {
 
 	@Override
 	public Boolean checkToken(IdentityEntity identity, String token) throws TwoFaException {
-		identity = identityDao.merge(identity);
+		identity = identityDao.fetch(identity.getId());
 		TwoFaManager manager = resolveTwoFaManager(identity);
 
 		return manager.checkToken(identity, token);
@@ -85,7 +85,7 @@ public class TwoFaServiceImpl implements TwoFaService {
 
 	@Override
 	public Boolean checkSpecificToken(IdentityEntity identity, String serial, String token) throws TwoFaException {
-		identity = identityDao.merge(identity);
+		identity = identityDao.fetch(identity.getId());
 		TwoFaManager manager = resolveTwoFaManager(identity);
 
 		return manager.checkSpecificToken(identity, serial, token);
@@ -93,7 +93,7 @@ public class TwoFaServiceImpl implements TwoFaService {
 
 	@Override
 	public void initToken(IdentityEntity identity, String serial, String executor) throws TwoFaException {
-		identity = identityDao.merge(identity);
+		identity = identityDao.fetch(identity.getId());
 		TwoFaManager manager = resolveTwoFaManager(identity);
 		
 		TokenAuditor auditor = new TokenAuditor(auditEntryDao, auditDetailDao, appConfig);
@@ -122,7 +122,7 @@ public class TwoFaServiceImpl implements TwoFaService {
 	
 	@Override
 	public TotpCreateResponse createAuthenticatorToken(IdentityEntity identity, String executor) throws TwoFaException {
-		identity = identityDao.merge(identity);
+		identity = identityDao.fetch(identity.getId());
 		TwoFaManager manager = resolveTwoFaManager(identity);
 
 		TokenAuditor auditor = new TokenAuditor(auditEntryDao, auditDetailDao, appConfig);
@@ -166,7 +166,7 @@ public class TwoFaServiceImpl implements TwoFaService {
 
 	@Override
 	public TotpCreateResponse createYubicoToken(IdentityEntity identity, String yubi, String executor) throws TwoFaException {
-		identity = identityDao.merge(identity);
+		identity = identityDao.fetch(identity.getId());
 		TwoFaManager manager = resolveTwoFaManager(identity);
 
 		TokenAuditor auditor = new TokenAuditor(auditEntryDao, auditDetailDao, appConfig);
@@ -209,7 +209,7 @@ public class TwoFaServiceImpl implements TwoFaService {
 
 	@Override
 	public TotpCreateResponse createHotpBackupTanList(IdentityEntity identity, String executor) throws TwoFaException {
-		identity = identityDao.merge(identity);
+		identity = identityDao.fetch(identity.getId());
 		TwoFaManager manager = resolveTwoFaManager(identity);
 
 		TokenAuditor auditor = new TokenAuditor(auditEntryDao, auditDetailDao, appConfig);
@@ -246,7 +246,7 @@ public class TwoFaServiceImpl implements TwoFaService {
 
 	@Override
 	public TotpCreateResponse createPaperTanList(IdentityEntity identity, String executor) throws TwoFaException {
-		identity = identityDao.merge(identity);
+		identity = identityDao.fetch(identity.getId());
 		TwoFaManager manager = resolveTwoFaManager(identity);
 
 		TokenAuditor auditor = new TokenAuditor(auditEntryDao, auditDetailDao, appConfig);
@@ -283,7 +283,7 @@ public class TwoFaServiceImpl implements TwoFaService {
 	
 	@Override
 	public HmacTokenList getBackupTanList(IdentityEntity identity, String serial) throws TwoFaException {
-		identity = identityDao.merge(identity);
+		identity = identityDao.fetch(identity.getId());
 		TwoFaManager manager = resolveTwoFaManager(identity);
 		
 		HmacTokenList response = manager.getBackupTanList(identity, serial);
@@ -297,7 +297,7 @@ public class TwoFaServiceImpl implements TwoFaService {
 
 	@Override
 	public TokenStatusResponse disableToken(IdentityEntity identity, String serial, String executor) throws TwoFaException {
-		identity = identityDao.merge(identity);
+		identity = identityDao.fetch(identity.getId());
 		TwoFaManager manager = resolveTwoFaManager(identity);
 
 		TokenAuditor auditor = new TokenAuditor(auditEntryDao, auditDetailDao, appConfig);
@@ -328,7 +328,7 @@ public class TwoFaServiceImpl implements TwoFaService {
 	
 	@Override
 	public TokenStatusResponse enableToken(IdentityEntity identity, String serial, String executor) throws TwoFaException {
-		identity = identityDao.merge(identity);
+		identity = identityDao.fetch(identity.getId());
 		TwoFaManager manager = resolveTwoFaManager(identity);
 
 		TokenAuditor auditor = new TokenAuditor(auditEntryDao, auditDetailDao, appConfig);
@@ -359,7 +359,7 @@ public class TwoFaServiceImpl implements TwoFaService {
 
 	@Override
 	public TokenStatusResponse resetFailcounter(IdentityEntity identity, String serial, String executor) throws TwoFaException {
-		identity = identityDao.merge(identity);
+		identity = identityDao.fetch(identity.getId());
 		TwoFaManager manager = resolveTwoFaManager(identity);
 
 		TokenAuditor auditor = new TokenAuditor(auditEntryDao, auditDetailDao, appConfig);
@@ -390,7 +390,7 @@ public class TwoFaServiceImpl implements TwoFaService {
 	
 	@Override
 	public TokenStatusResponse deleteToken(IdentityEntity identity, String serial, String executor) throws TwoFaException {
-		identity = identityDao.merge(identity);
+		identity = identityDao.fetch(identity.getId());
 		TwoFaManager manager = resolveTwoFaManager(identity);
 
 		TokenAuditor auditor = new TokenAuditor(auditEntryDao, auditDetailDao, appConfig);

@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -360,6 +361,11 @@ public abstract class JpaBaseDao<T extends BaseEntity> implements BaseDao<T> {
 	@Override
 	public T fetch(Long id) {
 		return em.find(getEntityClass(), id);
+	}
+
+	@Override
+	public T fetch(Long id, LockModeType lockMode) {
+		return em.find(getEntityClass(), id, lockMode);
 	}
 
 	@Override

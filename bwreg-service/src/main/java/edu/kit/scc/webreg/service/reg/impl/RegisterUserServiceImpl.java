@@ -19,6 +19,9 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import edu.kit.scc.webreg.audit.Auditor;
+import edu.kit.scc.webreg.dao.RegistryDao;
+import edu.kit.scc.webreg.dao.ServiceDao;
+import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
@@ -31,29 +34,46 @@ import edu.kit.scc.webreg.service.reg.RegisterUserWorkflow;
 public class RegisterUserServiceImpl implements RegisterUserService {
 
 	@Inject
+	private UserDao userDao;
+	
+	@Inject
+	private ServiceDao serviceDao;
+	
+	@Inject
+	private RegistryDao registryDao;
+	
+	@Inject
 	private Registrator registrator;
 
 	@Override
 	public RegistryEntity registerUser(UserEntity user, ServiceEntity service, List<Long> policiesIdList,
 			String executor) throws RegisterException {
+		user = userDao.fetch(user.getId());
+		service = serviceDao.fetch(service.getId());
 		return registrator.registerUser(user, service, executor, policiesIdList, true, null);
 	}
 
 	@Override
 	public RegistryEntity registerUser(UserEntity user, ServiceEntity service, String executor)
 			throws RegisterException {
+		user = userDao.fetch(user.getId());
+		service = serviceDao.fetch(service.getId());
 		return registrator.registerUser(user, service, executor, true);
 	}
 
 	@Override
 	public RegistryEntity registerUser(UserEntity user, ServiceEntity service, String executor, Boolean sendGroupUpdate)
 			throws RegisterException {
+		user = userDao.fetch(user.getId());
+		service = serviceDao.fetch(service.getId());
 		return registrator.registerUser(user, service, executor, null, sendGroupUpdate, null);
 	}
 
 	@Override
 	public RegistryEntity registerUser(UserEntity user, ServiceEntity service, String executor, Boolean sendGroupUpdate,
 			Auditor parentAuditor) throws RegisterException {
+		user = userDao.fetch(user.getId());
+		service = serviceDao.fetch(service.getId());
 		return registrator.registerUser(user, service, executor, null, sendGroupUpdate, parentAuditor);
 	}
 
@@ -99,12 +119,14 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	@Override
 	public void setPassword(UserEntity user, ServiceEntity service, RegistryEntity registry, String password,
 			String executor) throws RegisterException {
+		registry = registryDao.fetch(registry.getId());
 		registrator.setPassword(user, service, registry, password, executor);
 	}
 
 	@Override
 	public void deletePassword(UserEntity user, ServiceEntity service, RegistryEntity registry, String executor)
 			throws RegisterException {
+		registry = registryDao.fetch(registry.getId());
 		registrator.deletePassword(user, service, registry, executor);
 	}
 
@@ -120,6 +142,7 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 
 	@Override
 	public void reconGroupsForRegistry(RegistryEntity registry, String executor) throws RegisterException {
+		registry = registryDao.fetch(registry.getId());
 		registrator.reconGroupsForRegistry(registry, executor);
 	}
 

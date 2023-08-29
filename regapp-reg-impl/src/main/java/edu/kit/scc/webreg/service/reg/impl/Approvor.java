@@ -85,8 +85,6 @@ public class Approvor implements Serializable {
 	private ScriptingEnv scriptingEnv;
 	
 	public void registerApproval(RegistryEntity registry, Auditor parentAuditor) throws RegisterException {
-		registry = registryDao.merge(registry);
-
 		ApprovalWorkflow workflow = getApprovalWorkflowInstance(registry.getApprovalBean());
 		workflow.startWorkflow(registry);
 		
@@ -100,8 +98,6 @@ public class Approvor implements Serializable {
 	}
 
 	public void denyApproval(RegistryEntity registry, String executor, Auditor parentAuditor) throws RegisterException {
-		registry = registryDao.merge(registry);
-
 		ApprovalAuditor auditor = new ApprovalAuditor(auditDao, auditDetailDao, appConfig);
 		auditor.startAuditTrail(executor, true);
 		auditor.setName(this.getClass().getName() + "-ApprovalDeny-Audit");
@@ -135,8 +131,6 @@ public class Approvor implements Serializable {
 			throws RegisterException {
 		logger.info("Finally approving registry {} for user {} and service {}", registry.getId(),
 				registry.getUser().getEppn(), registry.getService().getName());
-
-		registry = registryDao.merge(registry);
 
 		RegisterUserWorkflow workflow = getRegisterWorkflowInstance(registry.getRegisterBean());
 		

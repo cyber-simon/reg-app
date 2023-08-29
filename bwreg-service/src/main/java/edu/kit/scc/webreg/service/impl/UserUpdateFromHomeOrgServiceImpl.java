@@ -48,7 +48,7 @@ public class UserUpdateFromHomeOrgServiceImpl implements UserUpdateFromHomeOrgSe
 	@Override
 	public void updateUserAsync(UserEntity user, String executor) {
 		logger.debug("Starting update for user {} ({})", user.getId(), user.getEppn());
-		user = userDao.merge(user);
+		user = userDao.fetch(user.getId());
 
 		try {
 			if (user instanceof SamlUserEntity) {

@@ -94,7 +94,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity> implements User
 	@Override
 	public UserLoginInfoEntity addLoginInfo(IdentityEntity identity, UserLoginMethod method, UserLoginInfoStatus status,
 			String from) {
-		identity = identityDao.merge(identity);
+		identity = identityDao.fetch(identity.getId());
 		UserLoginInfoEntity loginInfo = userLoginInfoDao.createNew();
 		loginInfo.setIdentity(identity);
 		loginInfo.setLoginDate(new Date());
@@ -155,13 +155,8 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity> implements User
 
 	@Override
 	public SamlUserEntity updateUserFromIdp(SamlUserEntity user, String executor) throws UserUpdateException {
+		user = samlUserDao.fetch(user.getId());
 		return userUpdater.updateUserFromIdp(user, null, executor, null);
-	}
-
-	@Override
-	public SamlUserEntity updateUserFromIdp(SamlUserEntity user, ServiceEntity service, String executor)
-			throws UserUpdateException {
-		return userUpdater.updateUserFromIdp(user, executor);
 	}
 
 	@Override

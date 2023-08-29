@@ -69,11 +69,7 @@ public class TemplateMailSender {
 			}
 
 			if (rendererContext.containsKey("identity")) {
-				/**
-				 * TODO check, if identityDao.merge can cause data conflicts. Better way would
-				 * be dao.findById
-				 */
-				IdentityEntity identity = identityDao.merge((IdentityEntity) rendererContext.get("identity"));
+				IdentityEntity identity = identityDao.fetch(((IdentityEntity) rendererContext.get("identity")).getId());
 				rendererContext.putAll(userPrefsResolver.resolvePrefs(identity));
 				if (!rendererContext.containsKey("user") && identity.getPrefUser() != null) {
 					rendererContext.put("user", identity.getPrefUser());
@@ -83,11 +79,7 @@ public class TemplateMailSender {
 					}
 				}
 			} else if (rendererContext.containsKey("user")) {
-				/**
-				 * TODO check, if userDao.merge can cause data conflicts. Better way would be
-				 * dao.findById
-				 */
-				UserEntity user = userDao.merge((UserEntity) rendererContext.get("user"));
+				UserEntity user = userDao.fetch(((UserEntity) rendererContext.get("user")).getId());
 				rendererContext.putAll(userPrefsResolver.resolvePrefs(user.getIdentity()));
 				rendererContext.put("identity", user.getIdentity());
 			}
