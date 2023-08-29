@@ -165,8 +165,6 @@ public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 		MDC.put("userId", "" + user.getId());
 		logger.debug("Updating SAML user {}", user.getEppn());
 
-		user = userDao.merge(user);
-
 		boolean changed = false;
 
 		UserUpdateAuditor auditor = new UserUpdateAuditor(auditDao, auditDetailDao, appConfig);

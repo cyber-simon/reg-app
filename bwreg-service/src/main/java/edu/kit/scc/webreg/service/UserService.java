@@ -37,9 +37,6 @@ public interface UserService extends BaseService<UserEntity> {
 
 	SamlUserEntity updateUserFromIdp(SamlUserEntity user, String executor) throws UserUpdateException;
 
-	SamlUserEntity updateUserFromIdp(SamlUserEntity user, ServiceEntity service, String executor)
-			throws UserUpdateException;
-
 	List<UserEntity> findByStatus(UserStatus status);
 
 	List<UserEntity> findByStatusAndTimeSince(UserStatus status, Long statusSince, Integer limit);

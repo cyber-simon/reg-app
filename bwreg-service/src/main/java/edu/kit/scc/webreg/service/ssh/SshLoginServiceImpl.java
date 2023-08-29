@@ -66,7 +66,7 @@ public class SshLoginServiceImpl implements SshLoginService {
 	public String authByUidNumberInteractive(ServiceEntity service, Integer uidNumber, HttpServletRequest request)
 			throws RestInterfaceException {
 
-		service = serviceDao.merge(service);
+		service = serviceDao.fetch(service.getId());
 
 		UserEntity user = userDao.findByUidNumber(uidNumber);
 		if (user == null)
@@ -131,7 +131,7 @@ public class SshLoginServiceImpl implements SshLoginService {
 	public String authByUidNumberCommand(ServiceEntity service, Integer uidNumber, HttpServletRequest request)
 			throws RestInterfaceException {
 
-		service = serviceDao.merge(service);
+		service = serviceDao.fetch(service.getId());
 
 		UserEntity user = userDao.findByUidNumber(uidNumber);
 		if (user == null)
@@ -162,7 +162,7 @@ public class SshLoginServiceImpl implements SshLoginService {
 	public String authByUidNumber(ServiceEntity service, Integer uidNumber, HttpServletRequest request)
 			throws RestInterfaceException {
 
-		service = serviceDao.merge(service);
+		service = serviceDao.fetch(service.getId());
 
 		UserEntity user = userDao.findByUidNumber(uidNumber);
 		if (user == null)

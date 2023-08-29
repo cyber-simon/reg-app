@@ -45,7 +45,7 @@ public class ProjectInvitationTokenServiceImpl extends BaseServiceImpl<ProjectIn
 	@Override
 	public ProjectInvitationTokenEntity acceptEmailToken(ProjectInvitationTokenEntity token, Long identityId,
 			String executor) {
-		token = dao.merge(token);
+		token = dao.fetch(token.getId());
 		IdentityEntity identity = identityDao.fetch(identityId);
 		generator.acceptEmailToken(token, identity, executor);
 		return token;
@@ -54,7 +54,7 @@ public class ProjectInvitationTokenServiceImpl extends BaseServiceImpl<ProjectIn
 	@Override
 	public ProjectInvitationTokenEntity declineEmailToken(ProjectInvitationTokenEntity token, Long identityId,
 			String executor) {
-		token = dao.merge(token);
+		token = dao.fetch(token.getId());
 		IdentityEntity identity = identityDao.fetch(identityId);
 		generator.declineEmailToken(token, identity, executor);
 		return token;

@@ -145,7 +145,6 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 
 	public OidcUserEntity updateUserFromOP(OidcUserEntity user, String executor, StringBuffer debugLog)
 			throws UserUpdateException {
-		user = userDao.merge(user);
 
 		try {
 			/**
@@ -246,8 +245,6 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 			ServiceEntity service, StringBuffer debugLog, String lastLoginHost) throws UserUpdateException {
 		MDC.put("userId", "" + user.getId());
 		logger.debug("Updating OIDC user {}", user.getEppn());
-
-		user = userDao.merge(user);
 
 		boolean changed = false;
 

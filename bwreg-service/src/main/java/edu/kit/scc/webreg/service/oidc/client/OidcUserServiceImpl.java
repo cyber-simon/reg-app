@@ -34,6 +34,7 @@ public class OidcUserServiceImpl extends BaseServiceImpl<OidcUserEntity> impleme
 	
 	@Override
 	public OidcUserEntity updateUserFromOp(OidcUserEntity user, String executor) throws UserUpdateException {
+		user = dao.fetch(user.getId());
 		return userUpdater.updateUserFromOP(user, executor, null);
 	}
 

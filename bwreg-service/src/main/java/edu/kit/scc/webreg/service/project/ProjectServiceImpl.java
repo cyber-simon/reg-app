@@ -48,13 +48,13 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity> implement
 
 	@Override
 	public void updateProjectMemberList(ProjectEntity project, Set<IdentityEntity> memberList, String executor) {
-		project = dao.merge(project);
+		project = dao.fetch(project.getId());
 		updater.updateProjectMemberList(project, memberList, executor);
 	}
 
 	@Override
 	public void addProjectMember(ProjectEntity project, IdentityEntity identity, String executor) {
-		project = dao.merge(project);
+		project = dao.fetch(project.getId());
 		updater.addProjectMember(project, identity, executor);
 	}
 

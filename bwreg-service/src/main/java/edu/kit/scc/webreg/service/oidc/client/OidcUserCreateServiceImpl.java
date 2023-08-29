@@ -145,7 +145,7 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
 			throws UserUpdateException {
 		logger.debug("Creating and link user {} to identity {}", user.getSubjectId(), identity.getId());
 
-		identity = identityDao.merge(identity);
+		identity = identityDao.fetch(identity.getId());
 		
 		UserCreateAuditor auditor = new UserCreateAuditor(auditDao, auditDetailDao, appConfig);
 		auditor.startAuditTrail(executor);
