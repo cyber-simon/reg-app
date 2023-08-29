@@ -71,7 +71,7 @@ public class UserDeleteServiceImpl implements UserDeleteService {
 	
 	@Inject
 	private GroupDao groupDao;
-	
+
 	@Inject
 	private RoleDao roleDao;
 
@@ -90,7 +90,7 @@ public class UserDeleteServiceImpl implements UserDeleteService {
 	@Override
 	public void deleteUserData(IdentityEntity identity, String executor) {
 		logger.info("Delete all personal user data for identity {}", identity.getId());
-		identity = identityDao.merge(identity);
+		identity = identityDao.fetch(identity.getId());
 		
 		List<UserEntity> userList = userDao.findByIdentity(identity);
 		

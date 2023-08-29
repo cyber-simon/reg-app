@@ -68,7 +68,7 @@ public class IdentityServiceImpl extends BaseServiceImpl<IdentityEntity> impleme
 	@Override
 	public void setPreferredUser(IdentityEntity identity) {
 		if (identity.getPrefUser() == null) {
-			identity = dao.merge(identity);
+			identity = dao.fetch(identity.getId());
 
 			UserEntity oldest = null;
 			Date date = new Date();

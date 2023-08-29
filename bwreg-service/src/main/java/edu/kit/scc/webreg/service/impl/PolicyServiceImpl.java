@@ -72,7 +72,7 @@ public class PolicyServiceImpl extends BaseServiceImpl<PolicyEntity> implements 
 	public Map<ProjectServiceEntity, List<PolicyEntity>> findPolicyMapForProject(ProjectEntity project,
 			ProjectPolicyType policyType) {
 
-		project = projectDao.merge(project);
+		project = projectDao.fetch(project.getId());
 		
 		Map<ProjectServiceEntity, List<PolicyEntity>> returnMap = new HashMap<>();
 		project.getProjectServices().stream().forEach(projectService -> {
@@ -88,8 +88,8 @@ public class PolicyServiceImpl extends BaseServiceImpl<PolicyEntity> implements 
 	public List<PolicyEntity> resolvePoliciesForService(ServiceEntity service, UserEntity user) {
 		List<PolicyEntity> policyList = new ArrayList<PolicyEntity>();
 
-		service = serviceDao.merge(service);
-		user = userDao.merge(user);
+		service = serviceDao.fetch(service.getId());
+		user = userDao.fetch(user.getId());
 
 		List<PolicyEntity> allPolicyList = new ArrayList<>(service.getPolicies());
 		for (PolicyEntity p : allPolicyList) {

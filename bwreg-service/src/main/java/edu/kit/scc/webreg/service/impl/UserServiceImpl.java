@@ -94,7 +94,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity> implements User
 	@Override
 	public UserLoginInfoEntity addLoginInfo(IdentityEntity identity, UserLoginMethod method, UserLoginInfoStatus status,
 			String from) {
-		identity = identityDao.merge(identity);
+		identity = identityDao.fetch(identity.getId());
 		UserLoginInfoEntity loginInfo = userLoginInfoDao.createNew();
 		loginInfo.setIdentity(identity);
 		loginInfo.setLoginDate(new Date());

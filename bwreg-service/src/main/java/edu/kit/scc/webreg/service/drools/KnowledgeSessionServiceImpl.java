@@ -10,6 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.drools;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +24,9 @@ import org.kie.api.runtime.KieSession;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 
+import edu.kit.scc.webreg.dao.RegistryDao;
+import edu.kit.scc.webreg.dao.ServiceDao;
+import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.drools.impl.KnowledgeSessionSingleton;
 import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
@@ -41,6 +45,15 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 	@Inject
 	private IdentityDao identityDao;
 
+	@Inject
+	private RegistryDao registryDao;
+
+	@Inject
+	private UserDao userDao;
+
+	@Inject
+	private ServiceDao serviceDao;
+	
 	@Inject
 	private KnowledgeSessionSingleton singleton;
 
@@ -71,7 +84,7 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 	@Override
 	public List<Object> checkRule(BusinessRulePackageEntity rulePackage, IdentityEntity identity)
 			throws MisconfiguredServiceException {
-		identity = identityDao.merge(identity);
+		identity = identityDao.fetch(identity.getId());
 
 		return singleton.checkIdentityRule(rulePackage, identity);
 
@@ -79,7 +92,7 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 
 	@Override
 	public List<String> checkScriptAccess(ScriptEntity scriptEntity, IdentityEntity identity) {
-		identity = identityDao.merge(identity);
+		identity = identityDao.fetch(identity.getId());
 
 		return singleton.checkScriptAccess(scriptEntity, identity);
 	}
@@ -95,12 +108,23 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 	@Override
 	public List<Object> checkServiceAccessRule(UserEntity user, ServiceEntity service, RegistryEntity registry,
 			String executor) throws MisconfiguredServiceException {
+		user = userDao.fetch(user.getId());
+		service = serviceDao.fetch(service.getId());
+		registry = registryDao.fetch(registry.getId());
+
 		return singleton.checkServiceAccessRule(user, service, registry, executor, true);
 	}
 
 	@Override
 	public List<Object> checkServiceAccessRule(UserEntity user, ServiceEntity service, RegistryEntity registry,
 			String executor, Boolean withCache) throws MisconfiguredServiceException {
+		user = userDao.fetch(user.getId());
+		service = serviceDao.fetch(service.getId());
+		if (registry != null) {
+			// registry may be null, in case of user is not registered to service yet
+			registry = registryDao.fetch(registry.getId());
+		}
+
 		return singleton.checkServiceAccessRule(user, service, registry, executor, withCache);
 	}
 
@@ -113,7 +137,11 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 	@Override
 	public Map<RegistryEntity, List<Object>> checkRules(List<RegistryEntity> registryList, IdentityEntity identity,
 			String executor, Boolean withCache) {
-
-		return singleton.checkRules(registryList, identity, executor, withCache);
+		identity = identityDao.fetch(identity.getId());
+		List<RegistryEntity> loadedRegistryList = new ArrayList<RegistryEntity>(registryList.size());
+		for (RegistryEntity registry : registryList) {
+			loadedRegistryList.add(registryDao.fetch(registry.getId()));
+		}
+		return singleton.checkRules(loadedRegistryList, identity, executor, withCache);
 	}
 }

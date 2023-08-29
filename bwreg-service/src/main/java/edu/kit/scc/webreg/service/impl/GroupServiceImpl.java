@@ -50,15 +50,15 @@ public class GroupServiceImpl extends BaseServiceImpl<GroupEntity> implements Gr
 
 	@Override
 	public void addUserToGroup(UserEntity user, GroupEntity group, boolean emitUpdate) {
-		group = groupDao.merge(group);
-		user = userDao.merge(user);
+		group = groupDao.fetch(group.getId());
+		user = userDao.fetch(user.getId());
 		groupUpdater.addUserToGroup(user, group, emitUpdate);
 	}
 
 	@Override
 	public void removeUserGromGroup(UserEntity user, GroupEntity group, boolean emitUpdate) {
-		group = groupDao.merge(group);
-		user = userDao.merge(user);
+		group = groupDao.fetch(group.getId());
+		user = userDao.fetch(user.getId());
 		groupUpdater.removeUserFromGroup(user, group, emitUpdate);
 	}
 
