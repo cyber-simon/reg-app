@@ -98,7 +98,21 @@ public class UserIndexBean {
 	}
 
 	private void checkServiceAccess(List<RegistryEntity> registryList, IdentityEntity identity) {
-		Map<RegistryEntity, List<Object>> objectMap = knowledgeSessionService.checkRules(userRegistryList, identity, "user-self", false);
+
+		Map<RegistryEntity, List<Object>> objectMap = null;
+		int retries = 0;
+		while (objectMap == null) {
+			try {
+				objectMap = knowledgeSessionService.checkRules(userRegistryList, identity, "user-self", false);
+			} catch (Exception e) {
+				if (retries >= 10) {
+					logger.warn("Giving up on checking rules. Max retries reached.");
+					throw e;
+				}
+				logger.debug("Opt lock? retrying... {}", e.getMessage());
+				retries++;
+			}
+		}
 		
 		for (Entry<RegistryEntity, List<Object>> entry : objectMap.entrySet()) {
 			RegistryEntity registry = entry.getKey();

@@ -444,7 +444,6 @@ public class KnowledgeSessionSingleton {
 			}
 
 			registry.setLastAccessCheck(new Date());
-			registry = registryDao.persist(registry);
 		}
 
 		return objectList;

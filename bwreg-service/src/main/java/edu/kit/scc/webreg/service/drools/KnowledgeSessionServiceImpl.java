@@ -16,6 +16,7 @@ import java.util.Map;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.persistence.LockModeType;
 
 import org.kie.api.KieServices;
 import org.kie.api.builder.ReleaseId;
@@ -140,7 +141,7 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 		identity = identityDao.fetch(identity.getId());
 		List<RegistryEntity> loadedRegistryList = new ArrayList<RegistryEntity>(registryList.size());
 		for (RegistryEntity registry : registryList) {
-			loadedRegistryList.add(registryDao.fetch(registry.getId()));
+			loadedRegistryList.add(registryDao.fetch(registry.getId(), LockModeType.OPTIMISTIC_FORCE_INCREMENT));
 		}
 		return singleton.checkRules(loadedRegistryList, identity, executor, withCache);
 	}
