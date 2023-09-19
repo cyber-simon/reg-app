@@ -45,6 +45,7 @@ public class GroupServiceImpl extends BaseServiceImpl<GroupEntity> implements Gr
 
 	@Override
 	public void updateGroupMembers(GroupEntity group, Set<UserEntity> newMembers) {
+		group = groupDao.fetch(group.getId());
 		groupUpdater.updateGroupMembers(group, newMembers);
 	}
 

@@ -52,16 +52,14 @@ public class GroupUpdater implements Serializable {
 		Set<UserEntity> usersToAdd = new HashSet<UserEntity>(newMembers);
 		usersToAdd.removeAll(oldMembers);
 		for (UserEntity user : usersToAdd) {
-			user = userDao.merge(user);
-			group = groupDao.merge(group);
+			user = userDao.fetch(user.getId());
 			groupDao.addUserToGroup(user, group);
 		}
 
 		Set<UserEntity> usersToRemove = new HashSet<UserEntity>(oldMembers);
 		usersToRemove.removeAll(newMembers);
 		for (UserEntity user : usersToRemove) {
-			user = userDao.merge(user);
-			group = groupDao.merge(group);
+			user = userDao.fetch(user.getId());
 			groupDao.removeUserGromGroup(user, group);
 		}
 
