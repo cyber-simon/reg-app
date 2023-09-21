@@ -19,6 +19,7 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.inject.Inject;
+import javax.transaction.UserTransaction;
 
 import edu.kit.scc.webreg.annotations.RetryTransaction;
 import edu.kit.scc.webreg.audit.Auditor;
@@ -39,15 +40,18 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 
 	@Inject
 	private UserDao userDao;
-	
+
 	@Inject
 	private ServiceDao serviceDao;
-	
+
 	@Inject
 	private RegistryDao registryDao;
-	
+
 	@Inject
 	private Registrator registrator;
+
+	@Inject
+	private UserTransaction userTransaction;
 
 	@Override
 	@RetryTransaction
@@ -86,10 +90,10 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	}
 
 	@Override
-	@RetryTransaction
 	public void updateGroups(Set<GroupEntity> groupUpdateSet, Boolean reconRegistries, Boolean fullRecon,
 			Map<GroupEntity, Set<UserEntity>> usersToRemove, String executor) throws RegisterException {
-		registrator.updateGroups(groupUpdateSet, reconRegistries, fullRecon, usersToRemove, executor);
+		GroupPerServiceList groupUpdateList = registrator.buildGroupPerServiceList(groupUpdateSet, reconRegistries, fullRecon, executor);
+		registrator.updateGroups(groupUpdateList, reconRegistries, fullRecon, usersToRemove, executor);
 	}
 
 	@Override
