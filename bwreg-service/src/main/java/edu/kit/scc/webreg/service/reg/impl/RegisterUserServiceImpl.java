@@ -100,12 +100,6 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 
 	@Override
 	@RetryTransaction
-	public void reconsiliationByUser(UserEntity user, Boolean fullRecon, String executor) throws RegisterException {
-		registrator.reconsiliationByUser(user, fullRecon, executor);
-	}
-
-	@Override
-	@RetryTransaction
 	public void reconsiliation(RegistryEntity registry, Boolean fullRecon, String executor) throws RegisterException {
 		registrator.reconsiliation(registry, fullRecon, executor, null);
 	}

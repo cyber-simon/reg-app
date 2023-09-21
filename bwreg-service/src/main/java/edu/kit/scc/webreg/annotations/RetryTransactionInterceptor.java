@@ -4,6 +4,7 @@ import javax.enterprise.inject.spi.CDI;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
+import javax.persistence.OptimisticLockException;
 import javax.transaction.Status;
 import javax.transaction.UserTransaction;
 
@@ -26,35 +27,54 @@ public class RetryTransactionInterceptor {
 		while (retries < 10) {
 			try {
 				if (logger.isTraceEnabled()) {
-					logger.trace("Entering timing of method {}, retry {}", invocationCtx.getMethod().getName(),
-							retries);
+					logger.trace("Entering timing of method {} [{}], retry {}", invocationCtx.getMethod().getName(),
+							Thread.currentThread().getName(), retries);
 				}
 
 				if (retries > 0) {
-					logger.info("Trying to call method {} retry: ", invocationCtx.getMethod().getName(), (retries + 1));
+					logger.info("Trying to call method {} [{}] retry: ", invocationCtx.getMethod().getName(),
+							Thread.currentThread().getName(), (retries + 1));
 				}
-				
+
 				long startTime = System.currentTimeMillis();
 				userTransaction.begin();
 				Object returnValue = invocationCtx.proceed();
 				userTransaction.commit();
 				long endTime = System.currentTimeMillis();
 				if (logger.isTraceEnabled()) {
-					logger.trace("method timing " + invocationCtx.getMethod().getName() + ": " + (endTime - startTime)
-							+ "ms");
+					logger.trace("method timing {} [{}]: {} ms", invocationCtx.getMethod().getName(),
+							Thread.currentThread().getName(), (endTime - startTime));
 				}
 				return returnValue;
-			} catch (Throwable e) {
-				logger.warn("Throwable {}", e.getMessage());
+			} catch (Exception e) {
+
+				Throwable cause = e.getCause();
+				if (!(e instanceof OptimisticLockException || cause != null
+						|| cause instanceof OptimisticLockException)) {
+					logger.trace("Other Exception {}", e.getMessage());
+					throw e;
+				} else {
+					logger.trace("Exception or cause is Opt lock. Retrying. Message: {}", e.getMessage());
+				}
 			} finally {
 				/*
 				 * Clean up
 				 */
 				try {
+					if (logger.isTraceEnabled()) {
+						logger.trace("method {} clean up, transaction is status {}",
+								invocationCtx.getMethod().getName(), userTransaction.getStatus());
+					}
+
 					if (userTransaction.getStatus() == Status.STATUS_ACTIVE)
 						userTransaction.rollback();
+					else if (userTransaction.getStatus() == Status.STATUS_MARKED_ROLLBACK)
+						userTransaction.rollback();
+
 				} catch (Throwable e) {
-					// ignore
+					if (logger.isTraceEnabled()) {
+						logger.trace("method {} ignored exception: {}", e.getMessage());
+					}
 				}
 			}
 			retries++;

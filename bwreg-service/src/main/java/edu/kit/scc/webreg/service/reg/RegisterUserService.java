@@ -77,6 +77,4 @@ public interface RegisterUserService {
 	
 	void completeReconciliationForRegistry(ServiceEntity service, RegistryEntity registry, Boolean fullRecon, Boolean withGroups,
 			String executor) throws RegisterException;
-	
-	void reconsiliationByUser(UserEntity user, Boolean fullRecon, String executor) throws RegisterException;
 }
