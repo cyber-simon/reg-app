@@ -15,16 +15,19 @@ import java.util.List;
 import java.util.Map;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.inject.Inject;
 import javax.persistence.LockModeType;
+import javax.transaction.UserTransaction;
 
 import org.kie.api.KieServices;
 import org.kie.api.builder.ReleaseId;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
-import org.opensaml.saml.saml2.core.Assertion;
-import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+import org.slf4j.Logger;
 
+import edu.kit.scc.webreg.annotations.RetryTransaction;
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
 import edu.kit.scc.webreg.dao.UserDao;
@@ -32,8 +35,6 @@ import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.drools.impl.KnowledgeSessionSingleton;
 import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
-import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
-import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
@@ -41,7 +42,11 @@ import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.exc.MisconfiguredServiceException;
 
 @Stateless
+@TransactionManagement(TransactionManagementType.BEAN)
 public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
+
+	@Inject
+	private Logger logger;
 
 	@Inject
 	private IdentityDao identityDao;
@@ -54,9 +59,12 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 
 	@Inject
 	private ServiceDao serviceDao;
-	
+
 	@Inject
 	private KnowledgeSessionSingleton singleton;
+
+	@Inject
+	private UserTransaction userTransaction;
 
 	@Override
 	public KieSession getStatefulSession(String packageName, String knowledgeBaseName, String knowledgeBaseVersion) {
@@ -83,40 +91,37 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 	}
 
 	@Override
+	@RetryTransaction
 	public List<Object> checkRule(BusinessRulePackageEntity rulePackage, IdentityEntity identity)
 			throws MisconfiguredServiceException {
 		identity = identityDao.fetch(identity.getId());
-
-		return singleton.checkIdentityRule(rulePackage, identity);
-
+		List<Object> result = singleton.checkIdentityRule(rulePackage, identity);
+		return result;
 	}
 
 	@Override
+	@RetryTransaction
 	public List<String> checkScriptAccess(ScriptEntity scriptEntity, IdentityEntity identity) {
 		identity = identityDao.fetch(identity.getId());
 
-		return singleton.checkScriptAccess(scriptEntity, identity);
+		List<String> result = singleton.checkScriptAccess(scriptEntity, identity);
+		return result;
 	}
 
 	@Override
-	public List<Object> checkRule(String unitId, UserEntity user, Map<String, List<Object>> attributeMap,
-			Assertion assertion, SamlIdpMetadataEntity idp, EntityDescriptor idpEntityDescriptor,
-			SamlSpConfigurationEntity sp) throws MisconfiguredServiceException {
-
-		return singleton.checkSamlLoginRule(unitId, user, attributeMap, assertion, idp, idpEntityDescriptor, sp);
-	}
-
-	@Override
+	@RetryTransaction
 	public List<Object> checkServiceAccessRule(UserEntity user, ServiceEntity service, RegistryEntity registry,
 			String executor) throws MisconfiguredServiceException {
 		user = userDao.fetch(user.getId());
 		service = serviceDao.fetch(service.getId());
 		registry = registryDao.fetch(registry.getId());
 
-		return singleton.checkServiceAccessRule(user, service, registry, executor, true);
+		List<Object> result = singleton.checkServiceAccessRule(user, service, registry, executor, true);
+		return result;
 	}
 
 	@Override
+	@RetryTransaction
 	public List<Object> checkServiceAccessRule(UserEntity user, ServiceEntity service, RegistryEntity registry,
 			String executor, Boolean withCache) throws MisconfiguredServiceException {
 		user = userDao.fetch(user.getId());
@@ -126,16 +131,12 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 			registry = registryDao.fetch(registry.getId());
 		}
 
-		return singleton.checkServiceAccessRule(user, service, registry, executor, withCache);
+		List<Object> result = singleton.checkServiceAccessRule(user, service, registry, executor, withCache);
+		return result;
 	}
 
 	@Override
-	public Map<RegistryEntity, List<Object>> checkRules(List<RegistryEntity> registryList, IdentityEntity identity,
-			String executor) {
-		return singleton.checkRules(registryList, identity, executor);
-	}
-
-	@Override
+	@RetryTransaction
 	public Map<RegistryEntity, List<Object>> checkRules(List<RegistryEntity> registryList, IdentityEntity identity,
 			String executor, Boolean withCache) {
 		identity = identityDao.fetch(identity.getId());
@@ -143,6 +144,8 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 		for (RegistryEntity registry : registryList) {
 			loadedRegistryList.add(registryDao.fetch(registry.getId(), LockModeType.OPTIMISTIC_FORCE_INCREMENT));
 		}
-		return singleton.checkRules(loadedRegistryList, identity, executor, withCache);
+		Map<RegistryEntity, List<Object>> result = singleton.checkRules(loadedRegistryList, identity, executor,
+				withCache);
+		return result;
 	}
 }

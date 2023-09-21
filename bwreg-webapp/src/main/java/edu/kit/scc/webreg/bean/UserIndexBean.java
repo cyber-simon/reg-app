@@ -43,55 +43,55 @@ public class UserIndexBean {
 	private List<RegistryEntity> userRegistryList;
 	private List<RegistryEntity> pendingRegistryList;
 
-	private Map<ServiceEntity, String>	serviceAccessMap; 
-	
+	private Map<ServiceEntity, String> serviceAccessMap;
+
 	private IdentityEntity identity;
-	
+
 	@Inject
 	private Logger logger;
-	
-    @Inject
-    private ServiceService serviceService;
 
-    @Inject
-    private RegistryService registryService;
+	@Inject
+	private ServiceService serviceService;
 
-    @Inject 
-    private SessionManager sessionManager;
-    
-    @Inject
-    private IdentityService identityService;
+	@Inject
+	private RegistryService registryService;
+
+	@Inject
+	private SessionManager sessionManager;
+
+	@Inject
+	private IdentityService identityService;
 
 	@Inject
 	private KnowledgeSessionService knowledgeSessionService;
 
-    @PostConstruct
-    public void init() {
-    	identity = identityService.fetch(sessionManager.getIdentityId());
-    	allServiceList = serviceService.findAllPublishedWithServiceProps();
-    	userRegistryList = registryService.findByIdentityAndNotStatusAndNotHidden(
-    			identity, RegistryStatus.DELETED, RegistryStatus.DEPROVISIONED, RegistryStatus.PENDING);
-    	pendingRegistryList = registryService.findByIdentityAndStatus(identity, RegistryStatus.PENDING);
-    	
-    	serviceAccessMap = new HashMap<ServiceEntity, String>(userRegistryList.size());
+	@PostConstruct
+	public void init() {
+		identity = identityService.fetch(sessionManager.getIdentityId());
+		allServiceList = serviceService.findAllPublishedWithServiceProps();
+		userRegistryList = registryService.findByIdentityAndNotStatusAndNotHidden(identity, RegistryStatus.DELETED,
+				RegistryStatus.DEPROVISIONED, RegistryStatus.PENDING);
+		pendingRegistryList = registryService.findByIdentityAndStatus(identity, RegistryStatus.PENDING);
 
-    	long start = System.currentTimeMillis();
-    	checkServiceAccess(userRegistryList, identity);
-    	long end = System.currentTimeMillis();
-    	logger.debug("Rule processing took {} ms", end - start);
+		serviceAccessMap = new HashMap<ServiceEntity, String>(userRegistryList.size());
+
+		long start = System.currentTimeMillis();
+		checkServiceAccess(userRegistryList, identity);
+		long end = System.currentTimeMillis();
+		logger.debug("Rule processing took {} ms", end - start);
 	}
 
-    public String getServiceAccessStatus(ServiceEntity service) {
-    	return serviceAccessMap.get(service);
-    }
-    
-    public List<ServiceEntity> getAllServiceList() {
-   		return allServiceList;
-    }
+	public String getServiceAccessStatus(ServiceEntity service) {
+		return serviceAccessMap.get(service);
+	}
 
-    public List<RegistryEntity> getUserRegistryList() {
-   		return userRegistryList;
-    }
+	public List<ServiceEntity> getAllServiceList() {
+		return allServiceList;
+	}
+
+	public List<RegistryEntity> getUserRegistryList() {
+		return userRegistryList;
+	}
 
 	public List<RegistryEntity> getPendingRegistryList() {
 		return pendingRegistryList;
@@ -99,25 +99,31 @@ public class UserIndexBean {
 
 	private void checkServiceAccess(List<RegistryEntity> registryList, IdentityEntity identity) {
 
-		Map<RegistryEntity, List<Object>> objectMap = null;
-		int retries = 0;
-		while (objectMap == null) {
-			try {
-				objectMap = knowledgeSessionService.checkRules(userRegistryList, identity, "user-self", false);
-			} catch (Exception e) {
-				if (retries >= 10) {
-					logger.warn("Giving up on checking rules. Max retries reached.");
-					throw e;
+		Map<RegistryEntity, List<Object>> objectMap = new HashMap<RegistryEntity, List<Object>>();
+		
+		for (RegistryEntity registry : userRegistryList) {
+			int retries = 0;
+			List<Object> objectList = null;
+			while (objectList == null) {
+				try {
+					objectList = knowledgeSessionService.checkServiceAccessRule(registry.getUser(),
+							registry.getService(), registry, "identity-" + sessionManager.getIdentityId(), false);
+					objectMap.put(registry, objectList);
+				} catch (Exception e) {
+					if (retries >= 10) {
+						logger.warn("Giving up on checking rules. Max retries reached.");
+						throw e;
+					}
+					logger.debug("Opt lock? retrying... {}", e.getMessage());
+					retries++;
 				}
-				logger.debug("Opt lock? retrying... {}", e.getMessage());
-				retries++;
 			}
 		}
-		
+
 		for (Entry<RegistryEntity, List<Object>> entry : objectMap.entrySet()) {
 			RegistryEntity registry = entry.getKey();
 			List<Object> objectList = entry.getValue();
-			
+
 			StringBuffer sb = new StringBuffer();
 			for (Object o : objectList) {
 				if (o instanceof OverrideAccess) {
@@ -125,8 +131,7 @@ public class UserIndexBean {
 					sb.setLength(0);
 					logger.debug("Removing requirements due to OverrideAccess");
 					break;
-				}
-				else if (o instanceof UnauthorizedUser) {
+				} else if (o instanceof UnauthorizedUser) {
 					String s = ((UnauthorizedUser) o).getMessage();
 					sb.append(s);
 				}

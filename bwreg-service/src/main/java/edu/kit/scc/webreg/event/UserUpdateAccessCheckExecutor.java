@@ -53,7 +53,15 @@ public class UserUpdateAccessCheckExecutor extends
 			UserEntity user = getEvent().getEntity();
 			List<RegistryEntity> registryList = registryService.findByIdentityAndStatus(user.getIdentity(), RegistryStatus.ACTIVE);
 			
-			knowledgeSessionService.checkRules(registryList, user.getIdentity(), executor);
+			for (RegistryEntity registry : registryList) {
+				logger.debug("Working on registry {}", registry.getId());
+				try {
+					knowledgeSessionService.checkServiceAccessRule(registry.getUser(), registry.getService(), registry, executor);
+				}
+				catch (Exception e) {
+					logger.debug("Caught Exception {}", e.getMessage());
+				}
+			}
 			
 		} catch (NamingException e) {
 			logger.warn("Could not check access: {}", e);
