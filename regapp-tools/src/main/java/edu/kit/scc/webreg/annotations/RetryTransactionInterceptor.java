@@ -1,5 +1,7 @@
 package edu.kit.scc.webreg.annotations;
 
+import java.lang.reflect.Method;
+
 import javax.enterprise.inject.spi.CDI;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
@@ -23,17 +25,21 @@ public class RetryTransactionInterceptor {
 	public Object retry(InvocationContext invocationCtx) throws Exception {
 		UserTransaction userTransaction = CDI.current().select(UserTransaction.class).get();
 
+		Method method = invocationCtx.getMethod();
+		RetryTransaction annotation = method.getAnnotation(RetryTransaction.class);
+	    int maxRetries = annotation.retries();
+	    
 		int retries = 0;
-		while (retries < 10) {
+		while (retries < maxRetries) {
 			try {
 				if (logger.isTraceEnabled()) {
-					logger.trace("Entering timing of method {} [{}], retry {}", invocationCtx.getMethod().getName(),
-							Thread.currentThread().getName(), retries);
+					logger.trace("Entering timing of method {} [{}], retry {} (out of {})", method.getName(),
+							Thread.currentThread().getName(), retries, maxRetries);
 				}
 
 				if (retries > 0) {
-					logger.info("Trying to call method {} [{}] retry: ", invocationCtx.getMethod().getName(),
-							Thread.currentThread().getName(), (retries + 1));
+					logger.info("Trying to call method {} [{}] retry: {} (out of {})", method.getName(),
+							Thread.currentThread().getName(), retries, maxRetries);
 				}
 
 				long startTime = System.currentTimeMillis();
@@ -42,7 +48,7 @@ public class RetryTransactionInterceptor {
 				userTransaction.commit();
 				long endTime = System.currentTimeMillis();
 				if (logger.isTraceEnabled()) {
-					logger.trace("method timing {} [{}]: {} ms", invocationCtx.getMethod().getName(),
+					logger.trace("method timing {} [{}]: {} ms", method.getName(),
 							Thread.currentThread().getName(), (endTime - startTime));
 				}
 				return returnValue;
@@ -63,7 +69,7 @@ public class RetryTransactionInterceptor {
 				try {
 					if (logger.isTraceEnabled()) {
 						logger.trace("method {} clean up, transaction is status {}",
-								invocationCtx.getMethod().getName(), userTransaction.getStatus());
+								method.getName(), userTransaction.getStatus());
 					}
 
 					if (userTransaction.getStatus() == Status.STATUS_ACTIVE)
