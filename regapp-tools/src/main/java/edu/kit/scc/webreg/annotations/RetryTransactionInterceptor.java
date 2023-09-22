@@ -8,12 +8,11 @@ import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 import javax.persistence.OptimisticLockException;
 import javax.transaction.Status;
+import javax.transaction.TransactionalException;
 import javax.transaction.UserTransaction;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import edu.kit.scc.webreg.exc.MisconfiguredServiceException;
 
 @Interceptor
 @RetryTransaction
@@ -27,49 +26,55 @@ public class RetryTransactionInterceptor {
 
 		Method method = invocationCtx.getMethod();
 		RetryTransaction annotation = method.getAnnotation(RetryTransaction.class);
-	    int maxRetries = annotation.retries();
-	    
+		int maxRetries = annotation.retries();
+
 		int retries = 0;
+		long startTime = 0L;
+		long endTime = 0L;
+		boolean traceEnabled = logger.isTraceEnabled() || annotation.trace();
+
 		while (retries < maxRetries) {
 			try {
-				if (logger.isTraceEnabled()) {
-					logger.trace("Entering timing of method {} [{}], retry {} (out of {})", method.getName(),
-							Thread.currentThread().getName(), retries, maxRetries);
-				}
-
 				if (retries > 0) {
 					logger.info("Trying to call method {} [{}] retry: {} (out of {})", method.getName(),
 							Thread.currentThread().getName(), retries, maxRetries);
 				}
 
-				long startTime = System.currentTimeMillis();
+				if (traceEnabled) {
+					logger.info("Entering timing of method {} [{}], retry {} (out of {})", method.getName(),
+							Thread.currentThread().getName(), retries, maxRetries);
+					startTime = System.currentTimeMillis();
+				}
+
 				userTransaction.begin();
 				Object returnValue = invocationCtx.proceed();
 				userTransaction.commit();
-				long endTime = System.currentTimeMillis();
-				if (logger.isTraceEnabled()) {
-					logger.trace("method timing {} [{}]: {} ms", method.getName(),
-							Thread.currentThread().getName(), (endTime - startTime));
+
+				if (traceEnabled) {
+					endTime = System.currentTimeMillis();
+					logger.info("method timing {} [{}]: {} ms", method.getName(), Thread.currentThread().getName(),
+							(endTime - startTime));
 				}
+
 				return returnValue;
 			} catch (Exception e) {
 
 				Throwable cause = e.getCause();
 				if (!(e instanceof OptimisticLockException || cause != null
 						|| cause instanceof OptimisticLockException)) {
-					logger.trace("Other Exception {}", e.getMessage());
+					logger.debug("Other Exception {}", e.getMessage());
 					throw e;
 				} else {
-					logger.trace("Exception or cause is Opt lock. Retrying. Message: {}", e.getMessage());
+					logger.debug("Exception or cause is Opt lock. Retrying. Message: {}", e.getMessage());
 				}
 			} finally {
 				/*
 				 * Clean up
 				 */
 				try {
-					if (logger.isTraceEnabled()) {
-						logger.trace("method {} clean up, transaction is status {}",
-								method.getName(), userTransaction.getStatus());
+					if (traceEnabled) {
+						logger.info("method {} clean up, transaction is status {}", method.getName(),
+								userTransaction.getStatus());
 					}
 
 					if (userTransaction.getStatus() == Status.STATUS_ACTIVE)
@@ -78,14 +83,14 @@ public class RetryTransactionInterceptor {
 						userTransaction.rollback();
 
 				} catch (Throwable e) {
-					if (logger.isTraceEnabled()) {
-						logger.trace("method {} ignored exception: {}", e.getMessage());
+					if (traceEnabled) {
+						logger.info("method {} ignored exception: {}", e.getMessage());
 					}
 				}
 			}
 			retries++;
 		}
-		throw new MisconfiguredServiceException("tranaction failed with 10 retries");
-
+		
+		throw new TransactionalException("tranaction in method " + method.getName() + " failed with 10 retries", null);
 	}
 }

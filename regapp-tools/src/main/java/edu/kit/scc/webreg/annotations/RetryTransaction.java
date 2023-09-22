@@ -13,4 +13,5 @@ import javax.interceptor.InterceptorBinding;
 public @interface RetryTransaction {
 
 	int retries() default 10;
+	boolean trace() default false;
 }
