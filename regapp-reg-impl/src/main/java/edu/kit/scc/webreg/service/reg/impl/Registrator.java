@@ -391,7 +391,7 @@ public class Registrator implements Serializable {
 	@RetryTransaction
 	public GroupPerServiceList buildGroupPerServiceList(Set<GroupEntity> groupUpdateSet, Boolean reconRegistries,
 			Boolean fullRecon, String executor) {
-		GroupPerServiceList groupUpdateList = new GroupPerServiceList();
+		GroupPerServiceList groupPerServiceList = new GroupPerServiceList();
 
 		for (GroupEntity group : groupUpdateSet) {
 
@@ -405,11 +405,11 @@ public class Registrator implements Serializable {
 					if (ServiceGroupStatus.DIRTY.equals(flag.getStatus())) {
 						logger.info("Group {} at Service {} needs an update", serviceBasedGroup.getName(),
 								flag.getService().getName());
-						groupUpdateList.addGroupToUpdate(flag);
+						groupPerServiceList.addGroupToUpdate(flag);
 
 						// check parent groups (These contain the change groups and their members)
 						for (GroupEntity parent : serviceBasedGroup.getParents()) {
-							updateParentGroup(parent, groupUpdateList, 0, 3);
+							updateParentGroup(parent, groupPerServiceList, 0, 3);
 						}
 					} else if (ServiceGroupStatus.TO_DELETE.equals(flag.getStatus())) {
 						logger.info("Group {} at Service {} is about to get deleted", serviceBasedGroup.getName(),
@@ -441,7 +441,7 @@ public class Registrator implements Serializable {
 			}
 		}
 
-		return groupUpdateList;
+		return groupPerServiceList;
 	}
 
 	protected void updateParentGroup(GroupEntity group, GroupPerServiceList groupUpdateList, int depth, int maxDepth) {
