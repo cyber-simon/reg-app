@@ -95,8 +95,7 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 	public List<Object> checkRule(BusinessRulePackageEntity rulePackage, IdentityEntity identity)
 			throws MisconfiguredServiceException {
 		identity = identityDao.fetch(identity.getId());
-		List<Object> result = singleton.checkIdentityRule(rulePackage, identity);
-		return result;
+		return singleton.checkIdentityRule(rulePackage, identity);
 	}
 
 	@Override
@@ -104,8 +103,7 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 	public List<String> checkScriptAccess(ScriptEntity scriptEntity, IdentityEntity identity) {
 		identity = identityDao.fetch(identity.getId());
 
-		List<String> result = singleton.checkScriptAccess(scriptEntity, identity);
-		return result;
+		return singleton.checkScriptAccess(scriptEntity, identity);
 	}
 
 	@Override
@@ -116,8 +114,7 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 		service = serviceDao.fetch(service.getId());
 		registry = registryDao.fetch(registry.getId());
 
-		List<Object> result = singleton.checkServiceAccessRule(user, service, registry, executor, true);
-		return result;
+		return singleton.checkServiceAccessRule(user, service, registry, executor, true);
 	}
 
 	@Override
@@ -131,8 +128,7 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 			registry = registryDao.fetch(registry.getId());
 		}
 
-		List<Object> result = singleton.checkServiceAccessRule(user, service, registry, executor, withCache);
-		return result;
+		return singleton.checkServiceAccessRule(user, service, registry, executor, withCache);
 	}
 
 	@Override
@@ -144,8 +140,6 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 		for (RegistryEntity registry : registryList) {
 			loadedRegistryList.add(registryDao.fetch(registry.getId(), LockModeType.OPTIMISTIC_FORCE_INCREMENT));
 		}
-		Map<RegistryEntity, List<Object>> result = singleton.checkRules(loadedRegistryList, identity, executor,
-				withCache);
-		return result;
+		return singleton.checkRules(loadedRegistryList, identity, executor, withCache);
 	}
 }

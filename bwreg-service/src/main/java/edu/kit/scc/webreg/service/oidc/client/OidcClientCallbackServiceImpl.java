@@ -10,6 +10,8 @@ import java.time.Instant;
 import java.util.Date;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -47,6 +49,7 @@ import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.nimbusds.openid.connect.sdk.validators.IDTokenValidator;
 
+import edu.kit.scc.webreg.annotations.RetryTransaction;
 import edu.kit.scc.webreg.dao.UserLoginInfoDao;
 import edu.kit.scc.webreg.dao.oidc.OidcRpFlowStateDao;
 import edu.kit.scc.webreg.dao.oidc.OidcUserDao;
@@ -63,6 +66,7 @@ import edu.kit.scc.webreg.service.saml.exc.OidcAuthenticationException;
 import edu.kit.scc.webreg.session.SessionManager;
 
 @Stateless
+@TransactionManagement(TransactionManagementType.BEAN)
 public class OidcClientCallbackServiceImpl implements OidcClientCallbackService {
 
 	private static final long serialVersionUID = 1L;
@@ -92,6 +96,7 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 	private SessionManager session;
 
 	@Override
+	@RetryTransaction
 	public void callback(String uri, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
 			throws OidcAuthenticationException {
 
