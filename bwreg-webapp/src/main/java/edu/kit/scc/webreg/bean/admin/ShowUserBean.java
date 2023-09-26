@@ -185,8 +185,10 @@ public class ShowUserBean implements Serializable {
 				tempRegistryList.add(registry);
 			}
 		}
-		knowledgeSessionService.checkRules(tempRegistryList, user.getIdentity(),
-				"identity-" + sessionManager.getIdentityId(), false);
+		for (RegistryEntity registry : tempRegistryList) {
+			knowledgeSessionService.checkServiceAccessRule(registry.getUser(), registry.getService(), registry, 
+					"identity-" + sessionManager.getIdentityId(), false);
+		}
 	}
 
 	public UserEntity getEntity() {

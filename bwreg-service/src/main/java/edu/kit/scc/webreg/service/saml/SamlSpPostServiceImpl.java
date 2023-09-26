@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -16,6 +18,7 @@ import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
+import edu.kit.scc.webreg.annotations.RetryTransaction;
 import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
 import edu.kit.scc.webreg.dao.UserLoginInfoDao;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
@@ -31,6 +34,7 @@ import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.session.SessionManager;
 
 @Stateless
+@TransactionManagement(TransactionManagementType.BEAN)
 public class SamlSpPostServiceImpl implements SamlSpPostService {
 
 	@Inject
@@ -58,6 +62,7 @@ public class SamlSpPostServiceImpl implements SamlSpPostService {
 	private SessionManager session;
 
 	@Override
+	@RetryTransaction
 	public void consumePost(HttpServletRequest request, HttpServletResponse response,
 			SamlSpConfigurationEntity spConfig, StringBuffer debugLog) throws Exception {
 

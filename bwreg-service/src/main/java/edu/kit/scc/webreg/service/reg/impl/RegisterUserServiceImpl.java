@@ -16,8 +16,12 @@ import java.util.Set;
 
 import javax.ejb.Asynchronous;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.inject.Inject;
+import javax.transaction.UserTransaction;
 
+import edu.kit.scc.webreg.annotations.RetryTransaction;
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
@@ -31,21 +35,26 @@ import edu.kit.scc.webreg.service.reg.RegisterUserService;
 import edu.kit.scc.webreg.service.reg.RegisterUserWorkflow;
 
 @Stateless
+@TransactionManagement(TransactionManagementType.BEAN)
 public class RegisterUserServiceImpl implements RegisterUserService {
 
 	@Inject
 	private UserDao userDao;
-	
+
 	@Inject
 	private ServiceDao serviceDao;
-	
+
 	@Inject
 	private RegistryDao registryDao;
-	
+
 	@Inject
 	private Registrator registrator;
 
+	@Inject
+	private UserTransaction userTransaction;
+
 	@Override
+	@RetryTransaction
 	public RegistryEntity registerUser(UserEntity user, ServiceEntity service, List<Long> policiesIdList,
 			String executor) throws RegisterException {
 		user = userDao.fetch(user.getId());
@@ -54,6 +63,7 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	}
 
 	@Override
+	@RetryTransaction
 	public RegistryEntity registerUser(UserEntity user, ServiceEntity service, String executor)
 			throws RegisterException {
 		user = userDao.fetch(user.getId());
@@ -62,6 +72,7 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	}
 
 	@Override
+	@RetryTransaction
 	public RegistryEntity registerUser(UserEntity user, ServiceEntity service, String executor, Boolean sendGroupUpdate)
 			throws RegisterException {
 		user = userDao.fetch(user.getId());
@@ -70,6 +81,7 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	}
 
 	@Override
+	@RetryTransaction
 	public RegistryEntity registerUser(UserEntity user, ServiceEntity service, String executor, Boolean sendGroupUpdate,
 			Auditor parentAuditor) throws RegisterException {
 		user = userDao.fetch(user.getId());
@@ -80,31 +92,31 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	@Override
 	public void updateGroups(Set<GroupEntity> groupUpdateSet, Boolean reconRegistries, Boolean fullRecon,
 			Map<GroupEntity, Set<UserEntity>> usersToRemove, String executor) throws RegisterException {
-		registrator.updateGroups(groupUpdateSet, reconRegistries, fullRecon, usersToRemove, executor);
+		GroupPerServiceList groupUpdateList = registrator.buildGroupPerServiceList(groupUpdateSet, reconRegistries, fullRecon, executor);
+		registrator.updateGroups(groupUpdateList, reconRegistries, fullRecon, usersToRemove, executor);
 	}
 
 	@Override
+	@RetryTransaction
 	public void deleteGroup(GroupEntity group, ServiceEntity service, String executor) throws RegisterException {
 		registrator.deleteGroup(group, service, executor);
 	}
 
 	@Override
-	public void reconsiliationByUser(UserEntity user, Boolean fullRecon, String executor) throws RegisterException {
-		registrator.reconsiliationByUser(user, fullRecon, executor);
-	}
-
-	@Override
+	@RetryTransaction
 	public void reconsiliation(RegistryEntity registry, Boolean fullRecon, String executor) throws RegisterException {
 		registrator.reconsiliation(registry, fullRecon, executor, null);
 	}
 
 	@Override
+	@RetryTransaction
 	public void reconsiliation(RegistryEntity registry, Boolean fullRecon, String executor, Auditor parentAuditor)
 			throws RegisterException {
 		registrator.reconsiliation(registry, fullRecon, executor, parentAuditor);
 	}
 
 	@Override
+	@RetryTransaction
 	public void deregisterUser(RegistryEntity registry, String executor, String statusMessage)
 			throws RegisterException {
 		registrator.deregisterUser(registry, executor, statusMessage);
@@ -117,6 +129,7 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	}
 
 	@Override
+	@RetryTransaction
 	public void setPassword(UserEntity user, ServiceEntity service, RegistryEntity registry, String password,
 			String executor) throws RegisterException {
 		registry = registryDao.fetch(registry.getId());
@@ -124,6 +137,7 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	}
 
 	@Override
+	@RetryTransaction
 	public void deletePassword(UserEntity user, ServiceEntity service, RegistryEntity registry, String executor)
 			throws RegisterException {
 		registry = registryDao.fetch(registry.getId());
@@ -141,6 +155,7 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	}
 
 	@Override
+	@RetryTransaction
 	public void reconGroupsForRegistry(RegistryEntity registry, String executor) throws RegisterException {
 		registry = registryDao.fetch(registry.getId());
 		registrator.reconGroupsForRegistry(registry, executor);
@@ -148,23 +163,27 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 
 	@Override
 	@Asynchronous
+	@RetryTransaction
 	public void completeReconciliation(ServiceEntity service, Boolean fullRecon, Boolean withGroups, Boolean onlyActive,
 			String executor) {
 		registrator.completeReconciliation(service, fullRecon, withGroups, onlyActive, executor);
 	}
 
 	@Override
+	@RetryTransaction
 	public void completeReconciliationForRegistry(ServiceEntity service, RegistryEntity registry, Boolean fullRecon,
 			Boolean withGroups, String executor) throws RegisterException {
 		registrator.completeReconciliationForRegistry(service, registry, fullRecon, withGroups, executor);
 	}
 
 	@Override
+	@RetryTransaction
 	public void deprovision(RegistryEntity registry, String executor) throws RegisterException {
 		registrator.deprovision(registry, executor);
 	}
 
 	@Override
+	@RetryTransaction
 	public void purge(RegistryEntity registry, String executor) throws RegisterException {
 		registrator.purge(registry, executor);
 	}

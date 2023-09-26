@@ -38,25 +38,17 @@ public interface KnowledgeSessionService {
 
 	KieSession getStatefulSession(String unitId);
 
-	Map<RegistryEntity, List<Object>> checkRules(
-			List<RegistryEntity> registryList, IdentityEntity identity, String executor);
-
 	List<Object> checkServiceAccessRule(UserEntity user,
 			ServiceEntity service, RegistryEntity registry, String executor,
 			Boolean withCache) throws MisconfiguredServiceException;
 
-	Map<RegistryEntity, List<Object>> checkRules(
-			List<RegistryEntity> registryList, IdentityEntity identity,
-			String executor, Boolean withCache);
-
-	List<Object> checkRule(String unitId, UserEntity user,
-			Map<String, List<Object>> attributeMap, Assertion assertion,
-			SamlIdpMetadataEntity idp, EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity sp)
-			throws MisconfiguredServiceException;
 
 	List<Object> checkRule(BusinessRulePackageEntity rulePackage, IdentityEntity identity)
 			throws MisconfiguredServiceException;
 
 	List<String> checkScriptAccess(ScriptEntity scriptEntity, IdentityEntity identity);
 
+	Map<RegistryEntity, List<Object>> checkRules(
+			List<RegistryEntity> registryList, IdentityEntity identity,
+			String executor, Boolean withCache);
 }

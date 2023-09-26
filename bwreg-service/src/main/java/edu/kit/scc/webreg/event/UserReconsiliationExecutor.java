@@ -10,14 +10,19 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.event;
 
+import java.util.List;
+
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;
 
 public class UserReconsiliationExecutor extends
@@ -46,6 +51,7 @@ public class UserReconsiliationExecutor extends
 			InitialContext ic = new InitialContext();
 			
 			RegisterUserService registerUserService = (RegisterUserService) ic.lookup("global/bwreg/bwreg-service/RegisterUserServiceImpl!edu.kit.scc.webreg.service.reg.RegisterUserService");
+			RegistryService registryService = (RegistryService) ic.lookup("global/bwreg/bwreg-service/RegistryServiceImpl!edu.kit.scc.webreg.service.RegistryService");
 			
 			UserEntity user = getEvent().getEntity();
 			
@@ -53,11 +59,16 @@ public class UserReconsiliationExecutor extends
 				logger.info("User is not yet persisted. Aborting recon.");
 				return;
 			}
+
+			List<RegistryEntity> registryList = registryService.findByIdentityAndStatus(user.getIdentity(), RegistryStatus.ACTIVE);
 			
-			try {
-				registerUserService.reconsiliationByUser(user, fullRecon, executor);
-			} catch (RegisterException e) {
-				logger.warn("Could not recon registries for user {}: {}", user.getId(), e);
+			for (RegistryEntity registry : registryList) {
+				logger.debug("Working on registry {}", registry.getId());
+				try {
+					registerUserService.reconsiliation(registry, fullRecon, executor);
+				} catch (RegisterException e) {
+					logger.warn("Could not recon registries for user {}: {}", user.getId(), e);
+				}
 			}
 		} catch (NamingException e) {
 			logger.warn("Could execute: {}", e);

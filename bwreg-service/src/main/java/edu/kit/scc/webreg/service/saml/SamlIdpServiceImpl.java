@@ -12,6 +12,8 @@ import java.util.Date;
 import java.util.List;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.inject.Inject;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -68,6 +70,7 @@ import org.opensaml.xmlsec.signature.X509Data;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.slf4j.Logger;
 
+import edu.kit.scc.webreg.annotations.RetryTransaction;
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.SamlAuthnRequestDao;
 import edu.kit.scc.webreg.dao.SamlIdpConfigurationDao;
@@ -94,6 +97,7 @@ import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 import net.shibboleth.utilities.java.support.resolver.ResolverException;
 
 @Stateless
+@TransactionManagement(TransactionManagementType.BEAN)
 public class SamlIdpServiceImpl implements SamlIdpService {
 
 	@Inject
@@ -136,6 +140,7 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 	private KnowledgeSessionSingleton knowledgeSessionService;
 
 	@Override
+	@RetryTransaction
 	public long registerAuthnRequest(AuthnRequest authnRequest) {
 		SamlAuthnRequestEntity authnRequestEntity = samlAuthnRequestDao.createNew();
 		authnRequestEntity.setValidUntil(new Date(System.currentTimeMillis() + 30L * 60L * 1000L));
@@ -145,6 +150,7 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 	}
 
 	@Override
+	@RetryTransaction
 	public String resumeAuthnRequest(Long authnRequestId, Long identityId, Long authnRequestIdpConfigId,
 			String relayState, HttpServletResponse response) throws SamlAuthenticationException {
 

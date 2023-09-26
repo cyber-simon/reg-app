@@ -473,11 +473,6 @@ public class KnowledgeSessionSingleton {
 	}
 
 	public Map<RegistryEntity, List<Object>> checkRules(List<RegistryEntity> registryList, IdentityEntity identity,
-			String executor) {
-		return checkRules(registryList, identity, executor, true);
-	}
-
-	public Map<RegistryEntity, List<Object>> checkRules(List<RegistryEntity> registryList, IdentityEntity identity,
 			String executor, Boolean withCache) {
 
 		Map<RegistryEntity, List<Object>> returnMap = new HashMap<RegistryEntity, List<Object>>();

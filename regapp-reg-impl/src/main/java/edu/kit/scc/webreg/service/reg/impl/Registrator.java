@@ -28,6 +28,7 @@ import javax.inject.Inject;
 import org.kie.api.runtime.KieSession;
 import org.slf4j.Logger;
 
+import edu.kit.scc.webreg.annotations.RetryTransaction;
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.audit.GroupAuditor;
 import edu.kit.scc.webreg.audit.RegistryAuditor;
@@ -244,14 +245,18 @@ public class Registrator implements Serializable {
 		}
 	}
 
-	protected void updateGroups(GroupPerServiceList groupUpdateList, Boolean reconRegistries, Boolean fullRecon,
+	@RetryTransaction
+	public void updateGroups(GroupPerServiceList groupUpdateList, Boolean reconRegistries, Boolean fullRecon,
 			Map<GroupEntity, Set<UserEntity>> usersToRemove, String executor) throws RegisterException {
 
 		for (ServiceEntity service : groupUpdateList.getServices()) {
+			service = serviceDao.fetch(service.getId());
+
 			RegisterUserWorkflow workflow = getWorkflowInstance(service.getRegisterBean());
 			if (!(workflow instanceof GroupCapable)) {
 				logger.warn("Workflow " + workflow.getClass() + " is not GroupCapable! Resetting all Flags to CLEAN");
 				for (ServiceGroupFlagEntity groupFlag : groupUpdateList.getGroupFlagsForService(service)) {
+					groupFlag = groupFlagDao.fetch(groupFlag.getId());
 					groupFlag.setStatus(ServiceGroupStatus.CLEAN);
 				}
 				continue;
@@ -267,9 +272,11 @@ public class Registrator implements Serializable {
 				long a = System.currentTimeMillis();
 
 				Set<GroupEntity> groups = new HashSet<GroupEntity>();
-				for (ServiceGroupFlagEntity groupFlag : groupUpdateList.getGroupFlagsForService(service))
+				for (ServiceGroupFlagEntity groupFlag : groupUpdateList.getGroupFlagsForService(service)) {
+					groupFlag = groupFlagDao.fetch(groupFlag.getId());
 					groups.add(groupFlag.getGroup());
-				logger.debug("Hashing Groups took {} ms", (System.currentTimeMillis() - a));
+				}
+				logger.debug("Hashing and loading GroupFlags took {} ms", (System.currentTimeMillis() - a));
 				a = System.currentTimeMillis();
 
 				Set<GroupEntity> groupsToRemove = new HashSet<GroupEntity>();
@@ -314,6 +321,7 @@ public class Registrator implements Serializable {
 				GroupUpdateStructure updateStruct = new GroupUpdateStructure();
 				for (GroupEntity group : groups) {
 					a = System.currentTimeMillis();
+					group = groupDao.fetch(group.getId());
 					Set<UserEntity> users = groupUtil.rollUsersForGroup(group);
 					logger.debug("RollGroup {} took {} ms", group.getName(), (System.currentTimeMillis() - a));
 					a = System.currentTimeMillis();
@@ -380,25 +388,28 @@ public class Registrator implements Serializable {
 		}
 	}
 
-	public void updateGroups(Set<GroupEntity> groupUpdateSet, Boolean reconRegistries, Boolean fullRecon,
-			Map<GroupEntity, Set<UserEntity>> usersToRemove, String executor) throws RegisterException {
-		GroupPerServiceList groupUpdateList = new GroupPerServiceList();
+	@RetryTransaction
+	public GroupPerServiceList buildGroupPerServiceList(Set<GroupEntity> groupUpdateSet, Boolean reconRegistries,
+			Boolean fullRecon, String executor) {
+		GroupPerServiceList groupPerServiceList = new GroupPerServiceList();
 
 		for (GroupEntity group : groupUpdateSet) {
+
 			logger.debug("Analyzing group {} of type {}", group.getName(), group.getClass().getSimpleName());
 
 			if (group instanceof ServiceBasedGroupEntity) {
+
 				ServiceBasedGroupEntity serviceBasedGroup = (ServiceBasedGroupEntity) groupDao.fetch(group.getId());
 
 				for (ServiceGroupFlagEntity flag : serviceBasedGroup.getServiceGroupFlags()) {
 					if (ServiceGroupStatus.DIRTY.equals(flag.getStatus())) {
 						logger.info("Group {} at Service {} needs an update", serviceBasedGroup.getName(),
 								flag.getService().getName());
-						groupUpdateList.addGroupToUpdate(flag);
+						groupPerServiceList.addGroupToUpdate(flag);
 
 						// check parent groups (These contain the change groups and their members)
 						for (GroupEntity parent : serviceBasedGroup.getParents()) {
-							updateParentGroup(parent, groupUpdateList, 0, 3);
+							updateParentGroup(parent, groupPerServiceList, 0, 3);
 						}
 					} else if (ServiceGroupStatus.TO_DELETE.equals(flag.getStatus())) {
 						logger.info("Group {} at Service {} is about to get deleted", serviceBasedGroup.getName(),
@@ -422,13 +433,15 @@ public class Registrator implements Serializable {
 							logger.warn("Could not delete group: " + e);
 						}
 					}
+
 				}
+
 			} else {
 				logger.debug("Group {} is no ServiceBasedGroup. Doin' nuthin at all for now.");
 			}
 		}
 
-		updateGroups(groupUpdateList, reconRegistries, fullRecon, usersToRemove, executor);
+		return groupPerServiceList;
 	}
 
 	protected void updateParentGroup(GroupEntity group, GroupPerServiceList groupUpdateList, int depth, int maxDepth) {
