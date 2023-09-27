@@ -246,145 +246,143 @@ public class Registrator implements Serializable {
 	}
 
 	@RetryTransaction
-	public void updateGroups(GroupPerServiceList groupUpdateList, Boolean reconRegistries, Boolean fullRecon,
-			Map<GroupEntity, Set<UserEntity>> usersToRemove, String executor) throws RegisterException {
+	public void updateGroups(ServiceEntity service, GroupPerServiceList groupUpdateList, Boolean reconRegistries,
+			Boolean fullRecon, Map<GroupEntity, Set<UserEntity>> usersToRemove, String executor)
+			throws RegisterException {
+		service = serviceDao.fetch(service.getId());
 
-		for (ServiceEntity service : groupUpdateList.getServices()) {
-			service = serviceDao.fetch(service.getId());
+		RegisterUserWorkflow workflow = getWorkflowInstance(service.getRegisterBean());
+		if (!(workflow instanceof GroupCapable)) {
+			logger.warn("Workflow " + workflow.getClass() + " is not GroupCapable! Resetting all Flags to CLEAN");
+			for (ServiceGroupFlagEntity groupFlag : groupUpdateList.getGroupFlagsForService(service)) {
+				groupFlag = groupFlagDao.fetch(groupFlag.getId());
+				groupFlag.setStatus(ServiceGroupStatus.CLEAN);
+			}
+			return;
+		}
 
-			RegisterUserWorkflow workflow = getWorkflowInstance(service.getRegisterBean());
-			if (!(workflow instanceof GroupCapable)) {
-				logger.warn("Workflow " + workflow.getClass() + " is not GroupCapable! Resetting all Flags to CLEAN");
-				for (ServiceGroupFlagEntity groupFlag : groupUpdateList.getGroupFlagsForService(service)) {
-					groupFlag = groupFlagDao.fetch(groupFlag.getId());
-					groupFlag.setStatus(ServiceGroupStatus.CLEAN);
+		try {
+			ServiceAuditor auditor = new ServiceAuditor(auditDao, auditDetailDao, appConfig);
+			auditor.startAuditTrail(executor);
+			auditor.setName(workflow.getClass().getName() + "-GroupUpdate-Audit");
+			auditor.setDetail("Update groups for service " + service.getName());
+			auditor.setService(service);
+
+			long a = System.currentTimeMillis();
+
+			Set<GroupEntity> groups = new HashSet<GroupEntity>();
+			for (ServiceGroupFlagEntity groupFlag : groupUpdateList.getGroupFlagsForService(service)) {
+				groupFlag = groupFlagDao.fetch(groupFlag.getId());
+				groups.add(groupFlag.getGroup());
+			}
+			logger.debug("Hashing and loading GroupFlags took {} ms", (System.currentTimeMillis() - a));
+			a = System.currentTimeMillis();
+
+			Set<GroupEntity> groupsToRemove = new HashSet<GroupEntity>();
+			if (service.getGroupFilterRulePackage() != null) {
+				a = System.currentTimeMillis();
+
+				BusinessRulePackageEntity rulePackage = service.getGroupFilterRulePackage();
+				KieSession ksession = knowledgeSessionService.getStatefulSession(rulePackage.getPackageName(),
+						rulePackage.getKnowledgeBaseName(), rulePackage.getKnowledgeBaseVersion());
+
+				ksession.setGlobal("logger", logger);
+				for (GroupEntity group : groups) {
+					ksession.insert(group);
 				}
-				continue;
+
+				ksession.fireAllRules();
+				List<Object> objectList = new ArrayList<Object>(ksession.getObjects());
+
+				Set<GroupEntity> filteredGroups = new HashSet<GroupEntity>();
+				for (Object o : objectList) {
+					ksession.delete(ksession.getFactHandle(o));
+					if (o instanceof GroupEntity)
+						filteredGroups.add((GroupEntity) o);
+				}
+
+				groupsToRemove.addAll(groups);
+				groupsToRemove.removeAll(filteredGroups);
+
+				groups = filteredGroups;
+
+				logger.debug("Applying group filter drools took {} ms", (System.currentTimeMillis() - a));
+				a = System.currentTimeMillis();
 			}
 
-			try {
-				ServiceAuditor auditor = new ServiceAuditor(auditDao, auditDetailDao, appConfig);
-				auditor.startAuditTrail(executor);
-				auditor.setName(workflow.getClass().getName() + "-GroupUpdate-Audit");
-				auditor.setDetail("Update groups for service " + service.getName());
-				auditor.setService(service);
+			a = System.currentTimeMillis();
+			List<UserEntity> userInServiceList = registryDao.findUserListByServiceAndStatus(service,
+					RegistryStatus.ACTIVE);
+			logger.debug("RegistryList took {}ms", (System.currentTimeMillis() - a));
+			a = System.currentTimeMillis();
 
-				long a = System.currentTimeMillis();
-
-				Set<GroupEntity> groups = new HashSet<GroupEntity>();
-				for (ServiceGroupFlagEntity groupFlag : groupUpdateList.getGroupFlagsForService(service)) {
-					groupFlag = groupFlagDao.fetch(groupFlag.getId());
-					groups.add(groupFlag.getGroup());
-				}
-				logger.debug("Hashing and loading GroupFlags took {} ms", (System.currentTimeMillis() - a));
+			logger.debug("Building group update struct for {}", service.getName());
+			GroupUpdateStructure updateStruct = new GroupUpdateStructure();
+			for (GroupEntity group : groups) {
+				a = System.currentTimeMillis();
+				group = groupDao.fetch(group.getId());
+				Set<UserEntity> users = groupUtil.rollUsersForGroup(group);
+				logger.debug("RollGroup {} took {} ms", group.getName(), (System.currentTimeMillis() - a));
 				a = System.currentTimeMillis();
 
-				Set<GroupEntity> groupsToRemove = new HashSet<GroupEntity>();
-				if (service.getGroupFilterRulePackage() != null) {
-					a = System.currentTimeMillis();
+				users.retainAll(userInServiceList);
 
-					BusinessRulePackageEntity rulePackage = service.getGroupFilterRulePackage();
-					KieSession ksession = knowledgeSessionService.getStatefulSession(rulePackage.getPackageName(),
-							rulePackage.getKnowledgeBaseName(), rulePackage.getKnowledgeBaseVersion());
+				updateStruct.addGroup(group, users);
+			}
 
-					ksession.setGlobal("logger", logger);
-					for (GroupEntity group : groups) {
-						ksession.insert(group);
-					}
+			for (GroupEntity group : groupsToRemove) {
+				updateStruct.addGroup(group, new HashSet<UserEntity>());
+			}
 
-					ksession.fireAllRules();
-					List<Object> objectList = new ArrayList<Object>(ksession.getObjects());
+			((GroupCapable) workflow).updateGroups(service, updateStruct, auditor);
+			logger.debug("updateGroups took {}ms", (System.currentTimeMillis() - a));
+			a = System.currentTimeMillis();
 
-					Set<GroupEntity> filteredGroups = new HashSet<GroupEntity>();
-					for (Object o : objectList) {
-						ksession.delete(ksession.getFactHandle(o));
-						if (o instanceof GroupEntity)
-							filteredGroups.add((GroupEntity) o);
-					}
+			for (ServiceGroupFlagEntity groupFlag : groupUpdateList.getGroupFlagsForService(service)) {
+				groupFlag = groupFlagDao.fetch(groupFlag.getId());
+				groupFlag.setStatus(ServiceGroupStatus.CLEAN);
+			}
+			logger.debug("Persist service Flags took {}ms", (System.currentTimeMillis() - a));
+			a = System.currentTimeMillis();
 
-					groupsToRemove.addAll(groups);
-					groupsToRemove.removeAll(filteredGroups);
+			/*
+			 * recon all registries
+			 */
+			if (reconRegistries) {
+				logger.debug("Start recon registries for {}", service.getName());
+				for (GroupEntity group : updateStruct.getGroups()) {
+					// Skip HomeOrg groups, as these trigger a user update and recon on this path
+					if (!(group instanceof HomeOrgGroupEntity)) {
+						// Trigger recon for all member of group
+						for (UserEntity user : updateStruct.getUsersForGroup(group)) {
+							RegistryEntity registry = registryDao.findByServiceAndUserAndStatus(service, user,
+									RegistryStatus.ACTIVE);
+							if (registry != null) {
+								reconsiliation(registry, fullRecon, executor);
+							}
+						}
 
-					groups = filteredGroups;
-
-					logger.debug("Applying group filter drools took {} ms", (System.currentTimeMillis() - a));
-					a = System.currentTimeMillis();
-				}
-
-				a = System.currentTimeMillis();
-				List<UserEntity> userInServiceList = registryDao.findUserListByServiceAndStatus(service,
-						RegistryStatus.ACTIVE);
-				logger.debug("RegistryList took {}ms", (System.currentTimeMillis() - a));
-				a = System.currentTimeMillis();
-
-				logger.debug("Building group update struct for {}", service.getName());
-				GroupUpdateStructure updateStruct = new GroupUpdateStructure();
-				for (GroupEntity group : groups) {
-					a = System.currentTimeMillis();
-					group = groupDao.fetch(group.getId());
-					Set<UserEntity> users = groupUtil.rollUsersForGroup(group);
-					logger.debug("RollGroup {} took {} ms", group.getName(), (System.currentTimeMillis() - a));
-					a = System.currentTimeMillis();
-
-					users.retainAll(userInServiceList);
-
-					updateStruct.addGroup(group, users);
-				}
-
-				for (GroupEntity group : groupsToRemove) {
-					updateStruct.addGroup(group, new HashSet<UserEntity>());
-				}
-
-				((GroupCapable) workflow).updateGroups(service, updateStruct, auditor);
-				logger.debug("updateGroups took {}ms", (System.currentTimeMillis() - a));
-				a = System.currentTimeMillis();
-
-				for (ServiceGroupFlagEntity groupFlag : groupUpdateList.getGroupFlagsForService(service)) {
-					groupFlag.setStatus(ServiceGroupStatus.CLEAN);
-					groupFlagDao.persist(groupFlag);
-				}
-				logger.debug("Persist service Flags took {}ms", (System.currentTimeMillis() - a));
-				a = System.currentTimeMillis();
-
-				/*
-				 * recon all registries
-				 */
-				if (reconRegistries) {
-					logger.debug("Start recon registries for {}", service.getName());
-					for (GroupEntity group : updateStruct.getGroups()) {
-						// Skip HomeOrg groups, as these trigger a user update and recon on this path
-						if (!(group instanceof HomeOrgGroupEntity)) {
-							// Trigger recon for all member of group
-							for (UserEntity user : updateStruct.getUsersForGroup(group)) {
+						// trigger recon for removed members
+						if (usersToRemove != null && usersToRemove.containsKey(group)) {
+							for (UserEntity user : usersToRemove.get(group)) {
 								RegistryEntity registry = registryDao.findByServiceAndUserAndStatus(service, user,
 										RegistryStatus.ACTIVE);
 								if (registry != null) {
 									reconsiliation(registry, fullRecon, executor);
 								}
 							}
-
-							// trigger recon for removed members
-							if (usersToRemove != null && usersToRemove.containsKey(group)) {
-								for (UserEntity user : usersToRemove.get(group)) {
-									RegistryEntity registry = registryDao.findByServiceAndUserAndStatus(service, user,
-											RegistryStatus.ACTIVE);
-									if (registry != null) {
-										reconsiliation(registry, fullRecon, executor);
-									}
-								}
-							}
 						}
 					}
-					logger.debug("Recon registries took {}ms", (System.currentTimeMillis() - a));
-					a = System.currentTimeMillis();
 				}
-
-				auditor.finishAuditTrail();
-				auditor.commitAuditTrail();
-
-			} catch (Throwable t) {
-				throw new RegisterException(t);
+				logger.debug("Recon registries took {}ms", (System.currentTimeMillis() - a));
+				a = System.currentTimeMillis();
 			}
+
+			auditor.finishAuditTrail();
+			auditor.commitAuditTrail();
+
+		} catch (Throwable t) {
+			throw new RegisterException(t);
 		}
 	}
 

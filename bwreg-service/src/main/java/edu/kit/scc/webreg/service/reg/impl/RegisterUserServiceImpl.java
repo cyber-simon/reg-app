@@ -93,7 +93,9 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	public void updateGroups(Set<GroupEntity> groupUpdateSet, Boolean reconRegistries, Boolean fullRecon,
 			Map<GroupEntity, Set<UserEntity>> usersToRemove, String executor) throws RegisterException {
 		GroupPerServiceList groupUpdateList = registrator.buildGroupPerServiceList(groupUpdateSet, reconRegistries, fullRecon, executor);
-		registrator.updateGroups(groupUpdateList, reconRegistries, fullRecon, usersToRemove, executor);
+		for (ServiceEntity service : groupUpdateList.getServices()) {
+			registrator.updateGroups(service, groupUpdateList, reconRegistries, fullRecon, usersToRemove, executor);
+		}
 	}
 
 	@Override
