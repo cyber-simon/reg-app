@@ -153,10 +153,13 @@ public class SetServicePasswordBean implements Serializable {
 				messageGenerator.addResolvedInfoMessage("pw_error", "service_password_changed", "service_password_changed_detail", true);
 			} catch (RegisterException e) {
 				messageGenerator.addResolvedErrorMessage("pw_error", "service_password_cannot_be_set", e.getMessage(), false);
+				return null;
 			}
 		}
-		else
+		else {
 			messageGenerator.addResolvedErrorMessage("pw_error", "error", "service_password_cannot_be_set", true);
+			return null;
+		}
 
 		if (navOptions != null && navOptions.equalsIgnoreCase("created")) {
     		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
