@@ -49,39 +49,40 @@ public class SetServicePasswordBean implements Serializable {
 
 	@Inject
 	private ServiceService serviceService;
-	
+
 	@Inject
 	private AuthorizationBean authBean;
-	
+
 	@Inject
 	private SessionManager sessionManager;
-	
+
 	@Inject
 	private IdentityService identityService;
-	
-    @Inject
-    private RegisterUserService registerUserService;
+
+	@Inject
+	private RegisterUserService registerUserService;
 
 	@Inject
 	private FacesMessageGenerator messageGenerator;
-	
+
 	private RegistryEntity registryEntity;
 	private ServiceEntity serviceEntity;
 	private UserEntity userEntity;
 	private IdentityEntity identity;
-	
+
 	private Long id;
 	private String serviceShortName;
 	private String navOptions;
+	private String redirectTarget;
 
 	private Boolean hideDeletePasswordBtn = false;
-	
+
 	private String password1, password2;
-	
+
 	private Boolean initialized = false;
-	
+
 	public void preRenderView(ComponentSystemEvent ev) {
-		if (! initialized) {
+		if (!initialized) {
 			identity = identityService.fetch(sessionManager.getIdentityId());
 
 			if (id != null) {
@@ -91,22 +92,22 @@ public class SetServicePasswordBean implements Serializable {
 					throw new IllegalArgumentException("Service Registry not found");
 
 				serviceEntity = registryEntity.getService();
-			}
-			else if (serviceShortName != null) {
+			} else if (serviceShortName != null) {
 				serviceEntity = serviceService.findByShortName(serviceShortName);
-				
+
 				if (serviceEntity == null)
 					throw new IllegalArgumentException("Service not found");
-				
-				registryEntity = registryService.findByServiceAndUserAndStatus(serviceEntity, userEntity, RegistryStatus.ACTIVE);
+
+				registryEntity = registryService.findByServiceAndUserAndStatus(serviceEntity, userEntity,
+						RegistryStatus.ACTIVE);
 			}
 
 			userEntity = registryEntity.getUser();
 
-			if (! registryEntity.getIdentity().getId().equals(identity.getId()))
+			if (!registryEntity.getIdentity().getId().equals(identity.getId()))
 				throw new NotAuthorizedException("Not authorized to view this item");
 
-			if (! authBean.isUserInService(serviceEntity)) 
+			if (!authBean.isUserInService(serviceEntity))
 				throw new IllegalArgumentException("Not authorized for this service");
 
 			serviceEntity = serviceService.findByIdWithServiceProps(serviceEntity.getId());
@@ -118,86 +119,94 @@ public class SetServicePasswordBean implements Serializable {
 			} catch (RegisterException e) {
 				throw new IllegalArgumentException("service is not configured yet");
 			}
-			
+
 			password1 = null;
 			password2 = null;
-			
+
+			if (navOptions != null && navOptions.equalsIgnoreCase("created")) {
+				redirectTarget = "../service/registry-detail.xhtml?regId=" + registryEntity.getId();
+			}
+
 			initialized = true;
 		}
 	}
 
 	public String save() {
-		if (! (RegistryStatus.ACTIVE.equals(registryEntity.getRegistryStatus()) || 
-				RegistryStatus.LOST_ACCESS.equals(registryEntity.getRegistryStatus()))) {
+		if (!(RegistryStatus.ACTIVE.equals(registryEntity.getRegistryStatus())
+				|| RegistryStatus.LOST_ACCESS.equals(registryEntity.getRegistryStatus()))) {
 			messageGenerator.addResolvedErrorMessage("pw_error", "error", "service_password_cannot_be_set", true);
 			return null;
 		}
-		
-		if (password1 == null || password2 == null ||
-				"".equals(password1) || "".equals(password2)) {
-			messageGenerator.addResolvedWarningMessage("pw_error", "password_field_empty", "password_field_empty_detail", true);
+
+		if (password1 == null || password2 == null || "".equals(password1) || "".equals(password2)) {
+			messageGenerator.addResolvedWarningMessage("pw_error", "password_field_empty",
+					"password_field_empty_detail", true);
 			return null;
-		}
-		else if (! password1.equals(password2)) {
-			messageGenerator.addResolvedWarningMessage("pw_error", "password_field_different", "password_field_different_detail", true);
+		} else if (!password1.equals(password2)) {
+			messageGenerator.addResolvedWarningMessage("pw_error", "password_field_different",
+					"password_field_different_detail", true);
 			return null;
 		}
 
-		RegisterUserWorkflow registerUserWorkflow = registerUserService.getWorkflowInstance(serviceEntity.getRegisterBean());
-		
+		RegisterUserWorkflow registerUserWorkflow = registerUserService
+				.getWorkflowInstance(serviceEntity.getRegisterBean());
+
 		if (registerUserWorkflow instanceof SetPasswordCapable) {
 			try {
 				registerUserService.setPassword(userEntity, serviceEntity, registryEntity, password1, "user-self");
+
+				if (redirectTarget != null) {
+					ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+					try {
+						context.redirect(redirectTarget);
+					} catch (IOException e) {
+					}
+				}
+
 				password1 = null;
 				password2 = null;
-				messageGenerator.addResolvedInfoMessage("pw_error", "service_password_changed", "service_password_changed_detail", true);
+				messageGenerator.addResolvedInfoMessage("pw_error", "service_password_changed",
+						"service_password_changed_detail", true);
 			} catch (RegisterException e) {
-				messageGenerator.addResolvedErrorMessage("pw_error", "service_password_cannot_be_set", e.getMessage(), false);
-				return null;
+				messageGenerator.addResolvedErrorMessage("pw_error", "service_password_cannot_be_set", e.getMessage(),
+						false);
 			}
-		}
-		else {
+		} else {
 			messageGenerator.addResolvedErrorMessage("pw_error", "error", "service_password_cannot_be_set", true);
-			return null;
-		}
-
-		if (navOptions != null && navOptions.equalsIgnoreCase("created")) {
-    		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-			try {
-				context.redirect("../service/registry-detail.xhtml?regId=" + registryEntity.getId());
-			} catch (IOException e) { }
 		}
 
 		return null;
 	}
-	
+
 	public String deleteServicePassword() {
 		if (hideDeletePasswordBtn) {
 			// diasble the button functionality as it is hidden
 			return null;
 		}
 
-		if (! (RegistryStatus.ACTIVE.equals(registryEntity.getRegistryStatus()) || 
-				RegistryStatus.LOST_ACCESS.equals(registryEntity.getRegistryStatus()))) {
+		if (!(RegistryStatus.ACTIVE.equals(registryEntity.getRegistryStatus())
+				|| RegistryStatus.LOST_ACCESS.equals(registryEntity.getRegistryStatus()))) {
 			messageGenerator.addResolvedErrorMessage("pw_error", "error", "service_password_cannot_be_deleted", true);
 			return null;
 		}
 
-		RegisterUserWorkflow registerUserWorkflow = registerUserService.getWorkflowInstance(serviceEntity.getRegisterBean());
+		RegisterUserWorkflow registerUserWorkflow = registerUserService
+				.getWorkflowInstance(serviceEntity.getRegisterBean());
 		if (registerUserWorkflow instanceof SetPasswordCapable) {
 			try {
 				registerUserService.deletePassword(userEntity, serviceEntity, registryEntity, "user-self");
-				messageGenerator.addResolvedInfoMessage("pw_error", "service_password_deleted", "service_password_deleted_detail", true);
+				messageGenerator.addResolvedInfoMessage("pw_error", "service_password_deleted",
+						"service_password_deleted_detail", true);
 			} catch (RegisterException e) {
-				messageGenerator.addResolvedErrorMessage("pw_error", "service_password_cannot_be_deleted", e.getMessage(), false);
+				messageGenerator.addResolvedErrorMessage("pw_error", "service_password_cannot_be_deleted",
+						e.getMessage(), false);
 			}
-		}
-		else
+		} else
 			messageGenerator.addResolvedErrorMessage("pw_error", "error", "service_password_cannot_be_set", true);
-		
+
 		return null;
 	}
-	
+
 	public Long getId() {
 		return id;
 	}
