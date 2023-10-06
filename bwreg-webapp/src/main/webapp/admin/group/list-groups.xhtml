@@ -76,12 +76,23 @@
 			</p:column>
 		</p:dataTable>
 	
-        <p:commandButton id="addGF" action="#{listGroupBean.fireDirtyGroupChangeEvent()}" value="#{messages.fire_group_change_event}"
-		        	ajax="false"/>					
-	
-        <p:commandButton id="addFlags" action="#{listGroupBean.addAllGroupFlags()}" value="#{messages.add_all_group_flags}"
-		        	ajax="false"/>					
-	
+		<p:panel>
+		
+			<h:panelGrid columns="3">
+				<p:outputLabel for="@next" value="Generate group flags for service: "/>
+				<p:selectOneMenu value="#{listGroupBean.pickedService}" converter="#{serviceConverter}" >
+					<f:selectItems var="service" value="#{listGroupBean.serviceList}" itemValue="#{service}" itemLabel="#{service.name}"/>
+				</p:selectOneMenu>
+		        <p:commandButton id="addFlags" action="#{listGroupBean.addAllGroupFlags()}" value="#{messages.add_all_group_flags}"
+			        	ajax="false"/>
+			        	
+				<p:outputLabel for="@next" value="Size per message: "/>
+				<p:inputNumber value="#{listGroupBean.sizePerMessage}" />
+		        <p:commandButton id="addGF" action="#{listGroupBean.fireDirtyGroupChangeEvent()}" value="#{messages.fire_group_change_event}"
+				        	ajax="false"/>					
+			</h:panelGrid>					
+
+		</p:panel>
 	</h:form>
 
 	</ui:define>

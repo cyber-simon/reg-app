@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.bean.admin.group;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -22,11 +23,15 @@ import javax.inject.Named;
 import org.primefaces.model.LazyDataModel;
 import org.slf4j.Logger;
 
+import edu.kit.scc.webreg.dao.ops.PaginateBy;
+import edu.kit.scc.webreg.dao.ops.RqlExpressions;
+import edu.kit.scc.webreg.dao.ops.SortBy;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceBasedGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity_;
 import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 import edu.kit.scc.webreg.event.EventSubmitter;
@@ -43,74 +48,99 @@ public class ListGroupBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-    @Inject
-    private Logger logger;
-    
-    @Inject
-    private GroupService service;
+	@Inject
+	private Logger logger;
 
-    @Inject
-    private ServiceService serviceService;
+	@Inject
+	private GroupService service;
 
-    @Inject
-    private ServiceGroupFlagService groupFlagService;
-    
-    @Inject
-    private EventSubmitter eventSubmitter;
-    
+	@Inject
+	private ServiceService serviceService;
+
+	@Inject
+	private ServiceGroupFlagService groupFlagService;
+
+	@Inject
+	private EventSubmitter eventSubmitter;
+
 	private LazyDataModel<GroupEntity> list;
-
+	private Integer sizePerMessage = 50;
+	private List<ServiceEntity> serviceList;
+	private ServiceEntity pickedService;
+	
 	public void preRenderView(ComponentSystemEvent ev) {
+	}
+
+	public LazyDataModel<GroupEntity> getGroupEntityList() {
 		if (list == null) {
 			list = new GenericLazyDataModelImpl<GroupEntity, GroupService>(service);
 		}
+		return list;
 	}
 
-    public LazyDataModel<GroupEntity> getGroupEntityList() {
-   		return list;
-    }
+	public void addAllGroupFlags() {
+		List<GroupEntity> groupList = service.findAll();
 
-    public void addAllGroupFlags() {
-    	List<GroupEntity> groupList = service.findAll();
-    	List<ServiceEntity> serviceList = serviceService.findAll();
-    	
-    	for (GroupEntity group : groupList) {
-    		if (group instanceof HomeOrgGroupEntity) {
-    			ServiceBasedGroupEntity serviceBasedGroup = (HomeOrgGroupEntity) group;
-    			
-    			for (ServiceEntity serviceEntity : serviceList) {
-    				if (serviceEntity.getGroupCapable()) {
-            			List<ServiceGroupFlagEntity> flagList = groupFlagService.findByGroupAndService(serviceBasedGroup, serviceEntity);
-    					if (flagList.size() > 0) {
-    						logger.debug("ServiceGroupFlag for service {} and group {} exists", serviceEntity.getName(), group.getName());
-    					}
-    					else {
-    						logger.debug("Create for service {} and group {}", serviceEntity.getName(), group.getName());
-    						ServiceGroupFlagEntity flag = groupFlagService.createNew();
-    						flag.setGroup(serviceBasedGroup);
-    						flag.setService(serviceEntity);
-    						flag.setStatus(ServiceGroupStatus.DIRTY);
-    						flag = groupFlagService.save(flag);
-    					}
-    				}
-    			}
-    		}
-    	}
-    }
-    
+		for (GroupEntity group : groupList) {
+			if (group instanceof HomeOrgGroupEntity) {
+				ServiceBasedGroupEntity serviceBasedGroup = (HomeOrgGroupEntity) group;
+
+				groupFlagService.createFlagIfMissing(serviceBasedGroup, pickedService);
+			}
+		}
+	}
+
 	public void fireDirtyGroupChangeEvent() {
 		List<ServiceGroupFlagEntity> groupFlagList = groupFlagService.findByStatus(ServiceGroupStatus.DIRTY);
 		groupFlagList.addAll(groupFlagService.findByStatus(ServiceGroupStatus.TO_DELETE));
 
-		HashSet<GroupEntity> dirtyGroupList = new HashSet<GroupEntity>();
+		HashSet<GroupEntity> dirtyGroupSet = new HashSet<GroupEntity>();
 		for (ServiceGroupFlagEntity gf : groupFlagList)
-			dirtyGroupList.add(gf.getGroup());
-		
-		MultipleGroupEvent mge = new MultipleGroupEvent(dirtyGroupList);
-		try {
-			eventSubmitter.submit(mge, EventType.GROUP_UPDATE, "master-admin");
-		} catch (EventSubmitException e) {
-			logger.warn("Exeption", e);
+			dirtyGroupSet.add(gf.getGroup());
+
+		List<HashSet<GroupEntity>> chunkList = new ArrayList<>();
+		HashSet<GroupEntity> groups = null;
+		int i = 0;
+		for (GroupEntity group : dirtyGroupSet) {
+			if ((i % sizePerMessage) == 0) {
+				groups = new HashSet<GroupEntity>();
+				chunkList.add(groups);
+			}
+			groups.add(group);
+			i++;
 		}
-	}    
+
+		for (HashSet<GroupEntity> groupSet : chunkList) {
+			MultipleGroupEvent mge = new MultipleGroupEvent(groupSet);
+			try {
+				eventSubmitter.submit(mge, EventType.GROUP_UPDATE, "master-admin");
+			} catch (EventSubmitException e) {
+				logger.warn("Exeption", e);
+			}
+		}
+	}
+
+	public Integer getSizePerMessage() {
+		return sizePerMessage;
+	}
+
+	public void setSizePerMessage(Integer sizePerMessage) {
+		this.sizePerMessage = sizePerMessage;
+	}
+
+	public List<ServiceEntity> getServiceList() {
+		if (serviceList == null) {
+			serviceList = serviceService.findAll(PaginateBy.unlimited(), SortBy.ascendingBy("name"),
+					RqlExpressions.equal(ServiceEntity_.groupCapable, true));
+		}
+		return serviceList;
+	}
+
+	public ServiceEntity getPickedService() {
+		return pickedService;
+	}
+
+	public void setPickedService(ServiceEntity pickedService) {
+		this.pickedService = pickedService;
+	}
 }

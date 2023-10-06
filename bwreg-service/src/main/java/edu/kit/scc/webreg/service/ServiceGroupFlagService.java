@@ -29,4 +29,6 @@ public interface ServiceGroupFlagService extends BaseService<ServiceGroupFlagEnt
 
 	List<ServiceGroupFlagEntity> findByStatus(ServiceGroupStatus status);
 
+	void createFlagIfMissing(ServiceBasedGroupEntity serviceBasedGroup, ServiceEntity serviceEntity);
+
 }
