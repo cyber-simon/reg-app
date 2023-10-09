@@ -103,25 +103,35 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 
 		logger.debug("{} values already present for {}", valueList.size(), asUserAttr.getAttributeSource().getName());
 
-		Map<String, ASUserAttrValueEntity> keysToUpdate = new HashMap<String, ASUserAttrValueEntity>();
-		Map<String, ASUserAttrValueEntity> keysToDelete = new HashMap<String, ASUserAttrValueEntity>();
+		Map<String, ASUserAttrValueEntity> keysToUpdate = new HashMap<>();
+		Map<String, ASUserAttrValueEntity> keysToDelete = new HashMap<>();
+
+		// Treat empty string values as not present.
+		Map<String, Object> filteredValueMap = new HashMap<>();
+		valueMap.forEach((k, v) -> {
+			if(v instanceof String && ((String) v).isEmpty()) {
+				logger.debug("Got empty value for {}, treating it like not present", k);
+			} else {
+				filteredValueMap.put(k, v);
+			}
+		});
 
 		for (ASUserAttrValueEntity value : valueList) {
-			if (valueMap.containsKey(value.getKey())) {
+			if (filteredValueMap.containsKey(value.getKey())) {
 				keysToUpdate.put(value.getKey(), value);
 			} else {
 				keysToDelete.put(value.getKey(), value);
 			}
 		}
 
-		Set<String> keysToAdd = new HashSet<String>(valueMap.keySet());
+		Set<String> keysToAdd = new HashSet<>(filteredValueMap.keySet());
 		keysToAdd.removeAll(keysToUpdate.keySet());
 
 		logger.debug("Marking {} for update, {} for add and {} for delete", keysToUpdate.size(), keysToAdd.size(),
 				keysToDelete.size());
 
 		for (String key : keysToAdd) {
-			changed |= createValue(key, valueMap.get(key));
+			changed |= createValue(key, filteredValueMap.get(key));
 		}
 
 		for (Entry<String, ASUserAttrValueEntity> entry : keysToDelete.entrySet()) {
@@ -129,7 +139,7 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 		}
 
 		for (Entry<String, ASUserAttrValueEntity> entry : keysToUpdate.entrySet()) {
-			changed |= updateValue(entry.getKey(), entry.getValue(), valueMap.get(entry.getKey()));
+			changed |= updateValue(entry.getKey(), entry.getValue(), filteredValueMap.get(entry.getKey()));
 		}
 
 		return changed;
