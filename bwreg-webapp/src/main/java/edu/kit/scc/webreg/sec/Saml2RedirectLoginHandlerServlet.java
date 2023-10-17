@@ -26,11 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.opensaml.messaging.encoder.MessageEncodingException;
 import org.slf4j.Logger;
 
-import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
-import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
-import edu.kit.scc.webreg.service.SamlIdpMetadataService;
-import edu.kit.scc.webreg.service.SamlSpConfigurationService;
-import edu.kit.scc.webreg.service.saml.Saml2RedirectService;
+import edu.kit.scc.webreg.service.saml.SamlSpRedirectService;
 import edu.kit.scc.webreg.session.SessionManager;
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 
@@ -44,14 +40,8 @@ public class Saml2RedirectLoginHandlerServlet implements Servlet {
 	@Inject
 	private SessionManager session;
 
-	@Inject 
-	private SamlIdpMetadataService idpService;
-	 
-	@Inject 
-	private SamlSpConfigurationService spService;
-
 	@Inject
-	private Saml2RedirectService saml2RedirectService;
+	private SamlSpRedirectService samlSpRedirectService;
 	
 	@Override
 	public void init(ServletConfig config) throws ServletException {
@@ -73,10 +63,7 @@ public class Saml2RedirectLoginHandlerServlet implements Servlet {
 		}
 		
 		try {
-			SamlIdpMetadataEntity idpEntity = idpService.fetch(session.getIdpId());
-			SamlSpConfigurationEntity spEntity = spService.fetch(session.getSpId());
-			
-			saml2RedirectService.redirectClient(idpEntity, spEntity, request, response);
+			samlSpRedirectService.redirectClient(session.getIdpId(), session.getSpId(), request, response);
 
 		} catch (MessageEncodingException e) {
             throw new ServletException("Error encoding outgoing message", e);

@@ -385,7 +385,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			SamlSpConfigurationEntity sp = spList.get(0);
 
 			AuthnRequest authnRequest = ssoHelper.buildAuthnRequest(sp.getEntityId(), sp.getEcp(),
-					SAMLConstants.SAML2_PAOS_BINDING_URI);
+					SAMLConstants.SAML2_PAOS_BINDING_URI, idp.getGenericStore(), sso.getLocation());
 			// Envelope envelope = attrQueryHelper.buildSOAP11Envelope(authnRequest);
 
 			MessageContext<SAMLObject> inbound = new MessageContext<SAMLObject>();

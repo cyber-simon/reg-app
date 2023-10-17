@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.service.saml;
 
 import java.io.Serializable;
+import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -51,25 +52,38 @@ public class SsoHelper implements Serializable {
 
 	@Inject
 	private SamlHelper samlHelper;
-	
-	public AuthnRequest buildAuthnRequest(String spEntityId, String acs, String binding) {
-		
+
+	public AuthnRequest buildAuthnRequest(String spEntityId, String acs, String binding, Map<String, String> options,
+			String destination) {
+
 		AuthnRequest authnRequest = samlHelper.create(AuthnRequest.class, AuthnRequest.DEFAULT_ELEMENT_NAME);
 		authnRequest.setID(samlHelper.getRandomId());
 		authnRequest.setVersion(SAMLVersion.VERSION_20);
 		authnRequest.setIssueInstant(new DateTime());
-		authnRequest.setForceAuthn(false);
+		if (options != null
+				&& (options.containsKey("force_authn") && options.get("force_authn").equalsIgnoreCase("true"))) {
+			authnRequest.setForceAuthn(true);
+		} else {
+			authnRequest.setForceAuthn(false);
+		}
 		authnRequest.setIsPassive(false);
 		authnRequest.setProtocolBinding(binding);
 		authnRequest.setAssertionConsumerServiceURL(acs);
-		
+		authnRequest.setDestination(destination);
+
 		Issuer issuer = samlHelper.create(Issuer.class, Issuer.DEFAULT_ELEMENT_NAME);
 		issuer.setValue(spEntityId);
 		authnRequest.setIssuer(issuer);
-		
-		NameIDPolicy nameIdPolicy = samlHelper.create(NameIDPolicy.class, NameIDPolicy.DEFAULT_ELEMENT_NAME);
-		nameIdPolicy.setAllowCreate(true);
-		authnRequest.setNameIDPolicy(nameIdPolicy);
+
+		if (options != null
+				&& (options.containsKey("nameid_policy") && options.get("nameid_policy").equalsIgnoreCase("none"))) {
+			// No nameid policy
+		} else {
+			// standard case, when no nameid policy is set
+			NameIDPolicy nameIdPolicy = samlHelper.create(NameIDPolicy.class, NameIDPolicy.DEFAULT_ELEMENT_NAME);
+			nameIdPolicy.setAllowCreate(true);
+			authnRequest.setNameIDPolicy(nameIdPolicy);
+		}
 
 		return authnRequest;
 	}
@@ -81,87 +95,90 @@ public class SsoHelper implements Serializable {
 		response.setVersion(SAMLVersion.VERSION_20);
 		response.setIssueInstant(new DateTime());
 		response.setDestination(authnRequest.getAssertionConsumerServiceURL());
-		
+
 		Issuer issuer = samlHelper.create(Issuer.class, Issuer.DEFAULT_ELEMENT_NAME);
 		issuer.setValue(spEntityId);
 		response.setIssuer(issuer);
-		
+
 		Status status = samlHelper.create(Status.class, Status.DEFAULT_ELEMENT_NAME);
 		StatusCode statusCode = samlHelper.create(StatusCode.class, StatusCode.DEFAULT_ELEMENT_NAME);
 		statusCode.setValue(StatusCode.SUCCESS);
 		status.setStatusCode(statusCode);
 		response.setStatus(status);
-		
+
 		return response;
 	}
-	
+
 	public Issuer buildIssuser(String entityId) {
 		Issuer issuer = samlHelper.create(Issuer.class, Issuer.DEFAULT_ELEMENT_NAME);
 		issuer.setValue(entityId);
 		return issuer;
 	}
-	
-	public Subject buildSubject(SamlIdpConfigurationEntity idpConfig, SamlSpMetadataEntity spMetadata, 
+
+	public Subject buildSubject(SamlIdpConfigurationEntity idpConfig, SamlSpMetadataEntity spMetadata,
 			String nameIdValue, String nameIdType, String inResponseTo, String acs) {
 		NameID nameId = samlHelper.create(NameID.class, NameID.DEFAULT_ELEMENT_NAME);
 		nameId.setFormat(nameIdType);
 		nameId.setValue(nameIdValue);
 		nameId.setNameQualifier(idpConfig.getEntityId());
 		nameId.setSPNameQualifier(spMetadata.getEntityId());
-		
-		SubjectConfirmationData scd = samlHelper.create(SubjectConfirmationData.class, SubjectConfirmationData.DEFAULT_ELEMENT_NAME);
+
+		SubjectConfirmationData scd = samlHelper.create(SubjectConfirmationData.class,
+				SubjectConfirmationData.DEFAULT_ELEMENT_NAME);
 		scd.setNotOnOrAfter(new DateTime(System.currentTimeMillis() + (5L * 60L * 1000L)));
 		scd.setInResponseTo(inResponseTo);
 		scd.setRecipient(acs);
-		
+
 		SubjectConfirmation sc = samlHelper.create(SubjectConfirmation.class, SubjectConfirmation.DEFAULT_ELEMENT_NAME);
 		sc.setMethod(SubjectConfirmation.METHOD_BEARER);
 		sc.setSubjectConfirmationData(scd);
-		
+
 		Subject subject = samlHelper.create(Subject.class, Subject.DEFAULT_ELEMENT_NAME);
 		subject.setNameID(nameId);
 		subject.getSubjectConfirmations().add(sc);
 		return subject;
 	}
-	
-	public Subject buildAQSubject(SamlAAConfigurationEntity idpConfig, SamlSpMetadataEntity spMetadata, 
+
+	public Subject buildAQSubject(SamlAAConfigurationEntity idpConfig, SamlSpMetadataEntity spMetadata,
 			String nameIdValue, String nameIdType, String inResponseTo) {
 		NameID nameId = samlHelper.create(NameID.class, NameID.DEFAULT_ELEMENT_NAME);
 		nameId.setFormat(nameIdType);
 		nameId.setValue(nameIdValue);
 		nameId.setNameQualifier(idpConfig.getEntityId());
 		nameId.setSPNameQualifier(spMetadata.getEntityId());
-		
-		SubjectConfirmationData scd = samlHelper.create(SubjectConfirmationData.class, SubjectConfirmationData.DEFAULT_ELEMENT_NAME);
+
+		SubjectConfirmationData scd = samlHelper.create(SubjectConfirmationData.class,
+				SubjectConfirmationData.DEFAULT_ELEMENT_NAME);
 		scd.setNotOnOrAfter(new DateTime(System.currentTimeMillis() + (5L * 60L * 1000L)));
 		scd.setInResponseTo(inResponseTo);
-		
+
 		SubjectConfirmation sc = samlHelper.create(SubjectConfirmation.class, SubjectConfirmation.DEFAULT_ELEMENT_NAME);
 		sc.setMethod(SubjectConfirmation.METHOD_BEARER);
 		sc.setSubjectConfirmationData(scd);
-		
+
 		Subject subject = samlHelper.create(Subject.class, Subject.DEFAULT_ELEMENT_NAME);
 		subject.setNameID(nameId);
 		subject.getSubjectConfirmations().add(sc);
 		return subject;
 	}
-	
+
 	public Conditions buildConditions(SamlSpMetadataEntity spMetadata) {
 		Audience audience = samlHelper.create(Audience.class, Audience.DEFAULT_ELEMENT_NAME);
 		audience.setAudienceURI(spMetadata.getEntityId());
 		AudienceRestriction ar = samlHelper.create(AudienceRestriction.class, AudienceRestriction.DEFAULT_ELEMENT_NAME);
 		ar.getAudiences().add(audience);
-		
+
 		Conditions conditions = samlHelper.create(Conditions.class, Conditions.DEFAULT_ELEMENT_NAME);
 		conditions.setNotBefore(new DateTime());
 		conditions.setNotOnOrAfter(new DateTime(System.currentTimeMillis() + (5L * 60L * 1000L)));
 		conditions.getAudienceRestrictions().add(ar);
-		
+
 		return conditions;
 	}
-	
+
 	public AuthnStatement buildAuthnStatement(long validityInterval) {
-		AuthnContextClassRef accr = samlHelper.create(AuthnContextClassRef.class, AuthnContextClassRef.DEFAULT_ELEMENT_NAME);
+		AuthnContextClassRef accr = samlHelper.create(AuthnContextClassRef.class,
+				AuthnContextClassRef.DEFAULT_ELEMENT_NAME);
 		accr.setAuthnContextClassRef(AuthnContext.PPT_AUTHN_CTX);
 		AuthnContext ac = samlHelper.create(AuthnContext.class, AuthnContext.DEFAULT_ELEMENT_NAME);
 		ac.setAuthnContextClassRef(accr);
@@ -177,20 +194,20 @@ public class SsoHelper implements Serializable {
 	public Attribute buildSamlUriAttribute(String name, String friendlyName, String... values) {
 		return buildAttribute(name, friendlyName, Attribute.URI_REFERENCE, values);
 	}
-	
+
 	public Attribute buildAttribute(String name, String friendlyName, String nameFormat, String... values) {
 		Attribute attribute = samlHelper.create(Attribute.class, Attribute.DEFAULT_ELEMENT_NAME);
 		attribute.setName(name);
 		attribute.setFriendlyName(friendlyName);
 		attribute.setNameFormat(nameFormat);
-		
+
 		for (String value : values) {
 			XSString xsany = samlHelper.create(XSString.class, XSString.TYPE_NAME, AttributeValue.DEFAULT_ELEMENT_NAME);
 			xsany.setValue(value);
 			attribute.getAttributeValues().add(xsany);
 		}
-		
+
 		return attribute;
-	}	
+	}
 
 }
