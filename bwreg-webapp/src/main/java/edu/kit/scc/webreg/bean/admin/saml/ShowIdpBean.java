@@ -106,6 +106,7 @@ public class ShowIdpBean implements Serializable {
 	public void addGenericStore() {
 		getEntity().getGenericStore().put(newKey, newValue);
 		entity = service.save(getEntity());
+		entity = service.findByIdWithAll(entity.getId());
 		newKey = "";
 		newValue = "";
 	}
@@ -114,6 +115,7 @@ public class ShowIdpBean implements Serializable {
 		newKey = key;
 		newValue = getEntity().getGenericStore().remove(key);
 		entity = service.save(getEntity());
+		entity = service.findByIdWithAll(entity.getId());
 	}
 	
 	public Long getId() {
