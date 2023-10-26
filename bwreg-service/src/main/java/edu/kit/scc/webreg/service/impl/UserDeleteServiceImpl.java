@@ -10,7 +10,9 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,10 +28,13 @@ import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.RoleDao;
 import edu.kit.scc.webreg.dao.SamlAssertionDao;
 import edu.kit.scc.webreg.dao.SerialDao;
+import edu.kit.scc.webreg.dao.ServiceEventDao;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
 import edu.kit.scc.webreg.dao.identity.IdentityDao;
+import edu.kit.scc.webreg.entity.EventEntity;
+import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
@@ -40,6 +45,10 @@ import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectGroupEntity;
+import edu.kit.scc.webreg.event.EventSubmitter;
+import edu.kit.scc.webreg.event.GenericMapDataEvent;
+import edu.kit.scc.webreg.event.ServiceRegisterEvent;
+import edu.kit.scc.webreg.event.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.service.UserDeleteService;
 import edu.kit.scc.webreg.service.reg.impl.Approvor;
@@ -87,6 +96,12 @@ public class UserDeleteServiceImpl implements UserDeleteService {
 	@Inject
 	private SamlAssertionDao samlAssertionDao;
 
+	@Inject
+	private ServiceEventDao serviceEventDao;
+
+	@Inject
+	private EventSubmitter eventSubmitter;
+
 	@Override
 	public void deleteUserData(IdentityEntity identity, String executor) {
 		logger.info("Delete all personal user data for identity {}", identity.getId());
@@ -114,7 +129,20 @@ public class UserDeleteServiceImpl implements UserDeleteService {
 						(RegistryStatus.LOST_ACCESS == registry.getRegistryStatus()) ||
 						(RegistryStatus.ON_HOLD == registry.getRegistryStatus())) {
 					try {
+						HashMap<String, String> map = new HashMap<String, String>();
+						registry.getRegistryValues().forEach((k, v) -> map.put(k, v));
 						registrator.deregisterUser(registry, executor, auditor, "delete-all-user-data");
+						
+						// Inform all services with the old registry values, if needed
+						map.put("identity_uidnumber", "" + identity.getUidNumber());
+						map.put("identity_generatedusername", identity.getGeneratedLocalUsername());
+						GenericMapDataEvent event = new GenericMapDataEvent(map);
+						List<EventEntity> eventList = new ArrayList<EventEntity>(serviceEventDao.findAllByService(registry.getService()));
+						try {
+							eventSubmitter.submit(event, eventList, EventType.SERVICE_DEREGISTER_DELETE_ALL, executor);
+						} catch (EventSubmitException e) {
+							logger.warn("Could not submit event", e);
+						}						
 					} catch (RegisterException e) {
 						logger.warn("Exception while deregister user", e);
 					}
