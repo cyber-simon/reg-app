@@ -21,7 +21,7 @@
 
 	<ui:define name="content">
 
-	<h:form id="form" styleClass="form full fancy">
+	<h:form id="form" prependId="false" styleClass="form full fancy">
 
 		<h3>#{messages.welcome_head}</h3>
 
@@ -55,7 +55,7 @@
 
 		<h3 style="margin-top: 0.4em;"><h:outputText value="#{messages.my_data}:"/></h3>
 
-		<p:panel>
+		<p:panel id="blockPanel">
 			<p:dataTable var="key" value="#{registerUserBean.printableAttributesList}">
 				<p:column headerText="#{messages.name}">
 					#{resourceBundleHelper.resolveMessage(key)}
@@ -70,9 +70,12 @@
 				#{key}: #{registerUserBean.unprintableAttributesMap[key]}
 			</p:dataList>
 	
-			<p:commandButton id="save" action="#{registerUserBean.save}" value="#{messages.confirm}" ajax="false" 
+			<p:commandButton id="save" action="#{registerUserBean.save}" value="#{messages.confirm}"  
 					disabled="#{registerUserBean.errorState or (registerUserBean.eppnError and (! registerUserBean.eppnOverride))}"/>
 		</p:panel>
+		<p:blockUI block="blockPanel" trigger="save">  
+     		<p:graphicImage value="#{resource['/img/ajax-loader.gif']}" alt="#{messages.loading}" />  
+		</p:blockUI>
 	</h:form>
 	
 	</ui:define>
