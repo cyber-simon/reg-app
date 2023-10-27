@@ -25,22 +25,50 @@
 	<ui:define name="content">
 	<h:form id="form" prependId="false" class="full form">
 
-	<h2 class="text-danger"><h:outputText value="#{messages.my_data_delete_all_header}"/></h2>
+	<h2 class="text-danger"><h:outputText value="#{messages['my_data.delete_all.header']}"/></h2>
 
 	<p:panel id="blockPanel">
 
-		<div class="panel">
-			<h:outputText value="#{messages.my_data_delete_all_text}" escape="false" />
+		<div>
+			<h:outputText value="#{messages['my_data.delete_all.text']}" escape="false" />
 		</div>
+	
+		<p:panel rendered="#{deleteAllPersonalDataBean.registryList.size() > 0}" 
+				header="#{messages['my_data.delete_all.registered_services_head']}"
+				style="margin-top: 1em;">
+			<br/>
+			<h:outputText value="#{messages['my_data.delete_all.registered_services']}" escape="false" />
+			
+			<ul style="margin-top: 1em;">
+				<ui:repeat var="r" value="#{deleteAllPersonalDataBean.registryList}">
+					<li>
+						<h:outputText value="#{r.service.name}" />
+					</li>				
+				</ui:repeat>
+			</ul>
+		</p:panel>
 	
 		<div style="margin-top: 16px;">
 			<p:commandButton id="cancel" action="#{deleteAllPersonalDataBean.cancel}" 
 				value="#{messages.cancel}"/>
-			<p:commandButton id="save" action="#{deleteAllPersonalDataBean.commit}" 
-				value="#{messages.my_data_delete_all_commit}" class="text-danger"/>
-		</div>
+			<p:commandButton id="save" oncomplete="PF('confirmDlg').show();"  
+				value="#{messages['my_data.delete_all.commit']}" class="text-danger"/>
+		</div>		
 	</p:panel>
-	<p:blockUI block="blockPanel" trigger="save">  
+	<p:dialog header="#{messages['my_data.delete_all.confirm_header']}" 
+					widgetVar="confirmDlg" id="confirmDlgId" modal="true" closable="false" closeOnEscape="false"
+					showEffect="fade" hideEffect="fade">
+		<div class="panel text full" style="width:480px;">
+			<h:outputText value="#{messages['my_data.delete_all.confirm_text']}" escape="false" />
+		</div>
+		<div style="margin-top: 16px;">
+			<p:commandButton id="cancel2" action="#{deleteAllPersonalDataBean.cancel}" 
+				value="#{messages.cancel}"/>
+			<p:commandButton id="save2" action="#{deleteAllPersonalDataBean.commit}" 
+				value="#{messages['my_data.delete_all.commit2']}" class="text-danger"/>
+		</div>		
+	</p:dialog>
+	<p:blockUI block="confirmDlgId" trigger="save2">  
      			<p:graphicImage value="#{resource['/img/ajax-loader.gif']}" alt="#{messages.loading}" />  
 	</p:blockUI>					
 		
