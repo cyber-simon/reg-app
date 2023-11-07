@@ -253,23 +253,6 @@ public class RegisterUserBean implements Serializable {
 	    		}
 	    	}
     	}
-    	/*
-urn:oid:1.2.40.0.10.2.1.1.149: VlQ6OmRlLmFrZGIuYnBrLnNzb0Bid2lkbS10ZXN0LnNjYy5raXQuZWR1OjpRSnhvWmhRNE9ZM1Y1bWt1R056eWtYblNBbWxHdjhWM0RxYVdZMlFhNkpjOjoyMDIzLTEwLTI3VDEwOjEwOjE0
-urn:oid:1.2.40.0.10.2.1.1.261.94: STORK-QAA-Level-4
-urn:oid:2.5.4.16: BOUCH�STR. 68 A
-urn:oid:2.5.4.17: 12059
-urn:oid:2.5.4.18: dcdd5b0e-f874-4ed7-bcb9-6eb03473db8a
-urn:oid:1.2.40.0.10.2.1.1.55: 1928-04-21
-urn:oid:1.3.6.1.5.5.7.9.2: M�NCHEN
-urn:oid:0.9.2342.19200300.100.1.40: DR.
-urn:oid:1.2.40.0.10.2.1.1.225599: DE
-urn:oid:1.2.40.0.10.2.1.1.225566: VON M�LLER-SCHWARZENBERG
-urn:oid:1.3.6.1.4.1.25484.494450.3: QJxoZhQ4OY3V5mkuGNzykXnSAmlGv8V3DqaWY2Qa6Jc
-urn:oid:1.3.6.1.4.1.25484.494450.2: eID
-urn:oid:1.3.6.1.4.1.25484.494450.1: 2021.7.1
-urn:oid:1.3.6.1.4.1.33592.1.3.5: 0
-urn:oid:2.5.4.7: BERLIN
-    	 */
 	}
 
     public String save() {

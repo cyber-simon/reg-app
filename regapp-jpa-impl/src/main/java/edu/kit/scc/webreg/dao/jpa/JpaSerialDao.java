@@ -13,9 +13,11 @@ package edu.kit.scc.webreg.dao.jpa;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import edu.kit.scc.webreg.dao.SerialDao;
+import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.entity.SerialEntity;
 import edu.kit.scc.webreg.entity.SerialEntity_;
 
@@ -23,6 +25,9 @@ import edu.kit.scc.webreg.entity.SerialEntity_;
 @ApplicationScoped
 public class JpaSerialDao extends JpaBaseDao<SerialEntity> implements SerialDao {
 
+	@Inject
+	private UserDao userDao;
+	
 	@Override
 	public SerialEntity findByName(String name) {
 		return find(equal(SerialEntity_.name, name));
@@ -33,6 +38,18 @@ public class JpaSerialDao extends JpaBaseDao<SerialEntity> implements SerialDao 
 		SerialEntity serial = findByName(name);
 		Long value = serial.getActual();
 		value++;
+		serial.setActual(value);
+		return value;
+	}
+
+	@Override
+	public Long nextUidNumber() {
+		SerialEntity serial = findByName("uid-number-serial");
+		Long value = serial.getActual();
+		value++;
+		while (userDao.findByUidNumber(value.intValue()) != null) {
+			value++;
+		}
 		serial.setActual(value);
 		return value;
 	}

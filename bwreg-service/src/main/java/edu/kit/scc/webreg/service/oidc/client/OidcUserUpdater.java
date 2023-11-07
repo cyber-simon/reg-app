@@ -52,6 +52,7 @@ import edu.kit.scc.webreg.audit.RegistryAuditor;
 import edu.kit.scc.webreg.audit.UserUpdateAuditor;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.RegistryDao;
+import edu.kit.scc.webreg.dao.SerialDao;
 import edu.kit.scc.webreg.dao.as.ASUserAttrDao;
 import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
@@ -108,7 +109,7 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 	private RegistryDao registryDao;
 
 	@Inject
-	private SerialService serialService;
+	private SerialDao serialDao;
 
 	@Inject
 	private HookManager hookManager;
@@ -476,7 +477,7 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 			changed |= compareAndChangeProperty(user, "surName", userInfo.getFamilyName(), auditor);
 
 			if ((!withoutUidNumber) && (user.getUidNumber() == null)) {
-				user.setUidNumber(serialService.next("uid-number-serial").intValue());
+				user.setUidNumber(serialDao.nextUidNumber().intValue());
 				logger.info("Setting UID Number {} for user {}", user.getUidNumber(), user.getEppn());
 				auditor.logAction(user.getEppn(), "SET FIELD", "uidNumber", "" + user.getUidNumber(),
 						AuditStatus.SUCCESS);

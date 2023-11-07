@@ -18,4 +18,6 @@ public interface SerialDao extends BaseDao<SerialEntity> {
 
 	Long next(String name);
 
+	Long nextUidNumber();
+
 }

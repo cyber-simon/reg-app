@@ -225,7 +225,7 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
     	 * if user has no uid number yet, generate one
     	 */
 		if (user.getUidNumber() == null) {
-			user.setUidNumber(serialDao.next("uid-number-serial").intValue());
+			user.setUidNumber(serialDao.nextUidNumber().intValue());
 			logger.info("Setting UID Number {} for user {}", user.getUidNumber(), user.getEppn());
 		}
 

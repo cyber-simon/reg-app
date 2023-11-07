@@ -583,7 +583,7 @@ public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 			}
 
 			if ((!withoutUidNumber) && (user.getUidNumber() == null)) {
-				user.setUidNumber(serialDao.next("uid-number-serial").intValue());
+				user.setUidNumber(serialDao.nextUidNumber().intValue());
 				logger.info("Setting UID Number {} for user {}", user.getUidNumber(), user.getEppn());
 				auditor.logAction(user.getEppn(), "SET FIELD", "uidNumber", "" + user.getUidNumber(),
 						AuditStatus.SUCCESS);

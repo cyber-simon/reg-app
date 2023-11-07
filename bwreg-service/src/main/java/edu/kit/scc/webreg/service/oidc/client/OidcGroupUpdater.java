@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.dao.GroupDao;
+import edu.kit.scc.webreg.dao.SerialDao;
 import edu.kit.scc.webreg.dao.ServiceGroupFlagDao;
 import edu.kit.scc.webreg.dao.oidc.OidcGroupDao;
 import edu.kit.scc.webreg.entity.EventType;
@@ -50,7 +51,7 @@ public class OidcGroupUpdater {
 	private ServiceGroupFlagDao groupFlagDao;
 
 	@Inject
-	private SerialService serialService;
+	private SerialDao serialDao;
 
 	@Inject
 	private EventSubmitter eventSubmitter;
@@ -134,7 +135,7 @@ public class OidcGroupUpdater {
 				auditor.logAction(group.getName(), "SET FIELD", "name", group.getName(), AuditStatus.SUCCESS);
 				group.setPrefix(homeId);
 				auditor.logAction(group.getName(), "SET FIELD", "prefix", group.getPrefix(), AuditStatus.SUCCESS);
-				group.setGidNumber(serialService.next("gid-number-serial").intValue());
+				group.setGidNumber(serialDao.next("gid-number-serial").intValue());
 				auditor.logAction(group.getName(), "SET FIELD", "gidNumber", "" + group.getGidNumber(),
 						AuditStatus.SUCCESS);
 				group.setIssuer(user.getIssuer());

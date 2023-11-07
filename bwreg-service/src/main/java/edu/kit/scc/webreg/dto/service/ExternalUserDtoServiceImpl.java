@@ -122,7 +122,7 @@ public class ExternalUserDtoServiceImpl extends BaseDtoServiceImpl<ExternalUserE
 
 		entity = dao.createNew();
 		reverseMapper.copyProperties(dto, entity);
-		entity.setUidNumber(serialDao.next("uid-number-serial").intValue());
+		entity.setUidNumber(serialDao.nextUidNumber().intValue());
 		entity.setUserStatus(UserStatus.ACTIVE);
 		entity.setLastUpdate(new Date());
 		entity.setAdmin(role);

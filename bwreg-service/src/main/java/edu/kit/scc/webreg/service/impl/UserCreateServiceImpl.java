@@ -19,10 +19,13 @@ import java.util.Map.Entry;
 import java.util.Random;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
 
+import edu.kit.scc.webreg.annotations.RetryTransaction;
 import edu.kit.scc.webreg.audit.UserCreateAuditor;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.RoleDao;
@@ -51,11 +54,12 @@ import edu.kit.scc.webreg.service.saml.SamlIdentifier;
 import edu.kit.scc.webreg.session.HttpRequestContext;
 
 @Stateless
+@TransactionManagement(TransactionManagementType.BEAN)
 public class UserCreateServiceImpl implements UserCreateService {
 
 	@Inject
 	private Logger logger;
-	
+
 	@Inject
 	private AuditEntryDao auditDao;
 
@@ -64,10 +68,10 @@ public class UserCreateServiceImpl implements UserCreateService {
 
 	@Inject
 	private SamlUserDao samlUserDao;
-	
+
 	@Inject
 	private UserUpdater userUpdater;
-	
+
 	@Inject
 	private HomeOrgGroupUpdater homeOrgGroupUpdater;
 
@@ -76,7 +80,7 @@ public class UserCreateServiceImpl implements UserCreateService {
 
 	@Inject
 	private IdentityCreater identityCreater;
-	
+
 	@Inject
 	private SerialDao serialDao;
 
@@ -88,34 +92,36 @@ public class UserCreateServiceImpl implements UserCreateService {
 
 	@Inject
 	private ApplicationConfig appConfig;
-	
+
 	@Inject
 	private Saml2AssertionService saml2AssertionService;
-	
+
 	@Inject
 	private SamlIdpMetadataService idpMetadataService;
-	
+
 	@Inject
 	private HttpRequestContext requestContext;
 
 	@Override
-	public SamlUserEntity preCreateUser(SamlIdpMetadataEntity idpEntity, SamlSpConfigurationEntity spConfigEntity, SamlIdentifier samlIdentifier,
-			String locale, Map<String, List<Object>> attributeMap)
+	@RetryTransaction
+	public SamlUserEntity preCreateUser(SamlIdpMetadataEntity idpEntity, SamlSpConfigurationEntity spConfigEntity,
+			SamlIdentifier samlIdentifier, String locale, Map<String, List<Object>> attributeMap)
 			throws UserUpdateException {
-		
-		logger.debug("User ({}, {}, {}, {}, {}) from {} is being preCreated", samlIdentifier.getPersistentId(), 
-				samlIdentifier.getPairwiseId(), samlIdentifier.getSubjectId(), samlIdentifier.getAttributeSourcedIdName(),
-				samlIdentifier.getAttributeSourcedId(), idpEntity.getEntityId());
-		
+
+		logger.debug("User ({}, {}, {}, {}, {}) from {} is being preCreated", samlIdentifier.getPersistentId(),
+				samlIdentifier.getPairwiseId(), samlIdentifier.getSubjectId(),
+				samlIdentifier.getAttributeSourcedIdName(), samlIdentifier.getAttributeSourcedId(),
+				idpEntity.getEntityId());
+
 		idpEntity = idpMetadataService.fetch(idpEntity.getId());
-		
+
 		SamlUserEntity entity = samlUserDao.createNew();
 		entity.setIdp(idpEntity);
-    	entity.setPersistentSpId(spConfigEntity.getEntityId());
-    	entity.setRoles(new HashSet<UserRoleEntity>());
-    	entity.setAttributeStore(new HashMap<String, String>());
-    	entity.setGenericStore(new HashMap<String, String>());
-    	entity.setLocale(locale);
+		entity.setPersistentSpId(spConfigEntity.getEntityId());
+		entity.setRoles(new HashSet<UserRoleEntity>());
+		entity.setAttributeStore(new HashMap<String, String>());
+		entity.setGenericStore(new HashMap<String, String>());
+		entity.setLocale(locale);
 
 		entity.setEmail(attrHelper.getSingleStringFirst(attributeMap, "urn:oid:0.9.2342.19200300.100.1.3"));
 		entity.setEppn(attrHelper.getSingleStringFirst(attributeMap, "urn:oid:1.3.6.1.4.1.5923.1.1.1.6"));
@@ -123,14 +129,14 @@ public class UserCreateServiceImpl implements UserCreateService {
 		entity.setSurName(attrHelper.getSingleStringFirst(attributeMap, "urn:oid:2.5.4.4"));
 
 		saml2AssertionService.updateUserIdentifier(samlIdentifier, entity, spConfigEntity.getEntityId(), null);
-		
-    	return entity;
-	}	
-	
+
+		return entity;
+	}
+
 	@Override
-	public SamlUserEntity createUser(SamlUserEntity user,
-			Map<String, List<Object>> attributeMap, String executor, StringBuffer debugLog)
-			throws UserUpdateException {
+	@RetryTransaction
+	public SamlUserEntity createUser(SamlUserEntity user, Map<String, List<Object>> attributeMap, String executor,
+			StringBuffer debugLog) throws UserUpdateException {
 		logger.debug("Creating user {}", user.getEppn());
 
 		UserCreateAuditor auditor = new UserCreateAuditor(auditDao, auditDetailDao, appConfig);
@@ -142,14 +148,14 @@ public class UserCreateServiceImpl implements UserCreateService {
 		if (requestContext != null && requestContext.getHttpServletRequest() != null) {
 			lastLoginHost = requestContext.getHttpServletRequest().getLocalName();
 		}
-		
-    	userUpdater.updateUserNew(user, attributeMap, executor, auditor, debugLog, lastLoginHost);
-		
-    	/** 
-    	 * if user has no uid number yet, generate one
-    	 */
+
+		userUpdater.updateUserNew(user, attributeMap, executor, auditor, debugLog, lastLoginHost);
+
+		/**
+		 * if user has no uid number yet, generate one
+		 */
 		if (user.getUidNumber() == null) {
-			user.setUidNumber(serialDao.next("uid-number-serial").intValue());
+			user.setUidNumber(serialDao.nextUidNumber().intValue());
 			logger.info("Setting UID Number {} for user {}", user.getUidNumber(), user.getEppn());
 		}
 
@@ -157,21 +163,21 @@ public class UserCreateServiceImpl implements UserCreateService {
 		for (Entry<String, List<Object>> entry : attributeMap.entrySet()) {
 			attributeStore.put(entry.getKey(), attrHelper.attributeListToString(entry.getValue()));
 		}
-		
+
 		user.setLastUpdate(new Date());
 		user.setScheduledUpdate(getNextScheduledUpdate());
-		
-    	if (! UserStatus.ACTIVE.equals(user.getUserStatus())) {
-    		user.setUserStatus(UserStatus.ACTIVE);
-    		user.setLastStatusChange(new Date());
-    	}
+
+		if (!UserStatus.ACTIVE.equals(user.getUserStatus())) {
+			user.setUserStatus(UserStatus.ACTIVE);
+			user.setLastStatusChange(new Date());
+		}
 
 		IdentityEntity identity = identityCreater.preCreateIdentity();
 
 		user.setIdentity(identity);
-    	user = samlUserDao.persist(user);
+		user = samlUserDao.persist(user);
 
-    	identityCreater.postCreateIdentity(identity, user);
+		identityCreater.postCreateIdentity(identity, user);
 		if (appConfig.getConfigValue("create_missing_eppn_scope") != null) {
 			if (user.getEppn() == null) {
 				String scope = appConfig.getConfigValue("create_missing_eppn_scope");
@@ -179,17 +185,17 @@ public class UserCreateServiceImpl implements UserCreateService {
 			}
 		}
 
-    	roleDao.addUserToRole(user, "User");
+		roleDao.addUserToRole(user, "User");
 
-    	homeOrgGroupUpdater.updateGroupsForUser(user, attributeMap, auditor);
-    			
+		homeOrgGroupUpdater.updateGroupsForUser(user, attributeMap, auditor);
+
 		auditor.setUser(user);
 		auditor.auditUserCreate();
 		auditor.logAction(user.getEppn(), "CREATE USER", null, null, AuditStatus.SUCCESS);
-		
+
 		auditor.finishAuditTrail();
 		auditor.commitAuditTrail();
-		
+
 		UserEvent userEvent = new UserEvent(user);
 
 		try {
@@ -197,10 +203,10 @@ public class UserCreateServiceImpl implements UserCreateService {
 		} catch (EventSubmitException e) {
 			logger.warn("Could not submit event", e);
 		}
-		
+
 		return user;
 	}
-	
+
 	private Date getNextScheduledUpdate() {
 		Long futureMillis = 30L * 24L * 60L * 60L * 1000L;
 		if (appConfig.getConfigOptions().containsKey("update_schedule_future")) {
@@ -212,5 +218,5 @@ public class UserCreateServiceImpl implements UserCreateService {
 		}
 		Random r = new Random();
 		return new Date(System.currentTimeMillis() + futureMillis + r.nextInt(futureMillisRandom));
-	}	
+	}
 }

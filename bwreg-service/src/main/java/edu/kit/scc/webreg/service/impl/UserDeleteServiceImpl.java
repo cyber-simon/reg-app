@@ -193,7 +193,7 @@ public class UserDeleteServiceImpl implements UserDeleteService {
 				((OidcUserEntity) user).setSubjectId(null);
 				((OidcUserEntity) user).setIssuer(null);
 			}
-			user.setUidNumber(serialDao.next("uid-number-serial").intValue());
+			user.setUidNumber(serialDao.nextUidNumber().intValue());
 			if (uidNumber == null) {
 				uidNumber = user.getUidNumber();
 			}
