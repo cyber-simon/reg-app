@@ -108,6 +108,7 @@ public class UserDeleteServiceImpl implements UserDeleteService {
 		identity = identityDao.fetch(identity.getId());
 		
 		List<UserEntity> userList = userDao.findByIdentity(identity);
+		Integer uidNumber = null;
 		
 		for (UserEntity user : userList) {
 			logger.info("Delete all personal user data for user {}", user.getId());
@@ -193,6 +194,9 @@ public class UserDeleteServiceImpl implements UserDeleteService {
 				((OidcUserEntity) user).setIssuer(null);
 			}
 			user.setUidNumber(serialDao.next("uid-number-serial").intValue());
+			if (uidNumber == null) {
+				uidNumber = user.getUidNumber();
+			}
 			user.setUserStatus(UserStatus.DEREGISTERED);
 			user.setLastStatusChange(new Date());
 			
@@ -208,6 +212,6 @@ public class UserDeleteServiceImpl implements UserDeleteService {
 		
 		identity.setTwoFaUserId("deleted-" + UUID.randomUUID().toString());
 		identity.setTwoFaUserName("deleted-" + UUID.randomUUID().toString());
-		identity.setUidNumber(null);
+		identity.setUidNumber(uidNumber);
 	}	
 }
