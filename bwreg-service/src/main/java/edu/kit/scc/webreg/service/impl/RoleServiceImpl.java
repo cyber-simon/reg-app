@@ -19,7 +19,9 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import edu.kit.scc.webreg.dao.BaseDao;
+import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.RoleDao;
+import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
@@ -40,8 +42,15 @@ public class RoleServiceImpl extends BaseServiceImpl<RoleEntity> implements Role
 	@Inject
 	private IdentityDao identityDao;
 
+	@Inject
+	private UserDao userDao;
+	
+	@Inject
+	private GroupDao groupDao;
+	
 	@Override
 	public void addUserToRole(UserEntity user, String roleName) {
+		user = userDao.fetch(user.getId());
 		dao.addUserToRole(user, roleName);
 	}
 
@@ -52,6 +61,8 @@ public class RoleServiceImpl extends BaseServiceImpl<RoleEntity> implements Role
 
 	@Override
 	public void addGroupToRole(GroupEntity group, RoleEntity role) {
+		group = groupDao.fetch(group.getId());
+		role = dao.fetch(role.getId());
 		dao.addGroupToRole(group, role);
 	}
 

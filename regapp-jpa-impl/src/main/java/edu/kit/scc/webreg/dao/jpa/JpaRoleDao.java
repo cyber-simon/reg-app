@@ -70,9 +70,9 @@ public class JpaRoleDao extends JpaBaseDao<RoleEntity> implements RoleDao {
 	@Override
 	public RoleGroupEntity findRoleGroupEntity(GroupEntity group, RoleEntity role) {
 		try {
-			return em.createQuery("select r from RoleGroupEntity r where r.role = :role " + "and r.group = :group", RoleGroupEntity.class)
-					.setParameter("role", role)
-					.setParameter("group", group)
+			return em.createQuery("select r from RoleGroupEntity r where r.role.id = :roleId " + "and r.group.id = :groupId", RoleGroupEntity.class)
+					.setParameter("roleId", role.getId())
+					.setParameter("groupId", group.getId())
 					.getSingleResult();
 		} catch (NoResultException e) {
 			return null;
@@ -144,24 +144,24 @@ public class JpaRoleDao extends JpaBaseDao<RoleEntity> implements RoleDao {
 
 	@Override
 	public List<UserEntity> findUsersForRole(RoleEntity role) {
-		return em.createQuery("select u from UserEntity u left join u.roles ur where ur.role = :role", UserEntity.class)
-				.setParameter("role", role)
+		return em.createQuery("select u from UserEntity u left join u.roles ur where ur.role.id = :roleId", UserEntity.class)
+				.setParameter("roleId", role.getId())
 				.getResultList();
 	}
 
 	@Override
 	public List<GroupEntity> findGroupsForRole(RoleEntity role) {
-		return em.createQuery("select g from GroupEntity g left join g.roles gr where gr.role = :role", GroupEntity.class)
-				.setParameter("role", role)
+		return em.createQuery("select g from GroupEntity g left join g.roles gr where gr.role.id = :roleId", GroupEntity.class)
+				.setParameter("roleId", role.getId())
 				.getResultList();
 	}
 
 	@Override
 	public List<SamlIdpMetadataEntity> findIdpsForRole(RoleEntity role) {
 		return em
-				.createQuery("select g from SamlIdpMetadataEntity g left join g.adminRoles gr where gr.role = :role",
+				.createQuery("select g from SamlIdpMetadataEntity g left join g.adminRoles gr where gr.role.id = :roleId",
 						SamlIdpMetadataEntity.class)
-				.setParameter("role", role)
+				.setParameter("roleId", role.getId())
 				.getResultList();
 	}
 

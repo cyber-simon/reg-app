@@ -36,7 +36,7 @@ public class EditRoleBean implements Serializable {
 	
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
-			entity = service.findWithUsers(id);
+			entity = service.fetch(id);
 		}
 	}
 	
