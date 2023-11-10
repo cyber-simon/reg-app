@@ -10,6 +10,11 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.reg.impl;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.and;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.notEqual;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,15 +26,26 @@ import javax.ejb.TransactionManagementType;
 import javax.inject.Inject;
 import javax.transaction.UserTransaction;
 
+import org.slf4j.Logger;
+
 import edu.kit.scc.webreg.annotations.RetryTransaction;
 import edu.kit.scc.webreg.audit.Auditor;
+import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
+import edu.kit.scc.webreg.dao.ServiceGroupFlagDao;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.entity.GroupEntity;
+import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.RegistryStatus;
+import edu.kit.scc.webreg.entity.ServiceBasedGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
+import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity_;
+import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserGroupEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;
 import edu.kit.scc.webreg.service.reg.RegisterUserWorkflow;
@@ -39,7 +55,13 @@ import edu.kit.scc.webreg.service.reg.RegisterUserWorkflow;
 public class RegisterUserServiceImpl implements RegisterUserService {
 
 	@Inject
+	private Logger logger;
+
+	@Inject
 	private UserDao userDao;
+
+	@Inject
+	private GroupDao groupDao;
 
 	@Inject
 	private ServiceDao serviceDao;
@@ -49,6 +71,9 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 
 	@Inject
 	private Registrator registrator;
+
+	@Inject
+	private ServiceGroupFlagDao groupFlagDao;
 
 	@Inject
 	private UserTransaction userTransaction;
@@ -90,9 +115,54 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	}
 
 	@Override
+	public List<RegistryEntity> updateGroupsNew(Set<GroupEntity> groupUpdateSet, Boolean reconRegistries,
+			Set<String> reconRegForServices, Boolean fullRecon, Map<GroupEntity, Set<UserEntity>> usersToRemove,
+			String executor) throws RegisterException {
+		List<RegistryEntity> reconList = new ArrayList<RegistryEntity>();
+
+		logger.debug("Starting new updateGroups method for groupUpdateSet size {}, usersToRemove size {}",
+				groupUpdateSet.size(), (usersToRemove != null ? usersToRemove.size() : "(not set)"));
+
+		for (GroupEntity group : groupUpdateSet) {
+			if (group instanceof ServiceBasedGroupEntity) {
+				ServiceBasedGroupEntity serviceBasedGroupEntity = (ServiceBasedGroupEntity) group;
+				List<ServiceGroupFlagEntity> flagList = groupFlagDao
+						.findAll(and(equal(ServiceGroupFlagEntity_.group, serviceBasedGroupEntity),
+								notEqual(ServiceGroupFlagEntity_.status, ServiceGroupStatus.CLEAN)));
+				for (ServiceGroupFlagEntity flag : flagList) {
+					Boolean changed = registrator.processUpdateGroup(flag, reconRegistries, fullRecon, executor);
+
+					if (changed && reconRegistries && !(serviceBasedGroupEntity instanceof HomeOrgGroupEntity)) {
+						if (reconRegForServices == null
+								|| reconRegForServices.contains(flag.getService().getShortName())) {
+							List<UserEntity> userList = groupDao.getUsersOfGroup(flag.getGroup().getId());
+							List<RegistryEntity> registryList = registryDao.findByServiceAndStatus(flag.getService(),
+									RegistryStatus.ACTIVE);
+							for (RegistryEntity registry : registryList) {
+								if (userList.contains(registry.getUser())) {
+									reconList.add(registry);
+								}
+								if (usersToRemove.containsKey(flag.getGroup())
+										&& usersToRemove.get(flag.getGroup()).contains(registry.getUser())) {
+									reconList.add(registry);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		logger.debug("Done new updateGroups method. ReconList size is {}", reconList.size());
+
+		return reconList;
+	}
+
+	@Override
 	public void updateGroups(Set<GroupEntity> groupUpdateSet, Boolean reconRegistries, Boolean fullRecon,
 			Map<GroupEntity, Set<UserEntity>> usersToRemove, String executor) throws RegisterException {
-		GroupPerServiceList groupUpdateList = registrator.buildGroupPerServiceList(groupUpdateSet, reconRegistries, fullRecon, executor);
+		GroupPerServiceList groupUpdateList = registrator.buildGroupPerServiceList(groupUpdateSet, reconRegistries,
+				fullRecon, executor);
 		for (ServiceEntity service : groupUpdateList.getServices()) {
 			registrator.updateGroups(service, groupUpdateList, reconRegistries, fullRecon, usersToRemove, executor);
 		}

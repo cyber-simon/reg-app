@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import edu.kit.scc.webreg.annotations.RetryTransaction;
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.audit.GroupAuditor;
+import edu.kit.scc.webreg.audit.NullAuditor;
 import edu.kit.scc.webreg.audit.RegistryAuditor;
 import edu.kit.scc.webreg.audit.ServiceAuditor;
 import edu.kit.scc.webreg.audit.ServiceRegisterAuditor;
@@ -242,6 +243,118 @@ public class Registrator implements Serializable {
 			return registry;
 		} catch (Throwable t) {
 			throw new RegisterException(t);
+		}
+	}
+
+	@RetryTransaction
+	public Boolean processUpdateGroup(ServiceGroupFlagEntity flag, Boolean reconRegistries, Boolean fullRecon,
+			String executor) {
+		flag = groupFlagDao.fetch(flag.getId());
+		ServiceEntity service = flag.getService();
+		ServiceBasedGroupEntity group = flag.getGroup();
+
+		if (flag.getStatus().equals(ServiceGroupStatus.CLEAN)) {
+			logger.debug("Skipping groupFlag {} fro group {} and service {}. It is already marked clean.", flag.getId(),
+					group.getName(), service.getName());
+			return false;
+		}
+
+		logger.debug("Processing groupFlag {} for group {} and service {}", flag.getId(), group.getName(),
+				service.getName());
+
+		long a = 0L;
+
+		RegisterUserWorkflow workflow = getWorkflowInstance(service.getRegisterBean());
+		if (!(workflow instanceof GroupCapable)) {
+			logger.warn("Workflow " + workflow.getClass() + " is not GroupCapable! Resetting flags to CLEAN");
+			flag.setStatus(ServiceGroupStatus.CLEAN);
+			return false;
+		}
+
+		if (ServiceGroupStatus.TO_DELETE.equals(flag.getStatus())) {
+			logger.info("Group {} at Service {} is about to get deleted", group.getName(),
+					service.getName());
+			try {
+				deleteGroup(group, service, executor);
+				groupFlagDao.delete(flag);
+				return true;
+			} catch (RegisterException e) {
+				logger.warn("Could not delete group: " + e);
+				return false;
+			}
+		}
+		else if (ServiceGroupStatus.DIRTY.equals(flag.getStatus())) {
+			logger.info("Group {} at Service {} needs an update", group.getName(),
+					flag.getService().getName());
+			
+			// check parent groups (These contain the change groups and their members)
+//			for (GroupEntity parent : serviceBasedGroup.getParents()) {
+//				updateParentGroup(parent, groupPerServiceList, 0, 3);
+//			}
+
+			// service has a group filter defined. We need to check, if this group has to be
+			// processed
+			Boolean retainGroup = true;
+			if (service.getGroupFilterRulePackage() != null) {
+				BusinessRulePackageEntity rulePackage = service.getGroupFilterRulePackage();
+				KieSession ksession = knowledgeSessionService.getStatefulSession(rulePackage.getPackageName(),
+						rulePackage.getKnowledgeBaseName(), rulePackage.getKnowledgeBaseVersion());
+
+				ksession.setGlobal("logger", logger);
+				ksession.insert(group);
+
+				ksession.fireAllRules();
+				List<Object> objectList = new ArrayList<Object>(ksession.getObjects());
+
+				retainGroup = false;
+				for (Object o : objectList) {
+					ksession.delete(ksession.getFactHandle(o));
+					if (o.equals(group))
+						retainGroup = true;
+				}
+			}
+
+			GroupUpdateStructure updateStruct = new GroupUpdateStructure();
+
+			if (retainGroup) {
+				// keep group
+				// group is filtered. Just set no members.
+				a = System.currentTimeMillis();
+				List<UserEntity> userInServiceList = registryDao.findUserListByServiceAndStatus(service,
+						RegistryStatus.ACTIVE);
+				logger.debug("RegistryList took {}ms", (System.currentTimeMillis() - a));
+				a = System.currentTimeMillis();
+
+				Set<UserEntity> users = groupUtil.rollUsersForGroup(group);
+				logger.debug("RollGroup {} took {} ms", group.getName(), (System.currentTimeMillis() - a));
+				a = System.currentTimeMillis();
+
+				users.retainAll(userInServiceList);
+
+				updateStruct.addGroup(group, users);
+			} else {
+				// group is filtered. Just set no members.
+				updateStruct.addGroup(group, new HashSet<UserEntity>());
+			}
+
+			NullAuditor auditor = new NullAuditor();
+
+			try {
+				((GroupCapable) workflow).updateGroups(service, updateStruct, auditor);
+				// succesful operation, clean flag
+				flag.setStatus(ServiceGroupStatus.CLEAN);
+				return true;
+			} catch (RegisterException e) {
+				if (e.getCause() != null)
+					logger.info("RegisterException {} happened, cause is {}", e.getMessage(),
+							e.getCause().getMessage());
+				else
+					logger.info("RegisterException {} happened, no cause", e.getMessage());
+				return false;
+			}
+		}
+		else {
+			return false;
 		}
 	}
 
