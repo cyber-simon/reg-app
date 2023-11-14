@@ -6,9 +6,7 @@ import edu.kit.scc.webreg.exc.RestInterfaceException;
 
 public interface TwoFaLoginService {
 
-	String otpLogin(String eppn, String serviceShortName, String otp, String secret, HttpServletRequest request)
-			throws TwoFaException, RestInterfaceException;
-
-
+	String otpLogin(String eppn, String serviceShortName, String otp, String secret, HttpServletRequest request,
+			Boolean checkRegistry) throws TwoFaException, RestInterfaceException;
 
 }

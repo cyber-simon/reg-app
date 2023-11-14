@@ -35,38 +35,63 @@ public class OtpController {
 
 	@Inject
 	private TwoFaLoginService twofaLoginService;
-		
+
 	@Path("/simplecheck/{service}/{secret}")
 	@POST
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.TEXT_PLAIN)
-	public String otpLoginPost(@PathParam("secret") String secret,
-			@FormParam("user") String eppn,
-			@PathParam("service") String serviceShortName,
-			@FormParam("pass") String otp, @Context HttpServletRequest request)
-			throws IOException, ServletException, RestInterfaceException {
+	public String otpLoginPost(@PathParam("secret") String secret, @FormParam("user") String eppn,
+			@PathParam("service") String serviceShortName, @FormParam("pass") String otp,
+			@Context HttpServletRequest request) throws IOException, ServletException, RestInterfaceException {
 
 		try {
-			return twofaLoginService.otpLogin(eppn, serviceShortName, otp, secret, request);
+			return twofaLoginService.otpLogin(eppn, serviceShortName, otp, secret, request, true);
 		} catch (TwoFaException | RestInterfaceException e) {
 			return ":-(";
 		}
 	}
-	
+
 	@Path("/simplecheck/{service}/{secret}")
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
-	public String otpLoginGet(@PathParam("secret") String secret,
-			@QueryParam("user") String eppn,
-			@PathParam("service") String serviceShortName,
-			@QueryParam("pass") String otp, @Context HttpServletRequest request)
-			throws IOException, ServletException, RestInterfaceException {
+	public String otpLoginGet(@PathParam("secret") String secret, @QueryParam("user") String eppn,
+			@PathParam("service") String serviceShortName, @QueryParam("pass") String otp,
+			@Context HttpServletRequest request) throws IOException, ServletException, RestInterfaceException {
 
 		try {
-			return twofaLoginService.otpLogin(eppn, serviceShortName, otp, secret, request);
+			return twofaLoginService.otpLogin(eppn, serviceShortName, otp, secret, request, true);
 		} catch (TwoFaException | RestInterfaceException e) {
 			return ":-(";
 		}
 	}
-	
+
+	@Path("/simplecheck-global/{service}/{secret}")
+	@POST
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Produces(MediaType.TEXT_PLAIN)
+	public String otpLoginGlobalPost(@PathParam("secret") String secret, @FormParam("user") String eppn,
+			@PathParam("service") String serviceShortName, @FormParam("pass") String otp,
+			@Context HttpServletRequest request) throws IOException, ServletException, RestInterfaceException {
+
+		try {
+			return twofaLoginService.otpLogin(eppn, serviceShortName, otp, secret, request, false);
+		} catch (TwoFaException | RestInterfaceException e) {
+			return ":-(";
+		}
+	}
+
+	@Path("/simplecheck-global/{service}/{secret}")
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	public String otpLoginGlobalGet(@PathParam("secret") String secret, @QueryParam("user") String eppn,
+			@PathParam("service") String serviceShortName, @QueryParam("pass") String otp,
+			@Context HttpServletRequest request) throws IOException, ServletException, RestInterfaceException {
+
+		try {
+			return twofaLoginService.otpLogin(eppn, serviceShortName, otp, secret, request, false);
+		} catch (TwoFaException | RestInterfaceException e) {
+			return ":-(";
+		}
+	}
+
 }

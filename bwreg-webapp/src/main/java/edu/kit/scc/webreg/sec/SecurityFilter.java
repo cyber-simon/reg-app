@@ -122,7 +122,7 @@ public class SecurityFilter implements Filter {
 			path.startsWith("/oidc/") ||
 			path.startsWith("/rpoidc/") ||
 			path.startsWith("/ferest/") ||
-			path.startsWith("/rest/otp/simplecheck/") ||
+			path.startsWith("/rest/otp/simplecheck") ||
 			path.equals("/favicon.ico")
 				) {
 			chain.doFilter(servletRequest, servletResponse);
