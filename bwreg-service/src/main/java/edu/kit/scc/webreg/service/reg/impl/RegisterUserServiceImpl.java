@@ -15,6 +15,7 @@ import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.notEqual;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -123,7 +124,12 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 		logger.debug("Starting new updateGroups method for groupUpdateSet size {}, usersToRemove size {}",
 				groupUpdateSet.size(), (usersToRemove != null ? usersToRemove.size() : "(not set)"));
 
-		for (GroupEntity group : groupUpdateSet) {
+		// randomize the order of the groups. It seem that multiple threads work in the same order,
+		// thus always working on the same groups, which is inefficient and causes optimistic locks
+		List<GroupEntity> groupUpdateList = new ArrayList<GroupEntity>(groupUpdateSet);
+		Collections.shuffle(groupUpdateList);
+		
+		for (GroupEntity group : groupUpdateList) {
 			if (group instanceof ServiceBasedGroupEntity) {
 				ServiceBasedGroupEntity serviceBasedGroupEntity = (ServiceBasedGroupEntity) group;
 				List<ServiceGroupFlagEntity> flagList = groupFlagDao
@@ -142,7 +148,7 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 								if (userList.contains(registry.getUser())) {
 									reconList.add(registry);
 								}
-								if (usersToRemove.containsKey(flag.getGroup())
+								if (usersToRemove != null && usersToRemove.containsKey(flag.getGroup())
 										&& usersToRemove.get(flag.getGroup()).contains(registry.getUser())) {
 									reconList.add(registry);
 								}
