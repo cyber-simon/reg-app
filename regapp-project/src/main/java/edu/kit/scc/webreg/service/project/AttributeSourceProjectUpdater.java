@@ -52,7 +52,7 @@ public class AttributeSourceProjectUpdater extends AbstractProjectUpdater<Attrib
 								.equals(attributeSource)))
 				.collect(Collectors.toList());
 
-		logger.debug("Identity {} is admin in {} projects and {} in attribute sourced proects", identity.getId(),
+		logger.debug("Identity {} is admin in {} projects and in {} attribute sourced projects", identity.getId(),
 				adminList.size(), filteredAdminList.size());
 
 		for (ProjectIdentityAdminEntity pia : filteredAdminList) {
@@ -81,7 +81,7 @@ public class AttributeSourceProjectUpdater extends AbstractProjectUpdater<Attrib
 
 			logger.debug("Checking if service connections are correct for {}", project.getName());
 			Set<ServiceEntity> serviceList = attributeSource.getAttributeSourceServices().stream().map(asse -> asse.getService()).collect(Collectors.toSet());
-			projectUpdater.updateServices(project, serviceList, ProjectServiceType.PASSIVE_GROUP,ProjectServiceStatusType.ACTIVE, "attribute-srouce-" + attributeSource.getId());
+			projectUpdater.updateServices(project, serviceList, ProjectServiceType.PASSIVE_GROUP,ProjectServiceStatusType.ACTIVE, "attribute-source-" + attributeSource.getId());
 			
 			// Add missing connections to service
 //			for (AttributeSourceServiceEntity asse : attributeSource.getAttributeSourceServices()) {
@@ -89,7 +89,7 @@ public class AttributeSourceProjectUpdater extends AbstractProjectUpdater<Attrib
 //						.noneMatch(ps -> ps.getService().equals(asse.getService()))) {
 //					logger.debug("Connecting project {} with service {}", project.getName(), asse.getService().getName());
 //					projectUpdater.addOrChangeService(project, asse.getService(), ProjectServiceType.PASSIVE_GROUP,
-//							ProjectServiceStatusType.ACTIVE, "attribute-srouce-" + attributeSource.getId());
+//							ProjectServiceStatusType.ACTIVE, "attribute-source-" + attributeSource.getId());
 //				}
 //			}
 //
