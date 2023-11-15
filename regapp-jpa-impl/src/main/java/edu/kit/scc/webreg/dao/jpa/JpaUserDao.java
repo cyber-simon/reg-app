@@ -24,6 +24,8 @@ import javax.persistence.criteria.Root;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.entity.ExternalUserEntity;
 import edu.kit.scc.webreg.entity.GroupEntity;
+import edu.kit.scc.webreg.entity.RegistryStatus;
+import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserEntity_;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
@@ -65,6 +67,15 @@ public class JpaUserDao extends JpaBaseDao<UserEntity> implements UserDao {
 	public List<UserEntity> findByGroup(GroupEntity group) {
 		return em.createQuery("select e.user from UserGroupEntity e where e.group = :group", UserEntity.class)
 				.setParameter("group", group).getResultList();
+	}
+
+	@Override
+	public List<UserEntity> findByGroupAndService(GroupEntity group, ServiceEntity service,
+			RegistryStatus registryStatus) {
+		return em.createQuery("select e.user from UserGroupEntity e, RegistryEntity re "
+				+ "where e.group = :group and re.user = e.user and re.registryStatus = :registryStatus and re.service = :service",
+				UserEntity.class).setParameter("group", group).setParameter("service", service)
+				.setParameter("registryStatus", registryStatus).getResultList();
 	}
 
 	@Override

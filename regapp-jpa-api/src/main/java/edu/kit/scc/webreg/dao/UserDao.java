@@ -13,6 +13,8 @@ package edu.kit.scc.webreg.dao;
 import java.util.List;
 
 import edu.kit.scc.webreg.entity.GroupEntity;
+import edu.kit.scc.webreg.entity.RegistryStatus;
+import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 
@@ -33,5 +35,7 @@ public interface UserDao extends BaseDao<UserEntity> {
 	List<UserEntity> findByAttribute(String key, String value);
 
 	List<UserEntity> findByGeneric(String key, String value);
+
+	List<UserEntity> findByGroupAndService(GroupEntity group, ServiceEntity service, RegistryStatus registryStatus);
 
 }

@@ -72,6 +72,6 @@ public interface RegisterUserService {
 			Boolean withGroups, String executor) throws RegisterException;
 
 	List<RegistryEntity> updateGroupsNew(Set<GroupEntity> groupUpdateSet, Boolean reconRegistries,
-			Set<String> reconRegForServices, Boolean fullRecon, Map<GroupEntity, Set<UserEntity>> usersToRemove,
-			String executor) throws RegisterException;
+			Set<String> reconRegForServices, Boolean fullRecon, Boolean newRollMech,
+			Map<GroupEntity, Set<UserEntity>> usersToRemove, String executor) throws RegisterException;
 }

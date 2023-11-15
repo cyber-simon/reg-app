@@ -248,7 +248,7 @@ public class Registrator implements Serializable {
 
 	@RetryTransaction
 	public Boolean processUpdateGroup(ServiceGroupFlagEntity flag, Boolean reconRegistries, Boolean fullRecon,
-			String executor) {
+			Boolean newRollMech, String executor) {
 		flag = groupFlagDao.fetch(flag.getId());
 		ServiceEntity service = flag.getService();
 		ServiceBasedGroupEntity group = flag.getGroup();
@@ -318,18 +318,26 @@ public class Registrator implements Serializable {
 
 			if (retainGroup) {
 				// keep group
-				// group is filtered. Just set no members.
 				a = System.currentTimeMillis();
-				List<UserEntity> userInServiceList = registryDao.findUserListByServiceAndStatus(service,
-						RegistryStatus.ACTIVE);
-				logger.debug("RegistryList took {}ms", (System.currentTimeMillis() - a));
-				a = System.currentTimeMillis();
+				Set<UserEntity> users = null;
+				
+				if (newRollMech) {
+					users = groupUtil.rollUsersForGroup(group, service);
+					logger.debug("RollGroup {} took {} ms", group.getName(), (System.currentTimeMillis() - a));
+					a = System.currentTimeMillis();					
+				}
+				else {
+					List<UserEntity> userInServiceList = registryDao.findUserListByServiceAndStatus(service,
+							RegistryStatus.ACTIVE);
+					logger.debug("RegistryList took {}ms", (System.currentTimeMillis() - a));
+					a = System.currentTimeMillis();
+					
+					users = groupUtil.rollUsersForGroup(group);
+					logger.debug("RollGroup {} took {} ms", group.getName(), (System.currentTimeMillis() - a));
+					a = System.currentTimeMillis();
 
-				Set<UserEntity> users = groupUtil.rollUsersForGroup(group);
-				logger.debug("RollGroup {} took {} ms", group.getName(), (System.currentTimeMillis() - a));
-				a = System.currentTimeMillis();
-
-				users.retainAll(userInServiceList);
+					users.retainAll(userInServiceList);
+				}
 
 				updateStruct.addGroup(group, users);
 			} else {

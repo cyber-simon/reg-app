@@ -64,6 +64,11 @@ public class GroupReconsiliationExecutor extends AbstractEventExecutor<MultipleG
 			newReconMethod = Boolean.parseBoolean(getJobStore().get("new_recon"));
 		}
 
+		Boolean newRollMech = false;
+		if (getJobStore().containsKey("new_roll")) {
+			newRollMech = Boolean.parseBoolean(getJobStore().get("new_roll"));
+		}
+
 		Set<String> reconRegForServices = null;
 		if (getJobStore().containsKey("recon_reg_for_services")) {
 			String rs = getJobStore().get("recon_reg_for_services");
@@ -82,7 +87,7 @@ public class GroupReconsiliationExecutor extends AbstractEventExecutor<MultipleG
 			try {
 				if (newReconMethod) {
 					List<RegistryEntity> reconList = registerUserService.updateGroupsNew(groupList, reconRegistries,
-							reconRegForServices, fullRecon, usersToRemove, executor);
+							reconRegForServices, fullRecon, newRollMech, usersToRemove, executor);
 
 					for (RegistryEntity registry : reconList) {
 						try {

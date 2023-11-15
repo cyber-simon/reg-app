@@ -117,18 +117,20 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 
 	@Override
 	public List<RegistryEntity> updateGroupsNew(Set<GroupEntity> groupUpdateSet, Boolean reconRegistries,
-			Set<String> reconRegForServices, Boolean fullRecon, Map<GroupEntity, Set<UserEntity>> usersToRemove,
-			String executor) throws RegisterException {
+			Set<String> reconRegForServices, Boolean fullRecon, Boolean newRollMech,
+			Map<GroupEntity, Set<UserEntity>> usersToRemove, String executor) throws RegisterException {
 		List<RegistryEntity> reconList = new ArrayList<RegistryEntity>();
 
 		logger.debug("Starting new updateGroups method for groupUpdateSet size {}, usersToRemove size {}",
 				groupUpdateSet.size(), (usersToRemove != null ? usersToRemove.size() : "(not set)"));
 
-		// randomize the order of the groups. It seem that multiple threads work in the same order,
-		// thus always working on the same groups, which is inefficient and causes optimistic locks
+		// randomize the order of the groups. It seem that multiple threads work in the
+		// same order,
+		// thus always working on the same groups, which is inefficient and causes
+		// optimistic locks
 		List<GroupEntity> groupUpdateList = new ArrayList<GroupEntity>(groupUpdateSet);
 		Collections.shuffle(groupUpdateList);
-		
+
 		for (GroupEntity group : groupUpdateList) {
 			if (group instanceof ServiceBasedGroupEntity) {
 				ServiceBasedGroupEntity serviceBasedGroupEntity = (ServiceBasedGroupEntity) group;
@@ -136,7 +138,7 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 						.findAll(and(equal(ServiceGroupFlagEntity_.group, serviceBasedGroupEntity),
 								notEqual(ServiceGroupFlagEntity_.status, ServiceGroupStatus.CLEAN)));
 				for (ServiceGroupFlagEntity flag : flagList) {
-					Boolean changed = registrator.processUpdateGroup(flag, reconRegistries, fullRecon, executor);
+					Boolean changed = registrator.processUpdateGroup(flag, reconRegistries, fullRecon, newRollMech, executor);
 
 					if (changed && reconRegistries && !(serviceBasedGroupEntity instanceof HomeOrgGroupEntity)) {
 						if (reconRegForServices == null
