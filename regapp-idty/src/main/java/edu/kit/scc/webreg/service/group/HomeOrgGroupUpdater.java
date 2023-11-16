@@ -108,12 +108,15 @@ public class HomeOrgGroupUpdater implements Serializable {
 				}
 			}
 		}
-		
-		MultipleGroupEvent mge = new MultipleGroupEvent(allChangedGroups);
-		try {
-			eventSubmitter.submit(mge, EventType.GROUP_UPDATE, auditor.getActualExecutor());
-		} catch (EventSubmitException e) {
-			logger.warn("Exeption", e);
+
+		// do not send group event, if there are not changed groups
+		if (allChangedGroups.size() > 0) {
+			MultipleGroupEvent mge = new MultipleGroupEvent(allChangedGroups);
+			try {
+				eventSubmitter.submit(mge, EventType.GROUP_UPDATE, auditor.getActualExecutor());
+			} catch (EventSubmitException e) {
+				logger.warn("Exeption", e);
+			}
 		}
 		
 		return allChangedGroups;
