@@ -118,4 +118,10 @@ public class GenericLazyDataModelImpl<E extends BaseEntity, T extends BaseServic
 	public String getRowKey(E object) {
 		return object.getId().toString();
 	}
+
+	@Override
+	public int count(Map<String, FilterMeta> filterBy) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

@@ -60,10 +60,10 @@ public class SamlMetadataEntity extends AbstractBaseEntity {
 	@Column(name = "logo_small_url", length = 2097152)
 	private String logoSmallUrl;
 	
-	@Column(name = "entity_desc")
+	@Column(name = "entity_desc", columnDefinition="TEXT")
 	@Basic(fetch = FetchType.LAZY)
 	@Lob
-	@JdbcTypeCode(Types.LONGVARCHAR)	
+	//@JdbcTypeCode(Types.LONGVARCHAR)	
 	private String entityDescriptor;
 	
 	@ElementCollection

@@ -2,6 +2,9 @@ package edu.kit.scc.webreg.annotations;
 
 import java.lang.reflect.Method;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.interceptor.AroundInvoke;
 import jakarta.interceptor.Interceptor;
@@ -10,9 +13,6 @@ import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Status;
 import jakarta.transaction.TransactionalException;
 import jakarta.transaction.UserTransaction;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Interceptor
 @RetryTransaction

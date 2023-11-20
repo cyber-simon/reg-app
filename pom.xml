@@ -29,9 +29,9 @@
 		<org.primefaces.themes.version>1.0.10</org.primefaces.themes.version>
 		<org.webjars.fontawesome.version>5.12.0</org.webjars.fontawesome.version>
 		<com.nimbusds.oauth2-oidc-sdk.version>9.43.3</com.nimbusds.oauth2-oidc-sdk.version>
-		<org.apache.httpcomponents.httpclient.version>4.5.13</org.apache.httpcomponents.httpclient.version>
+		<org.apache.httpcomponents.client5.version>5.2.1</org.apache.httpcomponents.client5.version>
 		<org.apache.commons.commons-lang3.version>3.13.0</org.apache.commons.commons-lang3.version>
-		<org.omnifaces.version>3.6.1</org.omnifaces.version>
+		<org.omnifaces.version>4.3</org.omnifaces.version>
 		<commons-fileupload.version>1.4</commons-fileupload.version>
 		<commons-io.version>2.2</commons-io.version>
 		<commons-beanutils.version>1.9.4</commons-beanutils.version>
@@ -190,9 +190,9 @@
 				<version>${commons-beanutils.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.apache.httpcomponents</groupId>
-				<artifactId>httpclient</artifactId>
-				<version>${org.apache.httpcomponents.httpclient.version}</version>
+				<groupId>org.apache.httpcomponents.client5</groupId>
+				<artifactId>httpclient5</artifactId>
+				<version>${org.apache.httpcomponents.client5.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>edu.vt.middleware</groupId>
@@ -415,8 +415,8 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<configuration>
-						<source>11</source>
-						<target>11</target>
+						<source>17</source>
+						<target>17</target>
 						<encoding>UTF-8</encoding>
 					</configuration>
 				</plugin>

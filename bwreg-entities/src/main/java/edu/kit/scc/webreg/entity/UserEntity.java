@@ -71,7 +71,7 @@ public class UserEntity extends AbstractBaseEntity {
 	@ElementCollection
 	@JoinTable(name = "user_attribute_store")
     @MapKeyColumn(name = "key_data", length = 1024)
-    @Column(name = "value_data", length = 2048)
+    @Column(name = "value_data", length = 4096)
     private Map<String, String> attributeStore; 
 
 	@OneToMany(targetEntity = UserGroupEntity.class, mappedBy="user")
