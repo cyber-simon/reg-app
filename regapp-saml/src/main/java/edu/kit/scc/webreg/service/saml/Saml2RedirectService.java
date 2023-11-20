@@ -16,16 +16,10 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import org.apache.velocity.app.VelocityEngine;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.messaging.context.MessageContext;
 import org.opensaml.messaging.encoder.MessageEncodingException;
-import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.common.messaging.SAMLMessageSecuritySupport;
 import org.opensaml.saml.common.messaging.context.SAMLEndpointContext;
 import org.opensaml.saml.common.messaging.context.SAMLPeerEntityContext;
@@ -47,13 +41,17 @@ import org.opensaml.xmlsec.impl.BasicSignatureSigningConfiguration;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.slf4j.Logger;
 
-import edu.kit.scc.webreg.entity.SamlIdpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
-import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
-import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
-import net.shibboleth.utilities.java.support.resolver.ResolverException;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import net.shibboleth.shared.component.ComponentInitializationException;
+import net.shibboleth.shared.resolver.CriteriaSet;
+import net.shibboleth.shared.resolver.ResolverException;
+import net.shibboleth.shared.servlet.impl.ThreadLocalHttpServletResponseSupplier;
 
 @ApplicationScoped
 public class Saml2RedirectService {
@@ -133,14 +131,14 @@ public class Saml2RedirectService {
 			HTTPPostEncoder encoder = new HTTPPostEncoder();
 			encoder.setVelocityEngine(engine);
 			// encoder.setVelocityTemplateId("templates/saml2-post-binding.vm");
-			encoder.setHttpServletResponse(response);
+			encoder.setHttpServletResponseSupplier(new ThreadLocalHttpServletResponseSupplier());
 			encoder.setMessageContext(messageContext);
 			encoder.initialize();
 			encoder.prepareContext();
 			encoder.encode();
 		} else {
 			HTTPRedirectDeflateEncoder encoder = new HTTPRedirectDeflateEncoder();
-			encoder.setHttpServletResponse(response);
+			encoder.setHttpServletResponseSupplier(new ThreadLocalHttpServletResponseSupplier());
 			encoder.setMessageContext(messageContext);
 			encoder.initialize();
 			encoder.prepareContext();

@@ -178,7 +178,7 @@ public class SsoHelper implements Serializable {
 	public AuthnStatement buildAuthnStatement(long validityInterval) {
 		AuthnContextClassRef accr = samlHelper.create(AuthnContextClassRef.class,
 				AuthnContextClassRef.DEFAULT_ELEMENT_NAME);
-		accr.setAuthnContextClassRef(AuthnContext.PPT_AUTHN_CTX);
+		accr.setURI(AuthnContext.PPT_AUTHN_CTX);
 		AuthnContext ac = samlHelper.create(AuthnContext.class, AuthnContext.DEFAULT_ELEMENT_NAME);
 		ac.setAuthnContextClassRef(accr);
 		AuthnStatement as = samlHelper.create(AuthnStatement.class, AuthnStatement.DEFAULT_ELEMENT_NAME);

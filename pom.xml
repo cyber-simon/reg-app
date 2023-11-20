@@ -30,6 +30,7 @@
 		<org.webjars.fontawesome.version>5.12.0</org.webjars.fontawesome.version>
 		<com.nimbusds.oauth2-oidc-sdk.version>9.43.3</com.nimbusds.oauth2-oidc-sdk.version>
 		<org.apache.httpcomponents.httpclient.version>4.5.13</org.apache.httpcomponents.httpclient.version>
+		<org.apache.commons.commons-lang3.version>3.13.0</org.apache.commons.commons-lang3.version>
 		<org.omnifaces.version>3.6.1</org.omnifaces.version>
 		<commons-fileupload.version>1.4</commons-fileupload.version>
 		<commons-io.version>2.2</commons-io.version>
@@ -115,9 +116,60 @@
 				<artifactId>jaxb-impl</artifactId>
 				<version>${jakarta.xml.bind}</version>
 			</dependency>
+
+			<dependency>
+				<groupId>org.opensaml</groupId>
+				<artifactId>opensaml-core-api</artifactId>
+				<version>${org.opensaml.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.opensaml</groupId>
+				<artifactId>opensaml-core-impl</artifactId>
+				<version>${org.opensaml.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>org.opensaml</groupId>
 				<artifactId>opensaml-saml-api</artifactId>
+				<version>${org.opensaml.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.opensaml</groupId>
+				<artifactId>opensaml-saml-impl</artifactId>
+				<version>${org.opensaml.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.opensaml</groupId>
+				<artifactId>opensaml-profile-api</artifactId>
+				<version>${org.opensaml.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.opensaml</groupId>
+				<artifactId>opensaml-security-api</artifactId>
+				<version>${org.opensaml.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.opensaml</groupId>
+				<artifactId>opensaml-security-impl</artifactId>
+				<version>${org.opensaml.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.opensaml</groupId>
+				<artifactId>opensaml-soap-api</artifactId>
+				<version>${org.opensaml.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.opensaml</groupId>
+				<artifactId>opensaml-soap-impl</artifactId>
+				<version>${org.opensaml.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.opensaml</groupId>
+				<artifactId>opensaml-xmlsec-api</artifactId>
+				<version>${org.opensaml.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.opensaml</groupId>
+				<artifactId>opensaml-xmlsec-impl</artifactId>
 				<version>${org.opensaml.version}</version>
 			</dependency>
 
@@ -127,11 +179,6 @@
 				<version>2.3.2</version>
 			</dependency>
 
-			<dependency>
-				<groupId>org.opensaml</groupId>
-				<artifactId>opensaml-saml-impl</artifactId>
-				<version>${org.opensaml.version}</version>
-			</dependency>
 			<dependency>
 				<groupId>org.apache.velocity</groupId>
 				<artifactId>velocity</artifactId>
@@ -235,6 +282,12 @@
 				<version>${com.nimbusds.oauth2-oidc-sdk.version}</version>
 			</dependency>
 
+			<dependency>
+			    <groupId>org.apache.commons</groupId>
+			    <artifactId>commons-lang3</artifactId>
+			    <version>${org.apache.commons.commons-lang3.version}</version>
+			</dependency>
+
 			<!-- ===================== -->
 			<!-- Libraries for tests -->
 			<!-- ===================== -->
@@ -333,7 +386,7 @@
 		</repository>
 		<repository>
 			<id>shibboleth.net</id>
-			<url>https://build.shibboleth.net/nexus/content/repositories/releases/</url>
+			<url>https://build.shibboleth.net/maven/releases/</url>
 		</repository>
 	</repositories>
 

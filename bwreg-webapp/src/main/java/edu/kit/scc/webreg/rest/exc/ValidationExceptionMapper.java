@@ -1,7 +1,5 @@
 package edu.kit.scc.webreg.rest.exc;
 
-import java.util.List;
-
 import jakarta.validation.ValidationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;

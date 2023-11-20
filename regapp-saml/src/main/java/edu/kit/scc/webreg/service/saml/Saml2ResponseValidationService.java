@@ -15,10 +15,8 @@ import java.time.Instant;
 
 import javax.xml.namespace.QName;
 
-import org.opensaml.core.criterion.EntityIdCriterion;
 import org.opensaml.saml.common.SignableSAMLObject;
 import org.opensaml.saml.common.xml.SAMLConstants;
-import org.opensaml.saml.criterion.EntityRoleCriterion;
 import org.opensaml.saml.metadata.resolver.impl.DOMMetadataResolver;
 import org.opensaml.saml.metadata.resolver.impl.PredicateRoleDescriptorResolver;
 import org.opensaml.saml.saml2.core.AttributeQuery;
@@ -32,6 +30,7 @@ import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
 import org.opensaml.saml.security.impl.MetadataCredentialResolver;
 import org.opensaml.saml.security.impl.SAMLSignatureProfileValidator;
 import org.opensaml.security.credential.UsageType;
+import org.opensaml.security.criteria.PeerEntityIDCriterion;
 import org.opensaml.security.criteria.UsageCriterion;
 import org.opensaml.xmlsec.config.impl.DefaultSecurityConfigurationBootstrap;
 import org.opensaml.xmlsec.keyinfo.KeyInfoCredentialResolver;
@@ -49,8 +48,8 @@ import edu.kit.scc.webreg.service.saml.exc.SamlUnknownPrincipalException;
 import edu.kit.scc.webreg.service.saml.exc.SamlUnsuccessfulStatusException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
-import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
+import net.shibboleth.shared.component.ComponentInitializationException;
+import net.shibboleth.shared.resolver.CriteriaSet;
 
 @ApplicationScoped
 public class Saml2ResponseValidationService {
@@ -87,9 +86,9 @@ public class Saml2ResponseValidationService {
 	public void verifyExpiration(Response samlResponse, Long expiryMillis) 
 			throws SamlAuthenticationException {
 
-		Duration duration = new Duration(samlResponse.getIssueInstant(), new Instant());
-		if (duration.isLongerThan(new Duration(expiryMillis))) 
-			throw new SamlResponseExpiredException("Response is already expired after " + duration.getStandardSeconds() + " seconds");
+		Duration duration = Duration.between(samlResponse.getIssueInstant(), Instant.now());
+		if (duration.compareTo(Duration.ofMillis(expiryMillis)) < 0) 
+			throw new SamlResponseExpiredException("Response is already expired after " + duration.getSeconds() + " seconds");
 	}	
 
 	public void verifyStatus(Response samlResponse) 
@@ -163,8 +162,9 @@ public class Saml2ResponseValidationService {
 		}
 		
 		CriteriaSet criteriaSet = new CriteriaSet();
-		criteriaSet.add(new EntityIdCriterion(issuer.getValue()));
-		criteriaSet.add(new EntityRoleCriterion(role));
+		criteriaSet.add(new PeerEntityIDCriterion(issuer.getValue()));
+		// TODO check entity role. Criterion package does not match opensaml 5 <-> 4
+		//criteriaSet.add(new EntityRoleCriterion(role));
 		criteriaSet.add(new UsageCriterion(UsageType.SIGNING));
 			
 		try {

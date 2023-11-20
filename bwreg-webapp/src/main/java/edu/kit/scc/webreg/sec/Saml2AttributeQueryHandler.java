@@ -54,7 +54,7 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
+import net.shibboleth.shared.component.ComponentInitializationException;
 
 @Named
 @WebServlet(urlPatterns = { "/Shibboleth.sso/SAML2/AttributeQuery", "/saml/sp/attribute-query" })
@@ -205,7 +205,7 @@ public class Saml2AttributeQueryHandler implements Servlet {
 
 		if (messageString != null) {
 			StatusMessage statusMessage = samlHelper.create(StatusMessage.class, StatusMessage.DEFAULT_ELEMENT_NAME);
-			statusMessage.setMessage(messageString);
+			statusMessage.setValue(messageString);
 			samlStatus.setStatusMessage(statusMessage);
 		}
 		return samlStatus;

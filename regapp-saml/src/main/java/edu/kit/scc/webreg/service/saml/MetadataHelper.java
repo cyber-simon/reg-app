@@ -20,18 +20,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
 import javax.xml.namespace.QName;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.hc.client5.http.ClientProtocolException;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.util.Timeout;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.io.Unmarshaller;
 import org.opensaml.core.xml.io.UnmarshallerFactory;
@@ -59,9 +57,11 @@ import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlIdpScopeEntity;
 import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
-import net.shibboleth.utilities.java.support.xml.BasicParserPool;
-import net.shibboleth.utilities.java.support.xml.XMLParserException;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import net.shibboleth.shared.xml.XMLParserException;
+import net.shibboleth.shared.xml.impl.BasicParserPool;
 
 @Named("metadataHelper")
 @ApplicationScoped
@@ -80,9 +80,8 @@ public class MetadataHelper implements Serializable {
 	
 	public EntitiesDescriptor fetchMetadata(String url) {
 		RequestConfig requestConfig = RequestConfig.custom()
-				.setConnectTimeout(getConnectTimeout())
-				.setSocketTimeout(getConnectTimeout())
-				.setConnectionRequestTimeout(getConnectTimeout())
+				.setResponseTimeout(getRequestTimeout())
+				.setConnectionRequestTimeout(getRequestTimeout())
 				.build();
 		CloseableHttpClient httpclient = HttpClients.custom().setDefaultRequestConfig(requestConfig).build();
 		HttpGet httpGet = new HttpGet(url);
@@ -91,12 +90,12 @@ public class MetadataHelper implements Serializable {
 			CloseableHttpResponse response = httpclient.execute(httpGet);
 			logger.info("Fetching Metadata from {}", url);
 			try {
-				if (response.getStatusLine().getStatusCode() == 200) {
+				if (response.getCode() == 200) {
 					HttpEntity entity = response.getEntity();
 					return parseMetadata(entity.getContent());
 				}
 				else {
-					logger.warn("Metadata download from {} got status code {} - bailing out", url, response.getStatusLine());
+					logger.warn("Metadata download from {} got status code {} - bailing out", url, response.getCode());
 					return null;
 				}
 				
@@ -257,7 +256,7 @@ public class MetadataHelper implements Serializable {
 					UIInfo uiInfo = (UIInfo) uiList.get(0);
 					for (Logo logo : uiInfo.getLogos()) {
 						if (logo.getHeight() > 32) {
-							return logo.getURL();
+							return logo.getURI();
 						}
 					}
 				}
@@ -276,7 +275,7 @@ public class MetadataHelper implements Serializable {
 					UIInfo uiInfo = (UIInfo) uiList.get(0);
 					for (Logo logo : uiInfo.getLogos()) {
 						if (logo.getHeight() <= 32) {
-							return logo.getURL();
+							return logo.getURI();
 						}
 					}
 				}
@@ -327,7 +326,7 @@ public class MetadataHelper implements Serializable {
 							idp.setDisplayName(uiInfo.getDisplayNames().get(0).getValue());
 						}
 						if (uiInfo.getInformationURLs().size() > 0) {
-							idp.setInformationUrl(uiInfo.getInformationURLs().get(0).getValue());
+							idp.setInformationUrl(uiInfo.getInformationURLs().get(0).getURI());
 						}
 					}
 				}
@@ -353,7 +352,7 @@ public class MetadataHelper implements Serializable {
 							sp.setDisplayName(uiInfo.getDisplayNames().get(0).getValue());
 						}
 						if (uiInfo.getInformationURLs().size() > 0) {
-							sp.setInformationUrl(uiInfo.getInformationURLs().get(0).getValue());
+							sp.setInformationUrl(uiInfo.getInformationURLs().get(0).getURI());
 						}
 					}
 				}
@@ -410,11 +409,11 @@ public class MetadataHelper implements Serializable {
 		}		
 	}
 	
-	private int getConnectTimeout() {
+	private Timeout getRequestTimeout() {
 		String aqString = appConfig.getConfigValue("metadata_timeout");
 		if (aqString == null)
-			return 30*1000;
+			return Timeout.ofSeconds(30);
 		else 
-			return Integer.parseInt(aqString);
+			return Timeout.ofMilliseconds(Integer.parseInt(aqString));
 	}
 }

@@ -45,7 +45,9 @@ import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
+import net.shibboleth.shared.resolver.CriteriaSet;
+import net.shibboleth.shared.servlet.impl.ThreadLocalHttpServletRequestSupplier;
+import net.shibboleth.shared.servlet.impl.ThreadLocalHttpServletResponseSupplier;
 
 @Stateless
 public class SamlSpLogoutServiceImpl implements SamlSpLogoutService {
@@ -75,12 +77,12 @@ public class SamlSpLogoutServiceImpl implements SamlSpLogoutService {
 	public void consumeRedirectLogout(HttpServletRequest request, HttpServletResponse response,
 			SamlSpConfigurationEntity spConfig) throws Exception {
 		HTTPRedirectDeflateDecoder decoder = new HTTPRedirectDeflateDecoder();
-		decoder.setHttpServletRequest(request);
+		decoder.setHttpServletRequestSupplier(new ThreadLocalHttpServletRequestSupplier());
 
 		decoder.initialize();
 		decoder.decode();
 
-		SAMLObject obj = decoder.getMessageContext().getMessage();
+		SAMLObject obj = (SAMLObject) decoder.getMessageContext().getMessage();
 		logger.debug("Message decoded: {}", obj);
 	}
 
@@ -175,7 +177,7 @@ public class SamlSpLogoutServiceImpl implements SamlSpLogoutService {
 		SAMLMessageSecuritySupport.signMessage(messageContext);
 
 		HTTPRedirectDeflateEncoder encoder = new HTTPRedirectDeflateEncoder();
-		encoder.setHttpServletResponse(response);
+		encoder.setHttpServletResponseSupplier(new ThreadLocalHttpServletResponseSupplier());
 		encoder.setMessageContext(messageContext);
 		encoder.initialize();
 		encoder.prepareContext();

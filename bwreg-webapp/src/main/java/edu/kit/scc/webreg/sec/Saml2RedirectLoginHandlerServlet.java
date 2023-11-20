@@ -12,6 +12,11 @@ package edu.kit.scc.webreg.sec;
 
 import java.io.IOException;
 
+import org.opensaml.messaging.encoder.MessageEncodingException;
+import org.slf4j.Logger;
+
+import edu.kit.scc.webreg.service.saml.SamlSpRedirectService;
+import edu.kit.scc.webreg.session.SessionManager;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.servlet.Servlet;
@@ -22,13 +27,7 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-import org.opensaml.messaging.encoder.MessageEncodingException;
-import org.slf4j.Logger;
-
-import edu.kit.scc.webreg.service.saml.SamlSpRedirectService;
-import edu.kit.scc.webreg.session.SessionManager;
-import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
+import net.shibboleth.shared.component.ComponentInitializationException;
 
 @Named
 @WebServlet(urlPatterns = {"/Shibboleth.sso/Login", "/saml/sp/login"})

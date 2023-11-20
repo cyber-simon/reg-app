@@ -13,22 +13,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.ejb.Stateless;
-import jakarta.inject.Inject;
-import jakarta.servlet.ServletException;
-
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.hc.client5.http.auth.AuthScope;
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.opensaml.messaging.context.InOutOperationContext;
 import org.opensaml.messaging.context.MessageContext;
 import org.opensaml.messaging.pipeline.httpclient.BasicHttpClientMessagePipeline;
 import org.opensaml.messaging.pipeline.httpclient.HttpClientMessagePipeline;
 import org.opensaml.messaging.pipeline.httpclient.HttpClientMessagePipelineFactory;
-import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.binding.decoding.impl.HttpClientResponseSOAP11Decoder;
 import org.opensaml.saml.saml2.binding.encoding.impl.HttpClientRequestSOAP11Encoder;
@@ -99,6 +93,9 @@ import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.service.twofa.TwoFaException;
 import edu.kit.scc.webreg.service.twofa.TwoFaService;
 import edu.kit.scc.webreg.session.HttpRequestContext;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
+import jakarta.servlet.ServletException;
 
 @Stateless
 public class UserLoginServiceImpl implements UserLoginService, Serializable {
@@ -395,29 +392,28 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 			SOAP11Context soapContext = new SOAP11Context();
 			outbound.addSubcontext(soapContext);
 
-			InOutOperationContext<SAMLObject, SAMLObject> inOutContext = new InOutOperationContext<SAMLObject, SAMLObject>(
-					inbound, outbound);
+			InOutOperationContext inOutContext = new InOutOperationContext(inbound, outbound);
 
-			CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+			BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
 			credentialsProvider.setCredentials(new AuthScope(bindingHost, 443),
-					new UsernamePasswordCredentials(username, password));
+					new UsernamePasswordCredentials(username, password.toCharArray()));
 
 			HttpClient client = HttpClients.custom().setDefaultCredentialsProvider(credentialsProvider).build();
 
-			PipelineFactoryHttpSOAPClient<SAMLObject, SAMLObject> pf = new PipelineFactoryHttpSOAPClient<SAMLObject, SAMLObject>();
+			PipelineFactoryHttpSOAPClient pf = new PipelineFactoryHttpSOAPClient();
 			pf.setHttpClient(client);
-			pf.setPipelineFactory(new HttpClientMessagePipelineFactory<SAMLObject, SAMLObject>() {
+			pf.setPipelineFactory(new HttpClientMessagePipelineFactory() {
 
 				@Override
-				public HttpClientMessagePipeline<SAMLObject, SAMLObject> newInstance(String pipelineName) {
-					return new BasicHttpClientMessagePipeline<SAMLObject, SAMLObject>(
-							new HttpClientRequestSOAP11Encoder(), new HttpClientResponseSOAP11Decoder());
+				public HttpClientMessagePipeline newInstance(String pipelineName) {
+					return new BasicHttpClientMessagePipeline(new HttpClientRequestSOAP11Encoder(),
+							new HttpClientResponseSOAP11Decoder());
 				}
 
 				@Override
-				public HttpClientMessagePipeline<SAMLObject, SAMLObject> newInstance() {
-					return new BasicHttpClientMessagePipeline<SAMLObject, SAMLObject>(
-							new HttpClientRequestSOAP11Encoder(), new HttpClientResponseSOAP11Decoder());
+				public HttpClientMessagePipeline newInstance() {
+					return new BasicHttpClientMessagePipeline(new HttpClientRequestSOAP11Encoder(),
+							new HttpClientResponseSOAP11Decoder());
 				}
 			});
 
@@ -482,7 +478,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 		List<AudienceRestriction> audienceRestrictionList = assertion.getConditions().getAudienceRestrictions();
 
 		if (System.currentTimeMillis()
-				- assertion.getConditions().getNotBefore().getMillis() > delegateAssertionTimeout) {
+				- assertion.getConditions().getNotBefore().toEpochMilli() > delegateAssertionTimeout) {
 			logger.info("assertion is older than {} ms ({}, {})", delegateAssertionTimeout, user.getEppn(),
 					service.getShortName());
 			throw new AssertionException("assertion-too-old");
@@ -492,8 +488,8 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 
 		for (AudienceRestriction audienceRestriction : audienceRestrictionList) {
 			for (Audience audience : audienceRestriction.getAudiences()) {
-				if (delegateEntityList.contains(audience.getAudienceURI())) {
-					logger.debug("Audience hit: {}", audience.getAudienceURI());
+				if (delegateEntityList.contains(audience.getURI())) {
+					logger.debug("Audience hit: {}", audience.getURI());
 					audienceOk = true;
 					break;
 				}

@@ -22,7 +22,6 @@ import org.apache.velocity.app.VelocityEngine;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.messaging.context.MessageContext;
 import org.opensaml.messaging.encoder.MessageEncodingException;
-import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.common.messaging.SAMLMessageSecuritySupport;
 import org.opensaml.saml.common.messaging.context.SAMLBindingContext;
 import org.opensaml.saml.common.messaging.context.SAMLEndpointContext;
@@ -92,9 +91,10 @@ import jakarta.ejb.TransactionManagement;
 import jakarta.ejb.TransactionManagementType;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletResponse;
-import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
-import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
-import net.shibboleth.utilities.java.support.resolver.ResolverException;
+import net.shibboleth.shared.component.ComponentInitializationException;
+import net.shibboleth.shared.resolver.CriteriaSet;
+import net.shibboleth.shared.resolver.ResolverException;
+import net.shibboleth.shared.servlet.impl.ThreadLocalHttpServletResponseSupplier;
 
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)
@@ -285,7 +285,7 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 
 		SecurityParametersContext securityContext = buildSecurityContext(idpConfig);
 		HTTPPostEncoder postEncoder = new HTTPPostEncoder();
-		postEncoder.setHttpServletResponse(response);
+		postEncoder.setHttpServletResponseSupplier(new ThreadLocalHttpServletResponseSupplier());
 		MessageContext messageContext = new MessageContext();
 
 		logger.debug("Assertion before encryption: {}", samlHelper.prettyPrint(assertion));
