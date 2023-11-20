@@ -1,6 +1,6 @@
 package edu.kit.scc.webreg.entity.project;
 
-import javax.persistence.Entity;
+import jakarta.persistence.Entity;
 
 import edu.kit.scc.webreg.entity.ServiceBasedGroupEntity;
 

@@ -15,8 +15,8 @@ import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
 import java.util.HashSet;
 import java.util.List;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 
 import org.slf4j.Logger;
 

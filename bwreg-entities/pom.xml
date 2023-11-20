@@ -9,20 +9,10 @@
 	</parent>
 	<packaging>jar</packaging>
 	<artifactId>bwreg-entities</artifactId>
-
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.wildfly.bom</groupId>
-				<artifactId>wildfly-javaee8-with-tools</artifactId>
-				<version>17.0.1.Final</version>
-				<type>pom</type>
-				<scope>import</scope>
-				<optional>false</optional>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
-
+	<!-- <dependencyManagement> <dependencies> <dependency> <groupId>org.wildfly.bom</groupId> 
+		<artifactId>wildfly-javaee8-with-tools</artifactId> <version>17.0.1.Final</version> 
+		<type>pom</type> <scope>import</scope> <optional>false</optional> </dependency> 
+		</dependencies> </dependencyManagement> -->
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -30,8 +20,8 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>javax</groupId>
-			<artifactId>javaee-api</artifactId>
+			<groupId>jakarta.platform</groupId>
+			<artifactId>jakarta.jakartaee-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
 
@@ -40,25 +30,12 @@
 			<artifactId>slf4j-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
-
 		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-entitymanager</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
+			<groupId>org.hibernate.orm</groupId>
 			<artifactId>hibernate-core</artifactId>
 			<scope>provided</scope>
-			<exclusions>
-				<exclusion>
-					<artifactId>xml-apis</artifactId>
-					<groupId>xml-apis</groupId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 	</dependencies>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -81,9 +58,9 @@
 				</executions>
 				<dependencies>
 					<dependency>
-						<groupId>org.hibernate</groupId>
+						<groupId>org.hibernate.orm</groupId>
 						<artifactId>hibernate-jpamodelgen</artifactId>
-						<version>5.6.14.Final</version>
+						<version>6.3.1.Final</version>
 					</dependency>
 				</dependencies>
 			</plugin>

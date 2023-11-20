@@ -10,12 +10,11 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.saml;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import java.time.Duration;
+import java.time.Instant;
+
 import javax.xml.namespace.QName;
 
-import org.joda.time.Duration;
-import org.joda.time.Instant;
 import org.opensaml.core.criterion.EntityIdCriterion;
 import org.opensaml.saml.common.SignableSAMLObject;
 import org.opensaml.saml.common.xml.SAMLConstants;
@@ -48,6 +47,8 @@ import edu.kit.scc.webreg.service.saml.exc.SamlMissingStatusException;
 import edu.kit.scc.webreg.service.saml.exc.SamlResponseExpiredException;
 import edu.kit.scc.webreg.service.saml.exc.SamlUnknownPrincipalException;
 import edu.kit.scc.webreg.service.saml.exc.SamlUnsuccessfulStatusException;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 

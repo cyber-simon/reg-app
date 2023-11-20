@@ -11,22 +11,12 @@
 package edu.kit.scc.webreg.service.saml;
 
 import java.io.Serializable;
+import java.time.Instant;
+import java.util.Date;
 import java.util.Map;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
-
-import org.joda.time.DateTime;
 import org.opensaml.core.xml.schema.XSString;
 import org.opensaml.saml.common.SAMLVersion;
-import org.opensaml.saml.saml2.core.SubjectConfirmation;
-import org.opensaml.saml.saml2.core.SubjectConfirmationData;
-
-import edu.kit.scc.webreg.entity.SamlAAConfigurationEntity;
-import edu.kit.scc.webreg.entity.SamlIdpConfigurationEntity;
-import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
-
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeValue;
 import org.opensaml.saml.saml2.core.Audience;
@@ -43,6 +33,15 @@ import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.core.Subject;
+import org.opensaml.saml.saml2.core.SubjectConfirmation;
+import org.opensaml.saml.saml2.core.SubjectConfirmationData;
+
+import edu.kit.scc.webreg.entity.SamlAAConfigurationEntity;
+import edu.kit.scc.webreg.entity.SamlIdpConfigurationEntity;
+import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named("ssoHelper")
 @ApplicationScoped
@@ -59,7 +58,7 @@ public class SsoHelper implements Serializable {
 		AuthnRequest authnRequest = samlHelper.create(AuthnRequest.class, AuthnRequest.DEFAULT_ELEMENT_NAME);
 		authnRequest.setID(samlHelper.getRandomId());
 		authnRequest.setVersion(SAMLVersion.VERSION_20);
-		authnRequest.setIssueInstant(new DateTime());
+		authnRequest.setIssueInstant(Instant.now());
 		if (options != null
 				&& (options.containsKey("force_authn") && options.get("force_authn").equalsIgnoreCase("true"))) {
 			authnRequest.setForceAuthn(true);
@@ -93,7 +92,7 @@ public class SsoHelper implements Serializable {
 		response.setID(samlHelper.getRandomId());
 		response.setInResponseTo(authnRequest.getID());
 		response.setVersion(SAMLVersion.VERSION_20);
-		response.setIssueInstant(new DateTime());
+		response.setIssueInstant(Instant.now());
 		response.setDestination(authnRequest.getAssertionConsumerServiceURL());
 
 		Issuer issuer = samlHelper.create(Issuer.class, Issuer.DEFAULT_ELEMENT_NAME);
@@ -125,7 +124,7 @@ public class SsoHelper implements Serializable {
 
 		SubjectConfirmationData scd = samlHelper.create(SubjectConfirmationData.class,
 				SubjectConfirmationData.DEFAULT_ELEMENT_NAME);
-		scd.setNotOnOrAfter(new DateTime(System.currentTimeMillis() + (5L * 60L * 1000L)));
+		scd.setNotOnOrAfter((new Date(System.currentTimeMillis() + (5L * 60L * 1000L))).toInstant());
 		scd.setInResponseTo(inResponseTo);
 		scd.setRecipient(acs);
 
@@ -149,7 +148,7 @@ public class SsoHelper implements Serializable {
 
 		SubjectConfirmationData scd = samlHelper.create(SubjectConfirmationData.class,
 				SubjectConfirmationData.DEFAULT_ELEMENT_NAME);
-		scd.setNotOnOrAfter(new DateTime(System.currentTimeMillis() + (5L * 60L * 1000L)));
+		scd.setNotOnOrAfter((new Date(System.currentTimeMillis() + (5L * 60L * 1000L))).toInstant());
 		scd.setInResponseTo(inResponseTo);
 
 		SubjectConfirmation sc = samlHelper.create(SubjectConfirmation.class, SubjectConfirmation.DEFAULT_ELEMENT_NAME);
@@ -164,13 +163,13 @@ public class SsoHelper implements Serializable {
 
 	public Conditions buildConditions(SamlSpMetadataEntity spMetadata) {
 		Audience audience = samlHelper.create(Audience.class, Audience.DEFAULT_ELEMENT_NAME);
-		audience.setAudienceURI(spMetadata.getEntityId());
+		audience.setURI(spMetadata.getEntityId());
 		AudienceRestriction ar = samlHelper.create(AudienceRestriction.class, AudienceRestriction.DEFAULT_ELEMENT_NAME);
 		ar.getAudiences().add(audience);
 
 		Conditions conditions = samlHelper.create(Conditions.class, Conditions.DEFAULT_ELEMENT_NAME);
-		conditions.setNotBefore(new DateTime());
-		conditions.setNotOnOrAfter(new DateTime(System.currentTimeMillis() + (5L * 60L * 1000L)));
+		conditions.setNotBefore(Instant.now());
+		conditions.setNotOnOrAfter((new Date(System.currentTimeMillis() + (5L * 60L * 1000L))).toInstant());
 		conditions.getAudienceRestrictions().add(ar);
 
 		return conditions;
@@ -184,8 +183,8 @@ public class SsoHelper implements Serializable {
 		ac.setAuthnContextClassRef(accr);
 		AuthnStatement as = samlHelper.create(AuthnStatement.class, AuthnStatement.DEFAULT_ELEMENT_NAME);
 		as.setAuthnContext(ac);
-		as.setAuthnInstant(new DateTime());
-		as.setSessionNotOnOrAfter(new DateTime(System.currentTimeMillis() + validityInterval));
+		as.setAuthnInstant(Instant.now());
+		as.setSessionNotOnOrAfter((new Date(System.currentTimeMillis() + validityInterval)).toInstant());
 		as.setSessionIndex(samlHelper.getRandomId());
 
 		return as;

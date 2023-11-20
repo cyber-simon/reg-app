@@ -10,8 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.timer;
 
-import javax.ejb.Asynchronous;
-import javax.ejb.Stateless;
+import jakarta.ejb.Asynchronous;
+import jakarta.ejb.Stateless;
 
 import edu.kit.scc.webreg.job.ExecutableJob;
 

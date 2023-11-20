@@ -14,10 +14,10 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.security.cert.X509Certificate;
 
-import javax.faces.event.ComponentSystemEvent;
-import javax.faces.view.ViewScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.faces.event.ComponentSystemEvent;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

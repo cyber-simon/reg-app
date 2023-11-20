@@ -15,7 +15,7 @@ import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
 
 import java.util.List;
 
-import javax.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.Attribute;
 
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.ops.PaginateBy;

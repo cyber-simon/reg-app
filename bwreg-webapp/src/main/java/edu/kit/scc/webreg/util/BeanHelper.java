@@ -1,6 +1,6 @@
 package edu.kit.scc.webreg.util;
 
-import javax.faces.context.FacesContext;
+import jakarta.faces.context.FacesContext;
 
 public class BeanHelper {
 

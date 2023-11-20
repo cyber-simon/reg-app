@@ -2,7 +2,9 @@
 	and the accompanying materials are made available under the terms of the 
 	GNU Public License v3.0 which accompanies this distribution, and is available 
 	at http://www.gnu.org/licenses/gpl.html Contributors: Michael Simon - initial -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>edu.kit.scc</groupId>
 	<artifactId>bwreg</artifactId>
@@ -14,16 +16,16 @@
 		<revision>2.7.8-SNAPSHOT</revision>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<org.wildfly.version>17.0.1.Final</org.wildfly.version>
+		<org.wildfly.version>29.0.1.Final</org.wildfly.version>
 		<org.drools.version>8.41.0.Final</org.drools.version>
-		<javax.javaee.version>8.0</javax.javaee.version>
-		<org.opensaml.version>3.4.6</org.opensaml.version>
+		<javax.javaee.version>10.0.0</javax.javaee.version>
+		<org.opensaml.version>5.0.0</org.opensaml.version>
 		<org.apache.velocity>1.7</org.apache.velocity>
 		<vt-ldap.version>3.3.9</vt-ldap.version>
 		<org.slf4j.version>1.7.2</org.slf4j.version>
 		<org.bouncycastle.version>1.75</org.bouncycastle.version>
-		<org.primefaces.version>10.0.0</org.primefaces.version>
-		<org.primefaces.extensions.version>10.0.1</org.primefaces.extensions.version>
+		<org.primefaces.version>13.0.3</org.primefaces.version>
+		<org.primefaces.extensions.version>13.0.3</org.primefaces.extensions.version>
 		<org.primefaces.themes.version>1.0.10</org.primefaces.themes.version>
 		<org.webjars.fontawesome.version>5.12.0</org.webjars.fontawesome.version>
 		<com.nimbusds.oauth2-oidc-sdk.version>9.43.3</com.nimbusds.oauth2-oidc-sdk.version>
@@ -32,7 +34,6 @@
 		<commons-fileupload.version>1.4</commons-fileupload.version>
 		<commons-io.version>2.2</commons-io.version>
 		<commons-beanutils.version>1.9.4</commons-beanutils.version>
-		<org.jboss.resteasy.version>3.0.3.Final</org.jboss.resteasy.version>
 		<jakarta.xml.bind>3.0.0</jakarta.xml.bind>
 		<ch.ethz.ganymed.version>262</ch.ethz.ganymed.version>
 		<com.fasterxml.jackson.version>2.2.3</com.fasterxml.jackson.version>
@@ -56,7 +57,7 @@
 		<module>bwreg-entities</module>
 		<module>regapp-exc</module>
 		<module>regapp-tools</module>
-		<module>regapp-jpa-test</module>
+<!-- 		<module>regapp-jpa-test</module>  -->
 		<module>regapp-jpa-api</module>
 		<module>regapp-jpa-impl</module>
 		<module>regapp-config</module>
@@ -93,15 +94,15 @@
 		<dependencies>
 			<dependency>
 				<groupId>org.wildfly.bom</groupId>
-				<artifactId>wildfly-javaee8-with-tools</artifactId>
+				<artifactId>wildfly-ee-with-tools-builder</artifactId>
 				<version>${org.wildfly.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 				<optional>false</optional>
 			</dependency>
 			<dependency>
-				<groupId>javax</groupId>
-				<artifactId>javaee-api</artifactId>
+				<groupId>jakarta.platform</groupId>
+				<artifactId>jakarta.jakartaee-api</artifactId>
 				<version>${javax.javaee.version}</version>
 			</dependency>
 			<dependency>
@@ -155,11 +156,13 @@
 				<groupId>org.primefaces</groupId>
 				<artifactId>primefaces</artifactId>
 				<version>${org.primefaces.version}</version>
+				<classifier>jakarta</classifier>
 			</dependency>
 			<dependency>
 				<groupId>org.primefaces.extensions</groupId>
 				<artifactId>primefaces-extensions</artifactId>
 				<version>${org.primefaces.extensions.version}</version>
+				<classifier>jakarta</classifier>
 			</dependency>
 			<dependency>
 				<groupId>org.primefaces.themes</groupId>
@@ -217,7 +220,7 @@
 			</dependency>
 			<dependency>
 				<groupId>org.bouncycastle</groupId>
-				<artifactId>bcmail-jdk18on</artifactId>
+				<artifactId>bcjmail-jdk18on</artifactId>
 				<version>${org.bouncycastle.version}</version>
 			</dependency>
 			<dependency>
@@ -227,24 +230,13 @@
 			</dependency>
 
 			<dependency>
-				<groupId>org.jboss.resteasy</groupId>
-				<artifactId>resteasy-validator-provider-11</artifactId>
-				<version>${org.jboss.resteasy.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.resteasy</groupId>
-				<artifactId>resteasy-jaxrs</artifactId>
-				<version>${org.jboss.resteasy.version}</version>
-			</dependency>
-
-			<dependency>
 				<groupId>com.nimbusds</groupId>
 				<artifactId>oauth2-oidc-sdk</artifactId>
 				<version>${com.nimbusds.oauth2-oidc-sdk.version}</version>
 			</dependency>
 
 			<!-- ===================== -->
-			<!--  Libraries for tests  -->
+			<!-- Libraries for tests -->
 			<!-- ===================== -->
 			<dependency>
 				<groupId>org.apache.logging.log4j</groupId>

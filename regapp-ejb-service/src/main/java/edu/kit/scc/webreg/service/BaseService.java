@@ -13,7 +13,7 @@ package edu.kit.scc.webreg.service;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.Attribute;
 
 import edu.kit.scc.webreg.dao.ops.PaginateBy;
 import edu.kit.scc.webreg.dao.ops.RqlExpression;

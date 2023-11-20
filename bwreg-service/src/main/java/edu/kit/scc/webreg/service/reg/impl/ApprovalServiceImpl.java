@@ -10,8 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.reg.impl;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.dao.RegistryDao;

@@ -2,8 +2,8 @@ package edu.kit.scc.webreg.service.oidc.client;
 
 import java.io.Serializable;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import edu.kit.scc.webreg.service.saml.exc.OidcAuthenticationException;
 

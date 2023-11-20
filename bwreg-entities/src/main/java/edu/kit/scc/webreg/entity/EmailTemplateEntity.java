@@ -10,14 +10,16 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.Lob;
-import javax.persistence.Table;
+import java.sql.Types;
 
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
 
 @Entity(name = "EmailTemplateEntity")
 @Table(name = "email_template")
@@ -34,7 +36,7 @@ public class EmailTemplateEntity extends AbstractBaseEntity {
 	
 	@Column(name = "tpl_body")
 	@Lob 
-	@Type(type = "org.hibernate.type.TextType")	
+	@JdbcTypeCode(Types.LONGVARCHAR)	
 	private String body;
 	
 	@Column(name = "tpl_to", length=512)

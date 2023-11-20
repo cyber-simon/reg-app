@@ -1,7 +1,7 @@
 package edu.kit.scc.webreg.service.identity;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import edu.kit.scc.webreg.script.AbstractScriptingEnv;
 import edu.kit.scc.webreg.service.group.GroupUpdater;

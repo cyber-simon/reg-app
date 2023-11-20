@@ -2,7 +2,7 @@ package edu.kit.scc.webreg.dto.entity;
 
 import java.util.Set;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 public class GroupEntityDto extends AbstractBaseEntityDto {
 

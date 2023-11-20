@@ -13,9 +13,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.servlet.ServletException;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
+import jakarta.servlet.ServletException;
 
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -388,8 +388,8 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 					SAMLConstants.SAML2_PAOS_BINDING_URI, idp.getGenericStore(), sso.getLocation());
 			// Envelope envelope = attrQueryHelper.buildSOAP11Envelope(authnRequest);
 
-			MessageContext<SAMLObject> inbound = new MessageContext<SAMLObject>();
-			MessageContext<SAMLObject> outbound = new MessageContext<SAMLObject>();
+			MessageContext inbound = new MessageContext();
+			MessageContext outbound = new MessageContext();
 			outbound.setMessage(authnRequest);
 
 			SOAP11Context soapContext = new SOAP11Context();

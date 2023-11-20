@@ -1,7 +1,7 @@
 package edu.kit.scc.webreg.dao.ops;
 
-import javax.persistence.criteria.Path;
-import javax.persistence.metamodel.SingularAttribute;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.metamodel.SingularAttribute;
 
 public class EqualBasedOnAttribute<E, F> implements Equal<E, F> {
 

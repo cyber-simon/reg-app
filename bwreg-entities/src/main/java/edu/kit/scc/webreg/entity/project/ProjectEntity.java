@@ -10,26 +10,26 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.entity.project;
 
+import java.sql.Types;
 import java.util.Set;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
 
 import edu.kit.scc.webreg.entity.AbstractBaseEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 @Entity(name = "ProjectEntity")
 @Table(name = "project")
@@ -60,7 +60,7 @@ public class ProjectEntity extends AbstractBaseEntity {
 
 	@Column(name = "description")
 	@Lob
-	@Type(type = "org.hibernate.type.TextType")
+	@JdbcTypeCode(Types.LONGVARCHAR)
 	private String description;
 	
 	@Column(name = "short_description", length = 2048)

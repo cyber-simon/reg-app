@@ -2,7 +2,7 @@ package edu.kit.scc.webreg.dao.ops;
 
 import static edu.kit.scc.webreg.dao.ops.NullOrder.DB_DEFAULT;
 
-import javax.persistence.criteria.Path;
+import jakarta.persistence.criteria.Path;
 
 public class SortByBasedOnString implements SortBy {
 

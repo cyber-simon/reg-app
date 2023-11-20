@@ -12,9 +12,9 @@ package edu.kit.scc.webreg.dao.jpa;
 
 import java.util.List;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Named;
-import javax.persistence.Query;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Named;
+import jakarta.persistence.Query;
 
 import edu.kit.scc.webreg.dao.AgreementTextDao;
 import edu.kit.scc.webreg.dao.ops.PaginateBy;

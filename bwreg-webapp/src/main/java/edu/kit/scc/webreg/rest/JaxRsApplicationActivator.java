@@ -13,8 +13,8 @@ package edu.kit.scc.webreg.rest;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
+import jakarta.ws.rs.ApplicationPath;
+import jakarta.ws.rs.core.Application;
 
 import edu.kit.scc.webreg.rest.exc.AssertionExceptionMapper;
 import edu.kit.scc.webreg.rest.exc.GenericRestInterfaceExceptionMapper;

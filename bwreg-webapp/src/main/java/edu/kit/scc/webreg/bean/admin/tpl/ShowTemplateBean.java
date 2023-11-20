@@ -12,9 +12,9 @@ package edu.kit.scc.webreg.bean.admin.tpl;
 
 import java.io.Serializable;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import edu.kit.scc.webreg.entity.VelocityTemplateEntity;
 import edu.kit.scc.webreg.service.tpl.VelocityTemplateService;

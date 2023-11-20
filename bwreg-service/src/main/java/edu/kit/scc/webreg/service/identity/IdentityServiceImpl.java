@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 
 import org.slf4j.Logger;
 

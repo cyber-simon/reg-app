@@ -2,10 +2,10 @@ package edu.kit.scc.webreg.dao.jpa;
 
 import java.util.List;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Named;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Named;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 import edu.kit.scc.webreg.dao.StatisticsDao;
 import edu.kit.scc.webreg.entity.RegistryStatus;

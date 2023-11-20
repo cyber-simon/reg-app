@@ -3,8 +3,8 @@ package edu.kit.scc.webreg.service.impl;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 
 import edu.kit.scc.webreg.dao.StatisticsDao;
 import edu.kit.scc.webreg.entity.ServiceEntity;

@@ -10,8 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.jpa.project;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Named;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Named;
 
 import edu.kit.scc.webreg.dao.jpa.JpaBaseDao;
 import edu.kit.scc.webreg.dao.project.ProjectInvitationTokenDao;

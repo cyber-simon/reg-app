@@ -1,6 +1,6 @@
 package edu.kit.scc.webreg.dao.ops;
 
-import javax.persistence.criteria.Path;
+import jakarta.persistence.criteria.Path;
 
 public class EqualIgnoreCaseBasedOnString<E> implements EqualIgnoreCase<E> {
 

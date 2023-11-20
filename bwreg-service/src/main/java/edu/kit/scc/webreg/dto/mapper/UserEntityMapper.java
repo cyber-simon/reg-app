@@ -3,8 +3,8 @@ package edu.kit.scc.webreg.dto.mapper;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import edu.kit.scc.webreg.dto.entity.GroupEntityDto;
 import edu.kit.scc.webreg.dto.entity.UserEntityDto;

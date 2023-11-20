@@ -1,7 +1,7 @@
 package edu.kit.scc.webreg.entity.project;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
 
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
 

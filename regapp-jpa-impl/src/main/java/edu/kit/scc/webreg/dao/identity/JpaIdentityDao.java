@@ -10,9 +10,9 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.dao.identity;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.jpa.JpaBaseDao;

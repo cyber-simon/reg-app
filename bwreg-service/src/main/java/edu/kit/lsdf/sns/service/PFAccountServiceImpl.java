@@ -10,8 +10,8 @@
  ******************************************************************************/
 package edu.kit.lsdf.sns.service;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.exc.RegisterException;

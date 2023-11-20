@@ -18,14 +18,15 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import javax.net.ssl.SSLContext;
 
 import org.apache.http.client.config.RequestConfig;
@@ -34,7 +35,6 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
-import org.joda.time.DateTime;
 import org.opensaml.core.criterion.EntityIdCriterion;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.messaging.context.InOutOperationContext;
@@ -128,8 +128,8 @@ public class AttributeQueryHelper implements Serializable {
 		AttributeQuery attrQuery = buildAttributeQuery(
 				persistentId, spEntity.getEntityId());
 		
-		MessageContext<SAMLObject> inbound = new MessageContext<SAMLObject>();
-		MessageContext<SAMLObject> outbound = new MessageContext<SAMLObject>();
+		MessageContext inbound = new MessageContext();
+		MessageContext outbound = new MessageContext();
 		outbound.setMessage(attrQuery);
 
 		SAMLPeerEntityContext entityContext = new SAMLPeerEntityContext();
@@ -172,8 +172,8 @@ public class AttributeQueryHelper implements Serializable {
 		securityContext.setSignatureSigningParameters(ssp);
 		outbound.addSubcontext(securityContext);
 		
-		InOutOperationContext<SAMLObject, SAMLObject> inOutContext =
-				new InOutOperationContext<SAMLObject, SAMLObject>(inbound, outbound);
+		InOutOperationContext inOutContext =
+				new InOutOperationContext(inbound, outbound);
 		
 		if (debugLog != null) {
 			debugLog.append("\nOutgoing SAML Message before signing:\n\n")
@@ -256,7 +256,7 @@ public class AttributeQueryHelper implements Serializable {
 		attrQuery.setID(samlHelper.getRandomId());
 		attrQuery.setSubject(createSubject(persistentId));
 		attrQuery.setVersion(SAMLVersion.VERSION_20);
-		attrQuery.setIssueInstant(new DateTime());
+		attrQuery.setIssueInstant(Instant.now());
 
 		Issuer issuer = samlHelper.create(Issuer.class, Issuer.DEFAULT_ELEMENT_NAME);
 		issuer.setValue(issuerEntityId);

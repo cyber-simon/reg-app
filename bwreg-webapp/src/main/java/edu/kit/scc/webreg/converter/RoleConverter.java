@@ -10,8 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.converter;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.service.BaseService;

@@ -12,8 +12,8 @@ package edu.kit.scc.webreg.entity.as;
 
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 
 @Entity(name = "ASUserAttrValueDateEntity")
 public class ASUserAttrValueDateEntity extends ASUserAttrValueEntity {

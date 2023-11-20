@@ -20,11 +20,11 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyStoreException;
 import java.security.cert.Certificate;
 
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.faces.view.ViewScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.primefaces.model.LazyDataModel;
 import org.slf4j.Logger;

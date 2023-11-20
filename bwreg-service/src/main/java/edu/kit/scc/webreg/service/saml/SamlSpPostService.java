@@ -1,7 +1,7 @@
 package edu.kit.scc.webreg.service.saml;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 

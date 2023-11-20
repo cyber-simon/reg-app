@@ -17,8 +17,8 @@ import static edu.kit.scc.webreg.dao.ops.RqlExpressions.in;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Named;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Named;
 
 import edu.kit.scc.webreg.dao.HomeOrgGroupDao;
 import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;

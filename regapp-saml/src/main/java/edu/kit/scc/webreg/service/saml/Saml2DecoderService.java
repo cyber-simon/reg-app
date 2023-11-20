@@ -10,8 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.saml;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.servlet.http.HttpServletRequest;
 
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 

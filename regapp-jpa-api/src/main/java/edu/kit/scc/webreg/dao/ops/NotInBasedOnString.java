@@ -2,7 +2,7 @@ package edu.kit.scc.webreg.dao.ops;
 
 import java.util.List;
 
-import javax.persistence.criteria.Path;
+import jakarta.persistence.criteria.Path;
 
 public class NotInBasedOnString<E, F> implements NotIn<E, F> {
 

@@ -1,6 +1,6 @@
 package edu.kit.scc.webreg.dto.mapper;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import edu.kit.scc.webreg.dto.entity.SshPubKeyEntityDto;
 import edu.kit.scc.webreg.entity.SshPubKeyEntity;

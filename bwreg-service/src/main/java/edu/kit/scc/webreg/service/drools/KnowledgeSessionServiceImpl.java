@@ -14,12 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.ejb.Stateless;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.inject.Inject;
-import javax.persistence.LockModeType;
-import javax.transaction.UserTransaction;
+import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionManagement;
+import jakarta.ejb.TransactionManagementType;
+import jakarta.inject.Inject;
+import jakarta.persistence.LockModeType;
+import jakarta.transaction.UserTransaction;
 
 import org.kie.api.KieServices;
 import org.kie.api.builder.ReleaseId;

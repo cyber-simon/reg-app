@@ -1,7 +1,7 @@
 package edu.kit.scc.webreg.service.saml;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import edu.kit.scc.webreg.script.AbstractScriptingEnv;
 

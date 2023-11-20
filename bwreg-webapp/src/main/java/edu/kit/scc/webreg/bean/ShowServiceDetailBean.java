@@ -10,10 +10,10 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.bean;
 
-import javax.enterprise.context.RequestScoped;
-import javax.faces.event.ComponentSystemEvent;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.faces.event.ComponentSystemEvent;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.service.ServiceService;

@@ -10,7 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.entity;
 
-import javax.persistence.Entity;
+import jakarta.persistence.Entity;
 
 @Entity(name = "ExternalUserAdminRoleEntity")
 public class ExternalUserAdminRoleEntity extends RoleEntity {

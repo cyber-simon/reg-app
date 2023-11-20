@@ -3,7 +3,7 @@ package edu.kit.scc.webreg.service;
 import java.io.IOException;
 import java.util.Map;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 import edu.kit.scc.webreg.exc.RestInterfaceException;
 

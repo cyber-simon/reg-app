@@ -10,7 +10,7 @@ import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
 import java.security.spec.InvalidParameterSpecException;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;

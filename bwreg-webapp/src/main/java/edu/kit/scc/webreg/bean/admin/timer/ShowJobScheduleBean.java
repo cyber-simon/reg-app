@@ -12,10 +12,10 @@ package edu.kit.scc.webreg.bean.admin.timer;
 
 import java.io.Serializable;
 
-import javax.enterprise.context.RequestScoped;
-import javax.faces.event.ComponentSystemEvent;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.faces.event.ComponentSystemEvent;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import edu.kit.scc.webreg.entity.JobScheduleEntity;
 import edu.kit.scc.webreg.service.JobScheduleService;

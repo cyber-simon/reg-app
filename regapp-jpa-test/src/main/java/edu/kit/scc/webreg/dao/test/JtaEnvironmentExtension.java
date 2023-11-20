@@ -1,7 +1,7 @@
 package edu.kit.scc.webreg.dao.test;
 
-import javax.enterprise.inject.spi.CDI;
-import javax.persistence.EntityManager;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.persistence.EntityManager;
 
 import org.jnp.server.NamingBeanImpl;
 import org.junit.jupiter.api.extension.AfterAllCallback;

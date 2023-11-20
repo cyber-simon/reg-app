@@ -13,8 +13,8 @@ package edu.kit.scc.webreg.dao.jpa;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.and;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Named;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Named;
 
 import edu.kit.scc.webreg.dao.TextPropertyDao;
 import edu.kit.scc.webreg.entity.TextPropertyEntity;

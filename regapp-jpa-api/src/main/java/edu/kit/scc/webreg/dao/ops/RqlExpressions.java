@@ -3,7 +3,7 @@ package edu.kit.scc.webreg.dao.ops;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.persistence.metamodel.SingularAttribute;
+import jakarta.persistence.metamodel.SingularAttribute;
 
 /**
  * Regapp Query Language (RQL) providing class, a DSL for searches against the

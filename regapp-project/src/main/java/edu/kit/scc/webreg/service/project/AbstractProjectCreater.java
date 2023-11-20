@@ -2,7 +2,7 @@ package edu.kit.scc.webreg.service.project;
 
 import java.io.Serializable;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.slf4j.Logger;
 

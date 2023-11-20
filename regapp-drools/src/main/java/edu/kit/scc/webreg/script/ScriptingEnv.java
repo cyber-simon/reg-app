@@ -1,6 +1,6 @@
 package edu.kit.scc.webreg.script;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class ScriptingEnv extends AbstractScriptingEnv {

@@ -3,8 +3,8 @@ package edu.kit.scc.webreg.service.group;
 import java.io.Serializable;
 import java.util.HashSet;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import org.slf4j.Logger;
 

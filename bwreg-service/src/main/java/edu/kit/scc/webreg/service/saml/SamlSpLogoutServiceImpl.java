@@ -3,15 +3,10 @@ package edu.kit.scc.webreg.service.saml;
 import java.io.IOException;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.joda.time.DateTime;
 import org.opensaml.messaging.context.MessageContext;
 import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.common.SAMLVersion;
@@ -46,6 +41,10 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.service.saml.exc.NoHostnameConfiguredException;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.session.SessionManager;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 
 @Stateless
@@ -119,7 +118,7 @@ public class SamlSpLogoutServiceImpl implements SamlSpLogoutService {
 		LogoutRequest logoutRequest = samlHelper.create(LogoutRequest.class, LogoutRequest.DEFAULT_ELEMENT_NAME);
 		logoutRequest.setID(samlHelper.getRandomId());
 		logoutRequest.setVersion(SAMLVersion.VERSION_20);
-		logoutRequest.setIssueInstant(new DateTime());
+		logoutRequest.setIssueInstant(Instant.now());
 		logoutRequest.setDestination(slo.getLocation());
 
 		NameID nameId = samlHelper.create(NameID.class, NameID.DEFAULT_ELEMENT_NAME);
@@ -133,7 +132,7 @@ public class SamlSpLogoutServiceImpl implements SamlSpLogoutService {
 
 		logger.debug("Logout Request: {}", samlHelper.prettyPrint(logoutRequest));
 
-		MessageContext<SAMLObject> messageContext = new MessageContext<SAMLObject>();
+		MessageContext messageContext = new MessageContext();
 		messageContext.setMessage(logoutRequest);
 		SAMLPeerEntityContext entityContext = new SAMLPeerEntityContext();
 		entityContext.setEntityId(idpEntity.getEntityId());

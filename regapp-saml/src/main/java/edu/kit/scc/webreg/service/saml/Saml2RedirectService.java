@@ -16,10 +16,10 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.velocity.app.VelocityEngine;
 import org.opensaml.core.xml.io.MarshallingException;
@@ -103,7 +103,7 @@ public class Saml2RedirectService {
 		logger.debug("Sending client to idp {} endpoint {} and ACS {}", idpEntity.getEntityId(), sso.getLocation(),
 				acs);
 
-		MessageContext<SAMLObject> messageContext = new MessageContext<SAMLObject>();
+		MessageContext messageContext = new MessageContext();
 		messageContext.setMessage(authnRequest);
 		SAMLPeerEntityContext entityContext = new SAMLPeerEntityContext();
 		entityContext.setEntityId(idpEntity.getEntityId());
@@ -148,7 +148,7 @@ public class Saml2RedirectService {
 		}
 	}
 
-	private void signAuthRequest(SamlSpConfigurationEntity spConfig, MessageContext<SAMLObject> messageContext)
+	private void signAuthRequest(SamlSpConfigurationEntity spConfig, MessageContext messageContext)
 			throws SamlAuthenticationException {
 		SecurityParametersContext securityContext = buildSecurityContext(spConfig);
 		messageContext.addSubcontext(securityContext);

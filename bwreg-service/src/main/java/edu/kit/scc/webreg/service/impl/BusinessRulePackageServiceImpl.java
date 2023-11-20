@@ -17,8 +17,8 @@ import static edu.kit.scc.webreg.dao.ops.RqlExpressions.greaterThan;
 import java.util.Date;
 import java.util.List;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.BusinessRulePackageDao;

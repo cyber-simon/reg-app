@@ -10,7 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.exc;
 
-import javax.ejb.ApplicationException;
+import jakarta.ejb.ApplicationException;
 
 @ApplicationException(rollback=true)
 public class RegisterException extends Exception {

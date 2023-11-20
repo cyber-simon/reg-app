@@ -1,7 +1,7 @@
 package edu.kit.scc.webreg.entity.project;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 
 @Entity(name = "ExternalProjectEntity")
 public class ExternalProjectEntity extends ProjectEntity {
