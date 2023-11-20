@@ -52,6 +52,7 @@
 		<net.bytebuddy.version>1.14.1</net.bytebuddy.version>
 		<org.reflections.version>0.10.2</org.reflections.version>
 		<javax.xml.bind.version>2.3.1</javax.xml.bind.version>
+		<com.google.guava.version>32.1.3-jre</com.google.guava.version>
 	</properties>
 
 	<modules>
@@ -106,6 +107,7 @@
 				<artifactId>jakarta.jakartaee-api</artifactId>
 				<version>${javax.javaee.version}</version>
 			</dependency>
+<!-- 
 			<dependency>
 				<groupId>jakarta.xml.bind</groupId>
 				<artifactId>jakarta.xml.bind-api</artifactId>
@@ -116,7 +118,7 @@
 				<artifactId>jaxb-impl</artifactId>
 				<version>${jakarta.xml.bind}</version>
 			</dependency>
-
+ -->
 			<dependency>
 				<groupId>org.opensaml</groupId>
 				<artifactId>opensaml-core-api</artifactId>
@@ -171,12 +173,6 @@
 				<groupId>org.opensaml</groupId>
 				<artifactId>opensaml-xmlsec-impl</artifactId>
 				<version>${org.opensaml.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.apache.santuario</groupId>
-				<artifactId>xmlsec</artifactId>
-				<version>2.3.2</version>
 			</dependency>
 
 			<dependency>
@@ -286,6 +282,12 @@
 			    <groupId>org.apache.commons</groupId>
 			    <artifactId>commons-lang3</artifactId>
 			    <version>${org.apache.commons.commons-lang3.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>${com.google.guava.version}</version>
 			</dependency>
 
 			<!-- ===================== -->
@@ -436,7 +438,7 @@
 						<wtpversion>2.0</wtpversion>
 						<downloadSources>true</downloadSources>
 						<additionalProjectFacets>
-							<jst.jsf>2.3</jst.jsf>
+							<jst.jsf>4.0</jst.jsf>
 						</additionalProjectFacets>
 					</configuration>
 				</plugin>

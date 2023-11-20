@@ -91,9 +91,10 @@ public class ApplicationBootstrap {
 		
 		logger.info("Initializing Application Configuration");
 		appConfig.init();
-		
-		logger.info("Register Template URL Stream handler");
-		registerUrlHandler();
+
+		//TODO change for new jsf and jdk
+//		logger.info("Register Template URL Stream handler");
+//		registerUrlHandler();
 		
 		logger.info("Initializing Serials");
 		checkSerial("uid-number-serial", 900000L);
