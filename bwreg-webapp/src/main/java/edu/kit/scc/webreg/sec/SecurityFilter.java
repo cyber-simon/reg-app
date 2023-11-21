@@ -28,6 +28,7 @@ import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import net.shibboleth.shared.servlet.impl.HttpServletRequestResponseContext;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
@@ -97,6 +98,9 @@ public class SecurityFilter implements Filter {
 		
 		httpRequestContext.setHttpServletRequest(request);
 		
+		// OpenSAML has it's own HttpContext
+		HttpServletRequestResponseContext.loadCurrent(request, response);
+
 		if (request.getCharacterEncoding() == null) {
 		    request.setCharacterEncoding("UTF-8");
 		}
@@ -111,7 +115,7 @@ public class SecurityFilter implements Filter {
 		
 		if (logger.isTraceEnabled())
 			logger.trace("Prechain Session is: {}", httpSession);
-		
+
 		if (path.startsWith("/resources/") ||
 			path.startsWith("/jakarta.faces.resource/") ||
 			path.startsWith("/javax.faces.resource/") ||

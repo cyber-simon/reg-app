@@ -15,8 +15,10 @@ import java.time.Instant;
 
 import javax.xml.namespace.QName;
 
+import org.opensaml.core.criterion.EntityIdCriterion;
 import org.opensaml.saml.common.SignableSAMLObject;
 import org.opensaml.saml.common.xml.SAMLConstants;
+import org.opensaml.saml.criterion.EntityRoleCriterion;
 import org.opensaml.saml.metadata.resolver.impl.DOMMetadataResolver;
 import org.opensaml.saml.metadata.resolver.impl.PredicateRoleDescriptorResolver;
 import org.opensaml.saml.saml2.core.AttributeQuery;
@@ -30,7 +32,6 @@ import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
 import org.opensaml.saml.security.impl.MetadataCredentialResolver;
 import org.opensaml.saml.security.impl.SAMLSignatureProfileValidator;
 import org.opensaml.security.credential.UsageType;
-import org.opensaml.security.criteria.PeerEntityIDCriterion;
 import org.opensaml.security.criteria.UsageCriterion;
 import org.opensaml.xmlsec.config.impl.DefaultSecurityConfigurationBootstrap;
 import org.opensaml.xmlsec.keyinfo.KeyInfoCredentialResolver;
@@ -87,7 +88,7 @@ public class Saml2ResponseValidationService {
 			throws SamlAuthenticationException {
 
 		Duration duration = Duration.between(samlResponse.getIssueInstant(), Instant.now());
-		if (duration.compareTo(Duration.ofMillis(expiryMillis)) < 0) 
+		if (duration.compareTo(Duration.ofMillis(expiryMillis)) > 0) 
 			throw new SamlResponseExpiredException("Response is already expired after " + duration.getSeconds() + " seconds");
 	}	
 
@@ -162,9 +163,8 @@ public class Saml2ResponseValidationService {
 		}
 		
 		CriteriaSet criteriaSet = new CriteriaSet();
-		criteriaSet.add(new PeerEntityIDCriterion(issuer.getValue()));
-		// TODO check entity role. Criterion package does not match opensaml 5 <-> 4
-		//criteriaSet.add(new EntityRoleCriterion(role));
+		criteriaSet.add(new EntityIdCriterion(issuer.getValue()));
+		criteriaSet.add(new EntityRoleCriterion(role));
 		criteriaSet.add(new UsageCriterion(UsageType.SIGNING));
 			
 		try {
@@ -174,6 +174,10 @@ public class Saml2ResponseValidationService {
 				throw new SamlAuthenticationException("SAMLSignableObject could not be validated.");
 			}
 		} catch (org.opensaml.security.SecurityException e) {
+			if (e.getCause() != null)
+				logger.info("Could not validate signature: {}, cause is: {}", e.getMessage(), e.getCause().getMessage());
+			else
+				logger.info("Could not validate signature: {}", e.getMessage());
 			throw new SamlAuthenticationException("SAMLSignableObject could not be validated.");
 		}
 	}	
