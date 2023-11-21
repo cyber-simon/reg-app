@@ -63,7 +63,7 @@ public class SamlMetadataEntity extends AbstractBaseEntity {
 	@Column(name = "entity_desc", columnDefinition="TEXT")
 	@Basic(fetch = FetchType.LAZY)
 	@Lob
-	//@JdbcTypeCode(Types.LONGVARCHAR)	
+	@JdbcTypeCode(Types.LONGVARCHAR)	
 	private String entityDescriptor;
 	
 	@ElementCollection

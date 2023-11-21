@@ -113,6 +113,7 @@ public class SecurityFilter implements Filter {
 			logger.trace("Prechain Session is: {}", httpSession);
 		
 		if (path.startsWith("/resources/") ||
+			path.startsWith("/jakarta.faces.resource/") ||
 			path.startsWith("/javax.faces.resource/") ||
 			path.startsWith("/welcome/") ||
 			path.startsWith("/Shibboleth.sso/") ||
