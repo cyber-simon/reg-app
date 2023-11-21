@@ -42,9 +42,9 @@
 		        <h:outputText value="#{showExternalOidcProjectBean.entity.parentProject}"/>
 
 		        <h:outputText value="#{messages.services}:"/>
-		        <p:repeat value="#{showExternalOidcProjectBean.entity.projectServices}" var="s">
+		        <ui:repeat value="#{showExternalOidcProjectBean.entity.projectServices}" var="s">
 		        	<div><h:outputText value="#{s.service.name}"/></div>
-				</p:repeat>
+				</ui:repeat>
 					
 				<h:outputText value="#{messages.project_group}:"/>
 		        <h:outputText value="#{showExternalOidcProjectBean.entity.projectGroup.name} - (gidNumber: #{showExternalOidcProjectBean.entity.projectGroup.gidNumber})"/>

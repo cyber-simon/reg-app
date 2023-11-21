@@ -42,9 +42,9 @@
 		        <h:outputText value="#{userShowLocalProjectBean.entity.parentProject}" rendered="#{userShowLocalProjectBean.entity.parentProject != null}"/>
 				
 		        <h:outputText value="#{messages.services}:"/>
-		        <p:repeat value="#{userShowLocalProjectBean.entity.projectServices}" var="s">
+		        <ui:repeat value="#{userShowLocalProjectBean.entity.projectServices}" var="s">
 		        	<div><h:outputText value="#{s.service.name} (#{s.status})"/></div>
-				</p:repeat>
+				</ui:repeat>
 			</p:panelGrid>
 		</p:panel>
 

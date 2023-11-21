@@ -42,11 +42,11 @@
 				<p:commandButton id="save" action="#{editAgreementBean.save}" value="#{messages.save}"/>
 			</p:panel>
 			
-			<p:repeat var="key" value="#{editAgreementBean.entity.agreementMap.keySet().toArray()}">
+			<ui:repeat var="key" value="#{editAgreementBean.entity.agreementMap.keySet().toArray()}">
 				<div><h:outputText value="#{key}" /></div>
 				<div><h:outputText value="#{editAgreementBean.entity.agreementMap[key]}" /></div>
 				<p:commandButton id="removeText" action="#{editAgreementBean.removeText(key)}" value="#{messages.delete}" update="@form" />
-			</p:repeat>	
+			</ui:repeat>	
 			
 			<p:panel header="#{messages.add_agreement_text}">
 				<p:panelGrid id="addAgrI18Data" columns="2">

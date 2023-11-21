@@ -40,9 +40,9 @@
 		        <h:outputText value="#{serviceProjectAdminShowProjectBean.entity.groupName}"/>
 					
 		        <h:outputText value="#{messages.services}:"/>
-		        <p:repeat value="#{serviceProjectAdminShowProjectBean.entity.projectServices}" var="s">
+		        <ui:repeat value="#{serviceProjectAdminShowProjectBean.entity.projectServices}" var="s">
 		        	<div><h:outputText value="#{s.service.name} (#{s.status})"/></div>
-				</p:repeat>
+				</ui:repeat>
 			</p:panelGrid>
 		</p:panel>
 

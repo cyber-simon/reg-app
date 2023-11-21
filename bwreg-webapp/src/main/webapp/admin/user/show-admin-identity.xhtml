@@ -37,7 +37,7 @@
 			<h:outputText value="#{showAdminIdentityBean.identity.uidNumber}" />
 		</p:panelGrid>
 
-		<p:repeat var="user" value="#{showAdminIdentityBean.userList}">
+		<ui:repeat var="user" value="#{showAdminIdentityBean.userList}">
 
            	<p:panel rendered="#{user.class.simpleName eq 'SamlUserEntity'}">
 				<f:facet name="header">
@@ -83,7 +83,7 @@
 				</p:panelGrid>
            	</p:panel>				
 
-		</p:repeat>
+		</ui:repeat>
 
 	</h:form>
 

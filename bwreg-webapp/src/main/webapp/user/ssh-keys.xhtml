@@ -58,7 +58,7 @@
 	        		</h:panelGroup>
 	        		
 	        		<h:outputText for="@next" value="#{messages.services}:"/>
-					<p:repeat var="reg" value="#{key.pubKeyEntity.sshPubKeyRegistries}">
+					<ui:repeat var="reg" value="#{key.pubKeyEntity.sshPubKeyRegistries}">
 	        			<div>
 		        			<h:outputText value="#{reg.registry.service.name}"/> 
 		        			<h:panelGroup id="interactiveId" rendered="#{reg.usageType == 'INTERACTIVE'}"><i class="fa fa-fw fa-user"></i></h:panelGroup>
@@ -66,7 +66,7 @@
 		        			<h:panelGroup id="commandId" rendered="#{reg.usageType == 'COMMAND'}"><i class="fa fa-fw fa-database"></i></h:panelGroup>
 		        			<p:tooltip for="commandId" value="#{messages.ssh_pub_key_command}" position="top"/>
 	        			</div>
-					</p:repeat>
+					</ui:repeat>
 	        		
 	        	</h:panelGrid>
 

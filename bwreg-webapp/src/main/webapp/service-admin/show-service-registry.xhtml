@@ -291,13 +291,13 @@
 							<h:outputText value="#{messages.message}" />
 						</f:facet>
 						<h:outputText value="#{ua.queryMessage}" rendered="#{ua.queryStatus != 'SUCCESS'}"/>
-						<p:repeat var="uaValue" value="#{ua.values}" rendered="#{ua.queryStatus == 'SUCCESS'}">
+						<ui:repeat var="uaValue" value="#{ua.values}" rendered="#{ua.queryStatus == 'SUCCESS'}">
 							<div><h:outputText value="#{uaValue.key}"/>: 
 							<h:outputText value="#{uaValue.valueString}" rendered="#{uaValue.class.simpleName == 'ASUserAttrValueStringEntity'}"/>
 							<h:outputText value="#{uaValue.valueLong}" rendered="#{uaValue.class.simpleName == 'ASUserAttrValueLongEntity'}"/>
 							<h:outputText value="#{uaValue.valueDate}" rendered="#{uaValue.class.simpleName == 'ASUserAttrValueDateEntity'}"/>
 							</div>
-						</p:repeat>
+						</ui:repeat>
 					</p:column>
 					<p:column>
 						<f:facet name="header">
