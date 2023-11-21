@@ -44,14 +44,12 @@
 			<scope>provided</scope>
 		</dependency>
 
-<!-- Test need to be rewritten 
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
 			<artifactId>regapp-jpa-test</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
--->		
 	</dependencies>
 
 	<build>

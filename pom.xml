@@ -44,7 +44,7 @@
 		<org.apache.logging.log4j.version>2.20.0</org.apache.logging.log4j.version>
 		<org.assertj.version>3.22.0</org.assertj.version>
 		<org.jboss.naming.version>5.0.5.Final</org.jboss.naming.version>
-		<org.jboss.narayana.jta.version>5.13.1.Final</org.jboss.narayana.jta.version>
+		<org.jboss.narayana.jta.version>6.0.1.Final</org.jboss.narayana.jta.version>
 		<org.jboss.weld.version>3.1.2.Final</org.jboss.weld.version>
 		<org.jboss.weld.weld-junit5.version>2.0.1.Final</org.jboss.weld.weld-junit5.version>
 		<org.junit.jupiter.version>5.9.2</org.junit.jupiter.version>
@@ -60,7 +60,7 @@
 		<module>bwreg-entities</module>
 		<module>regapp-exc</module>
 		<module>regapp-tools</module>
-		<!-- 		<module>regapp-jpa-test</module>  -->
+		<module>regapp-jpa-test</module>
 		<module>regapp-jpa-api</module>
 		<module>regapp-jpa-impl</module>
 		<module>regapp-config</module>
@@ -323,6 +323,17 @@
 					<exclusion>
 						<groupId>org.jboss.logging</groupId>
 						<artifactId>jboss-logging-spi</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.narayana.jta</groupId>
+				<artifactId>jta</artifactId>
+				<version>${org.jboss.narayana.jta.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.jboss.logmanager</groupId>
+						<artifactId>jboss-logmanager</artifactId>
 					</exclusion>
 				</exclusions>
 			</dependency>
