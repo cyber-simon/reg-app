@@ -32,6 +32,7 @@
 		<org.apache.httpcomponents.client5.version>5.2.1</org.apache.httpcomponents.client5.version>
 		<org.apache.commons.commons-lang3.version>3.13.0</org.apache.commons.commons-lang3.version>
 		<org.omnifaces.version>4.3</org.omnifaces.version>
+		<org.openjdk.nashorn.version>15.4</org.openjdk.nashorn.version>
 		<commons-fileupload.version>1.4</commons-fileupload.version>
 		<commons-io.version>2.2</commons-io.version>
 		<commons-beanutils.version>1.9.4</commons-beanutils.version>
@@ -59,7 +60,7 @@
 		<module>bwreg-entities</module>
 		<module>regapp-exc</module>
 		<module>regapp-tools</module>
-<!-- 		<module>regapp-jpa-test</module>  -->
+		<!-- 		<module>regapp-jpa-test</module>  -->
 		<module>regapp-jpa-api</module>
 		<module>regapp-jpa-impl</module>
 		<module>regapp-config</module>
@@ -107,7 +108,7 @@
 				<artifactId>jakarta.jakartaee-api</artifactId>
 				<version>${javax.javaee.version}</version>
 			</dependency>
-<!-- 
+			<!-- 
 			<dependency>
 				<groupId>jakarta.xml.bind</groupId>
 				<artifactId>jakarta.xml.bind-api</artifactId>
@@ -239,6 +240,12 @@
 			</dependency>
 
 			<dependency>
+				<groupId>org.openjdk.nashorn</groupId>
+				<artifactId>nashorn-core</artifactId>
+				<version>${org.openjdk.nashorn.version}</version>
+			</dependency>
+
+			<dependency>
 				<groupId>org.drools</groupId>
 				<artifactId>drools-bom</artifactId>
 				<type>pom</type>
@@ -279,9 +286,9 @@
 			</dependency>
 
 			<dependency>
-			    <groupId>org.apache.commons</groupId>
-			    <artifactId>commons-lang3</artifactId>
-			    <version>${org.apache.commons.commons-lang3.version}</version>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-lang3</artifactId>
+				<version>${org.apache.commons.commons-lang3.version}</version>
 			</dependency>
 
 			<dependency>
@@ -380,7 +387,8 @@
 		</repository>
 		<repository>
 			<id>jboss.org</id>
-			<url>https://repository.jboss.org/nexus/content/repositories/releases/</url>
+			<url>
+				https://repository.jboss.org/nexus/content/repositories/releases/</url>
 		</repository>
 		<repository>
 			<id>primefaces.org</id>
@@ -395,11 +403,13 @@
 	<distributionManagement>
 		<snapshotRepository>
 			<id>ama-nexus</id>
-			<url>https://ama-nexus.scc.kit.edu/repository/ama-maven-public-snapshots</url>
+			<url>
+				https://ama-nexus.scc.kit.edu/repository/ama-maven-public-snapshots</url>
 		</snapshotRepository>
 		<repository>
 			<id>ama-nexus</id>
-			<url>https://ama-nexus.scc.kit.edu/repository/ama-maven-public-releases/</url>
+			<url>
+				https://ama-nexus.scc.kit.edu/repository/ama-maven-public-releases/</url>
 		</repository>
 	</distributionManagement>
 
@@ -488,7 +498,8 @@
 				<bwreg.template.left-side-bar-admin>left-side-bar-admin.xhtml</bwreg.template.left-side-bar-admin>
 				<bwreg.template.footer>footer.xhtml</bwreg.template.footer>
 				<bwreg.jboss-singleton>org.jboss.as.clustering.singleton</bwreg.jboss-singleton>
-				<bwreg.jboss-singleton-activator>edu.kit.scc.webreg.service.timer.ClusterSingletonServiceActivator</bwreg.jboss-singleton-activator>
+				<bwreg.jboss-singleton-activator>
+					edu.kit.scc.webreg.service.timer.ClusterSingletonServiceActivator</bwreg.jboss-singleton-activator>
 			</properties>
 		</profile>
 		<profile>
@@ -506,7 +517,8 @@
 				<bwreg.template.left-side-bar-admin>left-side-bar-admin.xhtml</bwreg.template.left-side-bar-admin>
 				<bwreg.template.footer>footer.xhtml</bwreg.template.footer>
 				<bwreg.jboss-singleton>org.jboss.as.clustering.singleton</bwreg.jboss-singleton>
-				<bwreg.jboss-singleton-activator>edu.kit.scc.webreg.service.timer.ClusterSingletonServiceActivator</bwreg.jboss-singleton-activator>
+				<bwreg.jboss-singleton-activator>
+					edu.kit.scc.webreg.service.timer.ClusterSingletonServiceActivator</bwreg.jboss-singleton-activator>
 			</properties>
 		</profile>
 
@@ -528,7 +540,8 @@
 				<bwreg.template.left-side-bar-admin>left-side-bar-admin.xhtml</bwreg.template.left-side-bar-admin>
 				<bwreg.template.footer>footer.xhtml</bwreg.template.footer>
 				<bwreg.jboss-singleton>org.wildfly.clustering.singleton</bwreg.jboss-singleton>
-				<bwreg.jboss-singleton-activator>edu.kit.scc.webreg.service.timer.WildflyClusterSingletonServiceActivator</bwreg.jboss-singleton-activator>
+				<bwreg.jboss-singleton-activator>
+					edu.kit.scc.webreg.service.timer.WildflyClusterSingletonServiceActivator</bwreg.jboss-singleton-activator>
 			</properties>
 		</profile>
 		<profile>
@@ -546,7 +559,8 @@
 				<bwreg.template.left-side-bar-admin>left-side-bar-admin.xhtml</bwreg.template.left-side-bar-admin>
 				<bwreg.template.footer>footer.xhtml</bwreg.template.footer>
 				<bwreg.jboss-singleton>org.wildfly.clustering.singleton</bwreg.jboss-singleton>
-				<bwreg.jboss-singleton-activator>edu.kit.scc.webreg.service.timer.WildflyClusterSingletonServiceActivator</bwreg.jboss-singleton-activator>
+				<bwreg.jboss-singleton-activator>
+					edu.kit.scc.webreg.service.timer.WildflyClusterSingletonServiceActivator</bwreg.jboss-singleton-activator>
 			</properties>
 		</profile>
 

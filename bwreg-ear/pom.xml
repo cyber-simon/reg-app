@@ -8,15 +8,16 @@
   Contributors:
       Michael Simon - initial
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>bwreg-ear</artifactId>
 	<packaging>ear</packaging>
 
 	<properties>
-	    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
 
 	<parent>
@@ -32,7 +33,7 @@
 			<version>${project.version}</version>
 			<type>jar</type>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
 			<artifactId>regapp-as</artifactId>
@@ -232,8 +233,8 @@
 			<artifactId>velocity</artifactId>
 		</dependency>
 		<dependency>
-		    <groupId>org.apache.commons</groupId>
-		    <artifactId>commons-lang3</artifactId>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
 		</dependency>
 
 		<dependency>
@@ -246,8 +247,13 @@
 		</dependency>
 
 		<dependency>
-				<groupId>org.apache.httpcomponents.client5</groupId>
-				<artifactId>httpclient5</artifactId>
+			<groupId>org.openjdk.nashorn</groupId>
+			<artifactId>nashorn-core</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.httpcomponents.client5</groupId>
+			<artifactId>httpclient5</artifactId>
 		</dependency>
 
 		<dependency>
@@ -266,8 +272,8 @@
 		</dependency>
 
 		<dependency>
-   			<groupId>commons-beanutils</groupId>
-		    <artifactId>commons-beanutils</artifactId>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
 		</dependency>
 
 		<dependency>
@@ -276,8 +282,8 @@
 		</dependency>
 
 		<dependency>
-		    <groupId>com.nimbusds</groupId>
-		    <artifactId>oauth2-oidc-sdk</artifactId>
+			<groupId>com.nimbusds</groupId>
+			<artifactId>oauth2-oidc-sdk</artifactId>
 		</dependency>
 
 		<dependency>
@@ -298,7 +304,7 @@
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 		</dependency>
-<!-- 
+		<!-- 
 		<dependency>
 			<groupId>jakarta.xml.bind</groupId>
 			<artifactId>jakarta.xml.bind-api</artifactId>
@@ -308,12 +314,12 @@
 			<artifactId>jaxb-impl</artifactId>
 		</dependency>			
  -->
- 
+
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 		</dependency>
- 
+
 	</dependencies>
 
 	<build>
@@ -358,11 +364,11 @@
 							<artifactId>bwreg-webapp</artifactId>
 							<contextRoot>/</contextRoot>
 						</webModule>
-					</modules>  
+					</modules>
 					<defaultLibBundleDir>lib</defaultLibBundleDir>
 					<initializeInOrder>true</initializeInOrder>
 				</configuration>
-			</plugin>		
+			</plugin>
 		</plugins>
 	</build>
 
