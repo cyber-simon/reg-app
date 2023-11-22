@@ -10,7 +10,7 @@ image: maven:3-openjdk-17
 trigger-release-pipeline:
   stage: build
   rules:
-    - if: $RELEASE_VERSION != "" && $CI_COMMIT_BRANCH == "branch-2.7"
+    - if: $RELEASE_VERSION != "" && $CI_COMMIT_BRANCH == "main"
   trigger:
     include: .gitlab-ci-release.yml
     strategy: depend
