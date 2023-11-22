@@ -1,6 +1,6 @@
 package edu.kit.scc.webreg.service.twofa;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import edu.kit.scc.webreg.exc.RestInterfaceException;
 

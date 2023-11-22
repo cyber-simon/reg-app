@@ -4,8 +4,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 
 import org.kie.api.KieServices;
 import org.kie.api.builder.Message;

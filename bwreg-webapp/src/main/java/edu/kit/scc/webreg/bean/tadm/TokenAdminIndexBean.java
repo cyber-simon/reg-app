@@ -21,10 +21,10 @@ import static edu.kit.scc.webreg.entity.UserEntity_.surName;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.faces.event.ComponentSystemEvent;
-import javax.faces.view.ViewScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.faces.event.ComponentSystemEvent;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.slf4j.Logger;
 

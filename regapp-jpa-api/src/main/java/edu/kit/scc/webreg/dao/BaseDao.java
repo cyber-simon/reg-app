@@ -12,8 +12,8 @@ package edu.kit.scc.webreg.dao;
 
 import java.util.List;
 
-import javax.persistence.LockModeType;
-import javax.persistence.metamodel.Attribute;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.metamodel.Attribute;
 
 import edu.kit.scc.webreg.dao.ops.PaginateBy;
 import edu.kit.scc.webreg.dao.ops.RqlExpression;

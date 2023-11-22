@@ -1,6 +1,6 @@
 package edu.kit.scc.webreg.dto.mapper.ferest;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import edu.kit.scc.webreg.dto.entity.ferest.IdpEntityDto;
 import edu.kit.scc.webreg.dto.mapper.AbstractBaseEntityMapper;

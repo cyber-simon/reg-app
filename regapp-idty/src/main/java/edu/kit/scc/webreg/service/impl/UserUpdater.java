@@ -14,8 +14,8 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.opensaml.saml.saml2.core.Assertion;

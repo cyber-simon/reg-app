@@ -1,6 +1,6 @@
 package edu.kit.scc.webreg.dao.ops;
 
-import javax.persistence.criteria.Path;
+import jakarta.persistence.criteria.Path;
 
 public class GreaterThanBasedOnString<E, F extends Comparable<? super F>> implements GreaterThan<E, F> {
 

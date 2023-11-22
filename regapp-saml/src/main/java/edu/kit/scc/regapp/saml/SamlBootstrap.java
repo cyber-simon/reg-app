@@ -1,7 +1,7 @@
 package edu.kit.scc.regapp.saml;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import org.opensaml.core.config.InitializationException;
 import org.opensaml.core.config.InitializationService;

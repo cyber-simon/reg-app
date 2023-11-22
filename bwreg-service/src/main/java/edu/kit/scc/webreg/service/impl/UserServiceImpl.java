@@ -19,8 +19,8 @@ import static edu.kit.scc.webreg.dao.ops.SortBy.ascendingBy;
 import java.util.Date;
 import java.util.List;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 
 import org.opensaml.saml.saml2.core.Assertion;
 import org.slf4j.Logger;

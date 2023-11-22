@@ -5,16 +5,17 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpStatus;
-import org.apache.http.ParseException;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.ClientProtocolException;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.util.Timeout;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.MethodInvocationException;
@@ -85,8 +86,7 @@ public class HttpUrlSingleAttributeSource extends
 		String url = out.toString();
 
 		RequestConfig config = RequestConfig.custom()
-			    .setSocketTimeout(1000)
-			    .setConnectTimeout(1000)
+			    .setConnectTimeout(Timeout.ofSeconds(5))
 			    .build();
 		CloseableHttpClient httpclient = HttpClients.custom().setDefaultRequestConfig(config).build();
 		HttpGet httpget = new HttpGet(url);
@@ -106,7 +106,7 @@ public class HttpUrlSingleAttributeSource extends
 		}
 		HttpEntity entity = response.getEntity();
 
-		if (response.getStatusLine() != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+		if (response.getCode() == HttpStatus.SC_OK) {
 			if (entity != null) {
 				try {
 					String r = EntityUtils.toString(entity);
@@ -153,9 +153,9 @@ public class HttpUrlSingleAttributeSource extends
 			/*
 			 * probably no info for this user from datasource
 			 */
-			logger.debug("Status HttpUrlSingleAS is not OK. It is {} - {}", response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+			logger.debug("Status HttpUrlSingleAS is not OK. It is {} - {}", response.getCode(), response.getReasonPhrase());
 			asUserAttr.setQueryStatus(AttributeSourceQueryStatus.USER_NOT_FOUND);
-			asUserAttr.setQueryMessage("Status HttpUrlSingleAS is " + response.getStatusLine().getStatusCode());
+			asUserAttr.setQueryMessage("Status HttpUrlSingleAS is " + response.getCode());
 		}
 		
 		return changed;

@@ -12,9 +12,9 @@ package edu.kit.scc.webreg.dao.jpa;
 
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import edu.kit.scc.webreg.dao.SerialDao;
 import edu.kit.scc.webreg.dao.UserDao;

@@ -3,7 +3,7 @@ package edu.kit.scc.webreg.logging;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class LogHelper {

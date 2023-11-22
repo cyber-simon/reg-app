@@ -10,13 +10,13 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.mail;
 
-import javax.ejb.ActivationConfigProperty;
-import javax.ejb.MessageDriven;
-import javax.inject.Inject;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import javax.jms.ObjectMessage;
+import jakarta.ejb.ActivationConfigProperty;
+import jakarta.ejb.MessageDriven;
+import jakarta.inject.Inject;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
+import jakarta.jms.MessageListener;
+import jakarta.jms.ObjectMessage;
 
 import org.slf4j.Logger;
 
@@ -29,7 +29,7 @@ import edu.kit.scc.webreg.exc.MailServiceException;
  */
 @MessageDriven(
 		activationConfig = { 
-				@ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"), 
+				@ActivationConfigProperty(propertyName = "destinationType", propertyValue = "jakarta.jms.Queue"), 
 				@ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/bwIdmMailQueue")
 		})
 public class MailSenderMdb implements MessageListener {

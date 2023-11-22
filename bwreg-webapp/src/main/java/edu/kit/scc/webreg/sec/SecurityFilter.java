@@ -16,18 +16,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.annotation.WebFilter;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.annotation.WebFilter;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import net.shibboleth.shared.servlet.impl.HttpServletRequestResponseContext;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
@@ -97,6 +98,9 @@ public class SecurityFilter implements Filter {
 		
 		httpRequestContext.setHttpServletRequest(request);
 		
+		// OpenSAML has it's own HttpContext
+		HttpServletRequestResponseContext.loadCurrent(request, response);
+
 		if (request.getCharacterEncoding() == null) {
 		    request.setCharacterEncoding("UTF-8");
 		}
@@ -111,8 +115,9 @@ public class SecurityFilter implements Filter {
 		
 		if (logger.isTraceEnabled())
 			logger.trace("Prechain Session is: {}", httpSession);
-		
+
 		if (path.startsWith("/resources/") ||
+			path.startsWith("/jakarta.faces.resource/") ||
 			path.startsWith("/javax.faces.resource/") ||
 			path.startsWith("/welcome/") ||
 			path.startsWith("/Shibboleth.sso/") ||

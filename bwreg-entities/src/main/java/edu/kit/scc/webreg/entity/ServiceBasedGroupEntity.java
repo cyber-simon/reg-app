@@ -2,8 +2,8 @@ package edu.kit.scc.webreg.entity;
 
 import java.util.Set;
 
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 
 @Entity(name = "ServiceBasedGroupEntity")
 public class ServiceBasedGroupEntity extends GroupEntity {

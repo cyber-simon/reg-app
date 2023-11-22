@@ -2,17 +2,17 @@ package edu.kit.scc.webreg.annotations;
 
 import java.lang.reflect.Method;
 
-import javax.enterprise.inject.spi.CDI;
-import javax.interceptor.AroundInvoke;
-import javax.interceptor.Interceptor;
-import javax.interceptor.InvocationContext;
-import javax.persistence.OptimisticLockException;
-import javax.transaction.Status;
-import javax.transaction.TransactionalException;
-import javax.transaction.UserTransaction;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.interceptor.AroundInvoke;
+import jakarta.interceptor.Interceptor;
+import jakarta.interceptor.InvocationContext;
+import jakarta.persistence.OptimisticLockException;
+import jakarta.transaction.Status;
+import jakarta.transaction.TransactionalException;
+import jakarta.transaction.UserTransaction;
 
 @Interceptor
 @RetryTransaction

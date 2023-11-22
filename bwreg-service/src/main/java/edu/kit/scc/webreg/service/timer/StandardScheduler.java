@@ -10,7 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.timer;
 
-import javax.ejb.TimerService;
+import jakarta.ejb.TimerService;
 
 public interface StandardScheduler {
 

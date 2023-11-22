@@ -2,7 +2,7 @@ package edu.kit.scc.webreg.dto.mapper;
 
 import java.util.HashSet;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import edu.kit.scc.webreg.dto.entity.GroupEntityDto;
 import edu.kit.scc.webreg.entity.GroupEntity;

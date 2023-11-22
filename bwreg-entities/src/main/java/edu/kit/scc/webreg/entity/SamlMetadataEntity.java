@@ -10,23 +10,24 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.entity;
 
+import java.sql.Types;
 import java.util.Map;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.JoinTable;
-import javax.persistence.Lob;
-import javax.persistence.MapKeyColumn;
-import javax.persistence.Table;
+import org.hibernate.annotations.JdbcTypeCode;
 
-import org.hibernate.annotations.Type;
+import jakarta.persistence.Basic;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.Lob;
+import jakarta.persistence.MapKeyColumn;
+import jakarta.persistence.Table;
 
 @Entity(name = "SamlMetadataEntity")
 @Table(name = "samlmetadata")
@@ -59,10 +60,10 @@ public class SamlMetadataEntity extends AbstractBaseEntity {
 	@Column(name = "logo_small_url", length = 2097152)
 	private String logoSmallUrl;
 	
-	@Column(name = "entity_desc")
+	@Column(name = "entity_desc", columnDefinition="TEXT")
 	@Basic(fetch = FetchType.LAZY)
 	@Lob
-	@Type(type = "org.hibernate.type.TextType")	
+	@JdbcTypeCode(Types.LONGVARCHAR)	
 	private String entityDescriptor;
 	
 	@ElementCollection

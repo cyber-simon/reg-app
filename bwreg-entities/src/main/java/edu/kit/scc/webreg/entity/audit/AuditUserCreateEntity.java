@@ -10,7 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.entity.audit;
 
-import javax.persistence.Entity;
+import jakarta.persistence.Entity;
 
 @Entity(name = "AuditUserCreateEntity")
 public class AuditUserCreateEntity extends AuditUserEntity {

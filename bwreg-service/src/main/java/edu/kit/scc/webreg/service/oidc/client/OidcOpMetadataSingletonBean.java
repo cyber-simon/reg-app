@@ -5,8 +5,8 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ejb.Singleton;
-import javax.inject.Inject;
+import jakarta.ejb.Singleton;
+import jakarta.inject.Inject;
 
 import org.slf4j.Logger;
 

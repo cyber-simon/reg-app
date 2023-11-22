@@ -12,8 +12,8 @@ package edu.kit.scc.webreg.service.oidc;
 
 import java.util.List;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.oidc.ServiceOidcClientDao;

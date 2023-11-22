@@ -1,15 +1,16 @@
 package edu.kit.scc.webreg.entity;
 
+import java.sql.Types;
 import java.util.Date;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Lob;
-import javax.persistence.Table;
+import org.hibernate.annotations.JdbcTypeCode;
 
-import org.hibernate.annotations.Type;
+import jakarta.persistence.Basic;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
 
 @Entity(name = "SamlAuthnRequestEntity")
 @Table(name = "samlauthnrequest")
@@ -20,7 +21,7 @@ public class SamlAuthnRequestEntity extends AbstractBaseEntity {
 	@Column(name = "authnrequest_data")
 	@Basic(fetch = FetchType.LAZY)
 	@Lob
-	@Type(type = "org.hibernate.type.TextType")	
+	@JdbcTypeCode(Types.LONGVARCHAR)	
 	private String authnrequestData;
 
 	@Column(name = "valid_until")

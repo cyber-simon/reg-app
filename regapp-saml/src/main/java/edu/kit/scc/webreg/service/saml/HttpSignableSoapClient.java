@@ -12,12 +12,12 @@ package edu.kit.scc.webreg.service.saml;
 
 import java.io.Serializable;
 
-import net.shibboleth.utilities.java.support.xml.ParserPool;
-
-import org.apache.http.client.HttpClient;
+import org.apache.hc.client5.http.classic.HttpClient;
 import org.opensaml.soap.client.http.HttpSOAPClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import net.shibboleth.shared.xml.ParserPool;
 
 public class HttpSignableSoapClient extends HttpSOAPClient implements Serializable {
 

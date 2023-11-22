@@ -18,18 +18,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
 import javax.xml.namespace.QName;
 
-import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
-import net.shibboleth.utilities.java.support.xml.BasicParserPool;
-import net.shibboleth.utilities.java.support.xml.SerializeSupport;
-import net.shibboleth.utilities.java.support.xml.XMLParserException;
-
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.XMLObjectBuilder;
@@ -53,6 +44,14 @@ import org.w3c.dom.Element;
 
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import net.shibboleth.shared.component.ComponentInitializationException;
+import net.shibboleth.shared.xml.SerializeSupport;
+import net.shibboleth.shared.xml.XMLParserException;
+import net.shibboleth.shared.xml.impl.BasicParserPool;
 
 @Named("samlHelper")
 @ApplicationScoped
@@ -109,7 +108,7 @@ public class SamlHelper implements Serializable {
 	  return (T) ((XMLObjectBuilder<?>) builderFactory.getBuilder(typeName)).buildObject(qname, typeName);
 	}
 	
-	public <T extends XMLObject> String marshal(T t) {
+	public String marshal(XMLObject t) {
 		try {
 			Element element = toXmlElement(t);
 			return SerializeSupport.nodeToString(element);
@@ -119,7 +118,7 @@ public class SamlHelper implements Serializable {
 		}
 	}
 
-	public <T extends XMLObject> String prettyPrint(T t) {
+	public String prettyPrint(XMLObject t) {
 		try {
 			Element element = toXmlElement(t);
 			return SerializeSupport.prettyPrintXML(element);
@@ -129,7 +128,7 @@ public class SamlHelper implements Serializable {
 		}
 	}
 	
-	public <T extends XMLObject> Element toXmlElement(T t) throws MarshallingException {
+	public Element toXmlElement(XMLObject t) throws MarshallingException {
 		Marshaller marshaller = marshallerFactory.getMarshaller(t);
 		return marshaller.marshall(t);
 	}	

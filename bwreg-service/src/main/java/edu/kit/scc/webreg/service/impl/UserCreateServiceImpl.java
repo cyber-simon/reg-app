@@ -18,10 +18,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 
-import javax.ejb.Stateless;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.inject.Inject;
+import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionManagement;
+import jakarta.ejb.TransactionManagementType;
+import jakarta.inject.Inject;
 
 import org.slf4j.Logger;
 

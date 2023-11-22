@@ -12,8 +12,8 @@ package edu.kit.scc.webreg.service.mail.impl;
 
 import java.util.Map;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 
 import edu.kit.scc.regapp.mail.api.TemplateMailService;
 import edu.kit.scc.regapp.mail.impl.TemplateMailSender;

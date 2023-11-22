@@ -1,6 +1,6 @@
 package edu.kit.scc.webreg.service.saml;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.opensaml.saml.saml2.core.AuthnRequest;
 

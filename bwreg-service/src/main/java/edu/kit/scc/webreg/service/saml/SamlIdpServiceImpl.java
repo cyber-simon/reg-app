@@ -7,27 +7,21 @@ import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.ejb.Stateless;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.inject.Inject;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.velocity.app.VelocityEngine;
-import org.joda.time.DateTime;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.messaging.context.MessageContext;
 import org.opensaml.messaging.encoder.MessageEncodingException;
-import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.common.messaging.SAMLMessageSecuritySupport;
 import org.opensaml.saml.common.messaging.context.SAMLBindingContext;
 import org.opensaml.saml.common.messaging.context.SAMLEndpointContext;
@@ -92,9 +86,15 @@ import edu.kit.scc.webreg.entity.ServiceSamlSpEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
-import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
-import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
-import net.shibboleth.utilities.java.support.resolver.ResolverException;
+import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionManagement;
+import jakarta.ejb.TransactionManagementType;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletResponse;
+import net.shibboleth.shared.component.ComponentInitializationException;
+import net.shibboleth.shared.resolver.CriteriaSet;
+import net.shibboleth.shared.resolver.ResolverException;
+import net.shibboleth.shared.servlet.impl.ThreadLocalHttpServletResponseSupplier;
 
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)
@@ -270,7 +270,7 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 
 		Assertion assertion = samlHelper.create(Assertion.class, Assertion.DEFAULT_ELEMENT_NAME);
 		assertion.setID(samlHelper.getRandomId());
-		assertion.setIssueInstant(new DateTime());
+		assertion.setIssueInstant(Instant.now());
 		assertion.setIssuer(ssoHelper.buildIssuser(idpConfig.getEntityId()));
 		assertion.setConditions(ssoHelper.buildConditions(spMetadata));
 
@@ -285,8 +285,8 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 
 		SecurityParametersContext securityContext = buildSecurityContext(idpConfig);
 		HTTPPostEncoder postEncoder = new HTTPPostEncoder();
-		postEncoder.setHttpServletResponse(response);
-		MessageContext<SAMLObject> messageContext = new MessageContext<SAMLObject>();
+		postEncoder.setHttpServletResponseSupplier(new ThreadLocalHttpServletResponseSupplier());
+		MessageContext messageContext = new MessageContext();
 
 		logger.debug("Assertion before encryption: {}", samlHelper.prettyPrint(assertion));
 
@@ -385,7 +385,7 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 	}
 
 	private EncryptedAssertion encryptAssertion(Assertion assertion, SamlSpMetadataEntity spMetadata,
-			MessageContext<?> messageContext) throws SamlAuthenticationException {
+			MessageContext messageContext) throws SamlAuthenticationException {
 
 		EntityDescriptor ed = samlHelper.unmarshal(spMetadata.getEntityDescriptor(), EntityDescriptor.class);
 
@@ -415,7 +415,7 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 		}
 	}
 
-	private Encrypter buildEncrypter(String cert, MessageContext<?> messageContext, String spEntityId)
+	private Encrypter buildEncrypter(String cert, MessageContext messageContext, String spEntityId)
 			throws SamlAuthenticationException {
 		try {
 			byte[] decodedCert = Base64.decodeBase64(cert);

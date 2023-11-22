@@ -1,8 +1,8 @@
 package edu.kit.scc.webreg.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
 
 @Entity(name = "HomeOrgGroupEntity")
 public class HomeOrgGroupEntity extends ServiceBasedGroupEntity {

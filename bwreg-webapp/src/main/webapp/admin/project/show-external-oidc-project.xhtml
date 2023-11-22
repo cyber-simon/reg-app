@@ -1,9 +1,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="jakarta.faces.core"
+	xmlns:h="jakarta.faces.html"
+	xmlns:ui="jakarta.faces.facelets"
 	xmlns:p="http://primefaces.org/ui">
 <head>
 <title></title>
@@ -12,7 +12,7 @@
 <f:view>
 	<f:metadata>
 		<f:viewParam name="id" value="#{showExternalOidcProjectBean.id}"/>
-		<f:event type="javax.faces.event.PreRenderViewEvent"
+		<f:event type="jakarta.faces.event.PreRenderViewEvent"
             listener="#{showExternalOidcProjectBean.preRenderView}" />
 	</f:metadata>
 
@@ -42,9 +42,9 @@
 		        <h:outputText value="#{showExternalOidcProjectBean.entity.parentProject}"/>
 
 		        <h:outputText value="#{messages.services}:"/>
-		        <p:repeat value="#{showExternalOidcProjectBean.entity.projectServices}" var="s">
+		        <ui:repeat value="#{showExternalOidcProjectBean.entity.projectServices}" var="s">
 		        	<div><h:outputText value="#{s.service.name}"/></div>
-				</p:repeat>
+				</ui:repeat>
 					
 				<h:outputText value="#{messages.project_group}:"/>
 		        <h:outputText value="#{showExternalOidcProjectBean.entity.projectGroup.name} - (gidNumber: #{showExternalOidcProjectBean.entity.projectGroup.gidNumber})"/>

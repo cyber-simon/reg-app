@@ -16,8 +16,8 @@ import java.util.Base64;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 
 import edu.kit.scc.webreg.dao.KeyStoreDao;
 import edu.kit.scc.webreg.dao.ops.RqlExpressions;

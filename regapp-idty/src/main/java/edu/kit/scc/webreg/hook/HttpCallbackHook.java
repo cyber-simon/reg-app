@@ -17,16 +17,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpStatus;
-import org.apache.http.ParseException;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.ClientProtocolException;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.util.Timeout;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.MethodInvocationException;
@@ -103,14 +104,14 @@ public class HttpCallbackHook implements UserServiceHook {
 		
 		try {
 			RequestConfig config = RequestConfig.custom()
-				    .setSocketTimeout(1000)
-				    .setConnectTimeout(1000)
+				    .setConnectionRequestTimeout(Timeout.ofSeconds(3))
+				    .setConnectTimeout(Timeout.ofSeconds(5))
 				    .build();
 			CloseableHttpClient httpclient = HttpClients.custom().setDefaultRequestConfig(config).build();
 			HttpGet httpget = new HttpGet(url);
 			CloseableHttpResponse response = httpclient.execute(httpget);
 			HttpEntity entity = response.getEntity();
-			if (response.getStatusLine() != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+			if (response.getCode() == HttpStatus.SC_OK) {
 				try {
 					if (entity != null) {
 						String r = EntityUtils.toString(entity);

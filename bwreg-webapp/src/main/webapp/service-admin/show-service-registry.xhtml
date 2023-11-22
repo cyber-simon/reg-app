@@ -1,9 +1,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="jakarta.faces.core"
+	xmlns:h="jakarta.faces.html"
+	xmlns:ui="jakarta.faces.facelets"
 	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:of="http://omnifaces.org/functions">
@@ -14,7 +14,7 @@
 <f:view>
 	<f:metadata>
 		<f:viewParam name="id" value="#{serviceAdminUserDetailBean.id}"/>
-		<f:event type="javax.faces.event.PreRenderViewEvent"
+		<f:event type="jakarta.faces.event.PreRenderViewEvent"
             listener="#{serviceAdminUserDetailBean.preRenderView}" />
 	</f:metadata>
 
@@ -291,13 +291,13 @@
 							<h:outputText value="#{messages.message}" />
 						</f:facet>
 						<h:outputText value="#{ua.queryMessage}" rendered="#{ua.queryStatus != 'SUCCESS'}"/>
-						<p:repeat var="uaValue" value="#{ua.values}" rendered="#{ua.queryStatus == 'SUCCESS'}">
+						<ui:repeat var="uaValue" value="#{ua.values}" rendered="#{ua.queryStatus == 'SUCCESS'}">
 							<div><h:outputText value="#{uaValue.key}"/>: 
 							<h:outputText value="#{uaValue.valueString}" rendered="#{uaValue.class.simpleName == 'ASUserAttrValueStringEntity'}"/>
 							<h:outputText value="#{uaValue.valueLong}" rendered="#{uaValue.class.simpleName == 'ASUserAttrValueLongEntity'}"/>
 							<h:outputText value="#{uaValue.valueDate}" rendered="#{uaValue.class.simpleName == 'ASUserAttrValueDateEntity'}"/>
 							</div>
-						</p:repeat>
+						</ui:repeat>
 					</p:column>
 					<p:column>
 						<f:facet name="header">

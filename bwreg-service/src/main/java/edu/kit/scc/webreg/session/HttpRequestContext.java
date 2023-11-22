@@ -1,7 +1,7 @@
 package edu.kit.scc.webreg.session;
 
-import javax.enterprise.context.RequestScoped;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RequestScoped
 public class HttpRequestContext {

@@ -10,27 +10,27 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.entity;
 
+import java.sql.Types;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinTable;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.MapKeyColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
 
 import edu.kit.scc.webreg.entity.as.AttributeSourceServiceEntity;
 import edu.kit.scc.webreg.entity.project.ProjectAdminRoleEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapKeyColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 @Entity(name = "ServiceEntity")
 @Table(name = "service")
@@ -113,7 +113,7 @@ public class ServiceEntity extends AbstractBaseEntity {
 
 	@Column(name = "description")
 	@Lob 
-	@Type(type = "org.hibernate.type.TextType")	
+	@JdbcTypeCode(Types.LONGVARCHAR)	
 	private String description;
 	
 	@Column(name = "short_description", length = 2048)
@@ -121,7 +121,7 @@ public class ServiceEntity extends AbstractBaseEntity {
 
 	@Column(name = "deregister_text")
 	@Lob 
-	@Type(type = "org.hibernate.type.TextType")	
+	@JdbcTypeCode(Types.LONGVARCHAR)	
 	private String deregisterText;
 		
 	@Column(name = "published")

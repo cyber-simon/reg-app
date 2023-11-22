@@ -12,11 +12,6 @@ package edu.kit.scc.webreg.bean.admin.saml;
 
 import java.io.Serializable;
 
-import javax.faces.event.ComponentSystemEvent;
-import javax.faces.view.ViewScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
-
 import org.opensaml.core.xml.io.UnmarshallingException;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
@@ -25,7 +20,11 @@ import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 import edu.kit.scc.webreg.service.SamlSpMetadataService;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
-import net.shibboleth.utilities.java.support.xml.XMLParserException;
+import jakarta.faces.event.ComponentSystemEvent;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import net.shibboleth.shared.xml.XMLParserException;
 
 @Named
 @ViewScoped

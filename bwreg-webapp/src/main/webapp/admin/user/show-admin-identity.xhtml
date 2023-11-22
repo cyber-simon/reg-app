@@ -1,9 +1,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="jakarta.faces.core"
+	xmlns:h="jakarta.faces.html"
+	xmlns:ui="jakarta.faces.facelets"
 	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:of="http://omnifaces.org/functions">
@@ -15,7 +15,7 @@
 
 	<f:metadata>
 		<f:viewParam name="id" value="#{showAdminIdentityBean.id}"/>
-		<f:event type="javax.faces.event.PreRenderViewEvent"
+		<f:event type="jakarta.faces.event.PreRenderViewEvent"
             listener="#{showAdminIdentityBean.preRenderView}" />
 	</f:metadata>
 
@@ -37,7 +37,7 @@
 			<h:outputText value="#{showAdminIdentityBean.identity.uidNumber}" />
 		</p:panelGrid>
 
-		<p:repeat var="user" value="#{showAdminIdentityBean.userList}">
+		<ui:repeat var="user" value="#{showAdminIdentityBean.userList}">
 
            	<p:panel rendered="#{user.class.simpleName eq 'SamlUserEntity'}">
 				<f:facet name="header">
@@ -83,7 +83,7 @@
 				</p:panelGrid>
            	</p:panel>				
 
-		</p:repeat>
+		</ui:repeat>
 
 	</h:form>
 

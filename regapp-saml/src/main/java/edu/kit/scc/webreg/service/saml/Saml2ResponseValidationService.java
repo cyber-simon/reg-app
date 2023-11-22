@@ -10,12 +10,11 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.saml;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import java.time.Duration;
+import java.time.Instant;
+
 import javax.xml.namespace.QName;
 
-import org.joda.time.Duration;
-import org.joda.time.Instant;
 import org.opensaml.core.criterion.EntityIdCriterion;
 import org.opensaml.saml.common.SignableSAMLObject;
 import org.opensaml.saml.common.xml.SAMLConstants;
@@ -48,8 +47,10 @@ import edu.kit.scc.webreg.service.saml.exc.SamlMissingStatusException;
 import edu.kit.scc.webreg.service.saml.exc.SamlResponseExpiredException;
 import edu.kit.scc.webreg.service.saml.exc.SamlUnknownPrincipalException;
 import edu.kit.scc.webreg.service.saml.exc.SamlUnsuccessfulStatusException;
-import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
-import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import net.shibboleth.shared.component.ComponentInitializationException;
+import net.shibboleth.shared.resolver.CriteriaSet;
 
 @ApplicationScoped
 public class Saml2ResponseValidationService {
@@ -86,9 +87,9 @@ public class Saml2ResponseValidationService {
 	public void verifyExpiration(Response samlResponse, Long expiryMillis) 
 			throws SamlAuthenticationException {
 
-		Duration duration = new Duration(samlResponse.getIssueInstant(), new Instant());
-		if (duration.isLongerThan(new Duration(expiryMillis))) 
-			throw new SamlResponseExpiredException("Response is already expired after " + duration.getStandardSeconds() + " seconds");
+		Duration duration = Duration.between(samlResponse.getIssueInstant(), Instant.now());
+		if (duration.compareTo(Duration.ofMillis(expiryMillis)) > 0) 
+			throw new SamlResponseExpiredException("Response is already expired after " + duration.getSeconds() + " seconds");
 	}	
 
 	public void verifyStatus(Response samlResponse) 
@@ -173,6 +174,10 @@ public class Saml2ResponseValidationService {
 				throw new SamlAuthenticationException("SAMLSignableObject could not be validated.");
 			}
 		} catch (org.opensaml.security.SecurityException e) {
+			if (e.getCause() != null)
+				logger.info("Could not validate signature: {}, cause is: {}", e.getMessage(), e.getCause().getMessage());
+			else
+				logger.info("Could not validate signature: {}", e.getMessage());
 			throw new SamlAuthenticationException("SAMLSignableObject could not be validated.");
 		}
 	}	

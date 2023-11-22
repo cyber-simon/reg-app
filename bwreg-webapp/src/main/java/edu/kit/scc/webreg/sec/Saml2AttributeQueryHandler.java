@@ -11,19 +11,8 @@
 package edu.kit.scc.webreg.sec;
 
 import java.io.IOException;
+import java.time.Instant;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.servlet.Servlet;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.joda.time.DateTime;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.XMLObjectBuilderFactory;
 import org.opensaml.core.xml.schema.XSString;
@@ -55,7 +44,17 @@ import edu.kit.scc.webreg.service.saml.Saml2ResponseValidationService;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
 import edu.kit.scc.webreg.service.saml.SsoHelper;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
-import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import net.shibboleth.shared.component.ComponentInitializationException;
 
 @Named
 @WebServlet(urlPatterns = { "/Shibboleth.sso/SAML2/AttributeQuery", "/saml/sp/attribute-query" })
@@ -136,7 +135,7 @@ public class Saml2AttributeQueryHandler implements Servlet {
 
 			Response samlResponse = buildSamlRespone(StatusCode.SUCCESS, null);
 			samlResponse.setIssuer(ssoHelper.buildIssuser(aaConfig.getEntityId()));
-			samlResponse.setIssueInstant(new DateTime());
+			samlResponse.setIssueInstant(Instant.now());
 
 			if (query.getSubject() != null && query.getSubject().getNameID() != null) {
 				String nameIdValue = query.getSubject().getNameID().getValue();
@@ -145,7 +144,7 @@ public class Saml2AttributeQueryHandler implements Servlet {
 				UserEntity user = userService.fetch(Long.parseLong(nameIdValue));
 				if (user != null) {
 					Assertion assertion = samlHelper.create(Assertion.class, Assertion.DEFAULT_ELEMENT_NAME);
-					assertion.setIssueInstant(new DateTime());
+					assertion.setIssueInstant(Instant.now());
 					assertion.setIssuer(ssoHelper.buildIssuser(aaConfig.getEntityId()));
 					assertion.setSubject(ssoHelper.buildAQSubject(aaConfig, spEntity, nameIdValue, NameID.UNSPECIFIED,
 							query.getID()));
@@ -206,7 +205,7 @@ public class Saml2AttributeQueryHandler implements Servlet {
 
 		if (messageString != null) {
 			StatusMessage statusMessage = samlHelper.create(StatusMessage.class, StatusMessage.DEFAULT_ELEMENT_NAME);
-			statusMessage.setMessage(messageString);
+			statusMessage.setValue(messageString);
 			samlStatus.setStatusMessage(statusMessage);
 		}
 		return samlStatus;

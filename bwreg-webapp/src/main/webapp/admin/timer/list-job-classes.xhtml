@@ -1,9 +1,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="jakarta.faces.core"
+	xmlns:h="jakarta.faces.html"
+	xmlns:ui="jakarta.faces.facelets"
 	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
 	xmlns:p="http://primefaces.org/ui">
 <head>
@@ -50,9 +50,9 @@
 				<f:facet name="header">
 					<h:outputText value="#{messages.schedule}" />
 				</f:facet>
-				<p:repeat var="schedule" value="#{entity.schedules}">
+				<ui:repeat var="schedule" value="#{entity.schedules}">
 					<h:outputText value="#{schedule.name}" />
-				</p:repeat>
+				</ui:repeat>
 			</p:column>
 			<p:column width="12%">
        			<p:commandButton action="#{listJobClassBean.delete(entity)}" immediate="true" update="@form"

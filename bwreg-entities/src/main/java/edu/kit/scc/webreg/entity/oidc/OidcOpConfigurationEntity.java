@@ -1,15 +1,16 @@
 package edu.kit.scc.webreg.entity.oidc;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Lob;
-import javax.persistence.Table;
+import java.sql.Types;
 
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
 
 import edu.kit.scc.webreg.entity.AbstractBaseEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
 
 @Entity(name = "OidcOpConfigurationEntity")
 @Table(name = "oidc_op_configuration")
@@ -28,22 +29,22 @@ public class OidcOpConfigurationEntity extends AbstractBaseEntity {
 
 	@Column(name = "private_key")
 	@Lob
-	@Type(type = "org.hibernate.type.TextType")		
+	@JdbcTypeCode(Types.LONGVARCHAR)		
 	private String privateKey;
 	
 	@Column(name = "certificate")
 	@Lob
-	@Type(type = "org.hibernate.type.TextType")		
+	@JdbcTypeCode(Types.LONGVARCHAR)		
 	private String certificate;
 	
 	@Column(name = "standby_private_key")
 	@Lob
-	@Type(type = "org.hibernate.type.TextType")		
+	@JdbcTypeCode(Types.LONGVARCHAR)		
 	private String standbyPrivateKey;
 	
 	@Column(name = "standby_certificate")
 	@Lob
-	@Type(type = "org.hibernate.type.TextType")		
+	@JdbcTypeCode(Types.LONGVARCHAR)		
 	private String standbyCertificate;
 	
 	@Enumerated(EnumType.STRING)

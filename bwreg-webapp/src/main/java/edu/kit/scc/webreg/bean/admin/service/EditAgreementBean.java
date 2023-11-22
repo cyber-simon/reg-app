@@ -13,10 +13,10 @@ package edu.kit.scc.webreg.bean.admin.service;
 import java.io.Serializable;
 import java.util.HashMap;
 
-import javax.faces.event.ComponentSystemEvent;
-import javax.faces.view.ViewScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.faces.event.ComponentSystemEvent;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import edu.kit.scc.webreg.entity.AgreementTextEntity;
 import edu.kit.scc.webreg.service.AgreementTextService;

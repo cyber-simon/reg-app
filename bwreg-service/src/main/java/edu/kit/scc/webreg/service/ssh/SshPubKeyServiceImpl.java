@@ -18,8 +18,8 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 
 import edu.kit.scc.regapp.sshkey.SshPubKeyManager;
 import edu.kit.scc.regapp.sshkey.exc.SshPubKeyBlacklistedException;

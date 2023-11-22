@@ -12,8 +12,8 @@ package edu.kit.scc.webreg.service.impl;
 
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.ImageDao;

@@ -10,13 +10,15 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import java.sql.Types;
 
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity(name = "BusinessRuleEntity")
 @Table(name = "business_rule")
@@ -26,7 +28,7 @@ public class BusinessRuleEntity extends AbstractBaseEntity {
 
 	@Column(name = "rule_text")
 	@Lob
-	@Type(type = "org.hibernate.type.TextType")	
+	@JdbcTypeCode(Types.LONGVARCHAR)	
 	private String rule;
 	
 	@Column(name = "rule_type", length = 32)

@@ -1,6 +1,6 @@
 package edu.kit.scc.webreg.entity;
 
-import javax.persistence.Entity;
+import jakarta.persistence.Entity;
 
 @Entity(name = "LocalGroupEntity")
 public class LocalGroupEntity extends ServiceBasedGroupEntity {

@@ -13,7 +13,7 @@ package edu.kit.scc.webreg.service.timer;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.ejb.TimerService;
+import jakarta.ejb.TimerService;
 
 public interface ClusterScheduler extends Serializable{
 

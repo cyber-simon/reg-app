@@ -15,9 +15,9 @@ import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
 
 import java.util.List;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
 
 import edu.kit.scc.regapp.sshkey.SshPubKeyRegistryManager;
 import edu.kit.scc.webreg.dao.BaseDao;

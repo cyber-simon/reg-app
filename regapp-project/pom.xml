@@ -10,19 +10,6 @@
 	<packaging>jar</packaging>
 	<artifactId>regapp-project</artifactId>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.wildfly.bom</groupId>
-    			<artifactId>wildfly-javaee8-with-tools</artifactId>
-    			<version>17.0.1.Final</version>
-    			<type>pom</type>
-				<scope>import</scope>
-				<optional>false</optional>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
-	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -76,8 +63,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>javax</groupId>
-			<artifactId>javaee-api</artifactId>
+			<groupId>jakarta.platform</groupId>
+			<artifactId>jakarta.jakartaee-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
 
@@ -94,8 +81,8 @@
 			<artifactId>vt-ldap</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
+			<groupId>org.apache.httpcomponents.client5</groupId>
+			<artifactId>httpclient5</artifactId>
 		</dependency>
 		<dependency>
    			<groupId>commons-beanutils</groupId>

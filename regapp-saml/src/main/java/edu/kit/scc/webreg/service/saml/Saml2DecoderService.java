@@ -10,11 +10,6 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.saml;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.servlet.http.HttpServletRequest;
-
-import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
-
 import org.opensaml.messaging.decoder.MessageDecodingException;
 import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.saml2.binding.decoding.impl.HTTPPostDecoder;
@@ -26,6 +21,10 @@ import org.opensaml.saml.saml2.core.Response;
 
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.service.saml.exc.SamlInvalidPostException;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.servlet.http.HttpServletRequest;
+import net.shibboleth.shared.component.ComponentInitializationException;
+import net.shibboleth.shared.servlet.impl.ThreadLocalHttpServletRequestSupplier;
 
 @ApplicationScoped
 public class Saml2DecoderService {
@@ -34,12 +33,12 @@ public class Saml2DecoderService {
 			throws MessageDecodingException, SecurityException, SamlAuthenticationException, ComponentInitializationException {
 
 		HTTPPostDecoder decoder = new HTTPPostDecoder();
-		decoder.setHttpServletRequest(request);
+		decoder.setHttpServletRequestSupplier(new ThreadLocalHttpServletRequestSupplier());
 
 		decoder.initialize();
 		decoder.decode();
 
-		SAMLObject obj = decoder.getMessageContext().getMessage();
+		SAMLObject obj = (SAMLObject) decoder.getMessageContext().getMessage();
 		if (obj instanceof Response) 
 			return (Response) obj;
 		else
@@ -50,12 +49,12 @@ public class Saml2DecoderService {
 			throws MessageDecodingException, SecurityException, SamlAuthenticationException, ComponentInitializationException {
 
 		HTTPSOAP11Decoder decoder = new HTTPSOAP11Decoder();
-		decoder.setHttpServletRequest(request);
+		decoder.setHttpServletRequestSupplier(new ThreadLocalHttpServletRequestSupplier());
 
 		decoder.initialize();
 		decoder.decode();
 
-		SAMLObject obj = decoder.getMessageContext().getMessage();
+		SAMLObject obj = (SAMLObject) decoder.getMessageContext().getMessage();
 		if (obj instanceof AttributeQuery) 
 			return (AttributeQuery) obj;
 		else
@@ -66,12 +65,12 @@ public class Saml2DecoderService {
 			throws MessageDecodingException, SecurityException, SamlAuthenticationException, ComponentInitializationException {
 
 		HTTPRedirectDeflateDecoder decoder = new HTTPRedirectDeflateDecoder();
-		decoder.setHttpServletRequest(request);
+		decoder.setHttpServletRequestSupplier(new ThreadLocalHttpServletRequestSupplier());
 
 		decoder.initialize();
 		decoder.decode();
 
-		SAMLObject obj = decoder.getMessageContext().getMessage();
+		SAMLObject obj = (SAMLObject) decoder.getMessageContext().getMessage();
 		if (obj instanceof AuthnRequest) 
 			return (AuthnRequest) obj;
 		else

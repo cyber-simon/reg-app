@@ -3,8 +3,8 @@ package edu.kit.scc.webreg.bootstrap;
 import java.util.Date;
 import java.util.Map;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 
 @Stateless
 public class ApplicationConfigService {

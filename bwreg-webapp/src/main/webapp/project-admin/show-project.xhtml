@@ -1,9 +1,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="jakarta.faces.core"
+	xmlns:h="jakarta.faces.html"
+	xmlns:ui="jakarta.faces.facelets"
 	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:of="http://omnifaces.org/functions">
@@ -14,7 +14,7 @@
 <f:view>
 	<f:metadata>
 		<f:viewParam name="projectId" value="#{projectAdminShowProjectBean.projectId}"/>
-		<f:event type="javax.faces.event.PreRenderViewEvent"
+		<f:event type="jakarta.faces.event.PreRenderViewEvent"
             listener="#{projectAdminShowProjectBean.preRenderView}" />
 	</f:metadata>
 
@@ -42,12 +42,12 @@
 
 	        <h:outputText value="#{messages.services}:"/>
 	        <h:panelGroup>
-		        <p:repeat value="#{projectAdminShowProjectBean.serviceFromParentsList}" var="s">
+		        <ui:repeat value="#{projectAdminShowProjectBean.serviceFromParentsList}" var="s">
 		        	<div style="color:gray;"><h:outputText value="#{s.service.name}"/></div>
-				</p:repeat>
-		        <p:repeat value="#{projectAdminShowProjectBean.serviceList}" var="s">
+				</ui:repeat>
+		        <ui:repeat value="#{projectAdminShowProjectBean.serviceList}" var="s">
 		        	<div><h:outputText value="#{s.service.name}"/></div>
-				</p:repeat>
+				</ui:repeat>
 				<div class="text full" style="margin-top: 0.4em;">
 					<h:link outcome="edit-project-services.xhtml" value="#{messages['project.edit_connected_services']}">
 						<f:param name="projectId" value="#{projectAdminShowProjectBean.projectId}"/>

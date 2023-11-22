@@ -33,109 +33,92 @@
 			<groupId>edu.kit.scc</groupId>
 			<artifactId>bwreg-entities</artifactId>
 			<version>${project.version}</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
 			<artifactId>regapp-exc</artifactId>
 			<version>${project.version}</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
 			<artifactId>regapp-tools</artifactId>
 			<version>${project.version}</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
 			<artifactId>regapp-jpa-api</artifactId>
 			<version>${project.version}</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
 			<artifactId>regapp-config</artifactId>
 			<version>${project.version}</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
 			<artifactId>regapp-audit</artifactId>
 			<version>${project.version}</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
 			<artifactId>regapp-drools</artifactId>
 			<version>${project.version}</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
 			<artifactId>regapp-event-api</artifactId>
 			<version>${project.version}</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
 			<artifactId>regapp-reg-api</artifactId>
 			<version>${project.version}</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
-			<groupId>javax</groupId>
-			<artifactId>javaee-api</artifactId>
+			<groupId>jakarta.platform</groupId>
+			<artifactId>jakarta.jakartaee-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.kie</groupId>
 			<artifactId>kie-api</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.drools</groupId>
 			<artifactId>drools-core</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.drools</groupId>
 			<artifactId>drools-compiler</artifactId>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.primefaces</groupId>
 			<artifactId>primefaces</artifactId>
-			<scope>provided</scope>
+			<classifier>jakarta</classifier>
 		</dependency>
 		<dependency>
 			<groupId>edu.vt.middleware</groupId>
 			<artifactId>vt-ldap</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>jcifs</groupId>
 			<artifactId>jcifs</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
    			<groupId>commons-beanutils</groupId>
 		    <artifactId>commons-beanutils</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.velocity</groupId>
 			<artifactId>velocity</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		
 	</dependencies>
