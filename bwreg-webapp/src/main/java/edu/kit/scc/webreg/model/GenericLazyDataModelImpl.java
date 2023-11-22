@@ -42,6 +42,7 @@ public class GenericLazyDataModelImpl<E extends BaseEntity, T extends BaseServic
 	private T service;
 
 	private RqlExpression filter;
+
 	@SuppressWarnings("rawtypes")
 	private Attribute[] attrs;
 
@@ -64,11 +65,7 @@ public class GenericLazyDataModelImpl<E extends BaseEntity, T extends BaseServic
 	public List<E> load(int first, int pageSize, Map<String, SortMeta> sortBy,
 			Map<String, FilterMeta> additionalFilterMap) {
 
-		RqlExpression[] additionalFilters = additionalFilterMap.entrySet().stream()
-				.map(e -> like(e.getKey(), e.getValue().getFilterValue().toString(),
-						getMatchMode(e.getValue().getMatchMode())))
-				.collect(Collectors.toList()).toArray(RqlExpression[]::new);
-		RqlExpression completeFilter = filter == null ? and(additionalFilters) : and(filter, and(additionalFilters));
+		RqlExpression completeFilter = buildFilter(additionalFilterMap);
 
 		setPageSize(pageSize);
 		Number n = getService().countAll(completeFilter);
@@ -79,6 +76,16 @@ public class GenericLazyDataModelImpl<E extends BaseEntity, T extends BaseServic
 		List<SortBy> sortList = sortBy.values().stream().map(this::getDaoSortData).collect(Collectors.toList());
 
 		return getService().findAllEagerly(PaginateBy.of(first, pageSize), sortList, completeFilter, attrs);
+	}
+
+	private RqlExpression buildFilter(Map<String, FilterMeta> additionalFilterMap) {
+		RqlExpression[] additionalFilters = additionalFilterMap.entrySet().stream()
+				.map(e -> like(e.getKey(), e.getValue().getFilterValue().toString(),
+						getMatchMode(e.getValue().getMatchMode())))
+				.collect(Collectors.toList()).toArray(RqlExpression[]::new);
+		RqlExpression completeFilter = filter == null ? and(additionalFilters) : and(filter, and(additionalFilters));
+
+		return completeFilter;
 	}
 
 	private SortBy getDaoSortData(SortMeta primefacesSortMeta) {
@@ -120,8 +127,12 @@ public class GenericLazyDataModelImpl<E extends BaseEntity, T extends BaseServic
 	}
 
 	@Override
-	public int count(Map<String, FilterMeta> filterBy) {
-		// TODO Auto-generated method stub
-		return 0;
+	public int count(Map<String, FilterMeta> additionalFilterMap) {
+		RqlExpression completeFilter = buildFilter(additionalFilterMap);
+		Number n = getService().countAll(completeFilter);
+		if (n != null)
+			return n.intValue();
+		else
+			return 0;
 	}
 }
