@@ -50,9 +50,10 @@
 		</p:panel>
 		<p:tabView id="tabVw" dynamic="true">
 			<p:tab id="tab1" title="#{messages.my_data}" rendered="#{userPropertiesBean.user.class.simpleName eq 'SamlUserEntity'}">
-				<div class="panel">#{messages.my_data_explanation}</div>
-				<div class="panel">#{messages.data_from}: <b>#{userPropertiesBean.user.idp.orgName}</b></div>
-				<p:panelGrid columns="2">
+				<div>#{messages.my_data_explanation}</div>
+				<div>#{messages.data_from}: <b>#{userPropertiesBean.user.idp.orgName}</b></div>
+				<br/>
+				<p:panelGrid columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 					<h:outputLabel value="#{messages.name}" for="@next" /> 
 					<h:outputText value="#{userPropertiesBean.user.surName}, #{userPropertiesBean.user.givenName}"/>
 
@@ -77,9 +78,10 @@
 			</p:tab>
 
 			<p:tab id="tab1_1" title="#{messages.my_data}" rendered="#{userPropertiesBean.user.class.simpleName eq 'OidcUserEntity'}">
-				<div class="panel">#{messages.my_data_explanation}</div>
-				<div class="panel">#{messages.data_from}: <b>#{userPropertiesBean.user.issuer.displayName}</b></div>
-				<p:panelGrid columns="2">
+				<div>#{messages.my_data_explanation}</div>
+				<div>#{messages.data_from}: <b>#{userPropertiesBean.user.issuer.displayName}</b></div>
+				<br/>
+				<p:panelGrid columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 					<h:outputLabel value="#{messages.name}" for="@next" /> 
 					<h:outputText value="#{userPropertiesBean.user.surName}, #{userPropertiesBean.user.givenName}"/>
 

@@ -24,7 +24,7 @@
 		<h2><h:outputText value="#{messages.timer_wizard_clear_old_audit_entries_header}"/></h2>
 
 		<p:panel rendered="#{wizardClearOldAuditEntriesBean.jobClass == null}">
-			<p:panelGrid columns="2">
+			<p:panelGrid columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 				<i class="pi pi-times" style="font-size: 2rem;"></i>
 				<p:outputPanel>
 					<div>
@@ -36,7 +36,7 @@
 						The predefined limit of 10 is a sensible value. You can change it, but be aware, the the transaction for the deletion 
 						should not take too long. 
 					</div>
-					<p:panelGrid columns="2" style="margin-top: 0.5em;">
+					<p:panelGrid columns="2" style="margin-top: 0.5em;" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 						<p:outputLabel value="Name:" for="@next"/>
 						<p:inputText value="#{wizardClearOldAuditEntriesBean.scheduleName}" style="width: 320px;"/>
 
@@ -56,7 +56,7 @@
 		</p:panel>
 
 		<p:panel rendered="#{wizardClearOldAuditEntriesBean.jobClass != null}">
-			<p:panelGrid columns="2">
+			<p:panelGrid columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 				<i class="pi pi-check" style="font-size: 2rem;"></i>
 				<p:outputPanel>
 					<div>
@@ -73,7 +73,7 @@
 		</p:panel>
 
 		<p:panel rendered="#{wizardClearOldAuditEntriesBean.jobSchedule == null and wizardClearOldAuditEntriesBean.jobClass != null}">
-			<p:panelGrid columns="2">
+			<p:panelGrid columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 				<i class="pi pi-times" style="font-size: 2rem;"></i>
 				<p:outputPanel>
 					No job schedule yet. Create one in order to execute the job on regular basis:
@@ -95,7 +95,7 @@
 		</p:panel>
 
 		<p:panel rendered="#{wizardClearOldAuditEntriesBean.jobSchedule != null}">
-			<p:panelGrid columns="2">
+			<p:panelGrid columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 				<h:panelGroup>
 					<p:outputPanel rendered="#{! wizardClearOldAuditEntriesBean.jobSchedule.disabled}"><i class="pi pi-check" style="font-size: 2rem;"></i></p:outputPanel>
 					<p:outputPanel rendered="#{wizardClearOldAuditEntriesBean.jobSchedule.disabled}"><i class="pi pi-pause" style="font-size: 2rem;"></i></p:outputPanel>

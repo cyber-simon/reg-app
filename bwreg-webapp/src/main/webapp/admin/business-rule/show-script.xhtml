@@ -25,35 +25,33 @@
 	<h:form id="form">
 		<h2><h:outputText value="#{messages.business_rule}: #{showScriptBean.entity.name}"/></h2>
 	
-		<div id="panelInline">
-			<p:panel header="#{messages.business_rule}">
-				<p:panelGrid id="baseData" columns="2">
+		<p:panel header="#{messages.business_rule}">
+			<p:panelGrid id="baseData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
+
+		        <h:outputText value="#{messages.id}:"/>
+		        <h:outputText value="#{showScriptBean.entity.id}"/>
 		
-			        <h:outputText value="#{messages.id}:"/>
-			        <h:outputText value="#{showScriptBean.entity.id}"/>
+		        <h:outputText value="#{messages.name}:"/>
+		        <h:outputText value="#{showScriptBean.entity.name}"/>
+					
+		        <h:outputText value="#{messages.script_engine}:"/>
+		        <h:outputText value="#{showScriptBean.entity.scriptEngine}"/>
+					
+		        <h:outputText value="#{messages.script_type}:"/>
+		        <h:outputText value="#{showScriptBean.entity.scriptType}"/>
+
+			</p:panelGrid>
+
+	        <p:outputPanel style="width: 740px; height: 400px; margin: 1em 0 1em 0;">
+				<pe:codeMirror id="codeMirror" mode="javascript" theme="eclipse" 
+   					value="#{showScriptBean.entity.script}" keyMap="default" lineNumbers="true"
+   					matchBrackets="true" readonly="true" lineWrapping="true" />
+	        </p:outputPanel>					
 			
-			        <h:outputText value="#{messages.name}:"/>
-			        <h:outputText value="#{showScriptBean.entity.name}"/>
-						
-			        <h:outputText value="#{messages.script_engine}:"/>
-			        <h:outputText value="#{showScriptBean.entity.scriptEngine}"/>
-						
-			        <h:outputText value="#{messages.script_type}:"/>
-			        <h:outputText value="#{showScriptBean.entity.scriptType}"/>
-
-				</p:panelGrid>
-
-		        <p:outputPanel style="width: 740px; height: 400px; margin: 1em 0 1em 0;">
-					<pe:codeMirror id="codeMirror" mode="javascript" theme="eclipse" 
-    					value="#{showScriptBean.entity.script}" keyMap="default" lineNumbers="true"
-    					matchBrackets="true" readonly="true" lineWrapping="true" />
-		        </p:outputPanel>					
-				
-				<h:link outcome="edit-script.xhtml" value="#{messages.edit}">
-					<f:param name="scriptId" value="#{showScriptBean.entity.id}"/>
-				</h:link>
-			</p:panel>
-		</div>
+			<h:link outcome="edit-script.xhtml" value="#{messages.edit}">
+				<f:param name="scriptId" value="#{showScriptBean.entity.id}"/>
+			</h:link>
+		</p:panel>
 
 	</h:form>
 

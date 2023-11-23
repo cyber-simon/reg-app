@@ -26,7 +26,7 @@
 	
 		<div id="panelInline">
 			<p:panel header="#{messages.federation}">
-				<p:panelGrid id="baseData" columns="2">
+				<p:panelGrid id="baseData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 		
 			        <h:outputText value="#{messages.id}:"/>
 			        <h:outputText value="#{showIdpBean.entity.id}"/>
@@ -105,7 +105,7 @@
 
 		<div id="panelInline">
 			<p:panel header="#{messages.detail}" collapsed="true" toggleable="true">
-				<p:panelGrid columns="2">
+				<p:panelGrid columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 
 					<h:outputLabel value="#{messages.supported_protocols}" />
 					<h:panelGroup>
@@ -161,7 +161,7 @@
 					<h:panelGroup>
 						<ul>
 							<ui:repeat var="nidf" value="#{showIdpBean.idpssoDescriptor.nameIDFormats}">
-								<li><h:outputText value="#{nidf.format}"/></li>
+								<li><h:outputText value="#{nidf.URI}"/></li>
 							</ui:repeat>
 						</ul>
 					</h:panelGroup>
@@ -189,13 +189,13 @@
 					<h:panelGroup>
 						<ul>
 							<ui:repeat var="person" value="#{showIdpBean.entityDescriptor.contactPersons}">
-								<li><h:outputText value="#{person.type}: #{person.surName.name}, #{person.givenName.name}"/>
+								<li><h:outputText value="#{person.type}: #{person.surName.value}, #{person.givenName.value}"/>
 									<ul>
 										<ui:repeat var="email" value="#{person.emailAddresses}">
-											<li>Email: <h:outputText value="#{email.address}" /></li>
+											<li>Email: <h:outputText value="#{email.URI}" /></li>
 										</ui:repeat>
 										<ui:repeat var="tel" value="#{person.telephoneNumbers}">
-											<li>Telefon: <h:outputText value="#{tel.number}" /></li>
+											<li>Telefon: <h:outputText value="#{tel.value}" /></li>
 										</ui:repeat>
 									</ul>
 								</li>

@@ -28,7 +28,7 @@
 
 		<h3>Show identity: <h:outputText value="#{showAdminIdentityBean.identity.id}" /></h3>
 
-		<p:panelGrid columns="2">
+		<p:panelGrid columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 			<h:outputLabel value="#{messages.twofa_userid}" for="@next"/>
 			<h:outputText value="#{showAdminIdentityBean.identity.twoFaUserId}" />
 			<h:outputLabel value="#{messages.twofa_username}" for="@next"/>
@@ -43,7 +43,7 @@
 				<f:facet name="header">
 					#{user.id} - #{user.eppn} - (#{user.idp.displayName})
 				</f:facet>
-				<p:panelGrid columns="2">
+				<p:panelGrid columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 					<h:outputLabel value="#{messages.name}" for="@next"/>
 					<h:outputText value="#{user.surName}, #{user.givenName}" />
 					<h:outputLabel value="#{messages.email_address}" for="@next"/>
@@ -65,7 +65,7 @@
 				<f:facet name="header">
 					#{user.id} - #{user.eppn} - (#{user.issuer.displayName})
 				</f:facet>
-				<p:panelGrid columns="2">
+				<p:panelGrid columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 					<h:outputLabel value="#{messages.name}" for="@next"/>
 					<h:outputText value="#{user.surName}, #{user.givenName}" />
 					<h:outputLabel value="#{messages.email_address}" for="@next"/>

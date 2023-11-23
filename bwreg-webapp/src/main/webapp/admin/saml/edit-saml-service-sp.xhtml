@@ -25,7 +25,7 @@
 		<h2><h:outputText value="#{messages.saml_service_sp}: #{editSamlServiceSpBean.entity.id}"/></h2>
 	
 		<p:panel header="#{messages.sp_config}">
-			<p:panelGrid id="baseData" columns="2">
+			<p:panelGrid id="baseData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 	
 		        <h:outputText value="#{messages.id}:"/>
 		        <h:outputText value="#{editSamlServiceSpBean.entity.id}"/>

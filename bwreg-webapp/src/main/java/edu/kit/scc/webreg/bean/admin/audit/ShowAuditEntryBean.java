@@ -42,10 +42,11 @@ public class ShowAuditEntryBean implements Serializable {
 	private Long id;
 
 	public void preRenderView(ComponentSystemEvent ev) {
-		entity = service.fetch(id);
 	}
 	
 	public AuditEntryEntity getEntity() {
+		if (entity == null)
+			entity = service.fetch(id);
 		return entity;
 	}
 

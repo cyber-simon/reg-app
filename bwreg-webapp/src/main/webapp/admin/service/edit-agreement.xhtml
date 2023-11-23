@@ -26,7 +26,7 @@
 	
 		<div id="panelInline">
 			<p:panel header="#{messages.policy}">
-				<p:panelGrid id="baseData" columns="2">
+				<p:panelGrid id="baseData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 		
 			        <h:outputText value="#{messages.id}:"/>
 			        <h:outputText value="#{editAgreementBean.entity.id}"/>
@@ -49,7 +49,7 @@
 			</ui:repeat>	
 			
 			<p:panel header="#{messages.add_agreement_text}">
-				<p:panelGrid id="addAgrI18Data" columns="2">
+				<p:panelGrid id="addAgrI18Data" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 			        <h:inputText value="#{editAgreementBean.inputFieldLang}"/>
 			        <p:inputTextarea value="#{editAgreementBean.inputFieldText}" style="width: 600px; height: 300px;" 
 			        	autoResize="false" />

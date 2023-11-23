@@ -30,7 +30,7 @@
 		
 		<div id="panelInline">
 			<p:panel header="#{messages.user_properties}">
-				<p:panelGrid id="baseData" columns="2">
+				<p:panelGrid id="baseData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 			
 			        <h:outputText value="#{messages.id}:"/>
 			        <h:outputText value="#{showRegistryBean.registry.id}"/>

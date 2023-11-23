@@ -25,7 +25,7 @@
 		<h2><h:outputText value="#{messages.rp_config}: #{showOidcClientConfigurationBean.entity.name}"/></h2>
 	
 		<p:panel id="mainPanel" header="#{messages.rp_config}">
-			<p:panelGrid id="baseData" columns="2">
+			<p:panelGrid id="baseData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 			
 		        <h:outputText value="#{messages.id}:"/>
 		        <h:outputText value="#{showOidcClientConfigurationBean.entity.id}"/>
@@ -92,7 +92,7 @@
 				</p:outputPanel>
 			</ui:repeat>
 		
-			<p:panelGrid columns="2">
+			<p:panelGrid columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 				<h:outputText value="#{messages.script}" />
 		        <h:selectOneMenu value="#{showOidcClientConfigurationBean.newSoce.script}"
 		        	converter="#{scriptConverter}">

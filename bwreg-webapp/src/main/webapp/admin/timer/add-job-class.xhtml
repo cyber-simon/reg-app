@@ -20,7 +20,7 @@
 
 		<div class="panel">
 			<p:panel header="#{messages.schedule}">
-				<p:panelGrid id="baseData" columns="2">
+				<p:panelGrid id="baseData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 	
 			        <bw:inputText id="nameField" label="#{messages.name}" 
 		        		value="#{addJobClassBean.entity.name}" required="true"/>

@@ -27,7 +27,7 @@
 		<div class="panel">
 			<p:panel header="#{messages.audit_detail}">
 
-				<p:panelGrid id="baseData" columns="2">
+				<p:panelGrid id="baseData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 
 					<h:outputText value="#{messages.id}:" />
 					<h:outputText value="#{showAuditDetailBean.entity.id}" />
@@ -55,7 +55,7 @@
 		<div class="panel">
 			<p:panel header="#{messages.audit_entry}">
 
-				<p:panelGrid id="baseData2" columns="2">
+				<p:panelGrid id="baseData2" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 
 					<h:outputText value="#{messages.id}:" />
 					<h:outputText value="#{showAuditDetailBean.entity.auditEntry.id}" />

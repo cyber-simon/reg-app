@@ -28,7 +28,7 @@
 		<div class="panel">
 			<p:tabView id="tabView" dynamic="true" cache="true">			
 				<p:tab id="eppnPanel" title="#{messages.bulk_register}">
-					<p:panelGrid id="baseData" columns="2">
+					<p:panelGrid id="baseData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 					
 						<h:outputLabel for="eppnField" value="#{messages.bulk_eppn}"/>
 						<p:inputTextarea id="eppnField" rows="12" cols="80" autoResize="false"

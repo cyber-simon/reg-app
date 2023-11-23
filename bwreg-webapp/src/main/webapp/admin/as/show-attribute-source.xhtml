@@ -27,7 +27,7 @@
 		<div class="panel">
 			<p:panel header="#{messages.attribute_source}">
 
-				<p:panelGrid id="baseData" columns="2">
+				<p:panelGrid id="baseData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 
 					<h:outputText value="#{messages.id}:" />
 					<h:outputText value="#{showAttributeSourceBean.entity.id}" />
@@ -89,7 +89,7 @@
 		<div class="panel">
 			<p:panel header="#{messages.tools}">
 
-				<p:panelGrid id="testData" columns="2">
+				<p:panelGrid id="testData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 					<h:outputText value="#{messages.eppn}:" />
 					<p:inputText value="#{showAttributeSourceBean.testUsername}" />
 				</p:panelGrid>

@@ -24,11 +24,11 @@
 		<h2><h:outputText value="#{messages.timer_wizard_update_federation_metadata_header}"/></h2>
 
 		<p:panel rendered="#{wizardUpdateFederationMetadataBean.jobClass == null}">
-			<p:panelGrid columns="2">
+			<p:panelGrid columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 				<i class="pi pi-times" style="font-size: 2rem;"></i>
 				<p:outputPanel>
 					No job class yet. Create one here. You can choose a name, or use the predefined one. 
-					<p:panelGrid columns="2" style="margin-top: 0.5em;">
+					<p:panelGrid columns="2" style="margin-top: 0.5em;" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 						<p:outputLabel value="Name:" for="@next"/>
 						<p:inputText value="#{wizardUpdateFederationMetadataBean.scheduleName}" style="width: 320px;"/>
 					</p:panelGrid>
@@ -39,7 +39,7 @@
 		</p:panel>
 
 		<p:panel rendered="#{wizardUpdateFederationMetadataBean.jobClass != null}">
-			<p:panelGrid columns="2">
+			<p:panelGrid columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 				<i class="pi pi-check" style="font-size: 2rem;"></i>
 				<p:outputPanel>
 					<div>
@@ -50,11 +50,11 @@
 		</p:panel>
 
 		<p:panel rendered="#{wizardUpdateFederationMetadataBean.jobSchedule == null and wizardUpdateFederationMetadataBean.jobClass != null}">
-			<p:panelGrid columns="2">
+			<p:panelGrid columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 				<i class="pi pi-times" style="font-size: 2rem;"></i>
 				<p:outputPanel>
 					No job schedule yet. Create one in order to execute the job on regular basis:
-					<p:panelGrid columns="2" style="margin-top: 0.5em;">
+					<p:panelGrid columns="2" style="margin-top: 0.5em;" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 						<p:outputLabel value="Name:" for="@next"/>
 						<p:inputText value="#{wizardUpdateFederationMetadataBean.scheduleName}" style="width: 320px;"/>
 						
@@ -73,7 +73,7 @@
 		</p:panel>
 
 		<p:panel rendered="#{wizardUpdateFederationMetadataBean.jobSchedule != null}">
-			<p:panelGrid columns="2">
+			<p:panelGrid columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 				<h:panelGroup>
 					<p:outputPanel rendered="#{! wizardUpdateFederationMetadataBean.jobSchedule.disabled}"><i class="pi pi-check" style="font-size: 2rem;"></i></p:outputPanel>
 					<p:outputPanel rendered="#{wizardUpdateFederationMetadataBean.jobSchedule.disabled}"><i class="pi pi-pause" style="font-size: 2rem;"></i></p:outputPanel>

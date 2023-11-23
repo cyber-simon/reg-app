@@ -32,7 +32,7 @@
 			<p:tabView id="tabVw" dynamic="true" cache="true">
 
 				<p:tab id="tab1" title="#{messages.user_properties}">
-					<p:panelGrid id="baseData" columns="2">
+					<p:panelGrid id="baseData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 				
 				        <h:outputText value="#{messages.id}:"/>
 				        <h:outputText value="#{showUserBean.entity.id}"/>
@@ -291,7 +291,7 @@
 	    <p:dialog id="dialog" header="Detail" showEffect="fade" widgetVar="documentDialog" 
 	    		modal="true" resizable="true" width="600px">
 	        <p:outputPanel id="documentPanel">
-	            <p:panelGrid  columns="2" columnClasses="label,value" rendered="#{not empty showUserBean.selectedUserAttr}">
+	            <p:panelGrid  columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9" rendered="#{not empty showUserBean.selectedUserAttr}">
 	
 	                <h:outputLabel for="name2" value="#{messages.name}" />
 	                <h:outputText id="name2" value="#{showUserBean.selectedUserAttr.attributeSource.name}" />
