@@ -2,6 +2,7 @@ package edu.kit.scc.webreg.script;
 
 import java.io.Serializable;
 
+import jakarta.enterprise.inject.spi.CDI;
 import jakarta.inject.Inject;
 
 import edu.kit.scc.webreg.dao.GroupDao;
@@ -87,5 +88,9 @@ public class AbstractScriptingEnv implements Serializable {
 
 	public ServiceGroupFlagDao getGroupFlagDao() {
 		return groupFlagDao;
-	}	
+	}
+	
+	public Object selectFromCDI(String className) throws ClassNotFoundException {
+		return CDI.current().select(Class.forName(className)).get();
+	}
 }
