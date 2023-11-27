@@ -77,8 +77,8 @@ public class RoleServiceImpl extends BaseServiceImpl<RoleEntity> implements Role
 	}
 
 	@Override
-	public List<RoleEntity> findByGroups(Set<GroupEntity> groups) {
-		return dao.findByGroups(groups);
+	public List<RoleEntity> findByGroups(Set<Long> groupIds) {
+		return dao.findByGroups(groupIds);
 	}
 
 	@Override

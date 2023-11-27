@@ -6,17 +6,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import jakarta.ejb.Stateless;
-import jakarta.inject.Inject;
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
+import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.RoleDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
 import edu.kit.scc.webreg.dao.identity.IdentityDao;
+import edu.kit.scc.webreg.dao.project.ProjectDao;
 import edu.kit.scc.webreg.drools.impl.KnowledgeSessionSingleton;
 import edu.kit.scc.webreg.entity.AdminRoleEntity;
 import edu.kit.scc.webreg.entity.ApproverRoleEntity;
@@ -33,9 +31,10 @@ import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.project.ProjectAdminRoleEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.service.AuthorizationService;
-import edu.kit.scc.webreg.service.GroupService;
-import edu.kit.scc.webreg.service.project.ProjectService;
 import edu.kit.scc.webreg.session.SessionManager;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Stateless
 public class AuthorizationServiceImpl implements AuthorizationService {
@@ -46,10 +45,10 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 	private Logger logger;
 
 	@Inject
-	private GroupService groupService;
+	private GroupDao groupDao;
 
 	@Inject
-	private ProjectService projectService;
+	private ProjectDao projectDao;
 
 	@Inject
 	private KnowledgeSessionSingleton knowledgeSessionSingleton;
@@ -85,12 +84,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 		else
 			groupsTimeout = 1 * 60 * 1000L;
 
-		Long projectsTimeout;
-		if (appConfig.getConfigValue("AuthorizationBean_projectsTimeout") != null)
-			projectsTimeout = Long.parseLong(appConfig.getConfigValue("AuthorizationBean_projectsTimeout"));
-		else
-			projectsTimeout = 1 * 60 * 1000L;
-
 		Long unregisteredServiceTimeout;
 		if (appConfig.getConfigValue("AuthorizationBean_unregisteredServiceTimeout") != null)
 			unregisteredServiceTimeout = Long
@@ -107,32 +100,17 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 			sessionManager.clearGroups();
 
 			for (UserEntity user : identity.getUsers()) {
-				Set<GroupEntity> groupList = groupService.findByUserWithChildren(user);
+				Set<GroupEntity> groupList = groupDao.findByUserWithChildren(user);
 
-				sessionManager.getGroups().addAll(groupList);
-				for (GroupEntity g : groupList) {
-					sessionManager.getGroupNames().add(g.getName());
-				}
+				groupList.stream().forEach(group -> { 
+					sessionManager.getGroupIds().add(group.getId());
+					sessionManager.getGroupNames().add(group.getName());
+				});
 			}
 			sessionManager.setGroupSetCreated(System.currentTimeMillis());
 
 			end = System.currentTimeMillis();
 			logger.trace("groups loading took {} ms", (end - start));
-		}
-
-		if (sessionManager.getProjectSetCreated() == null
-				|| (System.currentTimeMillis() - sessionManager.getProjectSetCreated()) > projectsTimeout) {
-			start = System.currentTimeMillis();
-
-			sessionManager.clearProjects();
-
-			List<ProjectMembershipEntity> projectList = projectService.findByIdentity(identity);
-
-			sessionManager.getProjects().addAll(projectList);
-			sessionManager.setProjectSetCreated(System.currentTimeMillis());
-
-			end = System.currentTimeMillis();
-			logger.trace("projects loading took {} ms", (end - start));
 		}
 
 		if (sessionManager.getRoleSetCreated() == null
@@ -143,29 +121,29 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
 			for (UserEntity user : identity.getUsers()) {
 				Set<RoleEntity> roles = new HashSet<RoleEntity>(roleDao.findByUser(user));
-				List<RoleEntity> rolesForGroupList = roleDao.findByGroups(sessionManager.getGroups());
+				List<RoleEntity> rolesForGroupList = roleDao.findByGroups(sessionManager.getGroupIds());
 				roles.addAll(rolesForGroupList);
 
 				for (RoleEntity role : roles) {
 					sessionManager.addRole(role);
 					if (role instanceof AdminRoleEntity) {
 						for (ServiceEntity s : serviceDao.findByAdminRole((AdminRoleEntity) role))
-							sessionManager.getServiceAdminList().add(s);
+							sessionManager.getServiceAdminList().add(s.getId());
 						for (ServiceEntity s : serviceDao.findByHotlineRole((AdminRoleEntity) role))
-							sessionManager.getServiceHotlineList().add(s);
+							sessionManager.getServiceHotlineList().add(s.getId());
 					} else if (role instanceof ApproverRoleEntity) {
 						for (ServiceEntity s : serviceDao.findByApproverRole((ApproverRoleEntity) role))
-							sessionManager.getServiceApproverList().add(s);
+							sessionManager.getServiceApproverList().add(s.getId());
 					} else if (role instanceof SshPubKeyApproverRoleEntity) {
 						for (ServiceEntity s : serviceDao
 								.findBySshPubKeyApproverRole((SshPubKeyApproverRoleEntity) role))
-							sessionManager.getServiceSshPubKeyApproverList().add(s);
+							sessionManager.getServiceSshPubKeyApproverList().add(s.getId());
 					} else if (role instanceof GroupAdminRoleEntity) {
 						for (ServiceEntity s : serviceDao.findByGroupAdminRole((GroupAdminRoleEntity) role))
-							sessionManager.getServiceGroupAdminList().add(s);
+							sessionManager.getServiceGroupAdminList().add(s.getId());
 					} else if (role instanceof ProjectAdminRoleEntity) {
 						for (ServiceEntity s : serviceDao.findByProjectAdminRole((ProjectAdminRoleEntity) role))
-							sessionManager.getServiceProjectAdminList().add(s);
+							sessionManager.getServiceProjectAdminList().add(s.getId());
 					}
 				}
 			}
@@ -198,8 +176,12 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
 				List<ServiceEntity> tempList = new ArrayList<ServiceEntity>();
 
+				List<RoleEntity> roleList = roleDao.fetchAll(new ArrayList<>(sessionManager.getRoleIds()));
+				List<GroupEntity> groupList = groupDao.fetchAll(new ArrayList<>(sessionManager.getGroupIds()));
+				List<ProjectMembershipEntity> projectList = projectDao.findByIdentity(identity);
+				
 				tempList.addAll(knowledgeSessionSingleton.checkServiceFilterRule(serviceFilterRule, identity,
-						unregisteredServiceList, sessionManager.getGroups(), sessionManager.getRoles(), sessionManager.getProjects()));
+						unregisteredServiceList, new HashSet<>(groupList), new HashSet<>(roleList), new HashSet<>(projectList)));
 
 				unregisteredServiceList = tempList;
 
@@ -235,7 +217,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 				unregisteredServiceList = tempList;
 			}
 
-			sessionManager.setUnregisteredServiceList(unregisteredServiceList);
+			sessionManager.setUnregisteredServiceList(unregisteredServiceList.stream().map(service -> service.getId()).toList());
 			sessionManager.setUnregisteredServiceCreated(System.currentTimeMillis());
 		}
 

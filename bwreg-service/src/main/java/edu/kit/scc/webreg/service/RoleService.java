@@ -34,7 +34,7 @@ public interface RoleService extends BaseService<RoleEntity> {
 
 	Boolean checkAdminUserInRole(Long userId, String roleName);
 
-	List<RoleEntity> findByGroups(Set<GroupEntity> groups);
+	List<RoleEntity> findByGroups(Set<Long> groupIds);
 
 	List<UserEntity> findUsersForRole(RoleEntity role);
 

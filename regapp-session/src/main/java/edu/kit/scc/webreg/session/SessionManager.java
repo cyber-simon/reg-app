@@ -18,15 +18,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import edu.kit.scc.webreg.entity.RoleEntity;
+import edu.kit.scc.webreg.service.saml.SamlIdentifier;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Named;
-
-import edu.kit.scc.webreg.entity.GroupEntity;
-import edu.kit.scc.webreg.entity.RoleEntity;
-import edu.kit.scc.webreg.entity.ServiceEntity;
-import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
-import edu.kit.scc.webreg.service.saml.SamlIdentifier;
 
 @Named("sessionManager")
 @SessionScoped
@@ -75,25 +71,22 @@ public class SessionManager implements Serializable {
 	private String originalRequestPath;
 	private String originalIdpEntityId;
 	
-	private Set<RoleEntity> roles;
+	private Set<Long> roleIds;
 	private Long roleSetCreated;
 
-	private List<ServiceEntity> serviceApproverList;
-	private List<ServiceEntity> serviceSshPubKeyApproverList;
-	private List<ServiceEntity> serviceAdminList;
-	private List<ServiceEntity> serviceHotlineList;
-	private List<ServiceEntity> serviceGroupAdminList;
-	private List<ServiceEntity> serviceProjectAdminList;
+	private List<Long> serviceApproverList;
+	private List<Long> serviceSshPubKeyApproverList;
+	private List<Long> serviceAdminList;
+	private List<Long> serviceHotlineList;
+	private List<Long> serviceGroupAdminList;
+	private List<Long> serviceProjectAdminList;
 
-	private List<ServiceEntity> unregisteredServiceList;
+	private List<Long> unregisteredServiceList;
 	private Long unregisteredServiceCreated;
 
-	private Set<GroupEntity> groups;
+	private Set<Long> groupIds;
 	private Set<String> groupNames;
 	private Long groupSetCreated;
-	
-	private Set<ProjectMembershipEntity> projects;
-	private Long projectSetCreated;
 	
 	private String theme;
 	
@@ -104,17 +97,16 @@ public class SessionManager implements Serializable {
 	
 	@PostConstruct
 	public void init() {
-		serviceApproverList = new ArrayList<ServiceEntity>();
-		serviceSshPubKeyApproverList = new ArrayList<ServiceEntity>();
-		serviceAdminList = new ArrayList<ServiceEntity>();
-		serviceHotlineList = new ArrayList<ServiceEntity>();
-		serviceGroupAdminList = new ArrayList<ServiceEntity>();
-		serviceProjectAdminList = new ArrayList<ServiceEntity>();
-		groups = new HashSet<GroupEntity>();
+		serviceApproverList = new ArrayList<Long>();
+		serviceSshPubKeyApproverList = new ArrayList<Long>();
+		serviceAdminList = new ArrayList<Long>();
+		serviceHotlineList = new ArrayList<Long>();
+		serviceGroupAdminList = new ArrayList<Long>();
+		serviceProjectAdminList = new ArrayList<Long>();
+		groupIds = new HashSet<Long>();
 		groupNames = new HashSet<String>();
-		roles = new HashSet<RoleEntity>();
+		roleIds = new HashSet<Long>();
 		loggedInUserList = new HashSet<Long>();
-		projects = new HashSet<ProjectMembershipEntity>();
 	}
 	
 	public void clearRoleList() {
@@ -127,14 +119,10 @@ public class SessionManager implements Serializable {
 	}
 	
 	public void clearGroups() {
-		groups.clear();
+		groupIds.clear();
 		groupNames.clear();
 	}
 	
-	public void clearProjects() {
-		projects.clear();
-	}
-
 	public boolean isLoggedIn() {
 		return (identityId != null ? true : false);		
 	}
@@ -144,15 +132,15 @@ public class SessionManager implements Serializable {
 	}
 
 	public void addRole(RoleEntity role) {
-		roles.add(role);
+		roleIds.add(role.getId());
 	}
 	
 	public void addRoles(Set<RoleEntity> rolesToAdd) {
-		roles.addAll(rolesToAdd);
+		roleIds.addAll(rolesToAdd.stream().map(role -> role.getId()).toList());
 	}
 
 	public boolean isUserInRole(RoleEntity role) {
-        return roles.contains(role);
+        return roleIds.contains(role.getId());
     }
 
 	public Long getIdpId() {
@@ -229,8 +217,8 @@ public class SessionManager implements Serializable {
 		this.roleSetCreated = roleSetCreated;
 	}
 
-	public Set<GroupEntity> getGroups() {
-		return groups;
+	public Set<Long> getGroupIds() {
+		return groupIds;
 	}
 
 	public Long getGroupSetCreated() {
@@ -245,36 +233,36 @@ public class SessionManager implements Serializable {
 		return groupNames;
 	}
 
-	public List<ServiceEntity> getServiceApproverList() {
+	public List<Long> getServiceApproverList() {
 		return serviceApproverList;
 	}
 
-	public List<ServiceEntity> getServiceAdminList() {
+	public List<Long> getServiceAdminList() {
 		return serviceAdminList;
 	}
 
-	public List<ServiceEntity> getServiceHotlineList() {
+	public List<Long> getServiceHotlineList() {
 		return serviceHotlineList;
 	}
 
-	public List<ServiceEntity> getServiceGroupAdminList() {
+	public List<Long> getServiceGroupAdminList() {
 		return serviceGroupAdminList;
 	}
 
-	public List<ServiceEntity> getServiceProjectAdminList() {
+	public List<Long> getServiceProjectAdminList() {
 		return serviceProjectAdminList;
 	}
 
-	public Set<RoleEntity> getRoles() {
-		return roles;
+	public Set<Long> getRoleIds() {
+		return roleIds;
 	}
 
-	public List<ServiceEntity> getUnregisteredServiceList() {
+	public List<Long> getUnregisteredServiceList() {
 		return unregisteredServiceList;
 	}
 
 	public void setUnregisteredServiceList(
-			List<ServiceEntity> unregisteredServiceList) {
+			List<Long> unregisteredServiceList) {
 		this.unregisteredServiceList = unregisteredServiceList;
 	}
 
@@ -302,7 +290,7 @@ public class SessionManager implements Serializable {
 		this.authnRequestIdpConfigId = authnRequestIdpConfigId;
 	}
 
-	public List<ServiceEntity> getServiceSshPubKeyApproverList() {
+	public List<Long> getServiceSshPubKeyApproverList() {
 		return serviceSshPubKeyApproverList;
 	}
 
@@ -404,21 +392,5 @@ public class SessionManager implements Serializable {
 
 	public void setAuthnRequestRelayState(String authnRequestRelayState) {
 		this.authnRequestRelayState = authnRequestRelayState;
-	}
-
-	public Set<ProjectMembershipEntity> getProjects() {
-		return projects;
-	}
-
-	public void setProjects(Set<ProjectMembershipEntity> projects) {
-		this.projects = projects;
-	}
-
-	public Long getProjectSetCreated() {
-		return projectSetCreated;
-	}
-
-	public void setProjectSetCreated(Long projectSetCreated) {
-		this.projectSetCreated = projectSetCreated;
 	}
 }

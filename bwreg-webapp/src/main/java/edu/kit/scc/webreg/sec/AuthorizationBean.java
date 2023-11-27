@@ -23,6 +23,7 @@ import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
+import edu.kit.scc.webreg.dao.ServiceDao;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
@@ -52,6 +53,9 @@ public class AuthorizationBean implements Serializable {
 
     @Inject 
     private HttpServletRequest request;
+    
+    @Inject
+    private ServiceDao serviceDao;
     
     @PostConstruct
     private void init() {
@@ -132,40 +136,40 @@ public class AuthorizationBean implements Serializable {
     	return false;
     }
     
-    public boolean isUserServiceAdmin(ServiceEntity id) {
-    	if (id == null)
+    public boolean isUserServiceAdmin(ServiceEntity service) {
+    	if (service == null)
     		return false;
-    	return sessionManager.getServiceAdminList().contains(id);
+    	return sessionManager.getServiceAdminList().contains(service.getId());
     }
 
-    public boolean isUserServiceApprover(ServiceEntity id) {
-    	if (id == null)
+    public boolean isUserServiceApprover(ServiceEntity service) {
+    	if (service == null)
     		return false;    	
-    	return sessionManager.getServiceApproverList().contains(id);
+    	return sessionManager.getServiceApproverList().contains(service.getId());
     }
 
-    public boolean isUserServiceSshPubKeyApprover(ServiceEntity id) {
-    	if (id == null)
+    public boolean isUserServiceSshPubKeyApprover(ServiceEntity service) {
+    	if (service == null)
     		return false;    	
-    	return sessionManager.getServiceSshPubKeyApproverList().contains(id);
+    	return sessionManager.getServiceSshPubKeyApproverList().contains(service.getId());
     }
 
-    public boolean isUserServiceHotline(ServiceEntity id) {
-    	if (id == null)
+    public boolean isUserServiceHotline(ServiceEntity service) {
+    	if (service == null)
     		return false;
-    	return sessionManager.getServiceHotlineList().contains(id);
+    	return sessionManager.getServiceHotlineList().contains(service.getId());
     }
 
-    public boolean isUserServiceGroupAdmin(ServiceEntity id) {
-    	if (id == null)
+    public boolean isUserServiceGroupAdmin(ServiceEntity service) {
+    	if (service == null)
     		return false;
-    	return sessionManager.getServiceGroupAdminList().contains(id);
+    	return sessionManager.getServiceGroupAdminList().contains(service.getId());
     }
 
-    public boolean isUserServiceProjectAdmin(ServiceEntity id) {
-    	if (id == null)
+    public boolean isUserServiceProjectAdmin(ServiceEntity service) {
+    	if (service == null)
     		return false;
-    	return sessionManager.getServiceProjectAdminList().contains(id);
+    	return sessionManager.getServiceProjectAdminList().contains(service.getId());
     }
 
     public List<RegistryEntity> getUserRegistryList() {
@@ -174,27 +178,27 @@ public class AuthorizationBean implements Serializable {
     }
 
 	public List<ServiceEntity> getServiceApproverList() {
-		return sessionManager.getServiceApproverList();
+		return serviceDao.fetchAll(sessionManager.getServiceApproverList());
 	}
 
 	public List<ServiceEntity> getServiceSshPubKeyApproverList() {
-		return sessionManager.getServiceSshPubKeyApproverList();
+		return serviceDao.fetchAll(sessionManager.getServiceSshPubKeyApproverList());
 	}
 
 	public List<ServiceEntity> getServiceAdminList() {
-		return sessionManager.getServiceAdminList();
+		return serviceDao.fetchAll(sessionManager.getServiceAdminList());
 	}
 
 	public List<ServiceEntity> getServiceHotlineList() {
-		return sessionManager.getServiceHotlineList();
+		return serviceDao.fetchAll(sessionManager.getServiceHotlineList());
 	}
 
 	public List<ServiceEntity> getServiceGroupAdminList() {
-		return sessionManager.getServiceGroupAdminList();
+		return serviceDao.fetchAll(sessionManager.getServiceGroupAdminList());
 	}
 
 	public List<ServiceEntity> getServiceProjectAdminList() {
-		return sessionManager.getServiceProjectAdminList();
+		return serviceDao.fetchAll(sessionManager.getServiceProjectAdminList());
 	}
 
 	public boolean isPasswordCapable(ServiceEntity serviceEntity) {
@@ -212,7 +216,7 @@ public class AuthorizationBean implements Serializable {
 	}
 
 	public List<ServiceEntity> getUnregisteredServiceList() {
-		return sessionManager.getUnregisteredServiceList();
+		return serviceDao.fetchAll(sessionManager.getUnregisteredServiceList());
 	}
 
 	public ApplicationConfig getAppConfig() {

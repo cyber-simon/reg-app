@@ -91,13 +91,13 @@ public class JpaRoleDao extends JpaBaseDao<RoleEntity> implements RoleDao {
 	}
 
 	@Override
-	public List<RoleEntity> findByGroups(Set<GroupEntity> groups) {
-		if (groups == null || groups.isEmpty()) {
+	public List<RoleEntity> findByGroups(Set<Long> groupIds) {
+		if (groupIds == null || groupIds.isEmpty()) {
 			return new ArrayList<>();
 		}
 
-		return em.createQuery("select r.role from RoleGroupEntity r where r.group in (:groups)", RoleEntity.class)
-				.setParameter("groups", groups)
+		return em.createQuery("select r.role from RoleGroupEntity r where r.group.id in (:groupIds)", RoleEntity.class)
+				.setParameter("groupIds", groupIds)
 				.getResultList();
 	}
 
