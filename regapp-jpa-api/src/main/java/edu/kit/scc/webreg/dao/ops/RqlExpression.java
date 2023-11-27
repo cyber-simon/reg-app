@@ -1,5 +1,7 @@
 package edu.kit.scc.webreg.dao.ops;
 
-public interface RqlExpression {
+import java.io.Serializable;
+
+public interface RqlExpression extends Serializable {
 	// marker interface
 }

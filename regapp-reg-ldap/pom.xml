@@ -9,19 +9,6 @@
 	</parent>
 	<packaging>jar</packaging>
 	<artifactId>regapp-reg-ldap</artifactId>
-
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.wildfly.bom</groupId>
-    			<artifactId>wildfly-javaee8-with-tools</artifactId>
-    			<version>17.0.1.Final</version>
-    			<type>pom</type>
-				<scope>import</scope>
-				<optional>false</optional>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -54,23 +41,19 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>edu.vt.middleware</groupId>
 			<artifactId>vt-ldap</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>jcifs</groupId>
 			<artifactId>jcifs</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.velocity</groupId>
 			<artifactId>velocity</artifactId>
-			<scope>provided</scope>
 		</dependency>
 
 	</dependencies>

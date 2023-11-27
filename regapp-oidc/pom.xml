@@ -10,19 +10,6 @@
 	<packaging>jar</packaging>
 	<artifactId>regapp-oidc</artifactId>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.wildfly.bom</groupId>
-    			<artifactId>wildfly-javaee8-with-tools</artifactId>
-    			<version>17.0.1.Final</version>
-    			<type>pom</type>
-				<scope>import</scope>
-				<optional>false</optional>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
-	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -49,44 +36,11 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
-			<groupId>org.kie</groupId>
-			<artifactId>kie-api</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.drools</groupId>
-			<artifactId>drools-core</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.drools</groupId>
-			<artifactId>drools-compiler</artifactId>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>edu.vt.middleware</groupId>
-			<artifactId>vt-ldap</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>jcifs</groupId>
-			<artifactId>jcifs</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-   			<groupId>commons-beanutils</groupId>
-		    <artifactId>commons-beanutils</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.velocity</groupId>
-			<artifactId>velocity</artifactId>
-			<scope>provided</scope>
+			<groupId>com.nimbusds</groupId>
+			<artifactId>oauth2-oidc-sdk</artifactId>
 		</dependency>
 		
 	</dependencies>
