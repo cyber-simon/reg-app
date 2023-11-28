@@ -34,22 +34,22 @@
  -->
 	<!-- Context parameters -->
 	<context-param>
-		<param-name>javax.faces.INTERPRET_EMPTY_STRING_SUBMITTED_VALUES_AS_NULL</param-name>
+		<param-name>jakarta.faces.INTERPRET_EMPTY_STRING_SUBMITTED_VALUES_AS_NULL</param-name>
 		<param-value>true</param-value>
 	</context-param>
 
 	<context-param>
-		<param-name>javax.faces.PROJECT_STAGE</param-name>
+		<param-name>jakarta.faces.PROJECT_STAGE</param-name>
 		<param-value>${bwreg.faces.stage}</param-value>
 	</context-param>
 
 	<context-param>
-		<param-name>javax.faces.FACELETS_LIBRARIES</param-name>
+		<param-name>jakarta.faces.FACELETS_LIBRARIES</param-name>
 		<param-value>/WEB-INF/mytags.taglib.xml</param-value>
 	</context-param>
 
 	<context-param>
-		<param-name>javax.faces.STATE_SAVING_METHOD</param-name>
+		<param-name>jakarta.faces.STATE_SAVING_METHOD</param-name>
 		<param-value>server</param-value>
 	</context-param>
 
@@ -86,7 +86,7 @@
         <location>/error/error.xhtml</location>
     </error-page>
     
-    <!-- distributable/ -->
+    <distributable/>
     
     <session-config>
     	<session-timeout>30</session-timeout>
