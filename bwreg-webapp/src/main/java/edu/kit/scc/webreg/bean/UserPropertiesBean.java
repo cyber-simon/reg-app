@@ -44,15 +44,7 @@ public class UserPropertiesBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private IdentityEntity identity;
-	private List<UserEntity> userList;
 	private UserEntity user;
-	
-	private List<RoleEntity> roleList;
-
-	private List<GroupEntity> groupList;
-
-    private List<ProjectMembershipEntity> projectMemberList;
 
 	private ClaimsSet claims;
 	
@@ -82,27 +74,19 @@ public class UserPropertiesBean implements Serializable {
 	}
 	
 	public List<RoleEntity> getRoleList() {
-    	roleList = roleService.findByUser(getUser());
-		return roleList;
+		return roleService.findByUser(getUser());
 	}
 
 	public List<GroupEntity> getGroupList() {
-    	groupList = groupService.findByUser(getUser());
-		return groupList;
+		return groupService.findByUser(getUser());
 	}
 
 	public IdentityEntity getIdentity() {
-		if (identity == null) {
-			identity = identityService.fetch(sessionManager.getIdentityId());
-		}
-		return identity;
+		return identityService.fetch(sessionManager.getIdentityId());
 	}
 
 	public List<UserEntity> getUserList() {
-		if (userList == null) {
-			userList = userService.findByIdentity(getIdentity());
-		}
-		return userList;
+		return userService.findByIdentity(getIdentity());
 	}
 
 	public UserEntity getUser() {
@@ -142,10 +126,7 @@ public class UserPropertiesBean implements Serializable {
 	}
 
 	public List<ProjectMembershipEntity> getProjectMemberList() {
-		if (projectMemberList == null) {
-			projectMemberList = projectService.findByIdentity(getIdentity());
-		}
-		return projectMemberList;
+		return projectService.findByIdentity(getIdentity());
 	}
 
 }

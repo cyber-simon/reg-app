@@ -71,9 +71,6 @@ public class RegisterUserBean implements Serializable {
 	private FacesMessageGenerator messageGenerator;
 	
 	private SamlUserEntity entity;
-	private List<UserEntity> oldUserList;
-	private SamlIdpMetadataEntity idpEntity;
-	private SamlSpConfigurationEntity spConfigEntity;
 	
 	private Boolean errorState = false;
 	private Boolean eppnError = false;
@@ -85,8 +82,8 @@ public class RegisterUserBean implements Serializable {
 	
     public void preRenderView(ComponentSystemEvent ev) {
     	if (entity == null) {
-	    	idpEntity = idpService.fetch(sessionManager.getIdpId());
-	    	spConfigEntity = spService.fetch(sessionManager.getSpId());
+    		SamlIdpMetadataEntity idpEntity = idpService.fetch(sessionManager.getIdpId());
+	    	SamlSpConfigurationEntity spConfigEntity = spService.fetch(sessionManager.getSpId());
 	    	
 	    	try {
 	        	entity = userCreateService.preCreateUser(idpEntity, spConfigEntity, sessionManager.getSamlIdentifier(),
@@ -98,8 +95,7 @@ public class RegisterUserBean implements Serializable {
 				return;
 			}
 	    	
-	    	oldUserList = service.findByEppn(entity.getEppn());
-	    	if (oldUserList.size() > 0) {
+	    	if (service.findByEppn(entity.getEppn()).size() > 0) {
 				eppnError = true;
 	    	}
 	    	
@@ -305,7 +301,7 @@ public class RegisterUserBean implements Serializable {
 	}
 
 	public SamlIdpMetadataEntity getIdpEntity() {
-		return idpEntity;
+		return idpService.fetch(sessionManager.getIdpId());
 	}
 
 	public Boolean getErrorState() {
@@ -345,7 +341,7 @@ public class RegisterUserBean implements Serializable {
 	}
 
 	public List<UserEntity> getOldUserList() {
-		return oldUserList;
+		return service.findByEppn(entity.getEppn());
 	}
 
 	
