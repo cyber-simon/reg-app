@@ -99,8 +99,8 @@ public class DiscoveryLoginBean implements Serializable {
 	@Inject
 	private CookieHelper cookieHelper;
 
-	private List<Object> federationList;
-	private List<Object> idpList;
+	//private List<Object> federationList;
+	//private List<Object> idpList;
 	private Object selectedIdp;
 
 	private Boolean storeIdpSelection;
@@ -135,9 +135,9 @@ public class DiscoveryLoginBean implements Serializable {
 		}
 
 		if (!initialized) {
-			if (idpList == null) {
-				idpList = new ArrayList<Object>();
-			}
+//			if (idpList == null) {
+//				idpList = new ArrayList<Object>();
+//			}
 
 			preSelectedIdp = false;
 
@@ -148,9 +148,7 @@ public class DiscoveryLoginBean implements Serializable {
 				storeIdpSelection = false;
 			}
 
-			getFederationList().addAll(federationBean.getFederationList());
-
-			if (federationList == null || federationList.size() == 0) {
+			if (federationBean.getFederationList() == null || federationBean.getFederationList().size() == 0) {
 				messageGenerator.addErrorMessage("Das SAML Subsystem ist noch nicht konfiguriert");
 				return;
 			}
@@ -243,7 +241,9 @@ public class DiscoveryLoginBean implements Serializable {
 		}
 	}
 
-	public void updateIdpList() {
+	public List<Object> updateIdpList() {
+		List<Object> idpList = null;
+		
 		if (sessionManager.getOidcAuthnOpConfigId() != null && sessionManager.getOidcAuthnClientConfigId() != null) {
 			/*
 			 * reg-app login called via OIDC relying party
@@ -286,17 +286,19 @@ public class DiscoveryLoginBean implements Serializable {
 			/*
 			 * reg-app login directly called
 			 */
-			getIdpList().clear();
-			getIdpList().addAll(federationBean.getAllIdpList());
+			idpList = new ArrayList<Object>();
+			idpList.addAll(federationBean.getAllIdpList());
 
 			if (appConfig.getConfigValueOrDefault("show_oidc_login", "false").equalsIgnoreCase("true")) {
 				idpList.addAll(oidcRpService.findAll());
 			}
 		}
-		sortIdpList();
+		sortIdpList(idpList);
+		
+		return idpList;
 	}
 
-	public void sortIdpList() {
+	public void sortIdpList(List<Object> idpList) {
 		idpList = idpList.stream().sorted((item1, item2) -> {
 			String name1 = (item1 instanceof SamlIdpMetadataEntity ? ((SamlIdpMetadataEntity) item1).getOrgName()
 					: ((OidcRpConfigurationEntity) item1).getDisplayName());
@@ -310,13 +312,6 @@ public class DiscoveryLoginBean implements Serializable {
 		setPreSelectedIdp(false);
 	}
 
-	public List<Object> getFederationList() {
-		if (federationList == null) {
-			federationList = new ArrayList<Object>();
-		}
-		return federationList;
-	}
-
 	public Object getSelectedIdp() {
 		return selectedIdp;
 	}
@@ -326,6 +321,8 @@ public class DiscoveryLoginBean implements Serializable {
 	}
 
 	public List<Object> getIdpList() {
+		List<Object> idpList = updateIdpList();
+		
 		if (filter == null)
 			return idpList;
 
