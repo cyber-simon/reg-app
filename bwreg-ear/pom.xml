@@ -367,6 +367,14 @@
 					</modules>
 					<defaultLibBundleDir>lib</defaultLibBundleDir>
 					<initializeInOrder>true</initializeInOrder>
+					<archive>
+						<manifest>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+						</manifest>
+						<manifestEntries>
+							<Add-Opens>java.base/java.net</Add-Opens>
+						</manifestEntries>
+					</archive>
 				</configuration>
 			</plugin>
 		</plugins>

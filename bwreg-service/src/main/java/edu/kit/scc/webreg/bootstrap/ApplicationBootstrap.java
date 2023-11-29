@@ -13,7 +13,9 @@ package edu.kit.scc.webreg.bootstrap;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLStreamHandlerFactory;
+import java.net.spi.URLStreamHandlerProvider;
 import java.util.HashSet;
+import java.util.ServiceLoader;
 import java.util.Set;
 
 import jakarta.annotation.PostConstruct;
@@ -92,9 +94,8 @@ public class ApplicationBootstrap {
 		logger.info("Initializing Application Configuration");
 		appConfig.init();
 
-		//TODO change for new jsf and jdk
-//		logger.info("Register Template URL Stream handler");
-//		registerUrlHandler();
+		logger.info("Register Template URL Stream handler");
+		registerUrlHandler();
 		
 		logger.info("Initializing Serials");
 		checkSerial("uid-number-serial", 900000L);
@@ -153,6 +154,11 @@ public class ApplicationBootstrap {
 	}
 
 	private void registerUrlHandler() {
+		// TODO this does not work anymore. Templates are not working yet.
+		// ServiceLoader in URL class uses SystemClassLoader, but should use ThreadContextClassLoader 
+		//ServiceLoader<URLStreamHandlerProvider> loader = ServiceLoader.load(URLStreamHandlerProvider.class, Thread.currentThread().getContextClassLoader());
+		
+		/*
 		try {
 			final Field factoryField = URL.class.getDeclaredField("factory");
 			factoryField.setAccessible(true);
@@ -167,6 +173,7 @@ public class ApplicationBootstrap {
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			logger.warn("Could not register Template URL Stream Handler");
 		}
+		 */
 	}
 	
     private void checkGroup(String name, Integer createActual) {

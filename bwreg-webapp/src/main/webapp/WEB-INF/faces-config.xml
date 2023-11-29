@@ -17,9 +17,7 @@
 			<base-name>edu.kit.scc.webreg.res.DbMessageBundle</base-name>
 			<var>messages</var>
 		</resource-bundle>
-		<!-- 
 		<resource-handler>edu.kit.scc.webreg.bean.tpl.FaceletsResourceHandler</resource-handler>
-		 -->
 	</application>
 
 </faces-config>
