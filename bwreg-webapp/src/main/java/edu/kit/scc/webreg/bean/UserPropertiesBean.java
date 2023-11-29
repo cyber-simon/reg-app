@@ -13,11 +13,6 @@ package edu.kit.scc.webreg.bean;
 import java.io.Serializable;
 import java.util.List;
 
-import jakarta.faces.event.ComponentSystemEvent;
-import jakarta.faces.view.ViewScoped;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import org.slf4j.Logger;
 
 import com.nimbusds.openid.connect.sdk.claims.ClaimsSet;
@@ -34,12 +29,16 @@ import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.project.ProjectService;
 import edu.kit.scc.webreg.session.SessionManager;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.faces.event.ComponentSystemEvent;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 
 @Named
-@ViewScoped
+@RequestScoped
 public class UserPropertiesBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;

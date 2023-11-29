@@ -38,7 +38,14 @@ import edu.kit.scc.webreg.session.SessionManager;
 @RequestScoped
 public class UserIndexBean {
 
+	private List<ServiceEntity> allServiceList;
+
+	private List<RegistryEntity> userRegistryList;
+	private List<RegistryEntity> pendingRegistryList;
+
 	private Map<ServiceEntity, String> serviceAccessMap;
+
+	private IdentityEntity identity;
 
 	@Inject
 	private Logger logger;
@@ -60,8 +67,11 @@ public class UserIndexBean {
 
 	@PostConstruct
 	public void init() {
-		IdentityEntity identity = getIdentity();
-		List<RegistryEntity> userRegistryList = getUserRegistryList();
+		identity = identityService.fetch(sessionManager.getIdentityId());
+		allServiceList = serviceService.findAllPublishedWithServiceProps();
+		userRegistryList = registryService.findByIdentityAndNotStatusAndNotHidden(identity, RegistryStatus.DELETED,
+				RegistryStatus.DEPROVISIONED, RegistryStatus.PENDING);
+		pendingRegistryList = registryService.findByIdentityAndStatus(identity, RegistryStatus.PENDING);
 
 		serviceAccessMap = new HashMap<ServiceEntity, String>(userRegistryList.size());
 
@@ -76,19 +86,18 @@ public class UserIndexBean {
 	}
 
 	public List<ServiceEntity> getAllServiceList() {
-		return serviceService.findAllPublishedWithServiceProps();
+		return allServiceList;
 	}
 
 	public List<RegistryEntity> getUserRegistryList() {
-		return registryService.findByIdentityAndNotStatusAndNotHidden(getIdentity(), RegistryStatus.DELETED,
-				RegistryStatus.DEPROVISIONED, RegistryStatus.PENDING);
+		return userRegistryList;
 	}
 
 	public List<RegistryEntity> getPendingRegistryList() {
-		return registryService.findByIdentityAndStatus(getIdentity(), RegistryStatus.PENDING);
+		return pendingRegistryList;
 	}
 
-	private void checkServiceAccess(List<RegistryEntity> userRegistryList, IdentityEntity identity) {
+	private void checkServiceAccess(List<RegistryEntity> registryList, IdentityEntity identity) {
 
 		Map<RegistryEntity, List<Object>> objectMap = new HashMap<RegistryEntity, List<Object>>();
 		
@@ -121,7 +130,7 @@ public class UserIndexBean {
 	}
 
 	public IdentityEntity getIdentity() {
-		return identityService.fetch(sessionManager.getIdentityId());
+		return identity;
 	}
 
 }
