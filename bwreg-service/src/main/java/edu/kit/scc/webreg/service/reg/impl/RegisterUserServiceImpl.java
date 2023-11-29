@@ -20,13 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import jakarta.ejb.Asynchronous;
-import jakarta.ejb.Stateless;
-import jakarta.ejb.TransactionManagement;
-import jakarta.ejb.TransactionManagementType;
-import jakarta.inject.Inject;
-import jakarta.transaction.UserTransaction;
-
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.annotations.RetryTransaction;
@@ -46,10 +39,15 @@ import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity_;
 import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.entity.UserGroupEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;
 import edu.kit.scc.webreg.service.reg.RegisterUserWorkflow;
+import jakarta.ejb.Asynchronous;
+import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionManagement;
+import jakarta.ejb.TransactionManagementType;
+import jakarta.inject.Inject;
+import jakarta.transaction.UserTransaction;
 
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)

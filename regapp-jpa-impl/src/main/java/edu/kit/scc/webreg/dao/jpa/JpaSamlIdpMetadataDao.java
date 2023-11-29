@@ -56,7 +56,7 @@ public class JpaSamlIdpMetadataDao extends JpaBaseDao<SamlIdpMetadataEntity> imp
 	@Override
 	public List<SamlIdpMetadataEntity> findAllByFederationOrderByOrgname(FederationEntity federation) {
 		return em.createQuery(
-				"select distinct e from SamlIdpMetadataEntity e join e.federations f where f = :fed order by e.orgName asc",
+				"select distinct e from SamlIdpMetadataEntity e join e.federations f left join fetch e.entityCategoryList where f = :fed order by e.orgName asc",
 				SamlIdpMetadataEntity.class).setParameter("fed", federation).getResultList();
 	}
 
