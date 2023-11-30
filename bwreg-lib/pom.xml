@@ -9,19 +9,6 @@
 	</parent>
 	<packaging>ejb</packaging>
 	<artifactId>bwreg-lib</artifactId>
-
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.wildfly.bom</groupId>
-    			<artifactId>wildfly-javaee8-with-tools</artifactId>
-    			<version>17.0.1.Final</version>
-    			<type>pom</type>
-				<scope>import</scope>
-				<optional>false</optional>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -122,4 +109,35 @@
 		</dependency>
 		
 	</dependencies>
+	
+	<build>
+		<defaultGoal>install</defaultGoal>
+
+		<resources>
+			<resource>
+				<directory>src/main/resources/</directory>
+				<includes>
+					<include>**</include>
+				</includes>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-ejb-plugin</artifactId>
+				<configuration>
+					<ejbVersion>3.1</ejbVersion>
+					<archive>
+						<addMavenDescriptor>false</addMavenDescriptor>
+						<manifestEntries>
+							<Dependencies></Dependencies>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	
 </project>
