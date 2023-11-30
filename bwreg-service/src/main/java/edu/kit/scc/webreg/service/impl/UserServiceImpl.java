@@ -164,7 +164,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity> implements User
 			throws UserUpdateException {
 		String lastLoginHost = null;
 		if (requestContext != null && requestContext.getHttpServletRequest() != null) {
-			lastLoginHost = requestContext.getHttpServletRequest().getLocalName();
+			lastLoginHost = requestContext.getHttpServletRequest().getServerName();
 		}
 
 		return userUpdater.updateUser(user, assertion, executor, lastLoginHost);

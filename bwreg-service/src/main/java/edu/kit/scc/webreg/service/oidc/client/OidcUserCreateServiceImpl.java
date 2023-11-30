@@ -234,7 +234,7 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
 			attributeStore.put(entry.getKey(), attrHelper.attributeListToString(entry.getValue()));
 		}
 	
-		user.setLastLoginHost(httpRequest.getLocalName());
+		user.setLastLoginHost(httpRequest.getServerName());
 		
 		user.setLastUpdate(new Date());
 
@@ -254,7 +254,7 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
     	oidcGroupUpdater.updateGroupsForUser(user, attributeMap, auditor);
 
     	StringBuffer debugLog = new StringBuffer();
-    	userUpdater.updateUserNew(user, attributeMap, executor, auditor, debugLog, httpRequest.getLocalName());
+    	userUpdater.updateUserNew(user, attributeMap, executor, auditor, debugLog, httpRequest.getServerName());
     			
 		auditor.setUser(user);
 		auditor.auditUserCreate();

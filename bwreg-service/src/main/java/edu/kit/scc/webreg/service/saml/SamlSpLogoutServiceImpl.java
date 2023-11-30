@@ -105,10 +105,10 @@ public class SamlSpLogoutServiceImpl implements SamlSpLogoutService {
 		SamlUserEntity user = (SamlUserEntity) tempUser;
 		SamlIdpMetadataEntity idpEntity = user.getIdp();
 
-		List<SamlSpConfigurationEntity> spList = spConfigDao.findByHostname(request.getLocalName());
+		List<SamlSpConfigurationEntity> spList = spConfigDao.findByHostname(request.getServerName());
 
 		if (spList.size() != 1) {
-			logger.warn("No hostname configured for {}", request.getLocalName());
+			logger.warn("No hostname configured for {}", request.getServerName());
 			throw new NoHostnameConfiguredException("No hostname configured");
 		}
 

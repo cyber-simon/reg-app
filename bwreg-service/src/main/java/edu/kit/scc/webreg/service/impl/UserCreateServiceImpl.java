@@ -146,7 +146,7 @@ public class UserCreateServiceImpl implements UserCreateService {
 
 		String lastLoginHost = null;
 		if (requestContext != null && requestContext.getHttpServletRequest() != null) {
-			lastLoginHost = requestContext.getHttpServletRequest().getLocalName();
+			lastLoginHost = requestContext.getHttpServletRequest().getServerName();
 		}
 
 		userUpdater.updateUserNew(user, attributeMap, executor, auditor, debugLog, lastLoginHost);

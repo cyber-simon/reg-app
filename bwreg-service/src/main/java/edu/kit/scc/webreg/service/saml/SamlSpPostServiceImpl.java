@@ -168,7 +168,7 @@ public class SamlSpPostServiceImpl implements SamlSpPostService {
 		saml2AssertionService.updateUserIdentifier(samlIdentifier, user, spConfig.getEntityId(), debugLog);
 
 		try {
-			user = userUpdater.updateUser(user, assertion, "web-sso", request.getLocalName());
+			user = userUpdater.updateUser(user, assertion, "web-sso", request.getServerName());
 		} catch (UserUpdateException e) {
 			logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());
 			throw new SamlAuthenticationException(e.getMessage());

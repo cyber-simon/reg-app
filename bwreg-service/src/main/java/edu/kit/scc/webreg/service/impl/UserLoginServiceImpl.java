@@ -603,7 +603,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 
 		String lastLoginHost = null;
 		if (requestContext != null && requestContext.getHttpServletRequest() != null) {
-			lastLoginHost = requestContext.getHttpServletRequest().getLocalName();
+			lastLoginHost = requestContext.getHttpServletRequest().getServerName();
 		}
 
 		try {
