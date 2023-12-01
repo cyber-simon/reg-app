@@ -16,7 +16,6 @@ import org.opensaml.saml.saml2.core.Assertion;
 
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
-import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
 import edu.kit.scc.webreg.entity.UserLoginInfoStatus;
@@ -35,8 +34,6 @@ public interface UserService extends BaseService<UserEntity> {
 
 	List<UserEntity> findByGroup(GroupEntity group);
 
-	SamlUserEntity updateUserFromIdp(SamlUserEntity user, String executor) throws UserUpdateException;
-
 	List<UserEntity> findByStatus(UserStatus status);
 
 	List<UserEntity> findByStatusAndTimeSince(UserStatus status, Long statusSince, Integer limit);
@@ -52,6 +49,8 @@ public interface UserService extends BaseService<UserEntity> {
 
 	UserLoginInfoEntity addLoginInfo(IdentityEntity identity, UserLoginMethod method, UserLoginInfoStatus status,
 			String from);
+
+	SamlUserEntity updateUserFromIdp(SamlUserEntity user, String executor) throws UserUpdateException;
 
 	SamlUserEntity updateUserFromIdp(SamlUserEntity user, String executor, StringBuffer debugLog)
 			throws UserUpdateException;

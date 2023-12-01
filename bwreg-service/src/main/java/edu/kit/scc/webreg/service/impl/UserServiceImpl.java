@@ -19,9 +19,6 @@ import static edu.kit.scc.webreg.dao.ops.SortBy.ascendingBy;
 import java.util.Date;
 import java.util.List;
 
-import jakarta.ejb.Stateless;
-import jakarta.inject.Inject;
-
 import org.opensaml.saml.saml2.core.Assertion;
 import org.slf4j.Logger;
 
@@ -35,7 +32,6 @@ import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
-import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserEntity_;
 import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
@@ -46,6 +42,8 @@ import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.session.HttpRequestContext;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 
 @Stateless
 public class UserServiceImpl extends BaseServiceImpl<UserEntity> implements UserService {
@@ -148,15 +146,15 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity> implements User
 	}
 
 	@Override
-	public SamlUserEntity updateUserFromIdp(SamlUserEntity user, String executor, StringBuffer debugLog)
-			throws UserUpdateException {
-		return userUpdater.updateUserFromIdp(user, null, executor, debugLog);
+	public SamlUserEntity updateUserFromIdp(SamlUserEntity user, String executor) throws UserUpdateException {
+		return updateUserFromIdp(user, executor, null);
 	}
 
 	@Override
-	public SamlUserEntity updateUserFromIdp(SamlUserEntity user, String executor) throws UserUpdateException {
+	public SamlUserEntity updateUserFromIdp(SamlUserEntity user, String executor, StringBuffer debugLog)
+			throws UserUpdateException {
 		user = samlUserDao.fetch(user.getId());
-		return userUpdater.updateUserFromIdp(user, null, executor, null);
+		return userUpdater.updateUserFromIdp(user, null, executor, debugLog);
 	}
 
 	@Override

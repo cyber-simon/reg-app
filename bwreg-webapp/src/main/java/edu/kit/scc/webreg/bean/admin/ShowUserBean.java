@@ -17,11 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.faces.event.ComponentSystemEvent;
-import jakarta.faces.view.ViewScoped;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import org.opensaml.saml.saml2.core.Attribute;
 import org.primefaces.event.TransferEvent;
 import org.primefaces.model.DualListModel;
@@ -53,6 +48,10 @@ import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.service.oidc.client.OidcUserService;
 import edu.kit.scc.webreg.session.SessionManager;
+import jakarta.faces.event.ComponentSystemEvent;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named
 @ViewScoped
@@ -133,12 +132,11 @@ public class ShowUserBean implements Serializable {
 	}
 
 	public void updateFromIdp() {
-		user = userService.findByIdWithAll(user.getId());
 		logger.info("Trying user update for {}", user.getEppn());
 
 		if (user instanceof SamlUserEntity) {
 			try {
-				userService.updateUserFromIdp((SamlUserEntity) user, "identity-" + sessionManager.getIdentityId());
+				user = userService.updateUserFromIdp((SamlUserEntity) user, "identity-" + sessionManager.getIdentityId());
 			} catch (UserUpdateException e) {
 				logger.info("Exception while Querying IDP: {}", e.getMessage());
 				if (e.getCause() != null) {
@@ -154,12 +152,11 @@ public class ShowUserBean implements Serializable {
 	}
 
 	public void updateFromOp() {
-		user = userService.findByIdWithAll(user.getId());
 		logger.info("Trying user update for {}", user.getEppn());
 
 		if (user instanceof OidcUserEntity) {
 			try {
-				oidcUserService.updateUserFromOp((OidcUserEntity) user, "identity-" + sessionManager.getIdentityId());
+				user = oidcUserService.updateUserFromOp((OidcUserEntity) user, "identity-" + sessionManager.getIdentityId());
 			} catch (UserUpdateException e) {
 				logger.info("Exception while Querying IDP: {}", e.getMessage());
 				if (e.getCause() != null) {

@@ -178,7 +178,10 @@ public class AttributeQueryHelper implements Serializable {
 		SecurityParametersContext securityContext = new SecurityParametersContext();
 		securityContext.setSignatureSigningParameters(ssp);
 		outbound.addSubcontext(securityContext);
-		
+
+		SOAP11Context soapInboundContext = new SOAP11Context();
+		inbound.addSubcontext(soapInboundContext);
+
 		InOutOperationContext inOutContext =
 				new InOutOperationContext(inbound, outbound);
 		
@@ -219,12 +222,24 @@ public class AttributeQueryHelper implements Serializable {
 			@Override
 			public HttpClientMessagePipeline newInstance(
 					String pipelineName) {
-				return new BasicHttpClientMessagePipeline(new HttpClientRequestSOAP11Encoder(), new HttpClientResponseSOAP11Decoder());
+				final HttpClientResponseSOAP11Decoder decoder = new HttpClientResponseSOAP11Decoder();
+				try {
+					decoder.getBodyHandler().initialize();
+				} catch (ComponentInitializationException e) {
+					logger.info("Exception {}", e.getMessage());
+				}
+				return new BasicHttpClientMessagePipeline(new HttpClientRequestSOAP11Encoder(), decoder);
 			}
 			
 			@Override
 			public HttpClientMessagePipeline newInstance() {
-				return new BasicHttpClientMessagePipeline(new HttpClientRequestSOAP11Encoder(), new HttpClientResponseSOAP11Decoder());
+				final HttpClientResponseSOAP11Decoder decoder = new HttpClientResponseSOAP11Decoder();
+				try {
+					decoder.getBodyHandler().initialize();
+				} catch (ComponentInitializationException e) {
+					logger.info("Exception {}", e.getMessage());
+				}
+				return new BasicHttpClientMessagePipeline(new HttpClientRequestSOAP11Encoder(), decoder);
 			}
 		});
 		
