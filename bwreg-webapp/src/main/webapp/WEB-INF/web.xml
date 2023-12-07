@@ -86,7 +86,7 @@
         <location>/error/error.xhtml</location>
     </error-page>
     
-    <distributable/>
+    <!-- distributable/ -->
     
     <session-config>
     	<session-timeout>30</session-timeout>
