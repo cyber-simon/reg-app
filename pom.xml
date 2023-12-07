@@ -28,7 +28,7 @@
 		<org.primefaces.extensions.version>13.0.3</org.primefaces.extensions.version>
 		<org.primefaces.themes.version>1.0.10</org.primefaces.themes.version>
 		<org.webjars.fontawesome.version>5.12.0</org.webjars.fontawesome.version>
-		<com.nimbusds.oauth2-oidc-sdk.version>9.43.3</com.nimbusds.oauth2-oidc-sdk.version>
+		<com.nimbusds.oauth2-oidc-sdk.version>11.7</com.nimbusds.oauth2-oidc-sdk.version>
 		<org.apache.httpcomponents.client5.version>5.2.1</org.apache.httpcomponents.client5.version>
 		<org.apache.commons.commons-lang3.version>3.13.0</org.apache.commons.commons-lang3.version>
 		<org.omnifaces.version>4.3</org.omnifaces.version>
