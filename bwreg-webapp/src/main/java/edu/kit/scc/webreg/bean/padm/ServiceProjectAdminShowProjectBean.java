@@ -71,6 +71,8 @@ public class ServiceProjectAdminShowProjectBean implements Serializable {
 	private Long projectId;
 	private Long serviceId;
 
+	private String overrideGroupName;
+	
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
 			entity = service.findByIdWithAttrs(projectId, LocalProjectEntity_.projectServices);
@@ -91,6 +93,7 @@ public class ServiceProjectAdminShowProjectBean implements Serializable {
 	}
 
 	public void approve() {
+		projectServiceEntity.setGroupNameOverride(overrideGroupName);
 		service.approve(projectServiceEntity, "idty-" + session.getIdentityId());
 		messageGenerator.addResolvedInfoMessage("project.local_project.approver_admin_approved",
 				"project.local_project.approver_admin_approved_detail", true);
@@ -106,6 +109,13 @@ public class ServiceProjectAdminShowProjectBean implements Serializable {
 		serviceList = null;
 	}
 
+	public void handleOverrideChange() {
+		service.updateGroupnameOverride(projectServiceEntity, overrideGroupName, "idty-" + session.getIdentityId());
+		messageGenerator.addResolvedInfoMessage("project.local_project.approver_admin_groupname_updated",
+				"project.local_project.approver_admin_groupname_updated_detail", true);
+		entity = service.findByIdWithAttrs(projectId, LocalProjectEntity_.projectServices);
+	}
+	
 	public LocalProjectEntity getEntity() {
 		return entity;
 	}
@@ -183,5 +193,15 @@ public class ServiceProjectAdminShowProjectBean implements Serializable {
 			effectiveMemberList = projectService.findMembersForProject(getEntity(), true);
 		}
 		return effectiveMemberList;
+	}
+
+	public String getOverrideGroupName() {
+		if (overrideGroupName == null)
+			overrideGroupName = projectServiceEntity.getGroupNameOverride();
+		return overrideGroupName;
+	}
+
+	public void setOverrideGroupName(String overrideGroupName) {
+		this.overrideGroupName = overrideGroupName;
 	}
 }

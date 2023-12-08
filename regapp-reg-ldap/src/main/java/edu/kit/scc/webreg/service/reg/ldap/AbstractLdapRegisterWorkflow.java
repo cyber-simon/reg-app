@@ -17,9 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.kit.scc.webreg.audit.Auditor;
-import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.service.reg.SetPasswordCapable;
@@ -35,7 +35,7 @@ public abstract class AbstractLdapRegisterWorkflow
 	
 	protected abstract String constructHomeDir(String homeId, String homeUid, UserEntity user, Map<String, String> reconMap);
 	protected abstract String constructLocalUid(String homeId, String homeUid, UserEntity user, Map<String, String> reconMap);
-	protected abstract String constructGroupName(GroupEntity group);
+	protected abstract String constructGroupName(ServiceGroupFlagEntity sgf);
 	protected abstract Boolean isSambaEnabled();
 	
 	@Override

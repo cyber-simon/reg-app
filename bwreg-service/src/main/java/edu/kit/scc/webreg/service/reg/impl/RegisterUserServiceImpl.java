@@ -115,8 +115,8 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 
 	@Override
 	public List<RegistryEntity> updateGroupsNew(Set<GroupEntity> groupUpdateSet, Boolean reconRegistries,
-			Set<String> reconRegForServices, Boolean fullRecon, Boolean newRollMech,
-			Map<GroupEntity, Set<UserEntity>> usersToRemove, String executor) throws RegisterException {
+			Set<String> reconRegForServices, Boolean fullRecon, Map<GroupEntity, Set<UserEntity>> usersToRemove,
+			String executor) throws RegisterException {
 		List<RegistryEntity> reconList = new ArrayList<RegistryEntity>();
 
 		logger.debug("Starting new updateGroups method for groupUpdateSet size {}, usersToRemove size {}",
@@ -136,7 +136,7 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 						.findAll(and(equal(ServiceGroupFlagEntity_.group, serviceBasedGroupEntity),
 								notEqual(ServiceGroupFlagEntity_.status, ServiceGroupStatus.CLEAN)));
 				for (ServiceGroupFlagEntity flag : flagList) {
-					Boolean changed = registrator.processUpdateGroup(flag, reconRegistries, fullRecon, newRollMech, executor);
+					Boolean changed = registrator.processUpdateGroup(flag, reconRegistries, fullRecon, executor);
 
 					if (changed && reconRegistries && !(serviceBasedGroupEntity instanceof HomeOrgGroupEntity)) {
 						if (reconRegForServices == null
@@ -162,16 +162,6 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 		logger.debug("Done new updateGroups method. ReconList size is {}", reconList.size());
 
 		return reconList;
-	}
-
-	@Override
-	public void updateGroups(Set<GroupEntity> groupUpdateSet, Boolean reconRegistries, Boolean fullRecon,
-			Map<GroupEntity, Set<UserEntity>> usersToRemove, String executor) throws RegisterException {
-		GroupPerServiceList groupUpdateList = registrator.buildGroupPerServiceList(groupUpdateSet, reconRegistries,
-				fullRecon, executor);
-		for (ServiceEntity service : groupUpdateList.getServices()) {
-			registrator.updateGroups(service, groupUpdateList, reconRegistries, fullRecon, usersToRemove, executor);
-		}
 	}
 
 	@Override

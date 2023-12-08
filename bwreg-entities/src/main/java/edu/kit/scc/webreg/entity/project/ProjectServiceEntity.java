@@ -12,6 +12,7 @@ package edu.kit.scc.webreg.entity.project;
 
 import java.io.Serializable;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -19,7 +20,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-
+import jakarta.validation.constraints.Pattern;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 
 @Entity(name = "ProjectServiceEntity")
@@ -44,6 +45,10 @@ public class ProjectServiceEntity implements Serializable {
 	@Enumerated(EnumType.STRING)
 	private ProjectServiceStatusType status;
 
+	@Column(name = "group_name_override", length = 64)
+	@Pattern(regexp = "^[a-z]{1}[a-z0-9-_]{0,63}$")
+	private String groupNameOverride;
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -105,5 +110,13 @@ public class ProjectServiceEntity implements Serializable {
 
 	public void setStatus(ProjectServiceStatusType status) {
 		this.status = status;
+	}
+
+	public String getGroupNameOverride() {
+		return groupNameOverride;
+	}
+
+	public void setGroupNameOverride(String groupNameOverride) {
+		this.groupNameOverride = groupNameOverride;
 	}
 }

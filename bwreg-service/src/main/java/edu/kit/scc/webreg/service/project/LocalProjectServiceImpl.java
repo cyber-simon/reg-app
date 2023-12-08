@@ -57,6 +57,12 @@ public class LocalProjectServiceImpl extends BaseServiceImpl<LocalProjectEntity>
 	}
 
 	@Override
+	public void updateGroupnameOverride(ProjectServiceEntity pse, String overrideGroupname, String executor) {
+		pse = dao.mergeProjectService(pse);
+		updater.updateGroupnameOverride(pse, overrideGroupname, executor);
+	}
+	
+	@Override
 	protected BaseDao<LocalProjectEntity> getDao() {
 		return dao;
 	}

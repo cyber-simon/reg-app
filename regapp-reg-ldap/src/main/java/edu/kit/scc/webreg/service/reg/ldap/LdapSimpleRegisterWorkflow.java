@@ -14,6 +14,7 @@ import java.util.Map;
 
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;
+import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 
 public class LdapSimpleRegisterWorkflow extends AbstractSimpleLdapRegisterWorkflow {
@@ -30,7 +31,9 @@ public class LdapSimpleRegisterWorkflow extends AbstractSimpleLdapRegisterWorkfl
 	}
 
 	@Override
-	protected String constructGroupName(GroupEntity group) {
+	protected String constructGroupName(ServiceGroupFlagEntity sgf) {
+		GroupEntity group = sgf.getGroup();
+		
 		if (group instanceof HomeOrgGroupEntity) {
 			HomeOrgGroupEntity homeOrgGroup = (HomeOrgGroupEntity) group;
 			if (homeOrgGroup.getPrefix() == null)

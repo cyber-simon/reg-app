@@ -30,7 +30,9 @@ import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.ScriptEntity;
+import edu.kit.scc.webreg.entity.ServiceBasedGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
 import edu.kit.scc.webreg.exc.PropertyReaderException;
@@ -47,22 +49,22 @@ import edu.kit.scc.webreg.tools.PropertyReader;
 import jcifs.util.Hexdump;
 import jcifs.util.MD4;
 
-public class ScriptedLdapRegisterWorkflow 
+public class ScriptedLdapRegisterWorkflow
 		implements RegisterUserWorkflow, InfotainmentCapable, GroupCapable, SetPasswordCapable, ScriptingWorkflow {
 
 	protected static Logger logger = LoggerFactory.getLogger(ScriptedLdapRegisterWorkflow.class);
 
 	protected ScriptingEnv scriptingEnv;
-	
+
 	@Override
-	public void registerUser(UserEntity user, ServiceEntity service,
-			RegistryEntity registry, Auditor auditor) throws RegisterException {
+	public void registerUser(UserEntity user, ServiceEntity service, RegistryEntity registry, Auditor auditor)
+			throws RegisterException {
 		reconciliation(user, service, registry, auditor);
 	}
 
 	@Override
-	public void deregisterUser(UserEntity user, ServiceEntity service,
-			RegistryEntity registry, Auditor auditor) throws RegisterException {
+	public void deregisterUser(UserEntity user, ServiceEntity service, RegistryEntity registry, Auditor auditor)
+			throws RegisterException {
 		logger.info("AbstractLdapRegister Deregister user {} for service {}", user.getEppn(), service.getName());
 
 		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
@@ -75,16 +77,16 @@ public class ScriptedLdapRegisterWorkflow
 		ldapWorker.deleteUser(localUid);
 		ldapWorker.closeConnections();
 	}
-	
+
 	@Override
-	public Boolean updateRegistry(UserEntity user, ServiceEntity service,
-			RegistryEntity registry, Auditor auditor) throws RegisterException {
+	public Boolean updateRegistry(UserEntity user, ServiceEntity service, RegistryEntity registry, Auditor auditor)
+			throws RegisterException {
 
 		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
 
 		/*
-		 * Compare values from user and registry store. Found differences trigger 
-		 * a full reconsiliation
+		 * Compare values from user and registry store. Found differences trigger a full
+		 * reconsiliation
 		 */
 		Map<String, String> reconMap = new HashMap<String, String>();
 
@@ -92,23 +94,24 @@ public class ScriptedLdapRegisterWorkflow
 			String scriptName = prop.readProp("script_name");
 
 			ScriptEntity scriptEntity = scriptingEnv.getScriptDao().findByName(scriptName);
-			
+
 			if (scriptEntity == null)
 				throw new RegisterException("service not configured properly. script is missing.");
-			
+
 			if (scriptEntity.getScriptType().equalsIgnoreCase("javascript")) {
 				ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
 
 				if (engine == null)
-					throw new RegisterException("service not configured properly. engine not found: " + scriptEntity.getScriptEngine());
-				
+					throw new RegisterException(
+							"service not configured properly. engine not found: " + scriptEntity.getScriptEngine());
+
 				engine.eval(scriptEntity.getScript());
-			
+
 				Invocable invocable = (Invocable) engine;
-				
-				invocable.invokeFunction("updateRegistry", scriptingEnv, reconMap, user, registry, service, auditor, logger);
-			}
-			else {
+
+				invocable.invokeFunction("updateRegistry", scriptingEnv, reconMap, user, registry, service, auditor,
+						logger);
+			} else {
 				throw new RegisterException("unkown script type: " + scriptEntity.getScriptType());
 			}
 		} catch (PropertyReaderException e) {
@@ -118,44 +121,43 @@ public class ScriptedLdapRegisterWorkflow
 		} catch (NoSuchMethodException e) {
 			throw new RegisterException(e);
 		}
-		
+
 		if ("true".equals(prop.readPropOrNull("samba_enabled")))
 			reconMap.put("sambaEnabled", "true");
 		else
 			reconMap.put("sambaEnabled", "false");
-		
+
 		Boolean change = false;
-		
+
 		for (Entry<String, String> entry : reconMap.entrySet()) {
-			if (! registry.getRegistryValues().containsKey(entry.getKey())) {
-				auditor.logAction("", "UPDATE USER REGISTRY", user.getEppn(), "ADD " + 
-						entry.getKey() + ": " + registry.getRegistryValues().get(entry.getKey()) +
-						" => " + entry.getValue()
-						, AuditStatus.SUCCESS);
+			if (!registry.getRegistryValues().containsKey(entry.getKey())) {
+				auditor.logAction(
+						"", "UPDATE USER REGISTRY", user.getEppn(), "ADD " + entry.getKey() + ": "
+								+ registry.getRegistryValues().get(entry.getKey()) + " => " + entry.getValue(),
+						AuditStatus.SUCCESS);
 				registry.getRegistryValues().put(entry.getKey(), entry.getValue());
 				change |= true;
-			}
-			else if (! registry.getRegistryValues().get(entry.getKey()).equals(entry.getValue())) {
-				auditor.logAction("", "UPDATE USER REGISTRY", user.getEppn(), "REPLACE " + 
-						entry.getKey() + ": " + registry.getRegistryValues().get(entry.getKey()) +
-						" => " + entry.getValue()
-						, AuditStatus.SUCCESS);
+			} else if (!registry.getRegistryValues().get(entry.getKey()).equals(entry.getValue())) {
+				auditor.logAction(
+						"", "UPDATE USER REGISTRY", user.getEppn(), "REPLACE " + entry.getKey() + ": "
+								+ registry.getRegistryValues().get(entry.getKey()) + " => " + entry.getValue(),
+						AuditStatus.SUCCESS);
 				registry.getRegistryValues().put(entry.getKey(), entry.getValue());
 				change |= true;
 			}
 		}
-		
+
 		return change;
-	}	
-	
+	}
+
 	@Override
-	public void reconciliation(UserEntity user, ServiceEntity service,
-			RegistryEntity registry, Auditor auditor) throws RegisterException {
+	public void reconciliation(UserEntity user, ServiceEntity service, RegistryEntity registry, Auditor auditor)
+			throws RegisterException {
 		logger.info("LDAP Reconsiliation user {} for service {}", user.getEppn(), service.getName());
 
 		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
 		Map<String, String> regMap = registry.getRegistryValues();
-		
+
 		String cn = regMap.get("cn");
 		String sn = regMap.get("sn");
 		String givenName = regMap.get("givenName");
@@ -165,27 +167,29 @@ public class ScriptedLdapRegisterWorkflow
 		String gidNumber = regMap.get("gidNumber");
 		String homeDir = regMap.get("homeDir");
 		String description = registry.getId().toString();
-		
+
 		LdapWorker ldapWorker = new LdapWorker(prop, auditor, Boolean.parseBoolean(regMap.get("sambaEnabled")));
 
 		ldapWorker.reconUser(cn, sn, givenName, mail, localUid, uidNumber, gidNumber, homeDir, description, regMap);
-		if (prop.hasProp("pw_location") && 
-				((prop.readPropOrNull("pw_location").equalsIgnoreCase("registry")) || prop.readPropOrNull("pw_location").equalsIgnoreCase("both"))
-				&& (! registry.getRegistryValues().containsKey("userPassword"))) {
+		if (prop.hasProp("pw_location")
+				&& ((prop.readPropOrNull("pw_location").equalsIgnoreCase("registry"))
+						|| prop.readPropOrNull("pw_location").equalsIgnoreCase("both"))
+				&& (!registry.getRegistryValues().containsKey("userPassword"))) {
 			List<String> pwList = ldapWorker.getPasswords(localUid);
 			if (pwList.size() > 0) {
-				logger.debug("userPassword is not set in registry but in LDAP ({}). Importing from LDAP", pwList.size());
+				logger.debug("userPassword is not set in registry but in LDAP ({}). Importing from LDAP",
+						pwList.size());
 				registry.getRegistryValues().put("userPassword", pwList.get(0));
 			}
 		}
-		
+
 		ldapWorker.closeConnections();
 	}
 
-	protected Infotainment getInfo(RegistryEntity registry, UserEntity user,
-			ServiceEntity service, Boolean forAdmin) throws RegisterException {
+	protected Infotainment getInfo(RegistryEntity registry, UserEntity user, ServiceEntity service, Boolean forAdmin)
+			throws RegisterException {
 		Infotainment info = new Infotainment();
-		
+
 		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
 		Map<String, String> regMap = registry.getRegistryValues();
 		String localUid = regMap.get("localUid");
@@ -193,25 +197,24 @@ public class ScriptedLdapRegisterWorkflow
 
 		if (forAdmin) {
 			ldapWorker.getInfoForAdmin(info, localUid);
-		}
-		else {
+		} else {
 			ldapWorker.getInfo(info, localUid);
 		}
-		
-		ldapWorker.closeConnections();		
+
+		ldapWorker.closeConnections();
 
 		return info;
 	}
-	
-	@Override
-	public Infotainment getInfo(RegistryEntity registry, UserEntity user,
-			ServiceEntity service) throws RegisterException {
-		return getInfo(registry, user, service, false);
-	}		
 
 	@Override
-	public Infotainment getInfoForAdmin(RegistryEntity registry, UserEntity user,
-			ServiceEntity service) throws RegisterException {
+	public Infotainment getInfo(RegistryEntity registry, UserEntity user, ServiceEntity service)
+			throws RegisterException {
+		return getInfo(registry, user, service, false);
+	}
+
+	@Override
+	public Infotainment getInfoForAdmin(RegistryEntity registry, UserEntity user, ServiceEntity service)
+			throws RegisterException {
 		return getInfo(registry, user, service, true);
 	}
 
@@ -220,30 +223,33 @@ public class ScriptedLdapRegisterWorkflow
 			throws RegisterException {
 
 		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
-		LdapWorker ldapWorker = new LdapWorker(prop, auditor, Boolean.parseBoolean(prop.readPropOrNull("samba_enabled")));
+		LdapWorker ldapWorker = new LdapWorker(prop, auditor,
+				Boolean.parseBoolean(prop.readPropOrNull("samba_enabled")));
 
 		try {
 			String scriptName = prop.readProp("script_name");
 
 			ScriptEntity scriptEntity = scriptingEnv.getScriptDao().findByName(scriptName);
-			
+
 			if (scriptEntity == null)
 				throw new RegisterException("service not configured properly. script is missing.");
-			
+
 			if (scriptEntity.getScriptType().equalsIgnoreCase("javascript")) {
 				ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
 
 				if (engine == null)
-					throw new RegisterException("service not configured properly. engine not found: " + scriptEntity.getScriptEngine());
-				
+					throw new RegisterException(
+							"service not configured properly. engine not found: " + scriptEntity.getScriptEngine());
+
 				engine.eval(scriptEntity.getScript());
-			
+
 				Invocable invocable = (Invocable) engine;
-		
-				for (GroupEntity group : updateStruct.getGroups()) {
+
+				for (ServiceGroupFlagEntity sgf : updateStruct.getGroupFlags()) {
 					long a = System.currentTimeMillis();
-					Set<UserEntity> users = updateStruct.getUsersForGroup(group);
-					
+					Set<UserEntity> users = updateStruct.getUsersForGroupFlag(sgf);
+					GroupEntity group = sgf.getGroup();
+
 					logger.debug("Update Ldap Group for group {} and Service {}", group.getName(), service.getName());
 
 					Set<String> memberUids = new HashSet<String>(users.size());
@@ -251,26 +257,28 @@ public class ScriptedLdapRegisterWorkflow
 					Map<String, String> reconMap = new HashMap<String, String>();
 
 					for (UserEntity user : users) {
-						Object result = invocable.invokeFunction("resolveUid", scriptingEnv, reconMap, user, null, service, auditor, logger);
+						Object result = invocable.invokeFunction("resolveUid", scriptingEnv, reconMap, user, null,
+								service, auditor, logger);
 						if (result != null) {
 							memberUids.add(result.toString());
 						}
 					}
-					
+
 					a = System.currentTimeMillis();
 
-					Object result = invocable.invokeFunction("resolveGroupname", scriptingEnv, reconMap, group, service, auditor, logger);
+					Object result = invocable.invokeFunction("resolveGroupname", scriptingEnv, reconMap, group, service,
+							auditor, logger, sgf);
 					if (result != null) {
 						ldapWorker.reconGroup(result.toString(), "" + group.getGidNumber(), memberUids);
 					} else {
 						logger.debug("Groupname for group {} did not resolve", group.getName());
 					}
-					
-					logger.debug("reconGroup {} took {} ms", group.getName(), (System.currentTimeMillis() - a)); a = System.currentTimeMillis();
+
+					logger.debug("reconGroup {} took {} ms", group.getName(), (System.currentTimeMillis() - a));
+					a = System.currentTimeMillis();
 				}
-				
-			}
-			else {
+
+			} else {
 				throw new RegisterException("unkown script type: " + scriptEntity.getScriptType());
 			}
 		} catch (PropertyReaderException e) {
@@ -280,17 +288,23 @@ public class ScriptedLdapRegisterWorkflow
 		} catch (NoSuchMethodException e) {
 			throw new RegisterException(e);
 		}
-				
+
 		ldapWorker.closeConnections();
 	}
-	
+
 	@Override
-	public void deleteGroup(GroupEntity group, ServiceEntity service, Auditor auditor)
-			 throws RegisterException {
+	public void deleteGroup(ServiceBasedGroupEntity group, ServiceEntity service, Auditor auditor) throws RegisterException {
 		logger.debug("Delete Ldap Group for group {} and Service {}", group.getName(), service.getName());
-		
+
+		ServiceGroupFlagEntity sgf = null;
+		if (group.getServiceGroupFlags() != null) {
+			sgf = group.getServiceGroupFlags().stream()
+				.filter(flag -> flag.getService().equals(service)).findFirst().get();
+		}
+
 		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
-		LdapWorker ldapWorker = new LdapWorker(prop, auditor, Boolean.parseBoolean(prop.readPropOrNull("samba_enabled")));
+		LdapWorker ldapWorker = new LdapWorker(prop, auditor,
+				Boolean.parseBoolean(prop.readPropOrNull("samba_enabled")));
 
 		Map<String, String> reconMap = new HashMap<String, String>();
 
@@ -298,29 +312,30 @@ public class ScriptedLdapRegisterWorkflow
 			String scriptName = prop.readProp("script_name");
 
 			ScriptEntity scriptEntity = scriptingEnv.getScriptDao().findByName(scriptName);
-			
+
 			if (scriptEntity == null)
 				throw new RegisterException("service not configured properly. script is missing.");
-			
+
 			if (scriptEntity.getScriptType().equalsIgnoreCase("javascript")) {
 				ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
 
 				if (engine == null)
-					throw new RegisterException("service not configured properly. engine not found: " + scriptEntity.getScriptEngine());
-				
+					throw new RegisterException(
+							"service not configured properly. engine not found: " + scriptEntity.getScriptEngine());
+
 				engine.eval(scriptEntity.getScript());
-			
+
 				Invocable invocable = (Invocable) engine;
-		
-				Object result = invocable.invokeFunction("resolveGroupname", scriptingEnv, reconMap, group, service, auditor, logger);
+
+				Object result = invocable.invokeFunction("resolveGroupname", scriptingEnv, reconMap, group, service,
+						auditor, logger, sgf);
 				if (result != null) {
-					ldapWorker.deleteGroup(group.getName());		
+					ldapWorker.deleteGroup(group.getName());
 				} else {
 					logger.debug("Groupname for group {} did not resolve", group.getName());
 				}
-				
-			}
-			else {
+
+			} else {
 				throw new RegisterException("unkown script type: " + scriptEntity.getScriptType());
 			}
 		} catch (PropertyReaderException e) {
@@ -330,15 +345,14 @@ public class ScriptedLdapRegisterWorkflow
 		} catch (NoSuchMethodException e) {
 			throw new RegisterException(e);
 		}
-		
-		
+
 		ldapWorker.closeConnections();
-		
+
 	}
-	
+
 	@Override
-	public void setPassword(UserEntity user, ServiceEntity service,
-			RegistryEntity registry, Auditor auditor, String password) throws RegisterException {
+	public void setPassword(UserEntity user, ServiceEntity service, RegistryEntity registry, Auditor auditor,
+			String password) throws RegisterException {
 		logger.debug("Setting service password for user {}", user.getEppn());
 
 		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
@@ -347,7 +361,7 @@ public class ScriptedLdapRegisterWorkflow
 		String localUid = regMap.get("localUid");
 
 		String ntPassword = null;
-		
+
 		if (Boolean.parseBoolean(regMap.get("sambaEnabled")))
 			ntPassword = calcNtPassword(password);
 
@@ -356,20 +370,20 @@ public class ScriptedLdapRegisterWorkflow
 
 		if (Boolean.parseBoolean(regMap.get("sambaEnabled")))
 			ldapWorker.setSambaPassword(localUid, ntPassword, user);
-		
-		ldapWorker.closeConnections();		
+
+		ldapWorker.closeConnections();
 	}
 
 	@Override
-	public void deletePassword(UserEntity user, ServiceEntity service,
-			RegistryEntity registry, Auditor auditor) throws RegisterException {
+	public void deletePassword(UserEntity user, ServiceEntity service, RegistryEntity registry, Auditor auditor)
+			throws RegisterException {
 		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
 		Map<String, String> regMap = registry.getRegistryValues();
 		String localUid = regMap.get("localUid");
 		LdapWorker ldapWorker = new LdapWorker(prop, auditor, Boolean.parseBoolean(regMap.get("sambaEnabled")));
 		ldapWorker.deletePassword(localUid);
-		ldapWorker.closeConnections();		
-	}	
+		ldapWorker.closeConnections();
+	}
 
 	private String calcNtPassword(String password) {
 		String ntHash = "";
@@ -381,14 +395,13 @@ public class ScriptedLdapRegisterWorkflow
 			md4.engineUpdate(bpass, 0, bpass.length);
 			byte[] hashbytes = new byte[32];
 			hashbytes = md4.engineDigest();
-			ntHash = new String(Hexdump.toHexString(hashbytes, 0,
-					hashbytes.length * 2));
+			ntHash = new String(Hexdump.toHexString(hashbytes, 0, hashbytes.length * 2));
 
 			return ntHash;
 		} catch (UnsupportedEncodingException e) {
 			logger.warn("Calculating NT Password failed!", e);
 			return "";
-		}	
+		}
 	}
 
 	@Override
@@ -396,4 +409,3 @@ public class ScriptedLdapRegisterWorkflow
 		this.scriptingEnv = scriptingEnv;
 	}
 }
-

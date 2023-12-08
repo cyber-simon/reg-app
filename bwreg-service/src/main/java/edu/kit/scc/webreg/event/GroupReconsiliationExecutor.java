@@ -59,16 +59,6 @@ public class GroupReconsiliationExecutor extends AbstractEventExecutor<MultipleG
 			fullRecon = Boolean.parseBoolean(getJobStore().get("full_recon"));
 		}
 
-		Boolean newReconMethod = false;
-		if (getJobStore().containsKey("new_recon")) {
-			newReconMethod = Boolean.parseBoolean(getJobStore().get("new_recon"));
-		}
-
-		Boolean newRollMech = false;
-		if (getJobStore().containsKey("new_roll")) {
-			newRollMech = Boolean.parseBoolean(getJobStore().get("new_roll"));
-		}
-
 		Set<String> reconRegForServices = null;
 		if (getJobStore().containsKey("recon_reg_for_services")) {
 			String rs = getJobStore().get("recon_reg_for_services");
@@ -85,19 +75,15 @@ public class GroupReconsiliationExecutor extends AbstractEventExecutor<MultipleG
 			Map<GroupEntity, Set<UserEntity>> usersToRemove = getEvent().getUsersToRemove();
 
 			try {
-				if (newReconMethod) {
-					List<RegistryEntity> reconList = registerUserService.updateGroupsNew(groupList, reconRegistries,
-							reconRegForServices, fullRecon, newRollMech, usersToRemove, executor);
+				List<RegistryEntity> reconList = registerUserService.updateGroupsNew(groupList, reconRegistries,
+						reconRegForServices, fullRecon, usersToRemove, executor);
 
-					for (RegistryEntity registry : reconList) {
-						try {
-							registerUserService.reconsiliation(registry, fullRecon, executor);
-						} catch (RegisterException e) {
-							logger.warn("Could not recon registry", e);
-						}
+				for (RegistryEntity registry : reconList) {
+					try {
+						registerUserService.reconsiliation(registry, fullRecon, executor);
+					} catch (RegisterException e) {
+						logger.warn("Could not recon registry", e);
 					}
-				} else {
-					registerUserService.updateGroups(groupList, reconRegistries, fullRecon, usersToRemove, executor);
 				}
 			} catch (RegisterException e) {
 				logger.warn("Could not update groups ", e);

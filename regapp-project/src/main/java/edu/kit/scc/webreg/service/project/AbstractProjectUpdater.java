@@ -84,7 +84,12 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 			logger.warn("Could not submit event", e);
 		}
 		pse.setStatus(ProjectServiceStatusType.APPROVAL_DENIED);
+	}
 
+	public void updateGroupnameOverride(ProjectServiceEntity pse, String overrideGroupname, String executor) {
+		pse.setGroupNameOverride(overrideGroupname);
+		syncGroupFlags(pse, executor);
+		triggerGroupUpdate(pse.getProject(), executor);
 	}
 
 	public void removeProjectMember(ProjectMembershipEntity pme, String executor) {
@@ -277,10 +282,10 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 		triggerGroupUpdate(project, executor);
 
 		if (project.getChildProjects() != null) {
-                        for (ProjectEntity childProject : project.getChildProjects()) {
-                                updateServices(childProject, serviceList, type, status, executor, depth + 1, maxDepth);
-                        }
-                }
+			for (ProjectEntity childProject : project.getChildProjects()) {
+				updateServices(childProject, serviceList, type, status, executor, depth + 1, maxDepth);
+			}
+		}
 	}
 
 	private void syncGroupFlags(ProjectServiceEntity pse, String executor) {
@@ -305,7 +310,16 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 				groupFlag.setGroup(pse.getProject().getProjectGroup());
 				groupFlag.setService(pse.getService());
 				groupFlag.setStatus(ServiceGroupStatus.DIRTY);
+				groupFlag.setGroupNameOverride(pse.getGroupNameOverride());
 				groupFlag = groupFlagDao.persist(groupFlag);
+			} else if (groupFlagList.size() == 1) {
+				ServiceGroupFlagEntity groupFlag = groupFlagList.get(0);
+				if (pse.getGroupNameOverride() != null
+						&& !(pse.getGroupNameOverride().equals(groupFlag.getGroupNameOverride()))) {
+					// Group override names are different. Update the group flag one
+					groupFlag.setStatus(ServiceGroupStatus.DIRTY);
+					groupFlag.setGroupNameOverride(pse.getGroupNameOverride());
+				}
 			}
 		}
 	}

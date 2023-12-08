@@ -3,6 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:f="jakarta.faces.core"
 	xmlns:h="jakarta.faces.html"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
 	xmlns:ui="jakarta.faces.facelets"
 	xmlns:p="http://primefaces.org/ui">
 <head>
@@ -38,15 +39,19 @@
 					
 		        <h:outputText value="#{messages.group_name}:"/>
 		        <h:outputText value="#{serviceProjectAdminShowProjectBean.entity.groupName}"/>
-					
+
 		        <h:outputText value="#{messages.services}:"/>
 		        <ui:repeat value="#{serviceProjectAdminShowProjectBean.entity.projectServices}" var="s">
-		        	<div><h:outputText value="#{s.service.name} (#{s.status})"/></div>
+		        	<div>
+		        		<h:outputText value="#{s.service.name} (#{s.status}) "/>
+		        	</div>
 				</ui:repeat>
 			</p:panelGrid>
 		</p:panel>
 
 		<p:panel rendered="#{serviceProjectAdminShowProjectBean.projectServiceEntity.status == 'APPROVAL_PENDING'}">
+			<h5 style="margin-top: 1em;"><h:outputText value="#{messages['project.local_project.approver_admin_header']}" /></h5>
+			<h:outputText value="#{messages['project.local_project.approver_admin_txt']}" />
 			<p:outputPanel>
 				<h:outputText value="#{messages['project.local_project.approver_admin_message']}" />
 			</p:outputPanel>
@@ -55,6 +60,10 @@
 				<i class="pi pi-arrow-right"></i>
 				<h:outputText value=" #{serviceProjectAdminShowProjectBean.projectServiceEntity.service.name}" />
 			</p:outputPanel>
+			<p:panelGrid columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">	
+		        <bw:inputText id="ovvrGrpField" label="#{messages['project.local_project.approver_set_override_groupname']}" 
+		        	value="#{serviceProjectAdminShowProjectBean.overrideGroupName}" required="false"/>
+			</p:panelGrid>
 			
 			<p:outputPanel>
 				<p:commandButton id="approve" action="#{serviceProjectAdminShowProjectBean.approve()}" value="#{messages.approve}" style="color:green;" update="@form"/>
@@ -63,7 +72,19 @@
 		</p:panel>
 
 		<p:panel rendered="#{serviceProjectAdminShowProjectBean.projectServiceEntity.status == 'ACTIVE'}">
-			<h:outputText value="#{messages['project.local_project.approver_active_panel_txt']}" />
+			<h5 style="margin-top: 1em;"><h:outputText value="#{messages['project.local_project.approver_active_panel_header']}" /></h5>
+			<p:outputPanel style="margin-top: 0.5em;">
+				<h:outputText value="#{messages['project.local_project.approver_active_panel_txt']}" />
+			</p:outputPanel>
+			<p:outputPanel style="margin-top: 0.5em;">
+				<p:panelGrid columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
+			        <h:outputText value="#{messages['project.override_group_name']}:"/>
+			        <p:inplace id="ajax" editor="true" emptyLabel="#{messages['not_set']}">
+			        	<p:ajax event="save" listener="#{serviceProjectAdminShowProjectBean.handleOverrideChange}" update=":form:messageBox" />
+			        	<p:inputText value="#{serviceProjectAdminShowProjectBean.overrideGroupName}" />
+			        </p:inplace>
+				</p:panelGrid>
+			</p:outputPanel>	
 		</p:panel>
 
 		<p:panel>
@@ -81,6 +102,18 @@
 					</f:facet>
 					<h:outputText value="#{admin.identity.prefUser.eppn}" />
 				</p:column>			
+				<p:column sortBy="#{admin.identity.prefUser.surName}" filterBy="#{admin.identity.prefUser.surName}" filterMatchMode="contains">
+					<f:facet name="header">
+						<h:outputText value="#{messages.sur_name}" />
+					</f:facet>
+					<h:outputText value="#{admin.identity.prefUser.surName}" />
+				</p:column>			
+				<p:column sortBy="#{admin.identity.prefUser.givenName}" filterBy="#{admin.identity.prefUser.givenName}" filterMatchMode="contains">
+					<f:facet name="header">
+						<h:outputText value="#{messages.given_name}" />
+					</f:facet>
+					<h:outputText value="#{admin.identity.prefUser.givenName}" />
+				</p:column>			
 				<p:column>
 					<f:facet name="header">
 						<h:outputText value="#{messages.type}" />
@@ -91,6 +124,12 @@
 			
 			<h5 style="margin-top: 1em;"><h:outputText value="#{messages['project.members']}" /></h5>
 			<p:dataTable id="dataTableMember" var="member" value="#{serviceProjectAdminShowProjectBean.memberList}">
+				<p:column>
+					<f:facet name="header">
+						<h:outputText value="#{messages.id}" />
+					</f:facet>
+					<h:outputText value="#{member.identity.id}" />
+				</p:column>			
 				<p:column sortBy="#{member.identity.prefUser.eppn}" filterBy="#{member.identity.prefUser.eppn}" filterMatchMode="contains">
 					<f:facet name="header">
 						<h:outputText value="#{messages.name}" />
@@ -118,13 +157,15 @@
 			</p:dataTable>	
 			
 			<h5 style="margin-top: 1em;"><h:outputText value="#{messages['more_properties']}" /></h5>
-			<p:panelGrid id="descData" columns="2">	
-		        <h:outputText value="#{messages['project.short_description']}:"/>
-				<h:outputText value="#{serviceProjectAdminShowProjectBean.entity.shortDescription}" />	
-	
-		        <h:outputText value="#{messages['project.long_description']}:"/>
-				<h:outputText value="#{serviceProjectAdminShowProjectBean.entity.description}" />	
-			</p:panelGrid>		
+			<p:outputPanel style="margin-top: 0.5em;">
+				<p:panelGrid id="descData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">	
+			        <h:outputText value="#{messages['project.short_description']}:"/>
+					<h:outputText value="#{serviceProjectAdminShowProjectBean.entity.shortDescription}" />	
+		
+			        <h:outputText value="#{messages['project.long_description']}:"/>
+					<h:outputText value="#{serviceProjectAdminShowProjectBean.entity.description}" />	
+				</p:panelGrid>
+			</p:outputPanel>
 		</p:panel>
 	</h:form>
 

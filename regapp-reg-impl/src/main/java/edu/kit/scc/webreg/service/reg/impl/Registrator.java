@@ -19,11 +19,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 
 import org.kie.api.runtime.KieSession;
 import org.slf4j.Logger;
@@ -33,7 +29,6 @@ import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.audit.GroupAuditor;
 import edu.kit.scc.webreg.audit.NullAuditor;
 import edu.kit.scc.webreg.audit.RegistryAuditor;
-import edu.kit.scc.webreg.audit.ServiceAuditor;
 import edu.kit.scc.webreg.audit.ServiceRegisterAuditor;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.GroupDao;
@@ -83,6 +78,8 @@ import edu.kit.scc.webreg.service.reg.PasswordUtil;
 import edu.kit.scc.webreg.service.reg.RegisterUserWorkflow;
 import edu.kit.scc.webreg.service.reg.ScriptingWorkflow;
 import edu.kit.scc.webreg.service.reg.SetPasswordCapable;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class Registrator implements Serializable {
@@ -248,7 +245,7 @@ public class Registrator implements Serializable {
 
 	@RetryTransaction
 	public Boolean processUpdateGroup(ServiceGroupFlagEntity flag, Boolean reconRegistries, Boolean fullRecon,
-			Boolean newRollMech, String executor) {
+			String executor) {
 		flag = groupFlagDao.fetch(flag.getId());
 		ServiceEntity service = flag.getService();
 		ServiceBasedGroupEntity group = flag.getGroup();
@@ -272,8 +269,7 @@ public class Registrator implements Serializable {
 		}
 
 		if (ServiceGroupStatus.TO_DELETE.equals(flag.getStatus())) {
-			logger.info("Group {} at Service {} is about to get deleted", group.getName(),
-					service.getName());
+			logger.info("Group {} at Service {} is about to get deleted", group.getName(), service.getName());
 			try {
 				deleteGroup(group, service, executor);
 				groupFlagDao.delete(flag);
@@ -282,11 +278,9 @@ public class Registrator implements Serializable {
 				logger.warn("Could not delete group: " + e);
 				return false;
 			}
-		}
-		else if (ServiceGroupStatus.DIRTY.equals(flag.getStatus())) {
-			logger.info("Group {} at Service {} needs an update", group.getName(),
-					flag.getService().getName());
-			
+		} else if (ServiceGroupStatus.DIRTY.equals(flag.getStatus())) {
+			logger.info("Group {} at Service {} needs an update", group.getName(), flag.getService().getName());
+
 			// check parent groups (These contain the change groups and their members)
 //			for (GroupEntity parent : serviceBasedGroup.getParents()) {
 //				updateParentGroup(parent, groupPerServiceList, 0, 3);
@@ -319,30 +313,14 @@ public class Registrator implements Serializable {
 			if (retainGroup) {
 				// keep group
 				a = System.currentTimeMillis();
-				Set<UserEntity> users = null;
-				
-				if (newRollMech) {
-					users = groupUtil.rollUsersForGroup(group, service);
-					logger.debug("RollGroup {} took {} ms", group.getName(), (System.currentTimeMillis() - a));
-					a = System.currentTimeMillis();					
-				}
-				else {
-					List<UserEntity> userInServiceList = registryDao.findUserListByServiceAndStatus(service,
-							RegistryStatus.ACTIVE);
-					logger.debug("RegistryList took {}ms", (System.currentTimeMillis() - a));
-					a = System.currentTimeMillis();
-					
-					users = groupUtil.rollUsersForGroup(group);
-					logger.debug("RollGroup {} took {} ms", group.getName(), (System.currentTimeMillis() - a));
-					a = System.currentTimeMillis();
+				Set<UserEntity> users = groupUtil.rollUsersForGroup(group, service);
+				logger.debug("RollGroup {} took {} ms", group.getName(), (System.currentTimeMillis() - a));
+				a = System.currentTimeMillis();
 
-					users.retainAll(userInServiceList);
-				}
-
-				updateStruct.addGroup(group, users);
+				updateStruct.addGroup(flag, users);
 			} else {
 				// group is filtered. Just set no members.
-				updateStruct.addGroup(group, new HashSet<UserEntity>());
+				updateStruct.addGroup(flag, new HashSet<UserEntity>());
 			}
 
 			NullAuditor auditor = new NullAuditor();
@@ -360,150 +338,8 @@ public class Registrator implements Serializable {
 					logger.info("RegisterException {} happened, no cause", e.getMessage());
 				return false;
 			}
-		}
-		else {
+		} else {
 			return false;
-		}
-	}
-
-	@RetryTransaction
-	public void updateGroups(ServiceEntity service, GroupPerServiceList groupUpdateList, Boolean reconRegistries,
-			Boolean fullRecon, Map<GroupEntity, Set<UserEntity>> usersToRemove, String executor)
-			throws RegisterException {
-		service = serviceDao.fetch(service.getId());
-
-		RegisterUserWorkflow workflow = getWorkflowInstance(service.getRegisterBean());
-		if (!(workflow instanceof GroupCapable)) {
-			logger.warn("Workflow " + workflow.getClass() + " is not GroupCapable! Resetting all Flags to CLEAN");
-			for (ServiceGroupFlagEntity groupFlag : groupUpdateList.getGroupFlagsForService(service)) {
-				groupFlag = groupFlagDao.fetch(groupFlag.getId());
-				groupFlag.setStatus(ServiceGroupStatus.CLEAN);
-			}
-			return;
-		}
-
-		try {
-			ServiceAuditor auditor = new ServiceAuditor(auditDao, auditDetailDao, appConfig);
-			auditor.startAuditTrail(executor);
-			auditor.setName(workflow.getClass().getName() + "-GroupUpdate-Audit");
-			auditor.setDetail("Update groups for service " + service.getName());
-			auditor.setService(service);
-
-			long a = System.currentTimeMillis();
-
-			Set<GroupEntity> groups = new HashSet<GroupEntity>();
-			for (ServiceGroupFlagEntity groupFlag : groupUpdateList.getGroupFlagsForService(service)) {
-				groupFlag = groupFlagDao.fetch(groupFlag.getId());
-				groups.add(groupFlag.getGroup());
-			}
-			logger.debug("Hashing and loading GroupFlags took {} ms", (System.currentTimeMillis() - a));
-			a = System.currentTimeMillis();
-
-			Set<GroupEntity> groupsToRemove = new HashSet<GroupEntity>();
-			if (service.getGroupFilterRulePackage() != null) {
-				a = System.currentTimeMillis();
-
-				BusinessRulePackageEntity rulePackage = service.getGroupFilterRulePackage();
-				KieSession ksession = knowledgeSessionService.getStatefulSession(rulePackage.getPackageName(),
-						rulePackage.getKnowledgeBaseName(), rulePackage.getKnowledgeBaseVersion());
-
-				ksession.setGlobal("logger", logger);
-				for (GroupEntity group : groups) {
-					ksession.insert(group);
-				}
-
-				ksession.fireAllRules();
-				List<Object> objectList = new ArrayList<Object>(ksession.getObjects());
-
-				Set<GroupEntity> filteredGroups = new HashSet<GroupEntity>();
-				for (Object o : objectList) {
-					ksession.delete(ksession.getFactHandle(o));
-					if (o instanceof GroupEntity)
-						filteredGroups.add((GroupEntity) o);
-				}
-
-				groupsToRemove.addAll(groups);
-				groupsToRemove.removeAll(filteredGroups);
-
-				groups = filteredGroups;
-
-				logger.debug("Applying group filter drools took {} ms", (System.currentTimeMillis() - a));
-				a = System.currentTimeMillis();
-			}
-
-			a = System.currentTimeMillis();
-			List<UserEntity> userInServiceList = registryDao.findUserListByServiceAndStatus(service,
-					RegistryStatus.ACTIVE);
-			logger.debug("RegistryList took {}ms", (System.currentTimeMillis() - a));
-			a = System.currentTimeMillis();
-
-			logger.debug("Building group update struct for {}", service.getName());
-			GroupUpdateStructure updateStruct = new GroupUpdateStructure();
-			for (GroupEntity group : groups) {
-				a = System.currentTimeMillis();
-				group = groupDao.fetch(group.getId());
-				Set<UserEntity> users = groupUtil.rollUsersForGroup(group);
-				logger.debug("RollGroup {} took {} ms", group.getName(), (System.currentTimeMillis() - a));
-				a = System.currentTimeMillis();
-
-				users.retainAll(userInServiceList);
-
-				updateStruct.addGroup(group, users);
-			}
-
-			for (GroupEntity group : groupsToRemove) {
-				updateStruct.addGroup(group, new HashSet<UserEntity>());
-			}
-
-			((GroupCapable) workflow).updateGroups(service, updateStruct, auditor);
-			logger.debug("updateGroups took {}ms", (System.currentTimeMillis() - a));
-			a = System.currentTimeMillis();
-
-			for (ServiceGroupFlagEntity groupFlag : groupUpdateList.getGroupFlagsForService(service)) {
-				groupFlag = groupFlagDao.fetch(groupFlag.getId());
-				groupFlag.setStatus(ServiceGroupStatus.CLEAN);
-			}
-			logger.debug("Persist service Flags took {}ms", (System.currentTimeMillis() - a));
-			a = System.currentTimeMillis();
-
-			/*
-			 * recon all registries
-			 */
-			if (reconRegistries) {
-				logger.debug("Start recon registries for {}", service.getName());
-				for (GroupEntity group : updateStruct.getGroups()) {
-					// Skip HomeOrg groups, as these trigger a user update and recon on this path
-					if (!(group instanceof HomeOrgGroupEntity)) {
-						// Trigger recon for all member of group
-						for (UserEntity user : updateStruct.getUsersForGroup(group)) {
-							RegistryEntity registry = registryDao.findByServiceAndUserAndStatus(service, user,
-									RegistryStatus.ACTIVE);
-							if (registry != null) {
-								reconsiliation(registry, fullRecon, executor);
-							}
-						}
-
-						// trigger recon for removed members
-						if (usersToRemove != null && usersToRemove.containsKey(group)) {
-							for (UserEntity user : usersToRemove.get(group)) {
-								RegistryEntity registry = registryDao.findByServiceAndUserAndStatus(service, user,
-										RegistryStatus.ACTIVE);
-								if (registry != null) {
-									reconsiliation(registry, fullRecon, executor);
-								}
-							}
-						}
-					}
-				}
-				logger.debug("Recon registries took {}ms", (System.currentTimeMillis() - a));
-				a = System.currentTimeMillis();
-			}
-
-			auditor.finishAuditTrail();
-			auditor.commitAuditTrail();
-
-		} catch (Throwable t) {
-			throw new RegisterException(t);
 		}
 	}
 
@@ -599,7 +435,7 @@ public class Registrator implements Serializable {
 					+ service.getName());
 			auditor.setGroup(group);
 
-			((GroupCapable) workflow).deleteGroup(group, service, auditor);
+			((GroupCapable) workflow).deleteGroup((ServiceBasedGroupEntity) group, service, auditor);
 
 			auditor.finishAuditTrail();
 			auditor.commitAuditTrail();

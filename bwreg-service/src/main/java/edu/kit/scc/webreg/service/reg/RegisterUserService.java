@@ -49,9 +49,6 @@ public interface RegisterUserService {
 
 	void deleteGroup(GroupEntity group, ServiceEntity service, String executor) throws RegisterException;
 
-	void updateGroups(Set<GroupEntity> groupUpdateSet, Boolean reconRegistries, Boolean fullRecon,
-			Map<GroupEntity, Set<UserEntity>> usersToRemove, String executor) throws RegisterException;
-
 	void deletePassword(UserEntity user, ServiceEntity service, RegistryEntity registry, String executor)
 			throws RegisterException;
 
@@ -72,6 +69,6 @@ public interface RegisterUserService {
 			Boolean withGroups, String executor) throws RegisterException;
 
 	List<RegistryEntity> updateGroupsNew(Set<GroupEntity> groupUpdateSet, Boolean reconRegistries,
-			Set<String> reconRegForServices, Boolean fullRecon, Boolean newRollMech,
-			Map<GroupEntity, Set<UserEntity>> usersToRemove, String executor) throws RegisterException;
+			Set<String> reconRegForServices, Boolean fullRecon, Map<GroupEntity, Set<UserEntity>> usersToRemove,
+			String executor) throws RegisterException;
 }

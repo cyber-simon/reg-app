@@ -21,7 +21,9 @@ import org.slf4j.LoggerFactory;
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
+import edu.kit.scc.webreg.entity.ServiceBasedGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.service.reg.GroupCapable;
@@ -46,9 +48,10 @@ public abstract class AbstractSimpleGroupSamba4RegisterWorkflow
 		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
 		Samba4Worker ldapWorker = new Samba4Worker(prop, auditor);
 
-		for (GroupEntity group : updateStruct.getGroups()) {
+		for (ServiceGroupFlagEntity sgf : updateStruct.getGroupFlags()) {
 			long a = System.currentTimeMillis();
-			Set<UserEntity> users = updateStruct.getUsersForGroup(group);
+			Set<UserEntity> users = updateStruct.getUsersForGroupFlag(sgf);
+			GroupEntity group = sgf.getGroup();
 			
 			logger.debug("Update Ldap Group for group {} and Service {}", group.getName(), service.getName());
 
@@ -90,7 +93,7 @@ public abstract class AbstractSimpleGroupSamba4RegisterWorkflow
 	}
 	
 	@Override
-	public void deleteGroup(GroupEntity group, ServiceEntity service, Auditor auditor)
+	public void deleteGroup(ServiceBasedGroupEntity group, ServiceEntity service, Auditor auditor)
 			 throws RegisterException {
 		logger.debug("Delete Ldap Group for group {} and Service {}", group.getName(), service.getName());
 		

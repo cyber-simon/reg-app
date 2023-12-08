@@ -23,4 +23,6 @@ public interface LocalProjectService extends BaseService<LocalProjectEntity> {
 
 	void deny(ProjectServiceEntity pse, String denyMessage, String executor);
 
+	void updateGroupnameOverride(ProjectServiceEntity pse, String overrideGroupname, String executor);
+
 }

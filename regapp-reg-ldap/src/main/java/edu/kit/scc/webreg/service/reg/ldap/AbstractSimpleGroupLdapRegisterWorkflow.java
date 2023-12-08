@@ -21,7 +21,9 @@ import org.slf4j.LoggerFactory;
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
+import edu.kit.scc.webreg.entity.ServiceBasedGroupEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
+import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.service.reg.GroupCapable;
@@ -36,7 +38,7 @@ public abstract class AbstractSimpleGroupLdapRegisterWorkflow
 	
 	protected abstract String constructHomeDir(String homeId, String homeUid, UserEntity user, Map<String, String> reconMap);
 	protected abstract String constructLocalUid(String homeId, String homeUid, UserEntity user, Map<String, String> reconMap);
-	protected abstract String constructGroupName(GroupEntity group);
+	protected abstract String constructGroupName(ServiceGroupFlagEntity sgf);
 	protected abstract Boolean isSambaEnabled();
 	
 	@Override
@@ -46,9 +48,10 @@ public abstract class AbstractSimpleGroupLdapRegisterWorkflow
 		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
 		LdapWorker ldapWorker = new LdapWorker(prop, auditor, isSambaEnabled());
 
-		for (GroupEntity group : updateStruct.getGroups()) {
+		for (ServiceGroupFlagEntity sgf : updateStruct.getGroupFlags()) {
 			long a = System.currentTimeMillis();
-			Set<UserEntity> users = updateStruct.getUsersForGroup(group);
+			Set<UserEntity> users = updateStruct.getUsersForGroupFlag(sgf);
+			GroupEntity group = sgf.getGroup();
 			
 			logger.debug("Update Ldap Group for group {} and Service {}", group.getName(), service.getName());
 
@@ -83,7 +86,7 @@ public abstract class AbstractSimpleGroupLdapRegisterWorkflow
 			}
 			
 			a = System.currentTimeMillis();
-			ldapWorker.reconGroup(constructGroupName(group), "" + group.getGidNumber(), memberUids);
+			ldapWorker.reconGroup(constructGroupName(sgf), "" + group.getGidNumber(), memberUids);
 			logger.debug("reconGroup {} took {} ms", group.getName(), (System.currentTimeMillis() - a)); a = System.currentTimeMillis();
 		}
 		
@@ -91,14 +94,14 @@ public abstract class AbstractSimpleGroupLdapRegisterWorkflow
 	}
 	
 	@Override
-	public void deleteGroup(GroupEntity group, ServiceEntity service, Auditor auditor)
+	public void deleteGroup(ServiceBasedGroupEntity group, ServiceEntity service, Auditor auditor)
 			 throws RegisterException {
 		logger.debug("Delete Ldap Group for group {} and Service {}", group.getName(), service.getName());
 		
 		PropertyReader prop = PropertyReader.newRegisterPropReader(service);
 		LdapWorker ldapWorker = new LdapWorker(prop, auditor, isSambaEnabled());
 
-		ldapWorker.deleteGroup(constructGroupName(group));		
+		ldapWorker.deleteGroup(constructGroupName(resolveServiceGroupFlag(group, service)));		
 		
 		ldapWorker.closeConnections();
 		

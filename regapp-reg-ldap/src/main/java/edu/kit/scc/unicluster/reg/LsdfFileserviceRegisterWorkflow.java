@@ -4,6 +4,7 @@ import java.util.Map;
 
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.HomeOrgGroupEntity;
+import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.service.reg.ldap.AbstractLdapRegisterWorkflow;
 
@@ -21,7 +22,9 @@ public class LsdfFileserviceRegisterWorkflow extends AbstractLdapRegisterWorkflo
 	}
 
 	@Override
-	protected String constructGroupName(GroupEntity group) {
+	protected String constructGroupName(ServiceGroupFlagEntity sgf) {
+		GroupEntity group = sgf.getGroup();
+		
 		if (group instanceof HomeOrgGroupEntity) {
 			HomeOrgGroupEntity homeOrgGroup = (HomeOrgGroupEntity) group;
 			if (homeOrgGroup.getPrefix() == null)
@@ -30,7 +33,7 @@ public class LsdfFileserviceRegisterWorkflow extends AbstractLdapRegisterWorkflo
 				return homeOrgGroup.getPrefix() + "_" + homeOrgGroup.getName();
 		}
 		else 
-			return group.getName();
+			return (sgf.getGroupNameOverride() != null ? sgf.getGroupNameOverride() : group.getName()); 
 	}
 
 	@Override
