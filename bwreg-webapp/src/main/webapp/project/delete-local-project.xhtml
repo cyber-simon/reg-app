@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:f="jakarta.faces.core"
+	xmlns:h="jakarta.faces.html" xmlns:ui="jakarta.faces.facelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+	<f:view>
+		<f:metadata>
+			<f:viewParam name="id" value="#{userDeleteLocalProjectBean.id}" />
+			<f:event type="jakarta.faces.event.PreRenderViewEvent"
+				listener="#{userDeleteLocalProjectBean.preRenderView}" />
+		</f:metadata>
+
+		<ui:composition template="/template/default.xhtml">
+			<ui:param name="title" value="#{messages.title}" />
+
+			<ui:define name="content">
+				<h:form id="form" class="full form">
+
+					<h2>
+						<h:outputText
+							value="#{messages['project.delete_local_project.delete_project']}: #{userDeleteLocalProjectBean.entity.name}" />
+					</h2>
+
+					<p:messages id="messageBox" showDetail="true" />
+					
+					<p:panelGrid id="baseData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
+				
+				        <h:outputText value="#{messages.id}:"/>
+				        <h:outputText value="#{userDeleteLocalProjectBean.entity.id}"/>
+				
+				        <h:outputText value="#{messages.name}:"/>
+				        <h:outputText value="#{userDeleteLocalProjectBean.entity.name}"/>
+							
+				        <h:outputText value="#{messages.group_name}:"/>
+				        <h:outputText value="#{userDeleteLocalProjectBean.entity.groupName}"/>
+							
+				        <h:outputText value="#{messages.parent_vo}:" rendered="#{userDeleteLocalProjectBean.entity.parentProject != null}"/>
+				        <h:outputText value="#{userDeleteLocalProjectBean.entity.parentProject}" rendered="#{userDeleteLocalProjectBean.entity.parentProject != null}"/>
+						
+				        <h:outputText value="#{messages.services}:"/>
+				        <ui:repeat value="#{userDeleteLocalProjectBean.entity.projectServices}" var="s">
+				        	<div><h:outputText value="#{s.service.name} (#{s.status})"/></div>
+						</ui:repeat>
+					</p:panelGrid>
+
+					<p:panel style="margin-top: 16px;">
+						<p:commandButton id="cancel" action="#{userDeleteLocalProjectBean.cancel}" value="#{messages.cancel}"/>
+						<p:commandButton id="delete" action="#{userDeleteLocalProjectBean.commit}" value="#{messages['project.delete_local_project.delete_now']}" class="text-danger"/>
+					</p:panel>					
+				</h:form>
+			</ui:define>
+		</ui:composition>
+	</f:view>
+</body>
+</html>

@@ -11,9 +11,6 @@
  */
 package edu.kit.scc.webreg.service.project;
 
-import jakarta.ejb.Stateless;
-import jakarta.inject.Inject;
-
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.dao.project.LocalProjectDao;
@@ -21,6 +18,8 @@ import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 
 @Stateless
 public class LocalProjectServiceImpl extends BaseServiceImpl<LocalProjectEntity> implements LocalProjectService {
@@ -49,6 +48,12 @@ public class LocalProjectServiceImpl extends BaseServiceImpl<LocalProjectEntity>
 	public void approve(ProjectServiceEntity pse, String executor) {
 		pse = dao.mergeProjectService(pse);
 		updater.approve(pse, executor);
+	}
+
+	@Override
+	public void deleteProject(LocalProjectEntity project, String executor) {
+		project = dao.fetch(project.getId());
+		updater.deleteProject(project, executor);
 	}
 
 	@Override

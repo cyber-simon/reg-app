@@ -1,12 +1,12 @@
 package edu.kit.scc.webreg.service.project;
 
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import jakarta.inject.Inject;
 
 import org.slf4j.Logger;
 
@@ -24,16 +24,19 @@ import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
+import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipType;
 import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
 import edu.kit.scc.webreg.entity.project.ProjectServiceStatusType;
 import edu.kit.scc.webreg.entity.project.ProjectServiceType;
+import edu.kit.scc.webreg.entity.project.ProjectStatus;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.MultipleGroupEvent;
 import edu.kit.scc.webreg.event.ProjectMembershipEvent;
 import edu.kit.scc.webreg.event.ProjectServiceEvent;
 import edu.kit.scc.webreg.event.exc.EventSubmitException;
+import jakarta.inject.Inject;
 
 public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements Serializable {
 
@@ -86,6 +89,24 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 		pse.setStatus(ProjectServiceStatusType.APPROVAL_DENIED);
 	}
 
+	public void deleteProject(ProjectEntity project, String executor) {
+		for (ProjectServiceEntity pse : project.getProjectServices()) {
+			logger.debug("Setting ProjectServiceStatus to DELETED for Project {} and Service {}", project.getName(), pse.getService().getName());
+			addOrChangeService(project, pse.getService(), pse.getType(), ProjectServiceStatusType.DELETED, executor);
+		}
+		
+		for (ProjectIdentityAdminEntity pia : project.getProjectAdmins()) {
+			logger.debug("Removing project admin {} ({}) from project {}", pia.getIdentity().getId(), pia.getType(), project.getName());
+			getDao().removeAdminFromProject(pia);
+		}
+		
+		updateProjectMemberList(project, new HashSet<>(), executor);
+		String rnd = randomAlphanumeric(16).toLowerCase();
+		project.setShortName("deleted-" + rnd);
+		project.setGroupName("deleted-" + rnd);
+		project.setProjectStatus(ProjectStatus.DELETED);
+	}
+	
 	public void updateGroupnameOverride(ProjectServiceEntity pse, String overrideGroupname, String executor) {
 		pse.setGroupNameOverride(overrideGroupname);
 		syncGroupFlags(pse, executor);
@@ -135,7 +156,7 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 			ProjectMembershipEntity membership = getDao().findByIdentityAndProject(memberToRemove, project);
 			if (membership != null) {
 				// if membership is null, identity is not in project
-				logger.debug("Adding member {} to project {}", memberToRemove.getId(), project.getId());
+				logger.debug("Delete member {} from project {}", memberToRemove.getId(), project.getId());
 				getDao().deleteMembership(membership);
 				for (UserEntity user : memberToRemove.getUsers()) {
 					groupDao.removeUserGromGroup(user, project.getProjectGroup());

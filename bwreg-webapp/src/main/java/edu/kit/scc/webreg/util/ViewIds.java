@@ -38,6 +38,8 @@ public class ViewIds {
 	 * Projects
 	 */
 	public static final String PROJECT_ADMIN_INDEX = "/project-admin/index.xhtml";
+	public static final String PROJECT_LOCAL_INDEX = "/project/index.xhtml";
+	public static final String PROJECT_LOCAL_SHOW = "/project/show-local-project.xhtml";
 
 	/*
 	 * Services
