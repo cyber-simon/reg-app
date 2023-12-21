@@ -25,4 +25,6 @@ public interface LocalProjectService extends BaseService<LocalProjectEntity> {
 
 	void updateGroupnameOverride(ProjectServiceEntity pse, String overrideGroupname, String executor);
 
+	void deleteProject(LocalProjectEntity project, String executor);
+
 }

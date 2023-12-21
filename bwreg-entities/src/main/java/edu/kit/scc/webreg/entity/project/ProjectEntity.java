@@ -79,7 +79,10 @@ public class ProjectEntity extends AbstractBaseEntity {
 	
 	@OneToMany(mappedBy = "project")
 	private Set<ProjectServiceEntity> projectServices;
-	
+
+	@OneToMany(mappedBy = "project")
+	private Set<ProjectIdentityAdminEntity> projectAdmins;
+
 	public String getName() {
 		return name;
 	}
@@ -166,5 +169,13 @@ public class ProjectEntity extends AbstractBaseEntity {
 
 	public void setChildProjects(Set<ProjectEntity> childProjects) {
 		this.childProjects = childProjects;
+	}
+
+	public Set<ProjectIdentityAdminEntity> getProjectAdmins() {
+		return projectAdmins;
+	}
+
+	public void setProjectAdmins(Set<ProjectIdentityAdminEntity> projectAdmins) {
+		this.projectAdmins = projectAdmins;
 	}
 }
