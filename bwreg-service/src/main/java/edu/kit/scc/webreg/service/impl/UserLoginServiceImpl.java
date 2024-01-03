@@ -96,6 +96,7 @@ import edu.kit.scc.webreg.session.HttpRequestContext;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import jakarta.servlet.ServletException;
+import net.shibboleth.shared.component.ComponentInitializationException;
 
 @Stateless
 public class UserLoginServiceImpl implements UserLoginService, Serializable {
@@ -383,7 +384,6 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 
 			AuthnRequest authnRequest = ssoHelper.buildAuthnRequest(sp.getEntityId(), sp.getEcp(),
 					SAMLConstants.SAML2_PAOS_BINDING_URI, idp.getGenericStore(), sso.getLocation());
-			// Envelope envelope = attrQueryHelper.buildSOAP11Envelope(authnRequest);
 
 			MessageContext inbound = new MessageContext();
 			MessageContext outbound = new MessageContext();
@@ -406,14 +406,24 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 
 				@Override
 				public HttpClientMessagePipeline newInstance(String pipelineName) {
-					return new BasicHttpClientMessagePipeline(new HttpClientRequestSOAP11Encoder(),
-							new HttpClientResponseSOAP11Decoder());
+					final HttpClientResponseSOAP11Decoder decoder = new HttpClientResponseSOAP11Decoder();
+					try {
+						decoder.getBodyHandler().initialize();
+					} catch (ComponentInitializationException e) {
+						logger.info("Exception {}", e.getMessage());
+					}
+					return new BasicHttpClientMessagePipeline(new HttpClientRequestSOAP11Encoder(), decoder);
 				}
 
 				@Override
 				public HttpClientMessagePipeline newInstance() {
-					return new BasicHttpClientMessagePipeline(new HttpClientRequestSOAP11Encoder(),
-							new HttpClientResponseSOAP11Decoder());
+					final HttpClientResponseSOAP11Decoder decoder = new HttpClientResponseSOAP11Decoder();
+					try {
+						decoder.getBodyHandler().initialize();
+					} catch (ComponentInitializationException e) {
+						logger.info("Exception {}", e.getMessage());
+					}
+					return new BasicHttpClientMessagePipeline(new HttpClientRequestSOAP11Encoder(), decoder);
 				}
 			});
 
