@@ -6,6 +6,11 @@
 		<dependencies>
 			<module name="asm.asm" />
 			<module name="jdk.dynalink" />
+			<module name="sun.jdk" export="true">
+				<imports>
+					<include path="sun/misc/Unsafe" />
+				</imports>
+			</module>
 		</dependencies>
 	</deployment>
 </jboss-deployment-structure>
