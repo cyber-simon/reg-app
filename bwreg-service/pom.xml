@@ -180,11 +180,6 @@
 			<artifactId>bcpkix-jdk18on</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcjmail-jdk18on</artifactId>
-			<scope>provided</scope>
-		</dependency>
 
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
