@@ -10,11 +10,6 @@
 	<title></title>
 </head>
 <body>
-<f:view>
-	<f:metadata>
-		<f:viewParam name="alias" value="#{editEmailSignatureBean.alias}"/>
-	</f:metadata>
-
 	<ui:composition template="/template/default-admin.xhtml">
 		<ui:param name="title" value="#{messages.title}"/>
 
@@ -23,18 +18,21 @@
 			<h:form id="form">
 				<p:panel header="#{messages.email_signature_keys}">
 					<f:facet name="footer">
-						<p:commandButton id="save" action="#{editEmailSignatureBean.save}" value="#{messages.save}" update="@form"/>
-						<p:commandButton id="cancel" action="#{editEmailSignatureBean.cancel}" value="#{messages.cancel}" process="@this"/>
+						<p:commandButton id="save" action="#{addEmailSignatureBean.save}" value="#{messages.save}" update="@form"/>
+						<p:commandButton id="cancel" action="#{addEmailSignatureBean.cancel}" value="#{messages.cancel}" process="@this"/>
 					</f:facet>
 					<p:panelGrid id="baseData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 				        <h:outputText value="#{messages.alias}* :"/>
-				        <p:inputText value="#{editEmailSignatureBean.newAlias}"/>
+				        <p:inputText value="#{addEmailSignatureBean.alias}"/>
+				        <h:outputText value="#{messages.private_key} (PEM) * :"/>
+				        <p:inputTextarea value="#{addEmailSignatureBean.privateKeyPem}" style="width: 600px; height: 300px; resize:none;" autoResize="false" required="true" requiredMessage="Error"/>
+				        <h:outputText value="#{messages.cert_chain} (PEM) * :"/>
+				        <p:inputTextarea value="#{addEmailSignatureBean.certificateChainPem}" style="width: 600px; height: 300px; resize:none;" autoResize="false" required="true" requiredMessage="Error"/>
 					</p:panelGrid>
 				</p:panel>
 			</h:form>
 
 		</ui:define>
 	</ui:composition>		
-</f:view>
 </body>
 </html>

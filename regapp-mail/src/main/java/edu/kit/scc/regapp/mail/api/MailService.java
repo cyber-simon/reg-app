@@ -16,10 +16,7 @@ import edu.kit.scc.webreg.exc.MailServiceException;
 
 public interface MailService extends Serializable {
 
-	void sendMail(String from, String to, String cc, String bcc,
-			String subject, String body) throws MailServiceException;
-
-	void sendMail(String from, String to, String cc, String bcc, String subject, String body, String replyTo)
+	void sendMail(String from, String to, String cc, String bcc, String subject, String body, String replyTo, String signatureAlias)
 			throws MailServiceException;
 
 }

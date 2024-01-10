@@ -53,7 +53,8 @@ public class MailSenderMdb implements MessageListener {
 
      		    	SimpleQueuedMail mail = (SimpleQueuedMail) o;
      				mailService.sendMail(mail.getFrom(), mail.getTo(), mail.getCc(), 
-     						mail.getBcc(), mail.getSubject(), mail.getBody(), mail.getReplyTo());
+     						mail.getBcc(), mail.getSubject(), mail.getBody(), mail.getReplyTo(),
+     						mail.getSignatureAlias());
      			}
      	    	else {
      	    		logger.warn("Nothing to do for class {}. Ignore.", message.getClass());

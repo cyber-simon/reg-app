@@ -40,11 +40,25 @@
 			<h:form id="signature-form">
 				<p:panel header="#{messages.email_signature_keys}">
                     <f:facet name="footer">
-						<p:commandButton id="download-certificates" value="#{messages.download}" action="#{showEmailOverviewBean.downloadCertificates}" ajax="false" disabled="#{! showEmailOverviewBean.hasSignatureKeys}"/>
-						<p:linkButton id="edit-signature-keys" value="#{messages.edit}" outcome="edit-email-signature.xhtml"/>
-						<p:linkButton id="delete-signature-keys" value="#{messages.delete}" outcome="delete-email-signature.xhtml" disabled="#{! showEmailOverviewBean.hasSignatureKeys}"/>
+						<p:linkButton id="add-signature-keys" value="#{messages.add}" outcome="add-email-signature.xhtml"/>
 					</f:facet>
-                    <p><h:outputText value="#{showEmailOverviewBean.hasSignatureKeys ? messages.email_signature_keys_deposited : messages.email_signature_keys_not_deposited}"/></p>
+                    <p><h:outputText value="#{showEmailOverviewBean.aliasList.size() > 0 ? messages.email_signature_keys_deposited : messages.email_signature_keys_not_deposited}"/></p>
+                    <p:dataTable id="aliasTable" var="alias" value="#{showEmailOverviewBean.aliasList}">
+						<p:column>
+							<f:facet name="header">
+								<h:outputText value="#{messages.alias}" />
+							</f:facet>
+							<h:outputText value="#{alias}" />
+						</p:column>
+						<p:column>
+							<f:facet name="header">
+								<h:outputText value="#{messages.action}" />
+							</f:facet>
+							<p:linkButton value="#{messages.edit}" outcome="edit-email-signature.xhtml?alias=#{alias}"/>
+							<p:linkButton value="#{messages.delete}" outcome="delete-email-signature.xhtml?alias=#{alias}"/>
+							<p:commandButton value="#{messages.download}" action="#{showEmailOverviewBean.downloadCertificates(alias)}" ajax="false"/>
+						</p:column>
+                    </p:dataTable>
 				</p:panel>
 			</h:form>
 

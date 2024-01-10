@@ -18,11 +18,12 @@ public class KeyStoreEntity extends AbstractBaseEntity {
 
 	private static final long serialVersionUID = 1L;
 
+	@Column(name = "base64encodedkeystoreblob", columnDefinition="TEXT")
 	@Lob
 	@JdbcTypeCode(Types.LONGVARCHAR)
 	private String base64EncodedKeyStoreBlob;
 
-	@Column(unique = true)
+	@Column(name = "context", length = 255, unique = true)
 	private String context;
 
 	public String getBase64EncodedKeyStoreBlob() {

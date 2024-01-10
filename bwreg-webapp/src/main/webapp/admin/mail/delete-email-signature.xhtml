@@ -10,6 +10,11 @@
 	<title></title>
 </head>
 <body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="alias" value="#{deleteEmailSignatureBean.alias}"/>
+	</f:metadata>
+
 	<ui:composition template="/template/default-admin.xhtml">
 		<ui:param name="title" value="#{messages.title}"/>
 
@@ -28,6 +33,7 @@
 			</h:form>
 
 		</ui:define>
-	</ui:composition>		
+	</ui:composition>
+</f:view>
 </body>
 </html>

@@ -13,30 +13,32 @@ import java.security.UnrecoverableEntryException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
-
-import jakarta.ejb.Stateless;
-import jakarta.inject.Inject;
 
 import edu.kit.scc.webreg.dao.KeyStoreDao;
 import edu.kit.scc.webreg.dao.ops.RqlExpressions;
 import edu.kit.scc.webreg.entity.KeyStoreEntity;
 import edu.kit.scc.webreg.entity.KeyStoreEntity_;
 import edu.kit.scc.webreg.service.saml.CryptoHelper;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 
 @Stateless
 public class KeyStoreService {
 
-	public static final String KEY_ALIAS_SIGNATURE = "signature";
 	public static final String KEYSTORE_CONTEXT_EMAIL = "email";
 
 	private static final String KEYSTORE_TYPE = "PKCS12";
-	// Placeholders for a correct, configuration-based solution. Credentials MUST NOT be part of the code.
+	// Placeholders for a correct, configuration-based solution. Credentials MUST
+	// NOT be part of the code.
 	private static final String KEYSTORE_PWD = "";
 	private static final String KEY_ENTRY_PWD = "";
 
-	// Use fetchKeyStore and storeKeyStore to access the key store. Currently no reload is
+	// Use fetchKeyStore and storeKeyStore to access the key store. Currently no
+	// reload is
 	// implemented, i.e. it might cause problems in load balancer scenarios.
 	private static Map<String, KeyStore> keyStoreCache = new WeakHashMap<>();
 
@@ -45,6 +47,12 @@ public class KeyStoreService {
 
 	@Inject
 	private CryptoHelper cryptoHelper;
+
+	public void renamePrivateKeyEntry(String context, String oldAlias, String newAlias) {
+		PrivateKeyEntry privateKeyEntry = fetchPrivateKeyEntry(context, oldAlias);
+		storePrivateKeyEntry(context, newAlias, privateKeyEntry.getPrivateKey(), privateKeyEntry.getCertificateChain());
+		deletePrivateKeyEntry(context, oldAlias);
+	}
 
 	public void deletePrivateKeyEntry(String context, String alias) {
 		KeyStore keyStore = fetchKeyStore(context);
@@ -56,7 +64,8 @@ public class KeyStoreService {
 		storeKeyStore(context, keyStore);
 	}
 
-	public void storePrivateKeyEntry(String context, String alias, String pemPrivateKeyString, String pemCertificateChainString) {
+	public void storePrivateKeyEntry(String context, String alias, String pemPrivateKeyString,
+			String pemCertificateChainString) {
 		try {
 			storePrivateKeyEntry(context, alias, cryptoHelper.getPrivateKey(pemPrivateKeyString),
 					cryptoHelper.getCertificateChain(pemCertificateChainString));
@@ -65,7 +74,8 @@ public class KeyStoreService {
 		}
 	}
 
-	public void storePrivateKeyEntry(String context, String alias, PrivateKey privateKey, Certificate[] certifcateChain) {
+	public void storePrivateKeyEntry(String context, String alias, PrivateKey privateKey,
+			Certificate[] certifcateChain) {
 		KeyStore keyStore = fetchKeyStore(context);
 		try {
 			keyStore.setKeyEntry(alias, privateKey, KEY_ENTRY_PWD.toCharArray(), certifcateChain);
@@ -145,9 +155,19 @@ public class KeyStoreService {
 		}
 	}
 
+	public List<String> fetchAllAliases(String context) {
+		try {
+			List<String> aliasList = Collections.list(fetchKeyStore(context).aliases());
+			return aliasList;
+		} catch (KeyStoreException e) {
+			throw new IllegalStateException("Could not get entry from key store", e);
+		}
+	}
+
 	public PrivateKeyEntry fetchPrivateKeyEntry(String context, String alias) {
 		try {
-			Entry entry = fetchKeyStore(context).getEntry(alias, new KeyStore.PasswordProtection(KEY_ENTRY_PWD.toCharArray()));
+			Entry entry = fetchKeyStore(context).getEntry(alias,
+					new KeyStore.PasswordProtection(KEY_ENTRY_PWD.toCharArray()));
 			return entry instanceof PrivateKeyEntry ? (PrivateKeyEntry) entry : null;
 		} catch (NoSuchAlgorithmException | UnrecoverableEntryException | KeyStoreException e) {
 			throw new IllegalStateException("Could not get entry from key store", e);
@@ -155,6 +175,8 @@ public class KeyStoreService {
 	}
 
 	public boolean hasPrivateKeyEntry(String context, String alias) {
+		if (alias == null) return false;
+		
 		KeyStore keyStore = fetchKeyStore(context);
 		try {
 			return keyStore.containsAlias(alias) && keyStore.entryInstanceOf(alias, PrivateKeyEntry.class);

@@ -11,18 +11,14 @@
 package edu.kit.scc.webreg.bean.admin.service;
 
 import static edu.kit.scc.webreg.service.impl.KeyStoreService.KEYSTORE_CONTEXT_EMAIL;
-import static edu.kit.scc.webreg.service.impl.KeyStoreService.KEY_ALIAS_SIGNATURE;
 
 import java.io.Serializable;
 
+import edu.kit.scc.webreg.service.impl.KeyStoreService;
+import edu.kit.scc.webreg.util.ViewIds;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
-import org.apache.commons.lang.StringUtils;
-
-import edu.kit.scc.webreg.service.impl.KeyStoreService;
-import edu.kit.scc.webreg.util.ViewIds;
 
 @Named
 @ViewScoped
@@ -33,40 +29,34 @@ public class EditEmailSignatureBean implements Serializable {
 	@Inject
 	private KeyStoreService keyStoreService;
 
-	private String privateKeyPem = null;
-	private String certificateChainPem = null;
+	private String alias = null;
+	private String newAlias = null;
 
 	public String save() {
-		keyStoreService.storePrivateKeyEntry(KEYSTORE_CONTEXT_EMAIL, KEY_ALIAS_SIGNATURE, privateKeyPem, certificateChainPem);
-		privateKeyPem = null;
-		certificateChainPem = null;
+		keyStoreService.renamePrivateKeyEntry(KEYSTORE_CONTEXT_EMAIL, alias, newAlias);
+		alias = null;
 		return ViewIds.SHOW_EMAIL_OVERVIEW + "?faces-redirect=true";
 	}
 
 	public String cancel() {
-		privateKeyPem = null;
-		certificateChainPem = null;
+		alias = null;
 		return ViewIds.SHOW_EMAIL_OVERVIEW + "?faces-redirect=true";
 	}
 
-	public Boolean getSaveDisabled() {
-		return StringUtils.isEmpty(certificateChainPem) || StringUtils.isEmpty(privateKeyPem);
+	public String getNewAlias() {
+		return newAlias;
 	}
 
-	public String getPrivateKeyPem() {
-		return privateKeyPem;
+	public void setNewAlias(String newAlias) {
+		this.newAlias = newAlias;
 	}
 
-	public void setPrivateKeyPem(String privateKeyPem) {
-		this.privateKeyPem = privateKeyPem;
+	public String getAlias() {
+		return alias;
 	}
 
-	public String getCertificateChainPem() {
-		return certificateChainPem;
-	}
-
-	public void setCertificateChainPem(String certificateChainPem) {
-		this.certificateChainPem = certificateChainPem;
+	public void setAlias(String alias) {
+		this.alias = alias;
 	}
 
 }

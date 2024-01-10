@@ -23,6 +23,7 @@ public class SimpleQueuedMail implements Serializable {
 	private String subject;
 	private String body;
 	private String replyTo;
+	private String signatureAlias;
 	
 	public String getFrom() {
 		return from;
@@ -78,6 +79,14 @@ public class SimpleQueuedMail implements Serializable {
 
 	public void setReplyTo(String replyTo) {
 		this.replyTo = replyTo;
+	}
+
+	public String getSignatureAlias() {
+		return signatureAlias;
+	}
+
+	public void setSignatureAlias(String signatureAlias) {
+		this.signatureAlias = signatureAlias;
 	}
 	
 }

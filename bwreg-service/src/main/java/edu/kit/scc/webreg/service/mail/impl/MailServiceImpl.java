@@ -9,7 +9,6 @@ package edu.kit.scc.webreg.service.mail.impl;
 import java.security.KeyStore.PrivateKeyEntry;
 
 import static edu.kit.scc.webreg.service.impl.KeyStoreService.KEYSTORE_CONTEXT_EMAIL;
-import static edu.kit.scc.webreg.service.impl.KeyStoreService.KEY_ALIAS_SIGNATURE;
 
 import java.security.PrivateKey;
 import java.security.cert.CertificateEncodingException;
@@ -64,18 +63,13 @@ public class MailServiceImpl implements MailService {
 	private Session session;
 
 	@Override
-	public void sendMail(String from, String to, String cc, String bcc, String subject, String body) throws MailServiceException {
-		sendMail(from, to, cc, bcc, subject, body, null);
-	}
-
-	@Override
-	public void sendMail(String from, String to, String cc, String bcc, String subject, String body, String replyTo)
+	public void sendMail(String from, String to, String cc, String bcc, String subject, String body, String replyTo, String signatureAlias)
 			throws MailServiceException {
 		logger.debug("Sending mail from {} to {}", from, to);
 		try {
 			MimeMessage message = createMessage(from, to, cc, bcc, subject, body, replyTo);
-			if (keyStoreService.hasPrivateKeyEntry(KEYSTORE_CONTEXT_EMAIL, KEY_ALIAS_SIGNATURE)) {
-				PrivateKeyEntry privateKeyEntry = keyStoreService.fetchPrivateKeyEntry(KEYSTORE_CONTEXT_EMAIL, KEY_ALIAS_SIGNATURE);
+			if (keyStoreService.hasPrivateKeyEntry(KEYSTORE_CONTEXT_EMAIL, signatureAlias)) {
+				PrivateKeyEntry privateKeyEntry = keyStoreService.fetchPrivateKeyEntry(KEYSTORE_CONTEXT_EMAIL, signatureAlias);
 				message = signMessage(message, privateKeyEntry.getPrivateKey(), (X509Certificate[]) privateKeyEntry.getCertificateChain());
 			}
 			Transport.send(message);

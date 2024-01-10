@@ -11,7 +11,6 @@
 package edu.kit.scc.webreg.bean.admin.service;
 
 import static edu.kit.scc.webreg.service.impl.KeyStoreService.KEYSTORE_CONTEXT_EMAIL;
-import static edu.kit.scc.webreg.service.impl.KeyStoreService.KEY_ALIAS_SIGNATURE;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -19,12 +18,7 @@ import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStoreException;
 import java.security.cert.Certificate;
-
-import jakarta.faces.context.ExternalContext;
-import jakarta.faces.context.FacesContext;
-import jakarta.faces.view.ViewScoped;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
+import java.util.List;
 
 import org.primefaces.model.LazyDataModel;
 import org.slf4j.Logger;
@@ -34,6 +28,11 @@ import edu.kit.scc.webreg.model.GenericLazyDataModelImpl;
 import edu.kit.scc.webreg.service.EmailTemplateService;
 import edu.kit.scc.webreg.service.impl.KeyStoreService;
 import edu.kit.scc.webreg.service.saml.CryptoHelper;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named
 @ViewScoped
@@ -54,7 +53,8 @@ public class ShowEmailOverviewBean implements Serializable {
 	private CryptoHelper cryptoHelper;
 
 	private LazyDataModel<EmailTemplateEntity> emailTemplates;
-
+	private List<String> aliasList;
+	
 	public LazyDataModel<EmailTemplateEntity> getEmailTemplates() {
 		if (emailTemplates == null) {
 			emailTemplates = new GenericLazyDataModelImpl<>(emailTemplateService);
@@ -62,12 +62,8 @@ public class ShowEmailOverviewBean implements Serializable {
 		return emailTemplates;
 	}
 
-	public Boolean getHasSignatureKeys() {
-		return keyStoreService.hasPrivateKeyEntry(KEYSTORE_CONTEXT_EMAIL, KEY_ALIAS_SIGNATURE);
-	}
-
-	public void downloadCertificates() throws IOException {
-		String certificateChainPem = cryptoHelper.getPemString(getCertificateChain());
+	public void downloadCertificates(String alias) throws IOException {
+		String certificateChainPem = cryptoHelper.getPemString(getCertificateChain(alias));
 		try {
 			sendFile(certificateChainPem, "fullchain.pem", "application/pem-certificate-chain");
 		} catch (IOException e) {
@@ -76,9 +72,9 @@ public class ShowEmailOverviewBean implements Serializable {
 		}
 	}
 
-	private Certificate[] getCertificateChain() {
+	private Certificate[] getCertificateChain(String alias) {
 		try {
-			return keyStoreService.fetchKeyStore(KEYSTORE_CONTEXT_EMAIL).getCertificateChain(KEY_ALIAS_SIGNATURE);
+			return keyStoreService.fetchKeyStore(KEYSTORE_CONTEXT_EMAIL).getCertificateChain(alias);
 		} catch (KeyStoreException e) {
 			throw new IllegalStateException("Could not get certificate chain from key store", e);
 		}
@@ -98,6 +94,11 @@ public class ShowEmailOverviewBean implements Serializable {
 		}
 
 		fc.responseComplete();
+	}
+
+	public List<String> getAliasList() {
+		if (aliasList == null) aliasList = keyStoreService.fetchAllAliases(KEYSTORE_CONTEXT_EMAIL);
+		return aliasList;
 	}
 
 }

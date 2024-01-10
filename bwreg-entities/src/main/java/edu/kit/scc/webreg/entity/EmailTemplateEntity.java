@@ -53,7 +53,10 @@ public class EmailTemplateEntity extends AbstractBaseEntity {
 	
 	@Column(name = "tpl_reply_to", length=512)
 	private String replyTo;
-	
+
+	@Column(name = "signature_alias", length=512)
+	private String signatureAlias;
+
 	public String getName() {
 		return name;
 	}
@@ -116,6 +119,14 @@ public class EmailTemplateEntity extends AbstractBaseEntity {
 
 	public void setReplyTo(String replyTo) {
 		this.replyTo = replyTo;
+	}
+
+	public String getSignatureAlias() {
+		return signatureAlias;
+	}
+
+	public void setSignatureAlias(String signatureAlias) {
+		this.signatureAlias = signatureAlias;
 	}
 
 }

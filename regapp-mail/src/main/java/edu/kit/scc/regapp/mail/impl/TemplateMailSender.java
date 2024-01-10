@@ -93,11 +93,12 @@ public class TemplateMailSender {
 			String from = renderer.evaluate(emailTemplateEntity.getFrom(), rendererContext);
 			String subject = renderer.evaluate(emailTemplateEntity.getSubject(), rendererContext);
 			String replyTo = renderer.evaluate(emailTemplateEntity.getReplyTo(), rendererContext);
-
+			String signatureAlias = renderer.evaluate(emailTemplateEntity.getSignatureAlias(), rendererContext);
+			
 			if (queued) {
-				queuedMailService.sendMail(from, to, cc, bcc, subject, body, replyTo);
+				queuedMailService.sendMail(from, to, cc, bcc, subject, body, replyTo, signatureAlias);
 			} else {
-				mailService.sendMail(from, to, cc, bcc, subject, body, replyTo);
+				mailService.sendMail(from, to, cc, bcc, subject, body, replyTo, signatureAlias);
 			}
 
 		} catch (TemplateRenderingException e) {
