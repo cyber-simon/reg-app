@@ -11,16 +11,11 @@
 package edu.kit.scc.webreg.service.drools;
 
 import java.util.List;
-import java.util.Map;
 
 import org.kie.api.runtime.KieSession;
-import org.opensaml.saml.saml2.core.Assertion;
-import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 
 import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
-import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
-import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
@@ -48,7 +43,6 @@ public interface KnowledgeSessionService {
 
 	List<String> checkScriptAccess(ScriptEntity scriptEntity, IdentityEntity identity);
 
-	Map<RegistryEntity, List<Object>> checkRules(
-			List<RegistryEntity> registryList, IdentityEntity identity,
-			String executor, Boolean withCache);
+	RegistryEntity checkRule(RegistryEntity registry, IdentityEntity identity, String executor,
+			Boolean withCache);
 }

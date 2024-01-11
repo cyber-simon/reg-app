@@ -10,16 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.drools;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
-import jakarta.ejb.Stateless;
-import jakarta.ejb.TransactionManagement;
-import jakarta.ejb.TransactionManagementType;
-import jakarta.inject.Inject;
-import jakarta.persistence.LockModeType;
-import jakarta.transaction.UserTransaction;
 
 import org.kie.api.KieServices;
 import org.kie.api.builder.ReleaseId;
@@ -40,6 +31,11 @@ import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.exc.MisconfiguredServiceException;
+import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionManagement;
+import jakarta.ejb.TransactionManagementType;
+import jakarta.inject.Inject;
+import jakarta.transaction.UserTransaction;
 
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)
@@ -133,13 +129,11 @@ public class KnowledgeSessionServiceImpl implements KnowledgeSessionService {
 
 	@Override
 	@RetryTransaction
-	public Map<RegistryEntity, List<Object>> checkRules(List<RegistryEntity> registryList, IdentityEntity identity,
+	public RegistryEntity checkRule(RegistryEntity registry, IdentityEntity identity,
 			String executor, Boolean withCache) {
 		identity = identityDao.fetch(identity.getId());
-		List<RegistryEntity> loadedRegistryList = new ArrayList<RegistryEntity>(registryList.size());
-		for (RegistryEntity registry : registryList) {
-			loadedRegistryList.add(registryDao.fetch(registry.getId(), LockModeType.OPTIMISTIC_FORCE_INCREMENT));
-		}
-		return singleton.checkRules(loadedRegistryList, identity, executor, withCache);
+		registry = registryDao.fetch(registry.getId());
+		singleton.checkRule(registry, identity, executor, withCache);
+		return registry;
 	}
 }

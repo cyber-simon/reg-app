@@ -84,10 +84,8 @@ public abstract class AbstractDeregisterRegistries extends AbstractExecutableJob
 								throw new RegisterException("IDP failed");
 							}
 						}
-						List<RegistryEntity> tempRegistryList = new ArrayList<RegistryEntity>();
-						tempRegistryList.add(registry);
-						knowledgeSessionService.checkRules(tempRegistryList, identity, auditName, false);
-						
+						registry = knowledgeSessionService.checkRule(registry, identity, auditName, false);
+
 						if (registryStatus.equals(registry.getRegistryStatus())) {
 							registerUserService.deregisterUser(registry, auditName, "abstract-dereg-job");
 						}

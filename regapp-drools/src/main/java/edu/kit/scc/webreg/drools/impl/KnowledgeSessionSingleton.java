@@ -17,9 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -36,12 +33,9 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.audit.ServiceRegisterAuditor;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
-import edu.kit.scc.webreg.dao.RegistryDao;
-import edu.kit.scc.webreg.dao.ServiceDao;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
-import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.dao.project.ProjectDao;
 import edu.kit.scc.webreg.drools.DroolsConfigurationException;
 import edu.kit.scc.webreg.drools.OverrideAccess;
@@ -66,6 +60,9 @@ import edu.kit.scc.webreg.event.ServiceRegisterEvent;
 import edu.kit.scc.webreg.event.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.MisconfiguredApplicationException;
 import edu.kit.scc.webreg.exc.MisconfiguredServiceException;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named
 @ApplicationScoped
@@ -75,9 +72,6 @@ public class KnowledgeSessionSingleton {
 	private Logger logger;
 
 	@Inject
-	private RegistryDao registryDao;
-
-	@Inject
 	private AuditEntryDao auditDao;
 
 	@Inject
@@ -85,12 +79,6 @@ public class KnowledgeSessionSingleton {
 
 	@Inject
 	private UserDao userDao;
-
-	@Inject
-	private IdentityDao identityDao;
-
-	@Inject
-	private ServiceDao serviceDao;
 
 	@Inject
 	private ProjectDao projectDao;
@@ -472,21 +460,13 @@ public class KnowledgeSessionSingleton {
 		return returnMap;
 	}
 
-	public Map<RegistryEntity, List<Object>> checkRules(List<RegistryEntity> registryList, IdentityEntity identity,
+	public List<Object> checkRule(RegistryEntity registry, IdentityEntity identity,
 			String executor, Boolean withCache) {
 
-		Map<RegistryEntity, List<Object>> returnMap = new HashMap<RegistryEntity, List<Object>>();
-
-		for (RegistryEntity registry : registryList) {
-			ServiceEntity service = registry.getService();
-
-			List<Object> objectList = checkServiceAccessRule(registry.getUser(), service, registry, executor,
+		ServiceEntity service = registry.getService();
+		List<Object> objectList = checkServiceAccessRule(registry.getUser(), service, registry, executor,
 					withCache);
-
-			returnMap.put(registry, objectList);
-		}
-
-		return returnMap;
+		return objectList;
 	}
 
 	private boolean hasAccess(List<Object> objectList) {
