@@ -10,6 +10,8 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.impl;
 
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,11 +28,13 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.annotations.RetryTransaction;
+import edu.kit.scc.webreg.as.AttributeSourceUpdater;
 import edu.kit.scc.webreg.audit.UserCreateAuditor;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.RoleDao;
 import edu.kit.scc.webreg.dao.SamlUserDao;
 import edu.kit.scc.webreg.dao.SerialDao;
+import edu.kit.scc.webreg.dao.as.AttributeSourceDao;
 import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
 import edu.kit.scc.webreg.entity.EventType;
@@ -39,6 +43,8 @@ import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserRoleEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
+import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
+import edu.kit.scc.webreg.entity.as.AttributeSourceEntity_;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
@@ -98,6 +104,12 @@ public class UserCreateServiceImpl implements UserCreateService {
 
 	@Inject
 	private SamlIdpMetadataService idpMetadataService;
+
+	@Inject
+	private AttributeSourceUpdater attributeSourceUpdater;
+
+	@Inject
+	private AttributeSourceDao attributeSourceDao;
 
 	@Inject
 	private HttpRequestContext requestContext;
@@ -176,6 +188,12 @@ public class UserCreateServiceImpl implements UserCreateService {
 
 		user.setIdentity(identity);
 		user = samlUserDao.persist(user);
+
+		List<AttributeSourceEntity> asList = attributeSourceDao
+				.findAll(equal(AttributeSourceEntity_.userSource, true));
+		for (AttributeSourceEntity as : asList) {
+			attributeSourceUpdater.updateUserAttributes(user, as, executor);
+		}
 
 		identityCreater.postCreateIdentity(identity, user);
 		if (appConfig.getConfigValue("create_missing_eppn_scope") != null) {
