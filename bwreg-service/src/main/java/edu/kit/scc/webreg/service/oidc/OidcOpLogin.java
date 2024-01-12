@@ -12,10 +12,8 @@ import net.minidev.json.JSONObject;
 public interface OidcOpLogin {
 
 	String registerAuthRequest(String realm, String responseType, String redirectUri, String scope, String state,
-			String nonce, String clientId,
-			String codeChallange, String codeChallangeMethod, 
-			HttpServletRequest request, HttpServletResponse response)
-					 throws IOException, OidcAuthenticationException ;
+			String nonce, String clientId, String codeChallange, String codeChallangeMethod, String acrValues,
+			HttpServletRequest request, HttpServletResponse response) throws IOException, OidcAuthenticationException;
 
 	JSONObject serveUserInfo(String realm, String tokeType, String tokenId, HttpServletRequest request,
 			HttpServletResponse response) throws OidcAuthenticationException;
@@ -23,7 +21,8 @@ public interface OidcOpLogin {
 	String registerAuthRequestReturn(String realm, HttpServletRequest request, HttpServletResponse response)
 			throws IOException, OidcAuthenticationException;
 
-	JSONObject serveUserJwt(String realm, HttpServletRequest request, HttpServletResponse response) throws OidcAuthenticationException;
+	JSONObject serveUserJwt(String realm, HttpServletRequest request, HttpServletResponse response)
+			throws OidcAuthenticationException;
 
 	JSONObject serveToken(String realm, HttpServletRequest request, HttpServletResponse response, String clientId,
 			String clientSecret, String codeVerifier, MultivaluedMap<String, String> formParams)
