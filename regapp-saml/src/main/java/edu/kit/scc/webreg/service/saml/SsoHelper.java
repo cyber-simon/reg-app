@@ -175,10 +175,13 @@ public class SsoHelper implements Serializable {
 		return conditions;
 	}
 
-	public AuthnStatement buildAuthnStatement(long validityInterval) {
+	public AuthnStatement buildAuthnStatement(long validityInterval, boolean multiFactor) {
 		AuthnContextClassRef accr = samlHelper.create(AuthnContextClassRef.class,
 				AuthnContextClassRef.DEFAULT_ELEMENT_NAME);
-		accr.setURI(AuthnContext.PPT_AUTHN_CTX);
+		if (multiFactor)
+			accr.setURI("https://refeds.org/profile/mfa");
+		else
+			accr.setURI(AuthnContext.PPT_AUTHN_CTX);
 		AuthnContext ac = samlHelper.create(AuthnContext.class, AuthnContext.DEFAULT_ELEMENT_NAME);
 		ac.setAuthnContextClassRef(accr);
 		AuthnStatement as = samlHelper.create(AuthnStatement.class, AuthnStatement.DEFAULT_ELEMENT_NAME);

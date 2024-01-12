@@ -62,6 +62,9 @@
 	            		var="script" itemLabel="#{script.name} (id #{script.id})" itemValue="#{script}"/>
 	            </p:selectOneMenu>
 
+				<h:outputText value="#{messages.wants_elevation}" />
+				<p:inputSwitch value="#{editSamlServiceSpBean.entity.wantsElevation}"/>
+
 			</p:panelGrid>
 		
 			<p:commandButton id="cancel" action="#{editSamlServiceSpBean.cancel()}" value="#{messages.cancel}" immediate="true"/>

@@ -18,7 +18,7 @@ public class SamlAuthnRequestEntity extends AbstractBaseEntity {
 
 	private static final long serialVersionUID = 1L;
 	
-	@Column(name = "authnrequest_data")
+	@Column(name = "authnrequest_data", columnDefinition="TEXT")
 	@Basic(fetch = FetchType.LAZY)
 	@Lob
 	@JdbcTypeCode(Types.LONGVARCHAR)	
