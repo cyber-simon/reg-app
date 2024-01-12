@@ -31,6 +31,7 @@ import org.opensaml.saml.saml2.binding.encoding.impl.HTTPPostEncoder;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
+import org.opensaml.saml.saml2.core.AuthnContextClassRef;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.NameID;
@@ -65,6 +66,7 @@ import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.annotations.RetryTransaction;
+import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.SamlAuthnRequestDao;
 import edu.kit.scc.webreg.dao.SamlIdpConfigurationDao;
@@ -86,6 +88,7 @@ import edu.kit.scc.webreg.entity.ServiceSamlSpEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
+import edu.kit.scc.webreg.session.SessionManager;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionManagement;
 import jakarta.ejb.TransactionManagementType;
@@ -139,6 +142,12 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 	@Inject
 	private KnowledgeSessionSingleton knowledgeSessionService;
 
+	@Inject
+	private SessionManager session;
+
+	@Inject
+	private ApplicationConfig appConfig;
+
 	@Override
 	@RetryTransaction
 	public long registerAuthnRequest(AuthnRequest authnRequest) {
@@ -186,6 +195,12 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 
 		List<ServiceSamlSpEntity> filteredServiceSamlSpEntityList = new ArrayList<ServiceSamlSpEntity>();
 		RegistryEntity registry = null;
+		Boolean wantsElevation = false;
+		long elevationTime = 5L * 60L * 1000L;
+		if (appConfig.getConfigValue("elevation_time") != null) {
+			elevationTime = Long.parseLong(appConfig.getConfigValue("elevation_time"));
+		}
+
 		for (ServiceSamlSpEntity serviceSamlSpEntity : serviceSamlSpEntityList) {
 			ServiceEntity service = serviceSamlSpEntity.getService();
 
@@ -266,6 +281,15 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 			user = registry.getUser();
 		}
 
+		if (wantsElevation || evalTwoFa(user, registry, filteredServiceSamlSpEntityList, authnRequest)) {
+			if (!isElevated(session, elevationTime)) {
+				// second factor is active for this service and web login
+				// and user is not elevated yet
+				session.setOriginalRequestPath("/saml/idp/redirect/response");
+				return "/user/twofa-login.xhtml";
+			}
+		}
+
 		Response samlResponse = ssoHelper.buildAuthnResponse(authnRequest, idpConfig.getEntityId());
 
 		Assertion assertion = samlHelper.create(Assertion.class, Assertion.DEFAULT_ELEMENT_NAME);
@@ -281,7 +305,7 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 		if (spMetadata.getGenericStore().containsKey("session_validity")) {
 			validity = Long.parseLong(spMetadata.getGenericStore().get("session_validity"));
 		}
-		assertion.getAuthnStatements().add(ssoHelper.buildAuthnStatement((validity)));
+		assertion.getAuthnStatements().add(ssoHelper.buildAuthnStatement(validity, isElevated(session, elevationTime)));
 
 		SecurityParametersContext securityContext = buildSecurityContext(idpConfig);
 		HTTPPostEncoder postEncoder = new HTTPPostEncoder();
@@ -323,7 +347,7 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 		}
 
 		if (relayState != null) {
-			messageContext.getSubcontext(SAMLBindingContext.class, true).setRelayState(relayState);
+			messageContext.ensureSubcontext(SAMLBindingContext.class).setRelayState(relayState);
 		}
 
 		postEncoder.setMessageContext(messageContext);
@@ -347,6 +371,11 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 			logger.warn("Exception occured", e);
 			throw new SamlAuthenticationException(e);
 		}
+	}
+
+	private Boolean isElevated(SessionManager session, long elevationTime) {
+		return (session.getTwoFaElevation() != null
+				&& (System.currentTimeMillis() - session.getTwoFaElevation().toEpochMilli()) < elevationTime);
 	}
 
 	private SecurityParametersContext buildSecurityContext(SamlIdpConfigurationEntity idpConfig)
@@ -392,8 +421,8 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 		KeyDescriptor keyDescriptor = null;
 		SPSSODescriptor spsso = ed.getSPSSODescriptor(SAMLConstants.SAML20P_NS);
 		for (KeyDescriptor kd : spsso.getKeyDescriptors()) {
-			if (kd.getUse() == null || kd.getUse().equals(UsageType.ENCRYPTION) ||
-					kd.getUse().equals(UsageType.UNSPECIFIED)) {
+			if (kd.getUse() == null || kd.getUse().equals(UsageType.ENCRYPTION)
+					|| kd.getUse().equals(UsageType.UNSPECIFIED)) {
 				keyDescriptor = kd;
 				break;
 			}
@@ -435,7 +464,7 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 			encParams.setKeyTransportEncryptionCredential(encryptCredential);
 			encParams.setKeyTransportKeyInfoGenerator(generator.newInstance());
 
-			messageContext.getSubcontext(EncryptionContext.class, true).setAssertionEncryptionParameters(encParams);
+			messageContext.ensureSubcontext(EncryptionContext.class).setAssertionEncryptionParameters(encParams);
 
 			Encrypter encrypter = new Encrypter(new DataEncryptionParameters(encParams),
 					new KeyEncryptionParameters(encParams, spEntityId));
@@ -469,9 +498,51 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 			logger.warn("Script execution failed. Continue with other scripts.", e);
 			return false;
 		} catch (NoSuchMethodException e) {
-			logger.info("No matchService method in script. Assuming match true");
+			logger.debug("No matchService method in script. Assuming match true");
 			return true;
 		}
+	}
+
+	private Boolean evalTwoFa(UserEntity user, RegistryEntity registry, List<ServiceSamlSpEntity> serviceSamlSpList,
+			AuthnRequest authnRequest) throws SamlAuthenticationException {
+		if (authnRequest.getRequestedAuthnContext() != null
+				&& authnRequest.getRequestedAuthnContext().getAuthnContextClassRefs() != null) {
+			for (AuthnContextClassRef accr : authnRequest.getRequestedAuthnContext().getAuthnContextClassRefs()) {
+				if (accr.getURI().equals("https://refeds.org/profile/mfa"))
+					return true;
+			}
+		}
+
+		for (ServiceSamlSpEntity serviceSamlSp : serviceSamlSpList) {
+			if (serviceSamlSp.getWantsElevation() != null && serviceSamlSp.getWantsElevation()) {
+				return true;
+			}
+
+			ScriptEntity scriptEntity = serviceSamlSp.getScript();
+			ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
+
+			if (engine == null)
+				throw new SamlAuthenticationException(
+						"service not configured properly. engine not found: " + scriptEntity.getScriptEngine());
+
+			try {
+				engine.eval(scriptEntity.getScript());
+
+				Invocable invocable = (Invocable) engine;
+
+				Object object = invocable.invokeFunction("evalTwoFa", scriptingEnv, user, registry, serviceSamlSp,
+						authnRequest, logger);
+
+				if (object instanceof Boolean && ((Boolean) object))
+					return true;
+			} catch (ScriptException e) {
+				logger.warn("Script execution failed. Continue with other scripts.", e);
+			} catch (NoSuchMethodException e) {
+				logger.debug("No evalTwoFa method in script. Assuming match false");
+			}
+		}
+
+		return false;
 	}
 
 	private void buildAttributeStatement(SamlIdpConfigurationEntity idpConfig, SamlSpMetadataEntity spMetadata,

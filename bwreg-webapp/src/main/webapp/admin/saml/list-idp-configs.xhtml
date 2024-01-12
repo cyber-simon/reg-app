@@ -67,6 +67,12 @@
 					</f:facet>
 					<h:outputText value="#{entity.script.name}" />
 				</p:column>		
+				<p:column width="10%">
+					<f:facet name="header">
+						<h:outputText value="#{messages.wants_elevation}" />
+					</f:facet>
+					<h:outputText value="#{entity.wantsElevation}" />
+				</p:column>		
 				<p:column>
 	       			<p:commandButton action="#{listIdpConfigurationBean.delete(entity)}" immediate="true" update="@form"
 	       				value="#{messages.delete}">

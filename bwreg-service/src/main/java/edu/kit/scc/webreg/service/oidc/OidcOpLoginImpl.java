@@ -73,6 +73,7 @@ import edu.kit.scc.webreg.entity.oidc.ServiceOidcClientEntity;
 import edu.kit.scc.webreg.script.ScriptingEnv;
 import edu.kit.scc.webreg.service.saml.CryptoHelper;
 import edu.kit.scc.webreg.service.saml.exc.OidcAuthenticationException;
+import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.session.SessionManager;
 import net.minidev.json.JSONObject;
 
@@ -117,8 +118,8 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 
 	@Override
 	public String registerAuthRequest(String realm, String responseType, String redirectUri, String scope, String state,
-			String nonce, String clientId, String codeChallange, String codeChallangeMethod, HttpServletRequest request,
-			HttpServletResponse response) throws IOException, OidcAuthenticationException {
+			String nonce, String clientId, String codeChallange, String codeChallangeMethod, String acrValues,
+			HttpServletRequest request, HttpServletResponse response) throws IOException, OidcAuthenticationException {
 
 		checkCodeChallange(codeChallange, codeChallangeMethod);
 
@@ -158,6 +159,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		flowState.setCodeChallange(codeChallange);
 		flowState.setCodecodeChallangeMethod(codeChallangeMethod);
 		flowState.setScope(scope);
+		flowState.setAcrValues(acrValues);
 		flowState = flowStateDao.persist(flowState);
 		session.setOidcFlowStateId(flowState.getId());
 		session.setOidcAuthnOpConfigId(opConfig.getId());
@@ -212,6 +214,11 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 
 			Boolean wantsElevation = false;
 			RegistryEntity registry = null;
+
+			if (flowState.getAcrValues() != null
+					&& flowState.getAcrValues().matches("(^|\\\s)https://refeds.org/profile/mfa($|\\\s)")) {
+				wantsElevation = true;
+			}
 
 			for (ServiceOidcClientEntity serviceOidcClient : serviceOidcClientList) {
 				if (serviceOidcClient.getWantsElevation() != null && serviceOidcClient.getWantsElevation()) {
@@ -282,6 +289,8 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 					if (unauthorizedList.size() > 0) {
 						return "/user/oidc-access-denied.xhtml?soidc=" + serviceOidcClient.getId();
 					}
+
+					wantsElevation |= evalTwoFa(serviceOidcClient.getScript(), identity, registry, flowState);
 				}
 			}
 
@@ -311,6 +320,32 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		}
 
 		throw new OidcAuthenticationException("something went horribly wrong...");
+	}
+
+	private boolean evalTwoFa(ScriptEntity scriptEntity, IdentityEntity identity, RegistryEntity registry,
+			OidcFlowStateEntity flowState) {
+		ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
+
+		if (engine == null) {
+			logger.warn("Script Engine is null, cannot executes script");
+			return false;
+		}
+
+		try {
+			engine.eval(scriptEntity.getScript());
+
+			Invocable invocable = (Invocable) engine;
+
+			Object object = invocable.invokeFunction("evalTwoFa", scriptingEnv, identity, registry, flowState, logger);
+
+			if (object instanceof Boolean && ((Boolean) object))
+				return true;
+		} catch (ScriptException e) {
+			logger.warn("Script execution failed. Continue with other scripts.", e);
+		} catch (NoSuchMethodException e) {
+			logger.debug("No evalTwoFa method in script. Assuming match false");
+		}
+		return false;
 	}
 
 	@Override

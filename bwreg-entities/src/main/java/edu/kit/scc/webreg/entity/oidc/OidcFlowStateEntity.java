@@ -63,6 +63,9 @@ public class OidcFlowStateEntity extends AbstractBaseEntity {
 	@Column(name = "scope", length = 4096)
 	private String scope;
 
+	@Column(name = "acr_values", length = 4096)
+	private String acrValues;
+
 	@Column(name = "access_token_type", length = 32)
 	private String accessTokenType;
 
@@ -203,5 +206,13 @@ public class OidcFlowStateEntity extends AbstractBaseEntity {
 
 	public void setScope(String scope) {
 		this.scope = scope;
+	}
+
+	public String getAcrValues() {
+		return acrValues;
+	}
+
+	public void setAcrValues(String acrValues) {
+		this.acrValues = acrValues;
 	}
 }
