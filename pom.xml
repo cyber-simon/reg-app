@@ -11,7 +11,7 @@
 	<name>bw Services Registration Webapp</name>
 
 	<properties>
-		<revision>2.7.8-SNAPSHOT</revision>
+		<revision>2.7.8</revision>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<org.wildfly.version>17.0.1.Final</org.wildfly.version>
