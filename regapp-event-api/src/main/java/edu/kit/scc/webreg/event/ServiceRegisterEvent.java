@@ -13,15 +13,15 @@ package edu.kit.scc.webreg.event;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.audit.AuditEntryEntity;
 
-public class ServiceRegisterEvent extends AbstractEvent<RegistryEntity> {
+public class ServiceRegisterEvent extends AbstractEvent<Long> {
 
 	private static final long serialVersionUID = 1L;
 
 	public ServiceRegisterEvent(RegistryEntity entity) {
-		super(entity);
+		super(entity.getId());
 	}
 
 	public ServiceRegisterEvent(RegistryEntity entity, AuditEntryEntity audit) {
-		super(entity, audit);
+		super(entity.getId(), audit);
 	}
 }

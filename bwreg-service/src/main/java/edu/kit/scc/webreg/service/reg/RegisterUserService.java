@@ -68,7 +68,7 @@ public interface RegisterUserService {
 	void completeReconciliationForRegistry(ServiceEntity service, RegistryEntity registry, Boolean fullRecon,
 			Boolean withGroups, String executor) throws RegisterException;
 
-	List<RegistryEntity> updateGroupsNew(Set<GroupEntity> groupUpdateSet, Boolean reconRegistries,
-			Set<String> reconRegForServices, Boolean fullRecon, Map<GroupEntity, Set<UserEntity>> usersToRemove,
+	List<RegistryEntity> updateGroupsNew(Set<Long> groupUpdateSet, Boolean reconRegistries,
+			Set<String> reconRegForServices, Boolean fullRecon, Map<Long, Set<Long>> usersToRemove,
 			String executor) throws RegisterException;
 }

@@ -18,10 +18,11 @@ import org.slf4j.LoggerFactory;
 
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;
 
 public class RegistryReconsiliationExecutor extends
-		AbstractEventExecutor<ServiceRegisterEvent, RegistryEntity> {
+		AbstractEventExecutor<ServiceRegisterEvent, Long> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -46,8 +47,8 @@ public class RegistryReconsiliationExecutor extends
 			InitialContext ic = new InitialContext();
 			
 			RegisterUserService registerUserService = (RegisterUserService) ic.lookup("global/bwreg/bwreg-service/RegisterUserServiceImpl!edu.kit.scc.webreg.service.reg.RegisterUserService");
-			
-			RegistryEntity registry = getEvent().getEntity();
+			RegistryService registryService = (RegistryService) ic.lookup("global/bwreg/bwreg-service/RegistryServiceImpl!edu.kit.scc.webreg.service.RegistryService");
+			RegistryEntity registry = registryService.fetch(getEvent().getEntity());
 			
 			if (registry.getId() == null) {
 				logger.info("RegistryEntity is not yet persisted. Aborting recon.");

@@ -28,7 +28,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.service.reg.RegisterUserService;
 
-public class GroupReconsiliationExecutor extends AbstractEventExecutor<MultipleGroupEvent, HashSet<GroupEntity>> {
+public class GroupReconsiliationExecutor extends AbstractEventExecutor<MultipleGroupEvent, HashSet<Long>> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -71,8 +71,8 @@ public class GroupReconsiliationExecutor extends AbstractEventExecutor<MultipleG
 			RegisterUserService registerUserService = (RegisterUserService) ic.lookup(
 					"global/bwreg/bwreg-service/RegisterUserServiceImpl!edu.kit.scc.webreg.service.reg.RegisterUserService");
 
-			Set<GroupEntity> groupList = getEvent().getEntity();
-			Map<GroupEntity, Set<UserEntity>> usersToRemove = getEvent().getUsersToRemove();
+			Set<Long> groupList = getEvent().getEntity();
+			Map<Long, Set<Long>> usersToRemove = getEvent().getUsersToRemove();
 
 			try {
 				List<RegistryEntity> reconList = registerUserService.updateGroupsNew(groupList, reconRegistries,

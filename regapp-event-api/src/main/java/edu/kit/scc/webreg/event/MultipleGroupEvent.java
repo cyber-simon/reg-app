@@ -10,6 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.event;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -17,21 +18,24 @@ import java.util.Set;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 
-public class MultipleGroupEvent extends AbstractEvent<HashSet<GroupEntity>> {
+public class MultipleGroupEvent extends AbstractEvent<HashSet<Long>> {
 
 	private static final long serialVersionUID = 1L;
 
-	private Map<GroupEntity, Set<UserEntity>> usersToRemove;
+	private Map<Long, Set<Long>> usersToRemove;
 
 	public MultipleGroupEvent(Set<GroupEntity> groupList) {
-		super(new HashSet<>(groupList));
+		super(new HashSet<>(groupList.stream().map(g -> g.getId()).toList()));
 	}
 
-	public Map<GroupEntity, Set<UserEntity>> getUsersToRemove() {
+	public Map<Long, Set<Long>> getUsersToRemove() {
 		return usersToRemove;
 	}
 
 	public void setUsersToRemove(Map<GroupEntity, Set<UserEntity>> usersToRemove) {
-		this.usersToRemove = usersToRemove;
+		Map<Long, Set<Long>> removeMap = new HashMap<>();
+		usersToRemove.entrySet().stream().map(entry -> removeMap.put(entry.getKey().getId(),
+				new HashSet<Long>(entry.getValue().stream().map(user -> user.getId()).toList())));
+		this.usersToRemove = removeMap;
 	}
 }

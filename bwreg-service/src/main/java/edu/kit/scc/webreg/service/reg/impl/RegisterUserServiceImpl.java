@@ -114,8 +114,8 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 	}
 
 	@Override
-	public List<RegistryEntity> updateGroupsNew(Set<GroupEntity> groupUpdateSet, Boolean reconRegistries,
-			Set<String> reconRegForServices, Boolean fullRecon, Map<GroupEntity, Set<UserEntity>> usersToRemove,
+	public List<RegistryEntity> updateGroupsNew(Set<Long> groupUpdateSet, Boolean reconRegistries,
+			Set<String> reconRegForServices, Boolean fullRecon, Map<Long, Set<Long>> usersToRemove,
 			String executor) throws RegisterException {
 		List<RegistryEntity> reconList = new ArrayList<RegistryEntity>();
 
@@ -126,10 +126,12 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 		// same order,
 		// thus always working on the same groups, which is inefficient and causes
 		// optimistic locks
-		List<GroupEntity> groupUpdateList = new ArrayList<GroupEntity>(groupUpdateSet);
+		List<Long> groupUpdateList = new ArrayList<Long>(groupUpdateSet);
 		Collections.shuffle(groupUpdateList);
 
-		for (GroupEntity group : groupUpdateList) {
+		for (Long groupId : groupUpdateList) {
+			GroupEntity group = groupDao.fetch(groupId);
+			
 			if (group instanceof ServiceBasedGroupEntity) {
 				ServiceBasedGroupEntity serviceBasedGroupEntity = (ServiceBasedGroupEntity) group;
 				List<ServiceGroupFlagEntity> flagList = groupFlagDao
@@ -148,8 +150,8 @@ public class RegisterUserServiceImpl implements RegisterUserService {
 								if (userList.contains(registry.getUser())) {
 									reconList.add(registry);
 								}
-								if (usersToRemove != null && usersToRemove.containsKey(flag.getGroup())
-										&& usersToRemove.get(flag.getGroup()).contains(registry.getUser())) {
+								if (usersToRemove != null && usersToRemove.containsKey(flag.getGroup().getId())
+										&& usersToRemove.get(flag.getGroup().getId()).contains(registry.getUser().getId())) {
 									reconList.add(registry);
 								}
 							}

@@ -23,11 +23,12 @@ import edu.kit.scc.webreg.drools.OverrideAccess;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.exc.RegisterException;
+import edu.kit.scc.webreg.service.RegistryService;
 import edu.kit.scc.webreg.service.drools.KnowledgeSessionService;
 import edu.kit.scc.webreg.service.reg.ApprovalService;
 
 public class AutoApprovalExecutor extends
-		AbstractEventExecutor<ServiceRegisterEvent, RegistryEntity> {
+		AbstractEventExecutor<ServiceRegisterEvent, Long> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -43,7 +44,8 @@ public class AutoApprovalExecutor extends
 		try {
 			InitialContext ic = new InitialContext();
 			
-			RegistryEntity registry = getEvent().getEntity();
+			RegistryService registryService = (RegistryService) ic.lookup("global/bwreg/bwreg-service/RegistryServiceImpl!edu.kit.scc.webreg.service.RegistryService");
+			RegistryEntity registry = registryService.fetch(getEvent().getEntity());
 
 			logger.info("Checking autoapproval for user {}", registry.getUser().getEppn());
 

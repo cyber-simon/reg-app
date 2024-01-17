@@ -21,9 +21,10 @@ import org.slf4j.LoggerFactory;
 
 import edu.kit.scc.regapp.mail.api.TemplateMailService;
 import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.service.RegistryService;
 
 public class ServiceRegisterSendMailExecutor extends
-		AbstractEventExecutor<ServiceRegisterEvent, RegistryEntity> {
+		AbstractEventExecutor<ServiceRegisterEvent, Long> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -46,9 +47,10 @@ public class ServiceRegisterSendMailExecutor extends
 		try {
 			InitialContext ic = new InitialContext();
 			
+			RegistryService registryService = (RegistryService) ic.lookup("global/bwreg/bwreg-service/RegistryServiceImpl!edu.kit.scc.webreg.service.RegistryService");
 			TemplateMailService templateMailService = (TemplateMailService) ic.lookup("global/bwreg/bwreg-service/TemplateMailServiceImpl!edu.kit.scc.regapp.mail.api.TemplateMailService");
 			
-			RegistryEntity registry = getEvent().getEntity();
+			RegistryEntity registry = registryService.fetch(getEvent().getEntity());
 			Map<String, Object> context = new HashMap<String, Object>(3);
 			context.put("registry", registry);
 			context.put("user", registry.getUser());
