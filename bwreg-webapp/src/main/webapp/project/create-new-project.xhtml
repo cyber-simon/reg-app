@@ -23,9 +23,9 @@
 	<ui:define name="content">
 	<h:form id="form" class="full form">
 
-		<h2><h:outputText value="#{messages['project.create_new_projects']}"/></h2>
+		<h2><h:outputText value="#{messages['project.create_new_project']}"/></h2>
 
-		<div><h:outputText value="#{messages['project.create_new_projects_text']}"/></div>
+		<div><h:outputText value="#{messages['project.create_new_project_text']}" escape="false" /></div>
 		
 		<p:panel>
 			<h:panelGrid id="baseData" columns="2" columnClasses="labelColumn, elementColumn">
@@ -40,11 +40,11 @@
 		        	value="#{userProjectCreateNewBean.entity.groupName}" required="true"/>
 
 		        <bw:inputText id="shortDescField" label="#{messages['project.short_description']}" 
-		        	value="#{projectAdminAddProjectBean.entity.shortDescription}" required="false"/>
+		        	value="#{userProjectCreateNewBean.entity.shortDescription}" required="false"/>
 
 		        <h:outputText for="@next" value="#{messages['project.long_description']}"/>
 		        <p:outputPanel>
-			        <p:inputTextarea id="keyInputArea" value="#{projectAdminAddProjectBean.entity.description}" 
+			        <p:inputTextarea id="keyInputArea" value="#{userProjectCreateNewBean.entity.description}" 
 			        	style="height: 160px;" autoResize="false" maxlength="8128">
 			        </p:inputTextarea>
 		        </p:outputPanel>

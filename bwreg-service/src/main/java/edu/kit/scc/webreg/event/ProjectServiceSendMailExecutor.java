@@ -39,7 +39,7 @@ public class ProjectServiceSendMailExecutor extends
 		String templateName = getJobStore().get("mail_template");
 
 		if (templateName == null) {
-			logger.warn("No template configured for ServiceRegisterSendMailExecutor");
+			logger.warn("No template configured for ProjectServiceSendMailExecutor");
 			return;
 		}
 		

@@ -66,7 +66,7 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 
 		ProjectServiceEvent event = new ProjectServiceEvent(pse);
 		try {
-			eventSubmitter.submit(event, EventType.PROJECT_SERVICE_APPROVAL, executor);
+			eventSubmitter.submit(event, EventType.PROJECT_SERVICE_APPROVAL, executor, false);
 		} catch (EventSubmitException e) {
 			logger.warn("Could not submit event", e);
 		}
@@ -82,7 +82,7 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 
 		ProjectServiceEvent event = new ProjectServiceEvent(pse);
 		try {
-			eventSubmitter.submit(event, EventType.PROJECT_SERVICE_APPROVAL, executor);
+			eventSubmitter.submit(event, EventType.PROJECT_SERVICE_DENIED, executor, false);
 		} catch (EventSubmitException e) {
 			logger.warn("Could not submit event", e);
 		}
@@ -233,13 +233,13 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 		ProjectServiceEvent event = new ProjectServiceEvent(pse);
 		try {
 			if (ProjectServiceStatusType.APPROVAL_PENDING.equals(status))
-				eventSubmitter.submit(event, EventType.PROJECT_SERVICE_APPROVAL, executor);
+				eventSubmitter.submit(event, EventType.PROJECT_SERVICE_APPROVAL, executor, false);
 			else if (ProjectServiceStatusType.APPROVAL_DENIED.equals(status))
-				eventSubmitter.submit(event, EventType.PROJECT_SERVICE_DENIED, executor);
+				eventSubmitter.submit(event, EventType.PROJECT_SERVICE_DENIED, executor, false);
 			else if (ProjectServiceStatusType.ACTIVE.equals(status))
-				eventSubmitter.submit(event, EventType.PROJECT_SERVICE_APPROVAL, executor);
+				eventSubmitter.submit(event, EventType.PROJECT_SERVICE_APPROVED, executor, false);
 			else if (ProjectServiceStatusType.DELETED.equals(status))
-				eventSubmitter.submit(event, EventType.PROJECT_SERVICE_DELETED, executor);
+				eventSubmitter.submit(event, EventType.PROJECT_SERVICE_DELETED, executor, false);
 		} catch (EventSubmitException e) {
 			logger.warn("Could not submit event", e);
 		}

@@ -58,6 +58,7 @@ public class LocalProjectServiceImpl extends BaseServiceImpl<LocalProjectEntity>
 
 	@Override
 	public void deny(ProjectServiceEntity pse, String denyMessage, String executor) {
+		pse = dao.mergeProjectService(pse);
 		updater.deny(pse, denyMessage, executor);
 	}
 
