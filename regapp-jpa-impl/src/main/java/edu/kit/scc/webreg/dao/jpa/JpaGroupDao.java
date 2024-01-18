@@ -119,12 +119,6 @@ public class JpaGroupDao extends JpaBaseDao<GroupEntity> implements GroupDao {
 		userGroup.setUser(user);
 		userGroup.setGroup(group);
 
-		if (user.getGroups() != null)
-			user.getGroups().add(userGroup);
-
-		if (group.getUsers() != null)
-			group.getUsers().add(userGroup);
-
 		em.persist(userGroup);
 	}
 
@@ -132,12 +126,6 @@ public class JpaGroupDao extends JpaBaseDao<GroupEntity> implements GroupDao {
 	public void removeUserGromGroup(UserEntity user, GroupEntity group) {
 		UserGroupEntity userGroup = findUserGroupEntity(user, group);
 		if (userGroup != null) {
-			if (user.getGroups() != null)
-				user.getGroups().remove(userGroup);
-
-			if (group.getUsers() != null)
-				group.getUsers().remove(userGroup);
-
 			em.remove(userGroup);
 		}
 	}

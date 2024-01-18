@@ -10,7 +10,7 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.exc;
 
-public class RestInterfaceException extends RuntimeException {
+public class RestInterfaceException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
