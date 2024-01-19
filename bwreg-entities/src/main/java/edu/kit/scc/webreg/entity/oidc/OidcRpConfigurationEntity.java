@@ -2,6 +2,7 @@ package edu.kit.scc.webreg.entity.oidc;
 
 import java.util.Map;
 
+import edu.kit.scc.webreg.entity.UserProvisionerEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
@@ -9,11 +10,9 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.Table;
 
-import edu.kit.scc.webreg.entity.AbstractBaseEntity;
-
 @Entity(name = "OidcRpConfigurationEntity")
 @Table(name = "oidc_rp_configuration")
-public class OidcRpConfigurationEntity extends AbstractBaseEntity {
+public class OidcRpConfigurationEntity extends UserProvisionerEntity {
 
 	private static final long serialVersionUID = 1L;
 

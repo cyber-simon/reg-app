@@ -71,6 +71,7 @@ import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.hook.HookManager;
 import edu.kit.scc.webreg.hook.UserServiceHook;
 import edu.kit.scc.webreg.logging.LogHelper;
+import edu.kit.scc.webreg.service.attribute.IncomingAttributesHandler;
 import edu.kit.scc.webreg.service.group.HomeOrgGroupUpdater;
 import edu.kit.scc.webreg.service.identity.IdentityUpdater;
 import edu.kit.scc.webreg.service.reg.impl.Registrator;
@@ -153,6 +154,9 @@ public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 	@Inject
 	private IdentityUpdater identityUpdater;
 
+	@Inject
+	private IncomingAttributesHandler incomingAttributeHandler;
+	
 	@Inject
 	private LogHelper logHelper;
 
@@ -276,6 +280,8 @@ public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 				attributeStore.put(entry.getKey(), attrHelper.attributeListToString(entry.getValue()));
 			}
 
+			incomingAttributeHandler.createOrUpdateSamlAttributes(user, attributeMap);
+			
 			identityUpdater.updateIdentity(user);
 
 			if (appConfig.getConfigValue("create_missing_eppn_scope") != null) {

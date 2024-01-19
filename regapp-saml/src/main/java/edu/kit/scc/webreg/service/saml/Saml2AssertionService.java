@@ -94,7 +94,7 @@ public class Saml2AssertionService {
 			EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity spEntity, boolean checkSignature)
 			throws IOException, DecryptionException, SamlAuthenticationException {
 		saml2ValidationService.verifyStatus(samlResponse);
-		saml2ValidationService.verifyIssuer(idpEntity, samlResponse);
+		saml2ValidationService.verifyIssuer((SamlIdpMetadataEntity) idpEntity, samlResponse);
 		saml2ValidationService.verifyExpiration(samlResponse, 1000L * 60L * 10L);
 
 		Boolean responseSignatureValid = false;
