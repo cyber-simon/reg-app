@@ -10,15 +10,21 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.bean.admin;
 
+import static edu.kit.scc.webreg.dao.ops.PaginateBy.unlimited;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+import static edu.kit.scc.webreg.dao.ops.SortBy.ascendingBy;
+
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 
 import jakarta.faces.event.ComponentSystemEvent;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
+import edu.kit.scc.webreg.entity.SamlUserEntity_;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserEntity_;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.identity.IdentityService;
@@ -59,7 +65,9 @@ public class ShowAdminIdentityBean implements Serializable {
 
 	public List<UserEntity> getUserList() {
 		if (userList == null) {
-			userList = userService.findByIdentity(getIdentity());
+			userList = userService.findAllEagerly(unlimited(), Arrays.asList(ascendingBy(UserEntity_.id)),
+					equal(UserEntity_.identity, getIdentity()), UserEntity_.genericStore, UserEntity_.attributeStore,
+					SamlUserEntity_.idp);
 		}
 		return userList;
 	}

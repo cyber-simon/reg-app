@@ -49,10 +49,10 @@
 			        <h:outputText value="#{messages.registered_time}:"/>
 			        <h:outputText value="#{of:formatDate(approveUserBean.entity.agreedTime, 'dd.MM.yyyy HH:mm')}"/>
 		
-					<bw:outputText label="#{messages.home_org}" value="#{approveUserBean.entity.user.idp.orgName}"
-						rendered="#{not empty approveUserBean.entity.user.idp.orgName}"/>
-					<bw:outputText label="#{messages.idp}" value="#{approveUserBean.entity.user.idp.displayName}"
-						rendered="#{not empty approveUserBean.entity.user.idp.displayName}"/>
+					<bw:outputText label="#{messages.home_org}" value="#{approveUserBean.user.idp.orgName}"
+						rendered="#{not empty approveUserBean.user.idp.orgName}"/>
+					<bw:outputText label="#{messages.idp}" value="#{approveUserBean.user.idp.displayName}"
+						rendered="#{not empty approveUserBean.user.idp.displayName}"/>
 								
 				</p:panelGrid>
 				<div style="margin-top:16px;">

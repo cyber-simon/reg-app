@@ -26,7 +26,9 @@
 			<property name="hibernate.generate_statistics" value="true"/>
 			<property name="hibernate.id.db_structure_naming_strategy" value="single" />
 			<property name="hibernate.max_fetch_depth" value="1"/>		
-			<property name="hibernate.default_batch_fetch_size" value="16"/>		
+			<property name="hibernate.default_batch_fetch_size" value="16"/>
+			<!--  not sure if this is working. Normal case would be the compile time bytecode enhancer -->
+			<property name="hibernate.enhancer.enableLazyInitialization" value="true"/>
 		</properties>
 	</persistence-unit>
 

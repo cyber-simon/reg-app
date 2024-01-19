@@ -48,7 +48,9 @@
 	           	<f:ajax render=":form:tabVw" execute="@this" />
 	        </p:selectOneListbox>
 		</p:panel>
-		<p:tabView id="tabVw" dynamic="true">
+		<p:blockUI block=":form:tabVw" trigger="userSelect"/>
+		<p:panel id="tabPanel">
+		<p:tabView id="tabVw" dynamic="false">
 			<p:tab id="tab1" title="#{messages.my_data}" rendered="#{userPropertiesBean.user.class.simpleName eq 'SamlUserEntity'}">
 				<div>#{messages.my_data_explanation}</div>
 				<div>#{messages.data_from}: <b>#{userPropertiesBean.user.idp.orgName}</b></div>
@@ -184,7 +186,8 @@
 			</p:tab>
 									
 		</p:tabView>
-
+		</p:panel>
+		
 	<div class="text full" style="margin-top: 0.8em;">#{messages['my_data.delete_all']}
 		<br/>
 		<h:link outcome="/user/delete-all-personal-data.xhtml" value="#{messages['my_data.delete_all_link']}" styleClass="link">

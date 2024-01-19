@@ -4,6 +4,7 @@ import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 
@@ -27,7 +28,7 @@ public class SamlUserEntity extends UserEntity {
 	@Column(name = "attr_src_id_name", length = 1024)
 	private String attributeSourcedIdName;
 
-	@ManyToOne(targetEntity = SamlIdpMetadataEntity.class)
+	@ManyToOne(targetEntity = SamlIdpMetadataEntity.class, fetch = FetchType.LAZY)
 	private SamlIdpMetadataEntity idp;
 	
 	@OneToMany(targetEntity = SamlAssertionEntity.class, mappedBy="user")

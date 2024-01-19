@@ -10,7 +10,12 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.bean;
 
+import static edu.kit.scc.webreg.dao.ops.PaginateBy.unlimited;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+import static edu.kit.scc.webreg.dao.ops.SortBy.ascendingBy;
+
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -19,7 +24,9 @@ import com.nimbusds.openid.connect.sdk.claims.ClaimsSet;
 
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RoleEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity_;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserEntity_;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
@@ -46,32 +53,32 @@ public class UserPropertiesBean implements Serializable {
 	private UserEntity user;
 
 	private ClaimsSet claims;
-	
+
 	@Inject
 	private Logger logger;
-	
+
 	@Inject
 	private UserService userService;
-    
+
 	@Inject
 	private IdentityService identityService;
 
 	@Inject
 	private RoleService roleService;
-	
+
 	@Inject
 	private GroupService groupService;
 
- 	@Inject
- 	private ProjectService projectService;
+	@Inject
+	private ProjectService projectService;
 
-    @Inject 
-    private SessionManager sessionManager;
-    
+	@Inject
+	private SessionManager sessionManager;
+
 	public void preRenderView(ComponentSystemEvent ev) {
-	    	
+
 	}
-	
+
 	public List<RoleEntity> getRoleList() {
 		return roleService.findByUser(getUser());
 	}
@@ -85,41 +92,45 @@ public class UserPropertiesBean implements Serializable {
 	}
 
 	public List<UserEntity> getUserList() {
-		return userService.findByIdentity(getIdentity());
+		return userService.findAllEagerly(unlimited(), Arrays.asList(ascendingBy(UserEntity_.id)),
+				equal(UserEntity_.identity, getIdentity()), UserEntity_.genericStore, UserEntity_.attributeStore,
+				SamlUserEntity_.idp);
 	}
 
 	public UserEntity getUser() {
 		if (user == null) {
 			if (sessionManager.getLoggedInUserList().size() > 0) {
-				user = userService.findByIdWithStore(sessionManager.getLoggedInUserList().iterator().next());
-			}
-			else {
-				user = userService.findByIdWithStore(getUserList().get(0).getId());
+				this.user = userService.findByIdWithAttrs(sessionManager.getLoggedInUserList().iterator().next(),
+						UserEntity_.genericStore, UserEntity_.attributeStore, SamlUserEntity_.idp);
+			} else {
+				this.user = userService.findByIdWithAttrs(getUserList().get(0).getId(), UserEntity_.genericStore,
+						UserEntity_.attributeStore, SamlUserEntity_.idp);
 			}
 		}
 		return user;
 	}
 
 	public void setUser(UserEntity user) {
-		if (user != null && (! user.equals(this.user))) {
-			this.user = userService.findByIdWithStore(user.getId());
+		if (user != null && (!user.equals(this.user))) {
+			this.user = userService.findByIdWithAttrs(user.getId(), UserEntity_.genericStore,
+					UserEntity_.attributeStore, SamlUserEntity_.idp);
 			claims = null;
 		}
 	}
 
 	public ClaimsSet getClaims() {
 		if (claims == null) {
-	    	if (getUser() instanceof OidcUserEntity) {
-	    		JSONParser parser = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
+			if (getUser() instanceof OidcUserEntity) {
+				JSONParser parser = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
 				try {
 					if (getUser().getAttributeStore().containsKey("claims")) {
-			    		JSONObject jo = parser.parse(getUser().getAttributeStore().get("claims"), JSONObject.class);
-			    		claims = new ClaimsSet(jo);
+						JSONObject jo = parser.parse(getUser().getAttributeStore().get("claims"), JSONObject.class);
+						claims = new ClaimsSet(jo);
 					}
 				} catch (ParseException e) {
 					logger.warn("Wrong JSON in claims attribute", e);
 				}
-	    	}
+			}
 		}
 		return claims;
 	}

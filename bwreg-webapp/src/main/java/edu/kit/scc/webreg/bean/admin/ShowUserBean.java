@@ -29,6 +29,7 @@ import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.RoleEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity_;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserEntity_;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
@@ -111,7 +112,11 @@ public class ShowUserBean implements Serializable {
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (user == null) {
-			user = userService.findByIdWithAttrs(id, UserEntity_.genericStore, UserEntity_.attributeStore);
+			user = userService.fetch(id);
+			if (user instanceof SamlUserEntity)
+				user = userService.findByIdWithAttrs(id, UserEntity_.genericStore, UserEntity_.attributeStore, SamlUserEntity_.idp);
+			else
+				user = userService.findByIdWithAttrs(id, UserEntity_.genericStore, UserEntity_.attributeStore);
 		}
 	}
 

@@ -23,11 +23,15 @@ import org.slf4j.LoggerFactory;
 
 import edu.kit.scc.webreg.approval.ApproverRoleApprovalWorkflow;
 import edu.kit.scc.webreg.entity.RegistryEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity_;
+import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.exc.MisconfiguredServiceException;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
 import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.sec.AuthorizationBean;
 import edu.kit.scc.webreg.service.RegistryService;
+import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.ViewIds;
 
@@ -43,18 +47,26 @@ public class ApproveUserBean implements Serializable {
 	private RegistryService service;
 	
 	@Inject
+	private UserService userService;
+	
+	@Inject
 	private SessionManager sessionManager;
 
     @Inject
     private AuthorizationBean authBean;
 	
 	private RegistryEntity entity;
+	private UserEntity user;
 	
 	private Long id;
 	
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
 			entity = service.fetch(id);
+			if (entity.getUser() instanceof SamlUserEntity)
+				user = userService.findByIdWithAttrs(entity.getUser().getId(), SamlUserEntity_.idp);
+			else
+				user = entity.getUser();
 			
 			if (entity == null) {
 				throw new NotAuthorizedException("Nicht autorisiert");
@@ -130,5 +142,9 @@ public class ApproveUserBean implements Serializable {
 			logger.warn("Service Register bean misconfigured: {}", e.getMessage());
 			return null;
 		}
+	}
+
+	public UserEntity getUser() {
+		return user;
 	}	
 }

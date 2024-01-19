@@ -14,11 +14,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.faces.event.ComponentSystemEvent;
-import jakarta.faces.view.ViewScoped;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 import org.slf4j.Logger;
@@ -29,6 +24,7 @@ import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.SamlAssertionEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity_;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.SshPubKeyRegistryEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
@@ -53,6 +49,10 @@ import edu.kit.scc.webreg.service.reg.RegisterUserWorkflow;
 import edu.kit.scc.webreg.service.ssh.SshPubKeyRegistryService;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
+import jakarta.faces.event.ComponentSystemEvent;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named
 @ViewScoped
@@ -238,8 +238,13 @@ public class ServiceAdminUserDetailBean implements Serializable {
 
 	public UserEntity getUser() {
 		if (user == null) {
-			user = userService.findByIdWithAttrs(entity.getUser().getId(), UserEntity_.genericStore,
-					UserEntity_.attributeStore);
+			user = userService.fetch(entity.getUser().getId());
+			if (user instanceof SamlUserEntity)
+				user = userService.findByIdWithAttrs(entity.getUser().getId(), UserEntity_.genericStore,
+						UserEntity_.attributeStore, SamlUserEntity_.idp);
+			else
+				user = userService.findByIdWithAttrs(entity.getUser().getId(), UserEntity_.genericStore,
+						UserEntity_.attributeStore);
 		}
 		return user;
 	}
