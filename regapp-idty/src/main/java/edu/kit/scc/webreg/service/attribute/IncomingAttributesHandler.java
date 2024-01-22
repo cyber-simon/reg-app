@@ -5,11 +5,14 @@ import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dao.jpa.attribute.IncomingAttributeDao;
 import edu.kit.scc.webreg.dao.jpa.attribute.IncomingAttributeSetDao;
+import edu.kit.scc.webreg.dao.jpa.attribute.LocalAttributeDao;
+import edu.kit.scc.webreg.dao.jpa.attribute.LocalAttributeSetDao;
 import edu.kit.scc.webreg.dao.jpa.attribute.ValueDao;
 import edu.kit.scc.webreg.dao.ops.RqlExpressions;
 import edu.kit.scc.webreg.entity.UserEntity;
@@ -17,12 +20,17 @@ import edu.kit.scc.webreg.entity.attribute.AttributeEntity_;
 import edu.kit.scc.webreg.entity.attribute.IncomingAttributeEntity;
 import edu.kit.scc.webreg.entity.attribute.IncomingAttributeSetEntity;
 import edu.kit.scc.webreg.entity.attribute.IncomingAttributeSetEntity_;
+import edu.kit.scc.webreg.entity.attribute.LocalAttributeSetEntity;
 import edu.kit.scc.webreg.entity.attribute.ValueType;
 import edu.kit.scc.webreg.entity.attribute.value.LongValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.StringListValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.StringValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.ValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.ValueEntity_;
+import edu.kit.scc.webreg.service.attribute.proc.CopyIncomingValueFunction;
+import edu.kit.scc.webreg.service.attribute.proc.MapLocalAttributeOnUserFunction;
+import edu.kit.scc.webreg.service.attribute.proc.SamlMapLocalAttributeFunction;
+import edu.kit.scc.webreg.service.attribute.proc.SingularAttributePipe;
 import jakarta.inject.Inject;
 
 public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntity> {
@@ -36,9 +44,42 @@ public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntit
 	@Inject
 	protected IncomingAttributeSetDao incomingAttributeSetDao;
 
+	@Inject
+	protected LocalAttributeSetDao localAttributeSetDao;
+
+	@Inject
+	protected LocalAttributeDao localAttributeDao;
+
 	protected abstract IncomingAttributeDao<T> getDao();
 
-	public abstract void createOrUpdateAttributes(UserEntity user, Map<String, List<Object>> attributeMap);
+	public abstract IncomingAttributeSetEntity createOrUpdateAttributes(UserEntity user,
+			Map<String, List<Object>> attributeMap);
+
+	protected abstract List<Function<ValueEntity, ValueEntity>> getProcessingFunctions(
+			LocalAttributeSetEntity localAttributeSet);
+
+	public LocalAttributeSetEntity processIncomingAttributeSet(IncomingAttributeSetEntity incoming) {
+		LocalAttributeSetEntity localAttributeSet = localAttributeSetDao
+				.find(equal(IncomingAttributeSetEntity_.user, incoming.getUser()));
+		if (localAttributeSet == null) {
+			localAttributeSet = localAttributeSetDao.createNew();
+			localAttributeSet.setUser(incoming.getUser());
+			localAttributeSet = localAttributeSetDao.persist(localAttributeSet);
+		}
+		List<ValueEntity> valueList = valueDao.findAll(equal(ValueEntity_.attributeSet, incoming));
+		CopyIncomingValueFunction cvf = new CopyIncomingValueFunction(valueDao, localAttributeDao, localAttributeSet);
+		MapLocalAttributeOnUserFunction mlaf = new MapLocalAttributeOnUserFunction(valueDao, localAttributeDao,
+				localAttributeSet);
+
+		Function<ValueEntity, ValueEntity> f = getProcessingFunctions(localAttributeSet).stream()
+				.reduce(Function.identity(), Function::andThen);
+		valueList.stream().map(cvf).map(f).map(v -> {
+			v.setEndValue(true);
+			return v;
+		}).map(mlaf).toList();
+
+		return localAttributeSet;
+	}
 
 	protected T getAttribute(String name, ValueType valueType) {
 		T attribute = getDao().find(equal(AttributeEntity_.name, name));
@@ -55,7 +96,7 @@ public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntit
 	protected StringValueEntity createOrUpdateStringValue(IncomingAttributeSetEntity incomingAttributeSet,
 			IncomingAttributeEntity attribute, String name, String attributeValue) {
 		ValueEntity value = valueDao.find(RqlExpressions.and(equal(ValueEntity_.attribute, attribute),
-				equal(ValueEntity_.incomingAttributeSet, incomingAttributeSet)));
+				equal(ValueEntity_.attributeSet, incomingAttributeSet)));
 
 		if (value != null && !(value instanceof StringValueEntity)) {
 			logger.info(
@@ -68,7 +109,7 @@ public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntit
 		if (value == null) {
 			value = new StringValueEntity();
 			value.setAttribute(attribute);
-			value.setIncomingAttributeSet(incomingAttributeSet);
+			value.setAttributeSet(incomingAttributeSet);
 			value = valueDao.persist(value);
 		}
 
@@ -79,7 +120,7 @@ public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntit
 	protected LongValueEntity createOrUpdateLongValue(IncomingAttributeSetEntity incomingAttributeSet,
 			IncomingAttributeEntity attribute, String name, Long attributeValue) {
 		ValueEntity value = valueDao.find(RqlExpressions.and(equal(ValueEntity_.attribute, attribute),
-				equal(ValueEntity_.incomingAttributeSet, incomingAttributeSet)));
+				equal(ValueEntity_.attributeSet, incomingAttributeSet)));
 
 		if (value != null && !(value instanceof StringValueEntity)) {
 			logger.info(
@@ -92,7 +133,7 @@ public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntit
 		if (value == null) {
 			value = new LongValueEntity();
 			value.setAttribute(attribute);
-			value.setIncomingAttributeSet(incomingAttributeSet);
+			value.setAttributeSet(incomingAttributeSet);
 			value = valueDao.persist(value);
 		}
 
@@ -103,7 +144,7 @@ public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntit
 	protected StringListValueEntity createOrUpdateStringListValue(IncomingAttributeSetEntity incomingAttributeSet,
 			IncomingAttributeEntity attribute, String name, List<String> attributeList) {
 		ValueEntity value = valueDao.find(RqlExpressions.and(equal(ValueEntity_.attribute, attribute),
-				equal(ValueEntity_.incomingAttributeSet, incomingAttributeSet)));
+				equal(ValueEntity_.attributeSet, incomingAttributeSet)));
 
 		if (value != null && !(value instanceof StringListValueEntity)) {
 			logger.info(
@@ -116,7 +157,7 @@ public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntit
 		if (value == null) {
 			value = new StringListValueEntity();
 			value.setAttribute(attribute);
-			value.setIncomingAttributeSet(incomingAttributeSet);
+			value.setAttributeSet(incomingAttributeSet);
 			value = valueDao.persist(value);
 		}
 
@@ -130,10 +171,10 @@ public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntit
 				listValue.getValueList().add(s);
 			}
 		}
-		
+
 		return listValue;
 	}
-	
+
 	protected IncomingAttributeSetEntity getIncomingAttributeSet(UserEntity user) {
 		IncomingAttributeSetEntity incomingAttributeSet = incomingAttributeSetDao
 				.find(equal(IncomingAttributeSetEntity_.user, user));

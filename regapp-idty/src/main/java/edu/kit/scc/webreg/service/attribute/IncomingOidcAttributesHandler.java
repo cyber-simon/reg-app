@@ -1,7 +1,10 @@
 package edu.kit.scc.webreg.service.attribute;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.slf4j.Logger;
 
@@ -15,7 +18,10 @@ import edu.kit.scc.webreg.dao.jpa.attribute.IncomingOidcAttributeDao;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.attribute.IncomingAttributeSetEntity;
 import edu.kit.scc.webreg.entity.attribute.IncomingOidcAttributeEntity;
+import edu.kit.scc.webreg.entity.attribute.LocalAttributeSetEntity;
 import edu.kit.scc.webreg.entity.attribute.ValueType;
+import edu.kit.scc.webreg.entity.attribute.value.ValueEntity;
+import edu.kit.scc.webreg.service.attribute.proc.SamlMapLocalAttributeFunction;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import net.minidev.json.JSONArray;
@@ -33,7 +39,8 @@ public class IncomingOidcAttributesHandler extends IncomingAttributesHandler<Inc
 	@Inject
 	private OidcTokenHelper oidcTokenHelper;
 
-	public void createOrUpdateAttributes(UserEntity user, Map<String, List<Object>> attributeMap) {
+	public IncomingAttributeSetEntity createOrUpdateAttributes(UserEntity user,
+			Map<String, List<Object>> attributeMap) {
 		IncomingAttributeSetEntity incomingAttributeSet = getIncomingAttributeSet(user);
 
 		IDTokenClaimsSet idToken = oidcTokenHelper.claimsFromMap(attributeMap);
@@ -43,6 +50,8 @@ public class IncomingOidcAttributesHandler extends IncomingAttributesHandler<Inc
 		UserInfo userInfo = oidcTokenHelper.userInfoFromMap(attributeMap);
 		if (userInfo != null)
 			createOrUpdateOidcStringClaims(incomingAttributeSet, userInfo, "userInfo");
+
+		return incomingAttributeSet;
 	}
 
 	public void createOrUpdateOidcStringClaims(IncomingAttributeSetEntity incomingAttributeSet, ClaimsSet claimSet,
@@ -52,10 +61,12 @@ public class IncomingOidcAttributesHandler extends IncomingAttributesHandler<Inc
 			if (entry.getKey() != null && entry.getValue() != null) {
 				if (entry.getValue() instanceof String) {
 					IncomingOidcAttributeEntity attribute = getAttribute(entry.getKey(), ValueType.STRING);
-					createOrUpdateStringValue(incomingAttributeSet, attribute, entry.getKey(), (String) entry.getValue());
+					createOrUpdateStringValue(incomingAttributeSet, attribute, entry.getKey(),
+							(String) entry.getValue());
 				} else if (entry.getValue() instanceof JSONArray) {
 					IncomingOidcAttributeEntity attribute = getAttribute(entry.getKey(), ValueType.STRING_LIST);
-					createOrUpdateStringListValue(incomingAttributeSet, attribute, entry.getKey(), JSONArrayUtils.toStringList((JSONArray) entry.getValue()));
+					createOrUpdateStringListValue(incomingAttributeSet, attribute, entry.getKey(),
+							JSONArrayUtils.toStringList((JSONArray) entry.getValue()));
 				} else if (entry.getValue() instanceof Long) {
 					IncomingOidcAttributeEntity attribute = getAttribute(entry.getKey(), ValueType.LONG);
 					createOrUpdateLongValue(incomingAttributeSet, attribute, entry.getKey(), (Long) entry.getValue());
@@ -72,4 +83,8 @@ public class IncomingOidcAttributesHandler extends IncomingAttributesHandler<Inc
 		return oidcAttributeDao;
 	}
 
+	@Override
+	protected List<Function<ValueEntity, ValueEntity>> getProcessingFunctions(LocalAttributeSetEntity localAttributeSet) {
+		return new ArrayList<>();
+	}
 }

@@ -1,12 +1,19 @@
 package edu.kit.scc.webreg.entity.attribute.value;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import edu.kit.scc.webreg.entity.AbstractBaseEntity;
 import edu.kit.scc.webreg.entity.attribute.AttributeEntity;
 import edu.kit.scc.webreg.entity.attribute.AttributeReleaseEntity;
-import edu.kit.scc.webreg.entity.attribute.IncomingAttributeSetEntity;
+import edu.kit.scc.webreg.entity.attribute.AttributeSetEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
@@ -23,8 +30,19 @@ public class ValueEntity extends AbstractBaseEntity {
 	@ManyToOne(targetEntity = AttributeReleaseEntity.class)
 	private AttributeReleaseEntity attributeRelease;
 
-	@ManyToOne(targetEntity = IncomingAttributeSetEntity.class)
-	private IncomingAttributeSetEntity incomingAttributeSet;
+	@ManyToOne(targetEntity = AttributeSetEntity.class)
+	private AttributeSetEntity attributeSet;
+
+	@Column(name="end_value")
+	private Boolean endValue;
+	
+	@ManyToMany
+	@JoinTable(name = "value_to_value", joinColumns = @JoinColumn(name = "next_value_id"), inverseJoinColumns = @JoinColumn(name = "prev_value_id"))
+	private Set<ValueEntity> nextValues = new HashSet<>();
+
+	@ManyToMany
+	@JoinTable(name = "value_to_value", joinColumns = @JoinColumn(name = "prev_value_id"), inverseJoinColumns = @JoinColumn(name = "next_value_id"))
+	private Set<ValueEntity> prevValues = new HashSet<>();;
 
 	public AttributeEntity getAttribute() {
 		return attribute;
@@ -42,12 +60,35 @@ public class ValueEntity extends AbstractBaseEntity {
 		this.attributeRelease = attributeRelease;
 	}
 
-	public IncomingAttributeSetEntity getIncomingAttributeSet() {
-		return incomingAttributeSet;
+	public AttributeSetEntity getAttributeSet() {
+		return attributeSet;
 	}
 
-	public void setIncomingAttributeSet(IncomingAttributeSetEntity incomingAttributeSet) {
-		this.incomingAttributeSet = incomingAttributeSet;
+	public void setAttributeSet(AttributeSetEntity attributeSet) {
+		this.attributeSet = attributeSet;
 	}
-	
+
+	public Set<ValueEntity> getNextValues() {
+		return nextValues;
+	}
+
+	public void setNextValues(Set<ValueEntity> nextValues) {
+		this.nextValues = nextValues;
+	}
+
+	public Set<ValueEntity> getPrevValues() {
+		return prevValues;
+	}
+
+	public void setPrevValues(Set<ValueEntity> prevValues) {
+		this.prevValues = prevValues;
+	}
+
+	public Boolean getEndValue() {
+		return endValue;
+	}
+
+	public void setEndValue(Boolean endValue) {
+		this.endValue = endValue;
+	}
 }

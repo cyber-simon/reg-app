@@ -65,6 +65,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceServiceEntity;
+import edu.kit.scc.webreg.entity.attribute.IncomingAttributeSetEntity;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
@@ -357,7 +358,8 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 				attributeStore.put(entry.getKey(), attrHelper.attributeListToString(entry.getValue()));
 			}
 
-			incomingAttributeHandler.createOrUpdateAttributes(user, attributeMap);
+			IncomingAttributeSetEntity incomingAttributeSet = incomingAttributeHandler.createOrUpdateAttributes(user, attributeMap);
+			incomingAttributeHandler.processIncomingAttributeSet(incomingAttributeSet);
 
 			identityUpdater.updateIdentity(user);
 			

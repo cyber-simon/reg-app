@@ -55,6 +55,7 @@ import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity_;
 import edu.kit.scc.webreg.entity.as.AttributeSourceServiceEntity;
+import edu.kit.scc.webreg.entity.attribute.IncomingAttributeSetEntity;
 import edu.kit.scc.webreg.entity.audit.AuditDetailEntity;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
 import edu.kit.scc.webreg.entity.audit.AuditUserUpdateEntity;
@@ -277,7 +278,8 @@ public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 				attributeStore.put(entry.getKey(), attrHelper.attributeListToString(entry.getValue()));
 			}
 
-			incomingAttributeHandler.createOrUpdateAttributes(user, attributeMap);
+			IncomingAttributeSetEntity incomingAttributeSet = incomingAttributeHandler.createOrUpdateAttributes(user, attributeMap);
+			incomingAttributeHandler.processIncomingAttributeSet(incomingAttributeSet);
 			
 			identityUpdater.updateIdentity(user);
 
