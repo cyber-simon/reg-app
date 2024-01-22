@@ -4,5 +4,9 @@ public enum ValueType {
 
 	NULL,
 	STRING,
-	STRING_LIST
+	STRING_LIST,
+	LONG,
+	BOOLEAN,
+	DATE,
+	DATE_TIME
 }

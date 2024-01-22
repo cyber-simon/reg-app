@@ -14,9 +14,6 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Response;
@@ -39,7 +36,6 @@ import edu.kit.scc.webreg.dao.SamlSpConfigurationDao;
 import edu.kit.scc.webreg.dao.SamlUserDao;
 import edu.kit.scc.webreg.dao.SerialDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
-import edu.kit.scc.webreg.dao.as.ASUserAttrDao;
 import edu.kit.scc.webreg.dao.as.AttributeSourceDao;
 import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
@@ -56,7 +52,6 @@ import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity_;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
-import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity_;
 import edu.kit.scc.webreg.entity.as.AttributeSourceServiceEntity;
@@ -71,7 +66,7 @@ import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.hook.HookManager;
 import edu.kit.scc.webreg.hook.UserServiceHook;
 import edu.kit.scc.webreg.logging.LogHelper;
-import edu.kit.scc.webreg.service.attribute.IncomingAttributesHandler;
+import edu.kit.scc.webreg.service.attribute.IncomingSamlAttributesHandler;
 import edu.kit.scc.webreg.service.group.HomeOrgGroupUpdater;
 import edu.kit.scc.webreg.service.identity.IdentityUpdater;
 import edu.kit.scc.webreg.service.reg.impl.Registrator;
@@ -82,6 +77,8 @@ import edu.kit.scc.webreg.service.saml.exc.MetadataException;
 import edu.kit.scc.webreg.service.saml.exc.NoAssertionException;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.service.saml.exc.SamlUnknownPrincipalException;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
@@ -155,7 +152,7 @@ public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 	private IdentityUpdater identityUpdater;
 
 	@Inject
-	private IncomingAttributesHandler incomingAttributeHandler;
+	private IncomingSamlAttributesHandler incomingAttributeHandler;
 	
 	@Inject
 	private LogHelper logHelper;
@@ -280,7 +277,7 @@ public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 				attributeStore.put(entry.getKey(), attrHelper.attributeListToString(entry.getValue()));
 			}
 
-			incomingAttributeHandler.createOrUpdateSamlAttributes(user, attributeMap);
+			incomingAttributeHandler.createOrUpdateAttributes(user, attributeMap);
 			
 			identityUpdater.updateIdentity(user);
 

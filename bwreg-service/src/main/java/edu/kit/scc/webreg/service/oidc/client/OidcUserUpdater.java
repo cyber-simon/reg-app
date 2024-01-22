@@ -12,9 +12,6 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
@@ -78,14 +75,15 @@ import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.hook.HookManager;
 import edu.kit.scc.webreg.hook.UserServiceHook;
-import edu.kit.scc.webreg.service.SerialService;
 import edu.kit.scc.webreg.service.ServiceService;
-import edu.kit.scc.webreg.service.attribute.IncomingAttributesHandler;
+import edu.kit.scc.webreg.service.attribute.IncomingOidcAttributesHandler;
 import edu.kit.scc.webreg.service.identity.IdentityUpdater;
 import edu.kit.scc.webreg.service.impl.AbstractUserUpdater;
 import edu.kit.scc.webreg.service.impl.AttributeMapHelper;
 import edu.kit.scc.webreg.service.reg.AttributeSourceQueryService;
 import edu.kit.scc.webreg.service.reg.impl.Registrator;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
@@ -147,7 +145,7 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 	private IdentityUpdater identityUpdater;
 
 	@Inject
-	private IncomingAttributesHandler incomingAttributeHandler;
+	private IncomingOidcAttributesHandler incomingAttributeHandler;
 	
 	public OidcUserEntity updateUserFromOP(OidcUserEntity user, String executor, StringBuffer debugLog)
 			throws UserUpdateException {
@@ -359,7 +357,7 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 				attributeStore.put(entry.getKey(), attrHelper.attributeListToString(entry.getValue()));
 			}
 
-			incomingAttributeHandler.createOrUpdateOidcAttributes(user, attributeMap);
+			incomingAttributeHandler.createOrUpdateAttributes(user, attributeMap);
 
 			identityUpdater.updateIdentity(user);
 			
