@@ -94,6 +94,12 @@
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-oidc</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
 			<artifactId>regapp-reg-api</artifactId>
 			<version>${project.version}</version>
 			<scope>provided</scope>

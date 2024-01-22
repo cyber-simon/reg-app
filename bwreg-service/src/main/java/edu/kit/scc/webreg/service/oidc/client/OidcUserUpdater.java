@@ -47,6 +47,7 @@ import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.nimbusds.openid.connect.sdk.validators.IDTokenValidator;
 
+import edu.kit.scc.regapp.oidc.tools.OidcTokenHelper;
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.audit.RegistryAuditor;
 import edu.kit.scc.webreg.audit.UserUpdateAuditor;
@@ -79,6 +80,7 @@ import edu.kit.scc.webreg.hook.HookManager;
 import edu.kit.scc.webreg.hook.UserServiceHook;
 import edu.kit.scc.webreg.service.SerialService;
 import edu.kit.scc.webreg.service.ServiceService;
+import edu.kit.scc.webreg.service.attribute.IncomingAttributesHandler;
 import edu.kit.scc.webreg.service.identity.IdentityUpdater;
 import edu.kit.scc.webreg.service.impl.AbstractUserUpdater;
 import edu.kit.scc.webreg.service.impl.AttributeMapHelper;
@@ -144,6 +146,9 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 	@Inject
 	private IdentityUpdater identityUpdater;
 
+	@Inject
+	private IncomingAttributesHandler incomingAttributeHandler;
+	
 	public OidcUserEntity updateUserFromOP(OidcUserEntity user, String executor, StringBuffer debugLog)
 			throws UserUpdateException {
 
@@ -354,8 +359,10 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 				attributeStore.put(entry.getKey(), attrHelper.attributeListToString(entry.getValue()));
 			}
 
-			identityUpdater.updateIdentity(user);
+			incomingAttributeHandler.createOrUpdateOidcAttributes(user, attributeMap);
 
+			identityUpdater.updateIdentity(user);
+			
 			if (appConfig.getConfigValue("create_missing_eppn_scope") != null) {
 				if (user.getEppn() == null) {
 					String scope = appConfig.getConfigValue("create_missing_eppn_scope");

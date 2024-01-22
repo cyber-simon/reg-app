@@ -78,6 +78,11 @@
 		</dependency>
 		<dependency>
 			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-oidc</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
 			<artifactId>regapp-session</artifactId>
 			<version>${project.version}</version>
 		</dependency>
