@@ -11,7 +11,7 @@ import edu.kit.scc.webreg.dao.jpa.attribute.IncomingSamlAttributeDao;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.attribute.IncomingAttributeSetEntity;
 import edu.kit.scc.webreg.entity.attribute.IncomingSamlAttributeEntity;
-import edu.kit.scc.webreg.entity.attribute.LocalAttributeSetEntity;
+import edu.kit.scc.webreg.entity.attribute.LocalUserAttributeSetEntity;
 import edu.kit.scc.webreg.entity.attribute.ValueType;
 import edu.kit.scc.webreg.entity.attribute.value.ValueEntity;
 import edu.kit.scc.webreg.service.attribute.proc.SamlMapLocalAttributeFunction;
@@ -62,7 +62,7 @@ public class IncomingSamlAttributesHandler extends IncomingAttributesHandler<Inc
 	}
 
 	@Override
-	protected List<Function<ValueEntity, ValueEntity>> getProcessingFunctions(LocalAttributeSetEntity localAttributeSet) {
+	protected List<Function<ValueEntity, ValueEntity>> getProcessingFunctions(LocalUserAttributeSetEntity localAttributeSet) {
 		return Arrays.asList(new SamlMapLocalAttributeFunction(valueDao, localAttributeDao, localAttributeSet));
 	}
 }

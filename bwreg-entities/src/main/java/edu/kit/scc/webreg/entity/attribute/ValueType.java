@@ -8,5 +8,6 @@ public enum ValueType {
 	LONG,
 	BOOLEAN,
 	DATE,
-	DATE_TIME
+	DATE_TIME,
+	PAIRWISE_ID
 }

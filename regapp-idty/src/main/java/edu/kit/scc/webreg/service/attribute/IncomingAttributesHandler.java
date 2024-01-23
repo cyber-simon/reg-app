@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import edu.kit.scc.webreg.dao.jpa.attribute.IncomingAttributeDao;
 import edu.kit.scc.webreg.dao.jpa.attribute.IncomingAttributeSetDao;
 import edu.kit.scc.webreg.dao.jpa.attribute.LocalAttributeDao;
-import edu.kit.scc.webreg.dao.jpa.attribute.LocalAttributeSetDao;
+import edu.kit.scc.webreg.dao.jpa.attribute.LocalUserAttributeSetDao;
 import edu.kit.scc.webreg.dao.jpa.attribute.ValueDao;
 import edu.kit.scc.webreg.dao.ops.RqlExpressions;
 import edu.kit.scc.webreg.entity.UserEntity;
@@ -20,7 +20,7 @@ import edu.kit.scc.webreg.entity.attribute.AttributeEntity_;
 import edu.kit.scc.webreg.entity.attribute.IncomingAttributeEntity;
 import edu.kit.scc.webreg.entity.attribute.IncomingAttributeSetEntity;
 import edu.kit.scc.webreg.entity.attribute.IncomingAttributeSetEntity_;
-import edu.kit.scc.webreg.entity.attribute.LocalAttributeSetEntity;
+import edu.kit.scc.webreg.entity.attribute.LocalUserAttributeSetEntity;
 import edu.kit.scc.webreg.entity.attribute.ValueType;
 import edu.kit.scc.webreg.entity.attribute.value.LongValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.StringListValueEntity;
@@ -29,8 +29,6 @@ import edu.kit.scc.webreg.entity.attribute.value.ValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.ValueEntity_;
 import edu.kit.scc.webreg.service.attribute.proc.CopyIncomingValueFunction;
 import edu.kit.scc.webreg.service.attribute.proc.MapLocalAttributeOnUserFunction;
-import edu.kit.scc.webreg.service.attribute.proc.SamlMapLocalAttributeFunction;
-import edu.kit.scc.webreg.service.attribute.proc.SingularAttributePipe;
 import jakarta.inject.Inject;
 
 public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntity> {
@@ -45,7 +43,7 @@ public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntit
 	protected IncomingAttributeSetDao incomingAttributeSetDao;
 
 	@Inject
-	protected LocalAttributeSetDao localAttributeSetDao;
+	protected LocalUserAttributeSetDao localAttributeSetDao;
 
 	@Inject
 	protected LocalAttributeDao localAttributeDao;
@@ -56,10 +54,10 @@ public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntit
 			Map<String, List<Object>> attributeMap);
 
 	protected abstract List<Function<ValueEntity, ValueEntity>> getProcessingFunctions(
-			LocalAttributeSetEntity localAttributeSet);
+			LocalUserAttributeSetEntity localAttributeSet);
 
-	public LocalAttributeSetEntity processIncomingAttributeSet(IncomingAttributeSetEntity incoming) {
-		LocalAttributeSetEntity localAttributeSet = localAttributeSetDao
+	public LocalUserAttributeSetEntity processIncomingAttributeSet(IncomingAttributeSetEntity incoming) {
+		LocalUserAttributeSetEntity localAttributeSet = localAttributeSetDao
 				.find(equal(IncomingAttributeSetEntity_.user, incoming.getUser()));
 		if (localAttributeSet == null) {
 			localAttributeSet = localAttributeSetDao.createNew();

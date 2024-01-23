@@ -10,6 +10,7 @@ import jakarta.persistence.Table;
 import edu.kit.scc.webreg.entity.AbstractBaseEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.attribute.AttributeReleaseEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 
 @Entity(name = "OidcFlowStateEntity")
@@ -32,6 +33,9 @@ public class OidcFlowStateEntity extends AbstractBaseEntity {
 
 	@ManyToOne(targetEntity = RegistryEntity.class)
 	private RegistryEntity registry;
+
+	@ManyToOne(targetEntity = AttributeReleaseEntity.class)
+	private AttributeReleaseEntity attributeRelease;
 
 	@Column(name = "nonce", length = 256)
 	private String nonce;
@@ -214,5 +218,13 @@ public class OidcFlowStateEntity extends AbstractBaseEntity {
 
 	public void setAcrValues(String acrValues) {
 		this.acrValues = acrValues;
+	}
+
+	public AttributeReleaseEntity getAttributeRelease() {
+		return attributeRelease;
+	}
+
+	public void setAttributeRelease(AttributeReleaseEntity attributeRelease) {
+		this.attributeRelease = attributeRelease;
 	}
 }

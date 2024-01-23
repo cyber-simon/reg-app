@@ -64,6 +64,9 @@ import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.attribute.AttributeReleaseEntity;
+import edu.kit.scc.webreg.entity.attribute.AttributeReleaseEntity_;
+import edu.kit.scc.webreg.entity.attribute.ReleaseStatusType;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcFlowStateEntity;
@@ -71,6 +74,7 @@ import edu.kit.scc.webreg.entity.oidc.OidcFlowStateEntity_;
 import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.ServiceOidcClientEntity;
 import edu.kit.scc.webreg.script.ScriptingEnv;
+import edu.kit.scc.webreg.service.attribute.release.AttributeReleaseHandler;
 import edu.kit.scc.webreg.service.saml.CryptoHelper;
 import edu.kit.scc.webreg.service.saml.exc.OidcAuthenticationException;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
@@ -115,6 +119,9 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 
 	@Inject
 	private ApplicationConfig appConfig;
+
+	@Inject
+	private AttributeReleaseHandler attributeReleaseHandler;
 
 	@Override
 	public String registerAuthRequest(String realm, String responseType, String redirectUri, String scope, String state,
@@ -206,6 +213,36 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			}
 
 			OidcClientConfigurationEntity clientConfig = flowState.getClientConfiguration();
+
+			if (clientConfig.getGenericStore().containsKey("new_attributes")
+					&& clientConfig.getGenericStore().get("new_attributes").equalsIgnoreCase("true")) {
+				logger.debug("Choosing new attributes flow... scope is {}", flowState.getScope());
+
+				AttributeReleaseEntity attributeRelease = attributeReleaseHandler.requestAttributeRelease(clientConfig,
+						identity);
+				if (ReleaseStatusType.NEW.equals(attributeRelease.getReleaseStatus())) {
+					logger.debug("Attribute Release is new, sending user to constent page");
+					return "/user/attribute-release-oidc.xhtml?id=" + attributeRelease.getId();					
+				}
+				else if (ReleaseStatusType.DIRTY.equals(attributeRelease.getReleaseStatus())) {
+					
+				}
+				else if (ReleaseStatusType.REVOKED.equals(attributeRelease.getReleaseStatus())) {
+					
+				}
+				else if (ReleaseStatusType.REJECTED.equals(attributeRelease.getReleaseStatus())) {
+					
+				}
+				else if (ReleaseStatusType.GOOD.equals(attributeRelease.getReleaseStatus())) {
+					flowState.setValidUntil(new Date(System.currentTimeMillis() + (10L * 60L * 1000L)));
+					flowState.setIdentity(identity);
+					flowState.setAttributeRelease(attributeRelease);
+
+					String red = flowState.getRedirectUri() + "?code=" + flowState.getCode() + "&state=" + flowState.getState();
+					logger.debug("Sending client to {}", red);
+					return red;
+				}
+			}
 			List<ServiceOidcClientEntity> serviceOidcClientList = serviceOidcClientDao.findByClientConfig(clientConfig);
 
 			if (serviceOidcClientList.size() == 0) {
