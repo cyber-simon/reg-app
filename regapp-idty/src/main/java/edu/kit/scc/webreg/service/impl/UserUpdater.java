@@ -14,9 +14,6 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Response;
@@ -56,7 +53,7 @@ import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity_;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
-import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
+import edu.kit.scc.webreg.entity.as.ASUserAttrEntity_;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity_;
 import edu.kit.scc.webreg.entity.as.AttributeSourceServiceEntity;
@@ -81,6 +78,8 @@ import edu.kit.scc.webreg.service.saml.exc.MetadataException;
 import edu.kit.scc.webreg.service.saml.exc.NoAssertionException;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.service.saml.exc.SamlUnknownPrincipalException;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
@@ -131,6 +130,9 @@ public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 
 	@Inject
 	private AttributeSourceDao attributeSourceDao;
+
+	@Inject
+	private ASUserAttrDao asUserAttrDao;
 
 	@Inject
 	private SamlAssertionDao samlAsserionDao;
@@ -257,8 +259,12 @@ public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 					changed |= attributeSourceUpdater.updateUserAttributes(user, asse.getAttributeSource(), executor);
 				}
 			} else {
-				List<AttributeSourceEntity> asList = attributeSourceDao
-						.findAll(equal(AttributeSourceEntity_.userSource, true));
+				// find all user sources to update
+				Set<AttributeSourceEntity> asList = new HashSet<>(attributeSourceDao
+						.findAll(equal(AttributeSourceEntity_.userSource, true)));
+				// and add all sources which are already connected to the user
+				asList.addAll(asUserAttrDao.findAll(equal(ASUserAttrEntity_.user, user)).stream()
+						.map(a -> a.getAttributeSource()).toList());
 				for (AttributeSourceEntity as : asList) {
 					changed |= attributeSourceUpdater.updateUserAttributes(user, as, executor);
 				}
