@@ -25,6 +25,9 @@ public class IdentityUpdater implements Serializable {
 
 	@Inject
 	private IdentityDao dao;
+	
+	@Inject
+	private IdentityAttributeHandler attributeHandler;
 
 	public void updateIdentity(UserEntity user) {
 		IdentityEntity identity = user.getIdentity();
@@ -46,5 +49,7 @@ public class IdentityUpdater implements Serializable {
 			}
 			user.getIdentity().setGeneratedLocalUsername(generatedName);
 		}
+		
+		attributeHandler.updateAttributes(identity, user);
 	}
 }

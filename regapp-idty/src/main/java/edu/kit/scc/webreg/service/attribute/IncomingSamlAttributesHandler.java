@@ -63,6 +63,6 @@ public class IncomingSamlAttributesHandler extends IncomingAttributesHandler<Inc
 
 	@Override
 	protected List<Function<ValueEntity, ValueEntity>> getProcessingFunctions(LocalUserAttributeSetEntity localAttributeSet) {
-		return Arrays.asList(new SamlMapLocalAttributeFunction(valueDao, localAttributeDao, localAttributeSet));
+		return Arrays.asList(new SamlMapLocalAttributeFunction(valueUpdater, valueDao, localAttributeDao, localAttributeSet));
 	}
 }

@@ -29,6 +29,7 @@ import edu.kit.scc.webreg.entity.attribute.value.ValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.ValueEntity_;
 import edu.kit.scc.webreg.service.attribute.proc.CopyIncomingValueFunction;
 import edu.kit.scc.webreg.service.attribute.proc.MapLocalAttributeOnUserFunction;
+import edu.kit.scc.webreg.service.attribute.proc.ValueUpdater;
 import jakarta.inject.Inject;
 
 public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntity> {
@@ -38,6 +39,9 @@ public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntit
 
 	@Inject
 	protected ValueDao valueDao;
+
+	@Inject
+	protected ValueUpdater valueUpdater;
 
 	@Inject
 	protected IncomingAttributeSetDao incomingAttributeSetDao;
@@ -65,8 +69,8 @@ public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntit
 			localAttributeSet = localAttributeSetDao.persist(localAttributeSet);
 		}
 		List<ValueEntity> valueList = valueDao.findAll(equal(ValueEntity_.attributeSet, incoming));
-		CopyIncomingValueFunction cvf = new CopyIncomingValueFunction(valueDao, localAttributeDao, localAttributeSet);
-		MapLocalAttributeOnUserFunction mlaf = new MapLocalAttributeOnUserFunction(valueDao, localAttributeDao,
+		CopyIncomingValueFunction cvf = new CopyIncomingValueFunction(valueUpdater, valueDao, localAttributeDao, localAttributeSet);
+		MapLocalAttributeOnUserFunction mlaf = new MapLocalAttributeOnUserFunction(valueUpdater, valueDao, localAttributeDao,
 				localAttributeSet);
 
 		Function<ValueEntity, ValueEntity> f = getProcessingFunctions(localAttributeSet).stream()

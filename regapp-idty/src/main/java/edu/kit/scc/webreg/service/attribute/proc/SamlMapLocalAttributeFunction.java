@@ -7,8 +7,6 @@ import edu.kit.scc.webreg.dao.jpa.attribute.LocalAttributeDao;
 import edu.kit.scc.webreg.dao.jpa.attribute.ValueDao;
 import edu.kit.scc.webreg.entity.attribute.AttributeSetEntity;
 import edu.kit.scc.webreg.entity.attribute.LocalAttributeEntity;
-import edu.kit.scc.webreg.entity.attribute.ValueType;
-import edu.kit.scc.webreg.entity.attribute.value.StringValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.ValueEntity;
 
 public class SamlMapLocalAttributeFunction extends AbstractSingularAttributePipe
@@ -16,9 +14,9 @@ public class SamlMapLocalAttributeFunction extends AbstractSingularAttributePipe
 
 	private Map<String, String> nameMap;
 
-	public SamlMapLocalAttributeFunction(ValueDao valueDao, LocalAttributeDao attributeDao,
+	public SamlMapLocalAttributeFunction(ValueUpdater valueUpdater, ValueDao valueDao, LocalAttributeDao attributeDao,
 			AttributeSetEntity attributeSet) {
-		super(valueDao, attributeDao, attributeSet);
+		super(valueUpdater, valueDao, attributeDao, attributeSet);
 		nameMap = new HashMap<>();
 		nameMap.put("urn:oid:2.5.4.4", "family_name");
 		nameMap.put("urn:oid:2.5.4.42", "given_name");
@@ -30,7 +28,7 @@ public class SamlMapLocalAttributeFunction extends AbstractSingularAttributePipe
 		nameMap.put("urn:oid:1.3.6.1.4.1.57378.1.2", "bwcard_id");
 		nameMap.put("urn:oid:1.3.6.1.4.1.57378.1.1", "bwcard_number");
 		nameMap.put("urn:oid:1.3.6.1.4.1.57378.1.4", "bwcard_validuntil");
-		nameMap.put("urn:oid:0.9.2342.19200300.100.1.3", "mail");
+		nameMap.put("urn:oid:0.9.2342.19200300.100.1.3", "email");
 		nameMap.put("urn:oid:0.9.2342.19200300.100.1.1", "uid");
 		nameMap.put("urn:oid:1.3.6.1.4.1.25178.1.2.9", "schac_home_org");
 		nameMap.put("urn:oid:1.3.6.1.4.1.5923.1.1.1.6", "eduperson_principal_name");
@@ -46,14 +44,15 @@ public class SamlMapLocalAttributeFunction extends AbstractSingularAttributePipe
 		}
 
 		final String outName = nameMap.get(in.getAttribute().getName());
+
+		logger.debug("Map value of local attribute {} to {}", in.getAttribute().getName(), outName);
+
 		final LocalAttributeEntity attributeEntity = findLocalAttributeEntity(in, outName);
 
-		ValueEntity out = in.getNextValues().stream()
-				.filter(ve -> ve.getAttribute().getName().equals(outName)).findFirst()
-				.orElseGet(() -> createNewValueEntity(attributeEntity, in));
+		ValueEntity out = in.getNextValues().stream().filter(ve -> ve.getAttribute().getName().equals(outName))
+				.findFirst().orElseGet(() -> createNewValueEntity(attributeEntity, in));
 
-		if (in.getAttribute().getValueType().equals(ValueType.STRING))
-			((StringValueEntity) out).setValueString(((StringValueEntity) in).getValueString());
+		valueUpdater.copyValue(in, out);
 
 		in.setEndValue(false);
 		return out;

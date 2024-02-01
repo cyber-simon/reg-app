@@ -40,9 +40,8 @@ public class ValueEntity extends AbstractBaseEntity {
 	@JoinTable(name = "value_to_value", joinColumns = @JoinColumn(name = "next_value_id"), inverseJoinColumns = @JoinColumn(name = "prev_value_id"))
 	private Set<ValueEntity> nextValues = new HashSet<>();
 
-	@ManyToMany
-	@JoinTable(name = "value_to_value", joinColumns = @JoinColumn(name = "prev_value_id"), inverseJoinColumns = @JoinColumn(name = "next_value_id"))
-	private Set<ValueEntity> prevValues = new HashSet<>();;
+	@ManyToMany(mappedBy = "nextValues")
+	private Set<ValueEntity> prevValues = new HashSet<>();
 
 	public AttributeEntity getAttribute() {
 		return attribute;

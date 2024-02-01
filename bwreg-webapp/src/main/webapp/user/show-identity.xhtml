@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="jakarta.faces.core"
+	xmlns:h="jakarta.faces.html"
+	xmlns:ui="jakarta.faces.facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+
+<f:view>
+<f:metadata>
+	<f:event type="jakarta.faces.event.PreRenderViewEvent"
+           listener="#{showIdentityBean.preRenderView}" />
+</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form" prependId="false" class="full form">
+
+		<p:panel id="idtyPanel">
+			Identity: <h:outputText value="#{showIdentityBean.identity.id}" />
+
+			<p:dataTable value="#{showIdentityBean.getValuesForAttributeSet(showIdentityBean.attributeSetList.get(0))}" var="value">
+				<p:column headerText="ID" width="10%">
+					<h:outputText value="#{value.id}"/>
+				</p:column>
+				<p:column headerText="Name" width="35%">
+					<h:outputText value="#{value.attribute.name}"/>
+				</p:column>
+				<p:column headerText="Wert">
+					<h:outputText value="#{value.valueString}" rendered="#{value.class.simpleName == 'StringValueEntity'}" />
+					<p:outputPanel rendered="#{value.class.simpleName == 'StringListValueEntity'}">
+						<ul><ui:repeat value="#{value.valueList}" var="item">
+							<li><h:outputText value="#{item}"/></li>
+						</ui:repeat></ul>
+					</p:outputPanel>
+				</p:column>
+			</p:dataTable>
+
+			<ui:repeat value="#{showIdentityBean.userList}" var="u">
+				User: <h:outputText value="#{u.id}" />
+				<ui:repeat value="#{showIdentityBean.getUserAttributeSetList(u)}" var="as">
+					<p:panel>
+						AttributeSet: <h:outputText value="#{as.id} (#{as.class.simpleName})" />
+						<p:dataTable value="#{showIdentityBean.getValuesForAttributeSet(as)}" var="value"
+							rendered="#{showIdentityBean.getUserAttributeSetList(u).size() > 0}">
+							<p:column headerText="ID" width="10%">
+								<h:outputText value="#{value.id}"/>
+							</p:column>
+							<p:column headerText="Name" width="35%">
+								<h:outputText value="#{value.attribute.name}"/>
+							</p:column>
+							<p:column headerText="Wert">
+								<h:outputText value="#{value.valueString}" rendered="#{value.class.simpleName == 'StringValueEntity'}" />
+								<p:outputPanel rendered="#{value.class.simpleName == 'StringListValueEntity'}">
+									<ul><ui:repeat value="#{value.valueList}" var="item">
+										<li><h:outputText value="#{item}"/></li>
+									</ui:repeat></ul>
+								</p:outputPanel>
+							</p:column>
+						</p:dataTable>
+					</p:panel>
+				</ui:repeat>
+			</ui:repeat>
+		
+		</p:panel>
+	
+	</h:form>
+	</ui:define>
+</ui:composition>
+</f:view>
+</body>
+</html>

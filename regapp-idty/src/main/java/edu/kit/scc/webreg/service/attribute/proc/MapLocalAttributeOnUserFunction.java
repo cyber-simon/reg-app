@@ -10,9 +10,9 @@ import edu.kit.scc.webreg.entity.attribute.value.ValueEntity;
 public class MapLocalAttributeOnUserFunction extends AbstractSingularAttributePipe
 		implements SingularAttributePipe<ValueEntity, ValueEntity> {
 
-	public MapLocalAttributeOnUserFunction(ValueDao valueDao, LocalAttributeDao attributeDao,
+	public MapLocalAttributeOnUserFunction(ValueUpdater valueUpdater, ValueDao valueDao, LocalAttributeDao attributeDao,
 			UserAttributeSetEntity attributeSet) {
-		super(valueDao, attributeDao, attributeSet);
+		super(valueUpdater, valueDao, attributeDao, attributeSet);
 	}
 
 	@Override

@@ -1,7 +1,6 @@
 package edu.kit.scc.webreg.service.attribute;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -21,7 +20,6 @@ import edu.kit.scc.webreg.entity.attribute.IncomingOidcAttributeEntity;
 import edu.kit.scc.webreg.entity.attribute.LocalUserAttributeSetEntity;
 import edu.kit.scc.webreg.entity.attribute.ValueType;
 import edu.kit.scc.webreg.entity.attribute.value.ValueEntity;
-import edu.kit.scc.webreg.service.attribute.proc.SamlMapLocalAttributeFunction;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import net.minidev.json.JSONArray;
