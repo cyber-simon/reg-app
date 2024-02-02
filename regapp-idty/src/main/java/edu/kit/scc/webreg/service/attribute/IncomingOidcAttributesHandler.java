@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 
@@ -40,20 +41,24 @@ public class IncomingOidcAttributesHandler extends IncomingAttributesHandler<Inc
 	public IncomingAttributeSetEntity createOrUpdateAttributes(UserEntity user,
 			Map<String, List<Object>> attributeMap) {
 		IncomingAttributeSetEntity incomingAttributeSet = getIncomingAttributeSet(user);
+		Map<String, ValueEntity> actualValueMap = getValueList(incomingAttributeSet).stream()
+				.collect(Collectors.toMap(v -> v.getAttribute().getName(), v -> v));
 
 		IDTokenClaimsSet idToken = oidcTokenHelper.claimsFromMap(attributeMap);
 		if (idToken != null)
-			createOrUpdateOidcStringClaims(incomingAttributeSet, idToken, "claims");
+			createOrUpdateOidcStringClaims(incomingAttributeSet, idToken, "claims", actualValueMap);
 
 		UserInfo userInfo = oidcTokenHelper.userInfoFromMap(attributeMap);
 		if (userInfo != null)
-			createOrUpdateOidcStringClaims(incomingAttributeSet, userInfo, "userInfo");
+			createOrUpdateOidcStringClaims(incomingAttributeSet, userInfo, "userInfo", actualValueMap);
+
+		removeValues(actualValueMap);
 
 		return incomingAttributeSet;
 	}
 
 	public void createOrUpdateOidcStringClaims(IncomingAttributeSetEntity incomingAttributeSet, ClaimsSet claimSet,
-			String baseName) {
+			String baseName, Map<String, ValueEntity> actualValueMap) {
 		JSONObject jsonBase = claimSet.toJSONObject();
 		jsonBase.entrySet().forEach(entry -> {
 			if (entry.getKey() != null && entry.getValue() != null) {
@@ -73,6 +78,7 @@ public class IncomingOidcAttributesHandler extends IncomingAttributesHandler<Inc
 							entry.getValue().getClass().getCanonicalName());
 				}
 			}
+			actualValueMap.remove(entry.getKey());
 		});
 	}
 

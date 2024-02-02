@@ -17,6 +17,7 @@ import edu.kit.scc.webreg.dao.jpa.attribute.ValueDao;
 import edu.kit.scc.webreg.dao.ops.RqlExpressions;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.attribute.AttributeEntity_;
+import edu.kit.scc.webreg.entity.attribute.AttributeSetEntity;
 import edu.kit.scc.webreg.entity.attribute.IncomingAttributeEntity;
 import edu.kit.scc.webreg.entity.attribute.IncomingAttributeSetEntity;
 import edu.kit.scc.webreg.entity.attribute.IncomingAttributeSetEntity_;
@@ -177,6 +178,32 @@ public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntit
 		return listValue;
 	}
 
+	protected void removeValues(Map<String, ValueEntity> removeValueMap) {
+		logger.debug("Found {} values to remove", removeValueMap.size());
+		removeValueMap.entrySet().stream().forEach(entry -> {
+			logger.debug("Try to delete entry {}", entry.getKey());
+			ValueEntity value = entry.getValue();
+			List<ValueEntity> deleteList = new ArrayList<>();
+			deleteList.add(value);
+			if (value.getNextValues().size() > 0) {
+				while (value.getNextValues().iterator().hasNext()) {
+					value = value.getNextValues().iterator().next();
+					logger.debug("Unrolled value {}", value.getAttribute().getName());
+					deleteList.add(value);
+				}
+			}
+
+			deleteList.stream().forEach(v -> {
+				logger.debug("Delete value for attribute {}", v.getAttribute().getName());
+				valueDao.delete(v);
+			});
+		});
+	}
+	
+	protected List<ValueEntity> getValueList(AttributeSetEntity attributeSet) {
+		return valueDao.findAll(equal(ValueEntity_.attributeSet, attributeSet));
+	}
+	
 	protected IncomingAttributeSetEntity getIncomingAttributeSet(UserEntity user) {
 		IncomingAttributeSetEntity incomingAttributeSet = incomingAttributeSetDao
 				.find(equal(IncomingAttributeSetEntity_.user, user));

@@ -3,8 +3,10 @@ package edu.kit.scc.webreg.service.attributes;
 import edu.kit.scc.webreg.dao.jpa.attribute.LocalIdentityAttributeSetDao;
 import edu.kit.scc.webreg.entity.attribute.LocalIdentityAttributeSetEntity;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
+import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 
+@Stateless
 public class LocalIdentityAttributeSetService extends BaseServiceImpl<LocalIdentityAttributeSetEntity> {
 
 	private static final long serialVersionUID = 1L;

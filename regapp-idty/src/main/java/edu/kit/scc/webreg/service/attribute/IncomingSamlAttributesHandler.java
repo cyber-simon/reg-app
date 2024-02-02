@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 
@@ -27,14 +28,19 @@ public class IncomingSamlAttributesHandler extends IncomingAttributesHandler<Inc
 	@Inject
 	private IncomingSamlAttributeDao samlAttributeDao;
 
-	public IncomingAttributeSetEntity createOrUpdateAttributes(UserEntity user, Map<String, List<Object>> attributeMap) {
-		IncomingAttributeSetEntity incomingAttributeSet = getIncomingAttributeSet(user);
+	public IncomingAttributeSetEntity createOrUpdateAttributes(UserEntity user,
+			Map<String, List<Object>> attributeMap) {
+		final IncomingAttributeSetEntity incomingSet = getIncomingAttributeSet(user);
+		Map<String, ValueEntity> actualValueMap = getValueList(incomingSet).stream()
+				.collect(Collectors.toMap(v -> v.getAttribute().getName(), v -> v));
+		attributeMap.entrySet().stream().forEach(entry -> {
+			createOrUpdateSamlAttribute(incomingSet, entry.getKey(), entry.getValue());
+			actualValueMap.remove(entry.getKey());
+		});
 
-		final IncomingAttributeSetEntity incomingSet = incomingAttributeSet;
-		attributeMap.entrySet().stream()
-				.forEach(entry -> createOrUpdateSamlAttribute(incomingSet, entry.getKey(), entry.getValue()));
-		
-		return incomingAttributeSet;
+		removeValues(actualValueMap);
+
+		return incomingSet;
 	}
 
 	public void createOrUpdateSamlAttribute(IncomingAttributeSetEntity incomingAttributeSet, String name,
@@ -62,7 +68,9 @@ public class IncomingSamlAttributesHandler extends IncomingAttributesHandler<Inc
 	}
 
 	@Override
-	protected List<Function<ValueEntity, ValueEntity>> getProcessingFunctions(LocalUserAttributeSetEntity localAttributeSet) {
-		return Arrays.asList(new SamlMapLocalAttributeFunction(valueUpdater, valueDao, localAttributeDao, localAttributeSet));
+	protected List<Function<ValueEntity, ValueEntity>> getProcessingFunctions(
+			LocalUserAttributeSetEntity localAttributeSet) {
+		return Arrays.asList(
+				new SamlMapLocalAttributeFunction(valueUpdater, valueDao, localAttributeDao, localAttributeSet));
 	}
 }
