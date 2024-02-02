@@ -43,6 +43,11 @@ public class ValueUpdater {
 	@Inject
 	private LocalAttributeDao localAttributeDao;
 
+	public void writeString(StringListValueEntity targetValue, StringValueEntity value) {
+		logger.debug("Writing value for {} as string", targetValue.getAttribute().getName());
+		
+	}
+	
 	public void writeAsList(StringListValueEntity targetValue, List<ValueEntity> valueList) {
 		logger.debug("Writing values for {} as list", targetValue.getAttribute().getName());
 		Set<String> values = new HashSet<>();
@@ -56,7 +61,10 @@ public class ValueUpdater {
 			}
 			value.getNextValues().add(targetValue);
 		}
-		targetValue.setValueList(new ArrayList<>(values));
+		if (targetValue.getValueList() == null)
+			targetValue.setValueList(new ArrayList<>());
+		targetValue.getValueList().clear();
+		targetValue.getValueList().addAll(values);
 		targetValue.setEndValue(true);
 	}
 

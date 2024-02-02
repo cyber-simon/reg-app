@@ -30,6 +30,7 @@ import edu.kit.scc.webreg.entity.attribute.value.ValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.ValueEntity_;
 import edu.kit.scc.webreg.service.attribute.proc.CopyIncomingValueFunction;
 import edu.kit.scc.webreg.service.attribute.proc.MapLocalAttributeOnUserFunction;
+import edu.kit.scc.webreg.service.attribute.proc.PrioOnAttributeSetFunction;
 import edu.kit.scc.webreg.service.attribute.proc.ValueUpdater;
 import jakarta.inject.Inject;
 
@@ -69,9 +70,15 @@ public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntit
 			localAttributeSet.setUser(incoming.getUser());
 			localAttributeSet = localAttributeSetDao.persist(localAttributeSet);
 		}
+		
+		// Alway reset prio on set and recalculate
+		localAttributeSet.setPrio(null);
+		
 		List<ValueEntity> valueList = valueDao.findAll(equal(ValueEntity_.attributeSet, incoming));
 		CopyIncomingValueFunction cvf = new CopyIncomingValueFunction(valueUpdater, valueDao, localAttributeDao, localAttributeSet);
 		MapLocalAttributeOnUserFunction mlaf = new MapLocalAttributeOnUserFunction(valueUpdater, valueDao, localAttributeDao,
+				localAttributeSet);
+		PrioOnAttributeSetFunction poasf = new PrioOnAttributeSetFunction(valueUpdater, valueDao, localAttributeDao,
 				localAttributeSet);
 
 		Function<ValueEntity, ValueEntity> f = getProcessingFunctions(localAttributeSet).stream()
@@ -79,7 +86,7 @@ public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntit
 		valueList.stream().map(cvf).map(f).map(v -> {
 			v.setEndValue(true);
 			return v;
-		}).map(mlaf).toList();
+		}).map(mlaf).map(poasf).toList();
 
 		return localAttributeSet;
 	}
@@ -194,7 +201,8 @@ public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntit
 			}
 
 			deleteList.stream().forEach(v -> {
-				logger.debug("Delete value for attribute {}", v.getAttribute().getName());
+				logger.debug("Delete value {} for attribute {} from attributeset {} ({})", v.getId(), v.getAttribute().getName(),
+						v.getAttributeSet().getId(), v.getAttributeSet().getClass().getSimpleName());
 				valueDao.delete(v);
 			});
 		});

@@ -42,6 +42,12 @@
 							<li><h:outputText value="#{item}"/></li>
 						</ui:repeat></ul>
 					</p:outputPanel>
+					<br/>Derived from:
+					<ul>
+					<ui:repeat value="#{showIdentityBean.getPrevValues(value).prevValues}" var="prev">
+						<li><h:outputText value="#{prev.id} (#{prev.attributeSet.user.id})" /></li>
+					</ui:repeat>
+					</ul>
 				</p:column>
 			</p:dataTable>
 

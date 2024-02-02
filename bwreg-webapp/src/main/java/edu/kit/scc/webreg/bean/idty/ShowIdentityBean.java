@@ -76,6 +76,10 @@ public class ShowIdentityBean implements Serializable {
 				StringListValueEntity_.valueList);
 	}
 
+	public ValueEntity getPrevValues(ValueEntity value) {
+		return valueService.findByIdWithAttrs(value.getId(), ValueEntity_.prevValues);
+	}
+	
 	public List<LocalIdentityAttributeSetEntity> getAttributeSetList() {
 		return localIdentityAttributeSetService.findAllEagerly(unlimited(),
 				Arrays.asList(ascendingBy(LocalIdentityAttributeSetEntity_.id)),

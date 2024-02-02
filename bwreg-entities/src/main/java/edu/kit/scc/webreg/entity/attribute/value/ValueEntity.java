@@ -7,7 +7,6 @@ import edu.kit.scc.webreg.entity.AbstractBaseEntity;
 import edu.kit.scc.webreg.entity.attribute.AttributeEntity;
 import edu.kit.scc.webreg.entity.attribute.AttributeReleaseEntity;
 import edu.kit.scc.webreg.entity.attribute.AttributeSetEntity;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
@@ -38,7 +37,7 @@ public class ValueEntity extends AbstractBaseEntity {
 	private Boolean endValue;
 	
 	@ManyToMany
-	@JoinTable(name = "value_to_value", joinColumns = @JoinColumn(name = "next_value_id"), inverseJoinColumns = @JoinColumn(name = "prev_value_id"))
+	@JoinTable(name = "value_to_value", joinColumns = @JoinColumn(name = "value_id"), inverseJoinColumns = @JoinColumn(name = "next_value_id"))
 	private Set<ValueEntity> nextValues = new HashSet<>();
 
 	@ManyToMany(mappedBy = "nextValues")

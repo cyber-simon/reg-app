@@ -1,23 +1,31 @@
 package edu.kit.scc.webreg.service.attribute.proc;
 
+import java.util.Arrays;
+import java.util.List;
+
 import edu.kit.scc.webreg.entity.attribute.IdentityAttributeSetEntity;
 import edu.kit.scc.webreg.entity.attribute.LocalAttributeEntity;
 import edu.kit.scc.webreg.entity.attribute.ValueType;
 import edu.kit.scc.webreg.entity.attribute.value.StringListValueEntity;
-import edu.kit.scc.webreg.entity.attribute.value.ValueEntity;
 
-public class AffiliationValueProcessor extends AbstractListProcessor {
+public class StringListMergeValueProcessor extends AbstractListProcessor {
 	
-	public void inspectValue(ValueEntity value) {
-		if (value.getAttribute().getName().equals("eduperson_affiliation")) {
-			logger.debug("Stored value {} for processing", value.getAttribute().getName());
-			getValueList().add(value);
-		}
+	private String outputAttribute;
+	private String[] inspectValues;
+	
+	public StringListMergeValueProcessor(String outputAttribute, String... inspectValues) {
+		this.outputAttribute = outputAttribute;
+		this.inspectValues = inspectValues;
 	}
 	
 	public void apply(IdentityAttributeSetEntity attributeSet) {
-		LocalAttributeEntity attribute = getValueUpdater().resolveAttribute("voperson_external_affiliation", ValueType.STRING_LIST);
+		LocalAttributeEntity attribute = getValueUpdater().resolveAttribute(outputAttribute, ValueType.STRING_LIST);
 		StringListValueEntity targetValue = (StringListValueEntity) getValueUpdater().resolveValue(attribute, attributeSet, ValueType.STRING_LIST);
 		getValueUpdater().writeAsList(targetValue, getValueList());
 	}
+	
+	@Override
+	protected List<String> getInspectValueNames() {
+		return Arrays.asList(inspectValues);
+	}	
 }
