@@ -3,30 +3,19 @@ package edu.kit.scc.webreg.service.identity;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.and;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.slf4j.Logger;
 
-import edu.kit.scc.webreg.dao.jpa.attribute.LocalAttributeDao;
 import edu.kit.scc.webreg.dao.jpa.attribute.LocalIdentityAttributeSetDao;
 import edu.kit.scc.webreg.dao.jpa.attribute.LocalUserAttributeSetDao;
 import edu.kit.scc.webreg.dao.jpa.attribute.ValueDao;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.attribute.IdentityAttributeSetEntity;
-import edu.kit.scc.webreg.entity.attribute.LocalAttributeEntity;
-import edu.kit.scc.webreg.entity.attribute.LocalAttributeEntity_;
 import edu.kit.scc.webreg.entity.attribute.LocalIdentityAttributeSetEntity;
 import edu.kit.scc.webreg.entity.attribute.LocalIdentityAttributeSetEntity_;
 import edu.kit.scc.webreg.entity.attribute.LocalUserAttributeSetEntity;
 import edu.kit.scc.webreg.entity.attribute.LocalUserAttributeSetEntity_;
-import edu.kit.scc.webreg.entity.attribute.ValueType;
-import edu.kit.scc.webreg.entity.attribute.value.StringListValueEntity;
-import edu.kit.scc.webreg.entity.attribute.value.StringValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.ValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.ValueEntity_;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;

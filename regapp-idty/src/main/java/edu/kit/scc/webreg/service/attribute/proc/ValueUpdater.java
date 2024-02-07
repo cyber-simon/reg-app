@@ -3,6 +3,7 @@ package edu.kit.scc.webreg.service.attribute.proc;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.and;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
 
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -20,7 +21,6 @@ import edu.kit.scc.webreg.entity.attribute.IdentityAttributeSetEntity;
 import edu.kit.scc.webreg.entity.attribute.LocalAttributeEntity;
 import edu.kit.scc.webreg.entity.attribute.LocalAttributeEntity_;
 import edu.kit.scc.webreg.entity.attribute.UserAttributeSetEntity;
-import edu.kit.scc.webreg.entity.attribute.ValueType;
 import edu.kit.scc.webreg.entity.attribute.value.LongValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.StringListValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.StringValueEntity;
@@ -45,9 +45,9 @@ public class ValueUpdater {
 
 	public void writeString(StringListValueEntity targetValue, StringValueEntity value) {
 		logger.debug("Writing value for {} as string", targetValue.getAttribute().getName());
-		
+
 	}
-	
+
 	public void writeAsList(StringListValueEntity targetValue, List<ValueEntity> valueList) {
 		logger.debug("Writing values for {} as list", targetValue.getAttribute().getName());
 		Set<String> values = new HashSet<>();
@@ -123,25 +123,39 @@ public class ValueUpdater {
 	}
 
 	public ValueEntity resolveValue(LocalAttributeEntity attribute, IdentityAttributeSetEntity attributeSet,
-			ValueType valueType) {
+			Class<? extends ValueEntity> desiredClass) {
 		ValueEntity value = valueDao
 				.find(and(equal(ValueEntity_.attribute, attribute), equal(ValueEntity_.attributeSet, attributeSet)));
+
+		if (value != null && !(desiredClass.isInstance(value))) {
+			logger.info("Value type has change for attribute {}: {} -> {}", attribute.getName(),
+					value.getClass().getSimpleName(), desiredClass.getSimpleName());
+			for (ValueEntity v : value.getPrevValues()) {
+				v.getNextValues().remove(value);
+			}
+			valueDao.delete(value);
+			value = null;
+		}
+
 		if (value == null) {
-			value = valueDao.createNew(valueType);
-			value.setAttribute(attribute);
-			value.setAttributeSet(attributeSet);
-			value = valueDao.persist(value);
+			try {
+				value = desiredClass.getConstructor().newInstance();
+				value.setAttribute(attribute);
+				value.setAttributeSet(attributeSet);
+				value = valueDao.persist(value);
+			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | NoSuchMethodException
+					| InvocationTargetException e) {
+				logger.error("Cannot create instance of class {}: {}", desiredClass.getName(), e.getMessage());
+			}
 		}
 		return value;
 	}
 
-	public LocalAttributeEntity resolveAttribute(String name, ValueType valueType) {
-		LocalAttributeEntity attribute = localAttributeDao
-				.find(and(equal(LocalAttributeEntity_.name, name), equal(LocalAttributeEntity_.valueType, valueType)));
+	public LocalAttributeEntity resolveAttribute(String name) {
+		LocalAttributeEntity attribute = localAttributeDao.find(equal(LocalAttributeEntity_.name, name));
 		if (attribute == null) {
 			attribute = localAttributeDao.createNew();
 			attribute.setName(name);
-			attribute.setValueType(valueType);
 			attribute = localAttributeDao.persist(attribute);
 		}
 		return attribute;
@@ -149,13 +163,41 @@ public class ValueUpdater {
 
 	public void copyValue(ValueEntity in, ValueEntity out) {
 		// TODO implement all types
-		if (in.getAttribute().getValueType().equals(ValueType.STRING))
-			((StringValueEntity) out).setValueString(((StringValueEntity) in).getValueString());
-		else if (in.getAttribute().getValueType().equals(ValueType.STRING_LIST))
-			((StringListValueEntity) out)
-					.setValueList(new ArrayList<String>(((StringListValueEntity) in).getValueList()));
-		else if (in.getAttribute().getValueType().equals(ValueType.LONG))
+		if (in instanceof StringValueEntity)
+			copyStringValue((StringValueEntity) in, (StringValueEntity) out);
+		else if (in instanceof StringListValueEntity)
+			copyStringListValue((StringListValueEntity) in, (StringListValueEntity) out);
+		else if (in instanceof LongValueEntity)
 			((LongValueEntity) out).setValueLong(((LongValueEntity) in).getValueLong());
 
+	}
+
+	private void copyStringValue(StringValueEntity in, StringValueEntity out) {
+		if (in.getValueString() == null)
+			throw new IllegalArgumentException("String value can not be null");
+		else if (in.getValueString() != null && (!in.getValueString().equals(out.getValueString()))) {
+			logger.debug("Value {} and {} change from {} -> {}", in.getId(), out.getId(), out.getValueString(),
+					in.getValueString());
+			out.setValueString(in.getValueString());
+		} else {
+			logger.debug("Value {} and {} are unchanged", in.getId(), out.getId());
+		}
+	}
+
+	private void copyStringListValue(StringListValueEntity in, StringListValueEntity out) {
+		if (out.getValueList() == null) {
+			out.setValueList(new ArrayList<>());
+		}
+		List<String> valuesToRemove = new ArrayList<>(out.getValueList());
+		valuesToRemove.removeAll(in.getValueList());
+
+		List<String> valuesToAdd = new ArrayList<>(in.getValueList());
+		valuesToAdd.removeAll(out.getValueList());
+
+		logger.debug("Value {} and {} remove {} values", in.getId(), out.getId(), valuesToRemove.size());
+		logger.debug("Value {} and {} add {} values", in.getId(), out.getId(), valuesToAdd.size());
+
+		out.getValueList().removeAll(valuesToRemove);
+		out.getValueList().addAll(valuesToAdd);
 	}
 }

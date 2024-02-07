@@ -19,7 +19,6 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.attribute.IncomingAttributeSetEntity;
 import edu.kit.scc.webreg.entity.attribute.IncomingOidcAttributeEntity;
 import edu.kit.scc.webreg.entity.attribute.LocalUserAttributeSetEntity;
-import edu.kit.scc.webreg.entity.attribute.ValueType;
 import edu.kit.scc.webreg.entity.attribute.value.ValueEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -63,15 +62,15 @@ public class IncomingOidcAttributesHandler extends IncomingAttributesHandler<Inc
 		jsonBase.entrySet().forEach(entry -> {
 			if (entry.getKey() != null && entry.getValue() != null) {
 				if (entry.getValue() instanceof String) {
-					IncomingOidcAttributeEntity attribute = getAttribute(entry.getKey(), ValueType.STRING);
+					IncomingOidcAttributeEntity attribute = getAttribute(entry.getKey());
 					createOrUpdateStringValue(incomingAttributeSet, attribute, entry.getKey(),
 							(String) entry.getValue());
 				} else if (entry.getValue() instanceof JSONArray) {
-					IncomingOidcAttributeEntity attribute = getAttribute(entry.getKey(), ValueType.STRING_LIST);
+					IncomingOidcAttributeEntity attribute = getAttribute(entry.getKey());
 					createOrUpdateStringListValue(incomingAttributeSet, attribute, entry.getKey(),
 							JSONArrayUtils.toStringList((JSONArray) entry.getValue()));
 				} else if (entry.getValue() instanceof Long) {
-					IncomingOidcAttributeEntity attribute = getAttribute(entry.getKey(), ValueType.LONG);
+					IncomingOidcAttributeEntity attribute = getAttribute(entry.getKey());
 					createOrUpdateLongValue(incomingAttributeSet, attribute, entry.getKey(), (Long) entry.getValue());
 				} else {
 					logger.warn("No handler for incoming attribute {}: Type {} not implemented", entry.getKey(),

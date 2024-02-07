@@ -31,7 +31,6 @@ public abstract class AbstractMultiAttributePipe implements MultiAttributePipe<L
 		if (attributeEntity == null) {
 			attributeEntity = attributeDao.createNew();
 			attributeEntity.setName(name);
-			attributeEntity.setValueType(in.getAttribute().getValueType());
 			attributeEntity = attributeDao.persist(attributeEntity);
 		}
 		

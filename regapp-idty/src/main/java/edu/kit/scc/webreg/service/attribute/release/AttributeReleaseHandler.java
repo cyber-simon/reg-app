@@ -19,7 +19,6 @@ import edu.kit.scc.webreg.entity.attribute.AttributeReleaseEntity_;
 import edu.kit.scc.webreg.entity.attribute.OutgoingAttributeEntity;
 import edu.kit.scc.webreg.entity.attribute.OutgoingAttributeEntity_;
 import edu.kit.scc.webreg.entity.attribute.ReleaseStatusType;
-import edu.kit.scc.webreg.entity.attribute.ValueType;
 import edu.kit.scc.webreg.entity.attribute.value.PairwiseIdentifierValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.StringValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.ValueEntity;
@@ -51,16 +50,18 @@ public class AttributeReleaseHandler {
 			logger.debug("Check scope {}", scope);
 			if (scope.equals("openid")) {
 				final OutgoingAttributeEntity attribute = findOrCreateOutgroingAttribute("sub");
-				attribute.setValueType(ValueType.PAIRWISE_ID);
-				ValueEntity value = findOrCreateValue(attributeRelease, attribute);
+				ValueEntity value = findValue(attributeRelease, attribute);
+				if (value == null)
+					persistValueEntity(attributeRelease, attribute, new PairwiseIdentifierValueEntity());
 				((PairwiseIdentifierValueEntity) value).setValueIdentifier(UUID.randomUUID().toString());
 				((PairwiseIdentifierValueEntity) value).setValueScope("unknown.org");
 				((PairwiseIdentifierValueEntity) value).setAttributeConsumerEntity(flowState.getClientConfiguration());
 			}
 			else if (scope.equals("email")) {
 				final OutgoingAttributeEntity attribute = findOrCreateOutgroingAttribute("email");
-				attribute.setValueType(ValueType.STRING);
-				ValueEntity value = findOrCreateValue(attributeRelease, attribute);
+				ValueEntity value = findValue(attributeRelease, attribute);
+				if (value == null)
+					persistValueEntity(attributeRelease, attribute, new StringValueEntity());
 				((StringValueEntity) value).setValueString(identity.getPrefUser().getEmail());
 			} else if (scope.equals("profile")) {
 			}
@@ -90,23 +91,17 @@ public class AttributeReleaseHandler {
 		return attributeRelease;
 	}
 
-	private ValueEntity findOrCreateValue(AttributeReleaseEntity attributeRelease, AttributeEntity attribute) {
-		ValueEntity value = valueDao.find(
+	private ValueEntity findValue(AttributeReleaseEntity attributeRelease, AttributeEntity attribute) {
+		return valueDao.find(
 				and(equal(ValueEntity_.attribute, attribute), equal(ValueEntity_.attributeRelease, attributeRelease)));
-		if (value == null) {
-			if (ValueType.STRING.equals(attribute.getValueType()))
-				value = new StringValueEntity();
-			else if (ValueType.PAIRWISE_ID.equals(attribute.getValueType()))
-				value = new PairwiseIdentifierValueEntity();
-			else
-				value = valueDao.createNew();
-			value.setAttribute(attribute);
-			value.setAttributeRelease(attributeRelease);
-			value = valueDao.persist(value);
-		}
-		return value;
 	}
 
+	private ValueEntity persistValueEntity(AttributeReleaseEntity attributeRelease, AttributeEntity attribute, ValueEntity value) {
+		value.setAttribute(attribute);
+		value.setAttributeRelease(attributeRelease);
+		return valueDao.persist(value);
+	}
+	
 	private OutgoingAttributeEntity findOrCreateOutgroingAttribute(String name) {
 		OutgoingAttributeEntity attribute = outgoingAttributeDao.find(equal(OutgoingAttributeEntity_.name, name));
 		if (attribute == null) {

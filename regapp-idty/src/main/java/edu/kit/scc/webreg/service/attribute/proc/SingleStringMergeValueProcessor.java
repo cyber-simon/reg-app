@@ -10,7 +10,6 @@ import java.util.Map;
 
 import edu.kit.scc.webreg.entity.attribute.IdentityAttributeSetEntity;
 import edu.kit.scc.webreg.entity.attribute.LocalAttributeEntity;
-import edu.kit.scc.webreg.entity.attribute.ValueType;
 import edu.kit.scc.webreg.entity.attribute.value.StringValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.ValueEntity;
 
@@ -25,8 +24,8 @@ public class SingleStringMergeValueProcessor extends AbstractListProcessor {
 	}
 
 	public void apply(IdentityAttributeSetEntity attributeSet) {
-		LocalAttributeEntity attribute = getValueUpdater().resolveAttribute(outputAttribute, ValueType.STRING);
-		StringValueEntity targetValue = (StringValueEntity) getValueUpdater().resolveValue(attribute, attributeSet, ValueType.STRING);
+		LocalAttributeEntity attribute = getValueUpdater().resolveAttribute(outputAttribute);
+		StringValueEntity targetValue = (StringValueEntity) getValueUpdater().resolveValue(attribute, attributeSet, StringValueEntity.class);
 		
 		Map<String, Integer> prioMap = new HashMap<>();
 		Map<String, List<ValueEntity>> valueMap = new HashMap<>();

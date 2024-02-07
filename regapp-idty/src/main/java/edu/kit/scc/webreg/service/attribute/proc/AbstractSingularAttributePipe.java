@@ -2,6 +2,8 @@ package edu.kit.scc.webreg.service.attribute.proc;
 
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,20 +39,25 @@ public abstract class AbstractSingularAttributePipe implements SingularAttribute
 		if (attributeEntity == null) {
 			attributeEntity = attributeDao.createNew();
 			attributeEntity.setName(name);
-			attributeEntity.setValueType(in.getAttribute().getValueType());
 			attributeEntity = attributeDao.persist(attributeEntity);
 		}
 		
 		return attributeEntity;
 	}
 	
-	protected ValueEntity createNewValueEntity(final AttributeEntity attributeEntity, final ValueEntity in) {
-		ValueEntity v = valueDao.createNew(attributeEntity.getValueType());
-		v.setAttribute(attributeEntity);
-		v.setAttributeSet(attributeSet);
-		v = valueDao.persist(v);
-		in.getNextValues().add(v);
-		v.getPrevValues().add(in);
-		return v;
+	protected ValueEntity persistNewValueEntity(final AttributeEntity attributeEntity, final ValueEntity in) {
+		ValueEntity value;
+		try {
+			value = in.getClass().getConstructor().newInstance();
+			value.setAttribute(attributeEntity);
+			value.setAttributeSet(attributeSet);
+			value = valueDao.persist(value);
+			in.getNextValues().add(value);
+			value.getPrevValues().add(in);
+			return value;
+		} catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+			logger.error("Cannot create instance of type {}: {}", in.getClass().getName(), e.getMessage());
+			return null;
+		} 
 	}
 }

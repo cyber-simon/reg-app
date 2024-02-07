@@ -5,9 +5,6 @@ import java.util.List;
 import edu.kit.scc.webreg.dao.jpa.attribute.LocalAttributeDao;
 import edu.kit.scc.webreg.dao.jpa.attribute.ValueDao;
 import edu.kit.scc.webreg.entity.attribute.AttributeSetEntity;
-import edu.kit.scc.webreg.entity.attribute.LocalAttributeEntity;
-import edu.kit.scc.webreg.entity.attribute.ValueType;
-import edu.kit.scc.webreg.entity.attribute.value.StringValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.ValueEntity;
 
 public class MergeStringListValueFunction extends AbstractMultiAttributePipe

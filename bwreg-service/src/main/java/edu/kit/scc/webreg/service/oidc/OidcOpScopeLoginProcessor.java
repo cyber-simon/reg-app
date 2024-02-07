@@ -2,7 +2,6 @@ package edu.kit.scc.webreg.service.oidc;
 
 import java.util.Date;
 
-import org.apache.commons.collections.functors.StringValueTransformer;
 import org.slf4j.Logger;
 
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -11,7 +10,6 @@ import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
 import edu.kit.scc.webreg.entity.attribute.AttributeReleaseEntity;
 import edu.kit.scc.webreg.entity.attribute.ReleaseStatusType;
-import edu.kit.scc.webreg.entity.attribute.ValueType;
 import edu.kit.scc.webreg.entity.attribute.value.PairwiseIdentifierValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.StringValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.ValueEntity;
@@ -104,11 +102,11 @@ public class OidcOpScopeLoginProcessor extends AbstractOidcOpLoginProcessor {
 		JWTClaimsSet.Builder claimsBuilder = new JWTClaimsSet.Builder();
 		
 		for (ValueEntity value : attributeRelease.getValues()) {
-			if (value.getAttribute().getValueType().equals(ValueType.PAIRWISE_ID)) {
+			if (value instanceof PairwiseIdentifierValueEntity) {
 				claimsBuilder.subject(((PairwiseIdentifierValueEntity) value).getValueIdentifier() + "@"
 						+ ((PairwiseIdentifierValueEntity) value).getValueScope());
 			}
-			else if (value.getAttribute().getValueType().equals(ValueType.STRING)) {
+			else if (value instanceof StringValueEntity) {
 				claimsBuilder.claim(value.getAttribute().getName(), ((StringValueEntity) value).getValueString());
 			}
 		}

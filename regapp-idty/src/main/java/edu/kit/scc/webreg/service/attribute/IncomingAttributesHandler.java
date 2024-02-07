@@ -22,7 +22,6 @@ import edu.kit.scc.webreg.entity.attribute.IncomingAttributeEntity;
 import edu.kit.scc.webreg.entity.attribute.IncomingAttributeSetEntity;
 import edu.kit.scc.webreg.entity.attribute.IncomingAttributeSetEntity_;
 import edu.kit.scc.webreg.entity.attribute.LocalUserAttributeSetEntity;
-import edu.kit.scc.webreg.entity.attribute.ValueType;
 import edu.kit.scc.webreg.entity.attribute.value.LongValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.StringListValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.StringValueEntity;
@@ -75,7 +74,8 @@ public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntit
 		localAttributeSet.setPrio(null);
 		
 		List<ValueEntity> valueList = valueDao.findAll(equal(ValueEntity_.attributeSet, incoming));
-		CopyIncomingValueFunction cvf = new CopyIncomingValueFunction(valueUpdater, valueDao, localAttributeDao, localAttributeSet);
+		List<ValueEntity> actualLocalValueList = valueDao.findAll(equal(ValueEntity_.attributeSet, localAttributeSet));
+		CopyIncomingValueFunction cvf = new CopyIncomingValueFunction(valueUpdater, valueDao, localAttributeDao, localAttributeSet, actualLocalValueList);
 		MapLocalAttributeOnUserFunction mlaf = new MapLocalAttributeOnUserFunction(valueUpdater, valueDao, localAttributeDao,
 				localAttributeSet);
 		PrioOnAttributeSetFunction poasf = new PrioOnAttributeSetFunction(valueUpdater, valueDao, localAttributeDao,
@@ -88,16 +88,19 @@ public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntit
 			return v;
 		}).map(mlaf).map(poasf).toList();
 
+		// After incoming values are copied to local attribute set, inspect the values that too much
+		for (ValueEntity value : cvf.getDanglingValues()) {
+			logger.debug("Found {} to be an unconnected value, deleting", value.getAttribute().getName());
+		}
+		
 		return localAttributeSet;
 	}
 
-	protected T getAttribute(String name, ValueType valueType) {
+	protected T getAttribute(String name) {
 		T attribute = getDao().find(equal(AttributeEntity_.name, name));
 		if (attribute == null) {
 			attribute = getDao().createNew();
 			attribute.setName(name);
-			// Assume String. Has to be changed for other datatypes by admin
-			attribute.setValueType(valueType);
 			attribute = getDao().persist(attribute);
 		}
 		return attribute;
@@ -110,7 +113,7 @@ public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntit
 
 		if (value != null && !(value instanceof StringValueEntity)) {
 			logger.info(
-					"ValueEntity for {} is not of type STRING, but ValueType says it should be. Deleting old value.",
+					"ValueEntity for {} is not of type String, but ValueType says it should be. Deleting old value.",
 					name);
 			valueDao.delete(value);
 			value = null;
@@ -132,9 +135,9 @@ public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntit
 		ValueEntity value = valueDao.find(RqlExpressions.and(equal(ValueEntity_.attribute, attribute),
 				equal(ValueEntity_.attributeSet, incomingAttributeSet)));
 
-		if (value != null && !(value instanceof StringValueEntity)) {
+		if (value != null && !(value instanceof LongValueEntity)) {
 			logger.info(
-					"ValueEntity for {} is not of type STRING, but ValueType says it should be. Deleting old value.",
+					"ValueEntity for {} is not of type Long, but ValueType says it should be. Deleting old value.",
 					name);
 			valueDao.delete(value);
 			value = null;
@@ -158,7 +161,7 @@ public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntit
 
 		if (value != null && !(value instanceof StringListValueEntity)) {
 			logger.info(
-					"ValueEntity for {} is not of type STRING_LIST, but ValueType says it should be. Deleting old value.",
+					"ValueEntity for {} is not of type StringList, but ValueType says it should be. Deleting old value.",
 					name);
 			valueDao.delete(value);
 			value = null;

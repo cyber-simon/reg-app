@@ -50,7 +50,7 @@ public class SamlMapLocalAttributeFunction extends AbstractSingularAttributePipe
 		final LocalAttributeEntity attributeEntity = findLocalAttributeEntity(in, outName);
 
 		ValueEntity out = in.getNextValues().stream().filter(ve -> ve.getAttribute().getName().equals(outName))
-				.findFirst().orElseGet(() -> createNewValueEntity(attributeEntity, in));
+				.findFirst().orElseGet(() -> persistNewValueEntity(attributeEntity, in));
 
 		valueUpdater.copyValue(in, out);
 
