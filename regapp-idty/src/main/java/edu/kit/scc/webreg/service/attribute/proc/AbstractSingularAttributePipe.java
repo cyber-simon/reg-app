@@ -3,6 +3,7 @@ package edu.kit.scc.webreg.service.attribute.proc;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,8 @@ public abstract class AbstractSingularAttributePipe implements SingularAttribute
 	protected ValueDao valueDao;
 	protected LocalAttributeDao attributeDao;
 	protected AttributeSetEntity attributeSet;
-
+	protected List<ValueEntity> actualLocalValueList;
+	
 	public AbstractSingularAttributePipe(ValueUpdater valueUpdater, ValueDao valueDao, LocalAttributeDao attributeDao,
 			AttributeSetEntity attributeSet) {
 		super();

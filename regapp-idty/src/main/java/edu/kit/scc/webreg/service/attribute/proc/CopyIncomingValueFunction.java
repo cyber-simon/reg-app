@@ -1,9 +1,5 @@
 package edu.kit.scc.webreg.service.attribute.proc;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import edu.kit.scc.webreg.dao.jpa.attribute.LocalAttributeDao;
 import edu.kit.scc.webreg.dao.jpa.attribute.ValueDao;
 import edu.kit.scc.webreg.entity.attribute.AttributeSetEntity;
@@ -13,12 +9,9 @@ import edu.kit.scc.webreg.entity.attribute.value.ValueEntity;
 public class CopyIncomingValueFunction extends AbstractSingularAttributePipe
 		implements SingularAttributePipe<ValueEntity, ValueEntity> {
 
-	private Set<ValueEntity> danglingValues;
-	
 	public CopyIncomingValueFunction(ValueUpdater valueUpdater, ValueDao valueDao, LocalAttributeDao attributeDao,
-			AttributeSetEntity attributeSet, List<ValueEntity> valueList) {
+			AttributeSetEntity attributeSet) {
 		super(valueUpdater, valueDao, attributeDao, attributeSet);
-		danglingValues = new HashSet<>(valueList);
 	}
 
 	@Override
@@ -33,11 +26,7 @@ public class CopyIncomingValueFunction extends AbstractSingularAttributePipe
 		valueUpdater.copyValue(in, out);
 
 		in.setEndValue(false);
-		danglingValues.remove(out);
 		return out;
 	}
 
-	public Set<ValueEntity> getDanglingValues() {
-		return danglingValues;
-	}
 }

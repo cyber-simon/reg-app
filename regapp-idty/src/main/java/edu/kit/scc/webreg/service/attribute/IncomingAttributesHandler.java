@@ -75,22 +75,35 @@ public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntit
 		
 		List<ValueEntity> valueList = valueDao.findAll(equal(ValueEntity_.attributeSet, incoming));
 		List<ValueEntity> actualLocalValueList = valueDao.findAll(equal(ValueEntity_.attributeSet, localAttributeSet));
-		CopyIncomingValueFunction cvf = new CopyIncomingValueFunction(valueUpdater, valueDao, localAttributeDao, localAttributeSet, actualLocalValueList);
+		CopyIncomingValueFunction cvf = new CopyIncomingValueFunction(valueUpdater, valueDao, localAttributeDao, localAttributeSet);
 		MapLocalAttributeOnUserFunction mlaf = new MapLocalAttributeOnUserFunction(valueUpdater, valueDao, localAttributeDao,
 				localAttributeSet);
 		PrioOnAttributeSetFunction poasf = new PrioOnAttributeSetFunction(valueUpdater, valueDao, localAttributeDao,
 				localAttributeSet);
 
-		Function<ValueEntity, ValueEntity> f = getProcessingFunctions(localAttributeSet).stream()
-				.reduce(Function.identity(), Function::andThen);
-		valueList.stream().map(cvf).map(f).map(v -> {
+		for (ValueEntity value : valueList) {
+			ValueEntity v = cvf.apply(value);
+			actualLocalValueList.remove(v);
+			for (Function<ValueEntity, ValueEntity> f : getProcessingFunctions(localAttributeSet)) {
+				v = f.apply(v);
+				actualLocalValueList.remove(v);
+			}
 			v.setEndValue(true);
-			return v;
-		}).map(mlaf).map(poasf).toList();
+			v = mlaf.apply(v);
+			v = poasf.apply(v);
+		}
+		
+//		Function<ValueEntity, ValueEntity> f = getProcessingFunctions(localAttributeSet).stream()
+//				.reduce(Function.identity(), Function::andThen);
+//		valueList.stream().map(cvf).map(f).map(v -> {
+//			v.setEndValue(true);
+//			return v;
+//		}).map(mlaf).map(poasf).toList();
 
 		// After incoming values are copied to local attribute set, inspect the values that too much
-		for (ValueEntity value : cvf.getDanglingValues()) {
+		for (ValueEntity value : actualLocalValueList) {
 			logger.debug("Found {} to be an unconnected value, deleting", value.getAttribute().getName());
+			valueDao.delete(value);
 		}
 		
 		return localAttributeSet;

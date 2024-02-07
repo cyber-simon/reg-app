@@ -1,6 +1,7 @@
 package edu.kit.scc.webreg.service.attribute.proc;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import edu.kit.scc.webreg.dao.jpa.attribute.LocalAttributeDao;
