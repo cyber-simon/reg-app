@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity_;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserEntity_;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
@@ -103,7 +104,8 @@ public class IdpDebugIndexBean implements Serializable {
 			userList = new ArrayList<UserEntity>();
 			for (UserEntity user : userService.findByIdentity(getIdentity())) {
 				userList.add(
-						userService.findByIdWithAttrs(user.getId(), UserEntity_.attributeStore, UserEntity_.roles));
+						userService.findByIdWithAttrs(user.getId(), UserEntity_.attributeStore, UserEntity_.roles,
+								SamlUserEntity_.idp));
 			}
 		}
 		return userList;
