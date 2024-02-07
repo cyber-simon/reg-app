@@ -3,6 +3,7 @@ package edu.kit.scc.webreg.service.attribute.release;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.and;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -50,18 +51,14 @@ public class AttributeReleaseHandler {
 			logger.debug("Check scope {}", scope);
 			if (scope.equals("openid")) {
 				final OutgoingAttributeEntity attribute = findOrCreateOutgroingAttribute("sub");
-				ValueEntity value = findValue(attributeRelease, attribute);
-				if (value == null)
-					persistValueEntity(attributeRelease, attribute, new PairwiseIdentifierValueEntity());
+				ValueEntity value = resolveValue(attributeRelease, attribute, PairwiseIdentifierValueEntity.class);
 				((PairwiseIdentifierValueEntity) value).setValueIdentifier(UUID.randomUUID().toString());
 				((PairwiseIdentifierValueEntity) value).setValueScope("unknown.org");
 				((PairwiseIdentifierValueEntity) value).setAttributeConsumerEntity(flowState.getClientConfiguration());
 			}
 			else if (scope.equals("email")) {
 				final OutgoingAttributeEntity attribute = findOrCreateOutgroingAttribute("email");
-				ValueEntity value = findValue(attributeRelease, attribute);
-				if (value == null)
-					persistValueEntity(attributeRelease, attribute, new StringValueEntity());
+				ValueEntity value = resolveValue(attributeRelease, attribute, StringValueEntity.class);
 				((StringValueEntity) value).setValueString(identity.getPrefUser().getEmail());
 			} else if (scope.equals("profile")) {
 			}
@@ -91,17 +88,34 @@ public class AttributeReleaseHandler {
 		return attributeRelease;
 	}
 
-	private ValueEntity findValue(AttributeReleaseEntity attributeRelease, AttributeEntity attribute) {
-		return valueDao.find(
+	private ValueEntity resolveValue(AttributeReleaseEntity attributeRelease, AttributeEntity attribute, 
+			Class<? extends ValueEntity> desiredClass) {
+		ValueEntity value = valueDao.find(
 				and(equal(ValueEntity_.attribute, attribute), equal(ValueEntity_.attributeRelease, attributeRelease)));
+		if (value != null && !(desiredClass.isInstance(value))) {
+			logger.info("Value type has change for attribute {}: {} -> {}", attribute.getName(),
+					value.getClass().getSimpleName(), desiredClass.getSimpleName());
+			for (ValueEntity v : value.getPrevValues()) {
+				v.getNextValues().remove(value);
+			}
+			valueDao.delete(value);
+			value = null;
+		}
+
+		if (value == null) {
+			try {
+				value = desiredClass.getConstructor().newInstance();
+				value.setAttribute(attribute);
+				value.setAttributeRelease(attributeRelease);
+				value = valueDao.persist(value);
+			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | NoSuchMethodException
+					| InvocationTargetException e) {
+				logger.error("Cannot create instance of class {}: {}", desiredClass.getName(), e.getMessage());
+			}
+		}
+		return value;
 	}
 
-	private ValueEntity persistValueEntity(AttributeReleaseEntity attributeRelease, AttributeEntity attribute, ValueEntity value) {
-		value.setAttribute(attribute);
-		value.setAttributeRelease(attributeRelease);
-		return valueDao.persist(value);
-	}
-	
 	private OutgoingAttributeEntity findOrCreateOutgroingAttribute(String name) {
 		OutgoingAttributeEntity attribute = outgoingAttributeDao.find(equal(OutgoingAttributeEntity_.name, name));
 		if (attribute == null) {
