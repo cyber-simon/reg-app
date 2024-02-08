@@ -93,13 +93,6 @@ public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntit
 			v = poasf.apply(v);
 		}
 		
-//		Function<ValueEntity, ValueEntity> f = getProcessingFunctions(localAttributeSet).stream()
-//				.reduce(Function.identity(), Function::andThen);
-//		valueList.stream().map(cvf).map(f).map(v -> {
-//			v.setEndValue(true);
-//			return v;
-//		}).map(mlaf).map(poasf).toList();
-
 		// After incoming values are copied to local attribute set, inspect the values that too much
 		for (ValueEntity value : actualLocalValueList) {
 			logger.debug("Found {} to be an unconnected value, deleting", value.getAttribute().getName());
@@ -212,7 +205,11 @@ public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntit
 				while (value.getNextValues().iterator().hasNext()) {
 					value = value.getNextValues().iterator().next();
 					logger.debug("Unrolled value {}", value.getAttribute().getName());
-					deleteList.add(value);
+					if (value.getPrevValues().size() == 1) {
+						// only delete values with single previous value
+						// if there are multiple values, the next value can't be removed
+						deleteList.add(value);
+					}
 				}
 			}
 

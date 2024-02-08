@@ -1,4 +1,4 @@
-package edu.kit.scc.webreg.service.impl;
+package edu.kit.scc.webreg.service.user;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;

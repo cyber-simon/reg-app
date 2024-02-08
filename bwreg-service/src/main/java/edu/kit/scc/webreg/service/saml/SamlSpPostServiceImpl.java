@@ -29,8 +29,8 @@ import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
 import edu.kit.scc.webreg.entity.UserLoginInfoStatus;
 import edu.kit.scc.webreg.entity.UserLoginMethod;
 import edu.kit.scc.webreg.exc.UserUpdateException;
-import edu.kit.scc.webreg.service.impl.UserUpdater;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
+import edu.kit.scc.webreg.service.user.UserUpdater;
 import edu.kit.scc.webreg.session.SessionManager;
 
 @Stateless

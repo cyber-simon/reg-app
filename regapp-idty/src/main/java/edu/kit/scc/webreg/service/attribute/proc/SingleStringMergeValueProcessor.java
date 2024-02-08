@@ -10,6 +10,7 @@ import java.util.Map;
 
 import edu.kit.scc.webreg.entity.attribute.IdentityAttributeSetEntity;
 import edu.kit.scc.webreg.entity.attribute.LocalAttributeEntity;
+import edu.kit.scc.webreg.entity.attribute.value.NullValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.StringValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.ValueEntity;
 
@@ -25,7 +26,6 @@ public class SingleStringMergeValueProcessor extends AbstractListProcessor {
 
 	public void apply(IdentityAttributeSetEntity attributeSet) {
 		LocalAttributeEntity attribute = getValueUpdater().resolveAttribute(outputAttribute);
-		StringValueEntity targetValue = (StringValueEntity) getValueUpdater().resolveValue(attribute, attributeSet, StringValueEntity.class);
 		
 		Map<String, Integer> prioMap = new HashMap<>();
 		Map<String, List<ValueEntity>> valueMap = new HashMap<>();
@@ -44,11 +44,18 @@ public class SingleStringMergeValueProcessor extends AbstractListProcessor {
 			}
 		}
 		
-		String name = Collections.max(prioMap.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
-		logger.debug("Winner for attribute {} is value {} (prio {})", attribute.getName(), name, prioMap.get(name));
-		targetValue.setValueString(name);
-		valueMap.get(name).stream().forEach(v -> v.getNextValues().add(targetValue));
-		targetValue.setEndValue(true);
+		if (valueMap.isEmpty()) {
+			NullValueEntity targetValue = (NullValueEntity) getValueUpdater().resolveValue(attribute, attributeSet, NullValueEntity.class);
+			targetValue.setEndValue(true);
+		}
+		else {
+			String name = Collections.max(prioMap.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
+			logger.debug("Winner for attribute {} is value {} (prio {})", attribute.getName(), name, prioMap.get(name));
+			StringValueEntity targetValue = (StringValueEntity) getValueUpdater().resolveValue(attribute, attributeSet, StringValueEntity.class);
+			targetValue.setValueString(name);
+			valueMap.get(name).stream().forEach(v -> v.getNextValues().add(targetValue));
+			targetValue.setEndValue(true);
+		}
 	}
 
 	private void putInValueMap(Map<String, List<ValueEntity>> valueMap, String key, ValueEntity value) {

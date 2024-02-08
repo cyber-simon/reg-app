@@ -79,10 +79,10 @@ import edu.kit.scc.webreg.hook.UserServiceHook;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.attribute.IncomingOidcAttributesHandler;
 import edu.kit.scc.webreg.service.identity.IdentityUpdater;
-import edu.kit.scc.webreg.service.impl.AbstractUserUpdater;
 import edu.kit.scc.webreg.service.impl.AttributeMapHelper;
 import edu.kit.scc.webreg.service.reg.AttributeSourceQueryService;
 import edu.kit.scc.webreg.service.reg.impl.Registrator;
+import edu.kit.scc.webreg.service.user.AbstractUserUpdater;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 

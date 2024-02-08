@@ -1,4 +1,4 @@
-package edu.kit.scc.webreg.service.impl;
+package edu.kit.scc.webreg.service.user;
 
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
 
@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +71,7 @@ import edu.kit.scc.webreg.logging.LogHelper;
 import edu.kit.scc.webreg.service.attribute.IncomingSamlAttributesHandler;
 import edu.kit.scc.webreg.service.group.HomeOrgGroupUpdater;
 import edu.kit.scc.webreg.service.identity.IdentityUpdater;
+import edu.kit.scc.webreg.service.impl.AttributeMapHelper;
 import edu.kit.scc.webreg.service.reg.impl.Registrator;
 import edu.kit.scc.webreg.service.saml.AttributeQueryHelper;
 import edu.kit.scc.webreg.service.saml.Saml2AssertionService;
@@ -199,8 +201,14 @@ public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 
 			user.getAttributeStore().clear();
 
+			// user empty attribute map in order to remove all existing values
+			IncomingAttributeSetEntity incomingAttributeSet = incomingAttributeHandler.createOrUpdateAttributes(user, new HashMap<>());
+			incomingAttributeHandler.processIncomingAttributeSet(incomingAttributeSet);
+
 			if (UserStatus.ACTIVE.equals(user.getUserStatus())) {
 				changeUserStatus(user, UserStatus.ON_HOLD, auditor);
+
+				identityUpdater.updateIdentity(user);
 
 				/*
 				 * Also flag all registries for user ON_HOLD

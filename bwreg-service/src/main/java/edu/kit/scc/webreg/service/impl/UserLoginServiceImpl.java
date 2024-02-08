@@ -92,6 +92,7 @@ import edu.kit.scc.webreg.service.saml.exc.NoIdpFoundException;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.service.twofa.TwoFaException;
 import edu.kit.scc.webreg.service.twofa.TwoFaService;
+import edu.kit.scc.webreg.service.user.UserUpdater;
 import edu.kit.scc.webreg.session.HttpRequestContext;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;

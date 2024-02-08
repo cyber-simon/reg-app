@@ -41,6 +41,7 @@ import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.service.user.UserUpdater;
 import edu.kit.scc.webreg.session.HttpRequestContext;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
