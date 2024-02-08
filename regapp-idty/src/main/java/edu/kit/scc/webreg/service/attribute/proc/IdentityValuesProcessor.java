@@ -25,6 +25,7 @@ public class IdentityValuesProcessor {
 
 	private List<ValueProcessor> loadProcessors() {
 		return Arrays.asList(new StringListMergeValueProcessor("email_all", "email"),
+				new SingleStringMergeValueProcessor("email", "email"),
 				new StringListMergeValueProcessor("voperson_external_affiliation", "eduperson_affiliation"),
 				new StringListMergeValueProcessor("eduperson_assurance", "eduperson_assurance"),
 				new StringListMergeAuthorityValueProcessor("eduperson_entitlement", "eduperson_entitlement"),

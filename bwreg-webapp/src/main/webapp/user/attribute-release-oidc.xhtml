@@ -38,16 +38,14 @@
 		</p:outputPanel>
 
 		<p:outputPanel>
-			<h:outputText value="#{oidcAttributeReleaseBean.attributeRelease}" />
-		</p:outputPanel>		
+			<h:outputText value="#{messages['attribute_release.actual_release_status']}: " />
+			<h:outputText value="#{messages['attribute_release.status_new']}" rendered="#{oidcAttributeReleaseBean.attributeRelease.releaseStatus == 'NEW'}" />
+			<h:outputText value="#{messages['attribute_release.status_dirty']}" rendered="#{oidcAttributeReleaseBean.attributeRelease.releaseStatus == 'DIRTY'}" />
+			<h:outputText value="#{messages['attribute_release.status_rejected']}" rendered="#{oidcAttributeReleaseBean.attributeRelease.releaseStatus == 'REJECTED'}" />
+		</p:outputPanel>
+				
 		<p:dataTable var="value" value="#{oidcAttributeReleaseBean.attributeRelease.values}">
-			<p:column>
-				<f:facet name="header">
-					<h:outputText value="#{messages.id}" />
-				</f:facet>
-				<h:outputText value="#{value.id}" />
-			</p:column>
-			<p:column>
+			<p:column width="30%">
 				<f:facet name="header">
 					<h:outputText value="#{messages.name}" />
 				</f:facet>
@@ -58,13 +56,14 @@
 					<h:outputText value="#{messages.value}" />
 				</f:facet>
 				<h:outputText value="#{value.valueString} " rendered="#{value.class.simpleName == 'StringValueEntity'}" />
+				<h:outputText value="#{value.valueIdentifier}@#{value.valueScope} " rendered="#{value.class.simpleName == 'PairwiseIdentifierValueEntity'}" />
 				<h:outputText value="(#{value.class.simpleName})" />
 			</p:column>
 		
 		</p:dataTable>
 		
 		<p:outputPanel>
-			<p:commandButton action="#{oidcAttributeReleaseBean.deny()}" value="#{messages.deny}" />
+			<p:commandButton action="#{oidcAttributeReleaseBean.reject()}" value="#{messages.deny}" />
 			<p:commandButton action="#{oidcAttributeReleaseBean.accept()}" value="#{messages.accept}" />
 		</p:outputPanel>
 	</h:form>

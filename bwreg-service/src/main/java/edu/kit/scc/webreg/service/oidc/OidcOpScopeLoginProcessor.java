@@ -46,6 +46,11 @@ public class OidcOpScopeLoginProcessor extends AbstractOidcOpLoginProcessor {
 
 		AttributeReleaseEntity attributeRelease = attributeReleaseHandler.requestAttributeRelease(clientConfig,
 				identity);
+		Boolean changed = attributeReleaseHandler.calculateOidcValues(attributeRelease, flowState);
+		if (changed && ReleaseStatusType.GOOD.equals(attributeRelease.getReleaseStatus())) {
+			attributeRelease.setReleaseStatus(ReleaseStatusType.DIRTY);
+		}
+		
 		if (ReleaseStatusType.NEW.equals(attributeRelease.getReleaseStatus())) {
 			logger.debug("Attribute Release is new, sending user to constent page");
 			return "/user/attribute-release-oidc.xhtml?id=" + attributeRelease.getId();

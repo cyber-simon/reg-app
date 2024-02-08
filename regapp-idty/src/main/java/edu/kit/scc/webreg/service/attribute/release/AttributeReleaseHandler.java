@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 
+import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.jpa.attribute.AttributeReleaseDao;
 import edu.kit.scc.webreg.dao.jpa.attribute.OutgoingAttributeDao;
 import edu.kit.scc.webreg.dao.jpa.attribute.ValueDao;
@@ -26,6 +27,8 @@ import edu.kit.scc.webreg.entity.attribute.value.ValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.ValueEntity_;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcFlowStateEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
+import edu.kit.scc.webreg.service.identity.IdentityAttributeResolver;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -44,24 +47,57 @@ public class AttributeReleaseHandler {
 	@Inject
 	private ValueDao valueDao;
 
-	public void calculateOidcValues(AttributeReleaseEntity attributeRelease, OidcFlowStateEntity flowState) {
-		IdentityEntity identity = attributeRelease.getIdentity();
+	@Inject
+	private IdentityAttributeResolver attributeResolver;
+
+	@Inject
+	private ApplicationConfig appConfig;
+
+	public Boolean calculateOidcValues(AttributeReleaseEntity attributeRelease, OidcFlowStateEntity flowState) {
+		Boolean changed = false;
+
+		final IdentityEntity identity = attributeRelease.getIdentity();
+		final OidcOpConfigurationEntity opConfig = flowState.getOpConfiguration();
 		List<String> scopeList = Arrays.asList(flowState.getScope().split(" "));
 		for (String scope : scopeList) {
 			logger.debug("Check scope {}", scope);
 			if (scope.equals("openid")) {
 				final OutgoingAttributeEntity attribute = findOrCreateOutgroingAttribute("sub");
 				ValueEntity value = resolveValue(attributeRelease, attribute, PairwiseIdentifierValueEntity.class);
-				((PairwiseIdentifierValueEntity) value).setValueIdentifier(UUID.randomUUID().toString());
-				((PairwiseIdentifierValueEntity) value).setValueScope("unknown.org");
+				if (((PairwiseIdentifierValueEntity) value).getValueIdentifier() == null) {
+					((PairwiseIdentifierValueEntity) value).setValueIdentifier(UUID.randomUUID().toString());
+					changed = true;
+				}
+				if (opConfig.getScope() != null)
+					((PairwiseIdentifierValueEntity) value).setValueScope(opConfig.getScope());
+				else
+					((PairwiseIdentifierValueEntity) value)
+							.setValueScope(appConfig.getConfigValueOrDefault("default_scope", "no_scope_defined"));
 				((PairwiseIdentifierValueEntity) value).setAttributeConsumerEntity(flowState.getClientConfiguration());
-			}
-			else if (scope.equals("email")) {
-				final OutgoingAttributeEntity attribute = findOrCreateOutgroingAttribute("email");
-				ValueEntity value = resolveValue(attributeRelease, attribute, StringValueEntity.class);
-				((StringValueEntity) value).setValueString(identity.getPrefUser().getEmail());
+			} else if (scope.equals("email")) {
+				changed |= resolveSingleStringValue(attributeRelease, "email", identity);
 			} else if (scope.equals("profile")) {
+				changed |= resolveSingleStringValue(attributeRelease, "family_name", identity);
+				changed |= resolveSingleStringValue(attributeRelease, "given_name", identity);
 			}
+		}
+		return changed;
+	}
+
+	private Boolean resolveSingleStringValue(AttributeReleaseEntity attributeRelease, String name,
+			IdentityEntity identity) {
+		return resolveSingleStringValue(attributeRelease, name,
+				attributeResolver.resolveSingleStringValue(identity, name));
+	}
+
+	private Boolean resolveSingleStringValue(AttributeReleaseEntity attributeRelease, String name, String valueString) {
+		final OutgoingAttributeEntity attribute = findOrCreateOutgroingAttribute(name);
+		ValueEntity value = resolveValue(attributeRelease, attribute, StringValueEntity.class);
+		if (((StringValueEntity) value).getValueString().equals(valueString))
+			return false;
+		else {
+			((StringValueEntity) value).setValueString(valueString);
+			return true;
 		}
 	}
 
@@ -88,7 +124,7 @@ public class AttributeReleaseHandler {
 		return attributeRelease;
 	}
 
-	private ValueEntity resolveValue(AttributeReleaseEntity attributeRelease, AttributeEntity attribute, 
+	private ValueEntity resolveValue(AttributeReleaseEntity attributeRelease, AttributeEntity attribute,
 			Class<? extends ValueEntity> desiredClass) {
 		ValueEntity value = valueDao.find(
 				and(equal(ValueEntity_.attribute, attribute), equal(ValueEntity_.attributeRelease, attributeRelease)));

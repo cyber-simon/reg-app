@@ -11,6 +11,7 @@ import java.util.Map;
 import edu.kit.scc.webreg.entity.attribute.IdentityAttributeSetEntity;
 import edu.kit.scc.webreg.entity.attribute.LocalAttributeEntity;
 import edu.kit.scc.webreg.entity.attribute.value.NullValueEntity;
+import edu.kit.scc.webreg.entity.attribute.value.StringListValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.StringValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.ValueEntity;
 
@@ -38,6 +39,16 @@ public class SingleStringMergeValueProcessor extends AbstractListProcessor {
 				else
 					raisePrio(prioMap, name, 1);
 				putInValueMap(valueMap, name, value);
+			}
+			else if (value instanceof StringListValueEntity) {
+				for (String name : ((StringListValueEntity) value).getValueList()) {
+					logger.debug("Raising prio for attribute {} and value {}", attribute.getName(), name);
+					if (value.getAttributeSet().getPrio() != null)
+						raisePrio(prioMap, name, 1 + value.getAttributeSet().getPrio());
+					else
+						raisePrio(prioMap, name, 1);
+					putInValueMap(valueMap, name, value);
+				}
 			}
 			else {
 				logger.warn("Attribute for {} is not single string. Only single string is supported.", attribute.getName());

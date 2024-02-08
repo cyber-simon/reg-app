@@ -36,6 +36,12 @@
 		
 			        <h:outputText value="#{messages.realm}:"/>
 			        <h:outputText value="#{showOidcOpConfigurationBean.entity.realm}"/>
+
+			        <h:outputText value="#{messages.scope}:"/>
+			        <h:outputText value="#{showOidcOpConfigurationBean.entity.scope}"/>
+		
+			        <h:outputText value="#{messages.host}:"/>
+			        <h:outputText value="#{showOidcOpConfigurationBean.entity.host}"/>
 		
 				</p:panelGrid>
 		<h:link outcome="edit-op-config.xhtml" value="#{messages.edit}">
