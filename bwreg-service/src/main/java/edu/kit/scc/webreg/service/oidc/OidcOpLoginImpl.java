@@ -278,7 +278,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			}
 		}
 
-		return resolveLoginProcessor(flowState).buildAccessToken(flowState, opConfig, clientConfig);
+		return resolveLoginProcessor(flowState).buildAccessToken(flowState, opConfig, clientConfig, response);
 	}
 
 	@Override
@@ -370,7 +370,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			return sendError(error, response);
 		}
 
-		return resolveLoginProcessor(flowState).buildUserInfo(flowState, opConfig, clientConfig);
+		return resolveLoginProcessor(flowState).buildUserInfo(flowState, opConfig, clientConfig, response);
 	}
 
 	private OidcFlowStateEntity findOidcFlowStateByAccessToken(String accessToken, String accessTokenType) {

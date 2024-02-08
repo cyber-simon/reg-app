@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
 import edu.kit.scc.webreg.entity.attribute.AttributeReleaseEntity;
@@ -21,6 +22,7 @@ import edu.kit.scc.webreg.service.attribute.release.AttributeReleaseHandler;
 import edu.kit.scc.webreg.service.saml.exc.OidcAuthenticationException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletResponse;
 import net.minidev.json.JSONObject;
 
 @ApplicationScoped
@@ -77,10 +79,15 @@ public class OidcOpScopeLoginProcessor extends AbstractOidcOpLoginProcessor {
 	}
 
 	public JSONObject buildAccessToken(OidcFlowStateEntity flowState, OidcOpConfigurationEntity opConfig,
-			OidcClientConfigurationEntity clientConfig) throws OidcAuthenticationException {
+			OidcClientConfigurationEntity clientConfig, HttpServletResponse response) throws OidcAuthenticationException {
 		IdentityEntity identity = flowState.getIdentity();
 		AttributeReleaseEntity attributeRelease = attributeReleaseHandler.requestAttributeRelease(clientConfig,
 				identity);
+		
+		if (! ReleaseStatusType.GOOD.equals(attributeRelease.getReleaseStatus())) {
+			return sendError(OAuth2Error.ACCESS_DENIED, response);
+		}
+		
 		JWTClaimsSet.Builder claimsBuilder = initClaimsBuilder(flowState);
 
 		for (ValueEntity value : attributeRelease.getValues()) {
@@ -100,10 +107,15 @@ public class OidcOpScopeLoginProcessor extends AbstractOidcOpLoginProcessor {
 	}
 	
 	public JSONObject buildUserInfo(OidcFlowStateEntity flowState, OidcOpConfigurationEntity opConfig,
-			OidcClientConfigurationEntity clientConfig) throws OidcAuthenticationException {
+			OidcClientConfigurationEntity clientConfig, HttpServletResponse response) throws OidcAuthenticationException {
 		IdentityEntity identity = flowState.getIdentity();
 		AttributeReleaseEntity attributeRelease = attributeReleaseHandler.requestAttributeRelease(clientConfig,
 				identity);
+
+		if (! ReleaseStatusType.GOOD.equals(attributeRelease.getReleaseStatus())) {
+			return sendError(OAuth2Error.ACCESS_DENIED, response);
+		}
+
 		JWTClaimsSet.Builder claimsBuilder = new JWTClaimsSet.Builder();
 		
 		for (ValueEntity value : attributeRelease.getValues()) {

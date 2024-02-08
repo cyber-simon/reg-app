@@ -85,6 +85,11 @@ public class OidcAttributeReleaseBean implements Serializable {
 		attributeRelease = attributeReleaseService.reject(attributeRelease, flowState, identity);
 		flowState = flowStateService.fetch(flowState.getId());
 
+		String red = flowState.getRedirectUri() + "?error=access_denied&error_description=end-user%20denied%20the%20authorization%20request";
+		try {
+			FacesContext.getCurrentInstance().getExternalContext().redirect(red);
+		} catch (IOException e) {
+		}
 	}
 
 	public Long getId() {

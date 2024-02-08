@@ -37,6 +37,7 @@ import edu.kit.scc.webreg.service.saml.exc.OidcAuthenticationException;
 import edu.kit.scc.webreg.session.SessionManager;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletResponse;
 import net.minidev.json.JSONObject;
 
 @ApplicationScoped
@@ -188,7 +189,7 @@ public class OidcOpStaticLoginProcessor extends AbstractOidcOpLoginProcessor {
 	}
 	
 	public JSONObject buildAccessToken(OidcFlowStateEntity flowState, OidcOpConfigurationEntity opConfig,
-			OidcClientConfigurationEntity clientConfig) throws OidcAuthenticationException {
+			OidcClientConfigurationEntity clientConfig, HttpServletResponse response) throws OidcAuthenticationException {
 
 		IdentityEntity identity = flowState.getIdentity();
 
@@ -254,7 +255,7 @@ public class OidcOpStaticLoginProcessor extends AbstractOidcOpLoginProcessor {
 	}
 
 	public JSONObject buildUserInfo(OidcFlowStateEntity flowState, OidcOpConfigurationEntity opConfig,
-			OidcClientConfigurationEntity clientConfig) throws OidcAuthenticationException {
+			OidcClientConfigurationEntity clientConfig, HttpServletResponse response) throws OidcAuthenticationException {
 		List<ServiceOidcClientEntity> serviceOidcClientList = serviceOidcClientDao.findByClientConfig(clientConfig);
 
 		IdentityEntity identity = flowState.getIdentity();

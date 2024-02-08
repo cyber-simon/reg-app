@@ -45,10 +45,10 @@ public abstract class AbstractOidcOpLoginProcessor implements Serializable {
 			throws OidcAuthenticationException;
 
 	public abstract JSONObject buildAccessToken(OidcFlowStateEntity flowState, OidcOpConfigurationEntity opConfig,
-			OidcClientConfigurationEntity clientConfig) throws OidcAuthenticationException;
+			OidcClientConfigurationEntity clientConfig, HttpServletResponse response) throws OidcAuthenticationException;
 
 	public abstract JSONObject buildUserInfo(OidcFlowStateEntity flowState, OidcOpConfigurationEntity opConfig,
-			OidcClientConfigurationEntity clientConfig) throws OidcAuthenticationException;
+			OidcClientConfigurationEntity clientConfig, HttpServletResponse response) throws OidcAuthenticationException;
 
 	public JSONObject sendError(ErrorObject error, HttpServletResponse response) {
 		return sendError(error, response, null);
