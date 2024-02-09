@@ -93,7 +93,9 @@ public class AttributeReleaseHandler {
 	private Boolean resolveSingleStringValue(AttributeReleaseEntity attributeRelease, String name, String valueString) {
 		final OutgoingAttributeEntity attribute = findOrCreateOutgroingAttribute(name);
 		ValueEntity value = resolveValue(attributeRelease, attribute, StringValueEntity.class);
-		if (((StringValueEntity) value).getValueString().equals(valueString))
+		// Null check, because with a new value it will be null
+		if (((StringValueEntity) value).getValueString() != null
+				&& ((StringValueEntity) value).getValueString().equals(valueString))
 			return false;
 		else {
 			((StringValueEntity) value).setValueString(valueString);
