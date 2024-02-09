@@ -49,6 +49,7 @@ import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.nimbusds.openid.connect.sdk.validators.IDTokenValidator;
 
+import edu.kit.scc.regapp.oidc.tools.OidcTokenHelper;
 import edu.kit.scc.webreg.annotations.RetryTransaction;
 import edu.kit.scc.webreg.dao.UserLoginInfoDao;
 import edu.kit.scc.webreg.dao.oidc.OidcRpFlowStateDao;

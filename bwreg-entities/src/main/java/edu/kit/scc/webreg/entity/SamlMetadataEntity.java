@@ -32,7 +32,7 @@ import jakarta.persistence.Table;
 @Entity(name = "SamlMetadataEntity")
 @Table(name = "samlmetadata")
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public class SamlMetadataEntity extends AbstractBaseEntity {
+public class SamlMetadataEntity extends UserProvisionerEntity {
 
 	private static final long serialVersionUID = 1L;
 

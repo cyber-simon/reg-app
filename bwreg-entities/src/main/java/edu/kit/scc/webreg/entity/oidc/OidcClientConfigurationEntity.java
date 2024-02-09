@@ -2,6 +2,7 @@ package edu.kit.scc.webreg.entity.oidc;
 
 import java.util.Map;
 
+import edu.kit.scc.webreg.entity.attribute.AttributeConsumerEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
@@ -10,11 +11,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.Table;
 
-import edu.kit.scc.webreg.entity.AbstractBaseEntity;
-
 @Entity(name = "OidcClientConfigurationEntity")
 @Table(name = "oidc_client_configuration")
-public class OidcClientConfigurationEntity extends AbstractBaseEntity {
+public class OidcClientConfigurationEntity extends AttributeConsumerEntity {
 
 	private static final long serialVersionUID = 1L;
 
@@ -36,6 +35,9 @@ public class OidcClientConfigurationEntity extends AbstractBaseEntity {
     @Column(name = "value_data", length = 2048)
     private Map<String, String> genericStore; 
 
+	@Column(name = "public_client")
+	private Boolean publicClient;
+	
 	public String getName() {
 		return name;
 	}
@@ -74,5 +76,13 @@ public class OidcClientConfigurationEntity extends AbstractBaseEntity {
 
 	public void setGenericStore(Map<String, String> genericStore) {
 		this.genericStore = genericStore;
+	}
+
+	public Boolean getPublicClient() {
+		return publicClient;
+	}
+
+	public void setPublicClient(Boolean publicClient) {
+		this.publicClient = publicClient;
 	}
 }

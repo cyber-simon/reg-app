@@ -12,9 +12,6 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
@@ -47,6 +44,7 @@ import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.nimbusds.openid.connect.sdk.validators.IDTokenValidator;
 
+import edu.kit.scc.regapp.oidc.tools.OidcTokenHelper;
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.audit.RegistryAuditor;
 import edu.kit.scc.webreg.audit.UserUpdateAuditor;
@@ -67,6 +65,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceServiceEntity;
+import edu.kit.scc.webreg.entity.attribute.IncomingAttributeSetEntity;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
@@ -77,13 +76,15 @@ import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.hook.HookManager;
 import edu.kit.scc.webreg.hook.UserServiceHook;
-import edu.kit.scc.webreg.service.SerialService;
 import edu.kit.scc.webreg.service.ServiceService;
+import edu.kit.scc.webreg.service.attribute.IncomingOidcAttributesHandler;
 import edu.kit.scc.webreg.service.identity.IdentityUpdater;
 import edu.kit.scc.webreg.service.impl.AbstractUserUpdater;
 import edu.kit.scc.webreg.service.impl.AttributeMapHelper;
 import edu.kit.scc.webreg.service.reg.AttributeSourceQueryService;
 import edu.kit.scc.webreg.service.reg.impl.Registrator;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
@@ -144,6 +145,9 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 	@Inject
 	private IdentityUpdater identityUpdater;
 
+	@Inject
+	private IncomingOidcAttributesHandler incomingAttributeHandler;
+	
 	public OidcUserEntity updateUserFromOP(OidcUserEntity user, String executor, StringBuffer debugLog)
 			throws UserUpdateException {
 
@@ -354,8 +358,11 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 				attributeStore.put(entry.getKey(), attrHelper.attributeListToString(entry.getValue()));
 			}
 
-			identityUpdater.updateIdentity(user);
+			IncomingAttributeSetEntity incomingAttributeSet = incomingAttributeHandler.createOrUpdateAttributes(user, attributeMap);
+			incomingAttributeHandler.processIncomingAttributeSet(incomingAttributeSet);
 
+			identityUpdater.updateIdentity(user);
+			
 			if (appConfig.getConfigValue("create_missing_eppn_scope") != null) {
 				if (user.getEppn() == null) {
 					String scope = appConfig.getConfigValue("create_missing_eppn_scope");

@@ -1,0 +1,104 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="jakarta.faces.core"
+	xmlns:h="jakarta.faces.html"
+	xmlns:ui="jakarta.faces.facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+
+<f:view>
+<f:metadata>
+	<f:viewParam name="id" value="#{showAttributeReleaseBean.id}"/>
+	<f:event type="jakarta.faces.event.PreRenderViewEvent"
+           listener="#{showAttributeReleaseBean.preRenderView}" />
+</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form" prependId="false" class="full form">
+
+		<p:messages id="msgbox" />
+
+		<p:panel id="arPanel">
+			<h3><h:outputText value="#{messages['attribute_release.show_ar.heading']}"/></h3>
+			<div><h:outputText value="#{messages['attribute_release.show_ar.intro']}"/></div>
+
+			<p:panelGrid id="dataGrid" style="margin-top:1em;" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
+
+			<h:outputText value="#{messages['attribute_release.release_to_service']}: " />
+			<p:outputPanel>
+				<b><h:outputText value="#{showAttributeReleaseBean.release.attributeConsumer.displayName}" rendered="#{showAttributeReleaseBean.release.attributeConsumer.class.simpleName == 'OidcClientConfigurationEntity'}"/></b>
+			</p:outputPanel>
+
+			<h:outputText value="#{messages['attribute_release.actual_release_status']}: " />
+			<p:outputPanel>
+				<p:outputPanel rendered="#{showAttributeReleaseBean.release.releaseStatus == 'GOOD'}">
+					<h:outputText value="#{messages['attribute_release.status_good']}" /><br/>
+					<h:outputText value="#{messages['attribute_release.status_good_text']}" /><br/>
+					<div class="text full">
+						<p:commandLink value="#{messages['attribute_release.revoke']}" action="#{showAttributeReleaseBean.revoke()}" update=":form:arPanel :form:msgbox"/>
+					</div>
+				</p:outputPanel>
+				<p:outputPanel rendered="#{showAttributeReleaseBean.release.releaseStatus == 'NEW'}">
+					<h:outputText value="#{messages['attribute_release.status_new']}" /><br/>
+					<h:outputText value="#{messages['attribute_release.status_new_text']}" />
+				</p:outputPanel>
+				<p:outputPanel rendered="#{showAttributeReleaseBean.release.releaseStatus == 'DIRTY'}">
+					<h:outputText value="#{messages['attribute_release.status_dirty']}" /><br/>
+					<h:outputText value="#{messages['attribute_release.status_dirty_text']}" />
+				</p:outputPanel>
+				<p:outputPanel rendered="#{showAttributeReleaseBean.release.releaseStatus == 'REJECTED'}">
+					<h:outputText value="#{messages['attribute_release.status_rejected']}" /><br/>
+					<h:outputText value="#{messages['attribute_release.status_rejected_text']}" />
+				</p:outputPanel>
+			</p:outputPanel>
+			
+			<h:outputText value="#{messages['attribute_release.accepted_at']}: "/>
+			<h:outputText value="#{of:formatDate(showAttributeReleaseBean.release.issuedAt, 'dd.MM.yyyy HH:mm')}"/>
+
+			<h:outputText value="#{messages['attribute_release.will_expire_at']}: "/>
+			<p:outputPanel>
+				<h:outputText value="#{of:formatDate(showAttributeReleaseBean.release.validUntil, 'dd.MM.yyyy HH:mm')}" rendered="#{not empty showAttributeReleaseBean.release.validUntil}" />
+				<h:outputText value="#{messages['attribute_release.no_expiration']}" rendered="#{empty showAttributeReleaseBean.release.validUntil}" />
+			</p:outputPanel>
+
+			</p:panelGrid>
+			
+			
+			<div class="text full" style="margin-top: 0.4em;">
+				<p:link value="#{messages['back']}" href="./show-attribute-releases.xhtml" />
+			</div>
+			
+			<p:dataTable value="#{showAttributeReleaseBean.valueList}" var="value">
+				<p:column headerText="Name" width="35%">
+					<h:outputText value="#{value.attribute.name}"/>
+				</p:column>
+				<p:column headerText="Wert">
+					<h:outputText value="#{value.valueString}" rendered="#{value.class.simpleName == 'StringValueEntity'}" />
+					<h:outputText value="#{value.valueIdentifier}@#{value.valueScope}" rendered="#{value.class.simpleName == 'PairwiseIdentifierValueEntity'}" />
+					<p:outputPanel rendered="#{value.class.simpleName == 'StringListValueEntity'}">
+						<ul><ui:repeat value="#{value.valueList}" var="item">
+							<li><h:outputText value="#{item}"/></li>
+						</ui:repeat></ul>
+					</p:outputPanel>
+				</p:column>
+			</p:dataTable>
+
+
+		</p:panel>
+	
+	</h:form>
+	</ui:define>
+</ui:composition>
+</f:view>
+</body>
+</html>

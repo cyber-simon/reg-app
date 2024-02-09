@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +58,7 @@ import edu.kit.scc.webreg.entity.as.ASUserAttrEntity_;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity_;
 import edu.kit.scc.webreg.entity.as.AttributeSourceServiceEntity;
+import edu.kit.scc.webreg.entity.attribute.IncomingAttributeSetEntity;
 import edu.kit.scc.webreg.entity.audit.AuditDetailEntity;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
 import edu.kit.scc.webreg.entity.audit.AuditUserUpdateEntity;
@@ -68,8 +70,10 @@ import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.hook.HookManager;
 import edu.kit.scc.webreg.hook.UserServiceHook;
 import edu.kit.scc.webreg.logging.LogHelper;
+import edu.kit.scc.webreg.service.attribute.IncomingSamlAttributesHandler;
 import edu.kit.scc.webreg.service.group.HomeOrgGroupUpdater;
 import edu.kit.scc.webreg.service.identity.IdentityUpdater;
+import edu.kit.scc.webreg.service.impl.AttributeMapHelper;
 import edu.kit.scc.webreg.service.reg.impl.Registrator;
 import edu.kit.scc.webreg.service.saml.AttributeQueryHelper;
 import edu.kit.scc.webreg.service.saml.Saml2AssertionService;
@@ -156,6 +160,9 @@ public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 	private IdentityUpdater identityUpdater;
 
 	@Inject
+	private IncomingSamlAttributesHandler incomingAttributeHandler;
+	
+	@Inject
 	private LogHelper logHelper;
 
 	@Override
@@ -199,8 +206,14 @@ public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 
 			user.getAttributeStore().clear();
 
+			// user empty attribute map in order to remove all existing values
+			IncomingAttributeSetEntity incomingAttributeSet = incomingAttributeHandler.createOrUpdateAttributes(user, new HashMap<>());
+			incomingAttributeHandler.processIncomingAttributeSet(incomingAttributeSet);
+
 			if (UserStatus.ACTIVE.equals(user.getUserStatus())) {
 				changeUserStatus(user, UserStatus.ON_HOLD, auditor);
+
+				identityUpdater.updateIdentity(user);
 
 				/*
 				 * Also flag all registries for user ON_HOLD
@@ -282,6 +295,9 @@ public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 				attributeStore.put(entry.getKey(), attrHelper.attributeListToString(entry.getValue()));
 			}
 
+			IncomingAttributeSetEntity incomingAttributeSet = incomingAttributeHandler.createOrUpdateAttributes(user, attributeMap);
+			incomingAttributeHandler.processIncomingAttributeSet(incomingAttributeSet);
+			
 			identityUpdater.updateIdentity(user);
 
 			if (appConfig.getConfigValue("create_missing_eppn_scope") != null) {

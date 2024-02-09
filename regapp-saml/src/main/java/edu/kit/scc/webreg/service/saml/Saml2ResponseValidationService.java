@@ -39,7 +39,9 @@ import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngine;
 import org.slf4j.Logger;
 
+import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlMetadataEntity;
+import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.service.saml.exc.SamlInvalidIssuerException;
 import edu.kit.scc.webreg.service.saml.exc.SamlMissingIssuerException;
@@ -61,17 +63,35 @@ public class Saml2ResponseValidationService {
 	@Inject
 	private SamlHelper samlHelper;
 
-	public void verifyIssuer(SamlMetadataEntity metadataEntity,
+	public void verifyIssuer(SamlSpMetadataEntity metadataEntity,
 			Response samlResponse) throws SamlAuthenticationException {
 		verifyIssuer(metadataEntity, samlResponse.getIssuer());
 	}
 
-	public void verifyIssuer(SamlMetadataEntity metadataEntity,
+	public void verifyIssuer(SamlSpMetadataEntity metadataEntity,
 			AttributeQuery attributeQuery) throws SamlAuthenticationException {
 		verifyIssuer(metadataEntity, attributeQuery.getIssuer());
 	}
 
-	public void verifyIssuer(SamlMetadataEntity metadataEntity,
+	public void verifyIssuer(SamlSpMetadataEntity metadataEntity,
+			Issuer issuer) throws SamlAuthenticationException {
+
+		if (issuer == null)
+			throw new SamlMissingIssuerException("Response issuer is not set");
+
+		String issuerString = issuer.getValue();
+		if (! issuerString.equals(metadataEntity.getEntityId())) 
+			throw new SamlInvalidIssuerException("Response issuer " + issuerString + 
+					" differs from excpected " + metadataEntity.getEntityId());
+
+	}
+
+	public void verifyIssuer(SamlIdpMetadataEntity metadataEntity,
+			Response samlResponse) throws SamlAuthenticationException {
+		verifyIssuer(metadataEntity, samlResponse.getIssuer());
+	}
+
+	public void verifyIssuer(SamlIdpMetadataEntity metadataEntity,
 			Issuer issuer) throws SamlAuthenticationException {
 
 		if (issuer == null)

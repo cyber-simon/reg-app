@@ -27,6 +27,9 @@ public class OidcOpConfigurationEntity extends AbstractBaseEntity {
 	@Column(name = "host", length = 256)
 	private String host;
 
+	@Column(name = "scope", length = 1024)
+	private String scope;
+
 	@Column(name = "private_key")
 	@Lob
 	@JdbcTypeCode(Types.LONGVARCHAR)		
@@ -112,6 +115,14 @@ public class OidcOpConfigurationEntity extends AbstractBaseEntity {
 
 	public void setOpStatus(OidcOpConfigurationStatusType opStatus) {
 		this.opStatus = opStatus;
+	}
+
+	public String getScope() {
+		return scope;
+	}
+
+	public void setScope(String scope) {
+		this.scope = scope;
 	}
 	
 }

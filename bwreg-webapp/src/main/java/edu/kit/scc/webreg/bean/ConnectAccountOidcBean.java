@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
+import edu.kit.scc.regapp.oidc.tools.OidcTokenHelper;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
@@ -34,7 +35,6 @@ import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.oidc.OidcRpConfigurationService;
-import edu.kit.scc.webreg.service.oidc.client.OidcTokenHelper;
 import edu.kit.scc.webreg.service.oidc.client.OidcUserCreateService;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;

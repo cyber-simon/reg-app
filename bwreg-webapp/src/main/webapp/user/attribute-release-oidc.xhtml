@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="jakarta.faces.core"
+	xmlns:h="jakarta.faces.html"
+	xmlns:ui="jakarta.faces.facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+
+<f:view>
+<f:metadata>
+	<f:viewParam name="id" value="#{oidcAttributeReleaseBean.id}"/>
+	<f:event type="jakarta.faces.event.PreRenderViewEvent"
+           listener="#{oidcAttributeReleaseBean.preRenderView}" />
+</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form" prependId="false" class="full form">
+	
+		<h3><h:outputText value="#{messages['attribute_release.header']}" /></h3>
+
+		<p:outputPanel>
+			<h:outputText value="#{messages['attribute_release.intro']}" />
+		</p:outputPanel>
+		
+		<p:outputPanel>
+			<h:outputText value="#{messages['attribute_release.release_to_service']}: " />
+			<h:outputText value="#{oidcAttributeReleaseBean.flowState.clientConfiguration.displayName}" />
+		</p:outputPanel>
+
+		<p:outputPanel>
+			<h:outputText value="#{messages['attribute_release.actual_release_status']}: " />
+			<h:outputText value="#{messages['attribute_release.status_new']}" rendered="#{oidcAttributeReleaseBean.attributeRelease.releaseStatus == 'NEW'}" />
+			<h:outputText value="#{messages['attribute_release.status_dirty']}" rendered="#{oidcAttributeReleaseBean.attributeRelease.releaseStatus == 'DIRTY'}" />
+			<h:outputText value="#{messages['attribute_release.status_rejected']}" rendered="#{oidcAttributeReleaseBean.attributeRelease.releaseStatus == 'REJECTED'}" />
+		</p:outputPanel>
+				
+		<p:dataTable var="value" value="#{oidcAttributeReleaseBean.attributeRelease.values}">
+			<p:column width="30%">
+				<f:facet name="header">
+					<h:outputText value="#{messages.name}" />
+				</f:facet>
+				<h:outputText value="#{value.attribute.name}" />
+			</p:column>
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.value}" />
+				</f:facet>
+				<h:outputText value="#{value.valueString} " rendered="#{value.class.simpleName == 'StringValueEntity'}" />
+				<h:outputText value="#{value.valueIdentifier}@#{value.valueScope} " rendered="#{value.class.simpleName == 'PairwiseIdentifierValueEntity'}" />
+				<h:outputText value="(#{value.class.simpleName})" />
+			</p:column>
+		
+		</p:dataTable>
+		
+		<p:panel>
+			<p:commandButton action="#{oidcAttributeReleaseBean.reject()}" value="#{messages.deny}" />
+			<p:commandButton action="#{oidcAttributeReleaseBean.accept()}" value="#{messages.accept}" />
+		</p:panel>
+	</h:form>
+	</ui:define>
+</ui:composition>
+</f:view>
+</body>
+</html>

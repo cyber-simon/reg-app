@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
+import edu.kit.scc.regapp.oidc.tools.OidcTokenHelper;
 import edu.kit.scc.webreg.audit.UserCreateAuditor;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.RoleDao;

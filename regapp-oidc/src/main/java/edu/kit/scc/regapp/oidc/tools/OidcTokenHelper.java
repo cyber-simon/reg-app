@@ -1,4 +1,4 @@
-package edu.kit.scc.webreg.service.oidc.client;
+package edu.kit.scc.regapp.oidc.tools;
 
 import java.util.ArrayList;
 import java.util.HashMap;

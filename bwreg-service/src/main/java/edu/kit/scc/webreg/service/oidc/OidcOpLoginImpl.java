@@ -9,21 +9,15 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import jakarta.ejb.Stateless;
-import jakarta.inject.Inject;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.ws.rs.core.MultivaluedMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -45,24 +39,15 @@ import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
-import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 
-import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
-import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.dao.oidc.OidcClientConfigurationDao;
 import edu.kit.scc.webreg.dao.oidc.OidcFlowStateDao;
 import edu.kit.scc.webreg.dao.oidc.OidcOpConfigurationDao;
 import edu.kit.scc.webreg.dao.oidc.ServiceOidcClientDao;
-import edu.kit.scc.webreg.drools.OverrideAccess;
-import edu.kit.scc.webreg.drools.UnauthorizedUser;
-import edu.kit.scc.webreg.drools.impl.KnowledgeSessionSingleton;
-import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
-import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ScriptEntity;
-import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
@@ -73,8 +58,12 @@ import edu.kit.scc.webreg.entity.oidc.ServiceOidcClientEntity;
 import edu.kit.scc.webreg.script.ScriptingEnv;
 import edu.kit.scc.webreg.service.saml.CryptoHelper;
 import edu.kit.scc.webreg.service.saml.exc.OidcAuthenticationException;
-import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.session.SessionManager;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.core.MultivaluedMap;
 import net.minidev.json.JSONObject;
 
 @Stateless
@@ -99,9 +88,6 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	private IdentityDao identityDao;
 
 	@Inject
-	private RegistryDao registryDao;
-
-	@Inject
 	private SessionManager session;
 
 	@Inject
@@ -111,10 +97,17 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	private ScriptingEnv scriptingEnv;
 
 	@Inject
-	private KnowledgeSessionSingleton knowledgeSessionSingleton;
+	private OidcOpScopeLoginProcessor scopeLoginProcessor;
 
 	@Inject
-	private ApplicationConfig appConfig;
+	private OidcOpStaticLoginProcessor staticLoginProcessor;
+
+	private AbstractOidcOpLoginProcessor resolveLoginProcessor(OidcFlowStateEntity flowState) {
+		if (scopeLoginProcessor.matches(flowState.getClientConfiguration()))
+			return scopeLoginProcessor;
+		else
+			return staticLoginProcessor;
+	}
 
 	@Override
 	public String registerAuthRequest(String realm, String responseType, String redirectUri, String scope, String state,
@@ -205,147 +198,10 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 				throw new OidcAuthenticationException("Corresponding flow state not found.");
 			}
 
-			OidcClientConfigurationEntity clientConfig = flowState.getClientConfiguration();
-			List<ServiceOidcClientEntity> serviceOidcClientList = serviceOidcClientDao.findByClientConfig(clientConfig);
-
-			if (serviceOidcClientList.size() == 0) {
-				throw new OidcAuthenticationException("no script is connected to client configuration");
-			}
-
-			Boolean wantsElevation = false;
-			RegistryEntity registry = null;
-
-			if (flowState.getAcrValues() != null
-					&& flowState.getAcrValues().matches("(^|\\\s)https://refeds.org/profile/mfa($|\\\s)")) {
-				wantsElevation = true;
-			}
-
-			for (ServiceOidcClientEntity serviceOidcClient : serviceOidcClientList) {
-				if (serviceOidcClient.getWantsElevation() != null && serviceOidcClient.getWantsElevation()) {
-					wantsElevation = true;
-				}
-
-				ServiceEntity service = serviceOidcClient.getService();
-
-				if (service != null) {
-					logger.debug("Service for RP found: {}", service);
-
-					registry = registryDao.findByServiceAndIdentityAndStatus(service, identity, RegistryStatus.ACTIVE);
-
-					if (registry != null) {
-						List<Object> objectList = checkRules(registry.getUser(), service, registry);
-						List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
-						List<UnauthorizedUser> unauthorizedUserList = extractUnauthorizedUser(objectList);
-
-						if (overrideAccessList.size() == 0 && unauthorizedUserList.size() > 0) {
-							return "/user/check-access.xhtml?regId=" + registry.getId();
-						}
-					} else {
-						registry = registryDao.findByServiceAndIdentityAndStatus(service, identity,
-								RegistryStatus.LOST_ACCESS);
-
-						if (registry != null) {
-							logger.info("Registration for user {} and service {} in state LOST_ACCESS, checking again",
-									registry.getUser().getEppn(), service.getName());
-							List<Object> objectList = checkRules(registry.getUser(), service, registry);
-							List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
-							List<UnauthorizedUser> unauthorizedUserList = extractUnauthorizedUser(objectList);
-
-							if (overrideAccessList.size() == 0 && unauthorizedUserList.size() > 0) {
-								logger.info(
-										"Registration for user {} and service {} in state LOST_ACCESS stays, redirecting to check page",
-										registry.getUser().getEppn(), service.getName());
-								return "/user/check-access.xhtml?regId=" + registry.getId();
-							}
-						} else {
-							logger.info(
-									"No active registration for identity {} and service {}, redirecting to register page",
-									identity.getId(), service.getName());
-							session.setOriginalRequestPath(
-									"/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/auth/return");
-							return "/user/register-service.xhtml?serviceId=" + service.getId();
-						}
-					}
-				}
-
-				if (serviceOidcClient.getRulePackage() != null) {
-					/*
-					 * There is an access rule for this oidc client. Check it.
-					 */
-
-					List<Object> objectList = checkRules(identity, serviceOidcClient.getRulePackage());
-					List<OverrideAccess> overrideAccessList = extractOverideAccess(objectList);
-					List<UnauthorizedUser> unauthorizedUserList = extractUnauthorizedUser(objectList);
-
-					if (overrideAccessList.size() == 0 && unauthorizedUserList.size() > 0) {
-						return "/user/oidc-access-denied.xhtml?soidc=" + serviceOidcClient.getId();
-					}
-				}
-
-				if (serviceOidcClient.getScript() != null) {
-					List<String> unauthorizedList = knowledgeSessionSingleton
-							.checkScriptAccess(serviceOidcClient.getScript(), identity);
-
-					if (unauthorizedList.size() > 0) {
-						return "/user/oidc-access-denied.xhtml?soidc=" + serviceOidcClient.getId();
-					}
-
-					wantsElevation |= evalTwoFa(serviceOidcClient.getScript(), identity, registry, flowState);
-				}
-			}
-
-			if (wantsElevation) {
-				long elevationTime = 5L * 60L * 1000L;
-				if (appConfig.getConfigValue("elevation_time") != null) {
-					elevationTime = Long.parseLong(appConfig.getConfigValue("elevation_time"));
-				}
-
-				if (session.getTwoFaElevation() == null
-						|| (System.currentTimeMillis() - session.getTwoFaElevation().toEpochMilli()) > elevationTime) {
-					// second factor is active for this service and web login
-					// and user is not elevated yet
-					session.setOriginalRequestPath(
-							"/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/auth/return");
-					return "/user/twofa-login.xhtml";
-				}
-			}
-
-			flowState.setValidUntil(new Date(System.currentTimeMillis() + (10L * 60L * 1000L)));
-			flowState.setIdentity(identity);
-			flowState.setRegistry(registry);
-
-			String red = flowState.getRedirectUri() + "?code=" + flowState.getCode() + "&state=" + flowState.getState();
-			logger.debug("Sending client to {}", red);
-			return red;
+			return resolveLoginProcessor(flowState).registerAuthRequest(flowState, identity);
 		}
 
 		throw new OidcAuthenticationException("something went horribly wrong...");
-	}
-
-	private boolean evalTwoFa(ScriptEntity scriptEntity, IdentityEntity identity, RegistryEntity registry,
-			OidcFlowStateEntity flowState) {
-		ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
-
-		if (engine == null) {
-			logger.warn("Script Engine is null, cannot executes script");
-			return false;
-		}
-
-		try {
-			engine.eval(scriptEntity.getScript());
-
-			Invocable invocable = (Invocable) engine;
-
-			Object object = invocable.invokeFunction("evalTwoFa", scriptingEnv, identity, registry, flowState, logger);
-
-			if (object instanceof Boolean && ((Boolean) object))
-				return true;
-		} catch (ScriptException e) {
-			logger.warn("Script execution failed. Continue with other scripts.", e);
-		} catch (NoSuchMethodException e) {
-			logger.debug("No evalTwoFa method in script. Assuming match false");
-		}
-		return false;
 	}
 
 	@Override
@@ -362,7 +218,8 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			return sendError(OAuth2Error.INVALID_REQUEST, response);
 		}
 		if (grantType.equals("authorization_code")) {
-			return serveAuthorizationCode(realm, request, response, clientId, clientSecret, codeVerifier, formParams);
+			return serveAuthorizationCode(code, realm, request, response, clientId, clientSecret, codeVerifier,
+					formParams);
 		} else if (grantType.equals("refresh_token")) {
 			return serveRefreshToken(realm, request, response, clientId, clientSecret, formParams);
 		} else if (grantType.equals("urn:ietf:params:oauth:grant-type:token-exchange")) {
@@ -370,6 +227,58 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		} else {
 			return sendError(OAuth2Error.UNSUPPORTED_GRANT_TYPE, response);
 		}
+	}
+
+	public JSONObject serveAuthorizationCode(String code, String realm, HttpServletRequest request,
+			HttpServletResponse response, String clientId, String clientSecret, String codeVerifier,
+			MultivaluedMap<String, String> formParams) throws OidcAuthenticationException {
+
+		OidcFlowStateEntity flowState = flowStateDao.find(equal(OidcFlowStateEntity_.code, code));
+		if (flowState == null) {
+			return staticLoginProcessor.sendError(OAuth2Error.ACCESS_DENIED, response);
+		}
+
+		OidcOpConfigurationEntity opConfig = flowState.getOpConfiguration();
+		OidcClientConfigurationEntity clientConfig = flowState.getClientConfiguration();
+
+		ErrorObject error = verifyConfig(opConfig, clientConfig);
+
+		if (error != null) {
+			return sendError(error, response);
+		}
+
+		if (!clientConfig.getName().equals(clientId)) {
+			return sendError(OAuth2Error.INVALID_CLIENT, response);
+		}
+
+		if (clientSecret != null && (!clientConfig.getSecret().equals(clientSecret))) {
+			// client_id and client_secret is set, but secret is wrong
+			return sendError(OAuth2Error.INVALID_CLIENT, response);
+		} else if (codeVerifier != null) {
+			// check code verifier
+			// code_verifier must be SHA256(flowState.getCodeChallange)
+
+			try {
+				MessageDigest digest = MessageDigest.getInstance("SHA-256");
+				byte[] encodedhash = digest.digest(codeVerifier.getBytes(StandardCharsets.UTF_8));
+				String checkStr = new String(Base64.getUrlEncoder().withoutPadding().encode(encodedhash));
+				if (!checkStr.equals(flowState.getCodeChallange())) {
+					logger.debug("Code challange failed: {} <-> {}", checkStr, flowState.getCodeChallange());
+					return sendError(OAuth2Error.VALIDATION_FAILED, response);
+				}
+			} catch (NoSuchAlgorithmException e) {
+				throw new OidcAuthenticationException("cannot create hash at the moment. This is bad.");
+			}
+		}
+
+		if (clientConfig.getGenericStore().containsKey("cors_allow_regex")) {
+			String origin = request.getHeader("Origin");
+			if (origin != null && origin.matches(clientConfig.getGenericStore().get("cors_allow_regex"))) {
+				response.setHeader("Access-Control-Allow-Origin", origin);
+			}
+		}
+
+		return resolveLoginProcessor(flowState).buildAccessToken(flowState, opConfig, clientConfig, response);
 	}
 
 	@Override
@@ -449,66 +358,19 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		OidcFlowStateEntity flowState = findOidcFlowStateByAccessToken(tokenId, tokeType);
 
 		if (flowState == null) {
-			throw new OidcAuthenticationException("No flow state found for token.");
+			return staticLoginProcessor.sendError(OAuth2Error.ACCESS_DENIED, response);
 		}
 
 		OidcOpConfigurationEntity opConfig = flowState.getOpConfiguration();
-
-		if (opConfig == null) {
-			throw new OidcAuthenticationException("unknown realm");
-		}
-
 		OidcClientConfigurationEntity clientConfig = flowState.getClientConfiguration();
 
-		if (clientConfig == null) {
-			throw new OidcAuthenticationException("unknown client");
+		ErrorObject error = verifyConfig(opConfig, clientConfig);
+
+		if (error != null) {
+			return sendError(error, response);
 		}
 
-		List<ServiceOidcClientEntity> serviceOidcClientList = serviceOidcClientDao.findByClientConfig(clientConfig);
-
-		IdentityEntity identity = flowState.getIdentity();
-
-		if (identity == null) {
-			throw new OidcAuthenticationException("No identity attached to flow state.");
-		}
-
-		UserEntity user;
-		if (identity.getUsers().size() == 1) {
-			user = identity.getUsers().iterator().next();
-		} else {
-			user = identity.getPrefUser();
-		}
-
-		RegistryEntity registry = flowState.getRegistry();
-
-		JWTClaimsSet.Builder claimsBuilder = new JWTClaimsSet.Builder();
-
-		for (ServiceOidcClientEntity serviceOidcClient : serviceOidcClientList) {
-			ScriptEntity scriptEntity = serviceOidcClient.getScript();
-			if (scriptEntity.getScriptType().equalsIgnoreCase("javascript")) {
-				ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
-
-				if (engine == null)
-					throw new OidcAuthenticationException(
-							"service not configured properly. engine not found: " + scriptEntity.getScriptEngine());
-
-				try {
-					engine.eval(scriptEntity.getScript());
-
-					Invocable invocable = (Invocable) engine;
-
-					invocable.invokeFunction("buildClaimsStatement", scriptingEnv, claimsBuilder, user, registry,
-							serviceOidcClient.getService(), logger, identity);
-				} catch (NoSuchMethodException | ScriptException e) {
-					logger.warn("Script execution failed. Continue with other scripts.", e);
-				}
-			} else {
-				throw new OidcAuthenticationException("unkown script type: " + scriptEntity.getScriptType());
-			}
-		}
-		UserInfo userInfo = new UserInfo(claimsBuilder.build());
-		logger.debug("userInfo Response: " + userInfo.toJSONObject());
-		return userInfo.toJSONObject();
+		return resolveLoginProcessor(flowState).buildUserInfo(flowState, opConfig, clientConfig, response);
 	}
 
 	private OidcFlowStateEntity findOidcFlowStateByAccessToken(String accessToken, String accessTokenType) {
@@ -656,61 +518,6 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		if (clientSecret != null && (!clientConfig.getSecret().equals(clientSecret))) {
 			// client_id and client_secret is set, but secret is wrong
 			return sendError(OAuth2Error.INVALID_CLIENT, response);
-		}
-
-		return buildAccessToken(flowState, opConfig, clientConfig);
-	}
-
-	protected JSONObject serveAuthorizationCode(String realm, HttpServletRequest request, HttpServletResponse response,
-			String clientId, String clientSecret, String codeVerifier, MultivaluedMap<String, String> formParams)
-			throws OidcAuthenticationException {
-
-		String code = formParams.getFirst("code");
-
-		OidcFlowStateEntity flowState = flowStateDao.find(equal(OidcFlowStateEntity_.code, code));
-
-		if (flowState == null) {
-			return sendError(OAuth2Error.ACCESS_DENIED, response);
-		}
-
-		OidcOpConfigurationEntity opConfig = flowState.getOpConfiguration();
-		OidcClientConfigurationEntity clientConfig = flowState.getClientConfiguration();
-
-		ErrorObject error = verifyConfig(opConfig, clientConfig);
-
-		if (error != null) {
-			return sendError(error, response);
-		}
-
-		if (!clientConfig.getName().equals(clientId)) {
-			return sendError(OAuth2Error.INVALID_CLIENT, response);
-		}
-
-		if (clientSecret != null && (!clientConfig.getSecret().equals(clientSecret))) {
-			// client_id and client_secret is set, but secret is wrong
-			return sendError(OAuth2Error.INVALID_CLIENT, response);
-		} else if (codeVerifier != null) {
-			// check code verifier
-			// code_verifier must be SHA256(flowState.getCodeChallange)
-
-			try {
-				MessageDigest digest = MessageDigest.getInstance("SHA-256");
-				byte[] encodedhash = digest.digest(codeVerifier.getBytes(StandardCharsets.UTF_8));
-				String checkStr = new String(Base64.getUrlEncoder().withoutPadding().encode(encodedhash));
-				if (!checkStr.equals(flowState.getCodeChallange())) {
-					logger.debug("Code challange failed: {} <-> {}", checkStr, flowState.getCodeChallange());
-					return sendError(OAuth2Error.VALIDATION_FAILED, response);
-				}
-			} catch (NoSuchAlgorithmException e) {
-				throw new OidcAuthenticationException("cannot create hash at the moment. This is bad.");
-			}
-		}
-
-		if (clientConfig.getGenericStore().containsKey("cors_allow_regex")) {
-			String origin = request.getHeader("Origin");
-			if (origin != null && origin.matches(clientConfig.getGenericStore().get("cors_allow_regex"))) {
-				response.setHeader("Access-Control-Allow-Origin", origin);
-			}
 		}
 
 		return buildAccessToken(flowState, opConfig, clientConfig);
@@ -869,38 +676,6 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		}
 
 		return tokenResponse.toJSONObject();
-	}
-
-	private List<Object> checkRules(UserEntity user, ServiceEntity service, RegistryEntity registry) {
-		return knowledgeSessionSingleton.checkServiceAccessRule(user, service, registry, "user-self", false);
-	}
-
-	private List<Object> checkRules(IdentityEntity identity, BusinessRulePackageEntity rulePackage) {
-		return knowledgeSessionSingleton.checkIdentityRule(rulePackage, identity);
-	}
-
-	private List<OverrideAccess> extractOverideAccess(List<Object> objectList) {
-		List<OverrideAccess> returnList = new ArrayList<OverrideAccess>();
-
-		for (Object o : objectList) {
-			if (o instanceof OverrideAccess) {
-				returnList.add((OverrideAccess) o);
-			}
-		}
-
-		return returnList;
-	}
-
-	private List<UnauthorizedUser> extractUnauthorizedUser(List<Object> objectList) {
-		List<UnauthorizedUser> returnList = new ArrayList<UnauthorizedUser>();
-
-		for (Object o : objectList) {
-			if (o instanceof UnauthorizedUser) {
-				returnList.add((UnauthorizedUser) o);
-			}
-		}
-
-		return returnList;
 	}
 
 	private void checkCodeChallange(String codeChallange, String codeChallangeMethod)
