@@ -39,7 +39,6 @@ import edu.kit.scc.webreg.exc.UserNotUniqueException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.exc.UserUpdateFailedException;
 import edu.kit.scc.webreg.service.UserUpdateService;
-import edu.kit.scc.webreg.service.user.UserUpdater;
 
 @Stateless
 public class UserUpdateServiceImpl implements UserUpdateService, Serializable {

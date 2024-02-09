@@ -57,7 +57,6 @@ import edu.kit.scc.webreg.service.group.HomeOrgGroupUpdater;
 import edu.kit.scc.webreg.service.identity.IdentityCreater;
 import edu.kit.scc.webreg.service.saml.Saml2AssertionService;
 import edu.kit.scc.webreg.service.saml.SamlIdentifier;
-import edu.kit.scc.webreg.service.user.UserUpdater;
 import edu.kit.scc.webreg.session.HttpRequestContext;
 
 @Stateless

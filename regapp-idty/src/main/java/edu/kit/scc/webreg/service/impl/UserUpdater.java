@@ -1,4 +1,4 @@
-package edu.kit.scc.webreg.service.user;
+package edu.kit.scc.webreg.service.impl;
 
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
 
