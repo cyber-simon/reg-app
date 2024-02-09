@@ -37,6 +37,7 @@ import edu.kit.scc.webreg.dao.SamlSpConfigurationDao;
 import edu.kit.scc.webreg.dao.SamlUserDao;
 import edu.kit.scc.webreg.dao.SerialDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
+import edu.kit.scc.webreg.dao.as.ASUserAttrDao;
 import edu.kit.scc.webreg.dao.as.AttributeSourceDao;
 import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
@@ -53,6 +54,7 @@ import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity_;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
+import edu.kit.scc.webreg.entity.as.ASUserAttrEntity_;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity_;
 import edu.kit.scc.webreg.entity.as.AttributeSourceServiceEntity;
@@ -132,6 +134,9 @@ public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 
 	@Inject
 	private AttributeSourceDao attributeSourceDao;
+
+	@Inject
+	private ASUserAttrDao asUserAttrDao;
 
 	@Inject
 	private SamlAssertionDao samlAsserionDao;
@@ -267,8 +272,12 @@ public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 					changed |= attributeSourceUpdater.updateUserAttributes(user, asse.getAttributeSource(), executor);
 				}
 			} else {
-				List<AttributeSourceEntity> asList = attributeSourceDao
-						.findAll(equal(AttributeSourceEntity_.userSource, true));
+				// find all user sources to update
+				Set<AttributeSourceEntity> asList = new HashSet<>(attributeSourceDao
+						.findAll(equal(AttributeSourceEntity_.userSource, true)));
+				// and add all sources which are already connected to the user
+				asList.addAll(asUserAttrDao.findAll(equal(ASUserAttrEntity_.user, user)).stream()
+						.map(a -> a.getAttributeSource()).toList());
 				for (AttributeSourceEntity as : asList) {
 					changed |= attributeSourceUpdater.updateUserAttributes(user, as, executor);
 				}
