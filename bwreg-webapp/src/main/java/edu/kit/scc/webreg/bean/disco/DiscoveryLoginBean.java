@@ -8,7 +8,7 @@
  * Contributors:
  *     Michael Simon - initial
  ******************************************************************************/
-package edu.kit.scc.webreg.bean;
+package edu.kit.scc.webreg.bean.disco;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -17,22 +17,16 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import jakarta.faces.context.ExternalContext;
-import jakarta.faces.context.FacesContext;
-import jakarta.faces.event.ComponentSystemEvent;
-import jakarta.faces.view.ViewScoped;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-import jakarta.servlet.http.Cookie;
-
 import org.primefaces.PrimeFaces;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
+import edu.kit.scc.webreg.entity.FederationEntity;
 import edu.kit.scc.webreg.entity.SamlIdpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 import edu.kit.scc.webreg.entity.ServiceSamlSpEntity;
+import edu.kit.scc.webreg.entity.UserProvisionerEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
@@ -41,6 +35,7 @@ import edu.kit.scc.webreg.service.SamlIdpConfigurationService;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.SamlSpConfigurationService;
 import edu.kit.scc.webreg.service.SamlSpMetadataService;
+import edu.kit.scc.webreg.service.identity.UserProvisionerService;
 import edu.kit.scc.webreg.service.oidc.OidcClientConfigurationService;
 import edu.kit.scc.webreg.service.oidc.OidcOpConfigurationService;
 import edu.kit.scc.webreg.service.oidc.OidcRpConfigurationService;
@@ -50,6 +45,13 @@ import edu.kit.scc.webreg.service.saml.FederationSingletonBean;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.CookieHelper;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ComponentSystemEvent;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.servlet.http.Cookie;
 
 @Named
 @ViewScoped
@@ -99,12 +101,16 @@ public class DiscoveryLoginBean implements Serializable {
 	@Inject
 	private CookieHelper cookieHelper;
 
-	//private List<Object> federationList;
-	//private List<Object> idpList;
-	private Object selectedIdp;
+	@Inject
+	private DiscoveryCache discoveryCache;
+
+	@Inject
+	private UserProvisionerService userProvisionerService;
+
+	//private Object selectedIdp;
+	private UserProvisionerCachedEntry selected;
 
 	private Boolean storeIdpSelection;
-	private Boolean preSelectedIdp;
 
 	private String filter;
 
@@ -128,18 +134,15 @@ public class DiscoveryLoginBean implements Serializable {
 		if (sessionManager.getOriginalIdpEntityId() != null) {
 			SamlIdpMetadataEntity idp = idpService.findByEntityId(sessionManager.getOriginalIdpEntityId());
 			if (idp != null) {
-				selectedIdp = idp;
+				selected = discoveryCache.getEntry(idp.getId());
 				login();
 				return;
 			}
 		}
 
 		if (!initialized) {
-//			if (idpList == null) {
-//				idpList = new ArrayList<Object>();
-//			}
 
-			preSelectedIdp = false;
+			discoveryCache.refreshCache();
 
 			if (appConfig.getConfigValue("preselect_store_idp_select") != null
 					&& appConfig.getConfigValue("preselect_store_idp_select").equalsIgnoreCase("true")) {
@@ -163,17 +166,13 @@ public class DiscoveryLoginBean implements Serializable {
 				Long idpId = Long.parseLong(cookieValue);
 				SamlIdpMetadataEntity idp = idpService.fetch(idpId);
 				if (idp != null) {
-					selectedIdp = idp;
+					selected = discoveryCache.getEntry(idp.getId());
 					storeIdpSelection = true;
-					preSelectedIdp = true;
-					PrimeFaces.current().focus("quicklogin");
 				} else {
 					OidcRpConfigurationEntity op = oidcRpService.fetch(idpId);
 					if (op != null) {
-						selectedIdp = op;
+						selected = discoveryCache.getEntry(op.getId());
 						storeIdpSelection = true;
-						preSelectedIdp = true;
-						PrimeFaces.current().focus("quicklogin");
 					}
 				}
 			}
@@ -181,13 +180,22 @@ public class DiscoveryLoginBean implements Serializable {
 		}
 	}
 
+	public List<UserProvisionerCachedEntry> search(String part) {
+		return discoveryCache.getInitialEntryList().stream()
+                .filter(o -> o.getName().toLowerCase().contains(part.toLowerCase()))
+                .limit(25)
+                .collect(Collectors.toList());
+	}
+	
 	public void login() {
-		if (selectedIdp != null) {
+		if (selected != null) {
 			ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
 			String hostname = externalContext.getRequestServerName();
 
-			if (selectedIdp instanceof SamlIdpMetadataEntity) {
-				SamlIdpMetadataEntity idp = (SamlIdpMetadataEntity) selectedIdp;
+			UserProvisionerEntity userProvisioner = userProvisionerService.findByIdWithAttrs(selected.getId());
+			
+			if (userProvisioner instanceof SamlIdpMetadataEntity) {
+				SamlIdpMetadataEntity idp = (SamlIdpMetadataEntity) userProvisioner;
 				SamlSpConfigurationEntity spConfig = null;
 				List<SamlSpConfigurationEntity> spConfigList = spService.findByHostname(hostname);
 
@@ -220,8 +228,8 @@ public class DiscoveryLoginBean implements Serializable {
 				} catch (IOException e) {
 					messageGenerator.addErrorMessage("Ein Fehler ist aufgetreten", e.toString());
 				}
-			} else if (selectedIdp instanceof OidcRpConfigurationEntity) {
-				OidcRpConfigurationEntity rp = (OidcRpConfigurationEntity) selectedIdp;
+			} else if (userProvisioner instanceof OidcRpConfigurationEntity) {
+				OidcRpConfigurationEntity rp = (OidcRpConfigurationEntity) userProvisioner;
 				sessionManager.setOidcRelyingPartyId(rp.getId());
 
 				if (storeIdpSelection != null && storeIdpSelection) {
@@ -290,7 +298,7 @@ public class DiscoveryLoginBean implements Serializable {
 			idpList.addAll(federationBean.getAllIdpList());
 
 			if (appConfig.getConfigValueOrDefault("show_oidc_login", "false").equalsIgnoreCase("true")) {
-				idpList.addAll(oidcRpService.findAll());
+				idpList.addAll(oidcDiscoverySingletonBean.getAllOpList());
 			}
 		}
 		sortIdpList(idpList);
@@ -298,6 +306,10 @@ public class DiscoveryLoginBean implements Serializable {
 		return idpList;
 	}
 
+	public void addFed(FederationEntity federation) {
+		
+	}
+	
 	public void sortIdpList(List<Object> idpList) {
 		idpList = idpList.stream().sorted((item1, item2) -> {
 			String name1 = (item1 instanceof SamlIdpMetadataEntity ? ((SamlIdpMetadataEntity) item1).getOrgName()
@@ -308,18 +320,10 @@ public class DiscoveryLoginBean implements Serializable {
 		}).collect(Collectors.toList());
 	}
 
-	public void chooseOther() {
-		setPreSelectedIdp(false);
+	public List<UserProvisionerCachedEntry> getInitialList() {
+		return discoveryCache.getInitialEntryList();
 	}
-
-	public Object getSelectedIdp() {
-		return selectedIdp;
-	}
-
-	public void setSelectedIdp(Object selectedIdp) {
-		this.selectedIdp = selectedIdp;
-	}
-
+	
 	public List<Object> getIdpList() {
 		List<Object> idpList = updateIdpList();
 		
@@ -351,7 +355,7 @@ public class DiscoveryLoginBean implements Serializable {
 		}
 
 		if (filteredList.size() == 1) {
-			selectedIdp = filteredList.get(0);
+			//selectedIdp = filteredList.get(0);
 		}
 
 		return filteredList;
@@ -393,12 +397,11 @@ public class DiscoveryLoginBean implements Serializable {
 		this.storeIdpSelection = storeIdpSelection;
 	}
 
-	public Boolean getPreSelectedIdp() {
-		return preSelectedIdp;
+	public UserProvisionerCachedEntry getSelected() {
+		return selected;
 	}
 
-	public void setPreSelectedIdp(Boolean preSelectedIdp) {
-		this.preSelectedIdp = preSelectedIdp;
+	public void setSelected(UserProvisionerCachedEntry selected) {
+		this.selected = selected;
 	}
-
 }

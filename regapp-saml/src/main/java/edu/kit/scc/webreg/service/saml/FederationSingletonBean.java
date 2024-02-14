@@ -5,8 +5,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -91,6 +94,10 @@ public class FederationSingletonBean implements Serializable {
 		return sortedFederationList;
 	}
 
+	public List<FederationEntity> getHiddenFederationList() {
+		return sortedFederationList.stream().filter(f -> f.getLoadOnButton()).toList();
+	}
+
 	public List<SamlIdpMetadataEntity> getIdpList(FederationEntity federationEntity) {
 		return federationCache.get(federationEntity);
 	}
@@ -131,8 +138,13 @@ public class FederationSingletonBean implements Serializable {
 
 	public List<SamlIdpMetadataEntity> getAllIdpList() {
 		refreshCache();
-
-		List<SamlIdpMetadataEntity> tempList = new ArrayList<SamlIdpMetadataEntity>(idpMap.values());
+		Set<SamlIdpMetadataEntity> tempSet = new HashSet<>();
+		for (Entry<FederationEntity, List<SamlIdpMetadataEntity>> entry : federationCache.entrySet()) {
+			if (! entry.getKey().getLoadOnButton()) {
+				tempSet.addAll(entry.getValue());
+			}
+		}
+		List<SamlIdpMetadataEntity> tempList = new ArrayList<SamlIdpMetadataEntity>(tempSet);
 		Collections.sort(tempList, idpOrgComparator);
 		return tempList;
 	}

@@ -1,12 +1,11 @@
 package edu.kit.scc.webreg.service.oidc.client;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import jakarta.ejb.Singleton;
-import jakarta.inject.Inject;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -17,15 +16,23 @@ import org.slf4j.Logger;
 import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
 import edu.kit.scc.webreg.service.oidc.OidcRpConfigurationService;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
-@Singleton
-public class OidcDiscoverySingletonBean {
+@ApplicationScoped
+public class OidcDiscoverySingletonBean implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+	
 	@Inject
 	private Logger logger;
 
 	@Inject
 	private OidcRpConfigurationService oidcRpService;
+
+	public List<OidcRpConfigurationEntity> getAllOpList() {
+		return oidcRpService.findAll();
+	}
 	
 	public List<OidcRpConfigurationEntity> getFilteredOpList(ScriptEntity scriptEntity) {
 		

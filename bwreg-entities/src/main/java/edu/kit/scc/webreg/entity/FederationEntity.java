@@ -56,6 +56,12 @@ public class FederationEntity extends AbstractBaseEntity {
 	@Column(name = "fetch_aas")
 	private Boolean fetchAAs;
 	
+	@Column(name = "load_on_button")
+	private Boolean loadOnButton;
+	
+	@ManyToOne(targetEntity = ImageEntity.class)
+	private ImageEntity logoImage;
+	
 	@ManyToMany(targetEntity = SamlIdpMetadataEntity.class, mappedBy="federations")
 	private Set<SamlIdpMetadataEntity> idps;
 
@@ -74,6 +80,8 @@ public class FederationEntity extends AbstractBaseEntity {
 			fetchSps = Boolean.FALSE;
 		if (fetchAAs == null)
 			fetchAAs = Boolean.FALSE;
+		if (loadOnButton == null)
+			loadOnButton = Boolean.FALSE;
 	}
 	
 	public String getEntityId() {
@@ -179,5 +187,21 @@ public class FederationEntity extends AbstractBaseEntity {
 
 	public void setShortName(String shortName) {
 		this.shortName = shortName;
+	}
+
+	public Boolean getLoadOnButton() {
+		return loadOnButton;
+	}
+
+	public void setLoadOnButton(Boolean loadOnButton) {
+		this.loadOnButton = loadOnButton;
+	}
+
+	public ImageEntity getLogoImage() {
+		return logoImage;
+	}
+
+	public void setLogoImage(ImageEntity logoImage) {
+		this.logoImage = logoImage;
 	}
 }

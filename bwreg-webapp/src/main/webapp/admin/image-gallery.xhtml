@@ -46,11 +46,9 @@
 		
 		<p:messages id="messageBox" showDetail="true" />
 
-	</h:form>
-	<h:form id="imgform" enctype="multipart/form-data">
 		<p:fileUpload
-			fileUploadListener="#{imageGalleryBean.handleFileUpload}" multiple="true"
-			mode="advanced" update=":form:galleryPanel,:form:messageBox" auto="false" sizeLimit="50000"
+			listener="#{imageGalleryBean.handleFileUpload}" multiple="true"
+			mode="advanced" update=":form:galleryPanel,:form:messageBox" auto="false" sizeLimit="100000"
 			allowTypes="/(\.|\/)(gif|jpe?g|png)$/" />
 
 	</h:form>

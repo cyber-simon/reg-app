@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="jakarta.faces.core"
+	xmlns:h="jakarta.faces.html"
+	xmlns:ui="jakarta.faces.facelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+	<f:metadata>
+		<f:event type="jakarta.faces.event.PreRenderViewEvent"
+            listener="#{discoveryLoginBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="metadata">
+		<meta http-equiv="refresh" content="600;url=index.xhtml" />	
+	</ui:define>
+
+	<ui:define name="content">
+
+	<h:form id="form" prependId="false" class="full form">
+		<h3><h:outputText value="#{messages.welcome}"/></h3>
+
+		<p:panel>
+			<p:panel rendered="#{sessionManager.originalRequestPath != null and sessionManager.originalRequestPath.startsWith('/idp-debug-login/')}">
+				<span class="text-danger">Login debugging is on. You will see a full log of your login process.</span>
+			</p:panel>
+		
+			<p:outputPanel rendered="#{empty discoveryLoginBean.spMetadata and empty discoveryLoginBean.clientConfig}">
+				<h:outputText value="#{messages.welcome_disco}" escape="false"/>
+			</p:outputPanel>
+			
+			<p:outputPanel rendered="#{not empty discoveryLoginBean.spMetadata}">
+				<h:outputText value="#{messages.welcome_redirected}" /><br/>
+				<b>
+					<h:outputText value="#{discoveryLoginBean.spMetadata.displayName}" rendered="#{not empty discoveryLoginBean.spMetadata.displayName}" />
+					<h:outputText value="#{discoveryLoginBean.spMetadata.entityId}" rendered="#{empty discoveryLoginBean.spMetadata.displayName}" />
+				</b>			
+			</p:outputPanel>
+
+			<p:outputPanel rendered="#{not empty discoveryLoginBean.clientConfig}">
+				<h:outputText value="#{messages.welcome_redirected}" /><br/> 
+				<b> 
+					<h:outputText value="#{discoveryLoginBean.clientConfig.displayName}" rendered="#{not empty discoveryLoginBean.clientConfig.displayName}" />
+					<h:outputText value="#{discoveryLoginBean.clientConfig.name}" rendered="#{empty discoveryLoginBean.clientConfig.displayName}" />
+				</b>
+			</p:outputPanel>
+		</p:panel>
+		
+		<p:panel rendered="#{discoveryLoginBean.preSelectedIdp}">
+
+			<p:focus conext="quickLoginPanel" for="opt1" />
+
+			<p:panel id="quickLoginPanel">
+				<p:selectOneRadio id="quickLoginRadio" value="opt1" layout="custom">
+					<f:selectItem itemLabel="#{discoveryLoginBean.selected.name}" itemValue="opt1" />
+				</p:selectOneRadio>
+				<h:panelGroup>
+	                <p:radioButton id="opt1" for="quickLoginRadio" itemIndex="0"/>
+	                <p:outputPanel rendered="#{discoveryLoginBean.selectedIdp.class.simpleName == 'SamlIdpMetadataEntity'}">
+		                <p:outputPanel rendered="#{empty discoveryLoginBean.selectedIdp.logoSmallUrl}">
+			                <h:outputLabel for="opt1" value="#{discoveryLoginBean.selectedIdp.displayName}" style="font-size: 1.4rem;"/>
+		                </p:outputPanel>
+						<p:outputPanel rendered="#{not empty discoveryLoginBean.selectedIdp.logoSmallUrl}">
+							<span style="float:left; margin-right: 0.5em;"><img src="#{discoveryLoginBean.selectedIdp.logoSmallUrl}" /></span>
+			                <h:outputLabel for="opt1" value="#{discoveryLoginBean.selectedIdp.displayName}" style="font-size: 1.4rem; vertical-align: middle;"/>
+						</p:outputPanel>
+	                </p:outputPanel>
+	                <p:outputPanel rendered="#{discoveryLoginBean.selectedIdp.class.simpleName == 'OidcRpConfigurationEntity'}">
+		                <h:outputLabel for="opt1" value="#{discoveryLoginBean.selectedIdp.displayName}" style="font-size: 1.4rem; vertical-align: middle;"/>
+	                </p:outputPanel>
+                </h:panelGroup>
+			</p:panel>
+			
+			<p:commandButton id="quicklogin" action="#{discoveryLoginBean.login}" value="#{messages.proceed}"
+					update=":form" />
+			
+			<div style="margin-top: 2em;" class="text full">
+				<p:commandLink action="#{discoveryLoginBean.chooseOther()}" value="#{messages.welcome_disco_choose_other_idp}" update=":form"/>
+			</div>
+		</p:panel>
+		
+		<p:panel rendered="#{not discoveryLoginBean.preSelectedIdp}">
+
+			<div><p:messages showDetail="true" /></div>
+
+			<p:focus conext="baseData" for="searchAutocompl" />
+
+			<div class="col-12 md:col-6 lg:col-6 xl:col-6">
+                <p:autoComplete id="searchAutocompl" multiple="false" value="#{discoveryLoginBean.selected}" converter="#{userProvisionerCachedEntryConverter}" 
+                                var="idp" itemLabel="#{idp.name}" itemValue="#{idp}" cache="true"
+                                completeMethod="#{discoveryLoginBean.search}" maxResults="15"
+                                forceSelection="true" />
+			</div>
+			
+			<h:panelGrid id="baseData" columns="2" columnClasses="col-width-1,col-width-2">	
+
+				<p:outputLabel value="#{messages.store_idp_selection}: " />
+				<h:selectBooleanCheckbox value="#{discoveryLoginBean.storeIdpSelection}" />				
+	
+			</h:panelGrid>
+	
+			<p:commandButton id="login" action="#{discoveryLoginBean.login}" value="#{messages.proceed}"
+				update=":form" />
+		</p:panel>
+	</h:form>
+	
+	</ui:define>
+</ui:composition>
+</body>
+</html>
