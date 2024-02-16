@@ -19,9 +19,6 @@ public class OidcRpConfigurationEntity extends UserProvisionerEntity {
 	@Column(name = "name", length = 64)
 	private String name;
 
-	@Column(name = "display_name", length = 256)
-	private String displayName;
-
 	@Column(name = "client_id", length = 512)
 	private String clientId;
 
@@ -81,14 +78,6 @@ public class OidcRpConfigurationEntity extends UserProvisionerEntity {
 
 	public void setServiceUrl(String serviceUrl) {
 		this.serviceUrl = serviceUrl;
-	}
-
-	public String getDisplayName() {
-		return displayName;
-	}
-
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
 	}
 
 	public String getCallbackUrl() {

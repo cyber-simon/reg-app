@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import edu.kit.scc.webreg.entity.FederationEntity;
 import edu.kit.scc.webreg.service.FederationService;
+import edu.kit.scc.webreg.service.disco.FederationUpdateService;
 
 
 public class UpdateAllFederationMetadata extends AbstractExecutableJob {
@@ -34,12 +35,13 @@ public class UpdateAllFederationMetadata extends AbstractExecutableJob {
 			InitialContext ic = new InitialContext();
 			
 			FederationService federationService = (FederationService) ic.lookup("global/bwreg/bwreg-service/FederationServiceImpl!edu.kit.scc.webreg.service.FederationService");
+			FederationUpdateService federationUpdateService = (FederationUpdateService) ic.lookup("global/bwreg/bwreg-service/FederationUpdateService!edu.kit.scc.webreg.service.disco.FederationUpdateService");
 			
 			List<FederationEntity> federationList = federationService.findAll();
 			
 			for (FederationEntity federation : federationList) {
 				logger.debug("Updateing federation {}", federation.getEntityId());
-				federationService.updateFederation(federation);
+				federationUpdateService.updateFederation(federation);
 			}
 		} catch (NamingException e) {
 			logger.warn("Could not update Federation Metadata: {}", e);

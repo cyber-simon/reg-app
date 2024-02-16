@@ -62,28 +62,41 @@
 				<div class="col-12 md:col-6 lg:col-6 xl:col-6">
 	                <p:autoComplete id="searchAutocompl" multiple="false" value="#{discoveryLoginBean.selected}" converter="#{userProvisionerCachedEntryConverter}" 
 	                                var="idp" itemLabel="#{idp.name}" itemValue="#{idp}" cache="true"
-	                                completeMethod="#{discoveryLoginBean.search}" maxResults="15"
+	                                completeMethod="#{discoveryLoginBean.search}" maxResults="10"
 	                                forceSelection="true" style="width: 100%;">
-						<p:column>#{idp.id}</p:column>
+						<p:column><p:graphicImage style="max-width: 48px; max-height: 32px;" value="#{request.contextPath}/rest/icon-cache/async/small/#{idp.iconId}" rendered="#{not empty idp.iconId}" /></p:column>
 						<p:column>#{idp.name}</p:column>
 						<p:ajax update=":form" />
 					</p:autoComplete>
-				</div>
-				<div class="col-12 md:col-6 lg:col-6 xl:col-6">
-					<p:panel id="infoPnl" rendered="#{not empty discoveryLoginBean.selected}">
-						<h:outputText value="#{discoveryLoginBean.selected.name}" />
-					</p:panel>
-				</div>	
-			</div>
 
-			<p:outputPanel>
-				<p:selectBooleanCheckbox value="#{discoveryLoginBean.storeIdpSelection}" itemLabel="#{messages.store_idp_selection}" />
-			</p:outputPanel>
-			
-			<p:outputPanel>
-				<p:commandButton id="login" action="#{discoveryLoginBean.login}" value="#{messages.proceed}" disabled="#{empty discoveryLoginBean.selected}"
-					update=":form" />
-			</p:outputPanel>
+					<p:outputPanel style="margin-top: 1em;">
+						<p:selectBooleanCheckbox value="#{discoveryLoginBean.storeIdpSelection}" itemLabel="#{messages.store_idp_selection}" />
+					</p:outputPanel>
+					
+					<p:outputPanel>
+						<p:commandButton id="login" action="#{discoveryLoginBean.login}" value="#{messages.proceed}" disabled="#{empty discoveryLoginBean.selected}"
+							update=":form" />
+					</p:outputPanel>
+		
+				</div>
+
+				<div class="col-12 md:col-6 lg:col-6 xl:col-6">
+					<p:panel id="infoPnl" style="border: 1px solid black;" rendered="#{not empty discoveryLoginBean.selected}">
+						<div style="text-align: center;">
+							<p:graphicImage style="max-width: 320px; max-height: 160px;" value="#{request.contextPath}/rest/icon-cache/sync/small/#{discoveryLoginBean.selected.iconLargeId}" />
+						</div> 
+						<div>
+							<h:outputText value="#{discoveryLoginBean.selected.name}" />
+						</div> 
+					</p:panel>
+				</div>
+			</div>
+			<div>
+				Or login with:
+				<ui:repeat var="extra" value="#{discoveryLoginBean.extraList}">
+					#{extra.name}
+				</ui:repeat>
+			</div>
 		</p:panel>
 	</h:form>
 	

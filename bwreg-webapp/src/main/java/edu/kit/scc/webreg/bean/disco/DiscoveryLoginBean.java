@@ -17,8 +17,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.primefaces.PrimeFaces;
-
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.FederationEntity;
 import edu.kit.scc.webreg.entity.SamlIdpConfigurationEntity;
@@ -35,6 +33,8 @@ import edu.kit.scc.webreg.service.SamlIdpConfigurationService;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.SamlSpConfigurationService;
 import edu.kit.scc.webreg.service.SamlSpMetadataService;
+import edu.kit.scc.webreg.service.disco.DiscoveryCacheService;
+import edu.kit.scc.webreg.service.disco.UserProvisionerCachedEntry;
 import edu.kit.scc.webreg.service.identity.UserProvisionerService;
 import edu.kit.scc.webreg.service.oidc.OidcClientConfigurationService;
 import edu.kit.scc.webreg.service.oidc.OidcOpConfigurationService;
@@ -102,7 +102,7 @@ public class DiscoveryLoginBean implements Serializable {
 	private CookieHelper cookieHelper;
 
 	@Inject
-	private DiscoveryCache discoveryCache;
+	private DiscoveryCacheService discoveryCache;
 
 	@Inject
 	private UserProvisionerService userProvisionerService;
@@ -180,8 +180,12 @@ public class DiscoveryLoginBean implements Serializable {
 		}
 	}
 
+	public List<UserProvisionerCachedEntry> getExtraList() {
+		return discoveryCache.getExtraEntryList();
+	}
+	
 	public List<UserProvisionerCachedEntry> search(String part) {
-		return discoveryCache.getInitialEntryList().stream()
+		return discoveryCache.getAllEntryList().stream()
                 .filter(o -> o.getName().toLowerCase().contains(part.toLowerCase()))
                 .limit(25)
                 .collect(Collectors.toList());
@@ -312,11 +316,12 @@ public class DiscoveryLoginBean implements Serializable {
 	
 	public void sortIdpList(List<Object> idpList) {
 		idpList = idpList.stream().sorted((item1, item2) -> {
-			String name1 = (item1 instanceof SamlIdpMetadataEntity ? ((SamlIdpMetadataEntity) item1).getOrgName()
-					: ((OidcRpConfigurationEntity) item1).getDisplayName());
-			String name2 = (item2 instanceof SamlIdpMetadataEntity ? ((SamlIdpMetadataEntity) item2).getOrgName()
-					: ((OidcRpConfigurationEntity) item2).getDisplayName());
-			return name1.compareTo(name2);
+			String name1 = ((UserProvisionerEntity) item1).getOrgName();
+			String name2 = ((UserProvisionerEntity) item2).getOrgName();
+			if (name1 != null)
+				return name1.compareTo(name2);
+			else
+				return 0;
 		}).collect(Collectors.toList());
 	}
 

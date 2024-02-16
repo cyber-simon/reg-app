@@ -27,6 +27,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
 
 import edu.kit.scc.webreg.entity.ImageEntity;
+import edu.kit.scc.webreg.entity.ImageType;
 import edu.kit.scc.webreg.exc.NoItemFoundException;
 import edu.kit.scc.webreg.service.ImageService;
 
@@ -37,7 +38,6 @@ public class ImageController {
 	private ImageService imageService;
 
 	@Path(value = "/original/{imageId}")
-	@Produces({ "image/png" })
 	@GET
 	public Response deliverOriginal(@PathParam("imageId") Long imageId) throws IOException, NoItemFoundException {
 
@@ -46,7 +46,33 @@ public class ImageController {
 			throw new NoItemFoundException("no item found");
 		}
 
-		return Response.ok(imageEntity.getImageData().getData(), "image/png").build();
+		String mimeType = "unknown";
+		if (imageEntity.getImageType().equals(ImageType.PNG)) {
+			mimeType = "image/png";
+		} else if (imageEntity.getImageType().equals(ImageType.JPEG)) {
+			mimeType = "image/jpeg";
+		} else if (imageEntity.getImageType().equals(ImageType.SVG)) {
+			mimeType = "image/svg+xml";
+		}
+
+		return Response.ok(imageEntity.getImageData().getData(), mimeType).build();
+	}
+
+	@Path(value = "/by-name/{name}.png")
+	@Produces({ "image/png" })
+	@GET
+	public Response deliverByName(@PathParam("name") String name) throws IOException, NoItemFoundException {
+		ImageEntity imageEntity = imageService.findByAttr("name", name);
+		
+		if (imageEntity == null) {
+			throw new NoItemFoundException("no item found");
+		}
+
+		imageEntity = imageService.findByIdWithData(imageEntity.getId());
+
+		byte[] data = scale(imageEntity.getImageData().getData(), 0, 100, "image/png");
+
+		return Response.ok(data, "image/png").build();
 	}
 
 	@Path(value = "/small/{imageId}")

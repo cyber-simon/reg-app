@@ -1,4 +1,4 @@
-package edu.kit.scc.webreg.bean.disco;
+package edu.kit.scc.webreg.service.disco;
 
 import java.io.Serializable;
 
@@ -9,7 +9,9 @@ public class UserProvisionerCachedEntry implements Serializable {
 	private Long id;
 	private String name;
 	private String orgName;
-
+	private Long iconId;
+	private Long iconLargeId;
+	
 	public Long getId() {
 		return id;
 	}
@@ -57,5 +59,21 @@ public class UserProvisionerCachedEntry implements Serializable {
 
 	public void setOrgName(String orgName) {
 		this.orgName = orgName;
+	}
+
+	public Long getIconId() {
+		return iconId;
+	}
+
+	public void setIconId(Long iconId) {
+		this.iconId = iconId;
+	}
+
+	public Long getIconLargeId() {
+		return iconLargeId;
+	}
+
+	public void setIconLargeId(Long iconLargeId) {
+		this.iconLargeId = iconLargeId;
 	}
 }

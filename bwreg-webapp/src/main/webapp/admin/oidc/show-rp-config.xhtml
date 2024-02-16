@@ -33,10 +33,13 @@
 		        <h:outputText value="#{messages.name}:"/>
 		        <h:outputText value="#{showOidcRpConfigurationBean.entity.name}"/>
 	
-		        <h:outputText value="#{messages.displayName}:"/>
+		        <h:outputText value="#{messages.display_name}:"/>
 		        <h:outputText value="#{showOidcRpConfigurationBean.entity.displayName}"/>
 	
-		        <h:outputText value="#{messages.clientId}:"/>
+		        <h:outputText value="#{messages.org_name}:"/>
+		        <h:outputText value="#{showOidcRpConfigurationBean.entity.orgName}"/>
+	
+		        <h:outputText value="#{messages.client_id}:"/>
 		        <h:outputText value="#{showOidcRpConfigurationBean.entity.clientId}"/>
 	
 		        <h:outputText value="#{messages.secret}:"/>
@@ -45,11 +48,27 @@
 		        <h:outputText value="#{messages.scopes}:"/>
 		        <h:outputText value="#{showOidcRpConfigurationBean.entity.scopes}"/>
 	
-		        <h:outputText value="#{messages.serviceUrl}:"/>
+		        <h:outputText value="#{messages.service_url}:"/>
 		        <h:outputText value="#{showOidcRpConfigurationBean.entity.serviceUrl}"/>
 	
-		        <h:outputText value="#{messages.callbackUrl}:"/>
+		        <h:outputText value="#{messages.callback_url}:"/>
 		        <h:outputText value="#{showOidcRpConfigurationBean.entity.callbackUrl}"/>
+
+		        <h:outputText value="#{messages.logo_small}:"/>
+		        <p:outputPanel rendered="#{not empty showOidcRpConfigurationBean.entity.icon}">
+		        	<p:graphicImage style="max-width: 48px; max-height: 32px;" value="#{request.contextPath}/rest/icon-cache/async/small/#{showOidcRpConfigurationBean.entity.icon.id}"/> - <h:outputText value="#{showOidcRpConfigurationBean.entity.icon.url}" />
+		        </p:outputPanel>
+		        <p:outputPanel rendered="#{empty showOidcRpConfigurationBean.entity.icon}">
+		        	No Logo
+		        </p:outputPanel>
+
+		        <h:outputText value="#{messages.logo_large}:"/>
+		        <p:outputPanel rendered="#{not empty showOidcRpConfigurationBean.entity.iconLarge}">
+		        	<p:graphicImage style="max-width: 48px; max-height: 32px;" value="#{request.contextPath}/rest/icon-cache/async/small/#{showOidcRpConfigurationBean.entity.iconLarge.id}"/> - <h:outputText value="#{showOidcRpConfigurationBean.entity.iconLarge.url}" />
+		        </p:outputPanel>
+		        <p:outputPanel rendered="#{empty showOidcRpConfigurationBean.entity.iconLarge}">
+		        	No Logo
+		        </p:outputPanel>
 
 				<h:outputText value="#{messages.generic_store}:"/>
 		        <h:panelGroup>

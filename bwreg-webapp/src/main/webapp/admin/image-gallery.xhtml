@@ -27,7 +27,9 @@
 			<p:panel id="galleryPanel" header="#{messages.image_gallery}" >
 				<ui:repeat var="img" value="#{imageGalleryBean.imageList}">
 					<p:panel style="width: 140px; display: inline-block; margin: 1px 1px 1px 1px;">
-						<p:graphicImage value="#{request.contextPath}/rest/image/small/#{img.id}" />
+						<p:graphicImage value="#{request.contextPath}/rest/image/small/#{img.id}" rendered="#{img.imageType == 'PNG'}" />
+						<p:graphicImage value="#{request.contextPath}/rest/image/small/#{img.id}" rendered="#{img.imageType == 'JPEG'}" />
+						<p:graphicImage value="#{request.contextPath}/rest/image/original/#{img.id}" rendered="#{img.imageType == 'SVG'}" />
 						<div style="font-size: 70%;">
 							<h:outputText value="#{messages.id}: " />
 							<h:outputText value="#{img.id}" />
@@ -49,7 +51,7 @@
 		<p:fileUpload
 			listener="#{imageGalleryBean.handleFileUpload}" multiple="true"
 			mode="advanced" update=":form:galleryPanel,:form:messageBox" auto="false" sizeLimit="100000"
-			allowTypes="/(\.|\/)(gif|jpe?g|png)$/" />
+			allowTypes="/(\.|\/)(gif|jpe?g|png|svg)$/" />
 
 	</h:form>
 

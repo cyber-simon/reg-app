@@ -26,6 +26,7 @@ import edu.kit.scc.webreg.service.FederationService;
 import edu.kit.scc.webreg.service.SamlAAMetadataService;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.SamlSpMetadataService;
+import edu.kit.scc.webreg.service.disco.FederationUpdateService;
 
 @Named
 @ViewScoped
@@ -36,6 +37,9 @@ public class ShowFederationBean implements Serializable {
 	@Inject
 	private FederationService service;
 
+	@Inject
+	private FederationUpdateService federationUpdateService;
+	
 	@Inject
 	private SamlIdpMetadataService idpService;
 	
@@ -63,7 +67,7 @@ public class ShowFederationBean implements Serializable {
 	}
 	
 	public void poll() {
-		service.updateFederation(entity);
+		federationUpdateService.updateFederation(entity);
 	}
 	
 	public FederationEntity getEntity() {

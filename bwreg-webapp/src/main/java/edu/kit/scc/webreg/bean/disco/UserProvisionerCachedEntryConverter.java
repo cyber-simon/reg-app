@@ -12,6 +12,8 @@ package edu.kit.scc.webreg.bean.disco;
 
 import java.io.Serializable;
 
+import edu.kit.scc.webreg.service.disco.DiscoveryCacheService;
+import edu.kit.scc.webreg.service.disco.UserProvisionerCachedEntry;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;
@@ -25,7 +27,7 @@ public class UserProvisionerCachedEntryConverter implements Converter<UserProvis
 	private static final long serialVersionUID = 1L;
 
 	@Inject
-	private DiscoveryCache discoveryCache;
+	private DiscoveryCacheService discoveryCache;
 	
 	@Override
 	public UserProvisionerCachedEntry getAsObject(FacesContext ctx, UIComponent component, String value)
