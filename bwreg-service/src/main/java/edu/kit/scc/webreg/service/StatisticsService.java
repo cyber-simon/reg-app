@@ -1,12 +1,12 @@
 package edu.kit.scc.webreg.service;
 
 import java.util.List;
+import java.util.Map;
 
+import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 
 public interface StatisticsService {
-
-	List<Object> countUsersPerIdp();
 
 	List<Object> countUsersPerService();
 

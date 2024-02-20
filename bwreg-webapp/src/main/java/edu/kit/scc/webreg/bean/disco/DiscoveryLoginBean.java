@@ -185,7 +185,7 @@ public class DiscoveryLoginBean implements Serializable {
 	}
 	
 	public List<UserProvisionerCachedEntry> search(String part) {
-		return discoveryCache.getAllEntryList().stream()
+		return discoveryCache.getUserCountEntryList().stream()
                 .filter(o -> o.getName().toLowerCase().contains(part.toLowerCase()))
                 .limit(25)
                 .collect(Collectors.toList());

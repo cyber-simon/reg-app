@@ -27,9 +27,9 @@
 			<p:panel id="galleryPanel" header="#{messages.image_gallery}" >
 				<ui:repeat var="img" value="#{imageGalleryBean.imageList}">
 					<p:panel style="width: 140px; display: inline-block; margin: 1px 1px 1px 1px;">
-						<p:graphicImage value="#{request.contextPath}/rest/image/small/#{img.id}" rendered="#{img.imageType == 'PNG'}" />
-						<p:graphicImage value="#{request.contextPath}/rest/image/small/#{img.id}" rendered="#{img.imageType == 'JPEG'}" />
-						<p:graphicImage value="#{request.contextPath}/rest/image/original/#{img.id}" rendered="#{img.imageType == 'SVG'}" />
+						<p:graphicImage style="max-width: 120px; max-height:120px" value="#{request.contextPath}/rest/image/original/#{img.id}" rendered="#{img.imageType == 'PNG'}" />
+						<p:graphicImage style="max-width: 120px; max-height:120px" value="#{request.contextPath}/rest/image/original/#{img.id}" rendered="#{img.imageType == 'JPEG'}" />
+						<p:graphicImage style="max-width: 120px; max-height:120px" value="#{request.contextPath}/rest/image/original/#{img.id}" rendered="#{img.imageType == 'SVG'}" />
 						<div style="font-size: 70%;">
 							<h:outputText value="#{messages.id}: " />
 							<h:outputText value="#{img.id}" />

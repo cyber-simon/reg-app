@@ -3,12 +3,11 @@ package edu.kit.scc.webreg.service.impl;
 import java.io.Serializable;
 import java.util.List;
 
-import jakarta.ejb.Stateless;
-import jakarta.inject.Inject;
-
 import edu.kit.scc.webreg.dao.StatisticsDao;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.service.StatisticsService;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 
 @Stateless
 public class StatisticsServiceImpl implements Serializable, StatisticsService {
@@ -18,11 +17,6 @@ public class StatisticsServiceImpl implements Serializable, StatisticsService {
 	@Inject
 	private StatisticsDao dao;
 	
-	@Override
-	public List<Object> countUsersPerIdp() {
-		return dao.countUsersPerIdp();
-	}
-
 	@Override
 	public List<Object> countUsersPerIdpAndService(ServiceEntity service) {
 		return dao.countUsersPerIdpAndService(service);

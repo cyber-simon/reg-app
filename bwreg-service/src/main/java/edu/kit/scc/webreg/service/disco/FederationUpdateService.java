@@ -3,7 +3,6 @@ package edu.kit.scc.webreg.service.disco;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 
 import org.kie.api.runtime.KieSession;
@@ -14,18 +13,14 @@ import org.slf4j.Logger;
 import edu.kit.scc.webreg.dao.FederationDao;
 import edu.kit.scc.webreg.dao.SamlAAMetadataDao;
 import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
-import edu.kit.scc.webreg.dao.SamlIdpScopeDao;
 import edu.kit.scc.webreg.dao.SamlSpMetadataDao;
-import edu.kit.scc.webreg.dao.jpa.IconCacheDao;
 import edu.kit.scc.webreg.drools.impl.KnowledgeSessionSingleton;
 import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.FederationEntity;
 import edu.kit.scc.webreg.entity.SamlAAMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
-import edu.kit.scc.webreg.entity.SamlMetadataEntityStatus;
 import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 import edu.kit.scc.webreg.service.saml.MetadataHelper;
-import edu.kit.scc.webreg.service.saml.SamlHelper;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionManagement;
 import jakarta.ejb.TransactionManagementType;
@@ -47,9 +42,6 @@ public class FederationUpdateService implements Serializable {
 	private SamlIdpMetadataDao idpDao;
 
 	@Inject
-	private SamlIdpScopeDao idpScopeDao;
-
-	@Inject
 	private SamlSpMetadataDao spDao;
 
 	@Inject
@@ -59,14 +51,8 @@ public class FederationUpdateService implements Serializable {
 	private KnowledgeSessionSingleton knowledgeSessionService;
 
 	@Inject
-	private SamlHelper samlHelper;
-
-	@Inject
 	private MetadataHelper metadataHelper;
 
-	@Inject
-	private IconCacheDao iconDao;
-	
 	@Inject	
 	private EntityUpdater entityUpdater;
 	
@@ -149,72 +135,21 @@ public class FederationUpdateService implements Serializable {
 		logger.debug("Updated SAML Entities for Federation {}", entity.getName());
 	}
 
-	@SuppressWarnings("unlikely-arg-type")
 	private void updateAAEntities(FederationEntity entity, List<EntityDescriptor> entityList) {
-
+	
 		List<SamlAAMetadataEntity> oldList = aaDao.findAllByFederation(entity);
 		List<SamlAAMetadataEntity> updatedList = new ArrayList<SamlAAMetadataEntity>();
 
 		for (EntityDescriptor ed : entityList) {
-			SamlAAMetadataEntity aa = aaDao.findByEntityId(ed.getEntityID());
-
-			Boolean newSp = (aa == null ? true : false);
-			if (newSp) {
-				aa = aaDao.createNew();
-				aa.setFederations(new HashSet<FederationEntity>());
-				logger.info("Creating new aa {}", ed.getEntityID());
-			}
-
-			aa.setEntityId(ed.getEntityID());
-			aa.setEntityDescriptor(samlHelper.marshal(ed));
-			aa.setOrgName(metadataHelper.getOrganisation(ed));
-			aa.getFederations().add(entity);
-			aa.setStatus(SamlMetadataEntityStatus.ACTIVE);
-
-//			metadataHelper.fillDisplayData(ed, sp);
-//			sp.setEntityCategoryList(metadataHelper.getEntityCategoryList(ed));
-
-			aa = aaDao.persist(aa);
-
-//			Set<SamlIdpScopeEntity> scopes = metadataHelper.getScopes(ed, idp);
-//
-//			List<SamlIdpScopeEntity> oldScopes;
-//			if (newIdp) 
-//				oldScopes = new ArrayList<SamlIdpScopeEntity>();
-//			else
-//				oldScopes = idpScopeService.findByIdp(idp);
-//			
-//			Set<SamlIdpScopeEntity> deleteScopes = new HashSet<SamlIdpScopeEntity>(oldScopes);
-//			deleteScopes.removeAll(scopes);
-//			for (SamlIdpScopeEntity scope : deleteScopes) {
-//				logger.info("Deleting idp scope {}", scope.getScope());
-//				idpScopeService.delete(scope);
-//			}
-//			
-//			scopes.removeAll(oldScopes);
-//			for (SamlIdpScopeEntity scope : scopes) {
-//				logger.info("Creating new idp scope {}", scope.getScope());
-//				idpScopeService.save(scope);
-//			}
-
+			SamlAAMetadataEntity aa = entityUpdater.updateAaEntity(ed, entity);
 			updatedList.add(aa);
 		}
 
 		oldList.removeAll(updatedList);
 
 		for (SamlAAMetadataEntity aa : oldList) {
-			aa.getFederations().remove(entity);
-			entity.getIdps().remove(aa);
-
-			if (aa.getFederations().size() == 0) {
-				// SP is orphaned, set Status to DELETED
-				aa.setStatus(SamlMetadataEntityStatus.DELETED);
-			} else {
-				aa.setStatus(SamlMetadataEntityStatus.ACTIVE);
-			}
-
-			aa = aaDao.persist(aa);
 			logger.info("remove sp {} from federation {}", aa.getEntityId(), entity.getEntityId());
+			entityUpdater.removeAaFromFederation(aa, entity);
 		}
 	}
 
@@ -224,43 +159,15 @@ public class FederationUpdateService implements Serializable {
 		List<SamlSpMetadataEntity> updatedList = new ArrayList<SamlSpMetadataEntity>();
 
 		for (EntityDescriptor ed : entityList) {
-			SamlSpMetadataEntity sp = spDao.findByEntityId(ed.getEntityID());
-
-			Boolean newSp = (sp == null ? true : false);
-			if (newSp) {
-				sp = spDao.createNew();
-				sp.setFederations(new HashSet<FederationEntity>());
-				logger.info("Creating new sp {}", ed.getEntityID());
-			}
-
-			sp.setEntityId(ed.getEntityID());
-			sp.setEntityDescriptor(samlHelper.marshal(ed));
-			sp.setOrgName(metadataHelper.getOrganisation(ed));
-			sp.getFederations().add(entity);
-			sp.setStatus(SamlMetadataEntityStatus.ACTIVE);
-
-			metadataHelper.fillDisplayData(ed, sp);
-
-			sp = spDao.persist(sp);
-
+			SamlSpMetadataEntity sp = entityUpdater.updateSpEntity(ed, entity);
 			updatedList.add(sp);
 		}
 
 		oldList.removeAll(updatedList);
 
 		for (SamlSpMetadataEntity sp : oldList) {
-			sp.getFederations().remove(entity);
-			entity.getSps().remove(sp);
-
-			if (sp.getFederations().size() == 0) {
-				// SP is orphaned, set Status to DELETED
-				sp.setStatus(SamlMetadataEntityStatus.DELETED);
-			} else {
-				sp.setStatus(SamlMetadataEntityStatus.ACTIVE);
-			}
-
-			sp = spDao.persist(sp);
 			logger.info("remove sp {} from federation {}", sp.getEntityId(), entity.getEntityId());
+			entityUpdater.removeSpFromFederation(sp, entity);
 		}
 	}
 
@@ -276,19 +183,9 @@ public class FederationUpdateService implements Serializable {
 
 		oldList.removeAll(updatedList);
 
-		for (SamlIdpMetadataEntity idp : oldList) {
-			idp.getFederations().remove(entity);
-			entity.getIdps().remove(idp);
-
-			if (idp.getFederations().size() == 0) {
-				// IDP is orphaned, set Status to DELETED
-				idp.setStatus(SamlMetadataEntityStatus.DELETED);
-			} else {
-				idp.setStatus(SamlMetadataEntityStatus.ACTIVE);
-			}
-
-			idpDao.persist(idp);
+		for (final SamlIdpMetadataEntity idp : oldList) {
 			logger.info("remove idp {} from federation {}", idp.getEntityId(), entity.getEntityId());
+			entityUpdater.removeIdpFromFederation(idp, entity);
 		}
 	}
 

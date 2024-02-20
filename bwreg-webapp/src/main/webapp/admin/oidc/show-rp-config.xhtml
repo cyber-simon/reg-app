@@ -54,9 +54,15 @@
 		        <h:outputText value="#{messages.callback_url}:"/>
 		        <h:outputText value="#{showOidcRpConfigurationBean.entity.callbackUrl}"/>
 
+		        <h:outputText value="#{messages.logo_small_url}:"/>
+		        <h:outputText value="#{showOidcRpConfigurationBean.entity.logoSmallUrl}"/>
+
+		        <h:outputText value="#{messages.logo_url}:"/>
+		        <h:outputText value="#{showOidcRpConfigurationBean.entity.logoUrl}"/>
+
 		        <h:outputText value="#{messages.logo_small}:"/>
 		        <p:outputPanel rendered="#{not empty showOidcRpConfigurationBean.entity.icon}">
-		        	<p:graphicImage style="max-width: 48px; max-height: 32px;" value="#{request.contextPath}/rest/icon-cache/async/small/#{showOidcRpConfigurationBean.entity.icon.id}"/> - <h:outputText value="#{showOidcRpConfigurationBean.entity.icon.url}" />
+		        	<p:graphicImage style="max-width: 48px; max-height: 32px;" value="#{request.contextPath}/rest/icon-cache/async/small/#{showOidcRpConfigurationBean.entity.icon.id}" /> - <h:outputText value="#{showOidcRpConfigurationBean.entity.icon.url}" />
 		        </p:outputPanel>
 		        <p:outputPanel rendered="#{empty showOidcRpConfigurationBean.entity.icon}">
 		        	No Logo
@@ -64,7 +70,7 @@
 
 		        <h:outputText value="#{messages.logo_large}:"/>
 		        <p:outputPanel rendered="#{not empty showOidcRpConfigurationBean.entity.iconLarge}">
-		        	<p:graphicImage style="max-width: 48px; max-height: 32px;" value="#{request.contextPath}/rest/icon-cache/async/small/#{showOidcRpConfigurationBean.entity.iconLarge.id}"/> - <h:outputText value="#{showOidcRpConfigurationBean.entity.iconLarge.url}" />
+		        	<p:graphicImage style="max-width: 48px; max-height: 32px;" value="#{request.contextPath}/rest/icon-cache/async/small/#{showOidcRpConfigurationBean.entity.iconLarge.id}" /> - <h:outputText value="#{showOidcRpConfigurationBean.entity.iconLarge.url}" />
 		        </p:outputPanel>
 		        <p:outputPanel rendered="#{empty showOidcRpConfigurationBean.entity.iconLarge}">
 		        	No Logo

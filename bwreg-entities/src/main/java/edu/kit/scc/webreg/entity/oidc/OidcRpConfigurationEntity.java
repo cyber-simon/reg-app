@@ -34,6 +34,12 @@ public class OidcRpConfigurationEntity extends UserProvisionerEntity {
 	@Column(name = "callback_url", length = 1024)
 	private String callbackUrl;
 
+	@Column(name = "logo_url", length = 1024)
+	private String logoUrl;
+
+	@Column(name = "logo_small_url", length = 1024)
+	private String logoSmallUrl;
+
 	@ElementCollection
 	@JoinTable(name = "oidc_rp_configuration_generic_store")
     @MapKeyColumn(name = "key_data", length = 128)
@@ -95,4 +101,21 @@ public class OidcRpConfigurationEntity extends UserProvisionerEntity {
 	public void setGenericStore(Map<String, String> genericStore) {
 		this.genericStore = genericStore;
 	}
+
+	public String getLogoUrl() {
+		return logoUrl;
+	}
+
+	public void setLogoUrl(String logoUrl) {
+		this.logoUrl = logoUrl;
+	}
+
+	public String getLogoSmallUrl() {
+		return logoSmallUrl;
+	}
+
+	public void setLogoSmallUrl(String logoSmallUrl) {
+		this.logoSmallUrl = logoSmallUrl;
+	}
+
 }

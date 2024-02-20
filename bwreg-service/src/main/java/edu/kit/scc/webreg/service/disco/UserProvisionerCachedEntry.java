@@ -11,6 +11,7 @@ public class UserProvisionerCachedEntry implements Serializable {
 	private String orgName;
 	private Long iconId;
 	private Long iconLargeId;
+	private Long userCount;
 	
 	public Long getId() {
 		return id;
@@ -75,5 +76,13 @@ public class UserProvisionerCachedEntry implements Serializable {
 
 	public void setIconLargeId(Long iconLargeId) {
 		this.iconLargeId = iconLargeId;
+	}
+
+	public Long getUserCount() {
+		return userCount;
+	}
+
+	public void setUserCount(Long userCount) {
+		this.userCount = userCount;
 	}
 }

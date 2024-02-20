@@ -9,16 +9,21 @@ import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.annotations.RetryTransaction;
 import edu.kit.scc.webreg.dao.FederationDao;
+import edu.kit.scc.webreg.dao.SamlAAMetadataDao;
 import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
 import edu.kit.scc.webreg.dao.SamlIdpScopeDao;
+import edu.kit.scc.webreg.dao.SamlSpMetadataDao;
 import edu.kit.scc.webreg.dao.jpa.IconCacheDao;
 import edu.kit.scc.webreg.entity.FederationEntity;
 import edu.kit.scc.webreg.entity.IconCacheEntity;
 import edu.kit.scc.webreg.entity.ImageDataEntity;
 import edu.kit.scc.webreg.entity.ImageType;
+import edu.kit.scc.webreg.entity.SamlAAMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlIdpScopeEntity;
+import edu.kit.scc.webreg.entity.SamlMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlMetadataEntityStatus;
+import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 import edu.kit.scc.webreg.service.saml.MetadataHelper;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
 import jakarta.ejb.TransactionManagement;
@@ -37,6 +42,12 @@ public class EntityUpdater {
 	private SamlIdpMetadataDao idpDao;
 
 	@Inject
+	private SamlAAMetadataDao aaDao;
+
+	@Inject
+	private SamlSpMetadataDao spDao;
+
+	@Inject
 	private FederationDao federationDao;
 
 	@Inject
@@ -52,12 +63,93 @@ public class EntityUpdater {
 	private MetadataHelper metadataHelper;
 
 	@RetryTransaction
+	public SamlIdpMetadataEntity removeIdpFromFederation(SamlIdpMetadataEntity idp, FederationEntity federation) {
+		idp = idpDao.fetch(idp.getId());
+		idp.getFederations().remove(federation);
+
+		if (idp.getFederations().size() == 0) {
+			// IDP is orphaned, set Status to DELETED
+			idp.setStatus(SamlMetadataEntityStatus.DELETED);
+		} else {
+			idp.setStatus(SamlMetadataEntityStatus.ACTIVE);
+		}
+		return idp;
+	}
+
+	@RetryTransaction
+	public SamlAAMetadataEntity removeAaFromFederation(SamlAAMetadataEntity aa, FederationEntity federation) {
+		aa = aaDao.fetch(aa.getId());
+		aa.getFederations().remove(federation);
+
+		if (aa.getFederations().size() == 0) {
+			// IDP is orphaned, set Status to DELETED
+			aa.setStatus(SamlMetadataEntityStatus.DELETED);
+		} else {
+			aa.setStatus(SamlMetadataEntityStatus.ACTIVE);
+		}
+		return aa;
+	}
+
+	@RetryTransaction
+	public SamlSpMetadataEntity removeSpFromFederation(SamlSpMetadataEntity sp, FederationEntity federation) {
+		sp = spDao.fetch(sp.getId());
+		sp.getFederations().remove(federation);
+
+		if (sp.getFederations().size() == 0) {
+			// IDP is orphaned, set Status to DELETED
+			sp.setStatus(SamlMetadataEntityStatus.DELETED);
+		} else {
+			sp.setStatus(SamlMetadataEntityStatus.ACTIVE);
+		}
+		return sp;
+	}
+		
+	@RetryTransaction
+	public SamlSpMetadataEntity updateSpEntity(EntityDescriptor ed, FederationEntity federation) {
+		SamlSpMetadataEntity sp = spDao.findByEntityId(ed.getEntityID());
+		federation = federationDao.fetch(federation.getId());
+
+		if (sp == null) {
+			sp = spDao.createNew();
+			sp.setFederations(new HashSet<FederationEntity>());
+			logger.info("Creating new aa {}", ed.getEntityID());
+			sp = spDao.persist(sp);
+		}
+
+		setSpMetadata(sp, ed);
+		sp.getFederations().add(federation);
+		sp.setStatus(SamlMetadataEntityStatus.ACTIVE);
+
+		return sp;
+	}
+	
+	@RetryTransaction
+	public SamlAAMetadataEntity updateAaEntity(EntityDescriptor ed, FederationEntity federation) {
+		SamlAAMetadataEntity aa = aaDao.findByEntityId(ed.getEntityID());
+		federation = federationDao.fetch(federation.getId());
+
+		if (aa == null) {
+			aa = aaDao.createNew();
+			aa.setFederations(new HashSet<FederationEntity>());
+			logger.info("Creating new aa {}", ed.getEntityID());
+			aa = aaDao.persist(aa);
+		}
+
+		setMetadata(aa, ed);
+		aa.getFederations().add(federation);
+		aa.setStatus(SamlMetadataEntityStatus.ACTIVE);
+
+		createAndAddMissingLogos(aa);
+
+		return aa;
+	}
+	
+	@RetryTransaction
 	public SamlIdpMetadataEntity updateIdpEntity(EntityDescriptor ed, FederationEntity federation) {
 		SamlIdpMetadataEntity idp = idpDao.findByEntityId(ed.getEntityID());
 		federation = federationDao.fetch(federation.getId());
 
-		Boolean newIdp = (idp == null ? true : false);
-		if (newIdp) {
+		if (idp == null) {
 			idp = idpDao.createNew();
 			idp = idpDao.persist(idp);
 			idp.setFederations(new HashSet<FederationEntity>());
@@ -65,15 +157,11 @@ public class EntityUpdater {
 			idp.setScopes(new HashSet<>());
 		}
 
-		idp.setEntityId(ed.getEntityID());
-		idp.setEntityDescriptor(samlHelper.marshal(ed));
-		idp.setOrgName(metadataHelper.getOrganisation(ed));
-		idp.setLogoUrl(metadataHelper.getLogo(ed));
-		idp.setLogoSmallUrl(metadataHelper.getLogoSmall(ed));
+		setMetadata(idp, ed);
+
 		idp.getFederations().add(federation);
 		idp.setStatus(SamlMetadataEntityStatus.ACTIVE);
 
-		metadataHelper.fillDisplayData(ed, idp);
 		idp.setEntityCategoryList(metadataHelper.getEntityCategoryList(ed));
 
 		Set<SamlIdpScopeEntity> scopes = metadataHelper.getScopes(ed, idp);
@@ -93,15 +181,7 @@ public class EntityUpdater {
 			idpScopeDao.persist(scope);
 		}
 
-		createMissingLogos(idp);
-
-		if (idp.getLogoSmallUrl() != null) {
-			addLogo(idp.getLogoSmallUrl(), idp.getIcon());
-		}
-
-		if (idp.getLogoUrl() != null) {
-			addLogo(idp.getLogoUrl(), idp.getIconLarge());
-		}
+		createAndAddMissingLogos(idp);
 
 		return idp;
 	}
@@ -138,17 +218,43 @@ public class EntityUpdater {
 		}
 	}
 
-	private void createMissingLogos(SamlIdpMetadataEntity idp) {
-		if (idp.getIcon() == null) {
+	private void createAndAddMissingLogos(SamlMetadataEntity entity) {
+		if (entity.getIcon() == null) {
 			IconCacheEntity icon = iconDao.createNew();
 			icon = iconDao.persist(icon);
-			idp.setIcon(icon);
+			entity.setIcon(icon);
 		}
 
-		if (idp.getIconLarge() == null) {
+		if (entity.getIconLarge() == null) {
 			IconCacheEntity icon = iconDao.createNew();
 			icon = iconDao.persist(icon);
-			idp.setIconLarge(icon);
+			entity.setIconLarge(icon);
 		}
+		
+		if (entity.getLogoSmallUrl() != null) {
+			addLogo(entity.getLogoSmallUrl(), entity.getIcon());
+		}
+
+		if (entity.getLogoUrl() != null) {
+			addLogo(entity.getLogoUrl(), entity.getIconLarge());
+		}
+	}
+	
+	private void setMetadata(SamlMetadataEntity entity, EntityDescriptor ed) {
+		entity.setEntityId(ed.getEntityID());
+		entity.setEntityDescriptor(samlHelper.marshal(ed));
+		entity.setOrgName(metadataHelper.getOrganisation(ed));
+		entity.setLogoUrl(metadataHelper.getLogo(ed));
+		entity.setLogoSmallUrl(metadataHelper.getLogoSmall(ed));
+		metadataHelper.fillDisplayData(ed, entity);
+	}
+
+	private void setSpMetadata(SamlSpMetadataEntity entity, EntityDescriptor ed) {
+		entity.setEntityId(ed.getEntityID());
+		entity.setEntityDescriptor(samlHelper.marshal(ed));
+		entity.setOrgName(metadataHelper.getOrganisation(ed));
+		entity.setLogoUrl(metadataHelper.getLogo(ed));
+		entity.setLogoSmallUrl(metadataHelper.getLogoSmall(ed));
+		metadataHelper.fillDisplayData(ed, entity);
 	}
 }
