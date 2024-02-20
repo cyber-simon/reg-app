@@ -1,6 +1,7 @@
 package edu.kit.scc.webreg.service.disco;
 
 import java.util.Base64;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -62,6 +63,13 @@ public class EntityUpdater {
 	@Inject
 	private MetadataHelper metadataHelper;
 
+	@RetryTransaction
+	public void postUpdateFederation(FederationEntity federation, String entityName) {
+		federation = federationDao.fetch(federation.getId());
+		federation.setPolledAt(new Date());
+		federation.setEntityId(entityName);
+	}
+	
 	@RetryTransaction
 	public SamlIdpMetadataEntity removeIdpFromFederation(SamlIdpMetadataEntity idp, FederationEntity federation) {
 		idp = idpDao.fetch(idp.getId());

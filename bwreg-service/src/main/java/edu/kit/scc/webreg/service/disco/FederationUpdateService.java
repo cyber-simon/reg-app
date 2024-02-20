@@ -2,7 +2,6 @@ package edu.kit.scc.webreg.service.disco;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.kie.api.runtime.KieSession;
@@ -125,13 +124,12 @@ public class FederationUpdateService implements Serializable {
 			aaList.addAll(metadataHelper.filterAAs(entityList));
 		}
 
-		entity.setEntityId(entities.getName());
-
 		updateIdpEntities(entity, idpList);
 		updateSpEntities(entity, spList);
 		updateAAEntities(entity, aaList);
-
-		entity.setPolledAt(new Date());
+		
+		entityUpdater.postUpdateFederation(entity, entities.getName());
+		
 		logger.debug("Updated SAML Entities for Federation {}", entity.getName());
 	}
 
