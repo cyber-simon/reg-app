@@ -107,7 +107,7 @@ public class DiscoveryLoginBean implements Serializable {
 	@Inject
 	private UserProvisionerService userProvisionerService;
 
-	//private Object selectedIdp;
+	// private Object selectedIdp;
 	private UserProvisionerCachedEntry selected;
 
 	private Boolean storeIdpSelection;
@@ -183,71 +183,75 @@ public class DiscoveryLoginBean implements Serializable {
 	public List<UserProvisionerCachedEntry> getExtraList() {
 		return discoveryCache.getExtraEntryList();
 	}
-	
+
 	public List<UserProvisionerCachedEntry> search(String part) {
 		return discoveryCache.getUserCountEntryList().stream()
-                .filter(o -> o.getName().toLowerCase().contains(part.toLowerCase()))
-                .limit(25)
-                .collect(Collectors.toList());
+				.filter(o -> o.getName().toLowerCase().contains(part.toLowerCase())).limit(25)
+				.collect(Collectors.toList());
 	}
-	
-	public void login() {
-		if (selected != null) {
-			ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
-			String hostname = externalContext.getRequestServerName();
 
-			UserProvisionerEntity userProvisioner = userProvisionerService.findByIdWithAttrs(selected.getId());
-			
-			if (userProvisioner instanceof SamlIdpMetadataEntity) {
-				SamlIdpMetadataEntity idp = (SamlIdpMetadataEntity) userProvisioner;
-				SamlSpConfigurationEntity spConfig = null;
-				List<SamlSpConfigurationEntity> spConfigList = spService.findByHostname(hostname);
+	public void login(Long userProvisionerId) {
+		ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+		String hostname = externalContext.getRequestServerName();
 
-				if (spConfigList.size() == 1) {
-					spConfig = spConfigList.get(0);
-				} else {
-					for (SamlSpConfigurationEntity s : spConfigList) {
-						if (s.getDefaultSp() != null && s.getDefaultSp().equals(Boolean.TRUE)) {
-							spConfig = s;
-							break;
-						}
+		UserProvisionerEntity userProvisioner = userProvisionerService.findByIdWithAttrs(userProvisionerId);
+
+		if (userProvisioner instanceof SamlIdpMetadataEntity) {
+			SamlIdpMetadataEntity idp = (SamlIdpMetadataEntity) userProvisioner;
+			SamlSpConfigurationEntity spConfig = null;
+			List<SamlSpConfigurationEntity> spConfigList = spService.findByHostname(hostname);
+
+			if (spConfigList.size() == 1) {
+				spConfig = spConfigList.get(0);
+			} else {
+				for (SamlSpConfigurationEntity s : spConfigList) {
+					if (s.getDefaultSp() != null && s.getDefaultSp().equals(Boolean.TRUE)) {
+						spConfig = s;
+						break;
 					}
 				}
-
-				if (spConfig == null) {
-					messageGenerator.addErrorMessage("Es ist keine Host Konfiguration vorhanden",
-							"Betroffener Host: " + hostname);
-					return;
-				}
-
-				sessionManager.setSpId(spConfig.getId());
-				sessionManager.setIdpId(idp.getId());
-				if (storeIdpSelection != null && storeIdpSelection) {
-					cookieHelper.setCookie("preselect_idp", idp.getId().toString(), 356 * 24 * 3600);
-				} else {
-					cookieHelper.setCookie("preselect_idp", "", 0);
-				}
-				try {
-					externalContext.redirect("/Shibboleth.sso/Login");
-				} catch (IOException e) {
-					messageGenerator.addErrorMessage("Ein Fehler ist aufgetreten", e.toString());
-				}
-			} else if (userProvisioner instanceof OidcRpConfigurationEntity) {
-				OidcRpConfigurationEntity rp = (OidcRpConfigurationEntity) userProvisioner;
-				sessionManager.setOidcRelyingPartyId(rp.getId());
-
-				if (storeIdpSelection != null && storeIdpSelection) {
-					cookieHelper.setCookie("preselect_idp", rp.getId().toString(), 356 * 24 * 3600);
-				} else {
-					cookieHelper.setCookie("preselect_idp", "", 0);
-				}
-
-				try {
-					externalContext.redirect("/rpoidc/login");
-				} catch (IOException e) {
-					messageGenerator.addErrorMessage("Ein Fehler ist aufgetreten", e.toString());
-				}
 			}
+
+			if (spConfig == null) {
+				messageGenerator.addErrorMessage("Es ist keine Host Konfiguration vorhanden",
+						"Betroffener Host: " + hostname);
+				return;
+			}
+
+			sessionManager.setSpId(spConfig.getId());
+			sessionManager.setIdpId(idp.getId());
+			if (storeIdpSelection != null && storeIdpSelection) {
+				cookieHelper.setCookie("preselect_idp", idp.getId().toString(), 356 * 24 * 3600);
+			} else {
+				cookieHelper.setCookie("preselect_idp", "", 0);
+			}
+			try {
+				externalContext.redirect("/Shibboleth.sso/Login");
+			} catch (IOException e) {
+				messageGenerator.addErrorMessage("Ein Fehler ist aufgetreten", e.toString());
+			}
+		} else if (userProvisioner instanceof OidcRpConfigurationEntity) {
+			OidcRpConfigurationEntity rp = (OidcRpConfigurationEntity) userProvisioner;
+			sessionManager.setOidcRelyingPartyId(rp.getId());
+
+			if (storeIdpSelection != null && storeIdpSelection) {
+				cookieHelper.setCookie("preselect_idp", rp.getId().toString(), 356 * 24 * 3600);
+			} else {
+				cookieHelper.setCookie("preselect_idp", "", 0);
+			}
+
+			try {
+				externalContext.redirect("/rpoidc/login");
+			} catch (IOException e) {
+				messageGenerator.addErrorMessage("Ein Fehler ist aufgetreten", e.toString());
+			}
+		}
+
+	}
+
+	public void login() {
+		if (selected != null) {
+			login(selected.getId());
 		} else {
 			messageGenerator.addWarningMessage("Keine Auswahl getroffen", "Bitte wählen Sie Ihre Heimatorganisation");
 		}
@@ -255,7 +259,7 @@ public class DiscoveryLoginBean implements Serializable {
 
 	public List<Object> updateIdpList() {
 		List<Object> idpList = null;
-		
+
 		if (sessionManager.getOidcAuthnOpConfigId() != null && sessionManager.getOidcAuthnClientConfigId() != null) {
 			/*
 			 * reg-app login called via OIDC relying party
@@ -306,14 +310,14 @@ public class DiscoveryLoginBean implements Serializable {
 			}
 		}
 		sortIdpList(idpList);
-		
+
 		return idpList;
 	}
 
 	public void addFed(FederationEntity federation) {
-		
+
 	}
-	
+
 	public void sortIdpList(List<Object> idpList) {
 		idpList = idpList.stream().sorted((item1, item2) -> {
 			String name1 = ((UserProvisionerEntity) item1).getOrgName();
@@ -328,10 +332,10 @@ public class DiscoveryLoginBean implements Serializable {
 	public List<UserProvisionerCachedEntry> getInitialList() {
 		return discoveryCache.getInitialEntryList();
 	}
-	
+
 	public List<Object> getIdpList() {
 		List<Object> idpList = updateIdpList();
-		
+
 		if (filter == null)
 			return idpList;
 
@@ -360,7 +364,7 @@ public class DiscoveryLoginBean implements Serializable {
 		}
 
 		if (filteredList.size() == 1) {
-			//selectedIdp = filteredList.get(0);
+			// selectedIdp = filteredList.get(0);
 		}
 
 		return filteredList;
