@@ -16,7 +16,6 @@ import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
 import edu.kit.scc.webreg.dao.StatisticsDao;
 import edu.kit.scc.webreg.dao.identity.UserProvisionerDao;
 import edu.kit.scc.webreg.dao.oidc.OidcRpConfigurationDao;
-import edu.kit.scc.webreg.entity.FederationEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.UserProvisionerEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
@@ -51,7 +50,6 @@ public class DiscoveryCacheSingleton implements Serializable {
 
 	private Long lastRefresh;
 	private List<UserProvisionerCachedEntry> allEntryList;
-	private List<UserProvisionerCachedEntry> initialEntryList;
 	private List<UserProvisionerCachedEntry> extraEntryList;
 	private List<UserProvisionerCachedEntry> userCountEntryList;
 	private Map<Long, UserProvisionerCachedEntry> idMap;
@@ -60,7 +58,6 @@ public class DiscoveryCacheSingleton implements Serializable {
 	public void init() {
 		logger.info("Constructing DiscoveryCache");
 		allEntryList = new ArrayList<>();
-		initialEntryList = new ArrayList<>();
 		extraEntryList = new ArrayList<>();
 		idMap = new HashMap<>();
 
@@ -104,7 +101,6 @@ public class DiscoveryCacheSingleton implements Serializable {
 		};
 
 		SortedSet<UserProvisionerCachedEntry> tempAllSet = new TreeSet<>(comparator);
-		SortedSet<UserProvisionerCachedEntry> tempInitalSet = new TreeSet<>(comparator);
 		SortedSet<UserProvisionerCachedEntry> tempExtraSet = new TreeSet<>(comparator);
 
 		for (UserProvisionerEntity userProvisioner : all) {
@@ -119,10 +115,9 @@ public class DiscoveryCacheSingleton implements Serializable {
 			
 			if (userProvisioner instanceof OidcRpConfigurationEntity) {
 				OidcRpConfigurationEntity specific = oidcRpDao.fetch(userProvisioner.getId());
-				if (specific.getDisplayName() == null)
-					entry.setName(specific.getName());
-				else
-					entry.setName(specific.getDisplayName());
+				entry.setName(specific.getName());
+				entry.setEntityId(specific.getName());
+				entry.setDisplayName(specific.getDisplayName());
 				entry.setOrgName(specific.getOrgName());
 				if (specific.getIcon() != null)
 					entry.setIconId(specific.getIcon().getId());
@@ -131,27 +126,23 @@ public class DiscoveryCacheSingleton implements Serializable {
 				if (specific.getGenericStore().containsKey("show_extra")
 						&& specific.getGenericStore().get("show_extra").equalsIgnoreCase("true"))
 					tempExtraSet.add(entry);
-				tempInitalSet.add(entry);
 				tempAllSet.add(entry);
 				idMap.put(entry.getId(), entry);
 			} else if (userProvisioner instanceof SamlIdpMetadataEntity) {
 				SamlIdpMetadataEntity specific = idpDao.fetch(userProvisioner.getId());
 				if (specific.getEntityCategoryList() != null && !(specific.getEntityCategoryList()
 						.contains("http://refeds.org/category/hide-from-discovery"))) {
+					entry.setName(specific.getEntityId());
+					entry.setEntityId(specific.getEntityId());
 					if (specific.getDisplayName() == null)
-						entry.setName(specific.getOrgName());
+						entry.setDisplayName(specific.getOrgName());
 					else
-						entry.setName(specific.getDisplayName());
+						entry.setDisplayName(specific.getDisplayName());
 					entry.setOrgName(specific.getOrgName());
 					if (specific.getIcon() != null)
 						entry.setIconId(specific.getIcon().getId());
 					if (specific.getIconLarge() != null)
 						entry.setIconLargeId(specific.getIconLarge().getId());
-					for (FederationEntity f : specific.getFederations()) {
-						if (!f.getLoadOnButton()) {
-							tempInitalSet.add(entry);
-						}
-					}
 					if (specific.getGenericStore().containsKey("show_extra")
 							&& specific.getGenericStore().get("show_extra").equalsIgnoreCase("true"))
 						tempExtraSet.add(entry);
@@ -173,12 +164,11 @@ public class DiscoveryCacheSingleton implements Serializable {
 		Collections.sort(userCountEntryList, userCountComparator);
 		
 		allEntryList = new ArrayList<>(tempAllSet);
-		initialEntryList = new ArrayList<>(tempInitalSet);
 		extraEntryList = new ArrayList<>(tempExtraSet);
 		long end = System.currentTimeMillis();
 
-		logger.info("Building DiscoveryCache done, initialList size {} and allList size {} took {} ms",
-				initialEntryList.size(), allEntryList.size(), (end - start));
+		logger.info("Building DiscoveryCache done, allList size {} took {} ms",
+				allEntryList.size(), (end - start));
 
 		lastRefresh = System.currentTimeMillis();
 	}
@@ -191,11 +181,6 @@ public class DiscoveryCacheSingleton implements Serializable {
 	@Lock(LockType.READ)
 	public List<UserProvisionerCachedEntry> getAllEntryList() {
 		return allEntryList;
-	}
-
-	@Lock(LockType.READ)
-	public List<UserProvisionerCachedEntry> getInitialEntryList() {
-		return initialEntryList;
 	}
 
 	@Lock(LockType.READ)

@@ -4,8 +4,14 @@ import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.config.RequestConfig;
@@ -21,6 +27,7 @@ import edu.kit.scc.webreg.entity.IconCacheEntity;
 import edu.kit.scc.webreg.entity.IconCacheEntity_;
 import edu.kit.scc.webreg.entity.ImageDataEntity;
 import edu.kit.scc.webreg.entity.ImageType;
+import edu.kit.scc.webreg.entity.ScriptEntity;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 
@@ -34,7 +41,7 @@ public class DiscoveryCacheService implements Serializable {
 
 	@Inject
 	private DiscoveryCacheSingleton singleton;
-	
+
 	@Inject
 	private IconCacheDao iconCacheDao;
 
@@ -42,7 +49,7 @@ public class DiscoveryCacheService implements Serializable {
 		if (singleton.getCacheStale())
 			singleton.refreshCache();
 	}
-	
+
 	public IconCacheEntity getIcon(Long id) {
 		return iconCacheDao.find(equal(IconCacheEntity_.id, id), IconCacheEntity_.imageData);
 	}
@@ -74,7 +81,8 @@ public class DiscoveryCacheService implements Serializable {
 
 		if (icon.getUrl() != null) {
 			logger.debug("Refreshing icon {} from url {}", icon.getId(), icon.getUrl());
-			RequestConfig requestConfig = RequestConfig.custom().setConnectionRequestTimeout(Timeout.ofMilliseconds(5000L)) .build();
+			RequestConfig requestConfig = RequestConfig.custom()
+					.setConnectionRequestTimeout(Timeout.ofMilliseconds(5000L)).build();
 			CloseableHttpClient httpClient = HttpClientBuilder.create().setDefaultRequestConfig(requestConfig).build();
 			try {
 				httpClient.execute(new HttpGet(icon.getUrl()), response -> {
@@ -84,9 +92,9 @@ public class DiscoveryCacheService implements Serializable {
 						final String mimeType = ContentType.parse(response.getEntity().getContentType()).getMimeType();
 						setIconData(body, icon, mimeType);
 						icon.setValidUntil(new Date(System.currentTimeMillis() + (30L * 60L * 1000L)));
-					}
-					else {
-						logger.debug("Refreshing icon {} from url {} failed: {}", icon.getId(), icon.getUrl(), response.getCode());
+					} else {
+						logger.debug("Refreshing icon {} from url {} failed: {}", icon.getId(), icon.getUrl(),
+								response.getCode());
 					}
 					return response;
 				});
@@ -121,20 +129,70 @@ public class DiscoveryCacheService implements Serializable {
 		return singleton.getEntry(id);
 	}
 
-	public List<UserProvisionerCachedEntry> getAllEntryList() {
-		return singleton.getAllEntryList();
+	public List<UserProvisionerCachedEntry> getAllEntryList(List<ScriptEntity> filterScriptList) {
+		return filterAllEntries(filterScriptList, singleton.getAllEntryList());
 	}
 
-	public List<UserProvisionerCachedEntry> getUserCountEntryList() {
-		return singleton.getUserCountEntryList();
+	public List<UserProvisionerCachedEntry> getUserCountEntryList(List<ScriptEntity> filterScriptList) {
+		return filterAllEntries(filterScriptList, singleton.getUserCountEntryList());
 	}
 
-	public List<UserProvisionerCachedEntry> getInitialEntryList() {
-		return singleton.getInitialEntryList();
+	public List<UserProvisionerCachedEntry> getExtraEntryList(List<ScriptEntity> filterScriptList) {
+		return filterAllEntries(filterScriptList, singleton.getExtraEntryList());
 	}
 
-	public List<UserProvisionerCachedEntry> getExtraEntryList() {
-		return singleton.getExtraEntryList();
+	private List<UserProvisionerCachedEntry> filterAllEntries(List<ScriptEntity> filterScriptList,
+			List<UserProvisionerCachedEntry> entryList) {
+		if (filterScriptList != null && filterScriptList.size() > 0) {
+			for (ScriptEntity script : filterScriptList) {
+				entryList = filterEntries(script, entryList);
+			}
+		}
+		return entryList;		
 	}
+	
+	private List<UserProvisionerCachedEntry> filterEntries(ScriptEntity scriptEntity,
+			List<UserProvisionerCachedEntry> entryList) {
+		ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
 
+		if (engine == null) {
+			logger.warn("No engine set for script {}. Returning all IDPs", scriptEntity.getName());
+			return entryList;
+		}
+
+		try {
+			List<UserProvisionerCachedEntry> targetList = new ArrayList<>();
+
+			engine.eval(scriptEntity.getScript());
+
+			Invocable invocable = (Invocable) engine;
+
+			// If one of two succeeds, use target list, else return all
+			Boolean success = false;
+
+			try {
+				List<UserProvisionerCachedEntry> idpList = new ArrayList<>();
+				invocable.invokeFunction("filterIdps", entryList, idpList, logger);
+				targetList.addAll(idpList);
+				success = true;
+			} catch (NoSuchMethodException e) {
+			}
+
+			try {
+				List<UserProvisionerCachedEntry> opList = new ArrayList<>();
+				invocable.invokeFunction("filterOps", entryList, opList, logger);
+				targetList.addAll(opList);
+				success = true;
+			} catch (NoSuchMethodException e) {
+			}
+
+			if (success)
+				return targetList;
+			else
+				return entryList;
+		} catch (ScriptException e) {
+			logger.warn("Script execution failed.", e);
+			return entryList;
+		}
+	}
 }

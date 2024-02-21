@@ -14,15 +14,14 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
-import edu.kit.scc.webreg.entity.FederationEntity;
 import edu.kit.scc.webreg.entity.SamlIdpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
+import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.ServiceSamlSpEntity;
 import edu.kit.scc.webreg.entity.UserProvisionerEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
@@ -40,8 +39,6 @@ import edu.kit.scc.webreg.service.oidc.OidcClientConfigurationService;
 import edu.kit.scc.webreg.service.oidc.OidcOpConfigurationService;
 import edu.kit.scc.webreg.service.oidc.OidcRpConfigurationService;
 import edu.kit.scc.webreg.service.oidc.ServiceOidcClientService;
-import edu.kit.scc.webreg.service.oidc.client.OidcDiscoverySingletonBean;
-import edu.kit.scc.webreg.service.saml.FederationSingletonBean;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.CookieHelper;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
@@ -60,9 +57,6 @@ public class DiscoveryLoginBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Inject
-	private FederationSingletonBean federationBean;
-
-	@Inject
 	private SamlIdpMetadataService idpService;
 
 	@Inject
@@ -70,9 +64,6 @@ public class DiscoveryLoginBean implements Serializable {
 
 	@Inject
 	private OidcRpConfigurationService oidcRpService;
-
-	@Inject
-	private OidcDiscoverySingletonBean oidcDiscoverySingletonBean;
 
 	@Inject
 	private SessionManager sessionManager;
@@ -112,8 +103,6 @@ public class DiscoveryLoginBean implements Serializable {
 
 	private Boolean storeIdpSelection;
 
-	private String filter;
-
 	/*
 	 * Login came from SAML SP. spMetadata holds metadata of requester idpConfig is
 	 * the IDP on reg-app side, which was requested
@@ -128,7 +117,11 @@ public class DiscoveryLoginBean implements Serializable {
 	private OidcOpConfigurationEntity opConfig;
 	private OidcClientConfigurationEntity clientConfig;
 
+	// Filter IDPs and OPs if this list is populated
+	private List<ScriptEntity> filterScriptList;
+
 	private Boolean initialized = false;
+	private Boolean largeList = false;
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (sessionManager.getOriginalIdpEntityId() != null) {
@@ -143,20 +136,19 @@ public class DiscoveryLoginBean implements Serializable {
 		if (!initialized) {
 
 			discoveryCache.refreshCache();
+			filterScriptList = new ArrayList<>();
 
-			if (appConfig.getConfigValue("preselect_store_idp_select") != null
-					&& appConfig.getConfigValue("preselect_store_idp_select").equalsIgnoreCase("true")) {
+			if (appConfig.getConfigValueOrDefault("preselect_store_idp_select", "false").equalsIgnoreCase("true")) {
 				storeIdpSelection = true;
 			} else {
 				storeIdpSelection = false;
 			}
 
-			if (federationBean.getFederationList() == null || federationBean.getFederationList().size() == 0) {
+			if (discoveryCache.getAllEntryList(filterScriptList) == null
+					|| discoveryCache.getAllEntryList(filterScriptList).size() == 0) {
 				messageGenerator.addErrorMessage("Das SAML Subsystem ist noch nicht konfiguriert");
 				return;
 			}
-
-			updateIdpList();
 
 			Cookie idpCookie = cookieHelper.getCookie("preselect_idp");
 			if (idpCookie != null) {
@@ -176,17 +168,57 @@ public class DiscoveryLoginBean implements Serializable {
 					}
 				}
 			}
+
+			if (sessionManager.getOidcAuthnOpConfigId() != null
+					&& sessionManager.getOidcAuthnClientConfigId() != null) {
+				/*
+				 * reg-app login called via OIDC relying party
+				 */
+				opConfig = oidcOpConfigService.fetch(sessionManager.getOidcAuthnOpConfigId());
+				clientConfig = oidcClientConfigService.fetch(sessionManager.getOidcAuthnClientConfigId());
+				List<ServiceOidcClientEntity> serviceOidcClientList = serviceOidcClientService
+						.findByClientConfig(clientConfig);
+
+				for (ServiceOidcClientEntity serviceOidcClient : serviceOidcClientList) {
+					if (serviceOidcClient.getScript() != null) {
+						filterScriptList.add(serviceOidcClient.getScript());
+					}
+				}
+			} else if (sessionManager.getAuthnRequestIdpConfigId() != null
+					&& sessionManager.getAuthnRequestSpMetadataId() != null) {
+				/*
+				 * reg-app login called via SAML service provider
+				 */
+				idpConfig = idpConfigService.fetch(sessionManager.getAuthnRequestIdpConfigId());
+				spMetadata = spMetadataService.fetch(sessionManager.getAuthnRequestSpMetadataId());
+				List<ServiceSamlSpEntity> serviceSamlList = idpConfigService.findBySamlSpAndIdp(idpConfig, spMetadata);
+
+				for (ServiceSamlSpEntity serviceSaml : serviceSamlList) {
+					if (serviceSaml.getScript() != null) {
+						filterScriptList.add(serviceSaml.getScript());
+					}
+				}
+			}
+
+			Integer largeLimit = Integer.parseInt(appConfig.getConfigValueOrDefault("discovery_large_list_threshold", "100"));
+			if (getAllList().size() > largeLimit)
+				largeList = true;
+
 			initialized = true;
 		}
 	}
 
 	public List<UserProvisionerCachedEntry> getExtraList() {
-		return discoveryCache.getExtraEntryList();
+		return discoveryCache.getExtraEntryList(filterScriptList);
+	}
+
+	public List<UserProvisionerCachedEntry> getAllList() {
+		return discoveryCache.getAllEntryList(filterScriptList);
 	}
 
 	public List<UserProvisionerCachedEntry> search(String part) {
-		return discoveryCache.getUserCountEntryList().stream()
-				.filter(o -> o.getName().toLowerCase().contains(part.toLowerCase())).limit(25)
+		return discoveryCache.getUserCountEntryList(filterScriptList).stream()
+				.filter(o -> o.getDisplayName().toLowerCase().contains(part.toLowerCase())).limit(25)
 				.collect(Collectors.toList());
 	}
 
@@ -257,127 +289,6 @@ public class DiscoveryLoginBean implements Serializable {
 		}
 	}
 
-	public List<Object> updateIdpList() {
-		List<Object> idpList = null;
-
-		if (sessionManager.getOidcAuthnOpConfigId() != null && sessionManager.getOidcAuthnClientConfigId() != null) {
-			/*
-			 * reg-app login called via OIDC relying party
-			 */
-			opConfig = oidcOpConfigService.fetch(sessionManager.getOidcAuthnOpConfigId());
-			clientConfig = oidcClientConfigService.fetch(sessionManager.getOidcAuthnClientConfigId());
-			List<ServiceOidcClientEntity> serviceOidcClientList = serviceOidcClientService
-					.findByClientConfig(clientConfig);
-			idpList = new ArrayList<Object>();
-
-			for (ServiceOidcClientEntity serviceOidcClient : serviceOidcClientList) {
-				if (serviceOidcClient.getScript() != null) {
-					idpList.addAll(federationBean.getFilteredIdpList(serviceOidcClient.getScript()));
-
-					if (appConfig.getConfigValueOrDefault("show_oidc_login", "false").equalsIgnoreCase("true")) {
-						idpList.addAll(oidcDiscoverySingletonBean.getFilteredOpList(serviceOidcClient.getScript()));
-					}
-				}
-			}
-		} else if (sessionManager.getAuthnRequestIdpConfigId() != null
-				&& sessionManager.getAuthnRequestSpMetadataId() != null) {
-			/*
-			 * reg-app login called via SAML service provider
-			 */
-			idpConfig = idpConfigService.fetch(sessionManager.getAuthnRequestIdpConfigId());
-			spMetadata = spMetadataService.fetch(sessionManager.getAuthnRequestSpMetadataId());
-			List<ServiceSamlSpEntity> serviceSamlList = idpConfigService.findBySamlSpAndIdp(idpConfig, spMetadata);
-			idpList = new ArrayList<Object>();
-
-			for (ServiceSamlSpEntity serviceSaml : serviceSamlList) {
-				if (serviceSaml.getScript() != null) {
-					idpList.addAll(federationBean.getFilteredIdpList(serviceSaml.getScript()));
-
-					if (appConfig.getConfigValueOrDefault("show_oidc_login", "false").equalsIgnoreCase("true")) {
-						idpList.addAll(oidcDiscoverySingletonBean.getFilteredOpList(serviceSaml.getScript()));
-					}
-				}
-			}
-		} else {
-			/*
-			 * reg-app login directly called
-			 */
-			idpList = new ArrayList<Object>();
-			idpList.addAll(federationBean.getAllIdpList());
-
-			if (appConfig.getConfigValueOrDefault("show_oidc_login", "false").equalsIgnoreCase("true")) {
-				idpList.addAll(oidcDiscoverySingletonBean.getAllOpList());
-			}
-		}
-		sortIdpList(idpList);
-
-		return idpList;
-	}
-
-	public void addFed(FederationEntity federation) {
-
-	}
-
-	public void sortIdpList(List<Object> idpList) {
-		idpList = idpList.stream().sorted((item1, item2) -> {
-			String name1 = ((UserProvisionerEntity) item1).getOrgName();
-			String name2 = ((UserProvisionerEntity) item2).getOrgName();
-			if (name1 != null)
-				return name1.compareTo(name2);
-			else
-				return 0;
-		}).collect(Collectors.toList());
-	}
-
-	public List<UserProvisionerCachedEntry> getInitialList() {
-		return discoveryCache.getInitialEntryList();
-	}
-
-	public List<Object> getIdpList() {
-		List<Object> idpList = updateIdpList();
-
-		if (filter == null)
-			return idpList;
-
-		List<Object> filteredList = new ArrayList<Object>();
-
-		for (Object o : idpList) {
-			if (o instanceof SamlIdpMetadataEntity) {
-				SamlIdpMetadataEntity idp = (SamlIdpMetadataEntity) o;
-				if (idp.getOrgName() != null
-						&& Pattern.compile(Pattern.quote(filter), Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE)
-								.matcher(idp.getOrgName()).find()) {
-					filteredList.add(idp);
-				} else if (idp.getDisplayName() != null
-						&& Pattern.compile(Pattern.quote(filter), Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE)
-								.matcher(idp.getDisplayName()).find()) {
-					filteredList.add(idp);
-				}
-			} else if (o instanceof OidcRpConfigurationEntity) {
-				OidcRpConfigurationEntity rp = (OidcRpConfigurationEntity) o;
-				if (rp.getDisplayName() != null
-						&& Pattern.compile(Pattern.quote(filter), Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE)
-								.matcher(rp.getDisplayName()).find()) {
-					filteredList.add(rp);
-				}
-			}
-		}
-
-		if (filteredList.size() == 1) {
-			// selectedIdp = filteredList.get(0);
-		}
-
-		return filteredList;
-	}
-
-	public String getFilter() {
-		return filter;
-	}
-
-	public void setFilter(String filter) {
-		this.filter = filter;
-	}
-
 	public ApplicationConfig getAppConfig() {
 		return appConfig;
 	}
@@ -412,5 +323,9 @@ public class DiscoveryLoginBean implements Serializable {
 
 	public void setSelected(UserProvisionerCachedEntry selected) {
 		this.selected = selected;
+	}
+
+	public Boolean getLargeList() {
+		return largeList;
 	}
 }

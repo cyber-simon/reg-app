@@ -56,26 +56,36 @@
 
 			<div><p:messages showDetail="true" /></div>
 
-			<p:focus conext="baseData" for="searchAutocompl" />
 
 			<div class="grid">
 				<div style="margin-top: 1em;" class="col-12 md:col-6 lg:col-6 xl:col-6">
-					<span class="ui-float-label">
-		                <p:autoComplete id="searchAutocompl" multiple="false" value="#{discoveryLoginBean.selected}" converter="#{userProvisionerCachedEntryConverter}" 
-		                                var="idp" itemLabel="#{idp.name}" itemValue="#{idp}" cache="true" minQueryLength="2"
-		                                completeMethod="#{discoveryLoginBean.search}" maxResults="10" 
-		                                forceSelection="true" style="width: 100%;">
-							<p:column><p:graphicImage style="max-width: 48px; max-height: 32px;" value="#{request.contextPath}/rest/icon-cache/async/small/#{idp.iconId}" rendered="#{not empty idp.iconId}" /></p:column>
-							<p:column>#{idp.name}</p:column>
-							<p:ajax update=":form" />
-						</p:autoComplete>
-						<p:outputLabel for="@previous" value="#{messages['search_filter']}" />
-					</span>
+					<p:outputPanel rendered="#{discoveryLoginBean.largeList}">
+						<p:focus conext="baseData" for="searchAutocompl" />
+						<span class="ui-float-label">
+			                <p:autoComplete id="searchAutocompl" multiple="false" value="#{discoveryLoginBean.selected}" converter="#{userProvisionerCachedEntryConverter}" 
+			                                var="idp" itemLabel="#{idp.displayName}" itemValue="#{idp}" cache="true" minQueryLength="2"
+			                                completeMethod="#{discoveryLoginBean.search}" maxResults="10" 
+			                                forceSelection="true" style="width: 100%;" onfocus="this.select();">
+								<p:column><p:graphicImage style="max-width: 48px; max-height: 32px;" value="#{request.contextPath}/rest/icon-cache/async/small/#{idp.iconId}" rendered="#{not empty idp.iconId}" /></p:column>
+								<p:column>#{idp.displayName}</p:column>
+								<p:ajax update=":form" />
+							</p:autoComplete>
+							<p:outputLabel for="@previous" value="#{messages['search_filter']}" />
+						</span>
+					</p:outputPanel>
+					<p:outputPanel rendered="#{not discoveryLoginBean.largeList}">
+						<p:focus conext="baseData" for="selectBox" />
+						<p:selectOneListbox id="selectBox" style="width: 100%;" value="#{discoveryLoginBean.selected}" converter="#{userProvisionerCachedEntryConverter}"
+								filter="true" filterMatchMode="contains" filterNormalize="true">
+							<f:selectItems value="#{discoveryLoginBean.allList}" var="idp" itemLabel="#{idp.displayName}" itemValue="#{idp}"/>
+							<p:ajax update=":form:infoPnl,:form:btnPanel" />
+						</p:selectOneListbox>
+					</p:outputPanel>
 					<p:outputPanel style="margin-top: 1em;">
 						<p:selectBooleanCheckbox value="#{discoveryLoginBean.storeIdpSelection}" itemLabel="#{messages.store_idp_selection}" />
 					</p:outputPanel>
 					
-					<p:outputPanel>
+					<p:outputPanel id="btnPanel">
 						<p:commandButton id="login" action="#{discoveryLoginBean.login}" value="#{messages.proceed}" disabled="#{empty discoveryLoginBean.selected}"
 							update=":form" />
 					</p:outputPanel>
@@ -83,14 +93,16 @@
 				</div>
 
 				<div class="col-12 md:col-6 lg:col-6 xl:col-6">
-					<p:panel id="infoPnl" style="border: 1px solid #eeeeee;" rendered="#{not empty discoveryLoginBean.selected}">
-						<div style="text-align: left;">
-							<p:graphicImage style="max-width: 320px; max-height: 160px;" value="#{request.contextPath}/rest/icon-cache/sync/small/#{discoveryLoginBean.selected.iconLargeId}" />
-						</div> 
-						<div>
-							<h:outputText value="#{discoveryLoginBean.selected.name}" />
-						</div> 
-					</p:panel>
+					<p:outputPanel id="infoPnl">
+						<p:panel style="border: 1px solid #eeeeee;" rendered="#{not empty discoveryLoginBean.selected}">
+							<div style="text-align: left;">
+								<p:graphicImage style="max-width: 320px; max-height: 160px;" value="#{request.contextPath}/rest/icon-cache/sync/small/#{discoveryLoginBean.selected.iconLargeId}" />
+							</div> 
+							<div>
+								<h:outputText value="#{discoveryLoginBean.selected.displayName}" />
+							</div> 
+						</p:panel>
+					</p:outputPanel>
 				</div>
 			</div>
 			<p:outputPanel rendered="#{discoveryLoginBean.extraList.size() > 0}">
@@ -102,7 +114,7 @@
 								<div>
 									<p:graphicImage style="max-width: 160px; max-height: 60px;" value="#{request.contextPath}/rest/icon-cache/sync/small/#{extra.iconLargeId}" />
 								</div>
-								<div>#{extra.name}</div>
+								<div>#{extra.displayName}</div>
 							</p:commandLink>
 						</div>
 					</ui:repeat>

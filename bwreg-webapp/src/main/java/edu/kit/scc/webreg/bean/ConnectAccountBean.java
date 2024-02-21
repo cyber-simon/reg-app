@@ -14,13 +14,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 
-import jakarta.faces.context.ExternalContext;
-import jakarta.faces.context.FacesContext;
-import jakarta.faces.event.ComponentSystemEvent;
-import jakarta.faces.view.ViewScoped;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
@@ -28,9 +21,14 @@ import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.oidc.OidcRpConfigurationService;
-import edu.kit.scc.webreg.service.saml.FederationSingletonBean;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ComponentSystemEvent;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named
 @ViewScoped
@@ -50,8 +48,8 @@ public class ConnectAccountBean implements Serializable {
 	@Inject
 	private OidcRpConfigurationService oidcRpService;
 
-	@Inject
-	private FederationSingletonBean federationBean;
+//	@Inject
+//	private FederationSingletonBean federationBean;
 
 	@Inject
 	private FacesMessageGenerator messageGenerator;
@@ -72,7 +70,7 @@ public class ConnectAccountBean implements Serializable {
 			identity = identityService.fetch(sessionManager.getIdentityId());
 			userList = userService.findByIdentity(identity);
 			
-			idpList = federationBean.getAllIdpList();
+			//idpList = federationBean.getAllIdpList();
 		}
 	}
 	

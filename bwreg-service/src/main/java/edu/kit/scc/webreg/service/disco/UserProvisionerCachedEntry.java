@@ -8,6 +8,9 @@ public class UserProvisionerCachedEntry implements Serializable {
 	
 	private Long id;
 	private String name;
+	// for backwards compatibility in filterIdp scipts
+	private String entityId;
+	private String displayName;
 	private String orgName;
 	private Long iconId;
 	private Long iconLargeId;
@@ -84,5 +87,21 @@ public class UserProvisionerCachedEntry implements Serializable {
 
 	public void setUserCount(Long userCount) {
 		this.userCount = userCount;
+	}
+
+	public String getEntityId() {
+		return entityId;
+	}
+
+	public void setEntityId(String entityId) {
+		this.entityId = entityId;
+	}
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
 	}
 }
