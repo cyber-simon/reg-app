@@ -56,6 +56,7 @@ import org.w3c.dom.Document;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlIdpScopeEntity;
+import edu.kit.scc.webreg.entity.SamlMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -308,7 +309,7 @@ public class MetadataHelper implements Serializable {
 		return scopeList;
 	}
 	
-	public void fillDisplayData(EntityDescriptor entityDesc, SamlIdpMetadataEntity idp) {
+	public void fillDisplayData(EntityDescriptor entityDesc, SamlMetadataEntity idp) {
 		IDPSSODescriptor idpsso = entityDesc.getIDPSSODescriptor(SAMLConstants.SAML20P_NS);
 		if (idpsso != null) {
 			Extensions extensions = idpsso.getExtensions();

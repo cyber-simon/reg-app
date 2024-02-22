@@ -56,6 +56,9 @@ public class FederationEntity extends AbstractBaseEntity {
 	@Column(name = "fetch_aas")
 	private Boolean fetchAAs;
 	
+	@ManyToOne(targetEntity = ImageEntity.class)
+	private ImageEntity logoImage;
+	
 	@ManyToMany(targetEntity = SamlIdpMetadataEntity.class, mappedBy="federations")
 	private Set<SamlIdpMetadataEntity> idps;
 
@@ -179,5 +182,13 @@ public class FederationEntity extends AbstractBaseEntity {
 
 	public void setShortName(String shortName) {
 		this.shortName = shortName;
+	}
+
+	public ImageEntity getLogoImage() {
+		return logoImage;
+	}
+
+	public void setLogoImage(ImageEntity logoImage) {
+		this.logoImage = logoImage;
 	}
 }

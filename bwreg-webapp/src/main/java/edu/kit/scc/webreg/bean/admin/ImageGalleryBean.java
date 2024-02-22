@@ -14,13 +14,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 
-import jakarta.faces.application.FacesMessage;
-import jakarta.faces.context.FacesContext;
-import jakarta.faces.event.ComponentSystemEvent;
-import jakarta.faces.view.ViewScoped;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import org.apache.commons.io.IOUtils;
 import org.primefaces.event.FileUploadEvent;
 import org.slf4j.Logger;
@@ -32,6 +25,12 @@ import edu.kit.scc.webreg.entity.ImageType;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.service.ImageService;
 import edu.kit.scc.webreg.service.ServiceService;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ComponentSystemEvent;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named
 @ViewScoped
@@ -93,14 +92,25 @@ public class ImageGalleryBean implements Serializable {
 	}
 	
     public void handleFileUpload(FileUploadEvent event) {
-		logger.debug("A file was uploaded: {}", event.getFile().getFileName());
+		logger.debug("A file was uploaded: {} ({})", event.getFile().getFileName(), event.getFile().getContentType());
+		
+		String fileName = event.getFile().getFileName().replaceAll("\\.(png|jpg|jpeg|svg)$", "");
 		
 		try {
 			ImageEntity image = imageService.createNew();
 			image.setImageData(new ImageDataEntity());
 			
-			image.setName(event.getFile().getFileName());
-			image.setImageType(ImageType.PNG);
+			image.setName(fileName);
+			image.setImageType(ImageType.NOT_SUPPORTED);
+			if (event.getFile().getContentType() != null) {
+				if (event.getFile().getContentType().equals("image/png")) {
+					image.setImageType(ImageType.PNG);
+				} else if (event.getFile().getContentType().equals("image/jpeg")) {
+					image.setImageType(ImageType.JPEG);
+				} else if (event.getFile().getContentType().equals("image/svg+xml")) {
+					image.setImageType(ImageType.SVG);
+				}
+			}
 			image.getImageData().setData(IOUtils.toByteArray(event.getFile().getInputStream()));
 			imageService.save(image);
 			

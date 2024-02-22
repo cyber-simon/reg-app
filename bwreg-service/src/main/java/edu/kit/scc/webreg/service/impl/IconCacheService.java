@@ -10,31 +10,25 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.service.impl;
 
-import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+import java.io.Serializable;
 
 import edu.kit.scc.webreg.dao.BaseDao;
-import edu.kit.scc.webreg.dao.FederationDao;
-import edu.kit.scc.webreg.entity.FederationEntity;
-import edu.kit.scc.webreg.entity.FederationEntity_;
-import edu.kit.scc.webreg.service.FederationService;
+import edu.kit.scc.webreg.dao.jpa.IconCacheDao;
+import edu.kit.scc.webreg.entity.IconCacheEntity;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 
 @Stateless
-public class FederationServiceImpl extends BaseServiceImpl<FederationEntity> implements FederationService {
+public class IconCacheService extends BaseServiceImpl<IconCacheEntity> implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	@Inject
-	private FederationDao dao;
+	private IconCacheDao dao;
 
 	@Override
-	public FederationEntity findWithIdpEntities(Long id) {
-		return dao.find(equal(FederationEntity_.id, id), FederationEntity_.idps);
-	}
-
-	@Override
-	protected BaseDao<FederationEntity> getDao() {
+	protected BaseDao<IconCacheEntity> getDao() {
 		return dao;
 	}
+
 }

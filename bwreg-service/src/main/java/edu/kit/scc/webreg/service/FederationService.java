@@ -14,8 +14,6 @@ import edu.kit.scc.webreg.entity.FederationEntity;
 
 public interface FederationService extends BaseService<FederationEntity> {
 
-	void updateFederation(FederationEntity entity);
-
 	FederationEntity findWithIdpEntities(Long id);
 
 }

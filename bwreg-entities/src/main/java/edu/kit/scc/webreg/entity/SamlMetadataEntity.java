@@ -42,18 +42,6 @@ public class SamlMetadataEntity extends UserProvisionerEntity {
 	@Enumerated(EnumType.STRING)
 	private SamlMetadataEntityStatus status;
 
-	@Column(name = "org_name", length = 4096)
-	private String orgName;
-	
-	@Column(name = "display_name", length = 4096)
-	private String displayName;
-	
-	@Column(name = "description", length = 4096)
-	private String description;
-	
-	@Column(name = "information_url", length = 4096)
-	private String informationUrl;
-	
 	@Column(name = "logo_url", length = 2097152)
 	private String logoUrl;
 	
@@ -80,14 +68,6 @@ public class SamlMetadataEntity extends UserProvisionerEntity {
 		this.entityId = entityId;
 	}
 
-	public String getOrgName() {
-		return orgName;
-	}
-
-	public void setOrgName(String orgName) {
-		this.orgName = orgName;
-	}
-
 	public String getEntityDescriptor() {
 		return entityDescriptor;
 	}
@@ -112,30 +92,6 @@ public class SamlMetadataEntity extends UserProvisionerEntity {
 		this.genericStore = genericStore;
 	}
 	
-	public String getDisplayName() {
-		return displayName;
-	}
-
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getInformationUrl() {
-		return informationUrl;
-	}
-
-	public void setInformationUrl(String informationUrl) {
-		this.informationUrl = informationUrl;
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;

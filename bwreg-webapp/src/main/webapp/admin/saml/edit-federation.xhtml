@@ -65,6 +65,11 @@
 					<p:selectBooleanButton id="aasField"
 						onLabel="#{messages.yes}" offLabel="#{messages.no}" 
 						value="#{editFederationBean.entity.fetchAAs}"/>
+
+					<h:outputText value="#{messages.load_on_button}" />
+					<p:selectBooleanButton id="onlobuField"
+						onLabel="#{messages.yes}" offLabel="#{messages.no}" 
+						value="#{editFederationBean.entity.loadOnButton}"/>
  
 				</p:panelGrid>
 				<p:commandButton id="save" action="#{editFederationBean.save}" value="#{messages.save}"/>

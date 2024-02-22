@@ -64,8 +64,6 @@ public class SessionManager implements Serializable {
 	// List of logged in account (stored for logout)
 	private Set<Long> loggedInUserList;
 	
-	private String accountLinkingPin;
-	
 	private Map<String, List<Object>> attributeMap;
 	
 	private String originalRequestPath;
@@ -364,14 +362,6 @@ public class SessionManager implements Serializable {
 
 	public void setOidcAuthnClientConfigId(Long oidcAuthnClientConfigId) {
 		this.oidcAuthnClientConfigId = oidcAuthnClientConfigId;
-	}
-
-	public String getAccountLinkingPin() {
-		return accountLinkingPin;
-	}
-
-	public void setAccountLinkingPin(String accountLinkingPin) {
-		this.accountLinkingPin = accountLinkingPin;
 	}
 
 	public Set<Long> getLoggedInUserList() {

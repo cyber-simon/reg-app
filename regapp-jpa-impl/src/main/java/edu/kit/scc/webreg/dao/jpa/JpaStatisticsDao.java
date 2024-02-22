@@ -1,15 +1,18 @@
 package edu.kit.scc.webreg.dao.jpa;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+import edu.kit.scc.webreg.dao.StatisticsDao;
+import edu.kit.scc.webreg.entity.RegistryStatus;
+import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Named;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-
-import edu.kit.scc.webreg.dao.StatisticsDao;
-import edu.kit.scc.webreg.entity.RegistryStatus;
-import edu.kit.scc.webreg.entity.ServiceEntity;
+import jakarta.persistence.Tuple;
 
 @Named
 @ApplicationScoped
@@ -19,11 +22,18 @@ public class JpaStatisticsDao implements StatisticsDao {
 	protected EntityManager em;
 
 	@Override
-	@SuppressWarnings({ "unchecked" })
-	public List<Object> countUsersPerIdp() {
-		return em.createQuery(
-				"select new list(count(u) as cnt, i) from UserEntity u join u.idp i group by i order by cnt desc")
-				.getResultList();
+	public Map<Long, Long> countUsersPerIdp() {
+		Map<Long, Long> returnMap = em.createQuery(
+				"select count(u) as cnt, i.id as idp_id from SamlUserEntity u join u.idp i group by idp_id order by cnt desc",
+				Tuple.class).getResultStream()
+				.collect(Collectors.toMap(t -> ((Number) t.get("idp_id")).longValue(),
+						t -> ((Number) t.get("cnt")).longValue()));
+		returnMap.putAll(em.createQuery(
+				"select count(u) as cnt, i.id as idp_id from OidcUserEntity u join u.issuer i group by idp_id order by cnt desc",
+				Tuple.class).getResultStream()
+				.collect(Collectors.toMap(t -> ((Number) t.get("idp_id")).longValue(),
+						t -> ((Number) t.get("cnt")).longValue())));
+		return returnMap;
 	}
 
 	@Override

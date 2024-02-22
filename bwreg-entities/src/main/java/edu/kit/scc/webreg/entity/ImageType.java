@@ -14,6 +14,8 @@ public enum ImageType {
 
 	PNG,
 	GIF,
-	JPEG
+	JPEG,
+	SVG,
+	NOT_SUPPORTED
 	
 }

@@ -51,6 +51,12 @@
 
 					<bw:inputText id="authUrlField" label="#{messages.callbackUrl}"
 						value="#{editOidcRpConfigurationBean.entity.callbackUrl}" required="true" />
+
+					<bw:inputText id="logoSmallField" label="#{messages.logo_small_url}"
+						value="#{editOidcRpConfigurationBean.entity.logoSmallUrl}" required="false" />
+		
+					<bw:inputText id="logoField" label="#{messages.logo_url}"
+						value="#{editOidcRpConfigurationBean.entity.logoUrl}" required="false" />
 		
 				</p:panelGrid>
 			<h:commandButton id="save" action="#{editOidcRpConfigurationBean.save}" value="#{messages.save}"/>

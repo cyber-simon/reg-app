@@ -27,7 +27,9 @@
 			<p:panel id="galleryPanel" header="#{messages.image_gallery}" >
 				<ui:repeat var="img" value="#{imageGalleryBean.imageList}">
 					<p:panel style="width: 140px; display: inline-block; margin: 1px 1px 1px 1px;">
-						<p:graphicImage value="#{request.contextPath}/rest/image/small/#{img.id}" />
+						<p:graphicImage style="max-width: 120px; max-height:120px" value="#{request.contextPath}/rest/image/original/#{img.id}" rendered="#{img.imageType == 'PNG'}" />
+						<p:graphicImage style="max-width: 120px; max-height:120px" value="#{request.contextPath}/rest/image/original/#{img.id}" rendered="#{img.imageType == 'JPEG'}" />
+						<p:graphicImage style="max-width: 120px; max-height:120px" value="#{request.contextPath}/rest/image/original/#{img.id}" rendered="#{img.imageType == 'SVG'}" />
 						<div style="font-size: 70%;">
 							<h:outputText value="#{messages.id}: " />
 							<h:outputText value="#{img.id}" />
@@ -46,12 +48,10 @@
 		
 		<p:messages id="messageBox" showDetail="true" />
 
-	</h:form>
-	<h:form id="imgform" enctype="multipart/form-data">
 		<p:fileUpload
-			fileUploadListener="#{imageGalleryBean.handleFileUpload}" multiple="true"
-			mode="advanced" update=":form:galleryPanel,:form:messageBox" auto="false" sizeLimit="50000"
-			allowTypes="/(\.|\/)(gif|jpe?g|png)$/" />
+			listener="#{imageGalleryBean.handleFileUpload}" multiple="true"
+			mode="advanced" update=":form:galleryPanel,:form:messageBox" auto="false" sizeLimit="100000"
+			allowTypes="/(\.|\/)(gif|jpe?g|png|svg)$/" />
 
 	</h:form>
 

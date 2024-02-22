@@ -1,12 +1,13 @@
 package edu.kit.scc.webreg.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import edu.kit.scc.webreg.entity.ServiceEntity;
 
 public interface StatisticsDao {
 
-	List<Object> countUsersPerIdp();
+	Map<Long, Long> countUsersPerIdp();
 
 	List<Object> countUsersPerService();
 

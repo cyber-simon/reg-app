@@ -11,14 +11,16 @@
 package edu.kit.scc.webreg.bean.admin.oidc;
 
 import java.io.Serializable;
+import java.util.Date;
 
+import edu.kit.scc.webreg.entity.IconCacheEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
+import edu.kit.scc.webreg.service.impl.IconCacheService;
+import edu.kit.scc.webreg.service.oidc.OidcRpConfigurationService;
 import jakarta.faces.event.ComponentSystemEvent;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
-import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
-import edu.kit.scc.webreg.service.oidc.OidcRpConfigurationService;
 
 @Named
 @ViewScoped
@@ -28,6 +30,9 @@ public class EditOidcRpConfigurationBean implements Serializable {
 
 	@Inject
 	private OidcRpConfigurationService service;
+	
+	@Inject
+	private IconCacheService iconService;
 	
 	private OidcRpConfigurationEntity entity;
 	
@@ -40,6 +45,30 @@ public class EditOidcRpConfigurationBean implements Serializable {
 	}
 	
 	public String save() {
+		if (entity.getIcon() == null) {
+			IconCacheEntity icon = iconService.createNew();
+			icon = iconService.save(icon);
+			entity.setIcon(icon);
+		}
+
+		if (entity.getIconLarge() == null) {
+			IconCacheEntity icon = iconService.createNew();
+			icon = iconService.save(icon);
+			entity.setIconLarge(icon);
+		}
+
+		if (entity.getLogoUrl() != null) {
+			entity.getIconLarge().setUrl(entity.getLogoUrl());
+			entity.getIconLarge().setValidUntil(new Date());
+		}
+		
+		if (entity.getLogoSmallUrl() != null) {
+			entity.getIcon().setUrl(entity.getLogoSmallUrl());
+			entity.getIcon().setValidUntil(new Date());
+		}
+		
+		iconService.save(entity.getIconLarge());
+		iconService.save(entity.getIcon());
 		service.save(entity);
 		return "show-rp-config.xhtml?faces-redirect=true&id=" + entity.getId();
 	}

@@ -116,7 +116,7 @@ public class IdpAdminIndexBean implements Serializable {
 						&& user.getAttributeStore().containsKey("urn:oid:1.3.6.1.4.1.5923.1.1.1.7")
 						&& user.getAttributeStore().get("urn:oid:1.3.6.1.4.1.5923.1.1.1.7")
 								.contains("urn:geant:kit.edu:res:fels:idp-admin")) {
-					idpList.add(((SamlUserEntity) user).getIdp());
+					idpList.add(idpService.fetch(((SamlUserEntity) user).getIdp().getId()));
 				}
 
 				for (UserRoleEntity role : user.getRoles()) {
