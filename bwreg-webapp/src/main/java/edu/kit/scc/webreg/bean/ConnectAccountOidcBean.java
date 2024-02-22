@@ -139,28 +139,15 @@ public class ConnectAccountOidcBean implements Serializable {
 	}
 
 	public String save() {
-		logger.debug("Comparing pins {} <-> {}", sessionManager.getAccountLinkingPin(), pin);
-
-		if (sessionManager.getAccountLinkingPin() != null && sessionManager.getAccountLinkingPin().equals(pin)) {
-			/*
-			 * pin is correct, proceed
-			 */
-
-			try {
-				entity = userCreateService.createAndLinkUser(identity, entity, sessionManager.getAttributeMap(), null);
-			} catch (UserUpdateException e) {
-				logger.warn("An error occured whilst creating user", e);
-				messageGenerator.addResolvedErrorMessage("error_msg", e.toString(), false);
-				return null;
-			}
-
-			return "user/connect-account-success.xhtml";
-		} else {
-			logger.warn("Pins for identity {} don't match: {} <-> {}", identity.getId(),
-					sessionManager.getAccountLinkingPin(), pin);
-			messageGenerator.addResolvedErrorMessage("pin-wrong", "pin-wrong-detail", true);
+		try {
+			entity = userCreateService.createAndLinkUser(identity, entity, sessionManager.getAttributeMap(), null);
+		} catch (UserUpdateException e) {
+			logger.warn("An error occured whilst creating user", e);
+			messageGenerator.addResolvedErrorMessage("error_msg", e.toString(), false);
 			return null;
 		}
+
+		return "user/connect-account-success.xhtml";
 	}
 
 	public IdentityEntity getIdentity() {
