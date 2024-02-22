@@ -10,17 +10,32 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.bean;
 
+import static edu.kit.scc.webreg.dao.ops.PaginateBy.unlimited;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+import static edu.kit.scc.webreg.dao.ops.SortBy.ascendingBy;
+
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
+import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity_;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserEntity_;
+import edu.kit.scc.webreg.entity.UserProvisionerEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
+import edu.kit.scc.webreg.service.SamlSpConfigurationService;
 import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.service.disco.DiscoveryCacheService;
+import edu.kit.scc.webreg.service.disco.UserProvisionerCachedEntry;
 import edu.kit.scc.webreg.service.identity.IdentityService;
-import edu.kit.scc.webreg.service.oidc.OidcRpConfigurationService;
+import edu.kit.scc.webreg.service.identity.UserProvisionerService;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 import jakarta.faces.context.ExternalContext;
@@ -38,109 +53,138 @@ public class ConnectAccountBean implements Serializable {
 
 	@Inject
 	private UserService userService;
-    
+
 	@Inject
 	private IdentityService identityService;
 
-    @Inject 
-    private SessionManager sessionManager;
+	@Inject
+	private SessionManager sessionManager;
 
 	@Inject
-	private OidcRpConfigurationService oidcRpService;
+	private SamlSpConfigurationService spService;
 
-//	@Inject
-//	private FederationSingletonBean federationBean;
+	@Inject
+	private DiscoveryCacheService discoveryCache;
+
+	@Inject
+	private UserProvisionerService userProvisionerService;
 
 	@Inject
 	private FacesMessageGenerator messageGenerator;
 
+	@Inject
+	private ApplicationConfig appConfig;
+
 	private IdentityEntity identity;
 	private List<UserEntity> userList;
-	
-	private List<OidcRpConfigurationEntity> oidcRpList;
-	private OidcRpConfigurationEntity selectedOidcRp;
-	
-	private List<SamlIdpMetadataEntity> idpList;
-	private SamlIdpMetadataEntity selectedIdp;
 
-	private String pin;
-	
+	private UserProvisionerCachedEntry selected;
+
+	private Boolean initialized = false;
+	private Boolean largeList = false;
+
 	public void preRenderView(ComponentSystemEvent ev) {
-		if (identity == null) {
-			identity = identityService.fetch(sessionManager.getIdentityId());
-			userList = userService.findByIdentity(identity);
-			
-			//idpList = federationBean.getAllIdpList();
+		if (!initialized) {
+
+			discoveryCache.refreshCache();
+			Integer largeLimit = Integer.parseInt(appConfig.getConfigValueOrDefault("discovery_large_list_threshold", "100"));
+			if (getAllList().size() > largeLimit)
+				largeList = true;
+
+			initialized = true;
 		}
 	}
-	
-	public void startConnectOidc() {
-		ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
 
-		if (selectedOidcRp != null && pin != null && pin.matches("^[a-zA-Z0-9]{4,32}$")) {
-			sessionManager.setOidcRelyingPartyId(selectedOidcRp.getId());
-			sessionManager.setAccountLinkingPin(pin);
+	public void startConnect() {
+		if (selected != null) {
+			startConnect(selected.getId());
+		} else {
+			messageGenerator.addWarningMessage("Keine Auswahl getroffen", "Bitte wählen Sie Ihre Heimatorganisation");
+		}
+	}
+
+	public void startConnect(Long userProvisionerId) {
+		ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+		String hostname = externalContext.getRequestServerName();
+
+		UserProvisionerEntity userProvisioner = userProvisionerService.findByIdWithAttrs(userProvisionerId);
+		if (userProvisioner instanceof SamlIdpMetadataEntity) {
+			SamlIdpMetadataEntity idp = (SamlIdpMetadataEntity) userProvisioner;
+			SamlSpConfigurationEntity spConfig = null;
+			List<SamlSpConfigurationEntity> spConfigList = spService.findByHostname(hostname);
+
+			if (spConfigList.size() == 1) {
+				spConfig = spConfigList.get(0);
+			} else {
+				for (SamlSpConfigurationEntity s : spConfigList) {
+					if (s.getDefaultSp() != null && s.getDefaultSp().equals(Boolean.TRUE)) {
+						spConfig = s;
+						break;
+					}
+				}
+			}
+			sessionManager.setSpId(spConfig.getId());
+			sessionManager.setIdpId(idp.getId());
+			try {
+				externalContext.redirect("/Shibboleth.sso/Login");
+			} catch (IOException e) {
+				messageGenerator.addErrorMessage("Ein Fehler ist aufgetreten", e.toString());
+			}
+
+		} else if (userProvisioner instanceof OidcRpConfigurationEntity) {
+			OidcRpConfigurationEntity rp = (OidcRpConfigurationEntity) userProvisioner;
+			sessionManager.setOidcRelyingPartyId(rp.getId());
 			try {
 				externalContext.redirect("/rpoidc/login");
 			} catch (IOException e) {
-				messageGenerator.addErrorMessage("Ein Fehler ist aufgetreten", 
-								e.toString());
+				messageGenerator.addErrorMessage("Ein Fehler ist aufgetreten", e.toString());
 			}
-		}
-		else {
-				messageGenerator.addWarningMessage("Keine Auswahl getroffen", 
-							"Bitte wählen Sie Ihre Heimatorganisation");
+		} else {
+			messageGenerator.addWarningMessage("Keine Auswahl getroffen", "Bitte wählen Sie Ihre Heimatorganisation");
 		}
 
 	}
 
-	public void startConnectSaml() {
-		ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+	public List<UserProvisionerCachedEntry> getExtraList() {
+		return discoveryCache.getExtraEntryList(new ArrayList<>());
+	}
 
-		messageGenerator.addErrorMessage("Ein Fehler ist aufgetreten", "Fehler, nicht implementiert"); 
+	public List<UserProvisionerCachedEntry> getAllList() {
+		return discoveryCache.getAllEntryList(new ArrayList<>());
+	}
+
+	public List<UserProvisionerCachedEntry> search(String part) {
+		return discoveryCache.getUserCountEntryList(new ArrayList<>()).stream()
+				.filter(o -> o.getDisplayName().toLowerCase().contains(part.toLowerCase())).limit(25)
+				.collect(Collectors.toList());
 	}
 
 	public IdentityEntity getIdentity() {
+		if (identity == null) {
+			identity = identityService.fetch(sessionManager.getIdentityId());
+		}
 		return identity;
 	}
 
 	public List<UserEntity> getUserList() {
+		if (userList == null) {
+			userList = userService.findAllEagerly(unlimited(), Arrays.asList(ascendingBy(UserEntity_.id)),
+					equal(UserEntity_.identity, getIdentity()), UserEntity_.genericStore, UserEntity_.attributeStore,
+					SamlUserEntity_.idp);
+		}
 		return userList;
 	}
 
-	public List<OidcRpConfigurationEntity> getOidcRpList() {
-		if (oidcRpList == null) {
-			oidcRpList = oidcRpService.findAll();
-		}
-		return oidcRpList;
+	public Boolean getLargeList() {
+		return largeList;
 	}
 
-	public OidcRpConfigurationEntity getSelectedOidcRp() {
-		return selectedOidcRp;
+	public UserProvisionerCachedEntry getSelected() {
+		return selected;
 	}
 
-	public void setSelectedOidcRp(OidcRpConfigurationEntity selectedOidcRp) {
-		this.selectedOidcRp = selectedOidcRp;
-	}
-
-	public String getPin() {
-		return pin;
-	}
-
-	public void setPin(String pin) {
-		this.pin = pin;
-	}
-
-	public List<SamlIdpMetadataEntity> getIdpList() {
-		return idpList;
-	}
-
-	public SamlIdpMetadataEntity getSelectedIdp() {
-		return selectedIdp;
-	}
-
-	public void setSelectedIdp(SamlIdpMetadataEntity selectedIdp) {
-		this.selectedIdp = selectedIdp;
+	public void setSelected(UserProvisionerCachedEntry selected) {
+		this.selected = selected;
 	}
 
 }

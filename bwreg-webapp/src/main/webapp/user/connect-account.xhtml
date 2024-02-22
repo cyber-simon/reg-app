@@ -25,53 +25,78 @@
 	<ui:define name="content">
 	<h:form id="form" prependId="false" class="full form">
 	
-		<h3><h:outputText value="#{messages.connect_account}" /></h3>
+		<h3><h:outputText value="#{messages['connect_account.heading']}" /></h3>
 	
 		<div>
-			<h:outputText value="#{messages.connect_account_text}" />
+			<h:outputText value="#{messages['connect_account.intro']}" />
 		</div>
 		
+		<div>
+			<h:outputText value="#{messages['connect_account.list_accounts']}:" />
+		</div>
 		<p:dataList var="user" value="#{connectAccountBean.userList}">
-			#{user.id}
+			<p:outputPanel rendered="#{user.class.simpleName eq 'SamlUserEntity'}">
+   	        	<h:outputText value="#{user.idp.displayName}" />
+        		<h:outputText value=" (#{messages.currently_logged_id})"  rendered="#{sessionManager.loggedInUserList.contains(user.id)}"/>
+			</p:outputPanel>
+			<p:outputPanel rendered="#{user.class.simpleName eq 'OidcUserEntity'}">
+   	        	<h:outputText value="#{user.issuer.displayName}" />
+        		<h:outputText value=" (#{messages.currently_logged_id})"  rendered="#{sessionManager.loggedInUserList.contains(user.id)}"/>
+			</p:outputPanel>
 		</p:dataList>
 	
-		<h:panelGrid id="samlBaseData" columns="3" style="margin-top: 8px;">
+			<div class="grid">
+				<div style="margin-top: 1em;" class="col-12 md:col-6 lg:col-6 xl:col-6">
+					<p:outputPanel rendered="#{connectAccountBean.largeList}">
+						<p:focus conext="baseData" for="searchAutocompl" />
+						<span class="ui-float-label">
+			                <p:autoComplete id="searchAutocompl" multiple="false" value="#{connectAccountBean.selected}" converter="#{userProvisionerCachedEntryConverter}" 
+			                                var="idp" itemLabel="#{idp.displayName}" itemValue="#{idp}" cache="true" minQueryLength="2"
+			                                completeMethod="#{connectAccountBean.search}" maxResults="10" 
+			                                forceSelection="true" style="width: 100%;" onfocus="this.select();">
+								<p:column><p:graphicImage style="max-width: 48px; max-height: 32px;" value="#{request.contextPath}/rest/icon-cache/async/small/#{idp.iconId}" rendered="#{not empty idp.iconId}" /></p:column>
+								<p:column>#{idp.displayName}</p:column>
+								<p:ajax update=":form" />
+							</p:autoComplete>
+							<p:outputLabel for="@previous" value="#{messages['search_filter']}" />
+						</span>
+					</p:outputPanel>
+					<p:outputPanel rendered="#{not connectAccountBean.largeList}">
+						<p:focus conext="baseData" for="selectBox" />
+						<p:selectOneListbox id="selectBox" style="width: 100%;" value="#{connectAccountBean.selected}" converter="#{userProvisionerCachedEntryConverter}"
+								filter="true" filterMatchMode="contains" filterNormalize="true">
+							<f:selectItems value="#{connectAccountBean.allList}" var="idp" itemLabel="#{idp.displayName}" itemValue="#{idp}"/>
+							<p:ajax update=":form:infoPnl,:form:btnPanel" />
+						</p:selectOneListbox>
+					</p:outputPanel>
+					
+					<p:outputPanel id="btnPanel">
+						<p:commandButton id="login" action="#{connectAccountBean.login}" value="#{messages.proceed}" disabled="#{empty connectAccountBean.selected}"
+							update=":form" />
+					</p:outputPanel>
 		
-			<p:outputLabel value="#{messages.home_org}:" for="idpBox" />
-			<p:selectOneListbox id="idpBox" value="#{connectAccountBean.selectedIdp}" scrollHeight="360" style="width:auto;"
-					converter="#{samlIdpMetadataConverter}">
-            	<f:selectItems value="#{connectAccountBean.idpList}" 
-            		var="idp" itemLabel="#{idp.displayName == null ? idp.orgName : idp.displayName}" itemValue="#{idp}"/>
-				<p:ajax event="dblclick" listener="#{connectAccountBean.login}" update=":form" />	            		
-			</p:selectOneListbox>
-			<p:message for="idpBox"/>
-		
-		</h:panelGrid>
+				</div>
 
-		<p:commandButton id="samlLogin" action="#{connectAccountBean.startConnectSaml()}" value="#{messages.proceed}" 
-			validateClient="true" update=":form"/>
-				
-		<h:panelGrid id="oidcBaseData" columns="3" style="margin-top: 8px;">
+				<div style="margin-top: 0.5em;" class="col-12 md:col-6 lg:col-6 xl:col-6">
+					<p:outputPanel id="infoPnl">
+						<p:panel style="margin:0.5em; border: 1px solid #eeeeee;" rendered="#{not empty connectAccountBean.selected}">
+							<p:commandLink action="#{connectAccountBean.login(connectAccountBean.selected.id)}">
+								<div style="text-align: left;">
+									<p:graphicImage style="max-width: 320px; max-height: 160px;" value="#{request.contextPath}/rest/icon-cache/sync/small/#{connectAccountBean.selected.iconLargeId}" />
+								</div> 
+								<div>
+									<h:outputText value="#{connectAccountBean.selected.displayName}" />
+								</div>
+							</p:commandLink> 
+						</p:panel>
+					</p:outputPanel>
+				</div>
+			</div>
 
-			<p:outputLabel value="#{messages.home_org}:" for="oidcBox" />
-			<p:selectOneListbox id="oidcBox" value="#{connectAccountBean.selectedOidcRp}" scrollHeight="120" style="width:300px;"
-					converter="#{oidcRpConfigurationConverter}">
-            	<f:selectItems value="#{connectAccountBean.oidcRpList}" 
-            		var="rp" itemLabel="#{rp.displayName}" itemValue="#{rp}"/>
-			</p:selectOneListbox>
-			<p:message for="oidcBox"/>
-			
-			<p:outputLabel value="#{messages.connect_account_pin}" for="pinBox"/>
-			<p:inputText id="pinBox" value="#{connectAccountBean.pin}">
-				<f:validateLength minimum="4"/>
-				<f:validateRegex pattern="^[a-zA-Z0-9]{4,32}$"/>
-			</p:inputText>
-			<p:message for="pinBox"/>
-		</h:panelGrid>
-			
-		<p:commandButton id="oidcLogin" action="#{connectAccountBean.startConnectOidc()}" value="#{messages.proceed}" 
+		<div>
+		<p:commandButton id="connect" action="#{connectAccountBean.startConnect()}" value="#{messages.proceed}" 
 			validateClient="true" update=":form"/>
-	
+		</div>		
 	</h:form>
 	</ui:define>
 </ui:composition>
