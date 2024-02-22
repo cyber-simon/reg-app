@@ -21,34 +21,32 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+
+import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
+import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity_;
+import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserEntity_;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+import edu.kit.scc.webreg.exc.UserUpdateException;
+import edu.kit.scc.webreg.service.SamlIdpMetadataService;
+import edu.kit.scc.webreg.service.SamlSpConfigurationService;
+import edu.kit.scc.webreg.service.UserCreateService;
+import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.service.identity.IdentityService;
+import edu.kit.scc.webreg.service.impl.AttributeMapHelper;
+import edu.kit.scc.webreg.session.SessionManager;
+import edu.kit.scc.webreg.util.FacesMessageGenerator;
 import jakarta.faces.event.ComponentSystemEvent;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
-import org.slf4j.Logger;
-
-import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
-import com.nimbusds.openid.connect.sdk.claims.UserInfo;
-
-import edu.kit.scc.regapp.oidc.tools.OidcTokenHelper;
-import edu.kit.scc.webreg.entity.SamlUserEntity_;
-import edu.kit.scc.webreg.entity.UserEntity;
-import edu.kit.scc.webreg.entity.UserEntity_;
-import edu.kit.scc.webreg.entity.identity.IdentityEntity;
-import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
-import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
-import edu.kit.scc.webreg.exc.UserUpdateException;
-import edu.kit.scc.webreg.service.UserService;
-import edu.kit.scc.webreg.service.identity.IdentityService;
-import edu.kit.scc.webreg.service.oidc.OidcRpConfigurationService;
-import edu.kit.scc.webreg.service.oidc.client.OidcUserCreateService;
-import edu.kit.scc.webreg.session.SessionManager;
-import edu.kit.scc.webreg.util.FacesMessageGenerator;
-
 @Named
 @ViewScoped
-public class ConnectAccountOidcBean implements Serializable {
+public class ConnectAccountSamlBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -68,20 +66,19 @@ public class ConnectAccountOidcBean implements Serializable {
 	private FacesMessageGenerator messageGenerator;
 
 	@Inject
-	private OidcTokenHelper tokenHelper;
+	private SamlIdpMetadataService idpService;
 
 	@Inject
-	private OidcRpConfigurationService rpConfigService;
+	private SamlSpConfigurationService spService;
 
 	@Inject
-	private OidcUserCreateService userCreateService;
+	private AttributeMapHelper attrHelper;
+
+	@Inject
+	private UserCreateService userCreateService;
 
 	private IdentityEntity identity;
 	private List<UserEntity> userList;
-
-	private OidcRpConfigurationEntity rpConfig;
-
-	private String pin;
 
 	private Boolean errorState = false;
 
@@ -89,36 +86,30 @@ public class ConnectAccountOidcBean implements Serializable {
 	private Map<String, String> unprintableAttributesMap;
 	private List<String> printableAttributesList;
 
-	private OidcUserEntity entity;
+	private SamlUserEntity entity;
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (identity == null) {
 			identity = identityService.fetch(sessionManager.getIdentityId());
 		}
 
-		if (sessionManager.getOidcRelyingPartyId() == null) {
+		if (sessionManager.getSpId() == null || sessionManager.getIdpId() == null) {
 			errorState = true;
 			messageGenerator.addResolvedErrorMessage("page-not-directly-accessible",
 					"page-not-directly-accessible-text", true);
 			return;
 		}
 
-		rpConfig = rpConfigService.fetch(sessionManager.getOidcRelyingPartyId());
-
-		if (rpConfig == null) {
-			errorState = true;
-			messageGenerator.addResolvedErrorMessage("page-not-directly-accessible",
-					"page-not-directly-accessible-text", true);
-			return;
-		}
+		SamlIdpMetadataEntity idpEntity = idpService.fetch(sessionManager.getIdpId());
+		SamlSpConfigurationEntity spConfigEntity = spService.fetch(sessionManager.getSpId());
 
 		printableAttributesMap = new HashMap<String, String>();
 		unprintableAttributesMap = new HashMap<String, String>();
 		printableAttributesList = new ArrayList<String>();
 
 		try {
-			entity = userCreateService.preCreateUser(rpConfig.getId(), sessionManager.getLocale(),
-					sessionManager.getAttributeMap());
+			entity = userCreateService.preCreateUser(idpEntity, spConfigEntity, sessionManager.getSamlIdentifier(),
+					sessionManager.getLocale(), sessionManager.getAttributeMap());
 
 		} catch (UserUpdateException e) {
 			errorState = true;
@@ -126,22 +117,12 @@ public class ConnectAccountOidcBean implements Serializable {
 			return;
 		}
 
-		IDTokenClaimsSet claims = tokenHelper.claimsFromMap(sessionManager.getAttributeMap());
-		UserInfo userInfo = tokenHelper.userInfoFromMap(sessionManager.getAttributeMap());
+		printableAttributesMap = new HashMap<String, String>();
+		unprintableAttributesMap = new HashMap<String, String>();
+		printableAttributesList = new ArrayList<String>();
 
-		printableAttributesList.add("eppn");
-		printableAttributesMap.put("eppn", entity.getEppn());
-		printableAttributesList.add("email");
-		printableAttributesMap.put("email", entity.getEmail());
-		printableAttributesList.add("sur_name");
-		printableAttributesMap.put("sur_name", entity.getSurName());
-		printableAttributesList.add("given_name");
-		printableAttributesMap.put("given_name", entity.getGivenName());
-		printableAttributesList.add("subject_id");
-		printableAttributesMap.put("subject_id", entity.getSubjectId());
-		printableAttributesList.add("issuer");
-		printableAttributesMap.put("issuer", rpConfig.getServiceUrl());
-
+		attrHelper.convertAttributeNames(sessionManager.getAttributeMap().entrySet(), printableAttributesList,
+				printableAttributesMap, unprintableAttributesMap);
 	}
 
 	public String save() {
@@ -170,14 +151,6 @@ public class ConnectAccountOidcBean implements Serializable {
 		return userList;
 	}
 
-	public String getPin() {
-		return pin;
-	}
-
-	public void setPin(String pin) {
-		this.pin = pin;
-	}
-
 	public Map<String, String> getPrintableAttributesMap() {
 		return printableAttributesMap;
 	}
@@ -186,7 +159,7 @@ public class ConnectAccountOidcBean implements Serializable {
 		return printableAttributesList;
 	}
 
-	public OidcUserEntity getEntity() {
+	public SamlUserEntity getEntity() {
 		return entity;
 	}
 

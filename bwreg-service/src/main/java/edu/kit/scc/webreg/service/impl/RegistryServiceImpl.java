@@ -109,6 +109,11 @@ public class RegistryServiceImpl extends BaseServiceImpl<RegistryEntity> impleme
 	}
 
 	@Override
+	public List<RegistryEntity> findByUserAndStatus(UserEntity user, RegistryStatus... status) {
+		return dao.findByUserAndStatus(user, status);
+	}
+
+	@Override
 	public List<RegistryEntity> findByIdentity(IdentityEntity identity) {
 		return dao.findAll(equal(RegistryEntity_.identity, identity));
 	}

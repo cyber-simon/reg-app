@@ -213,8 +213,6 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 			 * is already logged in. This should only happen with account linking There are
 			 * two possiblities for account linking: user is null and user is not null. Not
 			 * null means, user already exists.
-			 * 
-			 * Check account linking pin
 			 */
 			if (session.getIdentityId() != null) {
 				/*

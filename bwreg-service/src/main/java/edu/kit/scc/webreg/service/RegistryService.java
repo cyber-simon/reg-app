@@ -50,4 +50,6 @@ public interface RegistryService extends BaseService<RegistryEntity> {
 			RegistryStatus... status);
 
 	List<RegistryEntity> findByIdentity(IdentityEntity identity);
+
+	List<RegistryEntity> findByUserAndStatus(UserEntity user, RegistryStatus... status);
 }

@@ -199,25 +199,7 @@ public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntit
 		removeValueMap.entrySet().stream().forEach(entry -> {
 			logger.debug("Try to delete entry {}", entry.getKey());
 			ValueEntity value = entry.getValue();
-			List<ValueEntity> deleteList = new ArrayList<>();
-			deleteList.add(value);
-			if (value.getNextValues().size() > 0) {
-				while (value.getNextValues().iterator().hasNext()) {
-					value = value.getNextValues().iterator().next();
-					logger.debug("Unrolled value {}", value.getAttribute().getName());
-					if (value.getPrevValues().size() == 1) {
-						// only delete values with single previous value
-						// if there are multiple values, the next value can't be removed
-						deleteList.add(value);
-					}
-				}
-			}
-
-			deleteList.stream().forEach(v -> {
-				logger.debug("Delete value {} for attribute {} from attributeset {} ({})", v.getId(), v.getAttribute().getName(),
-						v.getAttributeSet().getId(), v.getAttributeSet().getClass().getSimpleName());
-				valueDao.delete(v);
-			});
+			valueDao.deleteAllDependingValues(value);
 		});
 	}
 	

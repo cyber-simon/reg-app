@@ -18,18 +18,22 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity_;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserEntity_;
 import edu.kit.scc.webreg.entity.UserProvisionerEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.service.SamlSpConfigurationService;
 import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.disco.DiscoveryCacheService;
@@ -87,7 +91,8 @@ public class ConnectAccountBean implements Serializable {
 		if (!initialized) {
 
 			discoveryCache.refreshCache();
-			Integer largeLimit = Integer.parseInt(appConfig.getConfigValueOrDefault("discovery_large_list_threshold", "100"));
+			Integer largeLimit = Integer
+					.parseInt(appConfig.getConfigValueOrDefault("discovery_large_list_threshold", "100"));
 			if (getAllList().size() > largeLimit)
 				largeList = true;
 
@@ -154,8 +159,14 @@ public class ConnectAccountBean implements Serializable {
 	}
 
 	public List<UserProvisionerCachedEntry> search(String part) {
+		final Set<String> idps = new HashSet<>();
+		idps.addAll(getUserList().stream().filter(o -> (o instanceof SamlUserEntity))
+				.map(o -> ((SamlUserEntity) o).getIdp().getEntityId()).toList());
+		idps.addAll(getUserList().stream().filter(o -> (o instanceof OidcUserEntity))
+				.map(o -> ((OidcUserEntity) o).getIssuer().getName()).toList());
 		return discoveryCache.getUserCountEntryList(new ArrayList<>()).stream()
-				.filter(o -> o.getDisplayName().toLowerCase().contains(part.toLowerCase())).limit(25)
+				.filter(o -> o.getDisplayName().toLowerCase().contains(part.toLowerCase()))
+				.filter(o -> (! idps.contains(o.getEntityId()))).limit(25)
 				.collect(Collectors.toList());
 	}
 

@@ -20,11 +20,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 
-import jakarta.ejb.Stateless;
-import jakarta.ejb.TransactionManagement;
-import jakarta.ejb.TransactionManagementType;
-import jakarta.inject.Inject;
-
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.annotations.RetryTransaction;
@@ -37,10 +32,12 @@ import edu.kit.scc.webreg.dao.SerialDao;
 import edu.kit.scc.webreg.dao.as.AttributeSourceDao;
 import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
+import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
+import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserRoleEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
@@ -58,6 +55,10 @@ import edu.kit.scc.webreg.service.identity.IdentityCreater;
 import edu.kit.scc.webreg.service.saml.Saml2AssertionService;
 import edu.kit.scc.webreg.service.saml.SamlIdentifier;
 import edu.kit.scc.webreg.session.HttpRequestContext;
+import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionManagement;
+import jakarta.ejb.TransactionManagementType;
+import jakarta.inject.Inject;
 
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)
@@ -83,6 +84,9 @@ public class UserCreateServiceImpl implements UserCreateService {
 
 	@Inject
 	private RoleDao roleDao;
+
+	@Inject
+	private IdentityDao identityDao;
 
 	@Inject
 	private IdentityCreater identityCreater;
@@ -156,12 +160,98 @@ public class UserCreateServiceImpl implements UserCreateService {
 		auditor.setName(getClass().getName() + "-UserCreate-Audit");
 		auditor.setDetail("Create user " + user.getEppn());
 
-		String lastLoginHost = null;
-		if (requestContext != null && requestContext.getHttpServletRequest() != null) {
-			lastLoginHost = requestContext.getHttpServletRequest().getServerName();
+		createUserInternal(user, attributeMap, executor, auditor, debugLog);
+
+		IdentityEntity identity = identityCreater.preCreateIdentity();
+		user.setIdentity(identity);
+
+		user = postCreateUserInternal(user, attributeMap, executor, auditor, debugLog);
+		identityCreater.postCreateIdentity(identity, user);
+		if (appConfig.getConfigValue("create_missing_eppn_scope") != null) {
+			if (user.getEppn() == null) {
+				String scope = appConfig.getConfigValue("create_missing_eppn_scope");
+				user.setEppn(user.getIdentity().getGeneratedLocalUsername() + "@" + scope);
+			}
 		}
 
-		userUpdater.updateUserNew(user, attributeMap, executor, auditor, debugLog, lastLoginHost);
+		auditor.logAction(user.getEppn(), "CREATE USER", null, null, AuditStatus.SUCCESS);
+
+		auditor.finishAuditTrail();
+		auditor.commitAuditTrail();
+
+		UserEvent userEvent = new UserEvent(user);
+
+		try {
+			eventSubmitter.submit(userEvent, EventType.USER_CREATE, executor);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}
+
+		return user;
+	}
+
+	@Override
+	@RetryTransaction
+	public SamlUserEntity createAndLinkUser(IdentityEntity identity, SamlUserEntity user,
+			Map<String, List<Object>> attributeMap, String executor) throws UserUpdateException {
+		logger.debug("Creating and link user {} to identity {}", user.getSubjectId(), identity.getId());
+
+		identity = identityDao.fetch(identity.getId());
+
+		UserCreateAuditor auditor = new UserCreateAuditor(auditDao, auditDetailDao, appConfig);
+		auditor.startAuditTrail(executor);
+		auditor.setName(getClass().getName() + "-OidcUserCreate-Audit");
+		auditor.setDetail("Create and link SAML user " + user.getSubjectId());
+
+		StringBuffer debugLog = new StringBuffer();
+
+		createUserInternal(user, attributeMap, executor, auditor, debugLog);
+		user.setIdentity(identity);
+
+		user = postCreateUserInternal(user, attributeMap, executor, auditor, debugLog);
+		auditor.logAction(user.getEppn(), "CREATE USER", null, null, AuditStatus.SUCCESS);
+
+		auditor.finishAuditTrail();
+		auditor.commitAuditTrail();
+
+		UserEvent userEvent = new UserEvent(user);
+
+		try {
+			eventSubmitter.submit(userEvent, EventType.USER_CREATE, executor);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}
+
+		return user;
+	}
+
+	@Override
+	@RetryTransaction
+	public SamlUserEntity postCreateUser(SamlUserEntity user, Map<String, List<Object>> attributeMap, String executor)
+			throws UserUpdateException {
+		StringBuffer debugLog = new StringBuffer();
+		user = samlUserDao.fetch(user.getId());
+		return userUpdater.updateUser(user, attributeMap, executor, null, debugLog, resolveLastLoginHost());
+	}
+
+	private Date getNextScheduledUpdate() {
+		Long futureMillis = 30L * 24L * 60L * 60L * 1000L;
+		if (appConfig.getConfigOptions().containsKey("update_schedule_future")) {
+			futureMillis = Long.decode(appConfig.getConfigValue("update_schedule_future"));
+		}
+		Integer futureMillisRandom = 6 * 60 * 60 * 1000;
+		if (appConfig.getConfigOptions().containsKey("update_schedule_future_random")) {
+			futureMillisRandom = Integer.decode(appConfig.getConfigValue("update_schedule_future_random"));
+		}
+		Random r = new Random();
+		return new Date(System.currentTimeMillis() + futureMillis + r.nextInt(futureMillisRandom));
+	}
+
+	private void createUserInternal(SamlUserEntity user, Map<String, List<Object>> attributeMap, String executor,
+			UserCreateAuditor auditor, StringBuffer debugLog) throws UserUpdateException {
+		logger.debug("Creating user {}", user.getEppn());
+
+		userUpdater.updateUserNew(user, attributeMap, executor, auditor, debugLog, resolveLastLoginHost());
 
 		/**
 		 * if user has no uid number yet, generate one
@@ -184,57 +274,36 @@ public class UserCreateServiceImpl implements UserCreateService {
 			user.setLastStatusChange(new Date());
 		}
 
-		IdentityEntity identity = identityCreater.preCreateIdentity();
+		user.setLastLoginHost(resolveLastLoginHost());
+		user.setLastUpdate(new Date());
+	}
 
-		user.setIdentity(identity);
+	private SamlUserEntity postCreateUserInternal(SamlUserEntity user, Map<String, List<Object>> attributeMap,
+			String executor, UserCreateAuditor auditor, StringBuffer debugLog) throws UserUpdateException {
 		user = samlUserDao.persist(user);
 
-		List<AttributeSourceEntity> asList = attributeSourceDao
-				.findAll(equal(AttributeSourceEntity_.userSource, true));
+		List<AttributeSourceEntity> asList = attributeSourceDao.findAll(equal(AttributeSourceEntity_.userSource, true));
 		for (AttributeSourceEntity as : asList) {
 			attributeSourceUpdater.updateUserAttributes(user, as, executor);
-		}
-
-		identityCreater.postCreateIdentity(identity, user);
-		if (appConfig.getConfigValue("create_missing_eppn_scope") != null) {
-			if (user.getEppn() == null) {
-				String scope = appConfig.getConfigValue("create_missing_eppn_scope");
-				user.setEppn(user.getIdentity().getGeneratedLocalUsername() + "@" + scope);
-			}
 		}
 
 		roleDao.addUserToRole(user, "User");
 
 		homeOrgGroupUpdater.updateGroupsForUser(user, attributeMap, auditor);
 
+		userUpdater.updateUserNew(user, attributeMap, executor, auditor, debugLog, resolveLastLoginHost());
+
 		auditor.setUser(user);
 		auditor.auditUserCreate();
-		auditor.logAction(user.getEppn(), "CREATE USER", null, null, AuditStatus.SUCCESS);
-
-		auditor.finishAuditTrail();
-		auditor.commitAuditTrail();
-
-		UserEvent userEvent = new UserEvent(user);
-
-		try {
-			eventSubmitter.submit(userEvent, EventType.USER_CREATE, executor);
-		} catch (EventSubmitException e) {
-			logger.warn("Could not submit event", e);
-		}
 
 		return user;
 	}
 
-	private Date getNextScheduledUpdate() {
-		Long futureMillis = 30L * 24L * 60L * 60L * 1000L;
-		if (appConfig.getConfigOptions().containsKey("update_schedule_future")) {
-			futureMillis = Long.decode(appConfig.getConfigValue("update_schedule_future"));
+	private String resolveLastLoginHost() {
+		String lastLoginHost = null;
+		if (requestContext != null && requestContext.getHttpServletRequest() != null) {
+			lastLoginHost = requestContext.getHttpServletRequest().getServerName();
 		}
-		Integer futureMillisRandom = 6 * 60 * 60 * 1000;
-		if (appConfig.getConfigOptions().containsKey("update_schedule_future_random")) {
-			futureMillisRandom = Integer.decode(appConfig.getConfigValue("update_schedule_future_random"));
-		}
-		Random r = new Random();
-		return new Date(System.currentTimeMillis() + futureMillis + r.nextInt(futureMillisRandom));
+		return lastLoginHost;
 	}
 }
