@@ -11,7 +11,9 @@
 package edu.kit.scc.webreg.service.identity;
 
 import static edu.kit.scc.webreg.dao.ops.PaginateBy.withLimit;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.and;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.isNull;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.notEqual;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.or;
 
 import java.util.Comparator;
@@ -30,12 +32,14 @@ import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.SshPubKeyDao;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.identity.IdentityDao;
+import edu.kit.scc.webreg.dao.ops.RqlExpressions;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity_;
 import edu.kit.scc.webreg.entity.SshPubKeyEntity;
 import edu.kit.scc.webreg.entity.SshPubKeyEntity_;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserEntity_;
+import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity_;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
@@ -175,7 +179,7 @@ public class IdentityServiceImpl extends BaseServiceImpl<IdentityEntity> impleme
 	}
 
 	private List<UserEntity> findUsersWithMissingIdentity() {
-		return userDao.findAll(isNull(UserEntity_.identity));
+		return userDao.findAll(and(isNull(UserEntity_.identity), notEqual(UserEntity_.userStatus, UserStatus.DEREGISTERED)));
 	}
 
 	private List<SshPubKeyEntity> findKeysWithMissingIdentity() {

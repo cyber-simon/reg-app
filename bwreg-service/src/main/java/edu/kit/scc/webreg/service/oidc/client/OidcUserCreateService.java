@@ -28,4 +28,7 @@ public interface OidcUserCreateService {
 	OidcUserEntity createAndLinkUser(IdentityEntity identity, OidcUserEntity user,
 			Map<String, List<Object>> attributeMap, String executor)
 			throws UserUpdateException;
+
+	OidcUserEntity postCreateUser(OidcUserEntity user, Map<String, List<Object>> attributeMap, String executor)
+			throws UserUpdateException;
 }

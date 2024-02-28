@@ -30,6 +30,7 @@ import edu.kit.scc.webreg.entity.UserLoginInfoStatus;
 import edu.kit.scc.webreg.entity.UserLoginMethod;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.impl.UserUpdater;
+import edu.kit.scc.webreg.service.saml.exc.OidcAuthenticationException;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.session.SessionManager;
 
@@ -144,6 +145,32 @@ public class SamlSpPostServiceImpl implements SamlSpPostService {
 
 		if (user != null) {
 			MDC.put("userId", "" + user.getId());
+		}
+
+		/**
+		 * TODO check more states here! Check session.getIdentityId. If it is set, user
+		 * is already logged in. This should only happen with account linking There are
+		 * two possiblities for account linking: user is null and user is not null. Not
+		 * null means, user already exists.
+		 */
+		if (session.getIdentityId() != null) {
+			/*
+			 * we are in account linking mode. Session with identity is established
+			 */
+			if (user != null) {
+				throw new OidcAuthenticationException("Linking two existing accounts is not supported yet");
+			} else {
+				logger.info("New User for account linking to identity {} detected, sending to register Page",
+						session.getIdentityId());
+
+				// Store SAML Data temporarily in Session
+				logger.debug("Storing relevant SAML data in session");
+				session.setSamlIdentifier(samlIdentifier);
+				session.setAttributeMap(attributeMap);
+
+				response.sendRedirect("/user/connect-account-saml.xhtml");
+				return;
+			}
 		}
 
 		if (user == null) {

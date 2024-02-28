@@ -229,6 +229,7 @@ public class RegisterOidcUserBean implements Serializable {
 
 		try {
 			entity = userCreateService.createUser(entity, sessionManager.getAttributeMap(), null);
+			entity = userCreateService.postCreateUser(entity, sessionManager.getAttributeMap(), "user-" + entity.getId());
 		} catch (UserUpdateException e) {
 			logger.warn("An error occured whilst creating user", e);
 			messageGenerator.addResolvedErrorMessage("error_msg", e.toString(), false);

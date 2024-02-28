@@ -17,16 +17,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import jakarta.ejb.Stateless;
-import jakarta.inject.Inject;
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.slf4j.Logger;
 
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
 import edu.kit.scc.regapp.oidc.tools.OidcTokenHelper;
+import edu.kit.scc.webreg.annotations.RetryTransaction;
 import edu.kit.scc.webreg.audit.UserCreateAuditor;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.RoleDao;
@@ -37,6 +34,7 @@ import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.dao.oidc.OidcRpConfigurationDao;
 import edu.kit.scc.webreg.dao.oidc.OidcUserDao;
 import edu.kit.scc.webreg.entity.EventType;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserRoleEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
@@ -49,8 +47,14 @@ import edu.kit.scc.webreg.event.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.identity.IdentityCreater;
 import edu.kit.scc.webreg.service.impl.AttributeMapHelper;
+import edu.kit.scc.webreg.session.HttpRequestContext;
+import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionManagement;
+import jakarta.ejb.TransactionManagementType;
+import jakarta.inject.Inject;
 
 @Stateless
+@TransactionManagement(TransactionManagementType.BEAN)
 public class OidcUserCreateServiceImpl implements OidcUserCreateService {
 
 	@Inject
@@ -96,12 +100,13 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
 	private AttributeMapHelper attrHelper;
 
 	@Inject
-	private HttpServletRequest httpRequest;
+	private HttpRequestContext requestContext;
 	
 	@Inject
 	private IdentityCreater identityCreater;
 
 	@Override
+	@RetryTransaction
 	public OidcUserEntity preCreateUser(Long rpConfigId,
 			String locale, Map<String, List<Object>> attributeMap)
 			throws UserUpdateException {
@@ -141,6 +146,7 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
 	}	
 
 	@Override
+	@RetryTransaction
 	public OidcUserEntity createAndLinkUser(IdentityEntity identity, OidcUserEntity user,
 			Map<String, List<Object>> attributeMap, String executor)
 			throws UserUpdateException {
@@ -156,7 +162,7 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
 		createUserInternal(user, attributeMap, executor, auditor);
 		user.setIdentity(identity);
 
-		postCreateUserInternal(user, attributeMap, executor, auditor);
+		user = postCreateUserInternal(user, attributeMap, executor, auditor);
 		auditor.logAction(user.getEppn(), "CREATE USER", null, null, AuditStatus.SUCCESS);
 		
 		auditor.finishAuditTrail();
@@ -174,6 +180,7 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
 	}
 	
 	@Override
+	@RetryTransaction
 	public OidcUserEntity createUser(OidcUserEntity user,
 			Map<String, List<Object>> attributeMap, String executor)
 			throws UserUpdateException {
@@ -214,6 +221,15 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
 		return user;
 	}
 	
+	@Override
+	@RetryTransaction
+	public OidcUserEntity postCreateUser(OidcUserEntity user, Map<String, List<Object>> attributeMap, String executor)
+			throws UserUpdateException {
+		StringBuffer debugLog = new StringBuffer();
+		user = oidcUserDao.fetch(user.getId());
+		return userUpdater.updateUser(user, attributeMap, executor, null, debugLog, resolveLastLoginHost());
+	}
+
 	private void createUserInternal(OidcUserEntity user, Map<String, List<Object>> attributeMap, String executor,
 			UserCreateAuditor auditor)
 			throws UserUpdateException {
@@ -235,7 +251,7 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
 			attributeStore.put(entry.getKey(), attrHelper.attributeListToString(entry.getValue()));
 		}
 	
-		user.setLastLoginHost(httpRequest.getServerName());
+		user.setLastLoginHost(resolveLastLoginHost());
 		
 		user.setLastUpdate(new Date());
 
@@ -255,11 +271,19 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
     	oidcGroupUpdater.updateGroupsForUser(user, attributeMap, auditor);
 
     	StringBuffer debugLog = new StringBuffer();
-    	userUpdater.updateUserNew(user, attributeMap, executor, auditor, debugLog, httpRequest.getServerName());
+    	userUpdater.updateUserNew(user, attributeMap, executor, auditor, debugLog, resolveLastLoginHost());
     			
 		auditor.setUser(user);
 		auditor.auditUserCreate();
 		
 		return user;
 	}
+	
+	private String resolveLastLoginHost() {
+		String lastLoginHost = null;
+		if (requestContext != null && requestContext.getHttpServletRequest() != null) {
+			lastLoginHost = requestContext.getHttpServletRequest().getServerName();
+		}
+		return lastLoginHost;
+	}	
 }

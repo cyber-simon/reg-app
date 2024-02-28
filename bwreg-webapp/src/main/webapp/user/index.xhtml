@@ -77,6 +77,12 @@
 					<h:outputLabel value="#{messages.idp}" for="@next" /> 
 					<h:outputText value="#{userPropertiesBean.user.idp.displayName}" rendered="#{not empty userPropertiesBean.user.idp and not empty userPropertiesBean.user.idp.displayName}"/>
 				</p:panelGrid>
+				<p:outputPanel style="margin-top: 1em;" rendered="#{not sessionManager.loggedInUserList.contains(userPropertiesBean.user.id)}">
+					<h:outputText value="#{messages['my_data.unlink_and_delete_account']}: " />
+					<h:link outcome="/user/unlink-and-delete-account.xhtml" value="#{messages['my_data.unlink_and_delete_account_link']}" styleClass="link">
+      					<f:param name="id" value="#{userPropertiesBean.user.id}"/>
+					</h:link>
+				</p:outputPanel>
 			</p:tab>
 
 			<p:tab id="tab1_1" title="#{messages.my_data}" rendered="#{userPropertiesBean.user.class.simpleName eq 'OidcUserEntity'}">
@@ -105,6 +111,12 @@
 					<h:outputLabel value="#{messages.oidc_op}" for="@next" /> 
 					<h:outputText value="#{userPropertiesBean.user.issuer.displayName}"/>
 				</p:panelGrid>
+				<p:outputPanel style="margin-top: 1em;" rendered="#{not sessionManager.loggedInUserList.contains(userPropertiesBean.user.id)}">
+					<h:outputText value="#{messages['my_data.unlink_and_delete_account']}: " />
+					<h:link outcome="/user/unlink-and-delete-account.xhtml" value="#{messages['my_data.unlink_and_delete_account_link']}" styleClass="link">
+      					<f:param name="id" value="#{userPropertiesBean.user.id}"/>
+					</h:link>
+				</p:outputPanel>
 			</p:tab>
 
 			<p:tab id="tab2" title="#{messages.shibboleth}" rendered="#{userPropertiesBean.user.class.simpleName eq 'SamlUserEntity'}">
