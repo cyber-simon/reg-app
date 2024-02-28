@@ -68,6 +68,12 @@ public class ProjectEntity extends AbstractBaseEntity {
 
 	@Column(name = "sub_projects_allowed")
 	private Boolean subProjectsAllowed;
+
+	@Column(name = "published")
+	private Boolean published;
+	
+	@Column(name = "approved")
+	private Boolean approved;
 	
 	@Enumerated(EnumType.STRING)
 	private ProjectStatus projectStatus;	
@@ -177,5 +183,21 @@ public class ProjectEntity extends AbstractBaseEntity {
 
 	public void setProjectAdmins(Set<ProjectIdentityAdminEntity> projectAdmins) {
 		this.projectAdmins = projectAdmins;
+	}
+
+	public Boolean getPublished() {
+		return published;
+	}
+
+	public void setPublished(Boolean published) {
+		this.published = published;
+	}
+
+	public Boolean getApproved() {
+		return approved;
+	}
+
+	public void setApproved(Boolean approved) {
+		this.approved = approved;
 	}
 }
