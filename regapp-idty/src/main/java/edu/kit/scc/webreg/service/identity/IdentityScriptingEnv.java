@@ -1,13 +1,12 @@
 package edu.kit.scc.webreg.service.identity;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
 import edu.kit.scc.webreg.script.AbstractScriptingEnv;
 import edu.kit.scc.webreg.service.group.GroupUpdater;
 import edu.kit.scc.webreg.service.project.ExternalOidcProjectUpdater;
 import edu.kit.scc.webreg.service.project.LocalProjectCreater;
 import edu.kit.scc.webreg.service.project.LocalProjectUpdater;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class IdentityScriptingEnv extends AbstractScriptingEnv {

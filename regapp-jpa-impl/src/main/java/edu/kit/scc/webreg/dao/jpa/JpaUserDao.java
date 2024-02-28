@@ -14,21 +14,19 @@ import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
 
 import java.util.List;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Named;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.MapJoin;
-import jakarta.persistence.criteria.Root;
-
 import edu.kit.scc.webreg.dao.UserDao;
-import edu.kit.scc.webreg.entity.ExternalUserEntity;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserEntity_;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Named;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.MapJoin;
+import jakarta.persistence.criteria.Root;
 
 @Named
 @ApplicationScoped
@@ -45,7 +43,7 @@ public class JpaUserDao extends JpaBaseDao<UserEntity> implements UserDao {
 		CriteriaQuery<UserEntity> criteria = builder.createQuery(UserEntity.class);
 		Root<UserEntity> root = criteria.from(UserEntity.class);
 		criteria.select(root);
-		MapJoin<ExternalUserEntity, String, String> mapJoin = root.joinMap("attributeStore");
+		MapJoin<UserEntity, String, String> mapJoin = root.joinMap("attributeStore");
 		criteria.where(builder.and(builder.equal(mapJoin.key(), key), builder.equal(mapJoin.value(), value)));
 
 		return em.createQuery(criteria).getResultList();
@@ -57,7 +55,7 @@ public class JpaUserDao extends JpaBaseDao<UserEntity> implements UserDao {
 		CriteriaQuery<UserEntity> criteria = builder.createQuery(UserEntity.class);
 		Root<UserEntity> root = criteria.from(UserEntity.class);
 		criteria.select(root);
-		MapJoin<ExternalUserEntity, String, String> mapJoin = root.joinMap("genericStore");
+		MapJoin<UserEntity, String, String> mapJoin = root.joinMap("genericStore");
 		criteria.where(builder.and(builder.equal(mapJoin.key(), key), builder.equal(mapJoin.value(), value)));
 
 		return em.createQuery(criteria).getResultList();

@@ -34,7 +34,6 @@ import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.dao.oidc.OidcRpConfigurationDao;
 import edu.kit.scc.webreg.dao.oidc.OidcUserDao;
 import edu.kit.scc.webreg.entity.EventType;
-import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserRoleEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
@@ -179,6 +178,12 @@ public class OidcUserCreateServiceImpl implements OidcUserCreateService {
 		return user;
 	}
 	
+	@Override
+	@RetryTransaction
+	public IdentityEntity preMatchIdentity(OidcUserEntity user, Map<String, List<Object>> attributeMap) {
+		return identityCreater.preMatchIdentity(user, attributeMap);
+	}
+
 	@Override
 	@RetryTransaction
 	public OidcUserEntity createUser(OidcUserEntity user,

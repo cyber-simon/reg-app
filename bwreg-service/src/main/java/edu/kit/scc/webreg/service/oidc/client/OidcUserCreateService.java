@@ -31,4 +31,6 @@ public interface OidcUserCreateService {
 
 	OidcUserEntity postCreateUser(OidcUserEntity user, Map<String, List<Object>> attributeMap, String executor)
 			throws UserUpdateException;
+
+	IdentityEntity preMatchIdentity(OidcUserEntity user, Map<String, List<Object>> attributeMap);
 }
