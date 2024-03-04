@@ -23,15 +23,16 @@
 
 	<h:form id="form" prependId="false" styleClass="form full fancy">
 
-		<h3>#{messages.welcome_head}</h3>
-
-		<div><h:outputText value="#{messages.welcome_register}" escape="false"/></div>
-
+		<h:panelGroup rendered="#{empty registerOidcUserBean.identity}">
+			<h3>#{messages.welcome_head}</h3>
+			<div><h:outputText value="#{messages.welcome_register}" escape="false"/></div>
+		</h:panelGroup>
+		
 		<p:messages id="messageBox" showDetail="true" />
 
 		<h:panelGroup rendered="#{not empty registerOidcUserBean.identity}">
-		
-			<div style="margin-top: 1em;"><h:outputText value="#{messages['register.link_identity']}" /></div>
+			<h3>#{messages['register.link_identity_head']}</h3>
+			<div><h:outputText value="#{messages['register.link_identity']}" /></div>
 			<p:dataList var="user" value="#{registerOidcUserBean.userList}" type="unordered">
 				<p:outputPanel rendered="#{user.class.simpleName eq 'SamlUserEntity'}">
 	   	        	<h:outputText value="#{user.idp.displayName}" />

@@ -22,13 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.faces.context.ExternalContext;
-import jakarta.faces.context.FacesContext;
-import jakarta.faces.event.ComponentSystemEvent;
-import jakarta.faces.view.ViewScoped;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import org.slf4j.Logger;
 
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
@@ -47,6 +40,12 @@ import edu.kit.scc.webreg.service.oidc.OidcRpConfigurationService;
 import edu.kit.scc.webreg.service.oidc.client.OidcUserCreateService;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ComponentSystemEvent;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named
 @ViewScoped
@@ -115,7 +114,7 @@ public class RegisterOidcUserBean implements Serializable {
 	        	entity = userCreateService.preCreateUser(rpConfig.getId(),
 	        			sessionManager.getLocale(), sessionManager.getAttributeMap());
 	        	
-	        	identity = userCreateService.preMatchIdentity(entity,  sessionManager.getAttributeMap());
+	        	identity = userCreateService.preMatchIdentity(entity, sessionManager.getAttributeMap());
 			} catch (UserUpdateException e) {
 				errorState = true;
 				messageGenerator.addResolvedErrorMessage("missing-mandatory-attributes", e.getMessage(), true);

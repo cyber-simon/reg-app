@@ -10,27 +10,27 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.bean;
 
+import static edu.kit.scc.webreg.dao.ops.PaginateBy.unlimited;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+import static edu.kit.scc.webreg.dao.ops.SortBy.ascendingBy;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-
-import jakarta.faces.context.ExternalContext;
-import jakarta.faces.context.FacesContext;
-import jakarta.faces.event.ComponentSystemEvent;
-import jakarta.faces.view.ViewScoped;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
 
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity_;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserEntity_;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.SamlSpConfigurationService;
@@ -39,6 +39,12 @@ import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.impl.AttributeMapHelper;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ComponentSystemEvent;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named
 @ViewScoped
@@ -80,6 +86,9 @@ public class RegisterUserBean implements Serializable {
 	private Map<String, String> unprintableAttributesMap;
 	private List<String> printableAttributesList;
 
+	private IdentityEntity identity;
+	private List<UserEntity> userList;
+
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
 			SamlIdpMetadataEntity idpEntity = idpService.fetch(sessionManager.getIdpId());
@@ -89,6 +98,7 @@ public class RegisterUserBean implements Serializable {
 				entity = userCreateService.preCreateUser(idpEntity, spConfigEntity, sessionManager.getSamlIdentifier(),
 						sessionManager.getLocale(), sessionManager.getAttributeMap());
 
+	        	identity = userCreateService.preMatchIdentity(entity, sessionManager.getAttributeMap());
 			} catch (UserUpdateException e) {
 				errorState = true;
 				messageGenerator.addResolvedErrorMessage("missing-mandatory-attributes", e.getMessage(), true);
@@ -117,13 +127,19 @@ public class RegisterUserBean implements Serializable {
 			return null;
 		} else if (eppnError && (!eppnOverride)) {
 			/*
-			 * EPPN is already in system, but not aknowledged
+			 * EPPN is already in system, but not acknowledged
 			 */
 			return null;
 		}
 
+
 		try {
-			entity = userCreateService.createUser(entity, sessionManager.getAttributeMap(), null, null);
+			if (getIdentity() == null) {
+				entity = userCreateService.createUser(entity, sessionManager.getAttributeMap(), null, null);
+			}
+			else {
+				entity = userCreateService.createAndLinkUser(getIdentity(), entity, sessionManager.getAttributeMap(), null);
+			}
 			entity = userCreateService.postCreateUser(entity, sessionManager.getAttributeMap(), "user-" + entity.getId());
 		} catch (UserUpdateException e) {
 			logger.warn("An error occured whilst creating user", e);
@@ -200,4 +216,16 @@ public class RegisterUserBean implements Serializable {
 		return service.findByEppn(entity.getEppn());
 	}
 
+	public IdentityEntity getIdentity() {
+		return identity;
+	}
+
+	public List<UserEntity> getUserList() {
+		if (userList == null && getIdentity() != null)
+			userList = service.findAllEagerly(unlimited(), Arrays.asList(ascendingBy(UserEntity_.id)),
+					equal(UserEntity_.identity, getIdentity()), UserEntity_.genericStore, UserEntity_.attributeStore,
+					SamlUserEntity_.idp);
+
+		return userList;
+	}
 }

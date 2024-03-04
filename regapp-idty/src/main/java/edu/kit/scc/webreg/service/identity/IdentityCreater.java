@@ -16,8 +16,11 @@ import javax.script.ScriptException;
 
 import org.slf4j.Logger;
 
+import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
 import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.dao.oidc.OidcRpConfigurationDao;
+import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
@@ -44,6 +47,9 @@ public class IdentityCreater implements Serializable {
 	@Inject
 	private OidcRpConfigurationDao rpConfigurationDao;
 	
+	@Inject
+	private SamlIdpMetadataDao samlIdpMetadataDao;
+	
 	public IdentityEntity preMatchIdentity(UserEntity user, Map<String, List<Object>> attributeMap) {
 		if (user instanceof OidcUserEntity) {
 			OidcUserEntity oidcUser = ((OidcUserEntity) user);
@@ -51,6 +57,23 @@ public class IdentityCreater implements Serializable {
 			if (issuer.getGenericStore().containsKey("identity_matcher_script")) {
 				try {
 					Invocable invocable = resolveScript(issuer.getGenericStore().get("identity_matcher_script"));
+					Object o = invocable.invokeFunction("resolveIdentity", scriptingEnv, user, attributeMap, logger);
+					if (o instanceof IdentityEntity) {
+						return (IdentityEntity) o;
+					}
+				} catch (NoSuchMethodException e) {
+					logger.info("No resolveIdentity Method. Skipping execution.");
+				} catch (ScriptException | UserUpdateHookException e) {
+					logger.info("Script error on resolveIdentity", e);
+				}
+			}
+		}
+		else if (user instanceof SamlUserEntity) {
+			SamlUserEntity samlUser = (SamlUserEntity) user;
+			SamlIdpMetadataEntity idp = samlIdpMetadataDao.fetch(samlUser.getIdp().getId());
+			if (idp.getGenericStore().containsKey("identity_matcher_script")) {
+				try {
+					Invocable invocable = resolveScript(idp.getGenericStore().get("identity_matcher_script"));
 					Object o = invocable.invokeFunction("resolveIdentity", scriptingEnv, user, attributeMap, logger);
 					if (o instanceof IdentityEntity) {
 						return (IdentityEntity) o;
