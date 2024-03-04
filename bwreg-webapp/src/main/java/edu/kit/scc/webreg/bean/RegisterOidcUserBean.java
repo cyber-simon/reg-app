@@ -10,19 +10,17 @@
  ******************************************************************************/
 package edu.kit.scc.webreg.bean;
 
+import static edu.kit.scc.webreg.dao.ops.PaginateBy.unlimited;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+import static edu.kit.scc.webreg.dao.ops.SortBy.ascendingBy;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import jakarta.faces.context.ExternalContext;
-import jakarta.faces.context.FacesContext;
-import jakarta.faces.event.ComponentSystemEvent;
-import jakarta.faces.view.ViewScoped;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
 
 import org.slf4j.Logger;
 
@@ -30,7 +28,10 @@ import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
 import edu.kit.scc.regapp.oidc.tools.OidcTokenHelper;
+import edu.kit.scc.webreg.entity.SamlUserEntity_;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserEntity_;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
@@ -39,6 +40,12 @@ import edu.kit.scc.webreg.service.oidc.OidcRpConfigurationService;
 import edu.kit.scc.webreg.service.oidc.client.OidcUserCreateService;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ComponentSystemEvent;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named
 @ViewScoped
@@ -79,6 +86,9 @@ public class RegisterOidcUserBean implements Serializable {
 	private Map<String, String> unprintableAttributesMap;
 	private List<String> printableAttributesList;
 	
+	private IdentityEntity identity;
+	private List<UserEntity> userList;
+	
     public void preRenderView(ComponentSystemEvent ev) {
     	if (entity == null) {
     		
@@ -100,14 +110,11 @@ public class RegisterOidcUserBean implements Serializable {
 	    	unprintableAttributesMap = new HashMap<String, String>();
 	    	printableAttributesList = new ArrayList<String>();
 	
-	    	if (sessionManager.getAttributeMap() != null) {
-	    		
-	    	}
-	    	
 	    	try {
 	        	entity = userCreateService.preCreateUser(rpConfig.getId(),
 	        			sessionManager.getLocale(), sessionManager.getAttributeMap());
 	        	
+	        	identity = userCreateService.preMatchIdentity(entity, sessionManager.getAttributeMap());
 			} catch (UserUpdateException e) {
 				errorState = true;
 				messageGenerator.addResolvedErrorMessage("missing-mandatory-attributes", e.getMessage(), true);
@@ -134,81 +141,7 @@ public class RegisterOidcUserBean implements Serializable {
 			printableAttributesMap.put("subject_id", entity.getSubjectId());
 			printableAttributesList.add("issuer");
 			printableAttributesMap.put("issuer", rpConfig.getServiceUrl());
-			
-		
-    	/*    	
 
-    	if (service.findByEppn(entity.getEppn()) != null) {
-			errorState = true;
-			messageGenerator.addResolvedErrorMessage("eppn-blocked", "eppn-blocked-detail", true);
-    	}
-    	
-    	printableAttributesMap = new HashMap<String, String>();
-    	unprintableAttributesMap = new HashMap<String, String>();
-    	printableAttributesList = new ArrayList<String>();
-    	
-    	for (Entry<String, List<Object>> entry : sessionManager.getAttributeMap().entrySet()) {
-    		if (entry.getKey().equals("urn:oid:0.9.2342.19200300.100.1.3")){
-    			printableAttributesList.add("email");
-    			printableAttributesMap.put("email", attrHelper.attributeListToString(entry.getValue(), ","));
-    		}
-    		else if (entry.getKey().equals("urn:oid:1.3.6.1.4.1.5923.1.1.1.6")){
-    			printableAttributesList.add("eppn");
-    			printableAttributesMap.put("eppn", attrHelper.getSingleStringFirst(entry.getValue()));
-    		}
-    		else if (entry.getKey().equals("urn:oid:2.5.4.42")){
-    			printableAttributesList.add("given_name");
-    			printableAttributesMap.put("given_name", attrHelper.getSingleStringFirst(entry.getValue()));
-    		}
-    		else if (entry.getKey().equals("urn:oid:2.5.4.4")){
-    			printableAttributesList.add("sur_name");
-    			printableAttributesMap.put("sur_name", attrHelper.getSingleStringFirst(entry.getValue()));
-    		}
-    		else if (entry.getKey().equals("urn:oid:1.3.6.1.1.1.1.1")){
-    			printableAttributesList.add("gid_number");
-    			printableAttributesMap.put("gid_number", attrHelper.getSingleStringFirst(entry.getValue()));
-    		}
-    		else if (entry.getKey().equals("http://bwidm.de/bwidmCC")){
-    			printableAttributesList.add("primary_group");
-    			printableAttributesMap.put("primary_group", attrHelper.getSingleStringFirst(entry.getValue()));
-    		}
-    		else if (entry.getKey().equals("http://bwidm.de/bwidmOrgId")){
-    			printableAttributesList.add("bwidm_org_id");
-    			printableAttributesMap.put("bwidm_org_id", attrHelper.getSingleStringFirst(entry.getValue()));
-    		}
-    		else if (entry.getKey().equals("memberOf")){
-    			printableAttributesList.add("groups");
-    			printableAttributesMap.put("groups", attrHelper.attributeListToString(entry.getValue(), ", "));
-    		}
-    		else if (entry.getKey().equals("http://bwidm.de/bwidmMemberOf")){
-    			printableAttributesList.add("groups");
-    			printableAttributesMap.put("groups", attrHelper.attributeListToString(entry.getValue(), ", "));
-    		}
-    		else if (entry.getKey().equals("urn:oid:1.3.6.1.4.1.5923.1.1.1.7")){
-    			printableAttributesList.add("entitlement");
-    			printableAttributesMap.put("entitlement", attrHelper.attributeListToString(entry.getValue(), ", "));
-    		}
-    		else if (entry.getKey().equals("urn:oid:0.9.2342.19200300.100.1.1")){
-    			printableAttributesList.add("uid");
-    			printableAttributesMap.put("uid", attrHelper.getSingleStringFirst(entry.getValue()));
-    		}
-    		else if (entry.getKey().equals("urn:oid:1.3.6.1.1.1.1.0")){
-    			printableAttributesList.add("uid_number");
-    			printableAttributesMap.put("uid_number", attrHelper.getSingleStringFirst(entry.getValue()));
-    		}
-    		else if (entry.getKey().equals("urn:oid:1.3.6.1.4.1.5923.1.1.1.9")){
-    			printableAttributesList.add("affiliation");
-    			printableAttributesMap.put("affiliation", attrHelper.attributeListToString(entry.getValue(), ", "));
-    		}
-    		else if (entry.getKey().equals("urn:oid:1.3.6.1.4.1.5923.1.1.1.13")){
-    			printableAttributesList.add("epuid");
-    			printableAttributesMap.put("epuid", attrHelper.attributeListToString(entry.getValue(), ", "));
-    		}
-    		else {
-    			unprintableAttributesMap.put(entry.getKey(), attrHelper.attributeListToString(entry.getValue(), ", "));
-    		}
-    	}
-*/
     	}
 	}
 
@@ -228,7 +161,12 @@ public class RegisterOidcUserBean implements Serializable {
 		}
 
 		try {
-			entity = userCreateService.createUser(entity, sessionManager.getAttributeMap(), null);
+			if (getIdentity() == null) {
+				entity = userCreateService.createUser(entity, sessionManager.getAttributeMap(), null);
+			}
+			else {
+				entity = userCreateService.createAndLinkUser(getIdentity(), entity, sessionManager.getAttributeMap(), null);
+			}
 			entity = userCreateService.postCreateUser(entity, sessionManager.getAttributeMap(), "user-" + entity.getId());
 		} catch (UserUpdateException e) {
 			logger.warn("An error occured whilst creating user", e);
@@ -306,6 +244,17 @@ public class RegisterOidcUserBean implements Serializable {
 		return oldUserList;
 	}
 
-	
+	public IdentityEntity getIdentity() {
+		return identity;
+	}
+
+	public List<UserEntity> getUserList() {
+		if (userList == null && getIdentity() != null)
+			userList = service.findAllEagerly(unlimited(), Arrays.asList(ascendingBy(UserEntity_.id)),
+					equal(UserEntity_.identity, getIdentity()), UserEntity_.genericStore, UserEntity_.attributeStore,
+					SamlUserEntity_.idp);
+
+		return userList;
+	}
 }
 

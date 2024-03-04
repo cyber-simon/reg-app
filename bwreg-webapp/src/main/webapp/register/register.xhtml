@@ -23,12 +23,33 @@
 
 	<h:form id="form" prependId="false" styleClass="form full fancy">
 
-		<h3>#{messages.welcome_head}</h3>
 
-		<div><h:outputText value="#{messages.welcome_register}" escape="false"/></div>
-
+		<h:panelGroup rendered="#{empty registerUserBean.identity}">
+			<h3>#{messages.welcome_head}</h3>
+			<div><h:outputText value="#{messages.welcome_register}" escape="false"/></div>
+		</h:panelGroup>
+		
 		<p:messages id="messageBox" showDetail="true" />
 
+		<h:panelGroup rendered="#{not empty registerUserBean.identity}">
+			<h3>#{messages['register.link_identity_head']}</h3>
+			<div><h:outputText value="#{messages['register.link_identity']}" /></div>
+			<p:dataList var="user" value="#{registerUserBean.userList}" type="unordered">
+				<p:outputPanel rendered="#{user.class.simpleName eq 'SamlUserEntity'}">
+	   	        	<h:outputText value="#{user.idp.displayName}" />
+				</p:outputPanel>
+				<p:outputPanel rendered="#{user.class.simpleName eq 'OidcUserEntity'}">
+	   	        	<h:outputText value="#{user.issuer.displayName}" />
+				</p:outputPanel>
+				<p:outputPanel style="margin-left: 1em;">
+					<div><h:outputText value="#{user.givenName}, #{user.surName}" /></div>
+					<div><h:outputText value="#{user.email}" /></div>
+				</p:outputPanel>
+			</p:dataList>
+
+			<div style="margin-top: 1em;"><h:outputText value="#{messages['register.link_identity2']}" /></div>
+			
+		</h:panelGroup>
 		<h:panelGroup rendered="#{registerUserBean.eppnError}">
 			<h3 style="margin-top: 0.4em;">#{messages.eppn_blocked}</h3>
 			<h:outputText value="#{messages.eppn_blocked_detail}" escape="false"/>

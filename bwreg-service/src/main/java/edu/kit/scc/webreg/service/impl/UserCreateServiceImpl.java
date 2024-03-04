@@ -44,6 +44,7 @@ import edu.kit.scc.webreg.entity.as.AttributeSourceEntity;
 import edu.kit.scc.webreg.entity.as.AttributeSourceEntity_;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.UserEvent;
 import edu.kit.scc.webreg.event.exc.EventSubmitException;
@@ -147,6 +148,12 @@ public class UserCreateServiceImpl implements UserCreateService {
 		saml2AssertionService.updateUserIdentifier(samlIdentifier, entity, spConfigEntity.getEntityId(), null);
 
 		return entity;
+	}
+
+	@Override
+	@RetryTransaction
+	public IdentityEntity preMatchIdentity(SamlUserEntity user, Map<String, List<Object>> attributeMap) {
+		return identityCreater.preMatchIdentity(user, attributeMap);
 	}
 
 	@Override

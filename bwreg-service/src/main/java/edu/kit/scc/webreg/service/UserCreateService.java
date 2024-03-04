@@ -34,4 +34,6 @@ public interface UserCreateService {
 	SamlUserEntity postCreateUser(SamlUserEntity user, Map<String, List<Object>> attributeMap, String executor)
 			throws UserUpdateException;
 
+	IdentityEntity preMatchIdentity(SamlUserEntity user, Map<String, List<Object>> attributeMap);
+
 }

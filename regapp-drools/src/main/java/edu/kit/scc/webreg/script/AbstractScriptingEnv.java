@@ -13,6 +13,7 @@ import edu.kit.scc.webreg.dao.SerialDao;
 import edu.kit.scc.webreg.dao.ServiceDao;
 import edu.kit.scc.webreg.dao.ServiceGroupFlagDao;
 import edu.kit.scc.webreg.dao.UserDao;
+import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.dao.oidc.OidcUserDao;
 import edu.kit.scc.webreg.dao.project.ProjectDao;
 
@@ -50,6 +51,9 @@ public class AbstractScriptingEnv implements Serializable {
 	@Inject
 	private RegistryDao registryDao;
 	
+	@Inject
+	private IdentityDao identityDao;
+
 	public UserDao getUserDao() {
 		return userDao;
 	}
@@ -92,5 +96,13 @@ public class AbstractScriptingEnv implements Serializable {
 	
 	public Object selectFromCDI(String className) throws ClassNotFoundException {
 		return CDI.current().select(Class.forName(className)).get();
+	}
+
+	public IdentityDao getIdentityDao() {
+		return identityDao;
+	}
+
+	public void setIdentityDao(IdentityDao identityDao) {
+		this.identityDao = identityDao;
 	}
 }

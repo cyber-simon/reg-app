@@ -5,16 +5,30 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomNumeric;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
 import org.slf4j.Logger;
 
+import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
 import edu.kit.scc.webreg.dao.identity.IdentityDao;
+import edu.kit.scc.webreg.dao.oidc.OidcRpConfigurationDao;
+import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
+import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
+import edu.kit.scc.webreg.hook.UserUpdateHookException;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class IdentityCreater implements Serializable {
@@ -27,11 +41,55 @@ public class IdentityCreater implements Serializable {
 	@Inject
 	private IdentityDao dao;
 
+	@Inject
+	private IdentityScriptingEnv scriptingEnv;
+
+	@Inject
+	private OidcRpConfigurationDao rpConfigurationDao;
+	
+	@Inject
+	private SamlIdpMetadataDao samlIdpMetadataDao;
+	
+	public IdentityEntity preMatchIdentity(UserEntity user, Map<String, List<Object>> attributeMap) {
+		if (user instanceof OidcUserEntity) {
+			OidcUserEntity oidcUser = ((OidcUserEntity) user);
+			OidcRpConfigurationEntity issuer = rpConfigurationDao.fetch(oidcUser.getIssuer().getId());
+			if (issuer.getGenericStore().containsKey("identity_matcher_script")) {
+				try {
+					Invocable invocable = resolveScript(issuer.getGenericStore().get("identity_matcher_script"));
+					Object o = invocable.invokeFunction("resolveIdentity", scriptingEnv, user, attributeMap, logger);
+					if (o instanceof IdentityEntity) {
+						return (IdentityEntity) o;
+					}
+				} catch (NoSuchMethodException e) {
+					logger.info("No resolveIdentity Method. Skipping execution.");
+				} catch (ScriptException | UserUpdateHookException e) {
+					logger.info("Script error on resolveIdentity", e);
+				}
+			}
+		}
+		else if (user instanceof SamlUserEntity) {
+			SamlUserEntity samlUser = (SamlUserEntity) user;
+			SamlIdpMetadataEntity idp = samlIdpMetadataDao.fetch(samlUser.getIdp().getId());
+			if (idp.getGenericStore().containsKey("identity_matcher_script")) {
+				try {
+					Invocable invocable = resolveScript(idp.getGenericStore().get("identity_matcher_script"));
+					Object o = invocable.invokeFunction("resolveIdentity", scriptingEnv, user, attributeMap, logger);
+					if (o instanceof IdentityEntity) {
+						return (IdentityEntity) o;
+					}
+				} catch (NoSuchMethodException e) {
+					logger.info("No resolveIdentity Method. Skipping execution.");
+				} catch (ScriptException | UserUpdateHookException e) {
+					logger.info("Script error on resolveIdentity", e);
+				}
+			}
+		}
+		return null;
+	}
+
 	public IdentityEntity preCreateIdentity() {
-		/**
-		 * TODO: Apply mapping rules at this point. At the moment every account gets one
-		 * identity. Should possibly be mapped to existing identity in some cases.
-		 */
+
 		IdentityEntity identity = dao.createNew();
 		identity = dao.persist(identity);
 
@@ -62,4 +120,32 @@ public class IdentityCreater implements Serializable {
 			user.getIdentity().setGeneratedLocalUsername(generatedName);
 		}
 	}
+
+	private Invocable resolveScript(String scriptName) throws UserUpdateHookException {
+		try {
+			ScriptEntity scriptEntity = scriptingEnv.getScriptDao().findByName(scriptName);
+
+			if (scriptEntity == null)
+				throw new UserUpdateHookException("identity matcher not configured properly. script is missing.");
+
+			if (scriptEntity.getScriptType().equalsIgnoreCase("javascript")) {
+				ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
+
+				if (engine == null)
+					throw new UserUpdateHookException("identity matcher not configured properly. engine not found: "
+							+ scriptEntity.getScriptEngine());
+
+				engine.eval(scriptEntity.getScript());
+
+				Invocable invocable = (Invocable) engine;
+
+				return invocable;
+			} else {
+				throw new UserUpdateHookException("unkown script type: " + scriptEntity.getScriptType());
+			}
+		} catch (ScriptException e) {
+			throw new UserUpdateHookException(e);
+		}
+	}
+
 }
