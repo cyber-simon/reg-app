@@ -134,10 +134,8 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			throw new OidcAuthenticationException("unknown client");
 		}
 
-		if (clientConfig.getGenericStore().containsKey("redirect_uri_regex")) {
-			if (!redirectUri.matches(clientConfig.getGenericStore().get("redirect_uri_regex"))) {
-				throw new OidcAuthenticationException("invalid redirect uri");
-			}
+		if (! checkRedirectUri(redirectUri, clientConfig)) {
+			throw new OidcAuthenticationException("invalid redirect uri");
 		}
 
 		OidcFlowStateEntity flowState = flowStateDao.createNew();
@@ -170,6 +168,29 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 					"/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/auth/return");
 			return "/welcome/index.xhtml";
 		}
+	}
+
+	private Boolean checkRedirectUri(String redirectUri, OidcClientConfigurationEntity clientConfig) {
+		if (clientConfig.getRedirects() != null) {
+			for (String r : clientConfig.getRedirects()) {
+				if (r.endsWith("*")) {
+					if (redirectUri.toLowerCase().startsWith(r.substring(0, r.length()-1).toLowerCase())) {
+						return true;
+					}
+				}
+				else if (r.equalsIgnoreCase(redirectUri)) {
+					return true;
+				}
+			}
+		}
+		
+		if (clientConfig.getGenericStore().containsKey("redirect_uri_regex")) {
+			if (redirectUri.matches(clientConfig.getGenericStore().get("redirect_uri_regex"))) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 	@Override

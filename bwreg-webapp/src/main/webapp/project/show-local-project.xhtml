@@ -38,8 +38,8 @@
 		        <h:outputText value="#{messages.group_name}:"/>
 		        <h:outputText value="#{userShowLocalProjectBean.entity.groupName}"/>
 					
-		        <h:outputText value="#{messages.parent_vo}:" rendered="#{userShowLocalProjectBean.entity.parentProject != null}"/>
-		        <h:outputText value="#{userShowLocalProjectBean.entity.parentProject}" rendered="#{userShowLocalProjectBean.entity.parentProject != null}"/>
+		        <h:outputText value="#{messages['project.local_project.parent_vo']}:" rendered="#{userShowLocalProjectBean.entity.parentProject != null}"/>
+		        <h:outputText value="#{userShowLocalProjectBean.entity.parentProject.name}" rendered="#{userShowLocalProjectBean.entity.parentProject != null}"/>
 				
 		        <h:outputText value="#{messages.services}:"/>
 		        <ui:repeat value="#{userShowLocalProjectBean.entity.projectServices}" var="s">

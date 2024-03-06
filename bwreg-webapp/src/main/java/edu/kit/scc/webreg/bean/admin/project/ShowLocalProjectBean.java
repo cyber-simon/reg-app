@@ -25,7 +25,7 @@ import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.service.project.LocalProjectService;
 import edu.kit.scc.webreg.service.project.ProjectService;
 
-@Named
+@Named("admin.showLocalProjectBean")
 @ViewScoped
 public class ShowLocalProjectBean implements Serializable {
 

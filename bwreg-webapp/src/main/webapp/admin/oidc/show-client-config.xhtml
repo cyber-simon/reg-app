@@ -57,7 +57,8 @@
 							</li>
 			        	</ui:repeat>
 			        </ul>
-					<h:panelGrid id="newPropTable" columns="3" columnClasses="labelColumn, elementColumn">
+					<h:panelGrid id="newPropTable" columns="4" columnClasses="labelColumn, elementColumn">
+				        <h:outputText value="#{messages['admin.show_oidc_client_config.new_key_value']}:"/>
 				        <h:inputText id="key_input" value="#{showOidcClientConfigurationBean.newKey}"/>
 		       			<h:inputText id="value_input" value="#{showOidcClientConfigurationBean.newValue}"/>
 						<h:commandLink value="#{messages.add}" action="#{showOidcClientConfigurationBean.addGenericStore()}">
@@ -65,7 +66,29 @@
 						</h:commandLink>
 					</h:panelGrid>
 		        </h:panelGroup>
-	
+
+		        <h:outputText value="#{messages['admin.show_oidc_client_config.new_redirects']}:"/>
+		        <h:panelGroup>
+		        	<ul>
+		        		<ui:repeat var="redirect" value="#{showOidcClientConfigurationBean.entity.redirects}">
+		        			<li>
+		        				<h:outputText value="#{redirect} "/>
+				        		<h:commandLink value="(#{messages.delete})" action="#{showOidcClientConfigurationBean.removeRedirect(redirect)}">
+									<f:ajax render=":form:mainPanel" />
+								</h:commandLink>
+		        			</li>
+		        		</ui:repeat>
+		        	</ul>
+		        	<h:panelGrid id="newRediTable" columns="3" columnClasses="labelColumn, elementColumn">
+				        <h:outputText value="#{messages['admin.show_oidc_client_config.new_redirect']}:"/>
+		       			<h:inputText id="value_redi_input" value="#{showOidcClientConfigurationBean.newRedirect}"/>
+						<h:commandLink value="#{messages.add}" action="#{showOidcClientConfigurationBean.addRedirect()}">
+							<f:ajax execute=":form:mainPanel" render=":form:mainPanel" />
+						</h:commandLink>
+					</h:panelGrid>
+		        	
+				</h:panelGroup>
+					
 			</p:panelGrid>
 			<h:link outcome="edit-client-config.xhtml" value="#{messages.edit}">
 				<f:param name="id" value="#{showOidcClientConfigurationBean.entity.id}"/>
@@ -91,38 +114,40 @@
 					</h:commandLink>
 				</p:outputPanel>
 			</ui:repeat>
-		
-			<p:panelGrid columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
-				<h:outputText value="#{messages.script}" />
-		        <h:selectOneMenu value="#{showOidcClientConfigurationBean.newSoce.script}"
-		        	converter="#{scriptConverter}">
-		        	<f:selectItem itemLabel="Kein Script" itemValue="#{null}"/>
-	            	<f:selectItems value="#{showOidcClientConfigurationBean.scriptList}" 
-	            		var="script" itemLabel="#{script.name} (id #{script.id})" itemValue="#{script}"/>
-	            </h:selectOneMenu>
 
-				<h:outputText value="#{messages.service}" />
-		        <h:selectOneMenu value="#{showOidcClientConfigurationBean.newSoce.service}"
-		        	converter="#{serviceConverter}">
-		        	<f:selectItem itemLabel="Kein Service" itemValue="#{null}"/>
-	            	<f:selectItems value="#{showOidcClientConfigurationBean.serviceList}" 
-	            		var="service" itemLabel="#{service.name} (id #{service.id})" itemValue="#{service}"/>
-	            </h:selectOneMenu>
-
-				<h:outputText value="#{messages.rule_package}" />
-		        <h:selectOneMenu value="#{showOidcClientConfigurationBean.newSoce.rulePackage}"
-		        	converter="#{businessRulePackageConverter}">
-		        	<f:selectItem itemLabel="No extra access rule" itemValue="#{null}"/>
-	            	<f:selectItems value="#{showOidcClientConfigurationBean.rulePackageList}" 
-	            		var="rulePackage" itemLabel="#{rulePackage.knowledgeBaseName} (id #{rulePackage.id})" itemValue="#{rulePackage}"/>
-	            </h:selectOneMenu>
-
-				<h:outputText value="#{messages.wants_elevation}" />
-				<p:inputSwitch value="#{showOidcClientConfigurationBean.newSoce.wantsElevation}"/>
-
-				<h:outputText value="#{messages.order_criteria}" />
-				<p:inputText value="#{showOidcClientConfigurationBean.newSoce.orderCriteria}"/>
-			</p:panelGrid>
+			<div style="margin-top: 2em;">		
+				<p:panelGrid columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
+					<h:outputText value="#{messages.script}" />
+			        <h:selectOneMenu value="#{showOidcClientConfigurationBean.newSoce.script}"
+			        	converter="#{scriptConverter}">
+			        	<f:selectItem itemLabel="Kein Script" itemValue="#{null}"/>
+		            	<f:selectItems value="#{showOidcClientConfigurationBean.scriptList}" 
+		            		var="script" itemLabel="#{script.name} (id #{script.id})" itemValue="#{script}"/>
+		            </h:selectOneMenu>
+	
+					<h:outputText value="#{messages.service}" />
+			        <h:selectOneMenu value="#{showOidcClientConfigurationBean.newSoce.service}"
+			        	converter="#{serviceConverter}">
+			        	<f:selectItem itemLabel="Kein Service" itemValue="#{null}"/>
+		            	<f:selectItems value="#{showOidcClientConfigurationBean.serviceList}" 
+		            		var="service" itemLabel="#{service.name} (id #{service.id})" itemValue="#{service}"/>
+		            </h:selectOneMenu>
+	
+					<h:outputText value="#{messages.rule_package}" />
+			        <h:selectOneMenu value="#{showOidcClientConfigurationBean.newSoce.rulePackage}"
+			        	converter="#{businessRulePackageConverter}">
+			        	<f:selectItem itemLabel="No extra access rule" itemValue="#{null}"/>
+		            	<f:selectItems value="#{showOidcClientConfigurationBean.rulePackageList}" 
+		            		var="rulePackage" itemLabel="#{rulePackage.knowledgeBaseName} (id #{rulePackage.id})" itemValue="#{rulePackage}"/>
+		            </h:selectOneMenu>
+	
+					<h:outputText value="#{messages.wants_elevation}" />
+					<p:inputSwitch value="#{showOidcClientConfigurationBean.newSoce.wantsElevation}"/>
+	
+					<h:outputText value="#{messages.order_criteria}" />
+					<p:inputText value="#{showOidcClientConfigurationBean.newSoce.orderCriteria}"/>
+				</p:panelGrid>
+			</div>
 			
 			<h:commandLink value="#{messages.add}" action="#{showOidcClientConfigurationBean.addSoce()}">
 				<f:ajax execute=":form:scriptPanel" render=":form:scriptPanel" />

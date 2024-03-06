@@ -11,9 +11,9 @@
 <body>
 <f:view>
 	<f:metadata>
-		<f:viewParam name="id" value="#{showLocalProjectBean.id}"/>
+		<f:viewParam name="id" value="#{admin.showLocalProjectBean.id}"/>
 		<f:event type="jakarta.faces.event.PreRenderViewEvent"
-            listener="#{showLocalProjectBean.preRenderView}" />
+            listener="#{admin.showLocalProjectBean.preRenderView}" />
 	</f:metadata>
 
 <ui:composition template="/template/default-admin.xhtml">
@@ -22,7 +22,7 @@
 	<ui:define name="content">
 	<h:form id="form">
 
-		<h2><h:outputText value="#{messages.local_vo}: #{showLocalProjectBean.entity.name}"/></h2>
+		<h2><h:outputText value="#{messages.local_vo}: #{admin.showLocalProjectBean.entity.name}"/></h2>
 
 		<p:messages id="messageBox" showDetail="true" />
 		
@@ -30,31 +30,51 @@
 			<p:panelGrid id="baseData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 		
 		        <h:outputText value="#{messages.id}:"/>
-		        <h:outputText value="#{showLocalProjectBean.entity.id}"/>
+		        <h:outputText value="#{admin.showLocalProjectBean.entity.id}"/>
 		
 		        <h:outputText value="#{messages.name}:"/>
-		        <h:outputText value="#{showLocalProjectBean.entity.name}"/>
+		        <h:outputText value="#{admin.showLocalProjectBean.entity.name}"/>
 					
 		        <h:outputText value="#{messages.group_name}:"/>
-		        <h:outputText value="#{showLocalProjectBean.entity.groupName}"/>
+		        <h:outputText value="#{admin.showLocalProjectBean.entity.groupName}"/>
 					
 		        <h:outputText value="#{messages.parent_vo}:"/>
-		        <h:outputText value="#{showLocalProjectBean.entity.parentProject}"/>
+		        <h:outputText value="#{admin.showLocalProjectBean.entity.parentProject}"/>
 				
+		        <h:outputText value="#{messages.published}:"/>
+		        <h:outputText value="#{admin.showLocalProjectBean.entity.published}"/>
+				
+		        <h:outputText value="#{messages.approved}:"/>
+		        <h:outputText value="#{admin.showLocalProjectBean.entity.approved}"/>
+				
+		        <h:outputText value="#{messages.sub_groups_allowed}:"/>
+		        <h:outputText value="#{admin.showLocalProjectBean.entity.subProjectsAllowed}"/>
+
+		        <h:outputText value="#{messages.attribute_prefix}:"/>
+		        <h:outputText value="#{admin.showLocalProjectBean.entity.attributePrefix}"/>
+				
+		        <h:outputText value="#{messages.attribute_name}:"/>
+		        <h:outputText value="#{admin.showLocalProjectBean.entity.attributeName}"/>
+								
 		        <h:outputText value="#{messages.services}:"/>
-		        <ui:repeat value="#{showLocalProjectBean.entity.projectServices}" var="s">
+		        <ui:repeat value="#{admin.showLocalProjectBean.entity.projectServices}" var="s">
 		        	<div><h:outputText value="#{s.service.name}"/></div>
 				</ui:repeat>
 				
 				<h:outputText value="#{messages.project_group}:"/>
-		        <h:outputText value="#{showLocalProjectBean.entity.projectGroup.name} - (gidNumber: #{showLocalProjectBean.entity.projectGroup.gidNumber})"/>
+		        <h:outputText value="#{admin.showLocalProjectBean.entity.projectGroup.name} - (gidNumber: #{admin.showLocalProjectBean.entity.projectGroup.gidNumber})"/>
 				
 			</p:panelGrid>
+			
+			<h:link outcome="edit-local-project.xhtml" value="#{messages.edit}">
+				<f:param name="projectId" value="#{admin.showLocalProjectBean.entity.id}"/>
+			</h:link>
+			
 		</p:panel>
 		
 		<p:panel header="#{messages.admins}">
 			<p:dataTable id="adminData" style="min-width: 500px;" 
-					value="#{showLocalProjectBean.adminList}" var="a">
+					value="#{admin.showLocalProjectBean.adminList}" var="a">
 				<p:column width="64">
 					<f:facet name="header">
 						<h:outputText value="#{messages.id}" />
@@ -90,13 +110,13 @@
 			</p:dataTable>
 
 			<h:link outcome="edit-project-admins.xhtml" value="#{messages.edit_admins}">
-				<f:param name="projectId" value="#{showLocalProjectBean.entity.id}"/>
+				<f:param name="projectId" value="#{admin.showLocalProjectBean.entity.id}"/>
 			</h:link>
 		</p:panel>
 		
 		<p:panel header="#{messages.members}">
 			<p:dataTable id="memberData" style="min-width: 500px;" 
-					value="#{showLocalProjectBean.memberList}" var="m">
+					value="#{admin.showLocalProjectBean.memberList}" var="m">
 				<p:column width="64">
 					<f:facet name="header">
 						<h:outputText value="#{messages.id}" />

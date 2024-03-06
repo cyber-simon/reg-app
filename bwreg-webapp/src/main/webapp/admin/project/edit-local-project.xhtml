@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="jakarta.faces.core"
+	xmlns:h="jakarta.faces.html"
+	xmlns:ui="jakarta.faces.facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="projectId" value="#{admin.editLocalProjectBean.projectId}"/>
+		<f:event type="jakarta.faces.event.PreRenderViewEvent"
+            listener="#{admin.editLocalProjectBean.preRenderView}" />
+	</f:metadata>
+	<f:metadata>
+		<f:viewParam name="id" value="#{admin.editLocalProjectBean.id}"/>
+		<f:event type="jakarta.faces.event.PreRenderViewEvent"
+            listener="#{admin.editLocalProjectBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default-admin.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form">
+
+		<h2><h:outputText value="#{messages.local_vo}: #{admin.editLocalProjectBean.entity.name}"/></h2>
+
+		<p:messages id="messageBox" showDetail="true" />
+		
+		<p:panel header="#{messages.properties}">
+			<p:panelGrid id="baseData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
+		
+		        <h:outputText value="#{messages.id}:"/>
+		        <h:outputText value="#{admin.editLocalProjectBean.entity.id}"/>
+		
+		        <bw:inputText id="nameField" label="#{messages.name}" 
+			        	value="#{admin.editLocalProjectBean.entity.name}" required="true"/>
+
+		        <h:outputText value="#{messages.group_name}:"/>
+		        <h:outputText value="#{admin.editLocalProjectBean.entity.groupName}"/>
+					
+		        <h:outputText value="#{messages.parent_vo}:"/>
+		        <h:outputText value="#{admin.editLocalProjectBean.entity.parentProject}"/>
+				
+		        <h:outputText value="#{messages.published}:"/>
+				<p:selectBooleanButton id="pubField" 
+							onLabel="#{messages.yes}" offLabel="#{messages.no}" 
+							value="#{admin.editLocalProjectBean.entity.published}"/>
+				
+		        <h:outputText value="#{messages.approved}:"/>
+				<p:selectBooleanButton id="approField" 
+							onLabel="#{messages.yes}" offLabel="#{messages.no}" 
+							value="#{admin.editLocalProjectBean.entity.approved}"/>
+				
+		        <h:outputText value="#{messages.sub_groups_allowed}:"/>
+				<p:selectBooleanButton id="subprojField" 
+							onLabel="#{messages.yes}" offLabel="#{messages.no}" 
+							value="#{admin.editLocalProjectBean.entity.subProjectsAllowed}"/>
+				
+		        <bw:inputText id="attribute_prefixField" label="#{messages.attribute_prefix}" 
+			        	value="#{admin.editLocalProjectBean.entity.attributePrefix}" required="false"/>
+				
+		        <bw:inputText id="attribute_nameField" label="#{messages.attribute_name}" 
+			        	value="#{admin.editLocalProjectBean.entity.attributeName}" required="false"/>
+				
+				<h:outputText value="#{messages.project_group}:"/>
+		        <h:outputText value="#{admin.editLocalProjectBean.entity.projectGroup.name} - (gidNumber: #{admin.editLocalProjectBean.entity.projectGroup.gidNumber})"/>
+				
+			</p:panelGrid>
+			<p:commandButton id="cancel" action="#{admin.editLocalProjectBean.cancel}" value="#{messages.cancel}" 
+				immediate="true" />
+			<p:commandButton id="save" action="#{admin.editLocalProjectBean.save}" value="#{messages.save}"/>
+			
+		</p:panel>
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>

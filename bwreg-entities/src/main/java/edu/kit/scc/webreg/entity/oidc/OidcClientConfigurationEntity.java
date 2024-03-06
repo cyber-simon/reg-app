@@ -1,33 +1,20 @@
 package edu.kit.scc.webreg.entity.oidc;
 
 import java.util.Map;
+import java.util.Set;
 
-import edu.kit.scc.webreg.entity.attribute.AttributeConsumerEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.Table;
 
 @Entity(name = "OidcClientConfigurationEntity")
 @Table(name = "oidc_client_configuration")
-public class OidcClientConfigurationEntity extends AttributeConsumerEntity {
+public class OidcClientConfigurationEntity extends OidcClientConsumerEntity {
 
 	private static final long serialVersionUID = 1L;
-
-	@Column(name = "name", length = 64)
-	private String name;
-
-	@Column(name = "secret", length = 256)
-	private String secret;
-
-	@Column(name = "displayName", length = 1024)
-	private String displayName;
-
-	@ManyToOne(targetEntity = OidcOpConfigurationEntity.class)
-	private OidcOpConfigurationEntity opConfiguration;
 
 	@ElementCollection
 	@JoinTable(name = "oidc_client_generic_store")
@@ -35,40 +22,10 @@ public class OidcClientConfigurationEntity extends AttributeConsumerEntity {
     @Column(name = "value_data", length = 2048)
     private Map<String, String> genericStore; 
 
-	@Column(name = "public_client")
-	private Boolean publicClient;
-	
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getSecret() {
-		return secret;
-	}
-
-	public void setSecret(String secret) {
-		this.secret = secret;
-	}
-
-	public OidcOpConfigurationEntity getOpConfiguration() {
-		return opConfiguration;
-	}
-
-	public void setOpConfiguration(OidcOpConfigurationEntity opConfiguration) {
-		this.opConfiguration = opConfiguration;
-	}
-
-	public String getDisplayName() {
-		return displayName;
-	}
-
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
-	}
+	@ElementCollection
+	@JoinTable(name = "oidc_client_redirects")
+    @Column(name = "value_data", length = 2048)
+    private Set<String> redirects;
 
 	public Map<String, String> getGenericStore() {
 		return genericStore;
@@ -78,11 +35,11 @@ public class OidcClientConfigurationEntity extends AttributeConsumerEntity {
 		this.genericStore = genericStore;
 	}
 
-	public Boolean getPublicClient() {
-		return publicClient;
+	public Set<String> getRedirects() {
+		return redirects;
 	}
 
-	public void setPublicClient(Boolean publicClient) {
-		this.publicClient = publicClient;
+	public void setRedirects(Set<String> redirects) {
+		this.redirects = redirects;
 	}
 }

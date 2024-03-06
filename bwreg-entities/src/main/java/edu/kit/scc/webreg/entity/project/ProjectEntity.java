@@ -74,6 +74,12 @@ public class ProjectEntity extends AbstractBaseEntity {
 	
 	@Column(name = "approved")
 	private Boolean approved;
+
+	@Column(name = "attribute_prefix", length = 2048)
+	private String attributePrefix;
+	
+	@Column(name = "attribute_name", length = 256)
+	private String attributeName;
 	
 	@Enumerated(EnumType.STRING)
 	private ProjectStatus projectStatus;	
@@ -199,5 +205,21 @@ public class ProjectEntity extends AbstractBaseEntity {
 
 	public void setApproved(Boolean approved) {
 		this.approved = approved;
+	}
+
+	public String getAttributePrefix() {
+		return attributePrefix;
+	}
+
+	public void setAttributePrefix(String attributePrefix) {
+		this.attributePrefix = attributePrefix;
+	}
+
+	public String getAttributeName() {
+		return attributeName;
+	}
+
+	public void setAttributeName(String attributeName) {
+		this.attributeName = attributeName;
 	}
 }

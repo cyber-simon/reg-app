@@ -13,11 +13,6 @@ package edu.kit.scc.webreg.bean.admin.oidc;
 import java.io.Serializable;
 import java.util.List;
 
-import jakarta.faces.event.ComponentSystemEvent;
-import jakarta.faces.view.ViewScoped;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import edu.kit.scc.webreg.entity.BusinessRulePackageEntity;
 import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
@@ -29,6 +24,10 @@ import edu.kit.scc.webreg.service.ScriptService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.oidc.OidcClientConfigurationService;
 import edu.kit.scc.webreg.service.oidc.ServiceOidcClientService;
+import jakarta.faces.event.ComponentSystemEvent;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named
 @ViewScoped
@@ -61,6 +60,7 @@ public class ShowOidcClientConfigurationBean implements Serializable {
 
 	private String newKey;
 	private String newValue;
+	private String newRedirect;
 
 	private ServiceOidcClientEntity newSoce;
 
@@ -80,9 +80,21 @@ public class ShowOidcClientConfigurationBean implements Serializable {
 		entity = service.save(getEntity());
 	}
 
+	public void addRedirect() {
+		getEntity().getRedirects().add(newRedirect);
+		entity = service.save(getEntity());
+		newRedirect = "";
+	}
+
+	public void removeRedirect(String redirect) {
+		newRedirect = redirect;
+		getEntity().getRedirects().remove(redirect);
+		entity = service.save(getEntity());
+	}
+
 	public OidcClientConfigurationEntity getEntity() {
 		if (entity == null) {
-			entity = service.findByIdWithAttrs(id, OidcClientConfigurationEntity_.genericStore);
+			entity = service.findByIdWithAttrs(id, OidcClientConfigurationEntity_.genericStore, OidcClientConfigurationEntity_.redirects);
 		}
 		return entity;
 	}
@@ -128,8 +140,9 @@ public class ShowOidcClientConfigurationBean implements Serializable {
 	}
 
 	public List<ServiceOidcClientEntity> getServiceOidcClientList() {
-		if (serviceOidcClientList == null)
+		if (serviceOidcClientList == null) {
 			serviceOidcClientList = serviceOidcClientService.findByClientConfig(getEntity());
+		}
 		return serviceOidcClientList;
 	}
 
@@ -161,5 +174,13 @@ public class ShowOidcClientConfigurationBean implements Serializable {
 		if (rulePackageList == null)
 			rulePackageList = rulePackageService.findAll();
 		return rulePackageList;
+	}
+
+	public String getNewRedirect() {
+		return newRedirect;
+	}
+
+	public void setNewRedirect(String newRedirect) {
+		this.newRedirect = newRedirect;
 	}
 }

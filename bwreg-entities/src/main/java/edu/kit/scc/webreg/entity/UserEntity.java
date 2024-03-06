@@ -45,6 +45,7 @@ public class UserEntity extends AbstractBaseEntity {
 	
 	@ElementCollection(fetch = FetchType.EAGER)
 	@JoinTable(name = "user_email_addresses")
+	@Column(name = "emailaddresses", length = 1024)
 	private Set<String> emailAddresses;
 	
 	@Column(name = "given_name", length = 256)
