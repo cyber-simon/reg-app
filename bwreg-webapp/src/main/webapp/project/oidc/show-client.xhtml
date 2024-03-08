@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="jakarta.faces.core"
+	xmlns:h="jakarta.faces.html"
+	xmlns:ui="jakarta.faces.facelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="id" value="#{project.oidc.ShowClientBean.clientId}"/>
+		<f:event type="jakarta.faces.event.PreRenderViewEvent"
+            listener="#{project.oidc.ShowClientBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form" class="full form">
+
+		<h2><h:outputText value="#{messages['project.oidc.show_client.heading']}: #{project.oidc.ShowClientBean.entity.name}"/></h2>
+
+		<div><h:outputText value="#{messages['project.oidc.show_client.description']}"/></div>
+
+		<p:messages id="messageBox" showDetail="true" />
+		
+		<p:panelGrid style="margin-top:1em;" id="baseData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
+	
+	        <h:outputText value="#{messages.id}:"/>
+	        <h:outputText value="#{project.oidc.ShowClientBean.entity.id}"/>
+	
+	        <h:outputText value="#{messages['project.oidc.show_client.client_id']}:"/>
+	        <h:outputText value="#{project.oidc.ShowClientBean.entity.name}"/>
+				
+	        <h:outputText value="#{messages['project.oidc.show_client.client_secret']}:"/>
+	        <h:outputText value="#{project.oidc.ShowClientBean.entity.secret}"/>
+				
+	        <h:outputText value="#{messages.display_name}:"/>
+	        <h:outputText value="#{project.oidc.ShowClientBean.entity.displayName}"/>
+
+	        <h:outputText value="#{messages['project.oidc.show_client.redirect_urls']}:"/>
+			<h:panelGroup>
+				<h:panelGroup rendered="#{project.oidc.ShowClientBean.entity.redirects == null or project.oidc.ShowClientBean.entity.redirects.size() == 0}">
+					<h:outputText value="#{messages['project.oidc.show_client.no_redirect_urls']}"/>
+				</h:panelGroup>
+				<h:panelGroup rendered="#{project.oidc.ShowClientBean.entity.redirects != null and project.oidc.ShowClientBean.entity.redirects.size() > 0}">
+					<ul>
+						<ui:repeat var="url" value="#{project.oidc.ShowClientBean.entity.redirects}">
+							<li>#{url}</li>
+						</ui:repeat>
+					</ul>
+				</h:panelGroup>
+			</h:panelGroup>
+		</p:panelGrid>
+
+		<p:panelGrid style="margin-top:1em;" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
+
+			<p:linkButton href="edit-client.xhtml" value="#{messages['project.oidc.show_client.edit_link']}">
+				<f:param name="id" value="#{project.oidc.ShowClientBean.entity.id}"/>
+			</p:linkButton>
+			<h:outputText value="#{messages['project.oidc.show_client.edit_text']}" />
+			
+			<p:commandButton id="save" oncomplete="PF('confirmDlg').show();"  
+				value="#{messages['project.oidc.show_client.delete_link']}" class="text-danger"/>
+			<h:outputText value="#{messages['project.oidc.show_client.delete_text']}" />
+			
+		</p:panelGrid>
+		
+		<div class="text full" style="margin-top: 0.4em;">
+			<h:link outcome="/project/oidc/list-clients.xhtml" value="#{messages.back}">
+	      		<f:param name="id" value="#{project.oidc.ShowClientBean.project.id}"/>
+			</h:link>
+		</div>		
+					
+	<p:dialog header="#{messages['project.oidc.show_client.delete_confirm_header']}" 
+					widgetVar="confirmDlg" id="confirmDlgId" modal="true" closable="false" closeOnEscape="false"
+					showEffect="fade" hideEffect="fade">
+		<div class="panel text full" style="width:480px;">
+			<h:outputText value="#{messages['project.oidc.show_client.delete_text_dialog']}" escape="false" />
+		</div>
+		<div style="margin-top: 16px;">
+			<p:commandButton id="cancel2" action="#{project.oidc.ShowClientBean.cancelDelete}" 
+				value="#{messages.cancel}"/>
+			<p:commandButton id="save2" action="#{project.oidc.ShowClientBean.commitDelete}" 
+				value="#{messages['project.oidc.show_client.delete_commit']}" class="text-danger"/>
+		</div>		
+	</p:dialog>  
+		
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>

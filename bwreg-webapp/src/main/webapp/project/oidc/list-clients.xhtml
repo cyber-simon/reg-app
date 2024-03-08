@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="jakarta.faces.core"
+	xmlns:h="jakarta.faces.html"
+	xmlns:ui="jakarta.faces.facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="id" value="#{project.oidc.ListClientsBean.projectId}"/>
+		<f:event type="jakarta.faces.event.PreRenderViewEvent"
+            listener="#{project.oidc.ListClientsBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form" class="full form">
+
+		<h2><h:outputText value="#{messages['project.oidc.list_clients.heading']} (#{project.oidc.ListClientsBean.project.name})"/></h2>
+				
+		<div><h:outputText value="#{messages['project.oidc.list_clients.description']}"/></div>
+
+		<p:dataTable id="dataTable" style="margin-top: 1em;" var="p" value="#{project.oidc.ListClientsBean.clientList}" paginator="true" rows="15">
+			<p:column sortBy="#{p.name}" filterBy="#{p.name}">
+				<f:facet name="header">
+					<h:outputText value="#{messages.name}" />
+				</f:facet>
+				<h:link outcome="show-client.xhtml" value="#{p.name}">
+		      		<f:param name="id" value="#{p.id}"/>
+				</h:link>
+			</p:column>			
+			<p:column sortBy="#{p.displayName}" filterBy="#{p.displayName}">
+				<f:facet name="header">
+					<h:outputText value="#{messages.display_name}" />
+				</f:facet>
+				<h:outputText value="#{p.displayName}" />
+			</p:column>			
+		</p:dataTable>
+
+		<p:panel>
+		<p:panelGrid columns="2">
+			<p:linkButton href="create-new-client.xhtml" value="#{messages['project.oidc.list_clients.create_new_client_link']}">
+				<f:param name="id" value="#{project.oidc.ListClientsBean.project.id}"/>
+			</p:linkButton>
+			<h:outputText value="#{messages['project.oidc.list_clients.create_new_client_link_text']}" />
+		</p:panelGrid>
+		</p:panel>
+		
+		<div class="text full" style="margin-top: 0.4em;">
+			<h:link outcome="/project/show-local-project.xhtml" value="#{messages.back}">
+	      		<f:param name="id" value="#{project.oidc.ListClientsBean.project.id}"/>
+			</h:link>
+		</div>		
+	</h:form>
+	</ui:define>
+</ui:composition>
+</f:view>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="jakarta.faces.core"
+	xmlns:h="jakarta.faces.html"
+	xmlns:ui="jakarta.faces.facelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="id" value="#{project.oidc.EditClientBean.clientId}"/>
+		<f:event type="jakarta.faces.event.PreRenderViewEvent"
+            listener="#{project.oidc.EditClientBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form" class="full form">
+
+		<h2><h:outputText value="#{messages['project.oidc.edit_client.heading']}: #{project.oidc.EditClientBean.entity.name}"/></h2>
+
+		<p:messages id="messageBox" showDetail="true" />
+		
+		<p:panelGrid style="margin-top:1em;" id="baseData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
+	
+	        <h:outputText value="#{messages.id}:"/>
+	        <h:outputText value="#{project.oidc.EditClientBean.entity.id}"/>
+	
+	        <h:outputText value="#{messages.name}:"/>
+	        <h:outputText value="#{project.oidc.EditClientBean.entity.name}"/>
+				
+      		<p:outputLabel for="displaynameField" value="#{messages['display_name']}"/>
+		    <h:panelGroup>
+			    <p:inputText id="displaynameField" value="#{project.oidc.EditClientBean.entity.displayName}" required="true">
+			        <f:ajax event="blur" execute="@this" render="displaynameField-message" />
+			    </p:inputText>
+			    <p:message id="displaynameField-message" for="displaynameField" />
+			</h:panelGroup>
+
+      		<p:outputLabel value="#{messages['project.oidc.edit_client.redirects']}"/>
+		    <h:panelGroup>
+	        	<ul>
+	        		<ui:repeat var="redirect" value="#{project.oidc.EditClientBean.redirects}">
+	        			<li>
+	        				<h:outputText value="#{redirect} "/>
+			        		<h:commandLink value="(#{messages.delete})" action="#{project.oidc.EditClientBean.removeRedirect(redirect)}">
+								<f:ajax execute=":form:baseData" render=":form:baseData" />
+							</h:commandLink>
+	        			</li>
+	        		</ui:repeat>
+	        	</ul>
+	        	<h:panelGrid id="newRediTable" columns="3" columnClasses="labelColumn, elementColumn">
+			        <h:outputText value="#{messages['admin.show_oidc_client_config.new_redirect']}:"/>
+	       			<h:inputText id="value_redi_input" value="#{project.oidc.EditClientBean.newRedirect}"/>
+					<h:commandLink value="#{messages.add}" action="#{project.oidc.EditClientBean.addRedirect()}">
+						<f:ajax execute=":form:baseData" render=":form:baseData" />
+					</h:commandLink>
+				</h:panelGrid>
+			</h:panelGroup>
+		</p:panelGrid>
+
+		<p:panel>
+			<p:commandButton id="cancel" action="#{project.oidc.EditClientBean.cancel}" value="#{messages.cancel}"
+				immediate="true"/>
+			<p:commandButton id="save" action="#{project.oidc.EditClientBean.save}" value="#{messages.save}" ajax="true"/>
+		</p:panel>
+	</h:form>
+
+	</ui:define>
+</ui:composition>
+</f:view>		
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="jakarta.faces.core"
+	xmlns:h="jakarta.faces.html"
+	xmlns:ui="jakarta.faces.facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="id" value="#{project.oidc.CreateClientBean.projectId}"/>
+		<f:event type="jakarta.faces.event.PreRenderViewEvent"
+            listener="#{project.oidc.CreateClientBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form" class="full form">
+
+		<h2><h:outputText value="#{messages['project.oidc.create_new_client.heading']}"/></h2>
+				
+		<div><h:outputText value="#{messages['project.oidc.create_new_client.description']}"/></div>
+
+		<h:panelGrid id="baseData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
+		    <p:outputLabel for="nameField" value="#{messages['project.oidc.create_new_client.client_id']}"/>
+		    <h:panelGroup>
+		    	<h:outputText value="#{messages['project.oidc.create_new_client.prefix_description']}: " />
+		    	<h:outputText value="#{project.oidc.CreateClientBean.project.shortName}" />
+			    <p:inputText id="nameField" value="#{project.oidc.CreateClientBean.entity.name}" required="true">
+			        <f:ajax event="blur" execute="@this" render="nameField-message nameField-result" />
+			    </p:inputText>
+			    <p:message id="nameField-message" for="nameField" />
+			    <h:outputText value="#{messages['project.oidc.create_new_client.resulting_name']}: " />
+		    	<h:outputText id="nameField-result" value="#{project.oidc.CreateClientBean.project.shortName}_#{project.oidc.CreateClientBean.entity.name}" />
+			</h:panelGroup>
+
+		    <p:outputLabel for="displaynameField" value="#{messages['project.oidc.create_new_client.display_name']}"/>
+		    <h:panelGroup>
+			    <p:inputText id="displaynameField" value="#{project.oidc.CreateClientBean.entity.displayName}" required="true">
+			        <f:ajax event="blur" execute="@this" render="displaynameField-message" />
+			    </p:inputText>
+			    <p:message id="displaynameField-message" for="displaynameField" />
+			</h:panelGroup>
+			
+		    <p:outputLabel for="clientSecretField" value="#{messages['project.oidc.create_new_client.client_secret']}"/>
+			<h:outputText id="clientSecretField" value="#{messages['project.oidc.create_new_client.client_secret_generated']}" />
+			
+		</h:panelGrid>
+		<div>
+			<h:outputText value="#{messages['project.oidc.create_new_client.edit_next_step']}" />
+		</div>
+
+		<p:panel>
+			<p:commandButton id="cancel" action="#{project.oidc.CreateClientBean.cancel}" value="#{messages.cancel}"
+				immediate="true"/>
+			<p:commandButton id="save" action="#{project.oidc.CreateClientBean.save}" value="#{messages.save}" ajax="true" update=":form:baseData"/>
+		</p:panel>
+		
+	</h:form>
+	</ui:define>
+</ui:composition>
+</f:view>
+</body>
+</html>
