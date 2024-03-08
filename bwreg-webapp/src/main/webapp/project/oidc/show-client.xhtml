@@ -49,8 +49,8 @@
 				</h:panelGroup>
 				<h:panelGroup rendered="#{project.oidc.ShowClientBean.entity.redirects != null and project.oidc.ShowClientBean.entity.redirects.size() > 0}">
 					<ul>
-						<ui:repeat var="url" value="#{project.oidc.ShowClientBean.entity.redirects}">
-							<li>#{url}</li>
+						<ui:repeat var="r" value="#{project.oidc.ShowClientBean.entity.redirects}">
+							<li>#{r.url}</li>
 						</ui:repeat>
 					</ul>
 				</h:panelGroup>

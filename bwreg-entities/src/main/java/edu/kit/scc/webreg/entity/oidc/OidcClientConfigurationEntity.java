@@ -1,7 +1,6 @@
 package edu.kit.scc.webreg.entity.oidc;
 
 import java.util.Map;
-import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -22,24 +21,11 @@ public class OidcClientConfigurationEntity extends OidcClientConsumerEntity {
     @Column(name = "value_data", length = 2048)
     private Map<String, String> genericStore; 
 
-	@ElementCollection
-	@JoinTable(name = "oidc_client_redirects")
-    @Column(name = "value_data", length = 2048)
-    private Set<String> redirects;
-
 	public Map<String, String> getGenericStore() {
 		return genericStore;
 	}
 
 	public void setGenericStore(Map<String, String> genericStore) {
 		this.genericStore = genericStore;
-	}
-
-	public Set<String> getRedirects() {
-		return redirects;
-	}
-
-	public void setRedirects(Set<String> redirects) {
-		this.redirects = redirects;
 	}
 }

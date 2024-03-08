@@ -24,6 +24,7 @@ import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcClientConsumerEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcFlowStateEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
 import edu.kit.scc.webreg.service.saml.CryptoHelper;
@@ -39,16 +40,16 @@ public abstract class AbstractOidcOpLoginProcessor implements Serializable {
 	@Inject
 	private CryptoHelper cryptoHelper;
 
-	public abstract boolean matches(OidcClientConfigurationEntity clientConfig);
+	public abstract boolean matches(OidcClientConsumerEntity clientConfig);
 
 	public abstract String registerAuthRequest(OidcFlowStateEntity flowState, IdentityEntity identity)
 			throws OidcAuthenticationException;
 
 	public abstract JSONObject buildAccessToken(OidcFlowStateEntity flowState, OidcOpConfigurationEntity opConfig,
-			OidcClientConfigurationEntity clientConfig, HttpServletResponse response) throws OidcAuthenticationException;
+			OidcClientConsumerEntity clientConfig, HttpServletResponse response) throws OidcAuthenticationException;
 
 	public abstract JSONObject buildUserInfo(OidcFlowStateEntity flowState, OidcOpConfigurationEntity opConfig,
-			OidcClientConfigurationEntity clientConfig, HttpServletResponse response) throws OidcAuthenticationException;
+			OidcClientConsumerEntity clientConfig, HttpServletResponse response) throws OidcAuthenticationException;
 
 	public JSONObject sendError(ErrorObject error, HttpServletResponse response) {
 		return sendError(error, response, null);
@@ -72,7 +73,7 @@ public abstract class AbstractOidcOpLoginProcessor implements Serializable {
 		return claimsBuilder;
 	}
 
-	protected SignedJWT signClaims(OidcOpConfigurationEntity opConfig, OidcClientConfigurationEntity clientConfig,
+	protected SignedJWT signClaims(OidcOpConfigurationEntity opConfig, OidcClientConsumerEntity clientConfig,
 			JWTClaimsSet claims) throws OidcAuthenticationException {
 		SignedJWT jwt;
 
@@ -85,14 +86,14 @@ public abstract class AbstractOidcOpLoginProcessor implements Serializable {
 			JWK jwk = JWK.parse(certificate);
 			JWSHeader header;
 			RSASSASigner rsaSigner = new RSASSASigner(privateKey);
-			if (clientConfig.getGenericStore().containsKey("short_id_token_header")
-					&& clientConfig.getGenericStore().get("short_id_token_header").equalsIgnoreCase("true")) {
-				header = new JWSHeader.Builder(JWSAlgorithm.RS256).type(JOSEObjectType.JWT).keyID(jwk.getKeyID())
+			//This results in only the key id being in the token. This seems mostly accepted.
+			// Perhaps introduce switch in consumerConfig to choose
+			header = new JWSHeader.Builder(JWSAlgorithm.RS256).type(JOSEObjectType.JWT).keyID(jwk.getKeyID())
 						.build();
-			} else {
-				header = new JWSHeader.Builder(JWSAlgorithm.RS256).jwk(jwk).type(JOSEObjectType.JWT)
-						.keyID(jwk.getKeyID()).build();
-			}
+
+			//This results in a jwk with the complete key. 
+//			header = new JWSHeader.Builder(JWSAlgorithm.RS256).jwk(jwk).type(JOSEObjectType.JWT)
+//						.keyID(jwk.getKeyID()).build();
 			jwt = new SignedJWT(header, claims);
 			jwt.sign(rsaSigner);
 
@@ -147,7 +148,7 @@ public abstract class AbstractOidcOpLoginProcessor implements Serializable {
 		return tokenResponse;
 	}
 	
-	protected ErrorObject verifyConfig(OidcOpConfigurationEntity opConfig, OidcClientConfigurationEntity clientConfig) {
+	protected ErrorObject verifyConfig(OidcOpConfigurationEntity opConfig, OidcClientConsumerEntity clientConfig) {
 		if (opConfig == null) {
 			return OAuth2Error.REQUEST_NOT_SUPPORTED;
 		} else if (clientConfig == null) {

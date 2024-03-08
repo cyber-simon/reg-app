@@ -44,6 +44,7 @@ public class SessionManager implements Serializable {
 	private Long oidcFlowStateId;
 	private Long oidcAuthnOpConfigId;
 	private Long oidcAuthnClientConfigId;
+	private Long oidcAuthnConsumerConfigId;
 	
 	/*
 	 * For Local logins to home org SAML IDP
@@ -382,5 +383,13 @@ public class SessionManager implements Serializable {
 
 	public void setAuthnRequestRelayState(String authnRequestRelayState) {
 		this.authnRequestRelayState = authnRequestRelayState;
+	}
+
+	public Long getOidcAuthnConsumerConfigId() {
+		return oidcAuthnConsumerConfigId;
+	}
+
+	public void setOidcAuthnConsumerConfigId(Long oidcAuthnConsumerConfigId) {
+		this.oidcAuthnConsumerConfigId = oidcAuthnConsumerConfigId;
 	}
 }

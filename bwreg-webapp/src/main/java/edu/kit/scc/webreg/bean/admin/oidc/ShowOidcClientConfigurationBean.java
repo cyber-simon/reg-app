@@ -18,11 +18,13 @@ import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity_;
+import edu.kit.scc.webreg.entity.oidc.OidcRedirectUrlEntity;
 import edu.kit.scc.webreg.entity.oidc.ServiceOidcClientEntity;
 import edu.kit.scc.webreg.service.BusinessRulePackageService;
 import edu.kit.scc.webreg.service.ScriptService;
 import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.oidc.OidcClientConfigurationService;
+import edu.kit.scc.webreg.service.oidc.OidcRedirectUrlService;
 import edu.kit.scc.webreg.service.oidc.ServiceOidcClientService;
 import jakarta.faces.event.ComponentSystemEvent;
 import jakarta.faces.view.ViewScoped;
@@ -37,6 +39,9 @@ public class ShowOidcClientConfigurationBean implements Serializable {
 
 	@Inject
 	private OidcClientConfigurationService service;
+
+	@Inject
+	private OidcRedirectUrlService redirectUrlService;
 
 	@Inject
 	private ServiceOidcClientService serviceOidcClientService;
@@ -81,26 +86,26 @@ public class ShowOidcClientConfigurationBean implements Serializable {
 	}
 
 	public void addRedirect() {
-		getEntity().getRedirects().add(newRedirect);
-		entity = service.save(getEntity());
+		OidcRedirectUrlEntity redirectUrl = redirectUrlService.createNew();
+		redirectUrl.setUrl(newRedirect);
+		redirectUrl.setClient(getEntity());
+		redirectUrlService.save(redirectUrl);
+		entity = null;
 		newRedirect = "";
 	}
 
 	public void removeRedirect(String redirect) {
 		newRedirect = redirect;
-		getEntity().getRedirects().remove(redirect);
-		entity = service.save(getEntity());
+		redirectUrlService.deleteUrl(redirect, getEntity());
+		entity = null;
 	}
 
 	public OidcClientConfigurationEntity getEntity() {
 		if (entity == null) {
-			entity = service.findByIdWithAttrs(id, OidcClientConfigurationEntity_.genericStore, OidcClientConfigurationEntity_.redirects);
+			entity = service.findByIdWithAttrs(id, OidcClientConfigurationEntity_.genericStore,
+					OidcClientConfigurationEntity_.redirects);
 		}
 		return entity;
-	}
-
-	public void setEntity(OidcClientConfigurationEntity entity) {
-		this.entity = entity;
 	}
 
 	public Long getId() {

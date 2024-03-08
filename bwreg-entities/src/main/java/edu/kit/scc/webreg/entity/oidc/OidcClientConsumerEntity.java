@@ -1,9 +1,12 @@
 package edu.kit.scc.webreg.entity.oidc;
 
+import java.util.Set;
+
 import edu.kit.scc.webreg.entity.attribute.AttributeConsumerEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity(name = "OidcClientConsumerEntity")
@@ -26,6 +29,9 @@ public class OidcClientConsumerEntity extends AttributeConsumerEntity {
 
 	@Column(name = "public_client")
 	private Boolean publicClient;
+	
+	@OneToMany(mappedBy = "client")
+	Set<OidcRedirectUrlEntity> redirects;
 	
 	public String getName() {
 		return name;
@@ -65,5 +71,13 @@ public class OidcClientConsumerEntity extends AttributeConsumerEntity {
 
 	public void setPublicClient(Boolean publicClient) {
 		this.publicClient = publicClient;
+	}
+
+	public Set<OidcRedirectUrlEntity> getRedirects() {
+		return redirects;
+	}
+
+	public void setRedirects(Set<OidcRedirectUrlEntity> redirects) {
+		this.redirects = redirects;
 	}
 }

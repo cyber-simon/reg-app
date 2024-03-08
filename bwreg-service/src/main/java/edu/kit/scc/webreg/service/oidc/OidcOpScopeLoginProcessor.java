@@ -16,8 +16,10 @@ import edu.kit.scc.webreg.entity.attribute.value.StringValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.ValueEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcClientConsumerEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcFlowStateEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
+import edu.kit.scc.webreg.entity.oidc.ProjectOidcClientConfigurationEntity;
 import edu.kit.scc.webreg.service.attribute.release.AttributeReleaseHandler;
 import edu.kit.scc.webreg.service.saml.exc.OidcAuthenticationException;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -36,9 +38,17 @@ public class OidcOpScopeLoginProcessor extends AbstractOidcOpLoginProcessor {
 	@Inject
 	private AttributeReleaseHandler attributeReleaseHandler;
 
-	public boolean matches(OidcClientConfigurationEntity clientConfig) {
-		return (clientConfig.getGenericStore().containsKey("new_attributes")
-				&& clientConfig.getGenericStore().get("new_attributes").equalsIgnoreCase("true") ? true : false);
+	public boolean matches(OidcClientConsumerEntity clientConsumer) {
+		if (clientConsumer instanceof ProjectOidcClientConfigurationEntity) {
+			return true;
+		}
+		else if (clientConsumer instanceof OidcClientConfigurationEntity) {
+			OidcClientConfigurationEntity clientConfig = (OidcClientConfigurationEntity) clientConsumer;
+			return (clientConfig.getGenericStore().containsKey("new_attributes")
+					&& clientConfig.getGenericStore().get("new_attributes").equalsIgnoreCase("true") ? true : false);
+		}
+		else
+			return false;
 	}
 
 	public String registerAuthRequest(OidcFlowStateEntity flowState, IdentityEntity identity)
@@ -79,7 +89,7 @@ public class OidcOpScopeLoginProcessor extends AbstractOidcOpLoginProcessor {
 	}
 
 	public JSONObject buildAccessToken(OidcFlowStateEntity flowState, OidcOpConfigurationEntity opConfig,
-			OidcClientConfigurationEntity clientConfig, HttpServletResponse response) throws OidcAuthenticationException {
+			OidcClientConsumerEntity clientConfig, HttpServletResponse response) throws OidcAuthenticationException {
 		IdentityEntity identity = flowState.getIdentity();
 		AttributeReleaseEntity attributeRelease = attributeReleaseHandler.requestAttributeRelease(clientConfig,
 				identity);
@@ -107,7 +117,7 @@ public class OidcOpScopeLoginProcessor extends AbstractOidcOpLoginProcessor {
 	}
 	
 	public JSONObject buildUserInfo(OidcFlowStateEntity flowState, OidcOpConfigurationEntity opConfig,
-			OidcClientConfigurationEntity clientConfig, HttpServletResponse response) throws OidcAuthenticationException {
+			OidcClientConsumerEntity clientConfig, HttpServletResponse response) throws OidcAuthenticationException {
 		IdentityEntity identity = flowState.getIdentity();
 		AttributeReleaseEntity attributeRelease = attributeReleaseHandler.requestAttributeRelease(clientConfig,
 				identity);

@@ -42,6 +42,7 @@ import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 
 import edu.kit.scc.webreg.dao.identity.IdentityDao;
+import edu.kit.scc.webreg.dao.jpa.oidc.OidcClientConsumerDao;
 import edu.kit.scc.webreg.dao.oidc.OidcClientConfigurationDao;
 import edu.kit.scc.webreg.dao.oidc.OidcFlowStateDao;
 import edu.kit.scc.webreg.dao.oidc.OidcOpConfigurationDao;
@@ -51,9 +52,11 @@ import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcClientConsumerEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcFlowStateEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcFlowStateEntity_;
 import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcRedirectUrlEntity;
 import edu.kit.scc.webreg.entity.oidc.ServiceOidcClientEntity;
 import edu.kit.scc.webreg.script.ScriptingEnv;
 import edu.kit.scc.webreg.service.saml.CryptoHelper;
@@ -82,6 +85,9 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	private OidcClientConfigurationDao clientDao;
 
 	@Inject
+	private OidcClientConsumerDao clientConsumerDao;
+
+	@Inject
 	private ServiceOidcClientDao serviceOidcClientDao;
 
 	@Inject
@@ -103,7 +109,12 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	private OidcOpStaticLoginProcessor staticLoginProcessor;
 
 	private AbstractOidcOpLoginProcessor resolveLoginProcessor(OidcFlowStateEntity flowState) {
-		if (scopeLoginProcessor.matches(flowState.getClientConfiguration()))
+		OidcClientConsumerEntity clientConsumer = flowState.getClientConsumer();
+		if (clientConsumer == null) {
+			clientConsumer = flowState.getClientConfiguration();
+		}
+
+		if (scopeLoginProcessor.matches(clientConsumer))
 			return scopeLoginProcessor;
 		else
 			return staticLoginProcessor;
@@ -130,11 +141,60 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 
 		OidcClientConfigurationEntity clientConfig = clientDao.findByNameAndOp(clientId, opConfig);
 
-		if (clientConfig == null) {
-			throw new OidcAuthenticationException("unknown client");
+		if (clientConfig != null) {
+			return registerAuthnReqLegacy(realm, responseType, redirectUri, scope, state, nonce, clientId, codeChallange,
+					codeChallangeMethod, acrValues, clientConfig, opConfig, identity, request, response);
 		}
+		
+		OidcClientConsumerEntity consumerConfig = clientConsumerDao.findByName(clientId);
 
-		if (! checkRedirectUri(redirectUri, clientConfig)) {
+		if (consumerConfig != null) {
+			if (!checkRedirectUri(redirectUri, consumerConfig)) {
+				throw new OidcAuthenticationException("invalid redirect uri");
+			}
+	
+			OidcFlowStateEntity flowState = flowStateDao.createNew();
+			flowState.setOpConfiguration(opConfig);
+			flowState.setNonce(nonce);
+			flowState.setState(state);
+			flowState.setClientConsumer(consumerConfig);
+			flowState.setResponseType(responseType);
+			flowState.setCode(UUID.randomUUID().toString());
+			flowState.setRedirectUri(redirectUri);
+			flowState.setValidUntil(new Date(System.currentTimeMillis() + (30L * 60L * 1000L)));
+			flowState.setCodeChallange(codeChallange);
+			flowState.setCodecodeChallangeMethod(codeChallangeMethod);
+			flowState.setScope(scope);
+			flowState.setAcrValues(acrValues);
+			flowState = flowStateDao.persist(flowState);
+			session.setOidcFlowStateId(flowState.getId());
+			session.setOidcAuthnOpConfigId(opConfig.getId());
+			session.setOidcAuthnConsumerConfigId(consumerConfig.getId());
+			
+			if (identity != null) {
+				logger.debug("Client already logged in, sending to return page.");
+				return "/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/auth/return";
+			} else {
+				logger.debug(
+						"Client session from {} not established. In order to serve client must login. Sending to login page.",
+						request.getRemoteAddr());
+
+				session.setOriginalRequestPath(
+						"/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/auth/return");
+				return "/welcome/index.xhtml";
+			}			
+		}
+		
+		throw new OidcAuthenticationException("unknown client");
+	}
+
+	private String registerAuthnReqLegacy(String realm, String responseType, String redirectUri, String scope,
+			String state, String nonce, String clientId, String codeChallange, String codeChallangeMethod,
+			String acrValues, OidcClientConfigurationEntity clientConfig, OidcOpConfigurationEntity opConfig,
+			IdentityEntity identity, HttpServletRequest request, HttpServletResponse response)
+			throws IOException, OidcAuthenticationException {
+
+		if (!checkRedirectUri(redirectUri, clientConfig)) {
 			throw new OidcAuthenticationException("invalid redirect uri");
 		}
 
@@ -143,6 +203,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		flowState.setNonce(nonce);
 		flowState.setState(state);
 		flowState.setClientConfiguration(clientConfig);
+		flowState.setClientConsumer(clientConfig);
 		flowState.setResponseType(responseType);
 		flowState.setCode(UUID.randomUUID().toString());
 		flowState.setRedirectUri(redirectUri);
@@ -170,26 +231,34 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		}
 	}
 
-	private Boolean checkRedirectUri(String redirectUri, OidcClientConfigurationEntity clientConfig) {
+	private Boolean checkRedirectUri(String redirectUri, OidcClientConsumerEntity clientConfig) {
 		if (clientConfig.getRedirects() != null) {
-			for (String r : clientConfig.getRedirects()) {
-				if (r.endsWith("*")) {
-					if (redirectUri.toLowerCase().startsWith(r.substring(0, r.length()-1).toLowerCase())) {
+			for (OidcRedirectUrlEntity r : clientConfig.getRedirects()) {
+				if (r.getUrl().endsWith("*")) {
+					if (redirectUri.toLowerCase()
+							.startsWith(r.getUrl().substring(0, r.getUrl().length() - 1).toLowerCase())) {
 						return true;
 					}
-				}
-				else if (r.equalsIgnoreCase(redirectUri)) {
+				} else if (r.getUrl().equalsIgnoreCase(redirectUri)) {
 					return true;
 				}
 			}
 		}
 		
+		if (clientConfig instanceof OidcClientConfigurationEntity) {
+			return checkRedirectUriRegex(redirectUri, (OidcClientConfigurationEntity) clientConfig);
+		}
+		
+		return false;
+	}
+	
+	private Boolean checkRedirectUriRegex(String redirectUri, OidcClientConfigurationEntity clientConfig) {
 		if (clientConfig.getGenericStore().containsKey("redirect_uri_regex")) {
 			if (redirectUri.matches(clientConfig.getGenericStore().get("redirect_uri_regex"))) {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 

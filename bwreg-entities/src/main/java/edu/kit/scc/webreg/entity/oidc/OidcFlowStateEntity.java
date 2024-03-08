@@ -31,6 +31,9 @@ public class OidcFlowStateEntity extends AbstractBaseEntity {
 	@ManyToOne(targetEntity = OidcClientConfigurationEntity.class)
 	private OidcClientConfigurationEntity clientConfiguration;
 
+	@ManyToOne(targetEntity = OidcClientConsumerEntity.class)
+	private OidcClientConsumerEntity clientConsumer;
+
 	@ManyToOne(targetEntity = RegistryEntity.class)
 	private RegistryEntity registry;
 
@@ -226,5 +229,13 @@ public class OidcFlowStateEntity extends AbstractBaseEntity {
 
 	public void setAttributeRelease(AttributeReleaseEntity attributeRelease) {
 		this.attributeRelease = attributeRelease;
+	}
+
+	public OidcClientConsumerEntity getClientConsumer() {
+		return clientConsumer;
+	}
+
+	public void setClientConsumer(OidcClientConsumerEntity clientConsumer) {
+		this.clientConsumer = clientConsumer;
 	}
 }

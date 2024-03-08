@@ -29,6 +29,7 @@ import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcClientConsumerEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcFlowStateEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.ServiceOidcClientEntity;
@@ -66,7 +67,7 @@ public class OidcOpStaticLoginProcessor extends AbstractOidcOpLoginProcessor {
 	@Inject
 	private SessionManager session;
 
-	public boolean matches(OidcClientConfigurationEntity clientConfig) {
+	public boolean matches(OidcClientConsumerEntity clientConfig) {
 		return true;
 	}
 
@@ -189,7 +190,12 @@ public class OidcOpStaticLoginProcessor extends AbstractOidcOpLoginProcessor {
 	}
 	
 	public JSONObject buildAccessToken(OidcFlowStateEntity flowState, OidcOpConfigurationEntity opConfig,
-			OidcClientConfigurationEntity clientConfig, HttpServletResponse response) throws OidcAuthenticationException {
+			OidcClientConsumerEntity consumerConfig, HttpServletResponse response) throws OidcAuthenticationException {
+
+		if (!(consumerConfig instanceof OidcClientConfigurationEntity))
+			throw new OidcAuthenticationException("This flow only supports legacy OidcClientConfigurationEntity");
+		
+		OidcClientConfigurationEntity clientConfig = (OidcClientConfigurationEntity) consumerConfig;
 
 		IdentityEntity identity = flowState.getIdentity();
 
@@ -255,7 +261,11 @@ public class OidcOpStaticLoginProcessor extends AbstractOidcOpLoginProcessor {
 	}
 
 	public JSONObject buildUserInfo(OidcFlowStateEntity flowState, OidcOpConfigurationEntity opConfig,
-			OidcClientConfigurationEntity clientConfig, HttpServletResponse response) throws OidcAuthenticationException {
+			OidcClientConsumerEntity consumerConfig, HttpServletResponse response) throws OidcAuthenticationException {
+		if (!(consumerConfig instanceof OidcClientConfigurationEntity))
+			throw new OidcAuthenticationException("This flow only supports legacy OidcClientConfigurationEntity");
+		
+		OidcClientConfigurationEntity clientConfig = (OidcClientConfigurationEntity) consumerConfig;
 		List<ServiceOidcClientEntity> serviceOidcClientList = serviceOidcClientDao.findByClientConfig(clientConfig);
 
 		IdentityEntity identity = flowState.getIdentity();

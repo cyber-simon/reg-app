@@ -11,7 +11,6 @@
 package edu.kit.scc.webreg.bean.project.oidc;
 
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -23,6 +22,7 @@ import edu.kit.scc.webreg.entity.project.ProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
 import edu.kit.scc.webreg.service.identity.IdentityService;
+import edu.kit.scc.webreg.service.oidc.OidcRedirectUrlService;
 import edu.kit.scc.webreg.service.oidc.ProjectOidcClientConfigurationService;
 import edu.kit.scc.webreg.service.project.ProjectService;
 import edu.kit.scc.webreg.session.SessionManager;
@@ -46,6 +46,9 @@ public class EditClientBean implements Serializable {
 	@Inject
 	private ProjectOidcClientConfigurationService service;
 
+	@Inject
+	private OidcRedirectUrlService redirectUrlService;
+	
 	@Inject
 	private IdentityService identityService;
 
@@ -83,8 +86,8 @@ public class EditClientBean implements Serializable {
 	}
 
 	public String save() {
-		entity.setRedirects(redirects);
 		entity = service.save(entity);
+		redirectUrlService.saveRedirectsForClient(redirects, getEntity());
 		return "show-client.xhtml?id=" + getEntity().getId() + "&faces-redirect=true";
 	}
 
@@ -139,7 +142,7 @@ public class EditClientBean implements Serializable {
 
 	public Set<String> getRedirects() {
 		if (redirects == null) {
-			redirects = (getEntity().getRedirects() != null ? getEntity().getRedirects() : new HashSet<>());
+			redirects = redirectUrlService.getRedirectsForClient(getEntity());
 		}
 		return redirects;
 	}
