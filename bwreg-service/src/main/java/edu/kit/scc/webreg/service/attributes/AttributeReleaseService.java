@@ -41,8 +41,6 @@ public class AttributeReleaseService extends BaseServiceImpl<AttributeReleaseEnt
 		
 		flowState = flowStateDao.fetch(flowState.getId());
 		flowState.setValidUntil(new Date(System.currentTimeMillis() + (10L * 60L * 1000L)));
-		flowState.setIdentity(identity);
-		flowState.setAttributeRelease(attributeRelease);
 		
 		return attributeRelease;
 	}
@@ -56,7 +54,7 @@ public class AttributeReleaseService extends BaseServiceImpl<AttributeReleaseEnt
 
 	public AttributeReleaseEntity revoke(AttributeReleaseEntity attributeRelease) {
 		attributeRelease = dao.fetch(attributeRelease.getId());
-		attributeRelease.setReleaseStatus(ReleaseStatusType.REJECTED);
+		attributeRelease.setReleaseStatus(ReleaseStatusType.REVOKED);
 		attributeRelease.setIssuedAt(new Date());
 		return attributeRelease;
 	}
@@ -68,8 +66,6 @@ public class AttributeReleaseService extends BaseServiceImpl<AttributeReleaseEnt
 		
 		flowState = flowStateDao.fetch(flowState.getId());
 		flowState.setValidUntil(new Date(System.currentTimeMillis() + (10L * 60L * 1000L)));
-		flowState.setIdentity(identity);
-		flowState.setAttributeRelease(attributeRelease);
 		
 		return attributeRelease;
 	}

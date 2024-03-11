@@ -142,17 +142,17 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		OidcClientConfigurationEntity clientConfig = clientDao.findByNameAndOp(clientId, opConfig);
 
 		if (clientConfig != null) {
-			return registerAuthnReqLegacy(realm, responseType, redirectUri, scope, state, nonce, clientId, codeChallange,
-					codeChallangeMethod, acrValues, clientConfig, opConfig, identity, request, response);
+			return registerAuthnReqLegacy(realm, responseType, redirectUri, scope, state, nonce, clientId,
+					codeChallange, codeChallangeMethod, acrValues, clientConfig, opConfig, identity, request, response);
 		}
-		
+
 		OidcClientConsumerEntity consumerConfig = clientConsumerDao.findByName(clientId);
 
 		if (consumerConfig != null) {
 			if (!checkRedirectUri(redirectUri, consumerConfig)) {
 				throw new OidcAuthenticationException("invalid redirect uri");
 			}
-	
+
 			OidcFlowStateEntity flowState = flowStateDao.createNew();
 			flowState.setOpConfiguration(opConfig);
 			flowState.setNonce(nonce);
@@ -170,7 +170,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 			session.setOidcFlowStateId(flowState.getId());
 			session.setOidcAuthnOpConfigId(opConfig.getId());
 			session.setOidcAuthnConsumerConfigId(consumerConfig.getId());
-			
+
 			if (identity != null) {
 				logger.debug("Client already logged in, sending to return page.");
 				return "/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/auth/return";
@@ -182,9 +182,9 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 				session.setOriginalRequestPath(
 						"/oidc/realms/" + opConfig.getRealm() + "/protocol/openid-connect/auth/return");
 				return "/welcome/index.xhtml";
-			}			
+			}
 		}
-		
+
 		throw new OidcAuthenticationException("unknown client");
 	}
 
@@ -244,14 +244,14 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 				}
 			}
 		}
-		
+
 		if (clientConfig instanceof OidcClientConfigurationEntity) {
 			return checkRedirectUriRegex(redirectUri, (OidcClientConfigurationEntity) clientConfig);
 		}
-		
+
 		return false;
 	}
-	
+
 	private Boolean checkRedirectUriRegex(String redirectUri, OidcClientConfigurationEntity clientConfig) {
 		if (clientConfig.getGenericStore().containsKey("redirect_uri_regex")) {
 			if (redirectUri.matches(clientConfig.getGenericStore().get("redirect_uri_regex"))) {
@@ -329,7 +329,10 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		}
 
 		OidcOpConfigurationEntity opConfig = flowState.getOpConfiguration();
-		OidcClientConfigurationEntity clientConfig = flowState.getClientConfiguration();
+		OidcClientConsumerEntity clientConfig = flowState.getClientConsumer();
+		if (clientConfig == null) {
+			clientConfig = flowState.getClientConfiguration();
+		}
 
 		ErrorObject error = verifyConfig(opConfig, clientConfig);
 
@@ -360,10 +363,12 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 				throw new OidcAuthenticationException("cannot create hash at the moment. This is bad.");
 			}
 		}
-
-		if (clientConfig.getGenericStore().containsKey("cors_allow_regex")) {
+		// CORS only funtional with old client config, needs to be migrated
+		if ((clientConfig instanceof OidcClientConfigurationEntity)
+				&& ((OidcClientConfigurationEntity) clientConfig).getGenericStore().containsKey("cors_allow_regex")) {
 			String origin = request.getHeader("Origin");
-			if (origin != null && origin.matches(clientConfig.getGenericStore().get("cors_allow_regex"))) {
+			if (origin != null && origin.matches(
+					((OidcClientConfigurationEntity) clientConfig).getGenericStore().get("cors_allow_regex"))) {
 				response.setHeader("Access-Control-Allow-Origin", origin);
 			}
 		}
@@ -613,7 +618,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		return buildAccessToken(flowState, opConfig, clientConfig);
 	}
 
-	protected ErrorObject verifyConfig(OidcOpConfigurationEntity opConfig, OidcClientConfigurationEntity clientConfig) {
+	protected ErrorObject verifyConfig(OidcOpConfigurationEntity opConfig, OidcClientConsumerEntity clientConfig) {
 		if (opConfig == null) {
 			return OAuth2Error.REQUEST_NOT_SUPPORTED;
 		} else if (clientConfig == null) {

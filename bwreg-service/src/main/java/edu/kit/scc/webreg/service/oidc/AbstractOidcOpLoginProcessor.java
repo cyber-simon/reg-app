@@ -64,12 +64,14 @@ public abstract class AbstractOidcOpLoginProcessor implements Serializable {
 	}
 
 	protected JWTClaimsSet.Builder initClaimsBuilder(OidcFlowStateEntity flowState) {
+		OidcClientConsumerEntity clientConsumer = flowState.getClientConsumer();
+		if (clientConsumer == null)
+			clientConsumer = flowState.getClientConfiguration();
 		JWTClaimsSet.Builder claimsBuilder = new JWTClaimsSet.Builder();
 		claimsBuilder.expirationTime(new Date(System.currentTimeMillis() + (60L * 60L * 1000L)))
 				.issuer("https://" + flowState.getOpConfiguration().getHost() + "/oidc/realms/"
 						+ flowState.getOpConfiguration().getRealm())
-				.claim("nonce", flowState.getNonce()).audience(flowState.getClientConfiguration().getName())
-				.issueTime(new Date());
+				.claim("nonce", flowState.getNonce()).audience(clientConsumer.getName()).issueTime(new Date());
 		return claimsBuilder;
 	}
 
@@ -86,12 +88,12 @@ public abstract class AbstractOidcOpLoginProcessor implements Serializable {
 			JWK jwk = JWK.parse(certificate);
 			JWSHeader header;
 			RSASSASigner rsaSigner = new RSASSASigner(privateKey);
-			//This results in only the key id being in the token. This seems mostly accepted.
+			// This results in only the key id being in the token. This seems mostly
+			// accepted.
 			// Perhaps introduce switch in consumerConfig to choose
-			header = new JWSHeader.Builder(JWSAlgorithm.RS256).type(JOSEObjectType.JWT).keyID(jwk.getKeyID())
-						.build();
+			header = new JWSHeader.Builder(JWSAlgorithm.RS256).type(JOSEObjectType.JWT).keyID(jwk.getKeyID()).build();
 
-			//This results in a jwk with the complete key. 
+			// This results in a jwk with the complete key.
 //			header = new JWSHeader.Builder(JWSAlgorithm.RS256).jwk(jwk).type(JOSEObjectType.JWT)
 //						.keyID(jwk.getKeyID()).build();
 			jwt = new SignedJWT(header, claims);
@@ -106,21 +108,32 @@ public abstract class AbstractOidcOpLoginProcessor implements Serializable {
 
 	protected OIDCTokenResponse finalizeTokenRespone(OidcFlowStateEntity flowState, SignedJWT jwt) {
 		OidcOpConfigurationEntity opConfig = flowState.getOpConfiguration();
-		OidcClientConfigurationEntity clientConfig = flowState.getClientConfiguration();
-
+		OidcClientConsumerEntity clientConsumer = flowState.getClientConsumer();
 		long accessTokenLifetime = 3600;
-		if (clientConfig.getGenericStore().containsKey("access_token_lifetime")) {
-			accessTokenLifetime = Long.parseLong(clientConfig.getGenericStore().get("access_token_lifetime"));
-		}
-
 		long refreshTokenLifetime = 7200;
-		if (clientConfig.getGenericStore().containsKey("refresh_token_lifetime")) {
-			refreshTokenLifetime = Long.parseLong(clientConfig.getGenericStore().get("refresh_token_lifetime"));
+		Boolean longAccessToken = true;
+		Boolean refreshTokenExtend = false;
+
+		if (clientConsumer == null) {
+			OidcClientConfigurationEntity clientConfig = flowState.getClientConfiguration();
+			longAccessToken = (clientConfig.getGenericStore().containsKey("long_access_token")
+					&& clientConfig.getGenericStore().get("long_access_token").equalsIgnoreCase("false"));
+
+			refreshTokenExtend = (clientConfig.getGenericStore().containsKey("refresh_token_extend")
+					&& clientConfig.getGenericStore().get("refresh_token_extend").equalsIgnoreCase("true"));
+
+			if (clientConfig.getGenericStore().containsKey("access_token_lifetime")) {
+				accessTokenLifetime = Long.parseLong(clientConfig.getGenericStore().get("access_token_lifetime"));
+			}
+			if (clientConfig.getGenericStore().containsKey("refresh_token_lifetime")) {
+				refreshTokenLifetime = Long.parseLong(clientConfig.getGenericStore().get("refresh_token_lifetime"));
+			}
+		} else {
+			// TODO make lifetimes configurable
 		}
 
 		BearerAccessToken bat;
-		if (clientConfig.getGenericStore().containsKey("long_access_token")
-				&& clientConfig.getGenericStore().get("long_access_token").equalsIgnoreCase("true")) {
+		if (longAccessToken) {
 			bat = new BearerAccessToken(jwt.serialize(), accessTokenLifetime, new Scope(opConfig.getHost()));
 		} else {
 			bat = new BearerAccessToken(accessTokenLifetime, new Scope(opConfig.getHost()));
@@ -136,18 +149,16 @@ public abstract class AbstractOidcOpLoginProcessor implements Serializable {
 		if (flowState.getRefreshToken() == null) {
 			flowState.setRefreshToken(refreshToken.getValue());
 			flowState.setValidUntil(new Date(System.currentTimeMillis() + (refreshTokenLifetime * 1000L)));
-		} else if (flowState.getRefreshToken() != null
-				&& clientConfig.getGenericStore().containsKey("refresh_token_extend")
-				&& clientConfig.getGenericStore().get("refresh_token_extend").equalsIgnoreCase("true")) {
+		} else if (flowState.getRefreshToken() != null && refreshTokenExtend) {
 			flowState.setRefreshToken(refreshToken.getValue());
 			flowState.setValidUntil(new Date(System.currentTimeMillis() + (refreshTokenLifetime * 1000L)));
 		} else {
 			flowState.setRefreshToken(refreshToken.getValue());
 		}
-		
+
 		return tokenResponse;
 	}
-	
+
 	protected ErrorObject verifyConfig(OidcOpConfigurationEntity opConfig, OidcClientConsumerEntity clientConfig) {
 		if (opConfig == null) {
 			return OAuth2Error.REQUEST_NOT_SUPPORTED;

@@ -54,10 +54,15 @@ public class OidcOpScopeLoginProcessor extends AbstractOidcOpLoginProcessor {
 	public String registerAuthRequest(OidcFlowStateEntity flowState, IdentityEntity identity)
 			throws OidcAuthenticationException {
 		logger.debug("Choosing new attributes flow... scope is {}", flowState.getScope());
-		OidcClientConfigurationEntity clientConfig = flowState.getClientConfiguration();
-
+		OidcClientConsumerEntity clientConfig = flowState.getClientConsumer();
+		if (clientConfig == null) 
+			clientConfig = flowState.getClientConfiguration();
+		
 		AttributeReleaseEntity attributeRelease = attributeReleaseHandler.requestAttributeRelease(clientConfig,
 				identity);
+		flowState.setAttributeRelease(attributeRelease);
+		flowState.setIdentity(identity);
+		
 		Boolean changed = attributeReleaseHandler.calculateOidcValues(attributeRelease, flowState);
 		if (changed && ReleaseStatusType.GOOD.equals(attributeRelease.getReleaseStatus())) {
 			attributeRelease.setReleaseStatus(ReleaseStatusType.DIRTY);
@@ -77,8 +82,6 @@ public class OidcOpScopeLoginProcessor extends AbstractOidcOpLoginProcessor {
 			return "/user/attribute-release-oidc.xhtml?id=" + attributeRelease.getId();
 		} else if (ReleaseStatusType.GOOD.equals(attributeRelease.getReleaseStatus())) {
 			flowState.setValidUntil(new Date(System.currentTimeMillis() + (10L * 60L * 1000L)));
-			flowState.setIdentity(identity);
-			flowState.setAttributeRelease(attributeRelease);
 
 			String red = flowState.getRedirectUri() + "?code=" + flowState.getCode() + "&state=" + flowState.getState();
 			logger.debug("Sending client to {}", red);
@@ -90,9 +93,9 @@ public class OidcOpScopeLoginProcessor extends AbstractOidcOpLoginProcessor {
 
 	public JSONObject buildAccessToken(OidcFlowStateEntity flowState, OidcOpConfigurationEntity opConfig,
 			OidcClientConsumerEntity clientConfig, HttpServletResponse response) throws OidcAuthenticationException {
-		IdentityEntity identity = flowState.getIdentity();
-		AttributeReleaseEntity attributeRelease = attributeReleaseHandler.requestAttributeRelease(clientConfig,
-				identity);
+		//IdentityEntity identity = flowState.getIdentity();
+		// Does not resolve the same attributeRelease as in flowState!
+		AttributeReleaseEntity attributeRelease = flowState.getAttributeRelease();
 		
 		if (! ReleaseStatusType.GOOD.equals(attributeRelease.getReleaseStatus())) {
 			return sendError(OAuth2Error.ACCESS_DENIED, response);
