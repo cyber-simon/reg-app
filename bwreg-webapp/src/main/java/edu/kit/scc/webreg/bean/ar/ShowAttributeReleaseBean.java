@@ -1,7 +1,6 @@
 package edu.kit.scc.webreg.bean.ar;
 
 import static edu.kit.scc.webreg.dao.ops.PaginateBy.unlimited;
-import static edu.kit.scc.webreg.dao.ops.RqlExpressions.and;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
 import static edu.kit.scc.webreg.dao.ops.SortBy.ascendingBy;
 

@@ -34,6 +34,7 @@
 					<h:outputText value="#{messages['attribute_release.status_new']}" rendered="#{release.releaseStatus == 'NEW'}" />
 					<h:outputText value="#{messages['attribute_release.status_dirty']}" rendered="#{release.releaseStatus == 'DIRTY'}" />
 					<h:outputText value="#{messages['attribute_release.status_rejected']}" rendered="#{release.releaseStatus == 'REJECTED'}" />
+					<h:outputText value="#{messages['attribute_release.status_revoked']}" rendered="#{release.releaseStatus == 'REVOKED'}" />
 				</p:column>
 				<p:column headerText="Issued At" width="20%">
 					<h:outputText value="#{of:formatDate(release.issuedAt, 'dd.MM.yyyy HH:mm')}"/>
@@ -43,6 +44,9 @@
 				</p:column>
 				<p:column headerText="Name">
 					<p:outputPanel rendered="#{release.attributeConsumer.class.simpleName == 'OidcClientConfigurationEntity'}">
+						<h:outputText value="#{release.attributeConsumer.displayName}"/>
+					</p:outputPanel>
+					<p:outputPanel rendered="#{release.attributeConsumer.class.simpleName == 'ProjectOidcClientConfigurationEntity'}">
 						<h:outputText value="#{release.attributeConsumer.displayName}"/>
 					</p:outputPanel>
 				</p:column>
