@@ -9,6 +9,7 @@ import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
+import edu.kit.scc.webreg.dao.project.ProjectDao;
 import edu.kit.scc.webreg.entity.attribute.AttributeReleaseEntity;
 import edu.kit.scc.webreg.entity.attribute.ReleaseStatusType;
 import edu.kit.scc.webreg.entity.attribute.value.PairwiseIdentifierValueEntity;
@@ -20,6 +21,8 @@ import edu.kit.scc.webreg.entity.oidc.OidcClientConsumerEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcFlowStateEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.ProjectOidcClientConfigurationEntity;
+import edu.kit.scc.webreg.entity.project.ProjectEntity;
+import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.service.attribute.release.AttributeReleaseHandler;
 import edu.kit.scc.webreg.service.saml.exc.OidcAuthenticationException;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -38,6 +41,9 @@ public class OidcOpScopeLoginProcessor extends AbstractOidcOpLoginProcessor {
 	@Inject
 	private AttributeReleaseHandler attributeReleaseHandler;
 
+	@Inject
+	private ProjectDao projectDao;
+	
 	public boolean matches(OidcClientConsumerEntity clientConsumer) {
 		if (clientConsumer instanceof ProjectOidcClientConfigurationEntity) {
 			return true;
@@ -57,6 +63,20 @@ public class OidcOpScopeLoginProcessor extends AbstractOidcOpLoginProcessor {
 		OidcClientConsumerEntity clientConfig = flowState.getClientConsumer();
 		if (clientConfig == null) 
 			clientConfig = flowState.getClientConfiguration();
+		
+		if (clientConfig instanceof ProjectOidcClientConfigurationEntity) {
+			ProjectOidcClientConfigurationEntity projectClient = (ProjectOidcClientConfigurationEntity) clientConfig;
+			ProjectEntity project = projectClient.getProject();
+			logger.debug("Login for Identity {} and Project {}. Checking membership", identity.getId(), project.getShortName());
+			ProjectMembershipEntity pme = projectDao.findByIdentityAndProject(identity, project);
+			if (pme == null) {
+				logger.debug("Login for Identity {} and Project {} is not a member", identity.getId(), project.getShortName());
+				return "/user/oidc/project-access-denied.xhtml?id=" + project.getId();
+			}
+			else {
+				logger.debug("Login for Identity {} and Project {} is member: ", identity.getId(), project.getShortName(), pme.getMembershipType());
+			}
+		}
 		
 		AttributeReleaseEntity attributeRelease = attributeReleaseHandler.requestAttributeRelease(clientConfig,
 				identity);

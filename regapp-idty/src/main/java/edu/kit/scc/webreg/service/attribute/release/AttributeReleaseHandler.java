@@ -79,6 +79,8 @@ public class AttributeReleaseHandler {
 			} else if (scope.equals("profile")) {
 				changed |= resolveSingleStringValue(attributeRelease, "family_name", identity);
 				changed |= resolveSingleStringValue(attributeRelease, "given_name", identity);
+			} else if (scope.equals("voperson")) {
+				changed |= resolveSingleStringValue(attributeRelease, "voperson_id", identity.getGeneratedLocalUsername());
 			}
 		}
 		return changed;
@@ -86,7 +88,12 @@ public class AttributeReleaseHandler {
 
 	private Boolean resolveSingleStringValue(AttributeReleaseEntity attributeRelease, String name,
 			IdentityEntity identity) {
-		return resolveSingleStringValue(attributeRelease, name,
+		return resolveSingleStringValue(attributeRelease, name, name, identity);
+	}
+
+	private Boolean resolveSingleStringValue(AttributeReleaseEntity attributeRelease, String name, String outgoingName,
+			IdentityEntity identity) {
+		return resolveSingleStringValue(attributeRelease, outgoingName,
 				attributeResolver.resolveSingleStringValue(identity, name));
 	}
 

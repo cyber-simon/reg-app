@@ -41,6 +41,7 @@ import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 
+import edu.kit.scc.webreg.annotations.RetryTransaction;
 import edu.kit.scc.webreg.dao.identity.IdentityDao;
 import edu.kit.scc.webreg.dao.jpa.oidc.OidcClientConsumerDao;
 import edu.kit.scc.webreg.dao.oidc.OidcClientConfigurationDao;
@@ -63,6 +64,8 @@ import edu.kit.scc.webreg.service.saml.CryptoHelper;
 import edu.kit.scc.webreg.service.saml.exc.OidcAuthenticationException;
 import edu.kit.scc.webreg.session.SessionManager;
 import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionManagement;
+import jakarta.ejb.TransactionManagementType;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -70,6 +73,7 @@ import jakarta.ws.rs.core.MultivaluedMap;
 import net.minidev.json.JSONObject;
 
 @Stateless
+@TransactionManagement(TransactionManagementType.BEAN)
 public class OidcOpLoginImpl implements OidcOpLogin {
 
 	@Inject
@@ -121,6 +125,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	}
 
 	@Override
+	@RetryTransaction
 	public String registerAuthRequest(String realm, String responseType, String redirectUri, String scope, String state,
 			String nonce, String clientId, String codeChallange, String codeChallangeMethod, String acrValues,
 			HttpServletRequest request, HttpServletResponse response) throws IOException, OidcAuthenticationException {
@@ -263,6 +268,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	}
 
 	@Override
+	@RetryTransaction
 	public String registerAuthRequestReturn(String realm, HttpServletRequest request, HttpServletResponse response)
 			throws IOException, OidcAuthenticationException {
 
@@ -295,6 +301,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	}
 
 	@Override
+	@RetryTransaction
 	public JSONObject serveToken(String realm, HttpServletRequest request, HttpServletResponse response,
 			String clientId, String clientSecret, String codeVerifier, MultivaluedMap<String, String> formParams)
 			throws OidcAuthenticationException {
@@ -377,6 +384,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	}
 
 	@Override
+	@RetryTransaction
 	public JSONObject serveIntrospection(String realm, HttpServletRequest request, HttpServletResponse response,
 			String authType, String authData, MultivaluedMap<String, String> formParams)
 			throws OidcAuthenticationException {
@@ -447,6 +455,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	}
 
 	@Override
+	@RetryTransaction
 	public JSONObject serveUserInfo(String realm, String tokeType, String tokenId, HttpServletRequest request,
 			HttpServletResponse response) throws OidcAuthenticationException {
 
@@ -457,7 +466,10 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 		}
 
 		OidcOpConfigurationEntity opConfig = flowState.getOpConfiguration();
-		OidcClientConfigurationEntity clientConfig = flowState.getClientConfiguration();
+		OidcClientConsumerEntity clientConfig = flowState.getClientConsumer();
+		if (clientConfig == null) {
+			clientConfig = flowState.getClientConfiguration();
+		}
 
 		ErrorObject error = verifyConfig(opConfig, clientConfig);
 
@@ -474,6 +486,7 @@ public class OidcOpLoginImpl implements OidcOpLogin {
 	}
 
 	@Override
+	@RetryTransaction
 	public JSONObject serveUserJwt(String realm, HttpServletRequest request, HttpServletResponse response)
 			throws OidcAuthenticationException {
 
