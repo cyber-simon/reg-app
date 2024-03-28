@@ -17,6 +17,7 @@ import edu.kit.scc.webreg.dao.StatisticsDao;
 import edu.kit.scc.webreg.dao.identity.UserProvisionerDao;
 import edu.kit.scc.webreg.dao.oidc.OidcRpConfigurationDao;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
+import edu.kit.scc.webreg.entity.SamlMetadataEntityStatus;
 import edu.kit.scc.webreg.entity.UserProvisionerEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
 import jakarta.annotation.PostConstruct;
@@ -108,11 +109,10 @@ public class DiscoveryCacheSingleton implements Serializable {
 			entry.setId(userProvisioner.getId());
 			if (statsMap.containsKey(userProvisioner.getId())) {
 				entry.setUserCount(statsMap.get(userProvisioner.getId()));
-			}
-			else {
+			} else {
 				entry.setUserCount(0L);
 			}
-			
+
 			if (userProvisioner instanceof OidcRpConfigurationEntity) {
 				OidcRpConfigurationEntity specific = oidcRpDao.fetch(userProvisioner.getId());
 				entry.setName(specific.getName());
@@ -130,8 +130,9 @@ public class DiscoveryCacheSingleton implements Serializable {
 				idMap.put(entry.getId(), entry);
 			} else if (userProvisioner instanceof SamlIdpMetadataEntity) {
 				SamlIdpMetadataEntity specific = idpDao.fetch(userProvisioner.getId());
-				if (specific.getEntityCategoryList() != null && !(specific.getEntityCategoryList()
-						.contains("http://refeds.org/category/hide-from-discovery"))) {
+				if (!(SamlMetadataEntityStatus.ACTIVE.equals(specific.getStatus()))
+						&& specific.getEntityCategoryList() != null && !(specific.getEntityCategoryList()
+								.contains("http://refeds.org/category/hide-from-discovery"))) {
 					entry.setName(specific.getEntityId());
 					entry.setEntityId(specific.getEntityId());
 					if (specific.getDisplayName() == null)
@@ -162,13 +163,12 @@ public class DiscoveryCacheSingleton implements Serializable {
 
 		userCountEntryList = new ArrayList<>(tempAllSet);
 		Collections.sort(userCountEntryList, userCountComparator);
-		
+
 		allEntryList = new ArrayList<>(tempAllSet);
 		extraEntryList = new ArrayList<>(tempExtraSet);
 		long end = System.currentTimeMillis();
 
-		logger.info("Building DiscoveryCache done, allList size {} took {} ms",
-				allEntryList.size(), (end - start));
+		logger.info("Building DiscoveryCache done, allList size {} took {} ms", allEntryList.size(), (end - start));
 
 		lastRefresh = System.currentTimeMillis();
 	}
