@@ -1,14 +1,24 @@
 package edu.kit.scc.webreg.bean.ar;
 
+import static edu.kit.scc.webreg.dao.ops.PaginateBy.unlimited;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+import static edu.kit.scc.webreg.dao.ops.SortBy.ascendingBy;
+
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 
 import edu.kit.scc.webreg.entity.attribute.AttributeReleaseEntity;
 import edu.kit.scc.webreg.entity.attribute.AttributeReleaseEntity_;
+import edu.kit.scc.webreg.entity.attribute.value.StringListValueEntity_;
+import edu.kit.scc.webreg.entity.attribute.value.ValueEntity;
+import edu.kit.scc.webreg.entity.attribute.value.ValueEntity_;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcFlowStateEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcFlowStateEntity_;
 import edu.kit.scc.webreg.service.attributes.AttributeReleaseService;
+import edu.kit.scc.webreg.service.attributes.ValueService;
 import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.service.oidc.OidcFlowStateService;
 import edu.kit.scc.webreg.session.SessionManager;
@@ -36,10 +46,14 @@ public class OidcAttributeReleaseBean implements Serializable {
 	@Inject
 	private AttributeReleaseService attributeReleaseService;
 
+	@Inject
+	private ValueService valueService;
+
 	private Long id;
 	private IdentityEntity identity;
 	private OidcFlowStateEntity flowState;
 	private AttributeReleaseEntity attributeRelease;
+	private List<ValueEntity> valueList;
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (identity == null) {
@@ -107,6 +121,15 @@ public class OidcAttributeReleaseBean implements Serializable {
 
 	public OidcFlowStateEntity getFlowState() {
 		return flowState;
+	}
+
+	public List<ValueEntity> getValueList() {
+		if (valueList == null) {
+			valueList = valueService.findAllEagerly(unlimited(), Arrays.asList(ascendingBy(ValueEntity_.id)),
+					equal(ValueEntity_.attributeRelease, getAttributeRelease()),
+					StringListValueEntity_.valueList);
+		}
+		return valueList;
 	}
 
 	public AttributeReleaseEntity getAttributeRelease() {
