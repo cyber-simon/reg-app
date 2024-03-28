@@ -13,6 +13,7 @@ import edu.kit.scc.webreg.dao.project.ProjectDao;
 import edu.kit.scc.webreg.entity.attribute.AttributeReleaseEntity;
 import edu.kit.scc.webreg.entity.attribute.ReleaseStatusType;
 import edu.kit.scc.webreg.entity.attribute.value.PairwiseIdentifierValueEntity;
+import edu.kit.scc.webreg.entity.attribute.value.StringListValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.StringValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.ValueEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
@@ -158,6 +159,9 @@ public class OidcOpScopeLoginProcessor extends AbstractOidcOpLoginProcessor {
 			}
 			else if (value instanceof StringValueEntity) {
 				claimsBuilder.claim(value.getAttribute().getName(), ((StringValueEntity) value).getValueString());
+			}
+			else if (value instanceof StringListValueEntity) {
+				claimsBuilder.claim(value.getAttribute().getName(), ((StringListValueEntity) value).getValueList());
 			}
 		}
 

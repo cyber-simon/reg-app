@@ -4,7 +4,9 @@ import static edu.kit.scc.webreg.dao.ops.RqlExpressions.and;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,6 +24,7 @@ import edu.kit.scc.webreg.entity.attribute.OutgoingAttributeEntity;
 import edu.kit.scc.webreg.entity.attribute.OutgoingAttributeEntity_;
 import edu.kit.scc.webreg.entity.attribute.ReleaseStatusType;
 import edu.kit.scc.webreg.entity.attribute.value.PairwiseIdentifierValueEntity;
+import edu.kit.scc.webreg.entity.attribute.value.StringListValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.StringValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.ValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.ValueEntity_;
@@ -81,6 +84,7 @@ public class AttributeReleaseHandler {
 				changed |= resolveSingleStringValue(attributeRelease, "given_name", identity);
 			} else if (scope.equals("voperson")) {
 				changed |= resolveSingleStringValue(attributeRelease, "voperson_id", identity.getGeneratedLocalUsername());
+				changed |= resolveStringListValue(attributeRelease, "eduperson_entitlement", identity);
 			}
 		}
 		return changed;
@@ -95,6 +99,31 @@ public class AttributeReleaseHandler {
 			IdentityEntity identity) {
 		return resolveSingleStringValue(attributeRelease, outgoingName,
 				attributeResolver.resolveSingleStringValue(identity, name));
+	}
+
+	private Boolean resolveStringListValue(AttributeReleaseEntity attributeRelease, String name,
+			IdentityEntity identity) {
+		return resolveStringListValue(attributeRelease, name, name, identity);
+	}
+
+	private Boolean resolveStringListValue(AttributeReleaseEntity attributeRelease, String name, String outgoingName,
+			IdentityEntity identity) {
+		return resolveStringListValue(attributeRelease, outgoingName,
+				attributeResolver.resolveStringListValue(identity, name));
+	}
+
+	private Boolean resolveStringListValue(AttributeReleaseEntity attributeRelease, String name, List<String> valueList) {
+		final OutgoingAttributeEntity attribute = findOrCreateOutgroingAttribute(name);
+		ValueEntity value = resolveValue(attributeRelease, attribute, StringListValueEntity.class);
+		// Null check, because with a new value it will be null
+		if (((StringListValueEntity) value).getValueList() != null
+				&& (new HashSet<>(((StringListValueEntity) value).getValueList())).equals(new HashSet<>(valueList)))
+			return false;
+		else {
+			((StringListValueEntity) value).setValueList(new ArrayList<>(valueList));
+			return true;
+		}
+		
 	}
 
 	private Boolean resolveSingleStringValue(AttributeReleaseEntity attributeRelease, String name, String valueString) {
