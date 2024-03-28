@@ -130,7 +130,7 @@ public class DiscoveryCacheSingleton implements Serializable {
 				idMap.put(entry.getId(), entry);
 			} else if (userProvisioner instanceof SamlIdpMetadataEntity) {
 				SamlIdpMetadataEntity specific = idpDao.fetch(userProvisioner.getId());
-				if (!(SamlMetadataEntityStatus.ACTIVE.equals(specific.getStatus()))
+				if (SamlMetadataEntityStatus.ACTIVE.equals(specific.getStatus())
 						&& specific.getEntityCategoryList() != null && !(specific.getEntityCategoryList()
 								.contains("http://refeds.org/category/hide-from-discovery"))) {
 					entry.setName(specific.getEntityId());
