@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -144,11 +146,11 @@ public class DiscoveryCacheService implements Serializable {
 	private List<UserProvisionerCachedEntry> filterAllEntries(List<ScriptEntity> filterScriptList,
 			List<UserProvisionerCachedEntry> entryList) {
 		if (filterScriptList != null && filterScriptList.size() > 0) {
-			List<UserProvisionerCachedEntry> returnList = new ArrayList<>();
+			Set<UserProvisionerCachedEntry> returnList = new HashSet<>();
 			for (ScriptEntity script : filterScriptList) {
 				returnList.addAll(filterEntries(script, entryList));
 			}
-			return returnList;
+			return new ArrayList<>(returnList);
 		}
 		else
 			return entryList;		
