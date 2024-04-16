@@ -144,11 +144,14 @@ public class DiscoveryCacheService implements Serializable {
 	private List<UserProvisionerCachedEntry> filterAllEntries(List<ScriptEntity> filterScriptList,
 			List<UserProvisionerCachedEntry> entryList) {
 		if (filterScriptList != null && filterScriptList.size() > 0) {
+			List<UserProvisionerCachedEntry> returnList = new ArrayList<>();
 			for (ScriptEntity script : filterScriptList) {
-				entryList = filterEntries(script, entryList);
+				returnList.addAll(filterEntries(script, entryList));
 			}
+			return returnList;
 		}
-		return entryList;		
+		else
+			return entryList;		
 	}
 	
 	private List<UserProvisionerCachedEntry> filterEntries(ScriptEntity scriptEntity,
