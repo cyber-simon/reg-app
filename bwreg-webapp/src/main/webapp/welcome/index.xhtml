@@ -58,7 +58,7 @@
 
 
 			<div class="grid">
-				<div style="margin-top: 1em;" class="col-12 md:col-6 lg:col-6 xl:col-6">
+				<div style="margin-top: 1em;" class="col-12 xs:col-12 sm:col-12 md:col-6 lg:col-6 xl:col-6">
 					<p:outputPanel rendered="#{discoveryLoginBean.largeList}">
 						<p:focus conext="baseData" for="searchAutocompl" />
 						<span class="ui-float-label">
@@ -84,28 +84,28 @@
 					<p:outputPanel style="margin-top: 1em;">
 						<p:selectBooleanCheckbox value="#{discoveryLoginBean.storeIdpSelection}" itemLabel="#{messages.store_idp_selection}" />
 					</p:outputPanel>
-					
+				</div>
+				<div style="margin-top: 0em;" class="col-12 xs:col-12 sm:col-12 md:col-6 lg:col-6 xl:col-6">
+				</div>
+				<div style="margin-top: 0em;" class="col-12 xs:col-6 sm:col-6 md:col-3 lg:col-3 xl:col-3">
 					<p:outputPanel id="btnPanel">
-						<p:commandButton id="login" action="#{discoveryLoginBean.login}" value="#{messages.proceed}" disabled="#{empty discoveryLoginBean.selected}"
+						<p:commandButton id="login" style="width:100%;" action="#{discoveryLoginBean.login}" value="#{messages.proceed}" disabled="#{empty discoveryLoginBean.selected}"
 							update=":form" />
 					</p:outputPanel>
 		
 				</div>
-
-				<div style="margin-top: 0.5em;" class="col-12 md:col-6 lg:col-6 xl:col-6">
+				<div style="margin-top: 0em;" class="col-12 xs:col-6 sm:col-6 md:col-3 lg:col-3 xl:col-3">
 					<p:outputPanel id="infoPnl">
-						<p:panel style="margin:0.5em; border: 1px solid #eeeeee;" rendered="#{not empty discoveryLoginBean.selected}">
+						<p:panel style="margin:0.5em;" rendered="#{not empty discoveryLoginBean.selected}">
 							<p:commandLink action="#{discoveryLoginBean.login(discoveryLoginBean.selected.id)}">
 								<div style="text-align: left;">
-									<p:graphicImage style="max-width: 320px; max-height: 160px;" value="#{request.contextPath}/rest/icon-cache/sync/small/#{discoveryLoginBean.selected.iconLargeId}" />
+									<p:graphicImage style="max-width: 320px; max-height: 3em;" value="#{request.contextPath}/rest/icon-cache/sync/small/#{discoveryLoginBean.selected.iconLargeId}" />
 								</div> 
-								<div>
-									<h:outputText value="#{discoveryLoginBean.selected.displayName}" />
-								</div>
 							</p:commandLink> 
 						</p:panel>
 					</p:outputPanel>
 				</div>
+
 			</div>
 			<p:outputPanel rendered="#{discoveryLoginBean.extraList.size() > 0}">
 				<div style="margin-top: 2em;"><h:outputText value="#{messages['discovery.alternatives']}:" /></div>

@@ -4,10 +4,6 @@
 	font-size: 1.25rem;
 }
 
-.ui-panel {
-	border: none;
-}
-
 label.ui-helper-hidden {
     display: none !important;
 }
@@ -20,15 +16,11 @@ label.ui-helper-hidden {
 	width: 75%;
 }
 
-.form {
-	font-size: 1.25rem;
-}
-
 .ui-state-highlight, .ui-widget-content .ui-state-highlight, .ui-widget-header .ui-state-highlight {
 	background-size: cover;
 }
 
-.ui-selectonelistbox .ui-selectlistbox-item, .ui-selectmanymenu .ui-selectlistbox-item, .ui-multiselectlistbox .ui-multiselectlistbox-item {
+/*.ui-selectonelistbox .ui-selectlistbox-item, .ui-selectmanymenu .ui-selectlistbox-item, .ui-multiselectlistbox .ui-multiselectlistbox-item {
 	margin-top: 6px;
 }
 
@@ -42,7 +34,7 @@ label.ui-helper-hidden {
 
 #opt1 .ui-radiobutton-box {
 	display: none;
-}
+}*/
 
 .page-footer {
 	background-color: #ffffff;
