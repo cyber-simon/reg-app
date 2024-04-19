@@ -76,7 +76,7 @@ public abstract class AbstractOidcOpLoginProcessor implements Serializable {
 	}
 
 	protected SignedJWT signClaims(OidcOpConfigurationEntity opConfig, OidcClientConsumerEntity clientConfig,
-			JWTClaimsSet claims) throws OidcAuthenticationException {
+			JWTClaimsSet claims, Boolean shortIdTokenHeader) throws OidcAuthenticationException {
 		SignedJWT jwt;
 
 		try {
@@ -91,11 +91,14 @@ public abstract class AbstractOidcOpLoginProcessor implements Serializable {
 			// This results in only the key id being in the token. This seems mostly
 			// accepted.
 			// Perhaps introduce switch in consumerConfig to choose
-			header = new JWSHeader.Builder(JWSAlgorithm.RS256).type(JOSEObjectType.JWT).keyID(jwk.getKeyID()).build();
+			if (shortIdTokenHeader == null || shortIdTokenHeader == Boolean.TRUE) {
+				header = new JWSHeader.Builder(JWSAlgorithm.RS256).type(JOSEObjectType.JWT).keyID(jwk.getKeyID())
+						.build();
+			} else {
+				header = new JWSHeader.Builder(JWSAlgorithm.RS256).jwk(jwk).type(JOSEObjectType.JWT)
+						.keyID(jwk.getKeyID()).build();
+			}
 
-			// This results in a jwk with the complete key.
-//			header = new JWSHeader.Builder(JWSAlgorithm.RS256).jwk(jwk).type(JOSEObjectType.JWT)
-//						.keyID(jwk.getKeyID()).build();
 			jwt = new SignedJWT(header, claims);
 			jwt.sign(rsaSigner);
 

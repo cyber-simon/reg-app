@@ -135,7 +135,7 @@ public class OidcOpScopeLoginProcessor extends AbstractOidcOpLoginProcessor {
 
 		logger.debug("[OidcOpScopeLoginProcessor] claims before signing: " + claims.toJSONObject());
 
-		SignedJWT jwt = signClaims(opConfig, clientConfig, claims);
+		SignedJWT jwt = signClaims(opConfig, clientConfig, claims, true);
 
 		return finalizeTokenRespone(flowState, jwt).toJSONObject();
 	}

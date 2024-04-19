@@ -255,7 +255,11 @@ public class OidcOpStaticLoginProcessor extends AbstractOidcOpLoginProcessor {
 
 		logger.debug("[OidcOpStaticLoginProcessor] claims before signing: " + claims.toJSONObject());
 
-		SignedJWT jwt = signClaims(opConfig, clientConfig, claims);
+		Boolean shortIdTokenHeader = Boolean.TRUE;
+		if (clientConfig.getGenericStore().containsKey("short_id_token_header"))
+				shortIdTokenHeader = Boolean.parseBoolean(clientConfig.getGenericStore().get("long_access_token"));
+
+		SignedJWT jwt = signClaims(opConfig, clientConfig, claims, shortIdTokenHeader);
 
 		return finalizeTokenRespone(flowState, jwt).toJSONObject();
 	}
