@@ -106,11 +106,13 @@ public abstract class AbstractAttributeSourceWorkflow implements AttributeSource
 		Map<String, ASUserAttrValueEntity> keysToUpdate = new HashMap<>();
 		Map<String, ASUserAttrValueEntity> keysToDelete = new HashMap<>();
 
-		// Treat empty string values as not present.
+		// Treat null and empty string values as not present.
 		Map<String, Object> filteredValueMap = new HashMap<>();
 		valueMap.forEach((k, v) -> {
-			if(v instanceof String && ((String) v).isEmpty()) {
-				logger.debug("Got empty value for {}, treating it like not present", k);
+			if(v == null) {
+				logger.debug("Got null value for {}, treating it like not present", k);
+			} else if(v instanceof String && ((String) v).isEmpty()) {
+				logger.debug("Got empty string value for {}, treating it like not present", k);
 			} else {
 				filteredValueMap.put(k, v);
 			}
