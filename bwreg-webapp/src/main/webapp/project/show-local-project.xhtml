@@ -110,30 +110,30 @@
 		</p:dataTable>	
 		
 		<h5 style="margin-top: 1em;"><h:outputText value="#{messages['project.admins']}" /></h5>
-		<p:dataTable id="dataTableAdmin" var="admin" value="#{userShowLocalProjectBean.adminList}">
-			<p:column sortBy="#{admin.identity.prefUser.eppn}" filterBy="#{admin.identity.prefUser.eppn}" filterMatchMode="contains">
+		<p:dataTable id="dataTableAdmin" var="a" value="#{userShowLocalProjectBean.adminList}">
+			<p:column sortBy="#{a.identity.prefUser.eppn}" filterBy="#{a.identity.prefUser.eppn}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.name}" />
 				</f:facet>
-				<h:outputText value="#{admin.identity.prefUser.eppn}" />
+				<h:outputText value="#{a.identity.prefUser.eppn}" />
 			</p:column>			
-			<p:column sortBy="#{admin.identity.prefUser.surName}" filterBy="#{admin.identity.prefUser.surName}" filterMatchMode="contains">
+			<p:column sortBy="#{a.identity.prefUser.surName}" filterBy="#{a.identity.prefUser.surName}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.sur_name}" />
 				</f:facet>
-				<h:outputText value="#{admin.identity.prefUser.surName}" />
+				<h:outputText value="#{a.identity.prefUser.surName}" />
 			</p:column>			
-			<p:column sortBy="#{admin.identity.prefUser.givenName}" filterBy="#{admin.identity.prefUser.givenName}" filterMatchMode="contains">
+			<p:column sortBy="#{a.identity.prefUser.givenName}" filterBy="#{a.identity.prefUser.givenName}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.given_name}" />
 				</f:facet>
-				<h:outputText value="#{admin.identity.prefUser.givenName}" />
+				<h:outputText value="#{a.identity.prefUser.givenName}" />
 			</p:column>			
 			<p:column>
 				<f:facet name="header">
 					<h:outputText value="#{messages.type}" />
 				</f:facet>
-				<h:outputText value="#{admin.type}" />
+				<h:outputText value="#{a.type}" />
 			</p:column>			
 		</p:dataTable>	
 

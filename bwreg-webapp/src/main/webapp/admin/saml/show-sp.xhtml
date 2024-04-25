@@ -147,7 +147,7 @@
 				<h:panelGroup>
 					<ul>
 						<ui:repeat var="nidf" value="#{showSpBean.spssoDescriptor.nameIDFormats}">
-							<li><h:outputText value="#{nidf.format}"/></li>
+							<li><h:outputText value="#{nidf.URI}"/></li>
 						</ui:repeat>
 					</ul>
 				</h:panelGroup>
@@ -175,13 +175,13 @@
 				<h:panelGroup>
 					<ul>
 						<ui:repeat var="person" value="#{showSpBean.entityDescriptor.contactPersons}">
-							<li><h:outputText value="#{person.type}: #{person.surName.name}, #{person.givenName.name}"/>
+							<li><h:outputText value="#{person.type}: #{person.surName.value}, #{person.givenName.value}"/>
 								<ul>
 									<ui:repeat var="email" value="#{person.emailAddresses}">
-										<li>Email: <h:outputText value="#{email.address}" /></li>
+										<li>Email: <h:outputText value="#{email.URI}" /></li>
 									</ui:repeat>
 									<ui:repeat var="tel" value="#{person.telephoneNumbers}">
-										<li>Telefon: <h:outputText value="#{tel.number}" /></li>
+										<li>Telefon: <h:outputText value="#{tel.value}" /></li>
 									</ui:repeat>
 								</ul>
 							</li>

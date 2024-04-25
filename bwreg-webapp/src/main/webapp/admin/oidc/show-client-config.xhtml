@@ -73,7 +73,7 @@
 		        		<ui:repeat var="redirect" value="#{showOidcClientConfigurationBean.entity.redirects}">
 		        			<li>
 		        				<h:outputText value="#{redirect.url} "/>
-				        		<h:commandLink value="(#{messages.delete})" action="#{showOidcClientConfigurationBean.removeRedirect(redirect)}">
+				        		<h:commandLink value="(#{messages.delete})" action="#{showOidcClientConfigurationBean.removeRedirect(redirect.url)}">
 									<f:ajax render=":form:mainPanel" />
 								</h:commandLink>
 		        			</li>

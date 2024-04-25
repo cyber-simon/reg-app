@@ -86,28 +86,28 @@
 			</p:column>	
 		</p:dataTable>
 
-		<p:dataTable id="dataTableAdmins" var="admin" value="#{editProjectAdminsBean.adminList}" paginator="true"
+		<p:dataTable id="dataTableAdmins" var="a" value="#{editProjectAdminsBean.adminList}" paginator="true"
 					rows="15">
 			<p:column>
 				<f:facet name="header">
 					<h:outputText value="#{messages.id}" />
 				</f:facet>
-				<h:outputText value="#{admin.identity.id}" />
+				<h:outputText value="#{a.identity.id}" />
 			</p:column>			
-			<p:column sortBy="#{admin.identity.prefUser.eppn}" filterBy="#{admin.identity.prefUser.eppn}" filterMatchMode="contains">
+			<p:column sortBy="#{a.identity.prefUser.eppn}" filterBy="#{a.identity.prefUser.eppn}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.name}" />
 				</f:facet>
-				<h:outputText value="#{admin.identity.prefUser.eppn}" />
+				<h:outputText value="#{a.identity.prefUser.eppn}" />
 			</p:column>
 			<p:column>
 				<f:facet name="header">
 					<h:outputText value="#{messages.type}" />
 				</f:facet>
-				<h:outputText value="#{admin.type}" />
+				<h:outputText value="#{a.type}" />
 			</p:column>			
 			<p:column>
-				<p:commandLink action="#{editProjectAdminsBean.removeAdmin(admin)}" value="#{messages.remove}"
+				<p:commandLink action="#{editProjectAdminsBean.removeAdmin(a)}" value="#{messages.remove}"
 							update=":form:dataTableAdmins"/>
 			</p:column>	
 		</p:dataTable>		
