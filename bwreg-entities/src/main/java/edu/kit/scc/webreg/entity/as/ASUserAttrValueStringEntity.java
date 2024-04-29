@@ -18,7 +18,7 @@ public class ASUserAttrValueStringEntity extends ASUserAttrValueEntity {
 
 	private static final long serialVersionUID = 1L;
 
-	@Column(name = "value_string")
+	@Column(name = "value_string", length = 32768)
 	private String valueString;
 
 	public String getValueString() {

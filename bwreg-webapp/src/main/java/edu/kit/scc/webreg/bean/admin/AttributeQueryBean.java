@@ -76,12 +76,9 @@ public class AttributeQueryBean implements Serializable {
 			if (idpEntity == null)
 				idpEntity = aaService.findByEntityId(idpEntityId);
 			
-			EntityDescriptor idpEntityDescriptor = samlHelper.unmarshal(
-					idpEntity.getEntityDescriptor(), EntityDescriptor.class);
+			Response samlResponse = attrQueryHelper.query(persistentId, idpEntity, spEntity);
 			
-			Response samlResponse = attrQueryHelper.query(persistentId, idpEntity, idpEntityDescriptor, spEntity);
-			
-			Assertion assertion = saml2AssertionService.processSamlResponse(samlResponse, idpEntity, idpEntityDescriptor, spEntity, false);
+			Assertion assertion = saml2AssertionService.processSamlResponse(samlResponse, idpEntity, null, spEntity, false);
 
 			attributeMap = saml2AssertionService.extractAttributes(assertion);
 			assertionString = samlHelper.prettyPrint(assertion);

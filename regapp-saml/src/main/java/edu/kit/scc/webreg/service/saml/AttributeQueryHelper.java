@@ -30,11 +30,9 @@ import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.BasicHttpClientConnectionManager;
-import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
 import org.apache.hc.client5.http.ssl.DefaultHostnameVerifier;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
-import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
 import org.apache.hc.core5.http.config.Registry;
 import org.apache.hc.core5.http.config.RegistryBuilder;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
@@ -46,7 +44,6 @@ import org.opensaml.messaging.context.MessageContext;
 import org.opensaml.messaging.pipeline.httpclient.BasicHttpClientMessagePipeline;
 import org.opensaml.messaging.pipeline.httpclient.HttpClientMessagePipeline;
 import org.opensaml.messaging.pipeline.httpclient.HttpClientMessagePipelineFactory;
-import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.common.SAMLVersion;
 import org.opensaml.saml.common.messaging.SAMLMessageSecuritySupport;
 import org.opensaml.saml.common.messaging.context.SAMLBindingContext;
@@ -106,35 +103,33 @@ public class AttributeQueryHelper implements Serializable {
 
 	@Inject
 	private Logger logger;
-	
+
 	@Inject
 	private SamlHelper samlHelper;
 
 	@Inject
 	private MetadataHelper metadataHelper;
-	
-	@Inject 
+
+	@Inject
 	private CryptoHelper cryptoHelper;
-	
+
 	@Inject
 	ApplicationConfig appConfig;
 
-	public Response query(String persistentId, SamlMetadataEntity idpEntity, 
-			EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity spEntity, StringBuffer debugLog) throws Exception {
-		
+	public Response query(String persistentId, SamlMetadataEntity idpEntity, EntityDescriptor idpEntityDescriptor,
+			SamlSpConfigurationEntity spEntity, StringBuffer debugLog) throws Exception {
+
 		if (debugLog != null) {
-			debugLog.append("Starting attribute query for")
-				.append(persistentId).append(" idp: ").append(idpEntity.getEntityId()).append(" sp: ")
-				.append(spEntity.getEntityId()).append("\n");
+			debugLog.append("Starting attribute query for").append(persistentId).append(" idp: ")
+					.append(idpEntity.getEntityId()).append(" sp: ").append(spEntity.getEntityId()).append("\n");
 		}
-		
+
 		AttributeService attributeService = metadataHelper.getAttributeService(idpEntityDescriptor);
 		if (attributeService == null || attributeService.getLocation() == null)
 			throw new MetadataException("No Attribute Service found for IDP " + idpEntity.getEntityId());
-			
-		AttributeQuery attrQuery = buildAttributeQuery(
-				persistentId, spEntity.getEntityId());
-		
+
+		AttributeQuery attrQuery = buildAttributeQuery(persistentId, spEntity.getEntityId());
+
 		MessageContext inbound = new MessageContext();
 		MessageContext outbound = new MessageContext();
 		outbound.setMessage(attrQuery);
@@ -149,7 +144,7 @@ public class AttributeQueryHelper implements Serializable {
 		SAMLBindingContext bindingContext = new SAMLBindingContext();
 		bindingContext.setHasBindingSignature(true);
 		outbound.addSubcontext(bindingContext);
-		
+
 		SOAP11Context soapContext = new SOAP11Context();
 		outbound.addSubcontext(soapContext);
 
@@ -165,14 +160,15 @@ public class AttributeQueryHelper implements Serializable {
 		BasicX509Credential credential = new BasicX509Credential(publicKey, privateKey);
 		List<Credential> credentialList = new ArrayList<Credential>();
 		credentialList.add(credential);
-		
-		BasicSignatureSigningConfiguration ssConfig = DefaultSecurityConfigurationBootstrap.buildDefaultSignatureSigningConfiguration();
+
+		BasicSignatureSigningConfiguration ssConfig = DefaultSecurityConfigurationBootstrap
+				.buildDefaultSignatureSigningConfiguration();
 		ssConfig.setSigningCredentials(credentialList);
 		CriteriaSet criteriaSet = new CriteriaSet();
 		criteriaSet.add(new SignatureSigningConfigurationCriterion(ssConfig));
 		criteriaSet.add(new RoleDescriptorCriterion(idpEntityDescriptor.getIDPSSODescriptor(SAMLConstants.SAML20P_NS)));
 		SAMLMetadataSignatureSigningParametersResolver smsspr = new SAMLMetadataSignatureSigningParametersResolver();
-		
+
 		SignatureSigningParameters ssp = smsspr.resolveSingle(criteriaSet);
 		logger.debug("Resolved algo {} for signing", ssp.getSignatureAlgorithm());
 		SecurityParametersContext securityContext = new SecurityParametersContext();
@@ -182,46 +178,36 @@ public class AttributeQueryHelper implements Serializable {
 		SOAP11Context soapInboundContext = new SOAP11Context();
 		inbound.addSubcontext(soapInboundContext);
 
-		InOutOperationContext inOutContext =
-				new InOutOperationContext(inbound, outbound);
-		
+		InOutOperationContext inOutContext = new InOutOperationContext(inbound, outbound);
+
 		if (debugLog != null) {
 			debugLog.append("\nOutgoing SAML Message before signing:\n\n")
-				.append(samlHelper.prettyPrint((XMLObject) outbound.getMessage()))
-				.append("\n");
+					.append(samlHelper.prettyPrint((XMLObject) outbound.getMessage())).append("\n");
 		}
-		
+
 		SAMLMessageSecuritySupport.signMessage(outbound);
 
 		if (debugLog != null) {
 			debugLog.append("\nOutgoing SAML Message after signing:\n\n")
-				.append(samlHelper.prettyPrint((XMLObject) outbound.getMessage()))
-				.append("\n");
+					.append(samlHelper.prettyPrint((XMLObject) outbound.getMessage())).append("\n");
 		}
 
-		Registry<ConnectionSocketFactory> socketFactoryRegistry = 
-		        RegistryBuilder.<ConnectionSocketFactory> create()
-		        .register("https", getSSLConnectionSocketFactory(idpEntityDescriptor))
-		        .build();
-		BasicHttpClientConnectionManager connectionManager =
-		        new BasicHttpClientConnectionManager(socketFactoryRegistry);
-		
-		RequestConfig requestConfig = RequestConfig.custom()
-				.setResponseTimeout(getRequestTimeout())
-				.setConnectionRequestTimeout(getRequestTimeout())
-				.build();
-		CloseableHttpClient client = HttpClients.custom()
-				.setConnectionManager(connectionManager)
-				.setDefaultRequestConfig(requestConfig)
-				.build();
+		Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
+				.register("https", getSSLConnectionSocketFactory(idpEntityDescriptor)).build();
+		BasicHttpClientConnectionManager connectionManager = new BasicHttpClientConnectionManager(
+				socketFactoryRegistry);
+
+		RequestConfig requestConfig = RequestConfig.custom().setResponseTimeout(getRequestTimeout())
+				.setConnectionRequestTimeout(getRequestTimeout()).build();
+		CloseableHttpClient client = HttpClients.custom().setConnectionManager(connectionManager)
+				.setDefaultRequestConfig(requestConfig).build();
 
 		PipelineFactoryHttpSOAPClient pf = new PipelineFactoryHttpSOAPClient();
 		pf.setHttpClient(client);
 		pf.setPipelineFactory(new HttpClientMessagePipelineFactory() {
-			
+
 			@Override
-			public HttpClientMessagePipeline newInstance(
-					String pipelineName) {
+			public HttpClientMessagePipeline newInstance(String pipelineName) {
 				final HttpClientResponseSOAP11Decoder decoder = new HttpClientResponseSOAP11Decoder();
 				try {
 					decoder.getBodyHandler().initialize();
@@ -230,7 +216,7 @@ public class AttributeQueryHelper implements Serializable {
 				}
 				return new BasicHttpClientMessagePipeline(new HttpClientRequestSOAP11Encoder(), decoder);
 			}
-			
+
 			@Override
 			public HttpClientMessagePipeline newInstance() {
 				final HttpClientResponseSOAP11Decoder decoder = new HttpClientResponseSOAP11Decoder();
@@ -242,43 +228,44 @@ public class AttributeQueryHelper implements Serializable {
 				return new BasicHttpClientMessagePipeline(new HttpClientRequestSOAP11Encoder(), decoder);
 			}
 		});
-		
+
 		try {
 			pf.send(attributeService.getLocation(), inOutContext);
-			
+
 			Response returnResponse = (Response) inOutContext.getInboundMessageContext().getMessage();
-			
+
 			return returnResponse;
-		}
-		finally {
+		} finally {
 			client.close();
 		}
 	}
 
-	public Response query(String persistentId, SamlMetadataEntity idpEntity, 
-			EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity spEntity) throws Exception {
-		return query(persistentId, idpEntity, idpEntityDescriptor, spEntity, null);	
+	public Response query(String persistentId, SamlMetadataEntity idpEntity, SamlSpConfigurationEntity spEntity)
+			throws Exception {
+		EntityDescriptor idpEntityDescriptor = samlHelper.unmarshal(idpEntity.getEntityDescriptor(),
+				EntityDescriptor.class);
+		return query(persistentId, idpEntity, idpEntityDescriptor, spEntity, null);
 	}
-	
-	public Response query(SamlUserEntity entity, SamlMetadataEntity idpEntity, 
-			EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity spEntity) throws Exception {
-		return query(entity.getPersistentId(), idpEntity, idpEntityDescriptor, spEntity, null);	
+
+	public Response query(SamlUserEntity entity, SamlMetadataEntity idpEntity, EntityDescriptor idpEntityDescriptor,
+			SamlSpConfigurationEntity spEntity) throws Exception {
+		return query(entity.getPersistentId(), idpEntity, idpEntityDescriptor, spEntity, null);
 	}
-	
-	public Response query(SamlUserEntity entity, SamlMetadataEntity idpEntity, 
-			EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity spEntity, StringBuffer debugLog) throws Exception {
-		return query(entity.getPersistentId(), idpEntity, idpEntityDescriptor, spEntity, debugLog);	
+
+	public Response query(SamlUserEntity entity, SamlMetadataEntity idpEntity, EntityDescriptor idpEntityDescriptor,
+			SamlSpConfigurationEntity spEntity, StringBuffer debugLog) throws Exception {
+		return query(entity.getPersistentId(), idpEntity, idpEntityDescriptor, spEntity, debugLog);
 	}
-	
+
 	public Response getResponseFromEnvelope(Envelope envelope) {
 		Body body = envelope.getBody();
 		List<XMLObject> xmlObjects = body.getUnknownXMLObjects();
 
 		Response response = (Response) xmlObjects.get(0);
-		
+
 		return response;
 	}
-	
+
 	public AttributeQuery buildAttributeQuery(String persistentId, String issuerEntityId) {
 		AttributeQuery attrQuery = samlHelper.create(AttributeQuery.class, AttributeQuery.DEFAULT_ELEMENT_NAME);
 		attrQuery.setID(samlHelper.getRandomId());
@@ -307,26 +294,28 @@ public class AttributeQueryHelper implements Serializable {
 		String aqString = appConfig.getConfigValue("attributequery_connectionrequest_timeout");
 		if (aqString == null)
 			return Timeout.ofSeconds(30);
-		else 
+		else
 			return Timeout.ofMilliseconds(Integer.parseInt(aqString));
 	}
 
-	private SSLConnectionSocketFactory getSSLConnectionSocketFactory(EntityDescriptor idpEntityDescriptor) throws KeyManagementException, NoSuchAlgorithmException {
+	private SSLConnectionSocketFactory getSSLConnectionSocketFactory(EntityDescriptor idpEntityDescriptor)
+			throws KeyManagementException, NoSuchAlgorithmException {
 		String proto = appConfig.getConfigValue("attributequery_tls_version");
 		String[] protos;
 		if (proto == null)
 			protos = new String[] { "TLSv1.2" };
-		else 
+		else
 			protos = proto.split(",");
 
 		DOMMetadataResolver mp = new DOMMetadataResolver(idpEntityDescriptor.getDOM());
 		mp.setId(idpEntityDescriptor.getEntityID() + "-resolver");
-		
+
 		PredicateRoleDescriptorResolver roleResolver = new PredicateRoleDescriptorResolver(mp);
-		KeyInfoCredentialResolver keyInfoCredResolver = DefaultSecurityConfigurationBootstrap.buildBasicInlineKeyInfoCredentialResolver();
+		KeyInfoCredentialResolver keyInfoCredResolver = DefaultSecurityConfigurationBootstrap
+				.buildBasicInlineKeyInfoCredentialResolver();
 
 		MetadataCredentialResolver mdCredResolver = new MetadataCredentialResolver();
-		
+
 		mdCredResolver.setKeyInfoCredentialResolver(keyInfoCredResolver);
 		mdCredResolver.setRoleDescriptorResolver(roleResolver);
 		try {
@@ -342,9 +331,9 @@ public class AttributeQueryHelper implements Serializable {
 		criteriaSet.add(new EntityIdCriterion(idpEntityDescriptor.getEntityID()));
 		criteriaSet.add(new EntityRoleCriterion(IDPSSODescriptor.DEFAULT_ELEMENT_NAME));
 		criteriaSet.add(new UsageCriterion(UsageType.SIGNING));
-		
+
 		Set<PublicKey> keySet = new HashSet<PublicKey>();
-		
+
 		try {
 			Iterable<Credential> credentials = mdCredResolver.resolve(criteriaSet);
 			for (Credential credential : credentials) {
@@ -353,7 +342,7 @@ public class AttributeQueryHelper implements Serializable {
 		} catch (ResolverException e1) {
 			logger.warn("Exception", e1);
 		}
-		
+
 		SSLContextBuilder sslContextBuilder = new SSLContextBuilder();
 		try {
 			sslContextBuilder.loadTrustMaterial(null, new AttributeQueryTrustStrategy(keySet));
@@ -362,8 +351,8 @@ public class AttributeQueryHelper implements Serializable {
 		}
 		SSLContext sslContext = sslContextBuilder.build();
 
-		SSLConnectionSocketFactory f = new SSLConnectionSocketFactory(sslContext, protos,
-				null, new DefaultHostnameVerifier());
+		SSLConnectionSocketFactory f = new SSLConnectionSocketFactory(sslContext, protos, null,
+				new DefaultHostnameVerifier());
 		return f;
 	}
 }

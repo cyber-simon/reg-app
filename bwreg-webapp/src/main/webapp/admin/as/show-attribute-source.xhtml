@@ -90,7 +90,7 @@
 			<p:panel header="#{messages.tools}">
 
 				<p:panelGrid id="testData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
-					<h:outputText value="#{messages.eppn}:" />
+					<h:outputText value="#{messages.eppn} or database id:" />
 					<p:inputText value="#{showAttributeSourceBean.testUsername}" />
 				</p:panelGrid>
 				<p:commandButton action="#{showAttributeSourceBean.testSource()}" value="#{messages.test_source}"/>

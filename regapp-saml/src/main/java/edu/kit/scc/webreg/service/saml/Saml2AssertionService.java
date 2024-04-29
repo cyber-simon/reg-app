@@ -93,6 +93,12 @@ public class Saml2AssertionService {
 	public Assertion processSamlResponse(Response samlResponse, SamlMetadataEntity idpEntity,
 			EntityDescriptor idpEntityDescriptor, SamlSpConfigurationEntity spEntity, boolean checkSignature)
 			throws IOException, DecryptionException, SamlAuthenticationException {
+
+		if (idpEntityDescriptor == null) {
+			idpEntityDescriptor = samlHelper.unmarshal(idpEntity.getEntityDescriptor(),
+					EntityDescriptor.class);
+		}
+
 		saml2ValidationService.verifyStatus(samlResponse);
 		saml2ValidationService.verifyIssuer((SamlIdpMetadataEntity) idpEntity, samlResponse);
 		saml2ValidationService.verifyExpiration(samlResponse, 1000L * 60L * 10L);

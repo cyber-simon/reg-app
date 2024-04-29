@@ -54,25 +54,36 @@ public class ShowAttributeSourceBean implements Serializable {
 
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
-			entity = service.findByIdWithAttrs(id, AttributeSourceEntity_.asProps, AttributeSourceEntity_.attributeSourceServices);
+			entity = service.findByIdWithAttrs(id, AttributeSourceEntity_.asProps,
+					AttributeSourceEntity_.attributeSourceServices);
 		}
 	}
 
 	public void testSource() {
-		List<UserEntity> user = userService.findByEppn(testUsername);
-
-		if (user.size() == 0) {
-			logger.info("User {} not found", testUsername);
-			return;
+		Long id = null;
+		try {
+			id = Long.parseLong(testUsername);
+		} catch (NumberFormatException nfe) {
 		}
 
-		if (user.size() > 1) {
-			logger.info("User {} not unique", testUsername);
-			return;
+		UserEntity user = null;
+		
+		if (id != null)
+			user = userService.fetch(id);
+
+		if (user == null) {
+			List<UserEntity> userList = userService.findByEppn(testUsername);
+
+			if (userList.size() == 1) {
+				user = userList.get(0);
+			} else {
+				logger.info("User {} not found or not unique", testUsername);
+				return;
+			}
 		}
 
 		try {
-			asQueryService.updateUserAttributes(user.get(0), entity, "test");
+			asQueryService.updateUserAttributes(user, entity, "test");
 		} catch (UserUpdateException e) {
 			logger.info("Exception!", e);
 		}
