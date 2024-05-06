@@ -255,11 +255,12 @@
 							<h:outputText value="#{ua.queryStatus}" />
 						</p:column>
 						<p:column style="width:32px">
-							<p:commandLink update=":form:documentPanel"
+							<p:commandLink update=":form:documentPanel" 
 								oncomplete="PF('documentDialog').show()" title="View Detail"
-								styleClass="ui-icon ui-icon-search">
+								>
 								<f:setPropertyActionListener value="#{ua}"
 									target="#{showUserBean.selectedUserAttr}" />
+									<i class="pi pi-search"></i>
 							</p:commandLink>
 						</p:column>
 					</p:dataTable>
