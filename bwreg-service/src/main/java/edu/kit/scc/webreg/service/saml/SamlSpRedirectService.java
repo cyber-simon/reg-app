@@ -5,10 +5,10 @@ import java.io.Serializable;
 import org.opensaml.messaging.encoder.MessageEncodingException;
 
 import edu.kit.scc.webreg.annotations.RetryTransaction;
+import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
+import edu.kit.scc.webreg.dao.SamlSpConfigurationDao;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
-import edu.kit.scc.webreg.service.SamlIdpMetadataService;
-import edu.kit.scc.webreg.service.SamlSpConfigurationService;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionManagement;
 import jakarta.ejb.TransactionManagementType;
@@ -24,10 +24,10 @@ public class SamlSpRedirectService implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Inject 
-	private SamlIdpMetadataService idpService;
+	private SamlIdpMetadataDao idpDao;
 	 
 	@Inject 
-	private SamlSpConfigurationService spService;
+	private SamlSpConfigurationDao spDao;
 
 	@Inject
 	private Saml2RedirectService saml2RedirectService;
@@ -37,8 +37,8 @@ public class SamlSpRedirectService implements Serializable {
 			HttpServletRequest request, HttpServletResponse response)
 			throws MessageEncodingException, ComponentInitializationException {
 		
-		SamlIdpMetadataEntity idpEntity = idpService.fetch(idpEntityId);
-		SamlSpConfigurationEntity spEntity = spService.fetch(spEntityId);
+		SamlIdpMetadataEntity idpEntity = idpDao.fetch(idpEntityId);
+		SamlSpConfigurationEntity spEntity = spDao.fetch(spEntityId);
 
 		saml2RedirectService.redirectClient(idpEntity, spEntity, request, response);
 	}
