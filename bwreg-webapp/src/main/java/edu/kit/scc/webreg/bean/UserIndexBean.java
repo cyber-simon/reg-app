@@ -22,6 +22,7 @@ import jakarta.inject.Named;
 
 import org.slf4j.Logger;
 
+import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.drools.OverrideAccess;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;
 import edu.kit.scc.webreg.entity.RegistryEntity;
@@ -64,6 +65,9 @@ public class UserIndexBean {
 
 	@Inject
 	private KnowledgeSessionService knowledgeSessionService;
+	
+	@Inject
+	private ApplicationConfig appConfig;
 
 	@PostConstruct
 	public void init() {
@@ -129,6 +133,10 @@ public class UserIndexBean {
 		}
 	}
 
+	public Boolean showServiceImages() {
+		return Boolean.parseBoolean(appConfig.getConfigValueOrDefault("show_index_images", "false"));
+	}
+	
 	public IdentityEntity getIdentity() {
 		return identity;
 	}
