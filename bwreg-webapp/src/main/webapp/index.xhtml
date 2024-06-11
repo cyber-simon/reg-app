@@ -86,7 +86,7 @@
 	
 			<ui:repeat var="registry" value="#{userIndexBean.pendingRegistryList}">
 				<div class="news-element third">
-					<h:panelGroup rendered="#{registry.service.image != null}">
+					<h:panelGroup  rendered="#{userIndexBean.showServiceImages() and registry.service.image != null}">
 						<figure>
 							<picture>
 								<p:graphicImage	value="#{request.contextPath}/rest/image/original/#{registry.service.image.id}" />
@@ -128,7 +128,7 @@
 
 		<ui:repeat var="service" value="#{authorizationBean.unregisteredServiceList}">
 			<div class="news-element third">
-				<h:panelGroup rendered="#{service.image != null}">
+				<h:panelGroup  rendered="#{userIndexBean.showServiceImages() and registry.service.image != null}">
 					<figure>
 						<picture>
 							<p:graphicImage	value="#{request.contextPath}/rest/image/original/#{service.image.id}" />
