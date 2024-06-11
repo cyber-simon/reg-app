@@ -23,56 +23,54 @@
 	<ui:param name="title" value="#{messages.title}"/>
 
 	<ui:define name="content">
-	<h:form id="form" prependId="false" class="full form">
-
-	<h2 class="text-danger"><h:outputText value="#{messages['my_data.delete_all.header']}"/></h2>
-
-	<p:panel id="blockPanel">
-
-		<div>
-			<h:outputText value="#{messages['my_data.delete_all.text']}" escape="false" />
-		</div>
-	
-		<p:panel rendered="#{deleteAllPersonalDataBean.registryList.size() > 0}" 
-				header="#{messages['my_data.delete_all.registered_services_head']}"
-				style="margin-top: 1em;">
-			<br/>
-			<h:outputText value="#{messages['my_data.delete_all.registered_services']}" escape="false" />
-			
-			<ul style="margin-top: 1em;">
-				<ui:repeat var="r" value="#{deleteAllPersonalDataBean.registryList}">
-					<li>
-						<h:outputText value="#{r.service.name}" />
-					</li>				
-				</ui:repeat>
-			</ul>
-		</p:panel>
-	
-		<div style="margin-top: 16px;">
-			<p:commandButton id="cancel" action="#{deleteAllPersonalDataBean.cancel}" 
-				value="#{messages.cancel}"/>
-			<p:commandButton id="save" oncomplete="PF('confirmDlg').show();"  
-				value="#{messages['my_data.delete_all.commit']}" class="text-danger"/>
-		</div>		
-	</p:panel>
-	<p:dialog header="#{messages['my_data.delete_all.confirm_header']}" 
-					widgetVar="confirmDlg" id="confirmDlgId" modal="true" closable="false" closeOnEscape="false"
-					showEffect="fade" hideEffect="fade">
-		<div class="panel text full" style="width:480px;">
-			<h:outputText value="#{messages['my_data.delete_all.confirm_text']}" escape="false" />
-		</div>
-		<div style="margin-top: 16px;">
-			<p:commandButton id="cancel2" action="#{deleteAllPersonalDataBean.cancel}" 
-				value="#{messages.cancel}"/>
-			<p:commandButton id="save2" action="#{deleteAllPersonalDataBean.commit}" 
-				value="#{messages['my_data.delete_all.commit2']}" class="text-danger"/>
-		</div>		
-	</p:dialog>
-	<p:blockUI block="confirmDlgId" trigger="save2">  
-     			<p:graphicImage value="#{resource['/img/ajax-loader.gif']}" alt="#{messages.loading}" />  
-	</p:blockUI>					
+		<h:form id="form" prependId="false" class="full">
 		
-	</h:form>
+			<h2 class="text-danger"><h:outputText value="#{messages['my_data.delete_all.header']}"/></h2>
+		
+			<div class="text full">	
+				<h:outputText value="#{messages['my_data.delete_all.text']}" escape="false" />
+			</div>
+			<h:panelGroup rendered="#{deleteAllPersonalDataBean.registryList.size() > 0}" 
+						styleClass="text full" >
+				
+				<h4 class="text-danger" style="margin-top: 1em;"><h:outputText value="#{messages['my_data.delete_all.registered_services_head']}"/></h4>
+				<br/>
+				<h:outputText value="#{messages['my_data.delete_all.registered_services']}" escape="false" />
+				
+				<ul style="margin-top: 1em;">
+					<ui:repeat var="r" value="#{deleteAllPersonalDataBean.registryList}">
+						<li>
+							<h:outputText value="#{r.service.name}" />
+						</li>				
+					</ui:repeat>
+				</ul>
+			</h:panelGroup>
+		
+			<div class="form" style="margin-top: 1em;">
+				<p:commandButton id="cancel" action="#{deleteAllPersonalDataBean.cancel}" 
+					value="#{messages.cancel}"/>
+				<p:commandButton id="save" oncomplete="PF('confirmDlg').show();"  
+					value="#{messages['my_data.delete_all.commit']}" style="margin-left: 1em;"/>
+			</div>		
+		
+			<p:dialog header="#{messages['my_data.delete_all.confirm_header']}" 
+							widgetVar="confirmDlg" id="confirmDlgId" modal="true" closable="false" closeOnEscape="false"
+							showEffect="fade" hideEffect="fade">
+				<div class="panel text full" style="width:480px;">
+					<h:outputText value="#{messages['my_data.delete_all.confirm_text']}" escape="false" />
+				</div>
+				<div class="form" style="margin-top: 1em;">
+					<p:commandButton id="cancel2" action="#{deleteAllPersonalDataBean.cancel}" 
+						value="#{messages.cancel}"/>
+					<p:commandButton id="save2" action="#{deleteAllPersonalDataBean.commit}" 
+						value="#{messages['my_data.delete_all.commit2']}" class="text-danger" style="margin-left: 1em;"/>
+				</div>		
+			</p:dialog>
+			<p:blockUI block="confirmDlgId" trigger="save2">  
+		     			<p:graphicImage value="#{resource['/img/ajax-loader.gif']}" alt="#{messages.loading}" />  
+			</p:blockUI>					
+				
+		</h:form>
 	</ui:define>
 </ui:composition>
 </f:view>

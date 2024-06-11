@@ -119,11 +119,8 @@
 			</p:tab>		
 
 			<p:tab id="tab2" title="#{messages.user_properties}">
-				<p:panelGrid id="baseDataUser" columns="2">
-					<f:facet name="header">
-						<h:outputText value="#{messages.user_properties}" />
-					</f:facet>
-
+				<h6><h:outputText value="#{messages.user_properties}" /></h6>
+				<p:panelGrid id="baseDataUser" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9" style="margin-top: 0.5em;">
 			        <h:outputText value="#{messages.id}:"/>
 			        <h:outputText value="#{serviceAdminUserDetailBean.user.id}"/>
 			
@@ -178,11 +175,8 @@
 
 				</p:panelGrid>
 
-				<p:panelGrid id="baseDataIdentity" columns="2" style="margin-top: 1em;">
-					<f:facet name="header">
-						<h:outputText value="#{messages.identity_properties}" />
-					</f:facet>
-
+				<h6><h:outputText value="#{messages.identity_properties}" /></h6>
+				<p:panelGrid id="baseDataIdentity" columns="2" style="margin-top: 0.5em;" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 			        <h:outputText value="#{messages.id}:"/>
 			        <h:outputText value="#{serviceAdminUserDetailBean.user.identity.id}"/>
 			

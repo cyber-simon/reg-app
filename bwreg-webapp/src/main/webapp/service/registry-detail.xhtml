@@ -24,7 +24,7 @@
 	<ui:param name="title" value="#{messages.title}"/>
 
 	<ui:define name="content">
-	<h:form id="form" class="form full">
+	<h:form id="form" class="full">
 
 	<h3><h:outputText value="#{messages.registry_details}: #{registryDetailBean.entity.service.name}" /></h3>
 
@@ -32,16 +32,16 @@
 		<h:outputText value="#{messages.registry_new_registry}" /> 
 	</p:outputPanel>
 	
-	<p:outputPanel style="margin-top: 1em;">
+	<h:panelGroup layout="block" styleClass="full text" style="margin-top: 1em;">
 		<h:outputText value="#{messages.registry_details_when_1}" /> 
 		<h:outputText value="#{of:formatDate(registryDetailBean.entity.agreedTime, 'dd.MM.yyyy HH:mm')}"/> 
 		<h:outputText value="#{messages.registry_details_when_2}" /> 
-	</p:outputPanel>
+	</h:panelGroup>
 
-	<p:outputPanel>
+	<h:panelGroup layout="block" styleClass="full text">
 		<h:outputText value="#{messages.registry_details_status}" /> 
         <h:outputText value="#{registryDetailBean.entity.registryStatus}"/>
-	</p:outputPanel>
+	</h:panelGroup>
 
 	<p:panel>
 		<p:outputPanel style="margin-top: 1em;" rendered="#{registryDetailBean.serviceEntity.serviceProps.containsKey('info_login_host')}">

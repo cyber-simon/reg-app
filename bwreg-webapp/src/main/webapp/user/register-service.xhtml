@@ -24,7 +24,7 @@
 
 	<ui:define name="content">
 	
-	<h:form id="form" class="full fancy form">
+	<h:form id="form" class="full">
 		<h2><h:outputText value="#{messages.register}: #{registerServiceBean.service.name}"/></h2>
 
 		<p:panel rendered="#{registerServiceBean.userList.size() gt 1}">
@@ -86,8 +86,10 @@
 					</ui:repeat>
 				</div>
 				
-				<p:commandButton id="save" action="#{registerServiceBean.registerUser}" value="#{messages.register}"
-					update="messageBox" disabled="#{! registerServiceBean.accessAllowed}"  />
+				<div class="form">
+					<p:commandButton id="save" action="#{registerServiceBean.registerUser}" value="#{messages.register}"
+						update="messageBox" disabled="#{! registerServiceBean.accessAllowed}"  />
+				</div>
 			</p:panel>
 
 			<p:blockUI block="blockPanel" trigger="save">  
