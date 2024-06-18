@@ -24,6 +24,7 @@ import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.ServiceSamlSpEntity;
 import edu.kit.scc.webreg.entity.UserProvisionerEntity;
+import edu.kit.scc.webreg.entity.oauth.OAuthRpConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
@@ -200,7 +201,8 @@ public class DiscoveryLoginBean implements Serializable {
 				}
 			}
 
-			Integer largeLimit = Integer.parseInt(appConfig.getConfigValueOrDefault("discovery_large_list_threshold", "100"));
+			Integer largeLimit = Integer
+					.parseInt(appConfig.getConfigValueOrDefault("discovery_large_list_threshold", "100"));
 			if (getAllList().size() > largeLimit)
 				largeList = true;
 
@@ -274,6 +276,21 @@ public class DiscoveryLoginBean implements Serializable {
 
 			try {
 				externalContext.redirect("/rpoidc/login");
+			} catch (IOException e) {
+				messageGenerator.addErrorMessage("Ein Fehler ist aufgetreten", e.toString());
+			}
+		} else if (userProvisioner instanceof OAuthRpConfigurationEntity) {
+			OAuthRpConfigurationEntity rp = (OAuthRpConfigurationEntity) userProvisioner;
+			sessionManager.setOauthRelyingPartyId(rp.getId());
+
+			if (storeIdpSelection != null && storeIdpSelection) {
+				cookieHelper.setCookie("preselect_idp", rp.getId().toString(), 356 * 24 * 3600);
+			} else {
+				cookieHelper.setCookie("preselect_idp", "", 0);
+			}
+
+			try {
+				externalContext.redirect("/rpoauth/login");
 			} catch (IOException e) {
 				messageGenerator.addErrorMessage("Ein Fehler ist aufgetreten", e.toString());
 			}

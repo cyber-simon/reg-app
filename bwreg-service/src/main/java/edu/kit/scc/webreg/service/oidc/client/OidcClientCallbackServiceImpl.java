@@ -9,13 +9,6 @@ import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Date;
 
-import jakarta.ejb.Stateless;
-import jakarta.ejb.TransactionManagement;
-import jakarta.ejb.TransactionManagementType;
-import jakarta.inject.Inject;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
@@ -65,6 +58,12 @@ import edu.kit.scc.webreg.entity.oidc.OidcUserEntity_;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.saml.exc.OidcAuthenticationException;
 import edu.kit.scc.webreg.session.SessionManager;
+import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionManagement;
+import jakarta.ejb.TransactionManagementType;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)
@@ -149,15 +148,18 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 
 			ClientID clientID = new ClientID(rpConfig.getClientId());
 			Secret clientSecret = new Secret(rpConfig.getSecret());
-			ClientAuthentication clientAuth = new ClientSecretBasic(clientID, clientSecret);
+
+			TokenResponse tokenResponse;
+			HTTPRequest httpRequest;
 
 			// Make the token request
+			ClientAuthentication clientAuth = new ClientSecretBasic(clientID, clientSecret);
 			TokenRequest tokenRequest = new TokenRequest(opMetadataBean.getTokenEndpointURI(rpConfig), clientAuth,
 					codeGrant);
-			HTTPRequest httpRequest = tokenRequest.toHTTPRequest();
+			httpRequest = tokenRequest.toHTTPRequest();
 			httpRequest.setConnectTimeout(connectTimeout);
 			httpRequest.setReadTimeout(readTimeout);
-			TokenResponse tokenResponse = OIDCTokenResponseParser.parse(httpRequest.send());
+			tokenResponse = OIDCTokenResponseParser.parse(httpRequest.send());
 
 			if (!tokenResponse.indicatesSuccess()) {
 				throw new OidcAuthenticationException("got token error response: "
@@ -282,7 +284,8 @@ public class OidcClientCallbackServiceImpl implements OidcClientCallbackService 
 
 		} catch (IOException | ParseException | URISyntaxException e) {
 			logger.warn("Oidc callback failed: {}", e.getMessage());
-			throw new OidcAuthenticationException(e);
+			return;
+			// throw new OidcAuthenticationException(e);
 		}
 	}
 

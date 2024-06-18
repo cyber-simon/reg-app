@@ -15,10 +15,12 @@ import org.slf4j.Logger;
 import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
 import edu.kit.scc.webreg.dao.StatisticsDao;
 import edu.kit.scc.webreg.dao.identity.UserProvisionerDao;
+import edu.kit.scc.webreg.dao.jpa.oauth.OAuthRpConfigurationDao;
 import edu.kit.scc.webreg.dao.oidc.OidcRpConfigurationDao;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlMetadataEntityStatus;
 import edu.kit.scc.webreg.entity.UserProvisionerEntity;
+import edu.kit.scc.webreg.entity.oauth.OAuthRpConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.ConcurrencyManagement;
@@ -45,6 +47,9 @@ public class DiscoveryCacheSingleton implements Serializable {
 
 	@Inject
 	private OidcRpConfigurationDao oidcRpDao;
+
+	@Inject
+	private OAuthRpConfigurationDao oauthRpDao;
 
 	@Inject
 	private StatisticsDao statisticsDao;
@@ -115,6 +120,21 @@ public class DiscoveryCacheSingleton implements Serializable {
 
 			if (userProvisioner instanceof OidcRpConfigurationEntity) {
 				OidcRpConfigurationEntity specific = oidcRpDao.fetch(userProvisioner.getId());
+				entry.setName(specific.getName());
+				entry.setEntityId(specific.getName());
+				entry.setDisplayName(specific.getDisplayName());
+				entry.setOrgName(specific.getOrgName());
+				if (specific.getIcon() != null)
+					entry.setIconId(specific.getIcon().getId());
+				if (specific.getIconLarge() != null)
+					entry.setIconLargeId(specific.getIconLarge().getId());
+				if (specific.getGenericStore().containsKey("show_extra")
+						&& specific.getGenericStore().get("show_extra").equalsIgnoreCase("true"))
+					tempExtraSet.add(entry);
+				tempAllSet.add(entry);
+				idMap.put(entry.getId(), entry);
+			} else if (userProvisioner instanceof OAuthRpConfigurationEntity) {
+				OAuthRpConfigurationEntity specific = oauthRpDao.fetch(userProvisioner.getId());
 				entry.setName(specific.getName());
 				entry.setEntityId(specific.getName());
 				entry.setDisplayName(specific.getDisplayName());

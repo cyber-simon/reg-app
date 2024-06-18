@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="jakarta.faces.core"
+	xmlns:h="jakarta.faces.html"
+	xmlns:ui="jakarta.faces.facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:event type="jakarta.faces.event.PreRenderViewEvent"
+            listener="#{registerOAuthUserBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+
+	<h:form id="form" prependId="false" styleClass="form full fancy">
+
+		<h:panelGroup rendered="#{empty registerOAuthUserBean.identity}">
+			<h3>#{messages.welcome_head}</h3>
+			<div><h:outputText value="#{messages.welcome_register}" escape="false"/></div>
+		</h:panelGroup>
+		
+		<p:messages id="messageBox" showDetail="true" />
+
+		<h:panelGroup rendered="#{not empty registerOAuthUserBean.identity}">
+			<h3>#{messages['register.link_identity_head']}</h3>
+			<div><h:outputText value="#{messages['register.link_identity']}" /></div>
+			<p:dataList var="user" value="#{registerOAuthUserBean.userList}" type="unordered">
+				<p:outputPanel rendered="#{user.class.simpleName eq 'SamlUserEntity'}">
+	   	        	<h:outputText value="#{user.idp.displayName}" />
+				</p:outputPanel>
+				<p:outputPanel rendered="#{user.class.simpleName eq 'OidcUserEntity'}">
+	   	        	<h:outputText value="#{user.issuer.displayName}" />
+				</p:outputPanel>
+				<p:outputPanel style="margin-left: 1em;">
+					<div><h:outputText value="#{user.givenName}, #{user.surName}" /></div>
+					<div><h:outputText value="#{user.email}" /></div>
+				</p:outputPanel>
+			</p:dataList>
+
+			<div style="margin-top: 1em;"><h:outputText value="#{messages['register.link_identity2']}" /></div>
+			
+		</h:panelGroup>
+		
+		<h:panelGroup rendered="#{registerOAuthUserBean.eppnError}">
+			<h3 style="margin-top: 0.4em;">#{messages.eppn_blocked}</h3>
+			<h:outputText value="#{messages.eppn_blocked_detail}" escape="false"/>
+			<br/><br/>
+			<p:dataList var="user" value="#{registerOAuthUserBean.oldUserList}">
+				<h:panelGroup rendered="#{user.class.simpleName eq 'SamlUserEntity'}">
+					<h:outputText value="#{user.idp.displayName}" />: 
+					<h:outputText value="#{user.persistentId}" rendered="#{user.persistentId != null}"/>
+					<h:outputText value="#{user.subjectId}" rendered="#{user.subjectId != null}"/>
+					-- <h:outputText value="#{user.eppn}" />
+				</h:panelGroup>
+				<h:panelGroup rendered="#{user.class.simpleName eq 'OidcUserEntity'}">
+					<h:outputText value="#{user.issuer.displayName}" />: <h:outputText value="#{user.subjectId}" /> -- <h:outputText value="#{user.eppn}" />
+				</h:panelGroup>
+			</p:dataList>
+			<br/><br/>
+			<h:outputText value="#{messages.eppn_blocked_detail_2}" escape="false"/>
+			<br/><br/>
+			<p:selectBooleanCheckbox id="eppn_override_checkbox" value="#{registerOAuthUserBean.eppnOverride}"
+					itemLabel="#{messages.eppn_blocked_override}" immediate="true">
+				<p:ajax update="save" />
+			</p:selectBooleanCheckbox>
+		</h:panelGroup>
+		
+		<h3 style="margin-top: 0.4em;"><h:outputText value="#{messages.my_data}:"/></h3>
+
+		<p:panel id="blockPanel">
+			<p:dataTable var="key" value="#{registerOAuthUserBean.printableAttributesList}">
+				<p:column headerText="#{messages.name}">
+					#{resourceBundleHelper.resolveMessage(key)}
+				</p:column>
+				<p:column headerText="#{messages.value}">
+					#{registerOAuthUserBean.printableAttributesMap[key]}
+				</p:column>
+			</p:dataTable>
+
+			<p:dataList var="key" value="#{registerOAuthUserBean.unprintableAttributesMap.keySet().toArray()}"
+				rendered="#{not registerOAuthUserBean.unprintableAttributesMap.isEmpty()}">
+				#{key}: #{registerOAuthUserBean.unprintableAttributesMap[key]}
+			</p:dataList>
+
+			<p:commandButton id="save" action="#{registerOAuthUserBean.save}" value="#{messages.confirm}" 
+				disabled="#{registerOAuthUserBean.errorState or (registerOAuthUserBean.eppnError and (! registerOAuthUserBean.eppnOverride))}"/>
+		</p:panel>
+		<p:blockUI block="blockPanel" trigger="save">  
+     		<p:graphicImage value="#{resource['/img/ajax-loader.gif']}" alt="#{messages.loading}" />  
+		</p:blockUI>
+	</h:form>
+	
+	</ui:define>
+</ui:composition>
+</f:view>
+</body>
+</html>
