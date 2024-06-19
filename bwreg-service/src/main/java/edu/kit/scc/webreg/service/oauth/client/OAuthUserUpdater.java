@@ -47,7 +47,7 @@ import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.hook.HookManager;
 import edu.kit.scc.webreg.hook.UserServiceHook;
 import edu.kit.scc.webreg.service.ServiceService;
-import edu.kit.scc.webreg.service.attribute.IncomingOidcAttributesHandler;
+import edu.kit.scc.webreg.service.attribute.IncomingOAuthAttributesHandler;
 import edu.kit.scc.webreg.service.identity.IdentityUpdater;
 import edu.kit.scc.webreg.service.impl.AbstractUserUpdater;
 import edu.kit.scc.webreg.service.impl.AttributeMapHelper;
@@ -110,7 +110,7 @@ public class OAuthUserUpdater extends AbstractUserUpdater<OAuthUserEntity> {
 	private IdentityUpdater identityUpdater;
 
 	@Inject
-	private IncomingOidcAttributesHandler incomingAttributeHandler;
+	private IncomingOAuthAttributesHandler incomingAttributeHandler;
 	
 	public OAuthUserEntity updateUserFromOP(OAuthUserEntity user, String executor, StringBuffer debugLog)
 			throws UserUpdateException {

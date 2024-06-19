@@ -121,7 +121,8 @@ public class OAuthUserCreateService {
     	entity.setAttributeStore(new HashMap<String, String>());
     	entity.setGenericStore(new HashMap<String, String>());
     	entity.setLocale(locale);
-
+    	entity.setName(userMap.get("name").toString());
+    	
 //		entity.setEmail(userInfo.getEmailAddress());
 //		entity.setGivenName(userInfo.getGivenName());
 //		entity.setSurName(userInfo.getFamilyName());

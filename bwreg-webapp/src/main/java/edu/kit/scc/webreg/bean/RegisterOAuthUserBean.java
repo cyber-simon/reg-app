@@ -124,14 +124,14 @@ public class RegisterOAuthUserBean implements Serializable {
 			printableAttributesMap.put("subject_id", entity.getOauthId());
 			printableAttributesList.add("issuer");
 			printableAttributesMap.put("issuer", rpConfig.getServiceUrl());
+			printableAttributesList.add("name");
+			printableAttributesMap.put("name", entity.getName());
 
 			@SuppressWarnings("unchecked")
 			HashMap<String, Object> userMap = (HashMap<String, Object>) sessionManager.getAttributeMap().get("user").get(0);
 			for (Entry<String, Object> entry : userMap.entrySet()) {
 				if (entry.getValue() != null)
 					unprintableAttributesMap.put(entry.getKey(), entry.getValue().toString());
-				else
-					unprintableAttributesMap.put(entry.getKey(), "not set");
 			}
     	}
 	}

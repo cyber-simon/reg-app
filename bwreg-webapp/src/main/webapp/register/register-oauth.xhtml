@@ -21,7 +21,7 @@
 
 	<ui:define name="content">
 
-	<h:form id="form" prependId="false" styleClass="form full fancy">
+	<h:form id="form" prependId="false" styleClass="full">
 
 		<h:panelGroup rendered="#{empty registerOAuthUserBean.identity}">
 			<h3>#{messages.welcome_head}</h3>
@@ -91,8 +91,10 @@
 				#{key}: #{registerOAuthUserBean.unprintableAttributesMap[key]}
 			</p:dataList>
 
-			<p:commandButton id="save" action="#{registerOAuthUserBean.save}" value="#{messages.confirm}" 
-				disabled="#{registerOAuthUserBean.errorState or (registerOAuthUserBean.eppnError and (! registerOAuthUserBean.eppnOverride))}"/>
+			<div class="form">
+				<p:commandButton id="save" action="#{registerOAuthUserBean.save}" value="#{messages.confirm}" 
+					disabled="#{registerOAuthUserBean.errorState or (registerOAuthUserBean.eppnError and (! registerOAuthUserBean.eppnOverride))}"/>
+			</div>
 		</p:panel>
 		<p:blockUI block="blockPanel" trigger="save">  
      		<p:graphicImage value="#{resource['/img/ajax-loader.gif']}" alt="#{messages.loading}" />  
