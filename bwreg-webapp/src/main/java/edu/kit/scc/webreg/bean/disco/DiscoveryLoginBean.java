@@ -36,6 +36,7 @@ import edu.kit.scc.webreg.service.SamlSpMetadataService;
 import edu.kit.scc.webreg.service.disco.DiscoveryCacheService;
 import edu.kit.scc.webreg.service.disco.UserProvisionerCachedEntry;
 import edu.kit.scc.webreg.service.identity.UserProvisionerService;
+import edu.kit.scc.webreg.service.oauth.OAuthRpConfigurationService;
 import edu.kit.scc.webreg.service.oidc.OidcClientConfigurationService;
 import edu.kit.scc.webreg.service.oidc.OidcOpConfigurationService;
 import edu.kit.scc.webreg.service.oidc.OidcRpConfigurationService;
@@ -65,6 +66,9 @@ public class DiscoveryLoginBean implements Serializable {
 
 	@Inject
 	private OidcRpConfigurationService oidcRpService;
+
+	@Inject
+	private OAuthRpConfigurationService oauthRpService;
 
 	@Inject
 	private SessionManager sessionManager;
@@ -166,6 +170,12 @@ public class DiscoveryLoginBean implements Serializable {
 					if (op != null) {
 						selected = discoveryCache.getEntry(op.getId());
 						storeIdpSelection = true;
+					} else {
+						OAuthRpConfigurationEntity oauthOp = oauthRpService.fetch(idpId);
+						if (oauthOp != null) {
+							selected = discoveryCache.getEntry(oauthOp.getId());
+							storeIdpSelection = true;
+						}
 					}
 				}
 			}

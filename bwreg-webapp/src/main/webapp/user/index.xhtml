@@ -56,8 +56,11 @@
 				<div>#{messages.data_from}: <b>#{userPropertiesBean.user.idp.orgName}</b></div>
 				<br/>
 				<p:panelGrid columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
-					<h:outputLabel value="#{messages.name}" for="@next" /> 
-					<h:outputText value="#{userPropertiesBean.user.surName}, #{userPropertiesBean.user.givenName}"/>
+					<h:outputLabel value="#{messages.name}" for="@next" />
+					<h:panelGroup>
+						<h:outputText value="#{userPropertiesBean.user.name}" rendered="#{userPropertiesBean.user.name != null}"/>
+						<h:outputText value="#{userPropertiesBean.user.surName}, #{userPropertiesBean.user.givenName}" rendered="#{userPropertiesBean.user.name == null}"/>
+					</h:panelGroup> 
 
 					<h:outputLabel value="#{messages.email_address}" for="@next" /> 
 					<h:outputText value="#{userPropertiesBean.user.email}"/>
@@ -91,7 +94,10 @@
 				<br/>
 				<p:panelGrid columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 					<h:outputLabel value="#{messages.name}" for="@next" /> 
-					<h:outputText value="#{userPropertiesBean.user.surName}, #{userPropertiesBean.user.givenName}"/>
+					<h:panelGroup>
+						<h:outputText value="#{userPropertiesBean.user.name}" rendered="#{userPropertiesBean.user.name != null}"/>
+						<h:outputText value="#{userPropertiesBean.user.surName}, #{userPropertiesBean.user.givenName}" rendered="#{userPropertiesBean.user.name == null}"/>
+					</h:panelGroup> 
 
 					<h:outputLabel value="#{messages.email_address}" for="@next" /> 
 					<h:outputText value="#{userPropertiesBean.user.email}"/>
@@ -110,6 +116,43 @@
 
 					<h:outputLabel value="#{messages.oidc_op}" for="@next" /> 
 					<h:outputText value="#{userPropertiesBean.user.issuer.displayName}"/>
+				</p:panelGrid>
+				<p:outputPanel style="margin-top: 1em;" rendered="#{not sessionManager.loggedInUserList.contains(userPropertiesBean.user.id)}">
+					<h:outputText value="#{messages['my_data.unlink_and_delete_account']}: " />
+					<h:link outcome="/user/unlink-and-delete-account.xhtml" value="#{messages['my_data.unlink_and_delete_account_link']}" styleClass="link">
+      					<f:param name="id" value="#{userPropertiesBean.user.id}"/>
+					</h:link>
+				</p:outputPanel>
+			</p:tab>
+
+			<p:tab id="tab1_2" title="#{messages.my_data}" rendered="#{userPropertiesBean.user.class.simpleName eq 'OAuthUserEntity'}">
+				<div>#{messages.my_data_explanation}</div>
+				<div>#{messages.data_from}: <b>#{userPropertiesBean.user.oauthIssuer.displayName}</b></div>
+				<br/>
+				<p:panelGrid columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
+					<h:outputLabel value="#{messages.name}" for="@next" /> 
+					<h:panelGroup>
+						<h:outputText value="#{userPropertiesBean.user.name}" rendered="#{userPropertiesBean.user.name != null}"/>
+						<h:outputText value="#{userPropertiesBean.user.surName}, #{userPropertiesBean.user.givenName}" rendered="#{userPropertiesBean.user.name == null}"/>
+					</h:panelGroup> 
+
+					<h:outputLabel value="#{messages.email_address}" for="@next" /> 
+					<h:outputText value="#{userPropertiesBean.user.email}"/>
+
+					<h:outputLabel value="#{messages.eppn}" for="@next" /> 
+					<h:outputText value="#{userPropertiesBean.user.eppn}"/>
+
+					<h:outputLabel value="#{messages.subject_id}" for="@next" /> 
+					<h:outputText value="#{userPropertiesBean.user.oauthId}"/>
+
+					<h:outputLabel value="#{messages.uid_number}" for="@next" /> 
+					<h:outputText value="#{userPropertiesBean.user.uidNumber}"/>
+
+					<h:outputLabel value="#{messages.primary_group}" for="@next" /> 
+					<h:outputText value="#{userPropertiesBean.user.primaryGroup.name} (#{userPropertiesBean.user.primaryGroup.gidNumber})"/>
+
+					<h:outputLabel value="#{messages.oidc_op}" for="@next" /> 
+					<h:outputText value="#{userPropertiesBean.user.oauthIssuer.displayName}"/>
 				</p:panelGrid>
 				<p:outputPanel style="margin-top: 1em;" rendered="#{not sessionManager.loggedInUserList.contains(userPropertiesBean.user.id)}">
 					<h:outputText value="#{messages['my_data.unlink_and_delete_account']}: " />
@@ -139,6 +182,25 @@
 			</p:tab>
 
 			<p:tab id="tab2_1" title="#{messages.oidc}" rendered="#{userPropertiesBean.user.class.simpleName eq 'OidcUserEntity'}">
+				<div class="panel">#{messages.my_data_from_oidc} #{of:formatDate(userPropertiesBean.user.lastUpdate, 'dd.MM.yyyy HH:mm')}</div>
+				<p:dataTable style="min-width: 500px;" 
+						value="#{userPropertiesBean.user.attributeStore.keySet().toArray()}" var="key">
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.name}" />
+						</f:facet>
+						<h:outputText value="#{key}" style="font-size: 80%;" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages.value}" />
+						</f:facet>
+						<h:outputText value="#{userPropertiesBean.user.attributeStore.get(key)}" />
+					</p:column>						
+				</p:dataTable>
+			</p:tab>
+
+			<p:tab id="tab2_2" title="#{messages.oauth}" rendered="#{userPropertiesBean.user.class.simpleName eq 'OAuthUserEntity'}">
 				<div class="panel">#{messages.my_data_from_oidc} #{of:formatDate(userPropertiesBean.user.lastUpdate, 'dd.MM.yyyy HH:mm')}</div>
 				<p:dataTable style="min-width: 500px;" 
 						value="#{userPropertiesBean.user.attributeStore.keySet().toArray()}" var="key">

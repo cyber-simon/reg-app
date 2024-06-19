@@ -353,6 +353,11 @@ public class OAuthUserUpdater extends AbstractUserUpdater<OAuthUserEntity> {
 			else
 				changed |= compareAndChangeProperty(user, "email", null, auditor);
 
+			if (userMap.get("name") != null && (userMap.get("name") instanceof String))
+				changed |= compareAndChangeProperty(user, "name", (String) userMap.get("name"), auditor);
+			else
+				changed |= compareAndChangeProperty(user, "name", null, auditor);
+
 			if ((!withoutUidNumber) && (user.getUidNumber() == null)) {
 				user.setUidNumber(serialDao.nextUidNumber().intValue());
 				logger.info("Setting UID Number {} for user {}", user.getUidNumber(), user.getEppn());
