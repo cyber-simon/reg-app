@@ -32,6 +32,7 @@ import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserEntity_;
 import edu.kit.scc.webreg.entity.UserProvisionerEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+import edu.kit.scc.webreg.entity.oauth.OAuthRpConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.service.SamlSpConfigurationService;
@@ -141,6 +142,14 @@ public class ConnectAccountBean implements Serializable {
 			sessionManager.setOidcRelyingPartyId(rp.getId());
 			try {
 				externalContext.redirect("/rpoidc/login");
+			} catch (IOException e) {
+				messageGenerator.addErrorMessage("Ein Fehler ist aufgetreten", e.toString());
+			}
+		} else if (userProvisioner instanceof OAuthRpConfigurationEntity) {
+			OAuthRpConfigurationEntity rp = (OAuthRpConfigurationEntity) userProvisioner;
+			sessionManager.setOauthRelyingPartyId(rp.getId());
+			try {
+				externalContext.redirect("/rpoauth/login");
 			} catch (IOException e) {
 				messageGenerator.addErrorMessage("Ein Fehler ist aufgetreten", e.toString());
 			}

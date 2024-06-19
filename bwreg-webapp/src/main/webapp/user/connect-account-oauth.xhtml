@@ -16,7 +16,7 @@
 <f:view>
 <f:metadata>
 	<f:event type="jakarta.faces.event.PreRenderViewEvent"
-           listener="#{connectAccountSamlBean.preRenderView}" />
+           listener="#{connectAccountOAuthBean.preRenderView}" />
 </f:metadata>
 
 <ui:composition template="/template/default.xhtml">
@@ -35,7 +35,7 @@
 
 		<div class="text">
 			<ul>
-				<ui:repeat var="user" value="#{connectAccountSamlBean.userList}">
+				<ui:repeat var="user" value="#{connectAccountOAuthBean.userList}">
 					<li>
 						<h:panelGroup rendered="#{user.class.simpleName eq 'SamlUserEntity'}">
 			   	        	<h:outputText value="#{user.idp.displayName}" />
@@ -53,27 +53,27 @@
 				</ui:repeat>
 			</ul>
 		</div>
-		
+			
 		<div>
 			<h:outputText value="#{messages['connect_account.intro3']}" escape="false"/>
 		</div>
 
-		<p:dataTable var="key" value="#{connectAccountSamlBean.printableAttributesList}">
+		<p:dataTable var="key" value="#{connectAccountOAuthBean.printableAttributesList}">
 			<p:column headerText="#{messages.name}">
 				#{resourceBundleHelper.resolveMessage(key)}
 			</p:column>
 			<p:column headerText="#{messages.value}">
-				#{connectAccountSamlBean.printableAttributesMap[key]}
+				#{connectAccountOAuthBean.printableAttributesMap[key]}
 			</p:column>
 		</p:dataTable>
 
-		<p:dataList var="key" value="#{connectAccountSamlBean.unprintableAttributesMap.keySet().toArray()}">
-			#{key}: #{connectAccountSamlBean.unprintableAttributesMap[key]}
+		<p:dataList var="key" value="#{connectAccountOAuthBean.unprintableAttributesMap.keySet().toArray()}">
+			#{key}: #{connectAccountOAuthBean.unprintableAttributesMap[key]}
 		</p:dataList>
 
 		<div class="form">
-			<p:commandButton id="save" action="#{connectAccountSamlBean.save}" value="#{messages['connect_account.commit']}" ajax="false" 
-				disabled="#{connectAccountSamlBean.errorState}" update=":form"/>
+			<p:commandButton id="save" action="#{connectAccountOAuthBean.save}" value="#{messages['connect_account.commit']}" ajax="false" 
+				disabled="#{connectAccountOAuthBean.errorState}" update=":form"/>
 		</div>
 	</h:form>
 	</ui:define>

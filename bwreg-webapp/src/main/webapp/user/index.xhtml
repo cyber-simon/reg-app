@@ -44,6 +44,13 @@
 	    	        	<h:outputText value="#{u.issuer.displayName}" />
     	        		<h:outputText value=" (#{messages.currently_logged_id})"  rendered="#{sessionManager.loggedInUserList.contains(u.id)}"/>
     	        	</p:outputPanel>
+    	        	<p:outputPanel rendered="#{u.class.simpleName eq 'OAuthUserEntity'}">
+    	        		<h:outputText value="#{u.eppn} - " rendered="#{u.eppn != null}"/>
+	    	        	<h:outputText value="#{u.email} - " rendered="#{u.eppn == null and u.email != null}"/>
+	    	        	<h:outputText value="#{u.oauthId} - " rendered="#{u.eppn == null and u.email == null}"/>
+	    	        	<h:outputText value="#{u.oauthIssuer.displayName}" />
+    	        		<h:outputText value=" (#{messages.currently_logged_id})"  rendered="#{sessionManager.loggedInUserList.contains(u.id)}"/>
+    	        	</p:outputPanel>
     	        </p:column>
 	           	<f:ajax render=":form:tabVw" execute="@this" />
 	        </p:selectOneListbox>

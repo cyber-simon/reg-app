@@ -154,10 +154,10 @@ public class OAuthClientCallbackServiceImpl implements OAuthClientCallbackServic
 
 				// Store OIDC Data temporarily in Session
 				logger.debug("Storing relevant Oidc data in session");
-				session.setSubjectId(userId);
+				session.setOauthId(userId);
 				session.setAttributeMap(attributeMap);
 
-				httpServletResponse.sendRedirect("/user/connect-account-oidc.xhtml");
+				httpServletResponse.sendRedirect("/user/connect-account-oauth.xhtml");
 				return;
 			}
 		}
