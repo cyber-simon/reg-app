@@ -41,6 +41,13 @@ public class IdentityEntity extends AbstractBaseEntity {
 	@OneToMany(targetEntity=IdentityUserPreferenceEntity.class, mappedBy = "identity")
 	private Set<IdentityUserPreferenceEntity> userPrefs;
 
+	@OneToMany(targetEntity=IdentityEmailAddressEntity.class, mappedBy = "identity")
+	private Set<IdentityEmailAddressEntity> emailAddresses;
+
+	@ManyToOne(targetEntity = IdentityEmailAddressEntity.class)
+    @JoinColumn(name = "email_address_id", nullable = true)
+	private IdentityEmailAddressEntity primaryEmail;
+
 	@ManyToOne(targetEntity = UserEntity.class)
     @JoinColumn(name = "pref_user_id")
 	private UserEntity prefUser;
@@ -127,5 +134,21 @@ public class IdentityEntity extends AbstractBaseEntity {
 
 	public void setRegistrationLock(Date registrationLock) {
 		this.registrationLock = registrationLock;
+	}
+
+	public Set<IdentityEmailAddressEntity> getEmailAddresses() {
+		return emailAddresses;
+	}
+
+	public void setEmailAddresses(Set<IdentityEmailAddressEntity> emailAddresses) {
+		this.emailAddresses = emailAddresses;
+	}
+
+	public IdentityEmailAddressEntity getPrimaryEmail() {
+		return primaryEmail;
+	}
+
+	public void setPrimaryEmail(IdentityEmailAddressEntity primaryEmail) {
+		this.primaryEmail = primaryEmail;
 	}
 }
