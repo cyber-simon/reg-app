@@ -14,10 +14,11 @@
 <body>
 
 <f:view>
-<f:metadata>
-	<f:event type="jakarta.faces.event.PreRenderViewEvent"
-           listener="#{emailAddressesBean.preRenderView}" />
-</f:metadata>
+	<f:metadata>
+		<f:viewParam name="t" value="#{emailAddressesBean.token}"/>
+		<f:event type="jakarta.faces.event.PreRenderViewEvent"
+	           listener="#{emailAddressesBean.preRenderView}" />
+	</f:metadata>
 
 <ui:composition template="/template/default.xhtml">
 	<ui:param name="title" value="#{messages.title}"/>
@@ -29,25 +30,70 @@
 
 		<div><p:messages showDetail="true" /></div>
 
+		<div class="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
+			<p:selectOneListbox id="userSelect" var="e" value="#{emailAddressesBean.chosenPrimary}" converter="#{identityEmailAddressConverter}" 
+					style="font-size: 1em;">
+				<f:selectItems value="#{emailAddressesBean.primaryEmailList}" var="email" itemLabel="#{email.emailAddress}" itemValue="#{email}" />
+				<p:column>
+				<h:outputText value="#{e.emailAddress}" />
+				</p:column>
+			</p:selectOneListbox>
+			<div class="form">
+				<p:commandButton action="#{emailAddressesBean.setPrimaryEmailAddress()}" value="#{messages['set']}" validateClient="true" ajax="true" update="@all" />
+			</div>
+		</div>
 		<div>
 			<h:outputText value="#{messages['email_addresses.primary_email']}: "/>
-			<h:outputText value="#{emailAddressesBean.identity.primaryEmail}" rendered="#{emailAddressesBean.identity.primaryEmail != null}"/>
+			<h:outputText value="#{emailAddressesBean.identity.primaryEmail.emailAddress}" rendered="#{emailAddressesBean.identity.primaryEmail != null}"/>
 			<h:outputText value="#{messages['email_addresses.no_primary_email_set']}" rendered="#{emailAddressesBean.identity.primaryEmail == null}"/>
 		</div>
-
+		
 		<ui:repeat var="email" value="#{emailAddressesBean.identity.emailAddresses}">
-			<div>
-				<h:outputText value="#{email.emailAddress}" />, 
-				<h:outputText value="#{email.emailStatus}" />, 
-				<h:outputText value="#{email.tokenValidUntil}" />, 
-				<h:outputText value="#{email.verificationSent}" />, 
-				<h:outputText value="#{email.verifiedOn}" />,
-				<h:outputText value="#{email.validUntil}" />, 
-				<p:commandLink action="#{emailAddressesBean.deleteEmailAddress(email)}" value="#{messages['delete']}" update="@all"/>
-			</div>
+			<h:panelGroup layout="block" styleClass="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9" 
+					style="margin: 1em; background-color: #f8f9fa;border: 1px solid #dee2e6;">
+	        	<div>
+	        		<b><h:outputText value="#{email.emailAddress}"/></b>
+				</div>
+				<h:panelGroup rendered="#{email.emailStatus == 'FROM_ATTRIBUTE_UNVERIFIED'}">
+					<h:outputText value="#{messages['email_addresses.from_attribute_source']}"/>
+				</h:panelGroup>
+				<h:panelGroup rendered="#{email.emailStatus == 'FROM_ATTRIBUTE_VERIFIED'}">
+					<h:outputText value="#{messages['email_addresses.from_attribute_source']}"/>
+				</h:panelGroup>
+				<h:panelGroup rendered="#{email.emailStatus == 'UNVERIFIED'}">
+					<div>
+						<h:outputText value="#{messages['email_addresses.unverified']}"/>
+					</div>
+					<div>
+						<h:outputText value="#{messages['email_addresses.token_sent']} "/><h:outputText value="#{of:formatDate(email.verificationSent, 'dd.MM.yyyy HH:mm')}"/>
+					</div>
+					<div>
+						<h:outputText value="#{messages['email_addresses.token_valid_until']}"/> #{of:formatDate(email.tokenValidUntil, 'dd.MM.yyyy HH:mm')} 
+					</div>
+					
+					<div class="form">
+						<p:commandButton action="#{emailAddressesBean.deleteEmailAddress(email)}" value="#{messages['delete']}" ajax="true" update="@all" />
+					</div>
+				</h:panelGroup>
+				<h:panelGroup rendered="#{email.emailStatus == 'VERIFIED'}">
+					<div>
+					<h:outputText value="#{messages['email_addresses.verified']}"/>
+					</div>
+					<div>
+					<h:outputText value="#{messages['email_addresses.verified_on']} "/><h:outputText value="#{of:formatDate(email.verifiedOn, 'dd.MM.yyyy HH:mm')}"/> 
+					</div>
+					<div>
+					<h:outputText value="#{messages['email_addresses.verification_valid_until']} "/> <h:outputText value="#{of:formatDate(email.validUntil, 'dd.MM.yyyy HH:mm')}"/> 
+					</div>
+					
+					<div class="form">
+						<p:commandButton action="#{emailAddressesBean.deleteEmailAddress(email)}" value="#{messages['delete']}" ajax="true" update="@all" />
+					</div>
+				</h:panelGroup>
+			</h:panelGroup>
 		</ui:repeat>
 
-		<div>
+		<div class="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 			<h:outputText value="#{messages['email_addresses.add_email_address']}: "/>
 			<p:inputText type="email" value="#{emailAddressesBean.addEmailAddress}" />
 			<div class="form">
@@ -55,7 +101,7 @@
 			</div>
 		</div>
 	
-		<div>
+		<div class="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 			<h:outputText value="#{messages['email_addresses.verification_token']}: "/>
 			<p:inputText value="#{emailAddressesBean.token}" />
 			<div class="form">

@@ -23,7 +23,7 @@
 	<ui:param name="title" value="#{messages.title}"/>
 
 	<ui:define name="content">
-	<h:form id="form" class="form full fancy">
+	<h:form id="form" class="full">
 
 		<h3>#{messages['ssh_keys.key_list']}</h3>
 
@@ -33,7 +33,7 @@
 				columns="2" layout="grid" style="margin-bottom: 16px;">
 	        <p:panel styleClass="grayback" style="margin-bottom: 0px;">
 	        	<f:facet name="header">
-	        		<i class="fa fa-fw fa-key"></i>
+	        		<i class="pi pi-key"></i>
 	        		<b><h:outputText value="#{key.pubKeyEntity.name}"/></b>
 				</f:facet>
 				
@@ -70,18 +70,19 @@
 	        		
 	        	</h:panelGrid>
 
-				<p:commandButton action="#{userSshKeyManagementBean.deleteKey(key.pubKeyEntity.name)}" value="#{messages.revoke}" 
-					update="@form" immediate="true">
-					<p:confirm header="#{messages.confirm_header}" message="#{messages.ssh_key_confirm}" />
-				</p:commandButton>
-
+				<div class="form">
+					<p:commandButton action="#{userSshKeyManagementBean.deleteKey(key.pubKeyEntity.name)}" value="#{messages.revoke}" 
+						update="@form" immediate="true" style="font-size: 1rem;">
+						<p:confirm header="#{messages.confirm_header}" message="#{messages.ssh_key_confirm}" />
+					</p:commandButton>
+				</div>
 			</p:panel>		
 		</p:dataGrid>
 
-		<p:panel>
-			<p:commandButton id="openAddSshKeyDlg" oncomplete="PF('addSshKeyDlg').show();" value="#{messages.add_ssh_pub_key}"></p:commandButton>
-		</p:panel>
-
+		<div class="form">
+			<p:commandButton id="openAddSshKeyDlg" oncomplete="PF('addSshKeyDlg').show();" value="#{messages.add_ssh_pub_key}" style="font-size: 1rem;"></p:commandButton>
+		</div>
+		
 		<p:dialog header="#{messages.add_ssh_pub_key}" 
 					widgetVar="addSshKeyDlg" id="addSshKeyDlgId" modal="true" closable="true" closeOnEscape="true"
 					showEffect="fade" hideEffect="fade">

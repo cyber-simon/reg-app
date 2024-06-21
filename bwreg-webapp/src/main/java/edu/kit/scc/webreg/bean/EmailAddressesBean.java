@@ -11,7 +11,10 @@
 package edu.kit.scc.webreg.bean;
 
 import java.io.Serializable;
+import java.util.Comparator;
+import java.util.List;
 
+import edu.kit.scc.webreg.entity.identity.EmailAddressStatus;
 import edu.kit.scc.webreg.entity.identity.IdentityEmailAddressEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity_;
@@ -51,8 +54,13 @@ public class EmailAddressesBean implements Serializable {
 	private String addEmailAddress;
 
 	private String token;
-	
+	private List<IdentityEmailAddressEntity> primaryEmailList;
+	private IdentityEmailAddressEntity chosenPrimary;
+
 	public void preRenderView(ComponentSystemEvent ev) {
+		if (getToken() != null) {
+			checkVerification();
+		}
 	}
 
 	public void addEmailAddress() {
@@ -69,17 +77,27 @@ public class EmailAddressesBean implements Serializable {
 		service.deleteEmailAddress(address, "idty-" + session.getIdentityId());
 		identity = null;
 	}
-	
+
+	public void setPrimaryEmailAddress() {
+		service.setPrimaryEmailAddress(getChosenPrimary(), "idty-" + session.getIdentityId());
+		identity = null;
+		chosenPrimary = null;
+		messageGenerator.addResolvedInfoMessage("email_addresses.set_primary_email_success",
+				"email_addresses.set_primary_email_success_detail", true);
+	}
+
 	public void checkVerification() {
 		try {
 			service.checkVerification(getIdentity(), getToken(), "idty-" + session.getIdentityId());
 			token = null;
 			identity = null;
+			messageGenerator.addResolvedInfoMessage("email_addresses.verification_success",
+					"email_addresses.verification_success_detail", true);
 		} catch (VerificationException e) {
 			messageGenerator.addResolvedErrorMessage("email_addresses." + e.getMessage());
 		}
 	}
-	
+
 	public IdentityEntity getIdentity() {
 		if (identity == null) {
 			identity = identityService.findByIdWithAttrs(session.getIdentityId(), IdentityEntity_.emailAddresses);
@@ -101,5 +119,24 @@ public class EmailAddressesBean implements Serializable {
 
 	public void setToken(String token) {
 		this.token = token;
+	}
+
+	public List<IdentityEmailAddressEntity> getPrimaryEmailList() {
+		if (primaryEmailList == null) {
+			primaryEmailList = getIdentity().getEmailAddresses().stream()
+					.filter(e -> !EmailAddressStatus.UNVERIFIED.equals(e.getEmailStatus())).toList();
+		}
+		return primaryEmailList;
+	}
+
+	public IdentityEmailAddressEntity getChosenPrimary() {
+		if (chosenPrimary == null) {
+			chosenPrimary = getIdentity().getPrimaryEmail();
+		}
+		return chosenPrimary;
+	}
+
+	public void setChosenPrimary(IdentityEmailAddressEntity chosenPrimary) {
+		this.chosenPrimary = chosenPrimary;
 	}
 }

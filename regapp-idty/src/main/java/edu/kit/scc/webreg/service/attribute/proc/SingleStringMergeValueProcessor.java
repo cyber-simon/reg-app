@@ -17,8 +17,8 @@ import edu.kit.scc.webreg.entity.attribute.value.ValueEntity;
 
 public class SingleStringMergeValueProcessor extends AbstractListProcessor {
 	
-	private String outputAttribute;
-	private String[] inspectValues;
+	protected String outputAttribute;
+	protected String[] inspectValues;
 	
 	public SingleStringMergeValueProcessor(String outputAttribute, String... inspectValues) {
 		this.outputAttribute = outputAttribute;
