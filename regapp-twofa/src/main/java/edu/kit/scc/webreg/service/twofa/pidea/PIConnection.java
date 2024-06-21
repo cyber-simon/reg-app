@@ -106,7 +106,7 @@ public class PIConnection {
 				throw new TwoFaException("userId missing in config map");
 			
 			if (configMap.containsKey("realm"))
-				nvps.add(new BasicNameValuePair("tokenrealm", configMap.get("realm")));
+				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
 			
 			nvps.add(new BasicNameValuePair("pass", token));
 			
@@ -134,12 +134,12 @@ public class PIConnection {
 			HttpPost httpPost = new HttpPost(configMap.get("url") + "/validate/check");
 			
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
-
 		    nvps.add(new BasicNameValuePair("serial", serial));
 			nvps.add(new BasicNameValuePair("pass", token));
-			
+			if (configMap.containsKey("userId"))
+			    nvps.add(new BasicNameValuePair("user", configMap.get("userId")));
 		    if (configMap.containsKey("realm"))
-				nvps.add(new BasicNameValuePair("tokenrealm", configMap.get("realm")));
+				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
 			
 			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 			
@@ -180,7 +180,7 @@ public class PIConnection {
 				throw new TwoFaException("userId missing in config map");
 
 			if (configMap.containsKey("realm"))
-				nvps.add(new BasicNameValuePair("tokenrealm", configMap.get("realm")));
+				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
 			
 			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 			
@@ -217,7 +217,7 @@ public class PIConnection {
 				throw new TwoFaException("userId missing in config map");
 
 			if (configMap.containsKey("realm"))
-				nvps.add(new BasicNameValuePair("tokenrealm", configMap.get("realm")));
+				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
 			
 			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 			
@@ -253,7 +253,7 @@ public class PIConnection {
 				throw new TwoFaException("userId missing in config map");
 
 			if (configMap.containsKey("realm"))
-				nvps.add(new BasicNameValuePair("tokenrealm", configMap.get("realm")));
+				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
 			
 			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 			
@@ -284,8 +284,10 @@ public class PIConnection {
 			httpPost.addHeader("PI-Authorization", adminSession);
 
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
+			if (configMap.containsKey("userId"))
+			    nvps.add(new BasicNameValuePair("user", configMap.get("userId")));
 			if (configMap.containsKey("realm"))
-				nvps.add(new BasicNameValuePair("tokenrealm", configMap.get("realm")));
+				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
 			nvps.add(new BasicNameValuePair("description", description));
 			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 			
@@ -312,8 +314,6 @@ public class PIConnection {
 			httpPost.addHeader("PI-Authorization", adminSession);
 
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
-			if (configMap.containsKey("realm"))
-				nvps.add(new BasicNameValuePair("tokenrealm", configMap.get("realm")));
 			nvps.add(new BasicNameValuePair("value", value));
 			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 			
@@ -340,8 +340,10 @@ public class PIConnection {
 			httpPost.addHeader("PI-Authorization", adminSession);
 
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
+			if (configMap.containsKey("userId"))
+			    nvps.add(new BasicNameValuePair("user", configMap.get("userId")));
 			if (configMap.containsKey("realm"))
-				nvps.add(new BasicNameValuePair("tokenrealm", configMap.get("realm")));
+				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
 			nvps.add(new BasicNameValuePair("serial", serial));
 			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 			
@@ -368,8 +370,10 @@ public class PIConnection {
 			httpPost.addHeader("PI-Authorization", adminSession);
 
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
+			if (configMap.containsKey("userId"))
+			    nvps.add(new BasicNameValuePair("user", configMap.get("userId")));
 			if (configMap.containsKey("realm"))
-				nvps.add(new BasicNameValuePair("tokenrealm", configMap.get("realm")));
+				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
 			nvps.add(new BasicNameValuePair("serial", serial));
 			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 			
@@ -447,7 +451,7 @@ public class PIConnection {
 				throw new TwoFaException("userId missing in config map");
 
 			if (configMap.containsKey("realm"))
-				nvps.add(new BasicNameValuePair("tokenrealm", configMap.get("realm")));
+				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
 			
 			URI uri = new URIBuilder(httpGet.getURI())
 				      .addParameters(nvps)
