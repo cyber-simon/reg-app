@@ -36,9 +36,33 @@
 		</div>
 
 		<ui:repeat var="email" value="#{emailAddressesBean.identity.emailAddresses}">
-			<div><h:outputText value="#{email.emailAddress}" /></div>
+			<div>
+				<h:outputText value="#{email.emailAddress}" />, 
+				<h:outputText value="#{email.emailStatus}" />, 
+				<h:outputText value="#{email.tokenValidUntil}" />, 
+				<h:outputText value="#{email.verificationSent}" />, 
+				<h:outputText value="#{email.verifiedOn}" />,
+				<h:outputText value="#{email.validUntil}" />, 
+				<p:commandLink action="#{emailAddressesBean.deleteEmailAddress(email)}" value="#{messages['delete']}" update="@all"/>
+			</div>
 		</ui:repeat>
+
+		<div>
+			<h:outputText value="#{messages['email_addresses.add_email_address']}: "/>
+			<p:inputText type="email" value="#{emailAddressesBean.addEmailAddress}" />
+			<div class="form">
+				<p:commandButton action="#{emailAddressesBean.addEmailAddress()}" value="#{messages['add']}" validateClient="true" ajax="true" update="@all" />
+			</div>
+		</div>
 	
+		<div>
+			<h:outputText value="#{messages['email_addresses.verification_token']}: "/>
+			<p:inputText value="#{emailAddressesBean.token}" />
+			<div class="form">
+				<p:commandButton action="#{emailAddressesBean.checkVerification()}" value="#{messages['check']}" ajax="true" update="@all" />
+			</div>
+		</div>
+		
 		<div class="text full" style="margin-top: 0.4em;">
 			<a href="../index.xhtml"><h:outputText value="#{messages.back}"/></a>
 		</div>		

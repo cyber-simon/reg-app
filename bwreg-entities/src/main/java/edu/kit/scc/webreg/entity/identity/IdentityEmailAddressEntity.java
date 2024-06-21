@@ -15,6 +15,8 @@ import java.util.Date;
 import edu.kit.scc.webreg.entity.AbstractBaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -46,6 +48,10 @@ public class IdentityEmailAddressEntity extends AbstractBaseEntity {
 
 	@Column(name = "token_valid_until")
 	protected Date tokenValidUntil;
+
+	@Enumerated(EnumType.STRING)
+    @Column(name = "email_status")
+	protected EmailAddressStatus emailStatus;
 
 	public IdentityEntity getIdentity() {
 		return identity;
@@ -101,6 +107,14 @@ public class IdentityEmailAddressEntity extends AbstractBaseEntity {
 
 	public void setTokenValidUntil(Date tokenValidUntil) {
 		this.tokenValidUntil = tokenValidUntil;
+	}
+
+	public EmailAddressStatus getEmailStatus() {
+		return emailStatus;
+	}
+
+	public void setEmailStatus(EmailAddressStatus emailStatus) {
+		this.emailStatus = emailStatus;
 	}
 
 }

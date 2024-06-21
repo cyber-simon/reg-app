@@ -22,9 +22,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import jakarta.ejb.Stateless;
-import jakarta.inject.Inject;
-
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dao.BaseDao;
@@ -32,7 +29,6 @@ import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.SshPubKeyDao;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.identity.IdentityDao;
-import edu.kit.scc.webreg.dao.ops.RqlExpressions;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity_;
 import edu.kit.scc.webreg.entity.SshPubKeyEntity;
@@ -43,6 +39,8 @@ import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity_;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 
 @Stateless
 public class IdentityServiceImpl extends BaseServiceImpl<IdentityEntity> implements IdentityService {

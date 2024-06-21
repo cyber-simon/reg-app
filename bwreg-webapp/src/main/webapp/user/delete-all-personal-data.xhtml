@@ -30,20 +30,22 @@
 			<div class="text full">	
 				<h:outputText value="#{messages['my_data.delete_all.text']}" escape="false" />
 			</div>
-			<h:panelGroup rendered="#{deleteAllPersonalDataBean.registryList.size() > 0}" 
-						styleClass="text full" >
+			<h:panelGroup rendered="#{deleteAllPersonalDataBean.registryList.size() > 0}"
+						styleClass="text" >
 				
 				<h4 class="text-danger" style="margin-top: 1em;"><h:outputText value="#{messages['my_data.delete_all.registered_services_head']}"/></h4>
 				<br/>
 				<h:outputText value="#{messages['my_data.delete_all.registered_services']}" escape="false" />
 				
-				<ul style="margin-top: 1em;">
-					<ui:repeat var="r" value="#{deleteAllPersonalDataBean.registryList}">
-						<li>
-							<h:outputText value="#{r.service.name}" />
-						</li>				
-					</ui:repeat>
-				</ul>
+				<div class="text" style="margin-top: 1em;">
+					<ul>
+						<ui:repeat var="r" value="#{deleteAllPersonalDataBean.registryList}">
+							<li>
+								<h:outputText value="#{r.service.name}" />
+							</li>				
+						</ui:repeat>
+					</ul>
+				</div>
 			</h:panelGroup>
 		
 			<div class="form" style="margin-top: 1em;">

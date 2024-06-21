@@ -12,8 +12,10 @@ package edu.kit.scc.webreg.bean;
 
 import java.io.Serializable;
 
+import edu.kit.scc.webreg.entity.identity.IdentityEmailAddressEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity_;
+import edu.kit.scc.webreg.exc.VerificationException;
 import edu.kit.scc.webreg.service.identity.IdentityEmailAddressService;
 import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.session.SessionManager;
@@ -23,6 +25,7 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.mail.internet.AddressException;
+import jakarta.validation.constraints.Email;
 
 @Named
 @ViewScoped
@@ -44,8 +47,11 @@ public class EmailAddressesBean implements Serializable {
 
 	private IdentityEntity identity;
 
+	@Email
 	private String addEmailAddress;
 
+	private String token;
+	
 	public void preRenderView(ComponentSystemEvent ev) {
 	}
 
@@ -59,6 +65,21 @@ public class EmailAddressesBean implements Serializable {
 		}
 	}
 
+	public void deleteEmailAddress(IdentityEmailAddressEntity address) {
+		service.deleteEmailAddress(address, "idty-" + session.getIdentityId());
+		identity = null;
+	}
+	
+	public void checkVerification() {
+		try {
+			service.checkVerification(getIdentity(), getToken(), "idty-" + session.getIdentityId());
+			token = null;
+			identity = null;
+		} catch (VerificationException e) {
+			messageGenerator.addResolvedErrorMessage("email_addresses." + e.getMessage());
+		}
+	}
+	
 	public IdentityEntity getIdentity() {
 		if (identity == null) {
 			identity = identityService.findByIdWithAttrs(session.getIdentityId(), IdentityEntity_.emailAddresses);
@@ -72,5 +93,13 @@ public class EmailAddressesBean implements Serializable {
 
 	public void setAddEmailAddress(String addEmailAddress) {
 		this.addEmailAddress = addEmailAddress;
+	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
 	}
 }

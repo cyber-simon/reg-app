@@ -13,22 +13,23 @@ import edu.kit.scc.regapp.mail.api.TemplateMailService;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.BaseDao;
 import edu.kit.scc.webreg.dao.identity.IdentityEmailAddressDao;
+import edu.kit.scc.webreg.dao.ops.RqlExpressions;
 import edu.kit.scc.webreg.entity.EventType;
+import edu.kit.scc.webreg.entity.identity.EmailAddressStatus;
 import edu.kit.scc.webreg.entity.identity.IdentityEmailAddressEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEmailAddressEntity_;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.IdentityEmailAddressEvent;
 import edu.kit.scc.webreg.event.exc.EventSubmitException;
+import edu.kit.scc.webreg.exc.VerificationException;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
 import jakarta.ejb.Stateless;
-import jakarta.ejb.TransactionManagement;
-import jakarta.ejb.TransactionManagementType;
 import jakarta.inject.Inject;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
 
 @Stateless
-@TransactionManagement(TransactionManagementType.BEAN)
 public class IdentityEmailAddressService extends BaseServiceImpl<IdentityEmailAddressEntity> implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -48,7 +49,8 @@ public class IdentityEmailAddressService extends BaseServiceImpl<IdentityEmailAd
 	@Inject
 	private EventSubmitter eventSubmitter;
 
-	public IdentityEmailAddressEntity addEmailAddress(IdentityEntity identity, String emailAddress, String executor) throws AddressException {
+	public IdentityEmailAddressEntity addEmailAddress(IdentityEntity identity, String emailAddress, String executor)
+			throws AddressException {
 		InternetAddress email = new InternetAddress(emailAddress, true);
 
 		IdentityEmailAddressEntity entity = dao.createNew();
@@ -56,6 +58,7 @@ public class IdentityEmailAddressService extends BaseServiceImpl<IdentityEmailAd
 		entity.setEmailAddress(email.getAddress());
 		entity.setVerificationToken(generateToken());
 		entity.setTokenValidUntil(generateTokenValidity());
+		entity.setEmailStatus(EmailAddressStatus.UNVERIFIED);
 		entity = dao.persist(entity);
 
 		sendVerificationEmail(entity);
@@ -86,23 +89,43 @@ public class IdentityEmailAddressService extends BaseServiceImpl<IdentityEmailAd
 		}
 	}
 
-	public boolean checkVerification(IdentityEmailAddressEntity entity, String token, String executor) {
+	public void deleteEmailAddress(IdentityEmailAddressEntity entity, String executor) {
 		entity = dao.fetch(entity.getId());
-		if (entity.getVerificationToken().equals(token)) {
-			entity.setVerificationToken(null);
-			entity.setVerifiedOn(new Date());
-			entity.setValidUntil(generateValidity());
-
-			IdentityEmailAddressEvent event = new IdentityEmailAddressEvent(entity);
-			try {
-				eventSubmitter.submit(event, EventType.EMAIL_ADDRESS_VERIFIED, executor);
-			} catch (EventSubmitException e) {
-				logger.warn("Could not submit event", e);
-			}
-			return true;
-		} else {
-			return false;
+		if (entity.equals(entity.getIdentity().getPrimaryEmail())) {
+			entity.getIdentity().setPrimaryEmail(null);
 		}
+		dao.delete(entity);
+	}
+
+	public IdentityEmailAddressEntity checkVerification(IdentityEntity identity, String token, String executor)
+			throws VerificationException {
+		IdentityEmailAddressEntity entity = dao
+				.find(RqlExpressions.equal(IdentityEmailAddressEntity_.verificationToken, token));
+
+		if (entity == null) {
+			throw new VerificationException("no_token_found");
+		}
+		
+		if (!identity.equals(entity.getIdentity())) {
+			throw new VerificationException("not_owner");
+		}
+
+		if (entity.getTokenValidUntil().before(new Date())) {
+			throw new VerificationException("token_expired");
+		}
+		
+		entity.setVerificationToken(null);
+		entity.setVerifiedOn(new Date());
+		entity.setValidUntil(generateValidity());
+		entity.setEmailStatus(EmailAddressStatus.VERIFIED);
+
+		IdentityEmailAddressEvent event = new IdentityEmailAddressEvent(entity);
+		try {
+			eventSubmitter.submit(event, EventType.EMAIL_ADDRESS_VERIFIED, executor);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}
+		return entity;
 	}
 
 	private String generateToken() {
@@ -112,7 +135,7 @@ public class IdentityEmailAddressService extends BaseServiceImpl<IdentityEmailAd
 	}
 
 	private Date generateTokenValidity() {
-		Long validity = 30 * 60 * 60 * 1000L;
+		Long validity = 30 * 60 * 1000L;
 		if (appConfig.getConfigValue("email_token_validity") != null) {
 			validity = Long.parseLong(appConfig.getConfigValue("email_token_validity"));
 		}
@@ -129,7 +152,7 @@ public class IdentityEmailAddressService extends BaseServiceImpl<IdentityEmailAd
 		return new Date(System.currentTimeMillis() + validity);
 	}
 
-	public void sendVerificationEmail(IdentityEmailAddressEntity emailAddress) {
+	protected void sendVerificationEmail(IdentityEmailAddressEntity emailAddress) {
 
 		logger.debug("Sending Email verification mail for identity {} (email: {})", emailAddress.getIdentity().getId(),
 				emailAddress.getEmailAddress());
