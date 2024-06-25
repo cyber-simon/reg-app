@@ -27,8 +27,16 @@
 	<h:form id="form" prependId="false" class="full">
 	
 		<h3><h:outputText value="#{messages['email_addresses.heading']}"/></h3>
-
+		<div><h:outputText value="#{messages['email_addresses.intro']}"/></div>
 		<div><p:messages showDetail="true" /></div>
+
+		<div>
+			<h:outputText value="#{messages['email_addresses.primary_email']}"/>
+			<b>
+			<h:outputText value="#{emailAddressesBean.identity.primaryEmail.emailAddress}" rendered="#{emailAddressesBean.identity.primaryEmail != null}"/>
+			<h:outputText value="#{messages['email_addresses.no_primary_email_set']}" rendered="#{emailAddressesBean.identity.primaryEmail == null}"/>
+			</b>
+		</div>
 
 		<div class="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 			<p:selectOneListbox id="userSelect" var="e" value="#{emailAddressesBean.chosenPrimary}" converter="#{identityEmailAddressConverter}" 
@@ -39,13 +47,8 @@
 				</p:column>
 			</p:selectOneListbox>
 			<div class="form">
-				<p:commandButton action="#{emailAddressesBean.setPrimaryEmailAddress()}" value="#{messages['set']}" validateClient="true" ajax="true" update="@all" />
+				<p:commandButton action="#{emailAddressesBean.setPrimaryEmailAddress()}" value="#{messages['email_addresses.set']}" validateClient="true" ajax="true" update="@all" />
 			</div>
-		</div>
-		<div>
-			<h:outputText value="#{messages['email_addresses.primary_email']}: "/>
-			<h:outputText value="#{emailAddressesBean.identity.primaryEmail.emailAddress}" rendered="#{emailAddressesBean.identity.primaryEmail != null}"/>
-			<h:outputText value="#{messages['email_addresses.no_primary_email_set']}" rendered="#{emailAddressesBean.identity.primaryEmail == null}"/>
 		</div>
 		
 		<ui:repeat var="email" value="#{emailAddressesBean.identity.emailAddresses}">
