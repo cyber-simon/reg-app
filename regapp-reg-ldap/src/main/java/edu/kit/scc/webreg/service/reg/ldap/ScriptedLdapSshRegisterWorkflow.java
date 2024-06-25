@@ -10,7 +10,7 @@ import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.exc.TemplateRenderingException;
 import edu.kit.scc.webreg.tools.PropertyReader;
 import edu.kit.scc.regapp.tpl.TemplateRenderer;
-import edu.kit.scc.webreg.service.ssh.SshWorker;
+import edu.kit.scc.webreg.service.reg.ssh.SshWorker;
 import java.util.HashMap;
 import java.util.Map;
 

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package edu.kit.scc.webreg.service.ssh;
+package edu.kit.scc.webreg.service.reg.ssh;
 
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
