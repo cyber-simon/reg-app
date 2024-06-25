@@ -18,6 +18,7 @@ import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
 
 import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 import edu.kit.scc.webreg.service.SamlSpMetadataService;
+import edu.kit.scc.webreg.service.saml.MetadataHelper;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
 import jakarta.faces.event.ComponentSystemEvent;
@@ -37,6 +38,9 @@ public class EditSamlSpBean implements Serializable {
 
 	@Inject
 	private SamlHelper samlHelper;
+
+	@Inject
+	private MetadataHelper metadataHelper;
 	
 	@Inject
 	private FacesMessageGenerator messageGenerator;
@@ -59,8 +63,11 @@ public class EditSamlSpBean implements Serializable {
 				return null;
 			}
 			
-			SPSSODescriptor spssoDescriptor = (SPSSODescriptor) entityDescriptor.getRoleDescriptors(SPSSODescriptor.DEFAULT_ELEMENT_NAME).get(0);
 			entity.setEntityId(entityDescriptor.getEntityID());
+			entity.setEntityDescriptor(samlHelper.marshal(entityDescriptor));
+			entity.setOrgName(metadataHelper.getOrganisation(entityDescriptor));
+			metadataHelper.fillDisplayData(entityDescriptor, entity);
+
 			entity = service.save(entity);
 			return "show-sp.xhtml?faces-redirect=true&id=" + entity.getId();
 		} catch (XMLParserException | UnmarshallingException e) {
