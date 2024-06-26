@@ -48,6 +48,7 @@ import edu.kit.scc.webreg.entity.attribute.IncomingAttributeSetEntity_;
 import edu.kit.scc.webreg.entity.attribute.value.ValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.ValueEntity_;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+import edu.kit.scc.webreg.entity.oauth.OAuthUserEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectGroupEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
@@ -181,9 +182,13 @@ public class UserDeleteServiceImpl implements UserDeleteService {
 			((SamlUserEntity) user).setSubjectId(null);
 			samlAssertionDao.deleteAssertionForUser((SamlUserEntity) user);
 		}
-		if (user instanceof OidcUserEntity) {
+		else if (user instanceof OidcUserEntity) {
 			((OidcUserEntity) user).setSubjectId(null);
 			((OidcUserEntity) user).setIssuer(null);
+		}
+		else if (user instanceof OAuthUserEntity) {
+			((OAuthUserEntity) user).setOauthId(null);
+			((OAuthUserEntity) user).setOauthIssuer(null);
 		}
 		user.setUidNumber(serialDao.nextUidNumber().intValue());
 		user.setUserStatus(UserStatus.DEREGISTERED);

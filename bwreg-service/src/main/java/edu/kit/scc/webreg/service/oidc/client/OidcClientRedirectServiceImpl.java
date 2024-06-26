@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 
+import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
@@ -68,6 +69,11 @@ public class OidcClientRedirectServiceImpl implements OidcClientRedirectService 
 			callbackUrl = rpConfig.getCallbackUrl();
 		}
 
+		redirectClientOidc(rpConfig, callbackUrl, servletRequest, response);
+	}
+
+	private void redirectClientOidc(OidcRpConfigurationEntity rpConfig, String callbackUrl,
+			HttpServletRequest servletRequest, HttpServletResponse response) throws OidcAuthenticationException {
 		try {
 			URI authzEndpoint = opMetadataBean.getAuthorizationEndpointURI(rpConfig);
 

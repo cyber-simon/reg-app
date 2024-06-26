@@ -24,56 +24,59 @@
 	<ui:param name="title" value="#{messages.title}"/>
 
 	<ui:define name="content">
-	<h:form id="form" prependId="false" class="full form">
+	<h:form id="form" prependId="false" class="full">
 
 	<h2 class="text-danger"><h:outputText value="#{messages['my_data.unlink_and_delete_account.header']}"/></h2>
 
-	<p:panel id="blockPanel" rendered="#{not sessionManager.loggedInUserList.contains(unlinkAndDeleteAccountBean.user.id)}">
+	<h:panelGroup id="blockPanel" rendered="#{not sessionManager.loggedInUserList.contains(unlinkAndDeleteAccountBean.user.id)}">
 
 		<div>
 			<h:outputText value="#{messages['my_data.unlink_and_delete_account.text']}" escape="false" />
 		</div>
 	
-		<p:panel rendered="#{unlinkAndDeleteAccountBean.registryList.size() > 0}" 
-				header="#{messages['my_data.unlink_and_delete_account.registered_services_head']}"
-				style="margin-top: 1em;">
+		<h:panelGroup rendered="#{unlinkAndDeleteAccountBean.registryList.size() > 0}" 
+				styleClass="text">
+
+			<h4 class="text-danger" style="margin-top: 1em;"><h:outputText value="#{messages['my_data.delete_all.registered_services_head']}"/></h4>
 			<br/>
 			<h:outputText value="#{messages['my_data.unlink_and_delete_account.registered_services']}" escape="false" />
 			
-			<ul style="margin-top: 1em;">
-				<ui:repeat var="r" value="#{unlinkAndDeleteAccountBean.registryList}">
-					<li>
-						<h:outputText value="#{r.service.name}" />
-					</li>				
-				</ui:repeat>
-			</ul>
-		</p:panel>
+			<div class="text" style="margin-top: 1em;">
+				<ul>
+					<ui:repeat var="r" value="#{unlinkAndDeleteAccountBean.registryList}">
+						<li>
+							<h:outputText value="#{r.service.name}" />
+						</li>				
+					</ui:repeat>
+				</ul>
+			</div>
+		</h:panelGroup>
 	
-		<div style="margin-top: 16px;">
+		<div style="margin-top: 1em;" class="form">
 			<p:commandButton id="cancel" action="#{unlinkAndDeleteAccountBean.cancel}" 
 				value="#{messages.cancel}"/>
 			<p:commandButton id="save" oncomplete="PF('confirmDlg').show();"  
-				value="#{messages['my_data.unlink_and_delete_account.commit']}" class="text-danger"/>
+				value="#{messages['my_data.unlink_and_delete_account.commit']}" class="text-danger" style="margin-left: 1em;"/>
 		</div>		
-	</p:panel>
-	<p:panel id="errPanel" rendered="#{sessionManager.loggedInUserList.contains(unlinkAndDeleteAccountBean.user.id)}">
+	</h:panelGroup>
+	<h:panelGroup id="errPanel" rendered="#{sessionManager.loggedInUserList.contains(unlinkAndDeleteAccountBean.user.id)}">
 		Account is logged in and can't be unlinked.
-		<div style="margin-top: 16px;">
+		<div style="margin-top: 1em;" class="form">
 			<p:commandButton id="errCancel" action="#{unlinkAndDeleteAccountBean.cancel}" 
 				value="#{messages.cancel}"/>
 		</div>
-	</p:panel>
+	</h:panelGroup>
 	<p:dialog header="#{messages['my_data.unlink_and_delete_account.confirm_header']}" 
 					widgetVar="confirmDlg" id="confirmDlgId" modal="true" closable="false" closeOnEscape="false"
 					showEffect="fade" hideEffect="fade">
-		<div class="panel text full" style="width:480px;">
+		<div class="panel text full" style="width:480px; font-size:1.25rem;">
 			<h:outputText value="#{messages['my_data.unlink_and_delete_account.confirm_text']}" escape="false" />
 		</div>
-		<div style="margin-top: 16px;">
+		<div style="margin-top: 1em;" class="form">
 			<p:commandButton id="cancel2" action="#{unlinkAndDeleteAccountBean.cancel}" 
 				value="#{messages.cancel}"/>
 			<p:commandButton id="save2" action="#{unlinkAndDeleteAccountBean.commit}" 
-				value="#{messages['my_data.unlink_and_delete_account.commit2']}" class="text-danger"/>
+				value="#{messages['my_data.unlink_and_delete_account.commit2']}" class="text-danger" style="margin-left: 1em;"/>
 		</div>		
 	</p:dialog>
 	<p:blockUI block="confirmDlgId" trigger="save2">  

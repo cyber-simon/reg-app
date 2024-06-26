@@ -54,6 +54,9 @@ public class UserEntity extends AbstractBaseEntity {
 	@Column(name = "sur_name", length = 256)
 	private String surName;
 
+	@Column(name = "name", length = 1024)
+	private String name;
+
 	@Column(name = "last_login_host", length = 1024)
 	private String lastLoginHost;
 
@@ -296,5 +299,13 @@ public class UserEntity extends AbstractBaseEntity {
 
 	public void setRegistries(Set<RegistryEntity> registries) {
 		this.registries = registries;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}	
 }

@@ -91,6 +91,11 @@
 			<artifactId>regapp-as</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>edu.kit.scc</groupId>
+			<artifactId>regapp-mail</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>jakarta.platform</groupId>

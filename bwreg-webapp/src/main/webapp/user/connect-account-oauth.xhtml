@@ -1,0 +1,83 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="jakarta.faces.core"
+	xmlns:h="jakarta.faces.html"
+	xmlns:ui="jakarta.faces.facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+
+<f:view>
+<f:metadata>
+	<f:event type="jakarta.faces.event.PreRenderViewEvent"
+           listener="#{connectAccountOAuthBean.preRenderView}" />
+</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form" prependId="false" class="full">
+	
+		<h3><h:outputText value="#{messages['connect_account.heading']}" /></h3>
+	
+		<div>
+			<h:outputText value="#{messages['connect_account.intro2']}" />
+		</div>
+
+		<p:messages id="messageBox" showDetail="true" />
+
+		<div class="text">
+			<ul>
+				<ui:repeat var="user" value="#{connectAccountOAuthBean.userList}">
+					<li>
+						<h:panelGroup rendered="#{user.class.simpleName eq 'SamlUserEntity'}">
+			   	        	<h:outputText value="#{user.idp.displayName}" />
+			        		<h:outputText value=" (#{messages.currently_logged_id})"  rendered="#{sessionManager.loggedInUserList.contains(user.id)}"/>
+						</h:panelGroup>
+						<h:panelGroup rendered="#{user.class.simpleName eq 'OidcUserEntity'}">
+			   	        	<h:outputText value="#{user.issuer.displayName}" />
+			        		<h:outputText value=" (#{messages.currently_logged_id})"  rendered="#{sessionManager.loggedInUserList.contains(user.id)}"/>
+						</h:panelGroup>
+						<h:panelGroup rendered="#{user.class.simpleName eq 'OAuthUserEntity'}">
+			   	        	<h:outputText value="#{user.oauthIssuer.displayName}" />
+			        		<h:outputText value=" (#{messages.currently_logged_id})"  rendered="#{sessionManager.loggedInUserList.contains(user.id)}"/>
+						</h:panelGroup>
+					</li>
+				</ui:repeat>
+			</ul>
+		</div>
+			
+		<div>
+			<h:outputText value="#{messages['connect_account.intro3']}" escape="false"/>
+		</div>
+
+		<p:dataTable var="key" value="#{connectAccountOAuthBean.printableAttributesList}">
+			<p:column headerText="#{messages.name}">
+				#{resourceBundleHelper.resolveMessage(key)}
+			</p:column>
+			<p:column headerText="#{messages.value}">
+				#{connectAccountOAuthBean.printableAttributesMap[key]}
+			</p:column>
+		</p:dataTable>
+
+		<p:dataList var="key" value="#{connectAccountOAuthBean.unprintableAttributesMap.keySet().toArray()}">
+			#{key}: #{connectAccountOAuthBean.unprintableAttributesMap[key]}
+		</p:dataList>
+
+		<div class="form">
+			<p:commandButton id="save" action="#{connectAccountOAuthBean.save}" value="#{messages['connect_account.commit']}" ajax="false" 
+				disabled="#{connectAccountOAuthBean.errorState}" update=":form"/>
+		</div>
+	</h:form>
+	</ui:define>
+</ui:composition>
+</f:view>
+</body>
+</html>

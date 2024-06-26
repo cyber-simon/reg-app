@@ -30,20 +30,22 @@
 			<div class="text full">	
 				<h:outputText value="#{messages['my_data.delete_all.text']}" escape="false" />
 			</div>
-			<h:panelGroup rendered="#{deleteAllPersonalDataBean.registryList.size() > 0}" 
-						styleClass="text full" >
+			<h:panelGroup rendered="#{deleteAllPersonalDataBean.registryList.size() > 0}"
+						styleClass="text" >
 				
 				<h4 class="text-danger" style="margin-top: 1em;"><h:outputText value="#{messages['my_data.delete_all.registered_services_head']}"/></h4>
 				<br/>
 				<h:outputText value="#{messages['my_data.delete_all.registered_services']}" escape="false" />
 				
-				<ul style="margin-top: 1em;">
-					<ui:repeat var="r" value="#{deleteAllPersonalDataBean.registryList}">
-						<li>
-							<h:outputText value="#{r.service.name}" />
-						</li>				
-					</ui:repeat>
-				</ul>
+				<div class="text" style="margin-top: 1em;">
+					<ul>
+						<ui:repeat var="r" value="#{deleteAllPersonalDataBean.registryList}">
+							<li>
+								<h:outputText value="#{r.service.name}" />
+							</li>				
+						</ui:repeat>
+					</ul>
+				</div>
 			</h:panelGroup>
 		
 			<div class="form" style="margin-top: 1em;">
@@ -56,7 +58,7 @@
 			<p:dialog header="#{messages['my_data.delete_all.confirm_header']}" 
 							widgetVar="confirmDlg" id="confirmDlgId" modal="true" closable="false" closeOnEscape="false"
 							showEffect="fade" hideEffect="fade">
-				<div class="panel text full" style="width:480px;">
+				<div class="text full" style="width:480px; font-size:1.25rem;">
 					<h:outputText value="#{messages['my_data.delete_all.confirm_text']}" escape="false" />
 				</div>
 				<div class="form" style="margin-top: 1em;">

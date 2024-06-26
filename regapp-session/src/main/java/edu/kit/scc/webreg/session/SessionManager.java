@@ -60,6 +60,12 @@ public class SessionManager implements Serializable {
 	private Long oidcRelyingPartyId;
 	private String subjectId;
 
+	/*
+	 * For Local logins to home org OIDC OP
+	 */
+	private Long oauthRelyingPartyId;
+	private String oauthId;
+
 	// identityId of the actual user
 	private Long identityId;
 	// List of logged in account (stored for logout)
@@ -391,5 +397,21 @@ public class SessionManager implements Serializable {
 
 	public void setOidcAuthnConsumerConfigId(Long oidcAuthnConsumerConfigId) {
 		this.oidcAuthnConsumerConfigId = oidcAuthnConsumerConfigId;
+	}
+
+	public Long getOauthRelyingPartyId() {
+		return oauthRelyingPartyId;
+	}
+
+	public void setOauthRelyingPartyId(Long oauthRelyingPartyId) {
+		this.oauthRelyingPartyId = oauthRelyingPartyId;
+	}
+
+	public String getOauthId() {
+		return oauthId;
+	}
+
+	public void setOauthId(String oauthId) {
+		this.oauthId = oauthId;
 	}
 }

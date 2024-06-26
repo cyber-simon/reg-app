@@ -37,6 +37,7 @@
 				</p:column>
 				<p:column headerText="Wert">
 					<h:outputText value="#{value.valueString}" rendered="#{value.class.simpleName == 'StringValueEntity'}" />
+					<h:outputText value="#{value.valueLong}" rendered="#{value.class.simpleName == 'LongValueEntity'}" />
 					<p:outputPanel rendered="#{value.class.simpleName == 'StringListValueEntity'}">
 						<ul><ui:repeat value="#{value.valueList}" var="item">
 							<li><h:outputText value="#{item}"/></li>
@@ -66,6 +67,7 @@
 							</p:column>
 							<p:column headerText="Wert">
 								<h:outputText value="#{value.valueString}" rendered="#{value.class.simpleName == 'StringValueEntity'}" />
+								<h:outputText value="#{value.valueLong}" rendered="#{value.class.simpleName == 'LongValueEntity'}" />
 								<p:outputPanel rendered="#{value.class.simpleName == 'StringListValueEntity'}">
 									<ul><ui:repeat value="#{value.valueList}" var="item">
 										<li><h:outputText value="#{item}"/></li>

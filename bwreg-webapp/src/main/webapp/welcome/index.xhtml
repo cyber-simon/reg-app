@@ -23,43 +23,42 @@
 
 	<ui:define name="content">
 
-	<h:form id="form" prependId="false" class="full form">
+	<h:form id="form" prependId="false" class="full">
 		<h3><h:outputText value="#{messages.welcome}"/></h3>
 
-		<p:panel>
+		<div>
 			<p:panel rendered="#{sessionManager.originalRequestPath != null and sessionManager.originalRequestPath.startsWith('/idp-debug-login/')}">
 				<span class="text-danger">Login debugging is on. You will see a full log of your login process.</span>
 			</p:panel>
 		
-			<p:outputPanel rendered="#{empty discoveryLoginBean.spMetadata and empty discoveryLoginBean.clientConfig}">
+			<h:panelGroup rendered="#{empty discoveryLoginBean.spMetadata and empty discoveryLoginBean.clientConfig}">
 				<h:outputText value="#{messages.welcome_disco}" escape="false"/>
-			</p:outputPanel>
+			</h:panelGroup>
 			
-			<p:outputPanel rendered="#{not empty discoveryLoginBean.spMetadata}">
+			<h:panelGroup rendered="#{not empty discoveryLoginBean.spMetadata}">
 				<h:outputText value="#{messages.welcome_redirected}" /><br/>
 				<b>
 					<h:outputText value="#{discoveryLoginBean.spMetadata.displayName}" rendered="#{not empty discoveryLoginBean.spMetadata.displayName}" />
 					<h:outputText value="#{discoveryLoginBean.spMetadata.entityId}" rendered="#{empty discoveryLoginBean.spMetadata.displayName}" />
 				</b>			
-			</p:outputPanel>
+			</h:panelGroup>
 
-			<p:outputPanel rendered="#{not empty discoveryLoginBean.clientConfig}">
+			<h:panelGroup rendered="#{not empty discoveryLoginBean.clientConfig}">
 				<h:outputText value="#{messages.welcome_redirected}" /><br/> 
 				<b> 
 					<h:outputText value="#{discoveryLoginBean.clientConfig.displayName}" rendered="#{not empty discoveryLoginBean.clientConfig.displayName}" />
 					<h:outputText value="#{discoveryLoginBean.clientConfig.name}" rendered="#{empty discoveryLoginBean.clientConfig.displayName}" />
 				</b>
-			</p:outputPanel>
-		</p:panel>
+			</h:panelGroup>
+		</div>
 		
-		<p:panel>
 
 			<div><p:messages showDetail="true" /></div>
 
 
 			<div class="grid">
 				<div style="margin-top: 1em;" class="col-12 xs:col-12 sm:col-12 md:col-6 lg:col-6 xl:col-6">
-					<p:outputPanel rendered="#{discoveryLoginBean.largeList}">
+					<h:panelGroup rendered="#{discoveryLoginBean.largeList}">
 						<p:focus conext="baseData" for="searchAutocompl" />
 						<span class="ui-float-label">
 			                <p:autoComplete id="searchAutocompl" multiple="false" value="#{discoveryLoginBean.selected}" converter="#{userProvisionerCachedEntryConverter}" 
@@ -72,30 +71,30 @@
 							</p:autoComplete>
 							<p:outputLabel for="@previous" value="#{messages['search_filter']}" />
 						</span>
-					</p:outputPanel>
-					<p:outputPanel rendered="#{not discoveryLoginBean.largeList}">
+					</h:panelGroup>
+					<h:panelGroup rendered="#{not discoveryLoginBean.largeList}">
 						<p:focus conext="baseData" for="selectBox" />
 						<p:selectOneListbox id="selectBox" style="width: 100%;" value="#{discoveryLoginBean.selected}" converter="#{userProvisionerCachedEntryConverter}"
 								filter="true" filterMatchMode="contains" filterNormalize="true">
 							<f:selectItems value="#{discoveryLoginBean.allList}" var="idp" itemLabel="#{idp.displayName}" itemValue="#{idp}"/>
 							<p:ajax update=":form:infoPnl,:form:btnPanel" />
 						</p:selectOneListbox>
-					</p:outputPanel>
-					<p:outputPanel style="margin-top: 1em;">
+					</h:panelGroup>
+					<h:panelGroup style="margin-top: 1em;">
 						<p:selectBooleanCheckbox value="#{discoveryLoginBean.storeIdpSelection}" itemLabel="#{messages.store_idp_selection}" />
-					</p:outputPanel>
+					</h:panelGroup>
 				</div>
 				<div style="margin-top: 0em;" class="col-12 xs:col-12 sm:col-12 md:col-6 lg:col-6 xl:col-6">
 				</div>
 				<div style="margin-top: 0em;" class="col-12 xs:col-6 sm:col-6 md:col-3 lg:col-3 xl:col-3">
-					<p:outputPanel id="btnPanel">
+					<h:panelGroup id="btnPanel" style="block" styleClass="form">
 						<p:commandButton id="login" style="width:100%;" action="#{discoveryLoginBean.login}" value="#{messages.proceed}" disabled="#{empty discoveryLoginBean.selected}"
 							update=":form" />
-					</p:outputPanel>
+					</h:panelGroup>
 		
 				</div>
 				<div style="margin-top: 0em;" class="col-12 xs:col-6 sm:col-6 md:col-3 lg:col-3 xl:col-3">
-					<p:outputPanel id="infoPnl">
+					<h:panelGroup id="infoPnl">
 						<p:panel style="margin:0.5em;" rendered="#{not empty discoveryLoginBean.selected}">
 							<p:commandLink action="#{discoveryLoginBean.login(discoveryLoginBean.selected.id)}">
 								<div style="text-align: left;">
@@ -103,11 +102,11 @@
 								</div> 
 							</p:commandLink> 
 						</p:panel>
-					</p:outputPanel>
+					</h:panelGroup>
 				</div>
 
 			</div>
-			<p:outputPanel rendered="#{discoveryLoginBean.extraList.size() > 0}">
+			<h:panelGroup rendered="#{discoveryLoginBean.extraList.size() > 0}">
 				<div style="margin-top: 2em;"><h:outputText value="#{messages['discovery.alternatives']}:" /></div>
 				<div style="margin-top: 0.5em;" class="grid">
 					<ui:repeat var="extra" value="#{discoveryLoginBean.extraList}">
@@ -121,8 +120,7 @@
 						</div>
 					</ui:repeat>
 				</div>
-			</p:outputPanel>
-		</p:panel>
+			</h:panelGroup>
 	</h:form>
 	
 	</ui:define>

@@ -23,7 +23,7 @@
 	<ui:param name="title" value="#{messages.title}"/>
 
 	<ui:define name="content">
-	<h:form id="form" prependId="false" class="full form">
+	<h:form id="form" prependId="false" class="full">
 	
 		<h3><h:outputText value="#{messages['connect_account.heading']}" /></h3>
 	
@@ -32,17 +32,27 @@
 		</div>
 
 		<p:messages id="messageBox" showDetail="true" />
-		
-		<p:dataList var="user" value="#{connectAccountSamlBean.userList}" type="unordered">
-			<p:outputPanel rendered="#{user.class.simpleName eq 'SamlUserEntity'}">
-   	        	<h:outputText value="#{user.idp.displayName}" />
-        		<h:outputText value=" (#{messages.currently_logged_id})"  rendered="#{sessionManager.loggedInUserList.contains(user.id)}"/>
-			</p:outputPanel>
-			<p:outputPanel rendered="#{user.class.simpleName eq 'OidcUserEntity'}">
-   	        	<h:outputText value="#{user.issuer.displayName}" />
-        		<h:outputText value=" (#{messages.currently_logged_id})"  rendered="#{sessionManager.loggedInUserList.contains(user.id)}"/>
-			</p:outputPanel>
-		</p:dataList>
+
+		<div class="text">
+			<ul>
+				<ui:repeat var="user" value="#{connectAccountSamlBean.userList}">
+					<li>
+						<h:panelGroup rendered="#{user.class.simpleName eq 'SamlUserEntity'}">
+			   	        	<h:outputText value="#{user.idp.displayName}" />
+			        		<h:outputText value=" (#{messages.currently_logged_id})"  rendered="#{sessionManager.loggedInUserList.contains(user.id)}"/>
+						</h:panelGroup>
+						<h:panelGroup rendered="#{user.class.simpleName eq 'OidcUserEntity'}">
+			   	        	<h:outputText value="#{user.issuer.displayName}" />
+			        		<h:outputText value=" (#{messages.currently_logged_id})"  rendered="#{sessionManager.loggedInUserList.contains(user.id)}"/>
+						</h:panelGroup>
+						<h:panelGroup rendered="#{user.class.simpleName eq 'OAuthUserEntity'}">
+			   	        	<h:outputText value="#{user.oauthIssuer.displayName}" />
+			        		<h:outputText value=" (#{messages.currently_logged_id})"  rendered="#{sessionManager.loggedInUserList.contains(user.id)}"/>
+						</h:panelGroup>
+					</li>
+				</ui:repeat>
+			</ul>
+		</div>
 		
 		<div>
 			<h:outputText value="#{messages['connect_account.intro3']}" escape="false"/>
@@ -61,9 +71,10 @@
 			#{key}: #{connectAccountSamlBean.unprintableAttributesMap[key]}
 		</p:dataList>
 
-		<p:commandButton id="save" action="#{connectAccountSamlBean.save}" value="#{messages['connect_account.commit']}" ajax="false" 
-			disabled="#{connectAccountSamlBean.errorState}" update=":form"/>
-	
+		<div class="form">
+			<p:commandButton id="save" action="#{connectAccountSamlBean.save}" value="#{messages['connect_account.commit']}" ajax="false" 
+				disabled="#{connectAccountSamlBean.errorState}" update=":form"/>
+		</div>
 	</h:form>
 	</ui:define>
 </ui:composition>
