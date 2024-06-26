@@ -80,6 +80,10 @@ public class IdentityEmailAddressHandler implements Serializable {
 		entity.setEmailStatus(EmailAddressStatus.FROM_ATTRIBUTE_UNVERIFIED);
 		entity = dao.persist(entity);
 
+		if (identity.getPrimaryEmail() == null) {
+			identity.setPrimaryEmail(entity);
+		}
+
 		return entity;
 		
 	}
