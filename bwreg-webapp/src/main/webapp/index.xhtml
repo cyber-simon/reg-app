@@ -21,9 +21,14 @@
 				style="margin-bottom: 8px;" styleClass="full">
 			<h:outputText value="#{messages.index_motd_text1}" escape="false" />
 		</p:panel>
+
+		<h:panelGroup layout="block" styleClass="full text" rendered="#{empty userIndexBean.identity.primaryEmail}">
+			<i class="pi pi-times-circle"></i>
+			<h:outputText value="#{messages['index.no_primaray_email_set']}" escape="false" style="margin-left: 1em;" />
+		</h:panelGroup>
 	
 		<h5 class="full"><h:outputText value="#{messages.index_text1}"/></h5>
-
+		
 		<h:panelGroup rendered="#{not empty userIndexBean.userRegistryList}">
 			<ui:repeat var="registry" value="#{userIndexBean.userRegistryList}">
 				<div class="news-element third">

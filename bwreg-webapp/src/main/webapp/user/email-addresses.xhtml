@@ -76,6 +76,8 @@
 					
 					<div class="form">
 						<p:commandButton action="#{emailAddressesBean.deleteEmailAddress(email)}" value="#{messages['delete']}" ajax="true" update="@all" />
+						<p:commandButton action="#{emailAddressesBean.resendVerificationToken(email)}" value="#{messages['email_addresses.resend_token']}" ajax="true" update="@all" 
+							style="margin-left: 1em;"/>
 					</div>
 				</h:panelGroup>
 				<h:panelGroup rendered="#{email.emailStatus == 'VERIFIED'}">

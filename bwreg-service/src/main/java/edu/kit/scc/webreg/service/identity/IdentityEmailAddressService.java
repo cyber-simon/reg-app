@@ -63,7 +63,7 @@ public class IdentityEmailAddressService extends BaseServiceImpl<IdentityEmailAd
 
 	public void expireEmailAddress(IdentityEmailAddressEntity entity, String executor) {
 		entity = dao.fetch(entity.getId());
-		handler.setPrimaryEmailAddress(entity, executor);
+		handler.expireEmailAddress(entity, executor);
 	}
 
 	public void sendExpiryEmailAddress(IdentityEmailAddressEntity entity, String executor) {

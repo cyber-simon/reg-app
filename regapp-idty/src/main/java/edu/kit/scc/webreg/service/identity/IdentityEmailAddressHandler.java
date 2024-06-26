@@ -148,6 +148,7 @@ public class IdentityEmailAddressHandler implements Serializable {
 		
 		entity.setExpireWarningSent(null);
 		entity.setVerificationToken(null);
+		entity.setTokenValidUntil(null);
 		entity.setVerifiedOn(new Date());
 		entity.setValidUntil(generateValidity());
 		entity.setEmailStatus(EmailAddressStatus.VERIFIED);

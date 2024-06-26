@@ -76,6 +76,13 @@ public class EmailAddressesBean implements Serializable {
 	public void deleteEmailAddress(IdentityEmailAddressEntity address) {
 		service.deleteEmailAddress(address, "idty-" + session.getIdentityId());
 		identity = null;
+		chosenPrimary = null;
+		primaryEmailList = null;
+	}
+
+	public void resendVerificationToken(IdentityEmailAddressEntity address) {
+		service.redoVerification(address, "idty-" + session.getIdentityId());
+		identity = null;
 	}
 
 	public void setPrimaryEmailAddress() {
@@ -91,6 +98,8 @@ public class EmailAddressesBean implements Serializable {
 			service.checkVerification(getIdentity(), getToken(), "idty-" + session.getIdentityId());
 			token = null;
 			identity = null;
+			chosenPrimary = null;
+			primaryEmailList = null;
 			messageGenerator.addResolvedInfoMessage("email_addresses.verification_success",
 					"email_addresses.verification_success_detail", true);
 		} catch (VerificationException e) {
