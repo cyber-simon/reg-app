@@ -50,6 +50,25 @@ public class IdentityEmailAddressHandler implements Serializable {
 	public void setPrimaryEmailAddress(IdentityEmailAddressEntity entity, String executor) {
 		entity.getIdentity().setPrimaryEmail(entity);
 	}
+
+	public void sendExpiryWarningEmail(IdentityEmailAddressEntity entity, String executor) {
+		sendExpiryWarningEmail(entity);
+		entity.setExpireWarningSent(new Date());
+	}
+	
+	public void expireEmailAddress(IdentityEmailAddressEntity entity, String executor) {
+		if (entity.equals(entity.getIdentity().getPrimaryEmail())) {
+			entity.getIdentity().setPrimaryEmail(null);
+		}
+		entity.setEmailStatus(EmailAddressStatus.UNVERIFIED);
+		
+		IdentityEmailAddressEvent event = new IdentityEmailAddressEvent(entity);
+		try {
+			eventSubmitter.submit(event, EventType.EMAIL_ADDRESS_VERIFICATION_EXPIRED, executor);
+		} catch (EventSubmitException e) {
+			logger.warn("Could not submit event", e);
+		}		
+	}
 	
 	public IdentityEmailAddressEntity addEmailAddressFromAttribute(IdentityEntity identity, String emailAddress, String executor)
 			throws AddressException {
@@ -127,6 +146,7 @@ public class IdentityEmailAddressHandler implements Serializable {
 			throw new VerificationException("token_expired");
 		}
 		
+		entity.setExpireWarningSent(null);
 		entity.setVerificationToken(null);
 		entity.setVerifiedOn(new Date());
 		entity.setValidUntil(generateValidity());
@@ -185,4 +205,20 @@ public class IdentityEmailAddressHandler implements Serializable {
 		mailService.sendMail(templateName, context, true);
 		emailAddress.setVerificationSent(new Date());
 	}
+	
+	protected void sendExpiryWarningEmail(IdentityEmailAddressEntity emailAddress) {
+
+		logger.debug("Sending Email expiry mail for identity {} (email: {})", emailAddress.getIdentity().getId(),
+				emailAddress.getEmailAddress());
+
+		String templateName = appConfig.getConfigValueOrDefault("email_expiry_warning_template", "email_expiry_warning");
+
+		Map<String, Object> context = new HashMap<String, Object>(3);
+		context.put("emailAddress", emailAddress);
+		context.put("identity", emailAddress.getIdentity());
+
+		mailService.sendMail(templateName, context, true);
+		emailAddress.setVerificationSent(new Date());
+	}
+
 }

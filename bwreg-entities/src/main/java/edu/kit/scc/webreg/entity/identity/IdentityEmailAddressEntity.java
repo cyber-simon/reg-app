@@ -40,6 +40,9 @@ public class IdentityEmailAddressEntity extends AbstractBaseEntity {
 	@Column(name = "valid_until")
 	protected Date validUntil;
 
+	@Column(name = "expire_warning_sent")
+	protected Date expireWarningSent;
+	
 	@Column(name = "verification_sent")
 	protected Date verificationSent;
 
@@ -115,6 +118,14 @@ public class IdentityEmailAddressEntity extends AbstractBaseEntity {
 
 	public void setEmailStatus(EmailAddressStatus emailStatus) {
 		this.emailStatus = emailStatus;
+	}
+
+	public Date getExpireWarningSent() {
+		return expireWarningSent;
+	}
+
+	public void setExpireWarningSent(Date expireWarningSent) {
+		this.expireWarningSent = expireWarningSent;
 	}
 
 }
