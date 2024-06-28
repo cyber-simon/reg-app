@@ -82,6 +82,11 @@ public class UnlinkAndDeleteAccountBean implements Serializable {
 	public UserEntity getUser() { 
 		if (user == null) {
 			user = userService.fetch(id);
+
+			if (user == null) {
+				throw new IllegalArgumentException("not authorized");
+			}
+
 			if (! user.getIdentity().equals(getIdentity())) {
 				throw new IllegalArgumentException("not authorized");
 			}
