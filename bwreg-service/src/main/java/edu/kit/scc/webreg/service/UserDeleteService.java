@@ -7,6 +7,6 @@ public interface UserDeleteService {
 
 	void deleteUserData(IdentityEntity identity, String executor);
 
-	void unlinkAndDeleteAccount(UserEntity user, String executor);
+	void unlinkAndDeleteAccount(UserEntity user, IdentityEntity checkIdentity, String executor);
 
 }

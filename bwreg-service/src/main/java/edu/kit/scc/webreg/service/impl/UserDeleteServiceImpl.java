@@ -116,8 +116,13 @@ public class UserDeleteServiceImpl implements UserDeleteService {
 	private EventSubmitter eventSubmitter;
 
 	@Override
-	public void unlinkAndDeleteAccount(UserEntity user, String executor) {
+	public void unlinkAndDeleteAccount(UserEntity user, IdentityEntity checkIdentity, String executor) {
 		user = userDao.fetch(user.getId());
+
+		if (! user.getIdentity().equals(checkIdentity)) {
+			throw new IllegalArgumentException("check identity");
+		}
+
 		IdentityEntity identity = user.getIdentity();
 		logger.info("Unlink and delete user account {} from identity {}", user.getId(), identity.getId());
 

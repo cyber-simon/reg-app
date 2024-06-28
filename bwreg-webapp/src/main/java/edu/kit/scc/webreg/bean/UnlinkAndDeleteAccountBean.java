@@ -14,12 +14,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 
-import jakarta.faces.context.FacesContext;
-import jakarta.faces.event.ComponentSystemEvent;
-import jakarta.faces.view.ViewScoped;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.RegistryEntity;
@@ -32,6 +26,11 @@ import edu.kit.scc.webreg.service.UserService;
 import edu.kit.scc.webreg.service.identity.IdentityService;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.ViewIds;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ComponentSystemEvent;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named
 @ViewScoped
@@ -71,7 +70,7 @@ public class UnlinkAndDeleteAccountBean implements Serializable {
 	}
 
 	public String commit() {
-		userDeleteService.unlinkAndDeleteAccount(getUser(), "identity-" + getIdentity().getId());
+		userDeleteService.unlinkAndDeleteAccount(getUser(), getIdentity(), "identity-" + getIdentity().getId());
 		try {
 			FacesContext.getCurrentInstance().getExternalContext().redirect("/logout/local?redirect=unlink_and_delete_account");
 		} catch (IOException e) {
@@ -81,8 +80,12 @@ public class UnlinkAndDeleteAccountBean implements Serializable {
 	}
 
 	public UserEntity getUser() { 
-		if (user == null)
+		if (user == null) {
 			user = userService.fetch(id);
+			if (! user.getIdentity().equals(getIdentity())) {
+				throw new IllegalArgumentException("not authorized");
+			}
+		}
 		return user;
 	}
 	
