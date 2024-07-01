@@ -65,7 +65,7 @@
 		                                completeMethod="#{connectAccountBean.search}" maxResults="10" 
 		                                forceSelection="true" style="width: 100%;" onfocus="this.select();">
 							<p:column><p:graphicImage style="max-width: 48px; max-height: 32px;" value="#{request.contextPath}/rest/icon-cache/async/small/#{idp.iconId}" rendered="#{not empty idp.iconId}" /></p:column>
-							<p:column>#{idp.displayName}</p:column>
+							<p:column style="font-size: 1.2rem; color: black;">#{idp.displayName}</p:column>
 							<p:ajax update=":form" />
 						</p:autoComplete>
 						<p:outputLabel for="@previous" value="#{messages['search_filter']}" />
