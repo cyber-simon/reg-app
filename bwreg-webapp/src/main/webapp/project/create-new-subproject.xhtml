@@ -13,8 +13,9 @@
 <body>
 <f:view>
 	<f:metadata>
+		<f:viewParam name="id" value="#{userSubprojectCreateNewBean.parentId}"/>
 		<f:event type="jakarta.faces.event.PreRenderViewEvent"
-            listener="#{userProjectCreateNewBean.preRenderView}" />
+            listener="#{userSubprojectCreateNewBean.preRenderView}" />
 	</f:metadata>
 
 <ui:composition template="/template/default.xhtml">
@@ -23,43 +24,48 @@
 	<ui:define name="content">
 	<h:form id="form" class="full">
 
-		<h2><h:outputText value="#{messages['project.create_new_project']}"/></h2>
+		<h2><h:outputText value="#{messages['project.create_new_sub_project.header']}"/></h2>
 
-		<div><h:outputText value="#{messages['project.create_new_project_text']}" escape="false" /></div>
+		<div><h:outputText value="#{messages['project.create_new_sub_project.intro_text']}" escape="false" /></div>
 		
 		<p:panel>
 			<h:panelGrid id="baseData" columns="2" columnClasses="labelColumn, elementColumn">
 
 		        <bw:inputText id="nameField" label="#{messages.name}" 
-		        	value="#{userProjectCreateNewBean.entity.name}" required="true"/>
+		        	value="#{userSubprojectCreateNewBean.entity.name}" required="true"/>
 
-		        <bw:inputText id="shortNameField" label="#{messages.short_name}" 
-		        	value="#{userProjectCreateNewBean.entity.shortName}" required="true"/>
+			    <p:outputLabel for="shortNameField" value="#{messages.short_name}"/>
+			    <h:panelGroup>
+				    <p:inputText id="shortNameField" value="#{userSubprojectCreateNewBean.entity.shortName}" required="true">
+				        <f:ajax event="blur" execute="@this" render="shortNameField-message" />
+				    </p:inputText>
+				    <p:message id="shortNameField-message" for="shortNameField" />
+				</h:panelGroup>
 
 		        <bw:inputText id="groupNameField" label="#{messages.group_name}" 
-		        	value="#{userProjectCreateNewBean.entity.groupName}" required="true"/>
+		        	value="#{userSubprojectCreateNewBean.entity.groupName}" required="true"/>
 
 		        <bw:inputText id="shortDescField" label="#{messages['project.short_description']}" 
-		        	value="#{userProjectCreateNewBean.entity.shortDescription}" required="false"/>
+		        	value="#{userSubprojectCreateNewBean.entity.shortDescription}" required="false"/>
 
 		        <p:outputLabel for="@next" value="#{messages['project.long_description']}"/>
 		        <p:outputPanel>
-			        <p:inputTextarea id="keyInputArea" value="#{userProjectCreateNewBean.entity.description}" 
+			        <p:inputTextarea id="keyInputArea" value="#{userSubprojectCreateNewBean.entity.description}" 
 			        	style="height: 160px;" autoResize="false" maxlength="8128">
 			        </p:inputTextarea>
 		        </p:outputPanel>
 
 		        <p:outputLabel for="@next" value="#{messages['project.include_myself_as_member']}"/>
-				<p:inputSwitch value="#{userProjectCreateNewBean.selfMember}"></p:inputSwitch>
+				<p:inputSwitch value="#{userSubprojectCreateNewBean.selfMember}"></p:inputSwitch>
 				
 			</h:panelGrid>
 			
 		</p:panel>
 
 		<h:panelGroup layout="block" styleClass="form">
-			<p:commandButton id="cancel" action="#{userProjectCreateNewBean.cancel}" value="#{messages.cancel}"
+			<p:commandButton id="cancel" action="#{userSubprojectCreateNewBean.cancel}" value="#{messages.cancel}"
 				immediate="true"/>
-			<p:commandButton id="save" action="#{userProjectCreateNewBean.save}" value="#{messages.save}"
+			<p:commandButton id="save" action="#{userSubprojectCreateNewBean.save}" value="#{messages.save}"
 				style="margin-left: 1em;"/>
 		</h:panelGroup>
 		

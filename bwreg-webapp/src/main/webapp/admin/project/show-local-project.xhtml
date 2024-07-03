@@ -39,7 +39,10 @@
 		        <h:outputText value="#{admin.showLocalProjectBean.entity.groupName}"/>
 					
 		        <h:outputText value="#{messages.parent_vo}:"/>
-		        <h:outputText value="#{admin.showLocalProjectBean.entity.parentProject}"/>
+		        <h:panelGroup>
+		        	<h:outputText value="#{admin.showLocalProjectBean.entity.parentProject.name}" rendered="#{admin.showLocalProjectBean.entity.parentProject != null}"/>
+		        	<h:outputText value="no parent" rendered="#{admin.showLocalProjectBean.entity.parentProject == null}"/>
+				</h:panelGroup>
 				
 		        <h:outputText value="#{messages.published}:"/>
 		        <h:outputText value="#{admin.showLocalProjectBean.entity.published}"/>

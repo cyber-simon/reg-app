@@ -20,17 +20,18 @@
 	<ui:param name="title" value="#{messages.title}"/>
 
 	<ui:define name="content">
-	<h:form id="form" class="full form">
+	<h:form id="form" class="full">
 
 		<h2><h:outputText value="#{messages['project.invite_project.members']}: #{inviteToProjectBean.entity.name}"/></h2>
 
 		<p:messages id="messageBox" showDetail="true" />
 		
-		<p:panel>
+		<div class="text">
 			<h:outputText value="#{messages['project.invite_project.members_text']}"/>
-		</p:panel>
+		</div>
 
-		<p:dataTable id="dataTable" var="t" value="#{inviteToProjectBean.tokenList}">
+		<p:dataTable id="dataTable" var="t" value="#{inviteToProjectBean.tokenList}"
+				style="margin-top: 1em; width:auto; font-size: 1.2rem;">
 			<p:column>
 				<f:facet name="header">
 					<h:outputText value="#{messages.token}" />
@@ -65,33 +66,33 @@
        		</p:column>
 		</p:dataTable>
 
-
-		<p:panel id="inputPanel" header="#{messages['project.invite_project.members_with_email']}">
-			<h:outputText value="#{messages['project.invite_project.members_with_email_text']}"/>
+		<h6 style="margin-top: 1em;"><h:outputText value="#{messages['project.invite_project.members_with_email']}"/></h6>
+		<h:outputText value="#{messages['project.invite_project.members_with_email_text']}"/>
+		
+		<h:panelGrid columns="2">
+		
+			<h:outputLabel value="#{messages['project.invite_project.rcpt_mail']}" />
+			<p:inputText value="#{inviteToProjectBean.rcptMail}"/>
 			
-			<h:panelGrid columns="2">
+			<h:outputLabel value="#{messages['project.invite_project.rcpt_name']}" />
+			<p:inputText value="#{inviteToProjectBean.rcptName}"/>
+
+			<h:outputLabel value="#{messages['project.invite_project.sender_mail']}" />
+			<p:selectOneMenu id="senderMailOption" value="#{inviteToProjectBean.senderMail}">
+				<f:selectItems value="#{inviteToProjectBean.senderEmailList}"/>
+			</p:selectOneMenu>
+
+			<h:outputLabel value="#{messages['project.invite_project.sender_name']}" />
+			<p:selectOneMenu id="senderNameOption" value="#{inviteToProjectBean.senderName}">
+				<f:selectItems value="#{inviteToProjectBean.senderNameList}"/>
+			</p:selectOneMenu>
 			
-				<h:outputLabel value="#{messages['project.invite_project.rcpt_mail']}" />
-				<p:inputText value="#{inviteToProjectBean.rcptMail}"/>
-				
-				<h:outputLabel value="#{messages['project.invite_project.rcpt_name']}" />
-				<p:inputText value="#{inviteToProjectBean.rcptName}"/>
-
-				<h:outputLabel value="#{messages['project.invite_project.sender_mail']}" />
-				<p:selectOneMenu id="senderMailOption" value="#{inviteToProjectBean.senderMail}">
-					<f:selectItems value="#{inviteToProjectBean.senderEmailList}"/>
-				</p:selectOneMenu>
-
-				<h:outputLabel value="#{messages['project.invite_project.sender_name']}" />
-				<p:selectOneMenu id="senderNameOption" value="#{inviteToProjectBean.senderName}">
-					<f:selectItems value="#{inviteToProjectBean.senderNameList}"/>
-				</p:selectOneMenu>
-				
-			</h:panelGrid>
-			
-			<p:commandButton action="#{inviteToProjectBean.sendToken()}" value="#{messages['project.invite_project.send_invitation']}" update="messageBox, dataTable, inputPanel"/>
-		</p:panel>
-
+		</h:panelGrid>
+		
+		<div class="form">
+			<p:commandButton action="#{inviteToProjectBean.sendToken()}" value="#{messages['project.invite_project.send_invitation']}" update="@form"/>
+		</div>
+		
 		<div class="text full" style="margin-top: 0.4em;">
 			<p:outputPanel rendered="#{inviteToProjectBean.entity.class.simpleName == 'LocalProjectEntity'}">
 				<a href="show-local-project.xhtml?id=#{inviteToProjectBean.entity.id}"><h:outputText value="#{messages.back}"/></a>
@@ -103,8 +104,10 @@
 
 	    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" closable="false" 
 	    	closeOnEscape="true" width="320">
-	        <p:commandButton value="#{messages.yes}" type="button" styleClass="ui-confirmdialog-yes"/>
-	        <p:commandButton value="#{messages.no}" type="button" styleClass="ui-confirmdialog-no"/>
+	    	<div class="form">
+	        	<p:commandButton value="#{messages.yes}" type="button" styleClass="ui-confirmdialog-yes"/>
+	        	<p:commandButton value="#{messages.no}" type="button" styleClass="ui-confirmdialog-no"/>
+	        </div>
 	    </p:confirmDialog>    
 
 	</h:form>

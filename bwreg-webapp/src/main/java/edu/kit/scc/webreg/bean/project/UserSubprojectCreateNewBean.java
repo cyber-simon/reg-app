@@ -11,22 +11,25 @@
 package edu.kit.scc.webreg.bean.project;
 
 import java.io.Serializable;
+import java.util.List;
 
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
+import edu.kit.scc.webreg.entity.project.ProjectAdminType;
+import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
+import edu.kit.scc.webreg.exc.NotAuthorizedException;
+import edu.kit.scc.webreg.service.identity.IdentityService;
+import edu.kit.scc.webreg.service.project.LocalProjectService;
+import edu.kit.scc.webreg.service.project.ProjectService;
+import edu.kit.scc.webreg.session.SessionManager;
 import jakarta.faces.event.ComponentSystemEvent;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
-import edu.kit.scc.webreg.entity.identity.IdentityEntity;
-import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
-import edu.kit.scc.webreg.service.identity.IdentityService;
-import edu.kit.scc.webreg.service.project.LocalProjectService;
-import edu.kit.scc.webreg.service.project.ProjectService;
-import edu.kit.scc.webreg.session.SessionManager;
-
 @Named
 @ViewScoped
-public class UserProjectCreateNewBean implements Serializable {
+public class UserSubprojectCreateNewBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -46,9 +49,31 @@ public class UserProjectCreateNewBean implements Serializable {
 	private LocalProjectEntity entity;
 
 	private Boolean selfMember;
+	private Long parentId;
+	private LocalProjectEntity parentProject;
+	
+	private ProjectIdentityAdminEntity adminIdentity;
+	private List<ProjectIdentityAdminEntity> adminList;
 	
 	public void preRenderView(ComponentSystemEvent ev) {
+		if (! getParentProject().getSubProjectsAllowed()) {
+			throw new NotAuthorizedException("Subpropjects are not allowed for this project");
+		}
+		
+		for (ProjectIdentityAdminEntity a : getAdminList()) {
+			if (a.getIdentity().getId().equals(session.getIdentityId())) {
+				adminIdentity = a;
+				break;
+			}
+		}
 
+		if (adminIdentity == null) {
+			throw new NotAuthorizedException("Not authorized");
+		} else {
+			if (! adminIdentity.getType().equals(ProjectAdminType.OWNER)) {
+				throw new NotAuthorizedException("Not authorized. You need Owner rights on the parent project.");
+			}
+		}
 	}
 
 	public IdentityEntity getIdentity() {
@@ -59,6 +84,7 @@ public class UserProjectCreateNewBean implements Serializable {
 	}
 
 	public String save() {
+		entity.setParentProject(getParentProject());
 		entity = localProjectService.save(entity, getIdentity().getId());
 		if (getSelfMember()) {
 			projectService.addProjectMember(entity, getIdentity(), "idty-" + getIdentity().getId());
@@ -90,5 +116,27 @@ public class UserProjectCreateNewBean implements Serializable {
 
 	public void setSelfMember(Boolean selfMember) {
 		this.selfMember = selfMember;
+	}
+
+	public Long getParentId() {
+		return parentId;
+	}
+
+	public void setParentId(Long parentId) {
+		this.parentId = parentId;
+	}
+
+	public LocalProjectEntity getParentProject() {
+		if (parentProject == null) {
+			parentProject = localProjectService.fetch(getParentId());
+		}
+		return parentProject;
+	}
+	
+	public List<ProjectIdentityAdminEntity> getAdminList() {
+		if (adminList == null) {
+			adminList = projectService.findAdminsForProject(getParentProject());
+		}
+		return adminList;
 	}
 }
