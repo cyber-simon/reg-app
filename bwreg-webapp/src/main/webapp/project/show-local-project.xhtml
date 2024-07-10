@@ -38,13 +38,23 @@
 	        <h:outputText value="#{userShowLocalProjectBean.entity.groupName}"/>
 				
 	        <h:outputText value="#{messages['project.local_project.parent_vo']}:" rendered="#{userShowLocalProjectBean.entity.parentProject != null}"/>
-	        <h:outputText value="#{userShowLocalProjectBean.entity.parentProject.name}" rendered="#{userShowLocalProjectBean.entity.parentProject != null}"/>
+	        <h:panelGroup layout="block" styleClass="text" rendered="#{userShowLocalProjectBean.entity.parentProject != null}">
+				<h:outputLink value="show-local-project.xhtml" >
+					<h:outputText value="#{userShowLocalProjectBean.entity.parentProject.name}"/>
+					<f:param name="id" value="#{userShowLocalProjectBean.entity.parentProject.id}"/>
+				</h:outputLink>
+	        </h:panelGroup>
 			
 	        <h:outputText value="#{messages['project.local_project.children']}:" rendered="#{userShowLocalProjectBean.entity.childProjects != null and userShowLocalProjectBean.entity.childProjects.size() > 0}"/>
 	        <h:panelGroup layout="block" styleClass="text" rendered="#{userShowLocalProjectBean.entity.childProjects != null and userShowLocalProjectBean.entity.childProjects.size() > 0}">
 	        	<ul>
 			        <ui:repeat value="#{userShowLocalProjectBean.entity.childProjects}" var="s">
-			        	<li><h:outputText value="#{s.name}"/></li>
+						<li>
+							<h:outputLink value="show-local-project.xhtml" >
+								<h:outputText value="#{s.name}"/>
+								<f:param name="id" value="#{s.id}"/>
+							</h:outputLink>
+			        	</li>
 					</ui:repeat>
 	        	</ul>
 			</h:panelGroup>

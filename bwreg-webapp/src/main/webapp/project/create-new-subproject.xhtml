@@ -31,6 +31,14 @@
 		<p:panel>
 			<h:panelGrid id="baseData" columns="2" columnClasses="labelColumn, elementColumn">
 
+		        <p:outputLabel value="#{messages['project.local_project.parent_vo']}:"/>
+		        <h:panelGroup layout="block" styleClass="text">
+					<h:outputLink value="show-local-project.xhtml" >
+						<h:outputText value="#{userSubprojectCreateNewBean.parentProject.name}"/>
+						<f:param name="id" value="#{userSubprojectCreateNewBean.parentProject.id}"/>
+					</h:outputLink>
+		        </h:panelGroup>
+
 		        <bw:inputText id="nameField" label="#{messages.name}" 
 		        	value="#{userSubprojectCreateNewBean.entity.name}" required="true"/>
 
