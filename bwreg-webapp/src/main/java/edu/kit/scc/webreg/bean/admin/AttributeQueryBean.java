@@ -14,13 +14,9 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.faces.view.ViewScoped;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.Response;
-import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.entity.SamlMetadataEntity;
@@ -31,6 +27,9 @@ import edu.kit.scc.webreg.service.SamlSpConfigurationService;
 import edu.kit.scc.webreg.service.saml.AttributeQueryHelper;
 import edu.kit.scc.webreg.service.saml.Saml2AssertionService;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named
 @ViewScoped
@@ -76,7 +75,7 @@ public class AttributeQueryBean implements Serializable {
 			if (idpEntity == null)
 				idpEntity = aaService.findByEntityId(idpEntityId);
 			
-			Response samlResponse = attrQueryHelper.query(persistentId, idpEntity, spEntity);
+			Response samlResponse = attrQueryHelper.query(NameID.PERSISTENT, persistentId, idpEntity, spEntity);
 			
 			Assertion assertion = saml2AssertionService.processSamlResponse(samlResponse, idpEntity, null, spEntity, false);
 

@@ -116,7 +116,7 @@ public class AttributeQueryHelper implements Serializable {
 	@Inject
 	ApplicationConfig appConfig;
 
-	public Response query(String persistentId, SamlMetadataEntity idpEntity, EntityDescriptor idpEntityDescriptor,
+	public Response query(String format, String persistentId, SamlMetadataEntity idpEntity, EntityDescriptor idpEntityDescriptor,
 			SamlSpConfigurationEntity spEntity, StringBuffer debugLog) throws Exception {
 
 		if (debugLog != null) {
@@ -128,7 +128,7 @@ public class AttributeQueryHelper implements Serializable {
 		if (attributeService == null || attributeService.getLocation() == null)
 			throw new MetadataException("No Attribute Service found for IDP " + idpEntity.getEntityId());
 
-		AttributeQuery attrQuery = buildAttributeQuery(persistentId, spEntity.getEntityId());
+		AttributeQuery attrQuery = buildAttributeQuery(format, persistentId, spEntity.getEntityId());
 
 		MessageContext inbound = new MessageContext();
 		MessageContext outbound = new MessageContext();
@@ -240,21 +240,21 @@ public class AttributeQueryHelper implements Serializable {
 		}
 	}
 
-	public Response query(String persistentId, SamlMetadataEntity idpEntity, SamlSpConfigurationEntity spEntity)
+	public Response query(String format, String persistentId, SamlMetadataEntity idpEntity, SamlSpConfigurationEntity spEntity)
 			throws Exception {
 		EntityDescriptor idpEntityDescriptor = samlHelper.unmarshal(idpEntity.getEntityDescriptor(),
 				EntityDescriptor.class);
-		return query(persistentId, idpEntity, idpEntityDescriptor, spEntity, null);
+		return query(format, persistentId, idpEntity, idpEntityDescriptor, spEntity, null);
 	}
 
 	public Response query(SamlUserEntity entity, SamlMetadataEntity idpEntity, EntityDescriptor idpEntityDescriptor,
 			SamlSpConfigurationEntity spEntity) throws Exception {
-		return query(entity.getPersistentId(), idpEntity, idpEntityDescriptor, spEntity, null);
+		return query(NameID.PERSISTENT, entity.getPersistentId(), idpEntity, idpEntityDescriptor, spEntity, null);
 	}
 
 	public Response query(SamlUserEntity entity, SamlMetadataEntity idpEntity, EntityDescriptor idpEntityDescriptor,
 			SamlSpConfigurationEntity spEntity, StringBuffer debugLog) throws Exception {
-		return query(entity.getPersistentId(), idpEntity, idpEntityDescriptor, spEntity, debugLog);
+		return query(NameID.PERSISTENT, entity.getPersistentId(), idpEntity, idpEntityDescriptor, spEntity, debugLog);
 	}
 
 	public Response getResponseFromEnvelope(Envelope envelope) {
@@ -266,10 +266,10 @@ public class AttributeQueryHelper implements Serializable {
 		return response;
 	}
 
-	public AttributeQuery buildAttributeQuery(String persistentId, String issuerEntityId) {
+	public AttributeQuery buildAttributeQuery(String format, String persistentId, String issuerEntityId) {
 		AttributeQuery attrQuery = samlHelper.create(AttributeQuery.class, AttributeQuery.DEFAULT_ELEMENT_NAME);
 		attrQuery.setID(samlHelper.getRandomId());
-		attrQuery.setSubject(createSubject(persistentId));
+		attrQuery.setSubject(createSubject(format, persistentId));
 		attrQuery.setVersion(SAMLVersion.VERSION_20);
 		attrQuery.setIssueInstant(Instant.now());
 
@@ -279,10 +279,10 @@ public class AttributeQueryHelper implements Serializable {
 		return attrQuery;
 	}
 
-	public Subject createSubject(String persistentId) {
+	public Subject createSubject(String format, String persistentId) {
 		NameID nameID = samlHelper.create(NameID.class, NameID.DEFAULT_ELEMENT_NAME);
 		nameID.setValue(persistentId);
-		nameID.setFormat(NameID.PERSISTENT);
+		nameID.setFormat(format);
 
 		Subject subject = samlHelper.create(Subject.class, Subject.DEFAULT_ELEMENT_NAME);
 		subject.setNameID(nameID);
