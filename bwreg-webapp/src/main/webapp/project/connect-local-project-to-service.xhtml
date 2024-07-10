@@ -20,44 +20,42 @@
 	<ui:param name="title" value="#{messages.title}"/>
 
 	<ui:define name="content">
-	<h:form id="form" class="full form">
+	<h:form id="form" class="full">
 
 		<h2><h:outputText value="#{messages['project.connect_to_service']}: #{connectLocalProjectToServiceBean.entity.name}"/></h2>
 
 		<p:messages id="messageBox" showDetail="true" />
 		
-		<p:panel header="#{messages.properties}">
-			<p:panelGrid id="baseData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
-		
-		        <h:outputText value="#{messages.id}:"/>
-		        <h:outputText value="#{connectLocalProjectToServiceBean.entity.id}"/>
-		
-		        <h:outputText value="#{messages.name}:"/>
-		        <h:outputText value="#{connectLocalProjectToServiceBean.entity.name}"/>
+		<h:panelGrid id="baseData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
+	
+	        <h:outputText value="#{messages.id}:"/>
+	        <h:outputText value="#{connectLocalProjectToServiceBean.entity.id}"/>
+	
+	        <h:outputText value="#{messages.name}:"/>
+	        <h:outputText value="#{connectLocalProjectToServiceBean.entity.name}"/>
 
-		        <h:outputText value="#{messages['project.connect_to_service_list']}:"/>
-		        <p:selectManyMenu id="servicePicker" value="#{connectLocalProjectToServiceBean.selectedServices}"
-                            converter="#{serviceConverter}" style="min-width: 300px;"
-                            var="s" showCheckbox="true">
-					<p:ajax listener="#{connectLocalProjectToServiceBean.connectionAdded()}" update="btnPanel policyHolderList" />                            
-					<f:selectItems value="#{connectLocalProjectToServiceBean.serviceList}" var="service" itemLabel="#{service.name}"
-                            itemValue="#{service}"/>
-					<p:column>
-						<h:outputText value="#{s.name}"/>
-					</p:column>       
-		        </p:selectManyMenu>
-		        
-		        <h:outputText value="#{messages.services}:"/>
-		        <ui:repeat value="#{connectLocalProjectToServiceBean.entity.projectServices}" var="s">
-		        	<div><h:outputText value="#{s.service.name} (#{s.status})"/></div>
-				</ui:repeat>
-						        
-			</p:panelGrid>
-		</p:panel>
+	        <h:outputText value="#{messages['project.connect_to_service_list']}:"/>
+	        <p:selectManyMenu id="servicePicker" value="#{connectLocalProjectToServiceBean.selectedServices}"
+                           converter="#{serviceConverter}" style="min-width: 300px;"
+                           var="s" showCheckbox="true">
+				<p:ajax listener="#{connectLocalProjectToServiceBean.connectionAdded()}" update="btnPanel policyHolderList" />                            
+				<f:selectItems value="#{connectLocalProjectToServiceBean.serviceList}" var="service" itemLabel="#{service.name}"
+                           itemValue="#{service}"/>
+				<p:column>
+					<h:outputText value="#{s.name}"/>
+				</p:column>       
+	        </p:selectManyMenu>
+	        
+	        <h:outputText value="#{messages.services}:"/>
+	        <ui:repeat value="#{connectLocalProjectToServiceBean.entity.projectServices}" var="s">
+	        	<div><h:outputText value="#{s.service.name} (#{s.status})"/></div>
+			</ui:repeat>
+					        
+		</h:panelGrid>
 
-		<p:panel>
+		<div class="text">
 			<h:outputText value="#{messages['project.connect_to_service_connect_text']}" />
-		</p:panel>
+		</div>
 
 
 		<p:panel id="policyHolderList">
@@ -75,10 +73,10 @@
   		  </p:panel>
 		</p:panel>
 		
-		<p:panel id="btnPanel">
+		<h:panelGroup id="btnPanel" layout="block" styleClass="form">
 			<p:commandButton id="saveBtn" action="#{connectLocalProjectToServiceBean.save}" value="#{messages['project.connect_to_service_connect_button']}" 
 				update="messageBox" disabled="#{not connectLocalProjectToServiceBean.savePossible}" />
-		</p:panel>
+		</h:panelGroup>
 
 		<div class="text full" style="margin-top: 0.4em;">
 			<a href="show-local-project.xhtml?id=#{connectLocalProjectToServiceBean.entity.id}"><h:outputText value="#{messages.back}"/></a>

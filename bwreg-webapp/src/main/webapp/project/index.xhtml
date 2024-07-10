@@ -21,7 +21,7 @@
 	<ui:param name="title" value="#{messages.title}"/>
 
 	<ui:define name="content">
-	<h:form id="form" class="full form">
+	<h:form id="form" class="full">
 
 		<h2><h:outputText value="#{messages['project.my_projects']}"/></h2>
 				
@@ -50,13 +50,13 @@
 			</p:column>			
 		</p:dataTable>
 
-		<p:panel>
-		<p:panelGrid columns="2">
-			<p:linkButton href="create-new-project.xhtml" value="#{messages['project.my_projects.create_new_project_link']}" />
+		<div class="text thrid">
+			<a href="create-new-project.xhtml"><h:outputText value="#{messages['project.my_projects.create_new_project_link']}" /></a>
+		</div>
+		<div class="text thrid">
 			<h:outputText value="#{messages['project.my_projects.create_new_project_link_text']}" />
-		</p:panelGrid>
-		</p:panel>
-		
+		</div>
+
 		<div class="text full" style="margin-top: 0.4em;">
 			<a href="../index.xhtml"><h:outputText value="#{messages.back}"/></a>
 		</div>		

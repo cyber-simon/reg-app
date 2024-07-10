@@ -21,7 +21,7 @@
 	<ui:param name="title" value="#{messages.title}"/>
 
 	<ui:define name="content">
-	<h:form id="form" class="full form">
+	<h:form id="form" class="full">
 
 		<h2><h:outputText value="#{messages['project.create_new_project']}"/></h2>
 
@@ -42,22 +42,26 @@
 		        <bw:inputText id="shortDescField" label="#{messages['project.short_description']}" 
 		        	value="#{userProjectCreateNewBean.entity.shortDescription}" required="false"/>
 
-		        <h:outputText for="@next" value="#{messages['project.long_description']}"/>
+		        <p:outputLabel for="@next" value="#{messages['project.long_description']}"/>
 		        <p:outputPanel>
 			        <p:inputTextarea id="keyInputArea" value="#{userProjectCreateNewBean.entity.description}" 
 			        	style="height: 160px;" autoResize="false" maxlength="8128">
 			        </p:inputTextarea>
 		        </p:outputPanel>
 
+		        <p:outputLabel for="@next" value="#{messages['project.include_myself_as_member']}"/>
+				<p:inputSwitch value="#{userProjectCreateNewBean.selfMember}"></p:inputSwitch>
+				
 			</h:panelGrid>
 			
 		</p:panel>
 
-		<p:panel>
+		<h:panelGroup layout="block" styleClass="form">
 			<p:commandButton id="cancel" action="#{userProjectCreateNewBean.cancel}" value="#{messages.cancel}"
 				immediate="true"/>
-			<p:commandButton id="save" action="#{userProjectCreateNewBean.save}" value="#{messages.save}"/>
-		</p:panel>
+			<p:commandButton id="save" action="#{userProjectCreateNewBean.save}" value="#{messages.save}"
+				style="margin-left: 1em;"/>
+		</h:panelGroup>
 		
 	</h:form>
 	</ui:define>

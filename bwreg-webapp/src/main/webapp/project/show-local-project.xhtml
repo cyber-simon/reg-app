@@ -20,13 +20,13 @@
 	<ui:param name="title" value="#{messages.title}"/>
 
 	<ui:define name="content">
-	<h:form id="form" class="full form">
+	<h:form id="form" styleClass="full">
 
 		<h2><h:outputText value="#{messages['project.local_project']}: #{userShowLocalProjectBean.entity.name}"/></h2>
 
 		<p:messages id="messageBox" showDetail="true" />
 		
-		<p:panelGrid style="margin-top:1em;" id="baseData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
+		<h:panelGrid style="margin-top:1em;" id="baseData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 	
 	        <h:outputText value="#{messages.id}:"/>
 	        <h:outputText value="#{userShowLocalProjectBean.entity.id}"/>
@@ -38,43 +38,74 @@
 	        <h:outputText value="#{userShowLocalProjectBean.entity.groupName}"/>
 				
 	        <h:outputText value="#{messages['project.local_project.parent_vo']}:" rendered="#{userShowLocalProjectBean.entity.parentProject != null}"/>
-	        <h:outputText value="#{userShowLocalProjectBean.entity.parentProject.name}" rendered="#{userShowLocalProjectBean.entity.parentProject != null}"/>
+	        <h:panelGroup layout="block" styleClass="text" rendered="#{userShowLocalProjectBean.entity.parentProject != null}">
+				<h:outputLink value="show-local-project.xhtml" >
+					<h:outputText value="#{userShowLocalProjectBean.entity.parentProject.name}"/>
+					<f:param name="id" value="#{userShowLocalProjectBean.entity.parentProject.id}"/>
+				</h:outputLink>
+	        </h:panelGroup>
+			
+	        <h:outputText value="#{messages['project.local_project.children']}:" rendered="#{userShowLocalProjectBean.entity.childProjects != null and userShowLocalProjectBean.entity.childProjects.size() > 0}"/>
+	        <h:panelGroup layout="block" styleClass="text" rendered="#{userShowLocalProjectBean.entity.childProjects != null and userShowLocalProjectBean.entity.childProjects.size() > 0}">
+	        	<ul>
+			        <ui:repeat value="#{userShowLocalProjectBean.entity.childProjects}" var="s">
+						<li>
+							<h:outputLink value="show-local-project.xhtml" >
+								<h:outputText value="#{s.name}"/>
+								<f:param name="id" value="#{s.id}"/>
+							</h:outputLink>
+			        	</li>
+					</ui:repeat>
+	        	</ul>
+			</h:panelGroup>
 			
 	        <h:outputText value="#{messages.services}:"/>
 	        <ui:repeat value="#{userShowLocalProjectBean.entity.projectServices}" var="s">
 	        	<div><h:outputText value="#{s.service.name} (#{s.status})"/></div>
 			</ui:repeat>
-		</p:panelGrid>
+		</h:panelGrid>
 
-		<p:panelGrid style="margin-top:1em;" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
-			<p:linkButton href="connect-local-project-to-service.xhtml" value="#{messages['project.show_local_project.connect_to_service_link']}">
+		<h:panelGrid style="margin-top:1em;" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
+			<h:outputLink value="connect-local-project-to-service.xhtml" >
+				<h:outputText value="#{messages['project.show_local_project.connect_to_service_link']}"/>
 				<f:param name="id" value="#{userShowLocalProjectBean.entity.id}"/>
-			</p:linkButton>
+			</h:outputLink>
 			<h:outputText value="#{messages['project.show_local_project.connect_to_service_link_text']}" />
 
-			<p:linkButton href="invite-to-project.xhtml" value="#{messages['project.show_local_project.invite_to_project_link']}">
+			<h:outputLink value="invite-to-project.xhtml">
+				<h:outputText value="#{messages['project.show_local_project.invite_to_project_link']}"/>
 				<f:param name="id" value="#{userShowLocalProjectBean.entity.id}"/>
-			</p:linkButton>
+			</h:outputLink>
 			<h:outputText value="#{messages['project.show_local_project.invite_to_project_link_text']}" />
 
-			<p:linkButton href="oidc/list-clients.xhtml" value="#{messages['project.show_local_project.manage_oidc_credentials']}"
+			<h:outputLink value="oidc/list-clients.xhtml" 
 				rendered="#{userShowLocalProjectBean.entity.approved}">
+				<h:outputText value="#{messages['project.show_local_project.manage_oidc_credentials']}"/>
 				<f:param name="id" value="#{userShowLocalProjectBean.entity.id}"/>
-			</p:linkButton>
+			</h:outputLink>
 			<h:outputText value="#{messages['project.show_local_project.manage_oidc_credentials_text']}" rendered="#{userShowLocalProjectBean.entity.approved}"/>	
-			
-			<p:linkButton href="delete-local-project.xhtml" value="#{messages['project.show_local_project.delete_project_link']}">
+
+			<h:outputLink value="create-new-subproject.xhtml" 
+				rendered="#{userShowLocalProjectBean.entity.subProjectsAllowed}">
+				<h:outputText value="#{messages['project.show_local_project.create_sub_project']}"/>
 				<f:param name="id" value="#{userShowLocalProjectBean.entity.id}"/>
-			</p:linkButton>
+			</h:outputLink>
+			<h:outputText value="#{messages['project.show_local_project.create_sub_project_text']}" rendered="#{userShowLocalProjectBean.entity.subProjectsAllowed}"/>	
+			
+			<h:outputLink value="delete-local-project.xhtml" >
+				<h:outputText value="#{messages['project.show_local_project.delete_project_link']}"/>
+				<f:param name="id" value="#{userShowLocalProjectBean.entity.id}"/>
+			</h:outputLink>
 			<h:outputText value="#{messages['project.show_local_project.delete_project_link_text']}" />	
-		</p:panelGrid>
+		</h:panelGrid>
 
 		<div class="text full" style="margin-top: 0.4em;">
 			<a href="index.xhtml"><h:outputText value="#{messages.back}"/></a>
 		</div>		
 
 		<h5 style="margin-top: 1em;"><h:outputText value="#{messages['project.members']}" /></h5>
-		<p:dataTable id="dataTableMember" var="member" value="#{userShowLocalProjectBean.memberList}">
+		<p:dataTable id="dataTableMember" var="member" value="#{userShowLocalProjectBean.memberList}"
+			style="width:auto; font-size: 1.2rem;">
 			<p:column sortBy="#{member.identity.prefUser.eppn}" filterBy="#{member.identity.prefUser.eppn}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.name}" />
@@ -110,7 +141,8 @@
 		</p:dataTable>	
 		
 		<h5 style="margin-top: 1em;"><h:outputText value="#{messages['project.admins']}" /></h5>
-		<p:dataTable id="dataTableAdmin" var="a" value="#{userShowLocalProjectBean.adminList}">
+		<p:dataTable id="dataTableAdmin" var="a" value="#{userShowLocalProjectBean.adminList}"
+			style="width:auto; font-size: 1.2rem;">
 			<p:column sortBy="#{a.identity.prefUser.eppn}" filterBy="#{a.identity.prefUser.eppn}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.name}" />
@@ -135,16 +167,22 @@
 				</f:facet>
 				<h:outputText value="#{a.type}" />
 			</p:column>			
-		</p:dataTable>	
-
+		</p:dataTable>
+		<div class="text">
+			<h:outputLink value="edit-local-project-admins.xhtml" >
+				<h:outputText value="#{messages['project.show_local_project.edit_project_admins_link']}"/>
+				<f:param name="id" value="#{userShowLocalProjectBean.entity.id}"/>
+			</h:outputLink>
+		</div>
+		
 		<h5 style="margin-top: 1em;"><h:outputText value="#{messages['more_properties']}" /></h5>
-		<p:panelGrid id="descData" columns="2">	
+		<h:panelGrid id="descData" columns="2">	
 	        <h:outputText value="#{messages['project.short_description']}:"/>
 			<h:outputText value="#{userShowLocalProjectBean.entity.shortDescription}" />	
 
 	        <h:outputText value="#{messages['project.long_description']}:"/>
 			<h:outputText value="#{userShowLocalProjectBean.entity.description}" />	
-		</p:panelGrid>		
+		</h:panelGrid>		
 					
 	    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" closable="false" 
 	    	closeOnEscape="true" width="320">

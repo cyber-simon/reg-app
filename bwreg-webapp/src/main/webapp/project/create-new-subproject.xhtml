@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="jakarta.faces.core"
+	xmlns:h="jakarta.faces.html"
+	xmlns:ui="jakarta.faces.facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="id" value="#{userSubprojectCreateNewBean.parentId}"/>
+		<f:event type="jakarta.faces.event.PreRenderViewEvent"
+            listener="#{userSubprojectCreateNewBean.preRenderView}" />
+	</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form" class="full">
+
+		<h2><h:outputText value="#{messages['project.create_new_sub_project.header']}"/></h2>
+
+		<div><h:outputText value="#{messages['project.create_new_sub_project.intro_text']}" escape="false" /></div>
+		
+		<p:panel>
+			<h:panelGrid id="baseData" columns="2" columnClasses="labelColumn, elementColumn">
+
+		        <p:outputLabel value="#{messages['project.local_project.parent_vo']}:"/>
+		        <h:panelGroup layout="block" styleClass="text">
+					<h:outputLink value="show-local-project.xhtml" >
+						<h:outputText value="#{userSubprojectCreateNewBean.parentProject.name}"/>
+						<f:param name="id" value="#{userSubprojectCreateNewBean.parentProject.id}"/>
+					</h:outputLink>
+		        </h:panelGroup>
+
+		        <bw:inputText id="nameField" label="#{messages.name}" 
+		        	value="#{userSubprojectCreateNewBean.entity.name}" required="true"/>
+
+			    <p:outputLabel for="shortNameField" value="#{messages.short_name}"/>
+			    <h:panelGroup>
+				    <p:inputText id="shortNameField" value="#{userSubprojectCreateNewBean.entity.shortName}" required="true">
+				        <f:ajax event="blur" execute="@this" render="shortNameField-message" />
+				    </p:inputText>
+				    <p:message id="shortNameField-message" for="shortNameField" />
+				</h:panelGroup>
+
+		        <bw:inputText id="groupNameField" label="#{messages.group_name}" 
+		        	value="#{userSubprojectCreateNewBean.entity.groupName}" required="true"/>
+
+		        <bw:inputText id="shortDescField" label="#{messages['project.short_description']}" 
+		        	value="#{userSubprojectCreateNewBean.entity.shortDescription}" required="false"/>
+
+		        <p:outputLabel for="@next" value="#{messages['project.long_description']}"/>
+		        <p:outputPanel>
+			        <p:inputTextarea id="keyInputArea" value="#{userSubprojectCreateNewBean.entity.description}" 
+			        	style="height: 160px;" autoResize="false" maxlength="8128">
+			        </p:inputTextarea>
+		        </p:outputPanel>
+
+		        <p:outputLabel for="@next" value="#{messages['project.include_myself_as_member']}"/>
+				<p:inputSwitch value="#{userSubprojectCreateNewBean.selfMember}"></p:inputSwitch>
+				
+			</h:panelGrid>
+			
+		</p:panel>
+
+		<h:panelGroup layout="block" styleClass="form">
+			<p:commandButton id="cancel" action="#{userSubprojectCreateNewBean.cancel}" value="#{messages.cancel}"
+				immediate="true"/>
+			<p:commandButton id="save" action="#{userSubprojectCreateNewBean.save}" value="#{messages.save}"
+				style="margin-left: 1em;"/>
+		</h:panelGroup>
+		
+	</h:form>
+	</ui:define>
+</ui:composition>
+</f:view>
+</body>
+</html>

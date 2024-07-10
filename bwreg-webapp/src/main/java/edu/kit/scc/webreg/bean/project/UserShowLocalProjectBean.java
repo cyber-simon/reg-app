@@ -21,6 +21,7 @@ import jakarta.inject.Named;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity_;
 import edu.kit.scc.webreg.entity.project.ProjectAdminType;
+import edu.kit.scc.webreg.entity.project.ProjectEntity_;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
@@ -84,7 +85,7 @@ public class UserShowLocalProjectBean implements Serializable {
 
 	public LocalProjectEntity getEntity() {
 		if (entity == null) {
-			entity = service.findByIdWithAttrs(id, LocalProjectEntity_.projectServices);
+			entity = service.findByIdWithAttrs(id, LocalProjectEntity_.projectServices, ProjectEntity_.childProjects);
 		}
 
 		return entity;
