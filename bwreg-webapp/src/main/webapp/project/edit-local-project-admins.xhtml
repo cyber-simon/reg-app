@@ -57,7 +57,8 @@
 		</p:outputPanel>
 		
 		<p:dataTable id="dataTableAllMemberList" var="member" value="#{userEditLocalProjectAdminsBean.memberList}" paginator="true"
-					lazy="true" rows="15">
+					lazy="true" rows="15"
+					style="width:auto; font-size: 1.2rem;">
 			<p:column sortBy="#{member.prefUser.id}" style="width:128px;">
 				<f:facet name="header">
 					<h:outputText value="#{messages.id}" />
@@ -97,7 +98,8 @@
 		<h6 style="margin-top: 1em;"><h:outputText value="#{messages['project.edit_admins.remove_admin']}"/></h6>
 		<div class="text"><h:outputText value="#{messages['project.edit_admins.remove_admin_text']}"/></div>
 		<p:dataTable id="dataTableAdmins" var="a" value="#{userEditLocalProjectAdminsBean.adminList}" paginator="true"
-					rows="15">
+					rows="15"
+					style="width:auto; font-size: 1.2rem;">
 			<p:column>
 				<f:facet name="header">
 					<h:outputText value="#{messages.id}" />
