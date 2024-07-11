@@ -80,7 +80,7 @@
 				<f:facet name="header">
 					<h:outputText value="#{messages.email}" />
 				</f:facet>
-				<h:outputText value="#{member.primaryEmail != null ? member.primaryEmail : 'nicht gesetzt'}" />
+				<h:outputText value="#{member.primaryEmail != null ? member.primaryEmail.emailAddress : 'nicht gesetzt'}" />
 			</p:column>
 			<p:column sortBy="#{member.prefUser.userStatus}" style="width:96px;">
 				<f:facet name="header">
