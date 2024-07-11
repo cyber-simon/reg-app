@@ -24,7 +24,7 @@
 	<ui:define name="content">
 	<h:form id="form" styleClass="full">
 
-		<h2><h:outputText value="#{messages.edit_admins}: #{userEditLocalProjectAdminsBean.entity.name}"/></h2>
+		<h2><h:outputText value="#{messages['project.edit_admins']}: #{userEditLocalProjectAdminsBean.entity.name}"/></h2>
 
 		<p:messages id="messageBox" showDetail="true" />
 
@@ -47,6 +47,8 @@
 			</h:panelGroup>		
 		</div>
 
+		<h6 style="margin-top: 1em;"><h:outputText value="#{messages['project.edit_admins.make_member_to_admin']}"/></h6>
+		<div class="text"><h:outputText value="#{messages['project.edit_admins.make_member_to_admin_text']}"/></div>
 		<p:outputPanel>
 	        <p:selectOneMenu value="#{userEditLocalProjectAdminsBean.selectedAdminType}">
             	<f:selectItems value="#{userEditLocalProjectAdminsBean.adminTypes}" 
@@ -92,6 +94,8 @@
 			</p:column>	
 		</p:dataTable>
 
+		<h6 style="margin-top: 1em;"><h:outputText value="#{messages['project.edit_admins.remove_admin']}"/></h6>
+		<div class="text"><h:outputText value="#{messages['project.edit_admins.remove_admin_text']}"/></div>
 		<p:dataTable id="dataTableAdmins" var="a" value="#{userEditLocalProjectAdminsBean.adminList}" paginator="true"
 					rows="15">
 			<p:column>
