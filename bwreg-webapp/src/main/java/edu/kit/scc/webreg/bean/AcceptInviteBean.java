@@ -79,9 +79,9 @@ public class AcceptInviteBean implements Serializable {
 	}
 
 	public void check() {
-		token = tokenService.findByAttr("token", tokenString);
+		token = tokenService.findByAttr("token", getTokenString());
 		if (token == null) {
-			messageGenerator.addResolvedErrorMessage("no-token", "no-token-detail", true);
+			messageGenerator.addResolvedErrorMessage("project.accept_invite.no_token", "project.accept_invite.no_token_detail", true);
 			return;
 		}
 		else if (token.getValidUntil().before(new Date())) {
@@ -114,7 +114,7 @@ public class AcceptInviteBean implements Serializable {
 
 	public void accept() {
 		if (token == null) {
-			messageGenerator.addResolvedErrorMessage("no-token", "no-token-detail", true);
+			messageGenerator.addResolvedErrorMessage("project.accept_invite.no_token", "project.accept_invite.no_token_detail", true);
 			return;
 		}
 		else if (token.getValidUntil().before(new Date())) {
@@ -141,12 +141,14 @@ public class AcceptInviteBean implements Serializable {
 				"idty-" + sessionManager.getIdentityId());
 		token = null;
 		tokenString = "";
+		messageGenerator.addResolvedInfoMessage("project.accept_invite.token_accepted", "project.accept_invite.token_accepted_detail", true);
 	}
 
 	public void decline() {
 		tokenService.declineEmailToken(token, sessionManager.getIdentityId(), "idty-" + sessionManager.getIdentityId());
 		token = null;
 		tokenString = "";
+		messageGenerator.addResolvedInfoMessage("project.accept_invite.token_declined", "project.accept_invite.token_declined_detail", true);
 	}
 
 	public IdentityEntity getIdentity() {

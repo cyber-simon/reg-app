@@ -328,7 +328,7 @@ public class ScriptedSamba4RegisterWorkflow
 				Object result = invocable.invokeFunction("resolveGroupname", scriptingEnv, reconMap, group, service,
 						auditor, logger, sgf);
 				if (result != null) {
-					samba4Worker.deleteGroup(group.getName());
+					samba4Worker.deleteGroup(result.toString());
 				} else {
 					logger.debug("Groupname for group {} did not resolve", group.getName());
 				}

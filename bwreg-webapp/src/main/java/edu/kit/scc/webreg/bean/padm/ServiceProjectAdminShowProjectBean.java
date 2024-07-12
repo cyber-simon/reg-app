@@ -13,17 +13,13 @@ package edu.kit.scc.webreg.bean.padm;
 import java.io.Serializable;
 import java.util.List;
 
-import jakarta.faces.event.ComponentSystemEvent;
-import jakarta.faces.view.ViewScoped;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity_;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.entity.project.ProjectServiceEntity;
+import edu.kit.scc.webreg.entity.project.ProjectServiceStatusType;
 import edu.kit.scc.webreg.exc.NotAuthorizedException;
 import edu.kit.scc.webreg.sec.AuthorizationBean;
 import edu.kit.scc.webreg.service.ServiceService;
@@ -31,6 +27,10 @@ import edu.kit.scc.webreg.service.project.LocalProjectService;
 import edu.kit.scc.webreg.service.project.ProjectService;
 import edu.kit.scc.webreg.session.SessionManager;
 import edu.kit.scc.webreg.util.FacesMessageGenerator;
+import jakarta.faces.event.ComponentSystemEvent;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named
 @ViewScoped
@@ -67,12 +67,12 @@ public class ServiceProjectAdminShowProjectBean implements Serializable {
 	private List<ProjectIdentityAdminEntity> adminList;
 	private List<ProjectServiceEntity> serviceList;
 	private List<ProjectServiceEntity> serviceFromParentsList;
-	
+
 	private Long projectId;
 	private Long serviceId;
 
 	private String overrideGroupName;
-	
+
 	public void preRenderView(ComponentSystemEvent ev) {
 		if (entity == null) {
 			entity = service.findByIdWithAttrs(projectId, LocalProjectEntity_.projectServices);
@@ -90,6 +90,15 @@ public class ServiceProjectAdminShowProjectBean implements Serializable {
 
 		projectServiceEntity = entity.getProjectServices().stream().filter(ps -> ps.getService().equals(serviceEntity))
 				.findFirst().orElseThrow(() -> new NotAuthorizedException("Nicht autorisiert"));
+	}
+
+	public void removeFromService() {
+		projectService.addOrChangeService(getEntity(), getServiceEntity(), getProjectServiceEntity().getType(),
+				ProjectServiceStatusType.DELETED, getOverrideGroupName());
+		messageGenerator.addResolvedInfoMessage("project.local_project.approver_admin_removed",
+				"project.local_project.approver_admin_removed_detail", true);
+		entity = service.findByIdWithAttrs(projectId, LocalProjectEntity_.projectServices);
+		serviceList = null;
 	}
 
 	public void approve() {
@@ -115,7 +124,7 @@ public class ServiceProjectAdminShowProjectBean implements Serializable {
 				"project.local_project.approver_admin_groupname_updated_detail", true);
 		entity = service.findByIdWithAttrs(projectId, LocalProjectEntity_.projectServices);
 	}
-	
+
 	public LocalProjectEntity getEntity() {
 		return entity;
 	}

@@ -149,6 +149,10 @@
 			</p:dataTable>
 		</p:panel>
 
+		<p:panel header="#{messages.tool}">
+			<p:commandButton action="#{admin.showLocalProjectBean.syncAllMembersToGroup()}" value="Sync to group" />
+			<p:commandButton action="#{admin.showLocalProjectBean.triggerGroupUpdate()}" value="Trigger group update" />
+		</p:panel>
 	</h:form>
 
 	</ui:define>

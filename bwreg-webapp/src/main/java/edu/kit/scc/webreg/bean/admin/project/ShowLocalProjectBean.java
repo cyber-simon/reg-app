@@ -13,17 +13,17 @@ package edu.kit.scc.webreg.bean.admin.project;
 import java.io.Serializable;
 import java.util.List;
 
-import jakarta.faces.event.ComponentSystemEvent;
-import jakarta.faces.view.ViewScoped;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity;
 import edu.kit.scc.webreg.entity.project.LocalProjectEntity_;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
 import edu.kit.scc.webreg.service.project.LocalProjectService;
 import edu.kit.scc.webreg.service.project.ProjectService;
+import edu.kit.scc.webreg.session.SessionManager;
+import jakarta.faces.event.ComponentSystemEvent;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named("admin.showLocalProjectBean")
 @ViewScoped
@@ -37,6 +37,9 @@ public class ShowLocalProjectBean implements Serializable {
 	@Inject
 	private ProjectService projectService;
 
+	@Inject
+	private SessionManager session;
+	
 	private LocalProjectEntity entity;
 	private List<ProjectMembershipEntity> memberList;
 	private List<ProjectIdentityAdminEntity> adminList;
@@ -54,6 +57,14 @@ public class ShowLocalProjectBean implements Serializable {
 		this.id = id;
 	}
 
+	public void syncAllMembersToGroup() {
+		projectService.syncAllMembersToGroup(getEntity(), "idty-" + session.getIdentityId());
+	}
+
+	public void triggerGroupUpdate() {
+		projectService.triggerGroupUpdate(getEntity(), "idty-" + session.getIdentityId());
+	}
+	
 	public LocalProjectEntity getEntity() {
 		if (entity == null) {
 			entity = service.findByIdWithAttrs(id, LocalProjectEntity_.projectServices);

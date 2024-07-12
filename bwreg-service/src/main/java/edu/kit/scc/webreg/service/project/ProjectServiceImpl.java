@@ -47,6 +47,18 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectEntity> implement
 	private LocalProjectUpdater updater;
 
 	@Override
+	public void triggerGroupUpdate(ProjectEntity project, String executor) {
+		project = dao.fetch(project.getId());
+		updater.triggerGroupUpdate(project, executor);
+	}
+	
+	@Override
+	public void syncAllMembersToGroup(ProjectEntity project, String executor) {
+		project = dao.fetch(project.getId());
+		updater.syncAllMembersToGroup(project, executor);
+	}
+	
+	@Override
 	public void updateProjectMemberList(ProjectEntity project, Set<IdentityEntity> memberList, String executor) {
 		project = dao.fetch(project.getId());
 		updater.updateProjectMemberList(project, memberList, executor);

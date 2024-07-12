@@ -330,7 +330,7 @@ public class ScriptedLdapRegisterWorkflow
 				Object result = invocable.invokeFunction("resolveGroupname", scriptingEnv, reconMap, group, service,
 						auditor, logger, sgf);
 				if (result != null) {
-					ldapWorker.deleteGroup(group.getName());
+					ldapWorker.deleteGroup(result.toString());
 				} else {
 					logger.debug("Groupname for group {} did not resolve", group.getName());
 				}

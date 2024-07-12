@@ -22,6 +22,7 @@ import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.UserGroupEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectIdentityAdminEntity;
@@ -114,7 +115,8 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 	}
 
 	public void removeProjectMember(ProjectMembershipEntity pme, String executor) {
-		logger.debug("Remove member {} from project {}", pme.getIdentity().getId(), pme.getProject().getId());
+		ProjectEntity project = getDao().fetch(pme.getProject().getId());
+		logger.debug("Remove member {} from project {}", pme.getIdentity().getId(), project.getId());
 		getDao().removeMemberFromProject(pme);
 
 		ProjectMembershipEvent event = new ProjectMembershipEvent(pme);
@@ -124,7 +126,7 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 			logger.warn("Could not submit event", e);
 		}
 
-		updateProjectMemberList(pme.getProject(), executor, 0, 3);
+		updateProjectMemberList(project, executor, 0, 3);
 	}
 
 	public void addProjectMember(ProjectEntity project, IdentityEntity identity, String executor) {
@@ -188,8 +190,20 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 	public void syncAllMembersToGroup(ProjectEntity project, String executor) {
 		List<ProjectMembershipEntity> memberList = getDao().findMembersForProject(project, true);
 
+		Set<UserGroupEntity> ugs = project.getProjectGroup().getUsers();
+		Set<UserEntity> users = new HashSet<>(ugs.stream().map(ug -> ug.getUser()).toList());
+		
+		// Sync all members to group
 		for (ProjectMembershipEntity pme : memberList) {
 			syncMemberToGroup(project, pme.getIdentity(), executor);
+			for (UserEntity user : pme.getIdentity().getUsers()) {
+				users.remove(user);
+			}
+		}
+		
+		for (UserEntity user : users) {
+			logger.info("Remove user {} from project-group for project {}", user.getId(), project.getName());
+			groupDao.removeUserGromGroup(user, project.getProjectGroup());
 		}
 	}
 
@@ -245,7 +259,8 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 		}
 
 		syncGroupFlags(pse, executor);
-		triggerGroupUpdate(project, executor);
+		syncAllMembersToGroup(pse.getProject(), executor);
+		triggerGroupUpdate(pse.getProject(), executor);
 	}
 
 	public void updateServices(ProjectEntity project, Set<ServiceEntity> serviceList, ProjectServiceType type,

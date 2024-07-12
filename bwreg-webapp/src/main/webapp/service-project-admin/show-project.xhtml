@@ -22,54 +22,57 @@
 	<ui:param name="title" value="#{messages.title}"/>
 
 	<ui:define name="content">
-	<h:form id="form" class="full form">
+	<h:form id="form" class="full">
 
 		<h2><h:outputText value="#{messages['project.local_project']} (#{serviceProjectAdminShowProjectBean.serviceEntity.name}): #{serviceProjectAdminShowProjectBean.entity.name}"/></h2>
 
 		<p:messages id="messageBox" showDetail="true" />
 		
-		<p:panel header="#{messages.properties}">
-			<p:panelGrid id="baseData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
+		<h:panelGrid style="margin-top:1em;" id="baseData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 		
-		        <h:outputText value="#{messages.id}:"/>
-		        <h:outputText value="#{serviceProjectAdminShowProjectBean.entity.id}"/>
+	        <h:outputText value="#{messages.id}:"/>
+	        <h:outputText value="#{serviceProjectAdminShowProjectBean.entity.id}"/>
+	
+	        <h:outputText value="#{messages.name}:"/>
+	        <h:outputText value="#{serviceProjectAdminShowProjectBean.entity.name}"/>
+				
+	        <h:outputText value="#{messages.group_name}:"/>
+	        <h:outputText value="#{serviceProjectAdminShowProjectBean.entity.groupName}"/>
+
+	        <h:outputText value="#{messages.services}:"/>
+	        <ui:repeat value="#{serviceProjectAdminShowProjectBean.entity.projectServices}" var="s">
+	        	<h:panelGroup layout="block" styleClass="text" rendered="#{! serviceProjectAdminShowProjectBean.serviceEntity.id.equals(s.service.id)}">
+	        		<h:outputText value="#{s.service.name} (#{s.status}) "/>
+	        	</h:panelGroup>
+	        	<h:panelGroup layout="block" styleClass="text" rendered="#{serviceProjectAdminShowProjectBean.serviceEntity.id.equals(s.service.id)}">
+	        		<b><h:outputText value="#{s.service.name} (#{s.status}) "/></b>
+	        		<p:commandLink action="#{serviceProjectAdminShowProjectBean.removeFromService()}" value="#{messages['delete']}"
+	        			rendered="#{s.status == 'ACTIVE'}" update="@form"/>
+	        	</h:panelGroup>
+			</ui:repeat>
+		</h:panelGrid>
 		
-		        <h:outputText value="#{messages.name}:"/>
-		        <h:outputText value="#{serviceProjectAdminShowProjectBean.entity.name}"/>
-					
-		        <h:outputText value="#{messages.group_name}:"/>
-		        <h:outputText value="#{serviceProjectAdminShowProjectBean.entity.groupName}"/>
-
-		        <h:outputText value="#{messages.services}:"/>
-		        <ui:repeat value="#{serviceProjectAdminShowProjectBean.entity.projectServices}" var="s">
-		        	<div>
-		        		<h:outputText value="#{s.service.name} (#{s.status}) "/>
-		        	</div>
-				</ui:repeat>
-			</p:panelGrid>
-		</p:panel>
-
-		<p:panel rendered="#{serviceProjectAdminShowProjectBean.projectServiceEntity.status == 'APPROVAL_PENDING'}">
+		<h:panelGroup layout="block" styleClass="text" rendered="#{serviceProjectAdminShowProjectBean.projectServiceEntity.status == 'APPROVAL_PENDING'}">
 			<h5 style="margin-top: 1em;"><h:outputText value="#{messages['project.local_project.approver_admin_header']}" /></h5>
 			<h:outputText value="#{messages['project.local_project.approver_admin_txt']}" />
-			<p:outputPanel>
+			<div>
 				<h:outputText value="#{messages['project.local_project.approver_admin_message']}" />
-			</p:outputPanel>
-			<p:outputPanel style="margin-top: 0.5em;">
+			</div>
+			<div style="margin-top: 0.5em;">
 				<h:outputText value="#{serviceProjectAdminShowProjectBean.projectServiceEntity.project.name}" />
 				<i class="pi pi-arrow-right"></i>
 				<h:outputText value=" #{serviceProjectAdminShowProjectBean.projectServiceEntity.service.name}" />
-			</p:outputPanel>
-			<p:panelGrid columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">	
+			</div>
+			<h:panelGrid columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">	
 		        <bw:inputText id="ovvrGrpField" label="#{messages['project.local_project.approver_set_override_groupname']}" 
 		        	value="#{serviceProjectAdminShowProjectBean.overrideGroupName}" required="false"/>
-			</p:panelGrid>
+			</h:panelGrid>
 			
-			<p:outputPanel>
-				<p:commandButton id="approve" action="#{serviceProjectAdminShowProjectBean.approve()}" value="#{messages.approve}" style="color:green;" update="@form"/>
-				<p:commandButton id="deny" action="#{serviceProjectAdminShowProjectBean.deny()}" value="#{messages.deny}" class="text-danger" update="@form"/>
-			</p:outputPanel>
-		</p:panel>
+			<h:panelGroup layout="block" styleClass="form">
+				<p:commandButton id="approve" action="#{serviceProjectAdminShowProjectBean.approve()}" value="#{messages.approve}" update="@form"/>
+				<p:commandButton id="deny" action="#{serviceProjectAdminShowProjectBean.deny()}" value="#{messages.deny}" class="text-danger" style="margin-left: 0.5em;" update="@form"/>
+			</h:panelGroup>
+		</h:panelGroup>
 
 		<p:panel rendered="#{serviceProjectAdminShowProjectBean.projectServiceEntity.status == 'ACTIVE'}">
 			<h5 style="margin-top: 1em;"><h:outputText value="#{messages['project.local_project.approver_active_panel_header']}" /></h5>
@@ -87,86 +90,84 @@
 			</p:outputPanel>	
 		</p:panel>
 
-		<p:panel>
-			<h5 style="margin-top: 1em;"><h:outputText value="#{messages['project.admins']}" /></h5>
-			<p:dataTable id="dataTableAdmin" var="admin" value="#{serviceProjectAdminShowProjectBean.adminList}">
-				<p:column>
-					<f:facet name="header">
-						<h:outputText value="#{messages.id}" />
-					</f:facet>
-					<h:outputText value="#{admin.identity.id}" />
-				</p:column>			
-				<p:column sortBy="#{admin.identity.prefUser.eppn}" filterBy="#{admin.identity.prefUser.eppn}" filterMatchMode="contains">
-					<f:facet name="header">
-						<h:outputText value="#{messages.name}" />
-					</f:facet>
-					<h:outputText value="#{admin.identity.prefUser.eppn}" />
-				</p:column>			
-				<p:column sortBy="#{admin.identity.prefUser.surName}" filterBy="#{admin.identity.prefUser.surName}" filterMatchMode="contains">
-					<f:facet name="header">
-						<h:outputText value="#{messages.sur_name}" />
-					</f:facet>
-					<h:outputText value="#{admin.identity.prefUser.surName}" />
-				</p:column>			
-				<p:column sortBy="#{admin.identity.prefUser.givenName}" filterBy="#{admin.identity.prefUser.givenName}" filterMatchMode="contains">
-					<f:facet name="header">
-						<h:outputText value="#{messages.given_name}" />
-					</f:facet>
-					<h:outputText value="#{admin.identity.prefUser.givenName}" />
-				</p:column>			
-				<p:column>
-					<f:facet name="header">
-						<h:outputText value="#{messages.type}" />
-					</f:facet>
-					<h:outputText value="#{admin.type}" />
-				</p:column>			
-			</p:dataTable>	
-			
-			<h5 style="margin-top: 1em;"><h:outputText value="#{messages['project.members']}" /></h5>
-			<p:dataTable id="dataTableMember" var="member" value="#{serviceProjectAdminShowProjectBean.memberList}">
-				<p:column>
-					<f:facet name="header">
-						<h:outputText value="#{messages.id}" />
-					</f:facet>
-					<h:outputText value="#{member.identity.id}" />
-				</p:column>			
-				<p:column sortBy="#{member.identity.prefUser.eppn}" filterBy="#{member.identity.prefUser.eppn}" filterMatchMode="contains">
-					<f:facet name="header">
-						<h:outputText value="#{messages.name}" />
-					</f:facet>
-					<h:outputText value="#{member.identity.prefUser.eppn}" />
-				</p:column>			
-				<p:column sortBy="#{member.identity.prefUser.surName}" filterBy="#{member.identity.prefUser.surName}" filterMatchMode="contains">
-					<f:facet name="header">
-						<h:outputText value="#{messages.sur_name}" />
-					</f:facet>
-					<h:outputText value="#{member.identity.prefUser.surName}" />
-				</p:column>			
-				<p:column sortBy="#{member.identity.prefUser.givenName}" filterBy="#{member.identity.prefUser.givenName}" filterMatchMode="contains">
-					<f:facet name="header">
-						<h:outputText value="#{messages.given_name}" />
-					</f:facet>
-					<h:outputText value="#{member.identity.prefUser.givenName}" />
-				</p:column>			
-				<p:column>
-					<f:facet name="header">
-						<h:outputText value="#{messages.type}" />
-					</f:facet>
-					<h:outputText value="#{member.membershipType}" />
-				</p:column>			
-			</p:dataTable>	
-			
-			<h5 style="margin-top: 1em;"><h:outputText value="#{messages['more_properties']}" /></h5>
-			<p:outputPanel style="margin-top: 0.5em;">
-				<p:panelGrid id="descData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">	
-			        <h:outputText value="#{messages['project.short_description']}:"/>
-					<h:outputText value="#{serviceProjectAdminShowProjectBean.entity.shortDescription}" />	
+		<h5 style="margin-top: 1em;"><h:outputText value="#{messages['project.admins']}" /></h5>
+		<p:dataTable id="dataTableAdmin" var="a" value="#{serviceProjectAdminShowProjectBean.adminList}">
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.id}" />
+				</f:facet>
+				<h:outputText value="#{a.identity.id}" />
+			</p:column>			
+			<p:column sortBy="#{a.identity.prefUser.eppn}" filterBy="#{a.identity.prefUser.eppn}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.name}" />
+				</f:facet>
+				<h:outputText value="#{a.identity.prefUser.eppn}" />
+			</p:column>			
+			<p:column sortBy="#{a.identity.prefUser.surName}" filterBy="#{a.identity.prefUser.surName}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.sur_name}" />
+				</f:facet>
+				<h:outputText value="#{a.identity.prefUser.surName}" />
+			</p:column>			
+			<p:column sortBy="#{a.identity.prefUser.givenName}" filterBy="#{a.identity.prefUser.givenName}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.given_name}" />
+				</f:facet>
+				<h:outputText value="#{a.identity.prefUser.givenName}" />
+			</p:column>			
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.type}" />
+				</f:facet>
+				<h:outputText value="#{admin.type}" />
+			</p:column>			
+		</p:dataTable>	
 		
-			        <h:outputText value="#{messages['project.long_description']}:"/>
-					<h:outputText value="#{serviceProjectAdminShowProjectBean.entity.description}" />	
-				</p:panelGrid>
-			</p:outputPanel>
-		</p:panel>
+		<h5 style="margin-top: 1em;"><h:outputText value="#{messages['project.members']}" /></h5>
+		<p:dataTable id="dataTableMember" var="member" value="#{serviceProjectAdminShowProjectBean.memberList}">
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.id}" />
+				</f:facet>
+				<h:outputText value="#{member.identity.id}" />
+			</p:column>			
+			<p:column sortBy="#{member.identity.prefUser.eppn}" filterBy="#{member.identity.prefUser.eppn}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.name}" />
+				</f:facet>
+				<h:outputText value="#{member.identity.prefUser.eppn}" />
+			</p:column>			
+			<p:column sortBy="#{member.identity.prefUser.surName}" filterBy="#{member.identity.prefUser.surName}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.sur_name}" />
+				</f:facet>
+				<h:outputText value="#{member.identity.prefUser.surName}" />
+			</p:column>			
+			<p:column sortBy="#{member.identity.prefUser.givenName}" filterBy="#{member.identity.prefUser.givenName}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.given_name}" />
+				</f:facet>
+				<h:outputText value="#{member.identity.prefUser.givenName}" />
+			</p:column>			
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.type}" />
+				</f:facet>
+				<h:outputText value="#{member.membershipType}" />
+			</p:column>			
+		</p:dataTable>	
+		
+		<h5 style="margin-top: 1em;"><h:outputText value="#{messages['more_properties']}" /></h5>
+		<p:outputPanel style="margin-top: 0.5em;">
+			<p:panelGrid id="descData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">	
+		        <h:outputText value="#{messages['project.short_description']}:"/>
+				<h:outputText value="#{serviceProjectAdminShowProjectBean.entity.shortDescription}" />	
+	
+		        <h:outputText value="#{messages['project.long_description']}:"/>
+				<h:outputText value="#{serviceProjectAdminShowProjectBean.entity.description}" />	
+			</p:panelGrid>
+		</p:outputPanel>
 	</h:form>
 
 	</ui:define>

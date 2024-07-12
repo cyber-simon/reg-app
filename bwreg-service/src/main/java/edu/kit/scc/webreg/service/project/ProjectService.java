@@ -63,4 +63,8 @@ public interface ProjectService extends BaseService<ProjectEntity> {
 
 	void removeProjectMember(ProjectMembershipEntity pme, String executor);
 
+	void syncAllMembersToGroup(ProjectEntity project, String executor);
+
+	void triggerGroupUpdate(ProjectEntity project, String executor);
+
 }

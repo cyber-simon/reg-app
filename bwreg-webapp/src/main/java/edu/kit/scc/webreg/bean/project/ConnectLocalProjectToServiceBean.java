@@ -180,7 +180,8 @@ public class ConnectLocalProjectToServiceBean implements Serializable {
 		if (serviceList == null) {
 			serviceList = serviceService.findAllByAttr("projectCapable", Boolean.TRUE);
 			for (ProjectServiceEntity pse : getProjectServiceList()) {
-				serviceList.remove(pse.getService());
+				if (! ProjectServiceStatusType.DELETED.equals(pse.getStatus()))
+					serviceList.remove(pse.getService());
 			}
 		}
 		return serviceList;
