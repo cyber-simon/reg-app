@@ -60,6 +60,7 @@ import edu.kit.scc.webreg.event.ServiceRegisterEvent;
 import edu.kit.scc.webreg.event.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.MisconfiguredApplicationException;
 import edu.kit.scc.webreg.exc.MisconfiguredServiceException;
+import edu.kit.scc.webreg.script.ScriptingEnv;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -86,6 +87,9 @@ public class KnowledgeSessionSingleton {
 	@Inject
 	private EventSubmitter eventSubmitter;
 
+	@Inject
+	private ScriptingEnv scriptingEnv;
+	
 	@Inject
 	private ApplicationConfig appConfig;
 
@@ -202,7 +206,7 @@ public class KnowledgeSessionSingleton {
 
 			Invocable invocable = (Invocable) engine;
 
-			invocable.invokeFunction("checkAccess", identity, unauthorizedList, logger);
+			invocable.invokeFunction("checkAccess", identity, unauthorizedList, logger, scriptingEnv);
 
 		} catch (ScriptException e) {
 			logger.warn("Script execution failed.", e);
