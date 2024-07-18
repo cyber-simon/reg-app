@@ -232,6 +232,7 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 
 	public void addOrChangeService(ProjectEntity project, ServiceEntity service, ProjectServiceType type,
 			ProjectServiceStatusType status, String executor) {
+		project = getDao().fetch(project.getId());
 		ProjectServiceEntity pse = getDao().findByServiceAndProject(service, project);
 
 		if (pse != null) {
