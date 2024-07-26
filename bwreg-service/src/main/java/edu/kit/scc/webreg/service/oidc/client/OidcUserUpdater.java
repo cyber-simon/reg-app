@@ -157,6 +157,10 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 			 */
 			OidcRpConfigurationEntity rpConfig = user.getIssuer();
 
+			if (user.getAttributeStore().get("refreshToken") == null) {
+				throw new UserUpdateException("refresh token is null");
+			}
+			
 			RefreshToken token = new RefreshToken(user.getAttributeStore().get("refreshToken"));
 			AuthorizationGrant refreshTokenGrant = new RefreshTokenGrant(token);
 
