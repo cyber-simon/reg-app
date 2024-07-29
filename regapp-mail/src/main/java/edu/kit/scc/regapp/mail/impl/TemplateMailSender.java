@@ -78,6 +78,7 @@ public class TemplateMailSender {
 						rendererContext.put("user", user);
 					}
 				}
+				
 			} else if (rendererContext.containsKey("user")) {
 				UserEntity user = userDao.fetch(((UserEntity) rendererContext.get("user")).getId());
 				rendererContext.putAll(userPrefsResolver.resolvePrefs(user.getIdentity()));

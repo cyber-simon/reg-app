@@ -263,6 +263,8 @@ public class OAuthUserUpdater extends AbstractUserUpdater<OAuthUserEntity> {
 
 		user.setLastUpdate(new Date());
 		user.setLastFailedUpdate(null);
+		user.setExpireWarningSent(null);
+		user.setExpiredSent(null);
 		user.setScheduledUpdate(getNextScheduledUpdate());
 
 		if (changed) {

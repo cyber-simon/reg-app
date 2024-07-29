@@ -13,9 +13,14 @@ package edu.kit.scc.webreg.service.impl;
 import static edu.kit.scc.webreg.dao.ops.PaginateBy.withLimit;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.and;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.isNotNull;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.isNull;
+import static edu.kit.scc.webreg.dao.ops.RqlExpressions.lessThan;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.lessThanOrEqualTo;
 import static edu.kit.scc.webreg.dao.ops.SortBy.ascendingBy;
+import static java.time.temporal.ChronoUnit.DAYS;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -28,6 +33,7 @@ import edu.kit.scc.webreg.dao.SamlUserDao;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.UserLoginInfoDao;
 import edu.kit.scc.webreg.dao.identity.IdentityDao;
+import edu.kit.scc.webreg.dao.ops.SortBy;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
@@ -41,6 +47,7 @@ import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.UserService;
+import edu.kit.scc.webreg.service.user.UserLifecycleManager;
 import edu.kit.scc.webreg.session.HttpRequestContext;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
@@ -55,6 +62,9 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity> implements User
 
 	@Inject
 	private UserDao dao;
+
+	@Inject
+	private UserLifecycleManager userLifecycleManager;
 
 	@Inject
 	private SamlUserDao samlUserDao;
@@ -101,6 +111,33 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity> implements User
 		loginInfo.setFrom(from);
 		loginInfo = userLoginInfoDao.persist(loginInfo);
 		return loginInfo;
+	}
+
+	@Override
+	public List<UserEntity> findUsersForExpiryWarning(int limit, int days) {
+		Date dateBeforeNDays = Date.from(Instant.now().minus(days, DAYS));
+		// Find all users, where 
+		// expireWarningSent is null: No expiry warning sent until now
+		// lastUpdate was before the specified days
+		// scheduledUpdate is not null: External API users have no scheduled upadte. Only update users, that 
+		// have update schedule set
+		return dao.findAll(withLimit(limit), SortBy.ascendingBy(UserEntity_.lastUpdate),
+				and(equal(UserEntity_.userStatus, UserStatus.ACTIVE), isNull(UserEntity_.expireWarningSent),
+						lessThan(UserEntity_.lastUpdate, dateBeforeNDays), isNotNull(UserEntity_.scheduledUpdate)));
+	}
+
+	@Override
+	public List<UserEntity> findUsersForExpiry(int limit, int daysSinceWarning) {
+		Date dateBeforeNDays = Date.from(Instant.now().minus(daysSinceWarning, DAYS));
+		return dao.findAll(withLimit(limit), SortBy.ascendingBy(UserEntity_.expireWarningSent),
+				and(equal(UserEntity_.userStatus, UserStatus.ACTIVE), isNotNull(UserEntity_.expireWarningSent),
+						lessThan(UserEntity_.expireWarningSent, dateBeforeNDays), isNotNull(UserEntity_.scheduledUpdate)));
+	}
+
+	@Override
+	public void sendUserExpiryWarning(UserEntity user, String emailTemplateName) {
+		user = dao.fetch(user.getId());
+		userLifecycleManager.sendUserExpiryWarning(user, emailTemplateName);
 	}
 
 	@Override

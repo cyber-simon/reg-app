@@ -57,4 +57,10 @@ public interface UserService extends BaseService<UserEntity> {
 
 	SamlUserEntity findByPersistent(String spId, String idpId, String persistentId);
 
+	List<UserEntity> findUsersForExpiryWarning(int limit, int days);
+
+	void sendUserExpiryWarning(UserEntity user, String emailTemplateName);
+
+	List<UserEntity> findUsersForExpiry(int limit, int daysSinceWarning);
+
 }

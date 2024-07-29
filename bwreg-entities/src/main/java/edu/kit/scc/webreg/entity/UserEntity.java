@@ -102,6 +102,12 @@ public class UserEntity extends AbstractBaseEntity {
 	@Column(name = "last_failed_update")
 	private Date lastFailedUpdate;
 	
+	@Column(name = "expires_warn_sent_at")
+	private Date expireWarningSent;
+
+	@Column(name = "expired_sent_at")
+	private Date expiredSent;
+	
 	@Column(name = "theme", length = 128)
 	private String theme;
 	
@@ -307,5 +313,21 @@ public class UserEntity extends AbstractBaseEntity {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public Date getExpireWarningSent() {
+		return expireWarningSent;
+	}
+
+	public void setExpireWarningSent(Date expireWarningSent) {
+		this.expireWarningSent = expireWarningSent;
+	}
+
+	public Date getExpiredSent() {
+		return expiredSent;
+	}
+
+	public void setExpiredSent(Date expiredSent) {
+		this.expiredSent = expiredSent;
 	}	
 }

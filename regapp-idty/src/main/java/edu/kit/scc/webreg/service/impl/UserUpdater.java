@@ -322,6 +322,8 @@ public class UserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 
 		user.setLastUpdate(new Date());
 		user.setLastFailedUpdate(null);
+		user.setExpireWarningSent(null);
+		user.setExpiredSent(null);
 		user.setScheduledUpdate(getNextScheduledUpdate());
 
 		if (changed) {
