@@ -158,6 +158,7 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 			OidcRpConfigurationEntity rpConfig = user.getIssuer();
 
 			if (user.getAttributeStore().get("refreshToken") == null) {
+				updateFail(user);
 				throw new UserUpdateException("refresh token is null");
 			}
 			
@@ -389,6 +390,8 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 
 		user.setLastUpdate(new Date());
 		user.setLastFailedUpdate(null);
+		user.setExpireWarningSent(null);
+		user.setExpiredSent(null);
 		user.setScheduledUpdate(getNextScheduledUpdate());
 
 		if (changed) {
