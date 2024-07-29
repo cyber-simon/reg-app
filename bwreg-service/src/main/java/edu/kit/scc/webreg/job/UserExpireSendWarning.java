@@ -65,7 +65,7 @@ public class UserExpireSendWarning extends AbstractExecutableJob {
 			}
 			
 		} catch (NamingException e) {
-			logger.warn("Could not pseudo saml users: {}", e);
+			logger.warn("Could not send expire warning to user: {}", e);
 		}
 	}
 }

@@ -1,12 +1,9 @@
-package edu.kit.scc.webreg.service.oidc.client;
+package edu.kit.scc.regapp.oidc.tools;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-
-import jakarta.ejb.Singleton;
-import jakarta.inject.Inject;
 
 import org.slf4j.Logger;
 
@@ -17,8 +14,10 @@ import com.nimbusds.openid.connect.sdk.op.OIDCProviderConfigurationRequest;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 import edu.kit.scc.webreg.entity.oidc.OidcRpConfigurationEntity;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
-@Singleton
+@ApplicationScoped
 public class OidcOpMetadataSingletonBean {
 
 	@Inject

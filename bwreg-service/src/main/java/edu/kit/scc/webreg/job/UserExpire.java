@@ -61,10 +61,11 @@ public class UserExpire extends AbstractExecutableJob {
 			
 			for (UserEntity user : userList) {
 				logger.debug("Inspecting user {} - {} - {} - {} - {}", user.getId(), user.getEppn(), user.getEmail(), user.getUserStatus(), user.getLastStatusChange());
+				//TODO expire user
 			}
 			
 		} catch (NamingException e) {
-			logger.warn("Could not pseudo saml users: {}", e);
+			logger.warn("Could not expire users: {}", e);
 		}
 	}
 }

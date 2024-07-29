@@ -1,4 +1,4 @@
-package edu.kit.scc.webreg.service.oidc.client;
+package edu.kit.scc.webreg.service.group;
 
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.and;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
@@ -8,9 +8,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 
 import org.slf4j.Logger;
 
@@ -32,8 +29,9 @@ import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.MultipleGroupEvent;
 import edu.kit.scc.webreg.event.exc.EventSubmitException;
-import edu.kit.scc.webreg.service.SerialService;
 import edu.kit.scc.webreg.service.identity.HomeIdResolver;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class OidcGroupUpdater {

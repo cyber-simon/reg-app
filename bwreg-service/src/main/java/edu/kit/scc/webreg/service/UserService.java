@@ -63,4 +63,6 @@ public interface UserService extends BaseService<UserEntity> {
 
 	List<UserEntity> findUsersForExpiry(int limit, int daysSinceWarning);
 
+	void expireUser(UserEntity user, String emailTemplateName);
+
 }

@@ -11,9 +11,14 @@ import edu.kit.scc.regapp.mail.impl.TemplateMailSender;
 import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
+import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.identity.IdentityScriptingEnv;
+import edu.kit.scc.webreg.service.impl.OidcUserUpdater;
+import edu.kit.scc.webreg.service.impl.UserUpdater;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -43,16 +48,42 @@ public class UserLifecycleManager implements Serializable {
 	@Inject
 	private EventSubmitter eventSubmitter;
 
-	public void sendUserExpiryWarning(UserEntity user, String emailTemplateName) {
-		logger.debug("Sending expiry warning to user {} to e-mail address {}", user.getId(), user.getIdentity().getPrimaryEmail());
-		
-		Map<String, Object> context = new HashMap<String, Object>(2);
-		context.put("user", user);
-		context.put("identity", user.getIdentity());
+	@Inject
+	private UserUpdater userUpdater;
 
-		mailService.sendMail(emailTemplateName, context, true);
+	@Inject
+	private OidcUserUpdater oidcUserUpdater;
+
+	public void sendUserExpiryWarning(UserEntity user, String emailTemplateName) {
+		logger.debug("Sending expiry warning to user {} to e-mail address {}", user.getId(),
+				user.getIdentity().getPrimaryEmail());
+		sendMail(user, emailTemplateName);
 		user.setExpireWarningSent(new Date());
 
 	}
 
+	public void expireUser(UserEntity user, String emailTemplateName) {
+		logger.debug("Trying to expire user {} with e-mail address {}", user.getId(),
+				user.getIdentity().getPrimaryEmail());
+
+		try {
+			if (user instanceof SamlUserEntity) {
+				userUpdater.updateUserFromIdp((SamlUserEntity) user, "user-expire-job");
+			}
+			else if (user instanceof OidcUserEntity) {
+				oidcUserUpdater.updateUserFromOP((OidcUserEntity) user, "user-expire-job", null);
+			}
+		} catch (UserUpdateException e) {
+
+		}
+		sendMail(user, emailTemplateName);
+		user.setExpiredSent(new Date());
+	}
+
+	private void sendMail(UserEntity user, String emailTemplateName) {
+		Map<String, Object> context = new HashMap<String, Object>(2);
+		context.put("user", user);
+		context.put("identity", user.getIdentity());
+		mailService.sendMail(emailTemplateName, context, true);
+	}
 }

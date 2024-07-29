@@ -141,6 +141,12 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity> implements User
 	}
 
 	@Override
+	public void expireUser(UserEntity user, String emailTemplateName) {
+		user = dao.fetch(user.getId());
+		userLifecycleManager.expireUser(user, emailTemplateName);
+	}
+
+	@Override
 	public SamlUserEntity findByPersistent(String spId, String idpId, String persistentId) {
 		return samlUserDao.findByPersistent(spId, idpId, persistentId);
 	}
