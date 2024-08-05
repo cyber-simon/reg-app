@@ -26,6 +26,7 @@ import java.util.Set;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -35,6 +36,7 @@ import org.apache.hc.client5.http.ssl.DefaultHostnameVerifier;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
 import org.apache.hc.core5.http.config.Registry;
 import org.apache.hc.core5.http.config.RegistryBuilder;
+import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.apache.hc.core5.util.Timeout;
 import org.opensaml.core.criterion.EntityIdCriterion;
@@ -192,13 +194,21 @@ public class AttributeQueryHelper implements Serializable {
 					.append(samlHelper.prettyPrint((XMLObject) outbound.getMessage())).append("\n");
 		}
 
+		SocketConfig socketConfig = SocketConfig.custom().setSoTimeout(getRequestTimeout()).build();
+
 		Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
 				.register("https", getSSLConnectionSocketFactory(idpEntityDescriptor)).build();
 		BasicHttpClientConnectionManager connectionManager = new BasicHttpClientConnectionManager(
 				socketFactoryRegistry);
-
+		
+		connectionManager.setSocketConfig(socketConfig);
+		
+		//
+		// The .setConnectTimeout() is deprecated, but the above method with set socket timeout does not lead to the 
+		// same result. Without the setConnectTimeout a connection timeout will take 5 minutes. 
+		//
 		RequestConfig requestConfig = RequestConfig.custom().setResponseTimeout(getRequestTimeout())
-				.setConnectionRequestTimeout(getRequestTimeout()).build();
+				.setConnectionRequestTimeout(getRequestTimeout()).setConnectTimeout(getRequestTimeout()).build();
 		CloseableHttpClient client = HttpClients.custom().setConnectionManager(connectionManager)
 				.setDefaultRequestConfig(requestConfig).build();
 
