@@ -68,10 +68,10 @@ public class UserLifecycleManager implements Serializable {
 
 		try {
 			if (user instanceof SamlUserEntity) {
-				userUpdater.updateUserFromIdp((SamlUserEntity) user, "user-expire-job");
+				user = userUpdater.updateUserFromIdp((SamlUserEntity) user, "user-expire-job");
 			}
 			else if (user instanceof OidcUserEntity) {
-				oidcUserUpdater.updateUserFromOP((OidcUserEntity) user, "user-expire-job", null);
+				user = oidcUserUpdater.updateUserFromOP((OidcUserEntity) user, "user-expire-job", null);
 			}
 		} catch (UserUpdateException e) {
 
