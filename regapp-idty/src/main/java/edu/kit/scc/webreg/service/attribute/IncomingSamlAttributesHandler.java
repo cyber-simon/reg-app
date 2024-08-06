@@ -46,7 +46,7 @@ public class IncomingSamlAttributesHandler extends IncomingAttributesHandler<Inc
 
 	public void createOrUpdateSamlAttribute(IncomingAttributeSetEntity incomingAttributeSet, String name,
 			List<Object> attributeList) {
-		if (attributeList == null) {
+		if (attributeList == null || attributeList.size() == 0) {
 			logger.info("No value for {}", name);
 		} else if (singleValueSet().contains(name)) {
 			if (attributeList.get(0) instanceof String) {
