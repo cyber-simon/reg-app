@@ -69,15 +69,17 @@ public class UserLifecycleManager implements Serializable {
 		try {
 			if (user instanceof SamlUserEntity) {
 				user = userUpdater.updateUserFromIdp((SamlUserEntity) user, "user-expire-job");
+				// TODO: call and implement expire function
 			}
 			else if (user instanceof OidcUserEntity) {
 				user = oidcUserUpdater.updateUserFromOP((OidcUserEntity) user, "user-expire-job", null);
+				// TODO: call and implement expire function
 			}
 		} catch (UserUpdateException e) {
 
 		}
-		sendMail(user, emailTemplateName);
-		user.setExpiredSent(new Date());
+		//sendMail(user, emailTemplateName);
+		//user.setExpiredSent(new Date());
 	}
 
 	private void sendMail(UserEntity user, String emailTemplateName) {
