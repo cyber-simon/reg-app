@@ -5,10 +5,11 @@ import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -146,16 +147,26 @@ public class DiscoveryCacheService implements Serializable {
 	private List<UserProvisionerCachedEntry> filterAllEntries(List<ScriptEntity> filterScriptList,
 			List<UserProvisionerCachedEntry> entryList) {
 		if (filterScriptList != null && filterScriptList.size() > 0) {
-			Set<UserProvisionerCachedEntry> returnList = new HashSet<>();
+			Comparator<UserProvisionerCachedEntry> comparator = new Comparator<UserProvisionerCachedEntry>() {
+
+				@Override
+				public int compare(UserProvisionerCachedEntry e1, UserProvisionerCachedEntry e2) {
+					if (e1.getDisplayName() != null)
+						return e1.getDisplayName().compareTo(e2.getDisplayName());
+					else 
+						return 0;
+				}
+			};
+
+			Set<UserProvisionerCachedEntry> returnList = new TreeSet<>(comparator);
 			for (ScriptEntity script : filterScriptList) {
 				returnList.addAll(filterEntries(script, entryList));
 			}
 			return new ArrayList<>(returnList);
-		}
-		else
-			return entryList;		
+		} else
+			return entryList;
 	}
-	
+
 	private List<UserProvisionerCachedEntry> filterEntries(ScriptEntity scriptEntity,
 			List<UserProvisionerCachedEntry> entryList) {
 		ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
