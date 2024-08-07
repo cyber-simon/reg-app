@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="jakarta.faces.core"
+	xmlns:h="jakarta.faces.html"
+	xmlns:ui="jakarta.faces.facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+<f:view>
+	<f:metadata>
+		<f:viewParam name="soidc" value="#{samlAccessDeniedBean.id}"/>
+		<f:event type="jakarta.faces.event.PreRenderViewEvent"
+            listener="#{samlAccessDeniedBean.preRenderView}" />
+	</f:metadata>
+
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+
+		<p:panel header="#{messages.access_check}: #{samlAccessDeniedBean.serviceSamlSpEntity.sp.displayName}" rendered="#{samlAccessDeniedBean.accessProblem}" 
+				styleClass="text full">
+			<div style="margin-top: 4px;">
+				<h:outputText value="#{messages.requirements_unsatisfied}" />
+			</div>
+			<p:messages id="messageBoxReqs" for="reqs" showDetail="true" />
+		</p:panel>	
+		<p:panel header="#{messages.access_check}: #{samlAccessDeniedBean.serviceSamlSpEntity.sp.displayName}" rendered="#{not samlAccessDeniedBean.accessProblem}"
+				styleClass="text full">
+			<div style="margin-top: 4px;">
+				<h:outputText value="#{messages.requirements_met}" />
+			</div>
+			<p:messages id="messageBoxReqsMet" for="reqs" showDetail="true" />
+		</p:panel>	
+		
+	</ui:define>
+</ui:composition>
+
+</f:view>
+</body>
+</html>
