@@ -266,9 +266,12 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 					} else {
 						/*
 						 * There is no service set for this sp idp connection
-						 * TODO Check for authorization 
 						 */
 						filteredServiceSamlSpEntityList.add(serviceSamlSpEntity);
+						List<String> unauthorizedList = knowledgeSessionService.checkScriptAccess(serviceSamlSpEntity.getScript(), identity);
+						if (unauthorizedList.size() > 0) {
+							return "/user/saml-access-denied.xhtml?soidc=" + serviceSamlSpEntity.getId();
+						}						
 					}
 				} else {
 					logger.debug("serviceSamlSpEntity no match: {}", serviceSamlSpEntity.getId());
@@ -605,9 +608,6 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 	}
 
 	private List<Object> checkRules(UserEntity user, ServiceEntity service, RegistryEntity registry) {
-		/*
-		 * TODO Also check script access rule? 
-		 */
 		return knowledgeSessionService.checkServiceAccessRule(user, service, registry, "user-self", false);
 	}
 
