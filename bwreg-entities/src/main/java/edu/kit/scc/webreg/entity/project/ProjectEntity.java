@@ -11,6 +11,7 @@
 package edu.kit.scc.webreg.entity.project;
 
 import java.sql.Types;
+import java.util.Date;
 import java.util.Set;
 
 import org.hibernate.annotations.JdbcTypeCode;
@@ -95,6 +96,9 @@ public class ProjectEntity extends AbstractBaseEntity {
 	@OneToMany(mappedBy = "project")
 	private Set<ProjectIdentityAdminEntity> projectAdmins;
 
+	@Column(name = "last_sync_to_group")
+	private Date lastSyncToGroup;
+	
 	public String getName() {
 		return name;
 	}
@@ -221,5 +225,13 @@ public class ProjectEntity extends AbstractBaseEntity {
 
 	public void setAttributeName(String attributeName) {
 		this.attributeName = attributeName;
+	}
+
+	public Date getLastSyncToGroup() {
+		return lastSyncToGroup;
+	}
+
+	public void setLastSyncToGroup(Date lastSyncToGroup) {
+		this.lastSyncToGroup = lastSyncToGroup;
 	}
 }

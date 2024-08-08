@@ -4,6 +4,7 @@ import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -203,6 +204,8 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 			logger.info("Remove user {} from project-group for project {}", user.getId(), project.getName());
 			groupDao.removeUserGromGroup(user, project.getProjectGroup());
 		}
+		
+		project.setLastSyncToGroup(new Date());
 	}
 
 	public void syncMemberToGroup(ProjectEntity project, IdentityEntity identity, String executor) {
