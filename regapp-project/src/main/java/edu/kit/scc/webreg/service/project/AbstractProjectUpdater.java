@@ -16,8 +16,6 @@ import edu.kit.scc.webreg.dao.ServiceGroupFlagDao;
 import edu.kit.scc.webreg.dao.project.BaseProjectDao;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.GroupEntity;
-import edu.kit.scc.webreg.entity.RegistryEntity;
-import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupStatus;
@@ -208,24 +206,12 @@ public abstract class AbstractProjectUpdater<T extends ProjectEntity> implements
 	}
 
 	public void syncMemberToGroup(ProjectEntity project, IdentityEntity identity, String executor) {
-		Set<ProjectServiceEntity> pseList = getDao().findServicesForProject(project, true);
-
-		for (ProjectServiceEntity pse : pseList) {
-
-			RegistryEntity registry = registryDao.findByServiceAndIdentityAndStatus(pse.getService(), identity,
-					RegistryStatus.ACTIVE);
-			if (registry == null) {
-				registry = registryDao.findByServiceAndIdentityAndStatus(pse.getService(), identity,
-						RegistryStatus.LOST_ACCESS);
-			}
-
-			if (registry != null) {
-				/*
-				 * if user is registered for service, also add it to group member list
-				 */
-				if (!groupDao.isUserInGroup(registry.getUser(), project.getProjectGroup())) {
-					groupDao.addUserToGroup(registry.getUser(), project.getProjectGroup());
-				}
+		for (UserEntity user : identity.getUsers()) {
+			/*
+			 * add all users from identity to project group
+			 */
+			if (!groupDao.isUserInGroup(user, project.getProjectGroup())) {
+				groupDao.addUserToGroup(user, project.getProjectGroup());
 			}
 		}
 	}
