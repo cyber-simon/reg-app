@@ -29,7 +29,7 @@ import edu.kit.scc.webreg.entity.UserLoginInfoEntity;
 import edu.kit.scc.webreg.entity.UserLoginInfoStatus;
 import edu.kit.scc.webreg.entity.UserLoginMethod;
 import edu.kit.scc.webreg.exc.UserUpdateException;
-import edu.kit.scc.webreg.service.impl.UserUpdater;
+import edu.kit.scc.webreg.service.impl.SamlUserUpdater;
 import edu.kit.scc.webreg.service.saml.exc.OidcAuthenticationException;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.session.SessionManager;
@@ -48,7 +48,7 @@ public class SamlSpPostServiceImpl implements SamlSpPostService {
 	private UserLoginInfoDao userLoginInfoDao;
 
 	@Inject
-	private UserUpdater userUpdater;
+	private SamlUserUpdater userUpdater;
 
 	@Inject
 	private SamlHelper samlHelper;

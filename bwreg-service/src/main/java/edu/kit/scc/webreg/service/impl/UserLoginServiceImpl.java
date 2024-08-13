@@ -113,7 +113,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 	private SamlUserDao samlUserDao;
 
 	@Inject
-	private UserUpdater userUpdater;
+	private SamlUserUpdater userUpdater;
 
 	@Inject
 	private KnowledgeSessionSingleton knowledgeSessionService;
@@ -751,7 +751,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 				} else {
 					logger.info("Performing user update for {} with id {}",
 							new Object[] { user.getEppn(), user.getId() });
-					user = userUpdater.updateUserFromIdp(user, service, executor, null);
+					user = userUpdater.updateUserFromHomeOrg(user, service, executor, null);
 				}
 			} catch (UserUpdateException e) {
 				logger.warn("Could not update user (attrq is optional, continue with login process) {}: {}",
@@ -771,7 +771,7 @@ public class UserLoginServiceImpl implements UserLoginService, Serializable {
 					logger.info("Performing user update for {} with id {}",
 							new Object[] { user.getEppn(), user.getId() });
 
-					user = userUpdater.updateUserFromIdp(user, service, executor, null);
+					user = userUpdater.updateUserFromHomeOrg(user, service, executor, null);
 				}
 			} catch (UserUpdateException e) {
 				logger.warn("Could not update user {}: {} (attrq is mandatory, denying access)", e.getMessage(),

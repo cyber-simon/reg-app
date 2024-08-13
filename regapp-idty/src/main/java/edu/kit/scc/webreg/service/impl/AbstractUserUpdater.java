@@ -17,7 +17,7 @@ import edu.kit.scc.webreg.hook.UserUpdateHook;
 import edu.kit.scc.webreg.hook.UserUpdateHookException;
 import edu.kit.scc.webreg.service.identity.IdentityScriptingEnv;
 
-public abstract class AbstractUserUpdater<T extends UserEntity> implements Serializable {
+public abstract class AbstractUserUpdater<T extends UserEntity> implements UserUpdater<T>, Serializable {
 
 	private static final long serialVersionUID = 1L;
 

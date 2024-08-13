@@ -52,7 +52,7 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 	private UserDao userDao;
 
 	@Inject
-	private UserUpdater userUpdater;
+	private SamlUserUpdater userUpdater;
 
 	@Inject
 	private KnowledgeSessionSingleton knowledgeSessionService;
@@ -276,7 +276,7 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 
 					// TODO check for OIDC user entity (refresh token?)
 					if (user instanceof SamlUserEntity)
-						user = userUpdater.updateUserFromIdp((SamlUserEntity) user, service, executor, null);
+						user = userUpdater.updateUserFromHomeOrg((SamlUserEntity) user, service, executor, null);
 				}
 			} catch (UserUpdateException e) {
 				logger.warn("Could not update user (attrq is optional, continue with login process) {}: {}",
@@ -298,7 +298,7 @@ public class UserUpdateServiceImpl implements UserUpdateService, Serializable {
 
 					// TODO check for OIDC user entity (refresh token?)
 					if (user instanceof SamlUserEntity)
-						user = userUpdater.updateUserFromIdp((SamlUserEntity) user, service, executor, null);
+						user = userUpdater.updateUserFromHomeOrg((SamlUserEntity) user, service, executor, null);
 				}
 			} catch (UserUpdateException e) {
 				logger.warn("Could not update user {}: {}", e.getMessage(), user.getEppn());

@@ -39,7 +39,7 @@ public class UserUpdateFromHomeOrgServiceImpl implements UserUpdateFromHomeOrgSe
 	private UserDao userDao;
 
 	@Inject
-	private UserUpdater userUpdater;
+	private SamlUserUpdater userUpdater;
 
 	@Inject
 	private OidcUserUpdater oidcUserUpdate;

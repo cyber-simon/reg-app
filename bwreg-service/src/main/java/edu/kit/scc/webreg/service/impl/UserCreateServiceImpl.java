@@ -78,7 +78,7 @@ public class UserCreateServiceImpl implements UserCreateService {
 	private SamlUserDao samlUserDao;
 
 	@Inject
-	private UserUpdater userUpdater;
+	private SamlUserUpdater userUpdater;
 
 	@Inject
 	private HomeOrgGroupUpdater homeOrgGroupUpdater;

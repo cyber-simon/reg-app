@@ -20,7 +20,7 @@ import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.identity.IdentityScriptingEnv;
 import edu.kit.scc.webreg.service.impl.OAuthUserUpdater;
 import edu.kit.scc.webreg.service.impl.OidcUserUpdater;
-import edu.kit.scc.webreg.service.impl.UserUpdater;
+import edu.kit.scc.webreg.service.impl.SamlUserUpdater;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -51,7 +51,7 @@ public class UserLifecycleManager implements Serializable {
 	private EventSubmitter eventSubmitter;
 
 	@Inject
-	private UserUpdater userUpdater;
+	private SamlUserUpdater userUpdater;
 
 	@Inject
 	private OidcUserUpdater oidcUserUpdater;
@@ -81,7 +81,7 @@ public class UserLifecycleManager implements Serializable {
 				// TODO: call and implement expire function
 			}
 			else if (user instanceof OAuthUserEntity) {
-				user = oidcUserUpdater.updateUserFromOP((OidcUserEntity) user, "user-expire-job", null);
+				user = oauthUserUpdater.updateUserFromOP((OAuthUserEntity) user, "user-expire-job", null);
 				// TODO: call and implement expire function
 			}
 		} catch (UserUpdateException e) {

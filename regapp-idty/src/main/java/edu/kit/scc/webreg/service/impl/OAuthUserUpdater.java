@@ -112,9 +112,14 @@ public class OAuthUserUpdater extends AbstractUserUpdater<OAuthUserEntity> {
 	
 	public OAuthUserEntity updateUserFromOP(OAuthUserEntity user, String executor, StringBuffer debugLog)
 			throws UserUpdateException {
-		throw new UserUpdateException("Not implemented");
+		return updateUserFromHomeOrg(user, null, executor, debugLog);
 	}
 
+	public OAuthUserEntity updateUserFromHomeOrg(OAuthUserEntity user, ServiceEntity service, String executor,
+			StringBuffer debugLog) throws UserUpdateException {
+		throw new UserUpdateException("Not implemented");
+	}
+	
 	@Override
 	public OAuthUserEntity updateUser(OAuthUserEntity user, Map<String, List<Object>> attributeMap, String executor,
 			StringBuffer debugLog, String lastLoginHost) throws UserUpdateException {

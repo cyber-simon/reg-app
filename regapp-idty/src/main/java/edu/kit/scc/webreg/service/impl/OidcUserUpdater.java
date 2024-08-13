@@ -146,8 +146,13 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 
 	@Inject
 	private IncomingOidcAttributesHandler incomingAttributeHandler;
-	
+
 	public OidcUserEntity updateUserFromOP(OidcUserEntity user, String executor, StringBuffer debugLog)
+			throws UserUpdateException {
+		return updateUserFromHomeOrg(user, null, executor, debugLog);
+	}
+	
+	public OidcUserEntity updateUserFromHomeOrg(OidcUserEntity user, ServiceEntity service, String executor, StringBuffer debugLog)
 			throws UserUpdateException {
 
 		try {

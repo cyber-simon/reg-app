@@ -70,7 +70,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity> implements User
 	private SamlUserDao samlUserDao;
 
 	@Inject
-	private UserUpdater userUpdater;
+	private SamlUserUpdater userUpdater;
 
 	@Inject
 	private RegistryDao registryDao;
@@ -197,7 +197,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserEntity> implements User
 	public SamlUserEntity updateUserFromIdp(SamlUserEntity user, String executor, StringBuffer debugLog)
 			throws UserUpdateException {
 		user = samlUserDao.fetch(user.getId());
-		return userUpdater.updateUserFromIdp(user, null, executor, debugLog);
+		return userUpdater.updateUserFromHomeOrg(user, null, executor, debugLog);
 	}
 
 	@Override
