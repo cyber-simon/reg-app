@@ -13,10 +13,12 @@ import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
 import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.oauth.OAuthUserEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.identity.IdentityScriptingEnv;
+import edu.kit.scc.webreg.service.impl.OAuthUserUpdater;
 import edu.kit.scc.webreg.service.impl.OidcUserUpdater;
 import edu.kit.scc.webreg.service.impl.UserUpdater;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -54,6 +56,9 @@ public class UserLifecycleManager implements Serializable {
 	@Inject
 	private OidcUserUpdater oidcUserUpdater;
 
+	@Inject
+	private OAuthUserUpdater oauthUserUpdater;
+
 	public void sendUserExpiryWarning(UserEntity user, String emailTemplateName) {
 		logger.debug("Sending expiry warning to user {} to e-mail address {}", user.getId(),
 				user.getIdentity().getPrimaryEmail());
@@ -72,6 +77,10 @@ public class UserLifecycleManager implements Serializable {
 				// TODO: call and implement expire function
 			}
 			else if (user instanceof OidcUserEntity) {
+				user = oidcUserUpdater.updateUserFromOP((OidcUserEntity) user, "user-expire-job", null);
+				// TODO: call and implement expire function
+			}
+			else if (user instanceof OAuthUserEntity) {
 				user = oidcUserUpdater.updateUserFromOP((OidcUserEntity) user, "user-expire-job", null);
 				// TODO: call and implement expire function
 			}

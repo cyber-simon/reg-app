@@ -1,4 +1,4 @@
-package edu.kit.scc.webreg.service.oauth.client;
+package edu.kit.scc.webreg.service.impl;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
@@ -16,12 +16,14 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
+import edu.kit.scc.webreg.as.AttributeSourceUpdater;
 import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.audit.RegistryAuditor;
 import edu.kit.scc.webreg.audit.UserUpdateAuditor;
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.RegistryDao;
 import edu.kit.scc.webreg.dao.SerialDao;
+import edu.kit.scc.webreg.dao.ServiceDao;
 import edu.kit.scc.webreg.dao.as.ASUserAttrDao;
 import edu.kit.scc.webreg.dao.audit.AuditDetailDao;
 import edu.kit.scc.webreg.dao.audit.AuditEntryDao;
@@ -31,7 +33,6 @@ import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.RegistryEntity;
 import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ServiceEntity;
-import edu.kit.scc.webreg.entity.ServiceEntity_;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.entity.as.ASUserAttrEntity;
@@ -46,12 +47,9 @@ import edu.kit.scc.webreg.exc.RegisterException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.hook.HookManager;
 import edu.kit.scc.webreg.hook.UserServiceHook;
-import edu.kit.scc.webreg.service.ServiceService;
 import edu.kit.scc.webreg.service.attribute.IncomingOAuthAttributesHandler;
+import edu.kit.scc.webreg.service.group.OAuthGroupUpdater;
 import edu.kit.scc.webreg.service.identity.IdentityUpdater;
-import edu.kit.scc.webreg.service.impl.AbstractUserUpdater;
-import edu.kit.scc.webreg.service.impl.AttributeMapHelper;
-import edu.kit.scc.webreg.service.reg.AttributeSourceQueryService;
 import edu.kit.scc.webreg.service.reg.impl.Registrator;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -74,7 +72,7 @@ public class OAuthUserUpdater extends AbstractUserUpdater<OAuthUserEntity> {
 	private OAuthUserDao userDao;
 
 	@Inject
-	private ServiceService serviceService;
+	private ServiceDao serviceDao;
 
 	@Inject
 	private RegistryDao registryDao;
@@ -92,7 +90,7 @@ public class OAuthUserUpdater extends AbstractUserUpdater<OAuthUserEntity> {
 	private ASUserAttrDao asUserAttrDao;
 
 	@Inject
-	private AttributeSourceQueryService attributeSourceQueryService;
+	private AttributeSourceUpdater attributeSourceUpdater;
 
 	@Inject
 	private EventSubmitter eventSubmitter;
@@ -211,16 +209,16 @@ public class OAuthUserUpdater extends AbstractUserUpdater<OAuthUserEntity> {
 			 * Else update all (login via web or generic attribute query)
 			 */
 			if (service != null) {
-				service = serviceService.findByIdWithAttrs(service.getId(), ServiceEntity_.attributeSourceService);
+				service = serviceDao.fetch(service.getId());
 
 				for (AttributeSourceServiceEntity asse : service.getAttributeSourceService()) {
-					changed |= attributeSourceQueryService.updateUserAttributes(user, asse.getAttributeSource(),
+					changed |= attributeSourceUpdater.updateUserAttributes(user, asse.getAttributeSource(),
 							executor);
 				}
 			} else {
 				List<ASUserAttrEntity> asUserAttrList = asUserAttrDao.findForUser(user);
 				for (ASUserAttrEntity asUserAttr : asUserAttrList) {
-					changed |= attributeSourceQueryService.updateUserAttributes(user, asUserAttr.getAttributeSource(),
+					changed |= attributeSourceUpdater.updateUserAttributes(user, asUserAttr.getAttributeSource(),
 							executor);
 				}
 			}

@@ -1,4 +1,4 @@
-package edu.kit.scc.webreg.service.oauth.client;
+package edu.kit.scc.webreg.service.group;
 
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.and;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
@@ -26,9 +26,6 @@ import edu.kit.scc.webreg.entity.audit.AuditStatus;
 import edu.kit.scc.webreg.entity.oauth.OAuthGroupEntity;
 import edu.kit.scc.webreg.entity.oauth.OAuthGroupEntity_;
 import edu.kit.scc.webreg.entity.oauth.OAuthUserEntity;
-import edu.kit.scc.webreg.entity.oidc.OidcGroupEntity;
-import edu.kit.scc.webreg.entity.oidc.OidcGroupEntity_;
-import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.event.EventSubmitter;
 import edu.kit.scc.webreg.event.MultipleGroupEvent;
 import edu.kit.scc.webreg.event.exc.EventSubmitException;
