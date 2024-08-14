@@ -34,7 +34,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 @ApplicationScoped
-public class OAuthGroupUpdater {
+public class OAuthGroupUpdater extends AbstractHomeOrgGroupUpdater<OAuthUserEntity> {
+
+	private static final long serialVersionUID = 1L;
 
 	@Inject
 	private Logger logger;

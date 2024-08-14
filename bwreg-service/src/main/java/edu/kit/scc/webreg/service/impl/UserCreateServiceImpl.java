@@ -51,7 +51,7 @@ import edu.kit.scc.webreg.event.exc.EventSubmitException;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.UserCreateService;
-import edu.kit.scc.webreg.service.group.HomeOrgGroupUpdater;
+import edu.kit.scc.webreg.service.group.SamlGroupUpdater;
 import edu.kit.scc.webreg.service.identity.IdentityCreater;
 import edu.kit.scc.webreg.service.saml.Saml2AssertionService;
 import edu.kit.scc.webreg.service.saml.SamlIdentifier;
@@ -81,7 +81,7 @@ public class UserCreateServiceImpl implements UserCreateService {
 	private SamlUserUpdater userUpdater;
 
 	@Inject
-	private HomeOrgGroupUpdater homeOrgGroupUpdater;
+	private SamlGroupUpdater homeOrgGroupUpdater;
 
 	@Inject
 	private RoleDao roleDao;

@@ -18,4 +18,5 @@ public interface UserUpdater<T extends UserEntity> {
 	public T updateUserFromHomeOrg(T user, ServiceEntity service, String executor,
 			StringBuffer debugLog) throws UserUpdateException;
 
+	public T expireUser(T user) throws UserUpdateException;
 }
