@@ -60,35 +60,41 @@ public class UserLifecycleManager implements Serializable {
 	private OAuthUserUpdater oauthUserUpdater;
 
 	public void sendUserExpiryWarning(UserEntity user, String emailTemplateName) {
-		logger.debug("Sending expiry warning to user {} to e-mail address {}", user.getId(),
+		logger.debug("Trying to send expiry warning to user {} to e-mail address {}. First updating...", user.getId(),
 				user.getIdentity().getPrimaryEmail());
-		sendMail(user, emailTemplateName);
-		user.setExpireWarningSent(new Date());
 
+		try {
+			if (user instanceof SamlUserEntity) {
+				user = userUpdater.updateUserFromHomeOrg((SamlUserEntity) user, null, "user-expire-job", null);
+			} else if (user instanceof OidcUserEntity) {
+				user = oidcUserUpdater.updateUserFromHomeOrg((OidcUserEntity) user, null, "user-expire-job", null);
+			} else if (user instanceof OAuthUserEntity) {
+				user = oauthUserUpdater.updateUserFromHomeOrg((OAuthUserEntity) user, null, "user-expire-job", null);
+			}
+			
+			logger.info("Update didn't fail. Don't send expiry warning to user");
+		} catch (UserUpdateException e) {
+			logger.debug("Update failed, sending expiry warning to user {} to e-mail address {}", user.getId(),
+					user.getIdentity().getPrimaryEmail());
+			sendMail(user, emailTemplateName);
+			user.setExpireWarningSent(new Date());
+		}
 	}
 
 	public void expireUser(UserEntity user, String emailTemplateName) {
 		logger.debug("Trying to expire user {} with e-mail address {}", user.getId(),
 				user.getIdentity().getPrimaryEmail());
 
-		try {
-			if (user instanceof SamlUserEntity) {
-				user = userUpdater.updateUserFromIdp((SamlUserEntity) user, "user-expire-job");
-				// TODO: call and implement expire function
-			}
-			else if (user instanceof OidcUserEntity) {
-				user = oidcUserUpdater.updateUserFromOP((OidcUserEntity) user, "user-expire-job", null);
-				// TODO: call and implement expire function
-			}
-			else if (user instanceof OAuthUserEntity) {
-				user = oauthUserUpdater.updateUserFromOP((OAuthUserEntity) user, "user-expire-job", null);
-				// TODO: call and implement expire function
-			}
-		} catch (UserUpdateException e) {
-
+		if (user instanceof SamlUserEntity) {
+			user = userUpdater.expireUser((SamlUserEntity) user, "user-expire-job");
+		} else if (user instanceof OidcUserEntity) {
+			user = oidcUserUpdater.expireUser((OidcUserEntity) user, "user-expire-job");
+		} else if (user instanceof OAuthUserEntity) {
+			user = oauthUserUpdater.expireUser((OAuthUserEntity) user, "user-expire-job");
 		}
-		//sendMail(user, emailTemplateName);
-		//user.setExpiredSent(new Date());
+
+		sendMail(user, emailTemplateName);
+		user.setExpiredSent(new Date());
 	}
 
 	private void sendMail(UserEntity user, String emailTemplateName) {

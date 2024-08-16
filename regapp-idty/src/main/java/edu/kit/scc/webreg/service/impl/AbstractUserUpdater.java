@@ -109,12 +109,56 @@ public abstract class AbstractUserUpdater<T extends UserEntity> implements UserU
 	public abstract boolean updateUserFromAttribute(T user, Map<String, List<Object>> attributeMap,
 			boolean withoutUidNumber, Auditor auditor) throws UserUpdateException;
 
-	public abstract Map<String, String> resolveHomeOrgGenericStore(T user); 
-	public abstract IncomingAttributesHandler<?> resolveIncomingAttributeHandler(T user); 
-	
+	public abstract Map<String, String> resolveHomeOrgGenericStore(T user);
+
+	public abstract IncomingAttributesHandler<?> resolveIncomingAttributeHandler(T user);
+
 	public boolean updateUserFromAttribute(T user, Map<String, List<Object>> attributeMap, Auditor auditor)
 			throws UserUpdateException {
 		return updateUserFromAttribute(user, attributeMap, false, auditor);
+	}
+
+	@Override
+	public T expireUser(T user, String executor) {
+		logger.info("Expiring user {}. Trying one last update", user.getId());
+
+		UserUpdateAuditor auditor = new UserUpdateAuditor(auditDao, auditDetailDao, appConfig);
+		auditor.startAuditTrail(executor);
+		auditor.setName(getClass().getName() + "-UserExpire-Audit");
+		auditor.setDetail("Expire user " + user.getId());
+
+		try {
+			user = updateUserFromHomeOrg(user, null, executor, null);
+
+			// User update from home org did not fail. That means, we don't need to bother
+			// the user to login. Clear the expiry warning, things should be done
+			// automatically
+			user.setExpireWarningSent(null);
+
+			return user;
+
+		} catch (UserUpdateException e) {
+			// The Exception is expected, because the home org will not accept user updates
+			// in the back channel. The user already got an expire warning at this point.
+			user.getAttributeStore().clear();
+
+			// user empty attribute map in order to remove all existing values
+			IncomingAttributeSetEntity incomingAttributeSet = resolveIncomingAttributeHandler(user)
+					.createOrUpdateAttributes(user, new HashMap<>());
+			resolveIncomingAttributeHandler(user).processIncomingAttributeSet(incomingAttributeSet);
+
+			// sets user account on ON_HOLD, if it's in state ACTIVE
+			deactivateUser(user, auditor);
+
+			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+			user.getGenericStore().put("epired_on", df.format(new Date()));
+
+			return user;
+		} finally {
+			auditor.setUser(user);
+			auditor.finishAuditTrail();
+			auditor.commitAuditTrail();
+		}
 	}
 
 	public T updateUser(T user, Map<String, List<Object>> attributeMap, String executor, StringBuffer debugLog,
@@ -132,7 +176,7 @@ public abstract class AbstractUserUpdater<T extends UserEntity> implements UserU
 		UserUpdateAuditor auditor = new UserUpdateAuditor(auditDao, auditDetailDao, appConfig);
 		auditor.startAuditTrail(executor);
 		auditor.setName(getClass().getName() + "-UserUpdate-Audit");
-		auditor.setDetail("Update user " + user.getEppn());
+		auditor.setDetail("Update user " + user.getId());
 
 		changed |= preUpdateUser(user, attributeMap, resolveHomeOrgGenericStore(user), executor, service, debugLog);
 
@@ -157,12 +201,13 @@ public abstract class AbstractUserUpdater<T extends UserEntity> implements UserU
 			user.getAttributeStore().clear();
 
 			// user empty attribute map in order to remove all existing values
-			IncomingAttributeSetEntity incomingAttributeSet = resolveIncomingAttributeHandler(user).createOrUpdateAttributes(user, new HashMap<>());
+			IncomingAttributeSetEntity incomingAttributeSet = resolveIncomingAttributeHandler(user)
+					.createOrUpdateAttributes(user, new HashMap<>());
 			resolveIncomingAttributeHandler(user).processIncomingAttributeSet(incomingAttributeSet);
 
 			// sets user account on ON_HOLD, if it's in state ACTIVE
 			deactivateUser(user, auditor);
-			
+
 		} else {
 			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 			user.getGenericStore().put("no_assertion_count", "0");
@@ -184,9 +229,10 @@ public abstract class AbstractUserUpdater<T extends UserEntity> implements UserU
 				attributeStore.put(entry.getKey(), attrHelper.attributeListToString(entry.getValue()));
 			}
 
-			IncomingAttributeSetEntity incomingAttributeSet = resolveIncomingAttributeHandler(user).createOrUpdateAttributes(user, attributeMap);
+			IncomingAttributeSetEntity incomingAttributeSet = resolveIncomingAttributeHandler(user)
+					.createOrUpdateAttributes(user, attributeMap);
 			resolveIncomingAttributeHandler(user).processIncomingAttributeSet(incomingAttributeSet);
-			
+
 			identityUpdater.updateIdentity(user);
 
 			if (appConfig.getConfigValue("create_missing_eppn_scope") != null) {
@@ -240,6 +286,7 @@ public abstract class AbstractUserUpdater<T extends UserEntity> implements UserU
 
 		return user;
 	}
+
 	public abstract HomeOrgGroupUpdater<T> getGroupUpdater();
 
 	protected boolean preUpdateUser(T user, Map<String, List<Object>> attributeMap,

@@ -121,6 +121,7 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 				logger.info("Got error: code {}, desc {}, http-status {}, uri {}", error.getCode(),
 						error.getDescription());
 				updateFail(user);
+				throw new UserUpdateException();
 			} else {
 				OIDCTokenResponse oidcTokenResponse = (OIDCTokenResponse) tokenResponse.toSuccessResponse();
 				logger.debug("response: {}", oidcTokenResponse.toJSONObject());
@@ -166,6 +167,7 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 				UserInfoResponse userInfoResponse = UserInfoResponse.parse(httpResponse);
 
 				if (!userInfoResponse.indicatesSuccess()) {
+					updateFail(user);
 					throw new UserUpdateException("got userinfo error response: "
 							+ userInfoResponse.toErrorResponse().getErrorObject().getDescription());
 				}
@@ -323,12 +325,6 @@ public class OidcUserUpdater extends AbstractUserUpdater<OidcUserEntity> {
 	protected void updateFail(OidcUserEntity user) {
 		user.setLastFailedUpdate(new Date());
 		user.setScheduledUpdate(getNextScheduledUpdate());
-	}
-
-	@Override
-	public OidcUserEntity expireUser(OidcUserEntity user) throws UserUpdateException {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

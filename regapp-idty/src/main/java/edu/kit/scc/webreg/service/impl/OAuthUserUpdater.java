@@ -55,6 +55,7 @@ public class OAuthUserUpdater extends AbstractUserUpdater<OAuthUserEntity> {
 
 	public OAuthUserEntity updateUserFromHomeOrg(OAuthUserEntity user, ServiceEntity service, String executor,
 			StringBuffer debugLog) throws UserUpdateException {
+		updateFail(user);
 		throw new UserUpdateException("Not implemented");
 	}
 	
@@ -172,12 +173,6 @@ public class OAuthUserUpdater extends AbstractUserUpdater<OAuthUserEntity> {
 	protected void updateFail(OAuthUserEntity user) {
 		user.setLastFailedUpdate(new Date());
 		user.setScheduledUpdate(getNextScheduledUpdate());
-	}
-
-	@Override
-	public OAuthUserEntity expireUser(OAuthUserEntity user) throws UserUpdateException {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

@@ -409,12 +409,6 @@ public class SamlUserUpdater extends AbstractUserUpdater<SamlUserEntity> {
 	}
 
 	@Override
-	public SamlUserEntity expireUser(SamlUserEntity user) throws UserUpdateException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public HomeOrgGroupUpdater<SamlUserEntity> getGroupUpdater() {
 		return homeOrgGroupUpdater;
 	}
