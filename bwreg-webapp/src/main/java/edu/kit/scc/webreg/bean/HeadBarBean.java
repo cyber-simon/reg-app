@@ -99,7 +99,7 @@ public class HeadBarBean {
 	}
 
 	public String getFooterRight() {
-		String std = "<a href=\"https://git.scc.kit.edu/reg-app\"><span>reg-app by KIT</span></a>";
+		String std = "<a href=\"https://gitlab.kit.edu/kit/reg-app\"><span>reg-app by KIT</span></a>";
 		return getApplicationBase() + getOrDefault(request.getServerName() + "_footer_right", std);
 	}
 
