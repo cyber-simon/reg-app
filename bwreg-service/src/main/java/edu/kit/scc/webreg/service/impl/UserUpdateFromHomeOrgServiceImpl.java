@@ -26,7 +26,6 @@ import edu.kit.scc.webreg.entity.UserStatus;
 import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.UserUpdateFromHomeOrgService;
-import edu.kit.scc.webreg.service.oidc.client.OidcUserUpdater;
 
 @Stateless
 public class UserUpdateFromHomeOrgServiceImpl implements UserUpdateFromHomeOrgService, Serializable {
@@ -40,7 +39,7 @@ public class UserUpdateFromHomeOrgServiceImpl implements UserUpdateFromHomeOrgSe
 	private UserDao userDao;
 
 	@Inject
-	private UserUpdater userUpdater;
+	private SamlUserUpdater userUpdater;
 
 	@Inject
 	private OidcUserUpdater oidcUserUpdate;

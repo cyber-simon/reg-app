@@ -1,4 +1,4 @@
-package edu.kit.scc.webreg.service.oauth.client;
+package edu.kit.scc.webreg.service.group;
 
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.and;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
@@ -15,7 +15,7 @@ import edu.kit.scc.webreg.audit.Auditor;
 import edu.kit.scc.webreg.dao.GroupDao;
 import edu.kit.scc.webreg.dao.SerialDao;
 import edu.kit.scc.webreg.dao.ServiceGroupFlagDao;
-import edu.kit.scc.webreg.dao.jpa.oauth.OAuthGroupDao;
+import edu.kit.scc.webreg.dao.oidc.OidcGroupDao;
 import edu.kit.scc.webreg.entity.EventType;
 import edu.kit.scc.webreg.entity.GroupEntity;
 import edu.kit.scc.webreg.entity.ServiceBasedGroupEntity;
@@ -23,9 +23,6 @@ import edu.kit.scc.webreg.entity.ServiceGroupFlagEntity;
 import edu.kit.scc.webreg.entity.ServiceGroupStatus;
 import edu.kit.scc.webreg.entity.UserGroupEntity;
 import edu.kit.scc.webreg.entity.audit.AuditStatus;
-import edu.kit.scc.webreg.entity.oauth.OAuthGroupEntity;
-import edu.kit.scc.webreg.entity.oauth.OAuthGroupEntity_;
-import edu.kit.scc.webreg.entity.oauth.OAuthUserEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcGroupEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcGroupEntity_;
 import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
@@ -37,13 +34,15 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 @ApplicationScoped
-public class OAuthGroupUpdater {
+public class OidcGroupUpdater extends AbstractHomeOrgGroupUpdater<OidcUserEntity> {
+
+	private static final long serialVersionUID = 1L;
 
 	@Inject
 	private Logger logger;
 
 	@Inject
-	private OAuthGroupDao dao;
+	private OidcGroupDao dao;
 
 	@Inject
 	private GroupDao groupDao;
@@ -60,7 +59,7 @@ public class OAuthGroupUpdater {
 	@Inject
 	private HomeIdResolver homeIdResolver;
 
-	public Set<GroupEntity> updateGroupsForUser(OAuthUserEntity user, Map<String, List<Object>> attributeMap,
+	public Set<GroupEntity> updateGroupsForUser(OidcUserEntity user, Map<String, List<Object>> attributeMap,
 			Auditor auditor) {
 
 		HashSet<GroupEntity> changedGroups = new HashSet<GroupEntity>();
@@ -100,11 +99,11 @@ public class OAuthGroupUpdater {
 		return changedGroups;
 	}
 
-	protected Set<GroupEntity> updatePrimary(OAuthUserEntity user, Map<String, List<Object>> attributeMap,
+	protected Set<GroupEntity> updatePrimary(OidcUserEntity user, Map<String, List<Object>> attributeMap,
 			Auditor auditor) {
 		Set<GroupEntity> changedGroups = new HashSet<GroupEntity>();
 
-		OAuthGroupEntity group = null;
+		OidcGroupEntity group = null;
 
 		String homeId = homeIdResolver.resolveHomeId(user, attributeMap);
 
@@ -127,7 +126,7 @@ public class OAuthGroupUpdater {
 			}
 
 			logger.info("Setting standard HomeID group {} for user {}", homeId, user.getId());
-			group = findOAuthGroupByNameAndPrefix(groupName, homeId);
+			group = findOidcGroupByNameAndPrefix(groupName, homeId);
 
 			if (group == null) {
 				group = dao.createNew();
@@ -139,10 +138,10 @@ public class OAuthGroupUpdater {
 				group.setGidNumber(serialDao.next("gid-number-serial").intValue());
 				auditor.logAction(group.getName(), "SET FIELD", "gidNumber", "" + group.getGidNumber(),
 						AuditStatus.SUCCESS);
-				group.setOauthIssuer(user.getOauthIssuer());
-				auditor.logAction(group.getName(), "SET FIELD", "oidcIssuer", "" + user.getOauthIssuer().getName(),
+				group.setIssuer(user.getIssuer());
+				auditor.logAction(group.getName(), "SET FIELD", "oidcIssuer", "" + user.getIssuer().getName(),
 						AuditStatus.SUCCESS);
-				group = (OAuthGroupEntity) groupDao.persistWithServiceFlags(group);
+				group = (OidcGroupEntity) groupDao.persistWithServiceFlags(group);
 				auditor.logAction(group.getName(), "CREATE GROUP", null, "Group created", AuditStatus.SUCCESS);
 
 				changedGroups.add(group);
@@ -172,11 +171,11 @@ public class OAuthGroupUpdater {
 		return changedGroups;
 	}
 
-	private OAuthGroupEntity findOAuthGroupByNameAndPrefix(String name, String prefix) {
-		return dao.find(and(equal(OAuthGroupEntity_.name, name), equal(OAuthGroupEntity_.prefix, prefix)));
+	private OidcGroupEntity findOidcGroupByNameAndPrefix(String name, String prefix) {
+		return dao.find(and(equal(OidcGroupEntity_.name, name), equal(OidcGroupEntity_.prefix, prefix)));
 	}
 
-	protected Set<GroupEntity> updateSecondary(OAuthUserEntity user, Map<String, List<Object>> attributeMap,
+	protected Set<GroupEntity> updateSecondary(OidcUserEntity user, Map<String, List<Object>> attributeMap,
 			Auditor auditor) {
 		Set<GroupEntity> changedGroups = new HashSet<GroupEntity>();
 

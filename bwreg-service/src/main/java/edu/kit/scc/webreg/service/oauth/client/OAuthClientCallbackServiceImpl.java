@@ -51,6 +51,7 @@ import edu.kit.scc.webreg.entity.oauth.OAuthRpFlowStateEntity_;
 import edu.kit.scc.webreg.entity.oauth.OAuthUserEntity;
 import edu.kit.scc.webreg.entity.oauth.OAuthUserEntity_;
 import edu.kit.scc.webreg.exc.UserUpdateException;
+import edu.kit.scc.webreg.service.impl.OAuthUserUpdater;
 import edu.kit.scc.webreg.service.saml.exc.OidcAuthenticationException;
 import edu.kit.scc.webreg.session.SessionManager;
 import jakarta.ejb.Stateless;

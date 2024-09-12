@@ -20,6 +20,7 @@ import edu.kit.scc.webreg.dao.oidc.OidcUserDao;
 import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
 import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.service.impl.BaseServiceImpl;
+import edu.kit.scc.webreg.service.impl.OidcUserUpdater;
 
 @Stateless
 public class OidcUserServiceImpl extends BaseServiceImpl<OidcUserEntity> implements OidcUserService, Serializable {

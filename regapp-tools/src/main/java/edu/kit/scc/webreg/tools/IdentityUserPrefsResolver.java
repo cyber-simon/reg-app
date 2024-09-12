@@ -50,6 +50,11 @@ public class IdentityUserPrefsResolver {
 			}
 		}
 		
+		if (identity.getPrimaryEmail() != null) {
+			// if a primary e-mail address is set, use it
+			prefsMap.put("email", identity.getPrimaryEmail().getEmailAddress());
+		}
+		
 		return prefsMap;
 	}
 	
