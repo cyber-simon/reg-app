@@ -153,6 +153,8 @@ public abstract class AbstractUserUpdater<T extends UserEntity> implements UserU
 			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 			user.getGenericStore().put("epired_on", df.format(new Date()));
 
+			fireUserChangeEvent(user, auditor.getActualExecutor(), auditor);
+
 			return user;
 		} finally {
 			auditor.setUser(user);

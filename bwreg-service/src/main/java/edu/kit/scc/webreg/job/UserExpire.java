@@ -61,7 +61,7 @@ public class UserExpire extends AbstractExecutableJob {
 			
 			for (UserEntity user : userList) {
 				logger.debug("Inspecting user {} - {} - {} - {} - {}", user.getId(), user.getEppn(), user.getEmail(), user.getUserStatus(), user.getLastStatusChange());
-				//TODO expire user
+				service.expireUser(user, emailTemplateName);
 			}
 			
 		} catch (NamingException e) {
