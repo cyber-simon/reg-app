@@ -70,7 +70,7 @@
 							<p:ajax update=":form" oncomplete="updateClearButtonVisibility();" />
 						    <p:ajax event="itemSelect" update="login" oncomplete="updateClearButtonVisibility();" />
 						    <p:ajax event="clear" update="login" oncomplete="updateClearButtonVisibility();" />
-						    <p:ajax event="change" oncomplete="updateClearButtonVisibility();" />
+						    <p:ajax event="change" update="infoPnl" oncomplete="updateClearButtonVisibility();" />
                             <p:ajax event="blur" oncomplete="updateClearButtonVisibility();" />
 						</p:autoComplete>
 		                <button type="button" 
