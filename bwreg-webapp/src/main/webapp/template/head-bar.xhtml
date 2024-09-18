@@ -30,12 +30,15 @@
 							<li><h:outputText value="#{headBarBean.dataProtection}" escape="false" /></li>
                             <li><h:outputText value="#{headBarBean.homeLink}" escape="false" /></li>
                         </ul>
-                        <div class="navigation-language"><ul><h:form id="nav_bar_form">
-                        	<p:selectOneMenu id="lang_select" value="#{headBarBean.locale}" onchange="submit()" >
-                        		<f:selectItems value="#{headBarBean.locales}"/>
-                        	</p:selectOneMenu>
-                        </h:form></ul></div>
-                        
+                        <div class="navigation-language">
+	                        <ul>
+		                        <h:form id="nav_bar_form">
+			                        	<p:selectOneMenu id="lang_select" value="#{headBarBean.locale}" onchange="submit()" >
+			                        		<f:selectItems value="#{headBarBean.locales}"/>
+			                        	</p:selectOneMenu>
+		                        </h:form>
+	                        </ul>
+                        </div>
                       </div>
                     <nav class="navigation-main current">
 						<ui:insert name="left_sidebar">Default left side bar</ui:insert>                    

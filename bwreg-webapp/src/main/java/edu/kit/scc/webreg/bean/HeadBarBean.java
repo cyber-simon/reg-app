@@ -120,7 +120,7 @@ public class HeadBarBean {
 	}
 
 	public SelectItem[] getLocales() {
-		SelectItem[] selectItems = new SelectItem[appConfig.getLocaleMap().size()];
+	    SelectItem[] selectItems = new SelectItem[appConfig.getLocaleMap().size()];
 		int i = 0;
 		for (Entry<String, String> entry : appConfig.getLocaleMap().entrySet()) {
 			selectItems[i] = new SelectItem(entry.getKey(), entry.getValue());
