@@ -1,8 +1,9 @@
 @charset "UTF-8";
 
 :root {
-    --primaryColor: #007755;
+    --primaryColor: #00876c;
     --primaryLightColor: #d7efea;
+    --primaryDarkColor: #007755;
 }
 
 /* ausgewähltes Element in einer Liste */

@@ -1,8 +1,5 @@
 @charset "UTF-8";
 
-:root {
-    --primaryColor: #00876c;
-}
 @font-face {
     font-family: 'Roboto';
     font-style: normal;
@@ -2379,8 +2376,8 @@ body {
 }
 
 .navigation-search .search-form button:focus,.navigation-search .search-form button:hover {
-    border-color: #007755;
-    background-color: #007755}
+    border-color: var(--primaryDarkColor) ;
+    background-color: var(--primaryDarkColor) }
 
 @media (max-width: 1024px) {
     .navigation-search .search-form {
@@ -2799,7 +2796,7 @@ body {
     }
 
     .navigation .single .navigation-l2>li>a:hover {
-        color: #007755    }
+        color: var(--primaryDarkColor)     }
 
     .navigation .single .navigation-l3 {
         padding-left: 1.25em
@@ -2846,7 +2843,7 @@ body {
     }
 
     .navigation .flyout .navigation-l3>li>a:hover {
-        color: #007755    }
+        color: var(--primaryDarkColor)     }
 
     .navigation .flyout .navigation-l4 a {
         font-weight: normal
@@ -2920,7 +2917,7 @@ body {
     }
 
     .flyout .navigation-l2>li>a {
-        color: #007755;
+        color: var(--primaryDarkColor) ;
         font-weight: bold
     }
 
@@ -3583,7 +3580,7 @@ body {
     }
 
     .side-widgets .search-form button:focus,.side-widgets .search-form button:hover {
-        background-color: #007755    }
+        background-color: var(--primaryDarkColor)     }
 
     .side-widgets li {
         position: relative;
@@ -3945,12 +3942,12 @@ body {
 
 .page-footer a {
     /* color: #404040; */
-    color: #007755;
+    color: var(--primaryDarkColor) ;
     text-decoration: none;
 }
 
 .page-footer a:hover {
-    color: #007755;
+    color: var(--primaryDarkColor) ;
 }
 
 .page-footer .button.icon {
@@ -3978,7 +3975,7 @@ body {
 
 .page-footer .button.icon:hover {
     color: #fff;
-    background-color: #007755}
+    background-color: var(--primaryDarkColor) }
 
 .page-footer .button.icon span {
     padding: 0.5em 0 0.5em
@@ -4515,7 +4512,7 @@ body {
 }
 
 .search-form-container .search-form button:focus,.search-form-container .search-form button:hover {
-    background-color: #007755}
+    background-color: var(--primaryDarkColor) }
 
 .search-form-container .search-form input {
     width: 100%;
@@ -4683,7 +4680,7 @@ main .content-sitemap a span {
 }
 
 .form button:focus,.form input[type=date]:focus,.form input[type=datetime]:focus,.form input[type=datetime-local]:focus,.form input[type=email]:focus,.form input[type=number]:focus,.form input[type=password]:focus,.form input[type=search]:focus,.form input[type=submit]:focus,.form input[type=tel]:focus,.form input[type=text]:focus,.form input[type=url]:focus,.form select:focus,.form textarea:focus {
-    border-color: #007755;
+    border-color: var(--primaryDarkColor) ;
     outline: 0;
     -webkit-box-shadow: 0;
     box-shadow: 0
@@ -4741,11 +4738,11 @@ main .content-sitemap a span {
 }
 
 .form button:hover,.form input[type=submit]:hover {
-    border-color: #007755;
-    background-color: #007755}
+    border-color: var(--primaryDarkColor) ;
+    background-color: var(--primaryDarkColor) }
 
 .form button:focus,.form input[type=submit]:focus {
-    background-color: #007755}
+    background-color: var(--primaryDarkColor) }
 
 .form button[type=reset] {
     border-color: #404040;
@@ -4895,7 +4892,7 @@ main .content-sitemap a span {
     border-color: var(--primaryColor) }
 
 .form .input-option label input:focus+span:before {
-    border-color: #007755}
+    border-color: var(--primaryDarkColor) }
 
 .form .input-option.radio label span:before {
     padding: 2px;
@@ -5078,11 +5075,11 @@ main .content-sitemap a span {
 }
 
 .form .input-file-drop-area input[type=file]:focus+.input-file-button {
-    border-color: #007755;
-    background-color: #007755}
+    border-color: var(--primaryDarkColor) ;
+    background-color: var(--primaryDarkColor) }
 
 .form .input-file-drop-area input[type=file]:focus~.input-file-hint {
-    border-color: #007755}
+    border-color: var(--primaryDarkColor) }
 
 .form .input-file-drop-area.active {
     background-color: rgba(0, 20, 20, 0.03)
@@ -5208,7 +5205,7 @@ main .content-sitemap a span {
 }
 
 .text a,figure figcaption a {
-    color: #007755;
+    color: var(--primaryDarkColor) ;
     -webkit-transition: color .3s;
     -o-transition: color .3s;
     transition: color .3s;
@@ -5216,7 +5213,7 @@ main .content-sitemap a span {
 }
 
 .text a:hover,figure figcaption a:hover {
-    color: #007755}
+    color: var(--primaryDarkColor) }
 
 figure .container {
     position: relative;
@@ -6278,12 +6275,12 @@ main .target-groups form button:after {
 }
 
 .list .link a:hover {
-    color: #007755;
+    color: var(--primaryDarkColor) ;
     text-decoration: underline
 }
 
 .list .link a:hover span {
-    color: #007755}
+    color: var(--primaryDarkColor) }
 
 .list .link a span {
     color: #000;
@@ -6424,14 +6421,14 @@ table {
 }
 
 table a {
-    color: #007755;
+    color: var(--primaryDarkColor) ;
     -webkit-transition: color .3s;
     -o-transition: color .3s;
     transition: color .3s
 }
 
 table a:hover {
-    color: #007755}
+    color: var(--primaryDarkColor) }
 
 table td,table th {
     padding: 0.625rem 0.625rem;
@@ -6604,7 +6601,7 @@ table tbody tr:nth-child(odd) {
     color: var(--primaryColor) }
 
 .info-container a:hover {
-    color: #007755}
+    color: var(--primaryDarkColor) }
 
 .info-container figure {
     margin-right: 1.25rem;
@@ -6948,7 +6945,7 @@ table tbody tr:nth-child(odd) {
 }
 
 .button:hover {
-    background-color: #007755}
+    background-color: var(--primaryDarkColor) }
 
 .tab-navigation {
     margin-bottom: 0.125rem
@@ -7127,7 +7124,7 @@ table tbody tr:nth-child(odd) {
 }
 
 .sidebar-contact .name a:hover {
-    color: #007755}
+    color: var(--primaryDarkColor) }
 
 .sidebar-contact p {
     width: 100%
@@ -7447,7 +7444,7 @@ table tbody tr:nth-child(odd) {
     padding-bottom: 5px;
     margin-top: 2.8125rem;
     border-bottom: 3px solid var(--primaryColor) ;
-    color: #007755;
+    color: var(--primaryDarkColor) ;
     font-weight: 700;
     text-decoration: none;
     -webkit-transition: color .3s;
@@ -7456,7 +7453,7 @@ table tbody tr:nth-child(odd) {
 }
 
 .news-element .link:hover {
-    color: #007755}
+    color: var(--primaryDarkColor) }
 
 .news-element .link:hover:after {
     -webkit-transform: translateX(0);
@@ -7867,7 +7864,7 @@ body.oe-page .mediathek-teaser .teaser-element.download picture:after,body.oe-pa
     margin-top: 3.75rem
 }
 .banner .textcontent p a {
-    color: #007755;
+    color: var(--primaryDarkColor) ;
 }
 .banner .textcontent .button {
     margin-top: 1.875rem
@@ -8418,7 +8415,7 @@ figure.person_portrait figcaption {
 	font-weight: 700;
 }
 .news-element a {
-    color: #007755;
+    color: var(--primaryDarkColor) ;
     font-weight: 400;
 }
 .header_copyright {
@@ -8477,7 +8474,7 @@ body.oe-page .stage-big .content-wrap .logo_oe img {
     margin-left: 1.5rem;
 }
 .sprungmarken ul a {
-    color: #007755;
+    color: var(--primaryDarkColor) ;
 }
 
 .event .event-content>a {
@@ -9054,7 +9051,7 @@ figure .container,
     display: none !important;
 }
 .infobox a {
-	color: #007755;
+	color: var(--primaryDarkColor) ;
 }
 .infobox ul ul{
 	margin-left: 1em;
