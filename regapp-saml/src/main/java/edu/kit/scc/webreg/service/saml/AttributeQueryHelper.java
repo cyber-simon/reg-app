@@ -118,7 +118,7 @@ public class AttributeQueryHelper implements Serializable {
 	@Inject
 	ApplicationConfig appConfig;
 
-	public Response query(String format, String persistentId, SamlMetadataEntity idpEntity, EntityDescriptor idpEntityDescriptor,
+	public Response query(String format, String persistentId, SamlMetadataEntity idpEntity, EntityDescriptor aaEntityDescriptor,
 			SamlSpConfigurationEntity spEntity, StringBuffer debugLog) throws Exception {
 
 		if (debugLog != null) {
@@ -126,7 +126,7 @@ public class AttributeQueryHelper implements Serializable {
 					.append(idpEntity.getEntityId()).append(" sp: ").append(spEntity.getEntityId()).append("\n");
 		}
 
-		AttributeService attributeService = metadataHelper.getAttributeService(idpEntityDescriptor);
+		AttributeService attributeService = metadataHelper.getAttributeService(aaEntityDescriptor);
 		if (attributeService == null || attributeService.getLocation() == null)
 			throw new MetadataException("No Attribute Service found for IDP " + idpEntity.getEntityId());
 
@@ -168,7 +168,7 @@ public class AttributeQueryHelper implements Serializable {
 		ssConfig.setSigningCredentials(credentialList);
 		CriteriaSet criteriaSet = new CriteriaSet();
 		criteriaSet.add(new SignatureSigningConfigurationCriterion(ssConfig));
-		criteriaSet.add(new RoleDescriptorCriterion(idpEntityDescriptor.getIDPSSODescriptor(SAMLConstants.SAML20P_NS)));
+		criteriaSet.add(new RoleDescriptorCriterion(aaEntityDescriptor.getAttributeAuthorityDescriptor(SAMLConstants.SAML20P_NS)));
 		SAMLMetadataSignatureSigningParametersResolver smsspr = new SAMLMetadataSignatureSigningParametersResolver();
 
 		SignatureSigningParameters ssp = smsspr.resolveSingle(criteriaSet);
@@ -197,7 +197,7 @@ public class AttributeQueryHelper implements Serializable {
 		SocketConfig socketConfig = SocketConfig.custom().setSoTimeout(getRequestTimeout()).build();
 
 		Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
-				.register("https", getSSLConnectionSocketFactory(idpEntityDescriptor)).build();
+				.register("https", getSSLConnectionSocketFactory(aaEntityDescriptor)).build();
 		BasicHttpClientConnectionManager connectionManager = new BasicHttpClientConnectionManager(
 				socketFactoryRegistry);
 		
