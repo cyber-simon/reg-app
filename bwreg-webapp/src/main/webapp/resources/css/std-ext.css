@@ -74,3 +74,7 @@ body .ui-selectonelistbox .ui-selectlistbox-listcontainer .ui-selectlistbox-list
 body .ui-selectonelistbox .ui-selectlistbox-listcontainer .ui-selectlistbox-item::before {
     border-left: 12px solid grey;
 }
+
+body .ui-commandlink {
+	color: var(--primaryDarkColor);
+}

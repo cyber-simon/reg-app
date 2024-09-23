@@ -86,7 +86,7 @@ public class HeadBarBean {
 
 	public String getHomeLink() {
 		return getApplicationBase() + getOrDefault(request.getServerName() + "_home_link",
-				"<a href=\"http://www.kit.edu\" target=\"_blank\"><span class=\"svg-icon\"><img src=\"/resources/img/kitlogo_nano.svg\" width=\"10px\"/></span><span>KIT</span></a>");
+				"<a href=\"http://www.kit.edu\" target=\"_blank\"><span class=\"svg-icon\"><img src=\"/resources/img/kitlogo_nano.svg\" alt=\"KIT link\" width=\"10px\"/></span><span>KIT</span></a>");
 	}
 
 	public String getApplicationBase() {
@@ -130,7 +130,7 @@ public class HeadBarBean {
 	}
 
 	public String getBurgerIcon() {
-		return "<button class=\"burger\"><svg class=\"burger-icon\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" x=\"0px\" y=\"0px\" viewBox=\"0 0 300 274.5\" width=\"300px\" height=\"274.5px\">\n"
+		return "<button class=\"burger\" aria-label=\"Burger button\"><svg class=\"burger-icon\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" x=\"0px\" y=\"0px\" viewBox=\"0 0 300 274.5\" width=\"300px\" height=\"274.5px\">\n"
 				+ "    <rect class=\"burger-top\" y=\"214.4\" width=\"300\" height=\"60.1\"/>\n"
 				+ "    <rect class=\"burger-middle\" y=\"107.2\" width=\"300\" height=\"60.1\"/>\n"
 				+ "    <rect class=\"burger-bottom\" y=\"0\" width=\"300\" height=\"60.1\"/>\n" + "</svg></button>";
