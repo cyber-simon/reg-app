@@ -20,8 +20,6 @@ import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
 import edu.kit.scc.webreg.dao.SamlSpConfigurationDao;
 import edu.kit.scc.webreg.dao.ScriptDao;
 import edu.kit.scc.webreg.dao.as.ASUserAttrValueDao;
-import edu.kit.scc.webreg.entity.SamlAAMetadataEntity;
-import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.ScriptEntity;

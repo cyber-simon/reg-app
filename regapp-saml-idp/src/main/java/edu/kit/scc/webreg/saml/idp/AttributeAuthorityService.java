@@ -2,6 +2,11 @@ package edu.kit.scc.webreg.saml.idp;
 
 import java.time.Instant;
 
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.XMLObjectBuilderFactory;
 import org.opensaml.core.xml.schema.XSString;
@@ -22,10 +27,12 @@ import org.opensaml.soap.soap11.Envelope;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.dao.SamlSpMetadataDao;
-import edu.kit.scc.webreg.dao.UserDao;
+import edu.kit.scc.webreg.dao.ScriptDao;
 import edu.kit.scc.webreg.entity.SamlAAConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
+import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.script.ScriptingEnv;
 import edu.kit.scc.webreg.service.saml.Saml2ResponseValidationService;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
 import edu.kit.scc.webreg.service.saml.SsoHelper;
@@ -46,18 +53,22 @@ public class AttributeAuthorityService {
 	private SamlSpMetadataDao spMetadataDao;
 
 	@Inject
-	private UserDao userService;
-
+	private ScriptDao scriptDao;
+	
+	@Inject
+	private ScriptingEnv scriptingEnv;
+	
 	@Inject
 	private SamlHelper samlHelper;
 
 	@Inject
 	private SsoHelper ssoHelper;
 
-	public Envelope processAttributeQuery(SamlAAConfigurationEntity aaConfig, AttributeQuery query) throws SamlAuthenticationException {
-		
+	public Envelope processAttributeQuery(SamlAAConfigurationEntity aaConfig, AttributeQuery query)
+			throws SamlAuthenticationException {
+
 		logger.debug("Processing AttributeQuery");
-		
+
 		Issuer issuer = query.getIssuer();
 		if (issuer == null || issuer.getValue() == null) {
 			throw new SamlAuthenticationException("Issuer not set");
@@ -67,6 +78,12 @@ public class AttributeAuthorityService {
 		SamlSpMetadataEntity spEntity = spMetadataDao.findByEntityId(issuerString);
 		if (spEntity == null)
 			throw new SamlAuthenticationException("Issuer metadata not in database");
+
+		if (!spEntity.getGenericStore().containsKey("aq_allowed"))
+			throw new SamlAuthenticationException("Issuer not allowed for attribute query");
+		else if (!spEntity.getGenericStore().get("aq_allowed").equalsIgnoreCase("true")) {
+			throw new SamlAuthenticationException("Issuer not allowed for attribute query");
+		}
 
 		EntityDescriptor spEntityDescriptor = samlHelper.unmarshal(spEntity.getEntityDescriptor(),
 				EntityDescriptor.class);
@@ -79,29 +96,53 @@ public class AttributeAuthorityService {
 		samlResponse.setIssueInstant(Instant.now());
 
 		if (query.getSubject() != null && query.getSubject().getNameID() != null) {
-			String nameIdValue = query.getSubject().getNameID().getValue();
-			String nameIdFormat = query.getSubject().getNameID().getFormat();
 
-			UserEntity user = userService.fetch(Long.parseLong(nameIdValue));
-			if (user != null) {
-				Assertion assertion = samlHelper.create(Assertion.class, Assertion.DEFAULT_ELEMENT_NAME);
-				assertion.setIssueInstant(Instant.now());
-				assertion.setIssuer(ssoHelper.buildIssuser(aaConfig.getEntityId()));
-				assertion.setSubject(ssoHelper.buildAQSubject(aaConfig, spEntity, nameIdValue, NameID.UNSPECIFIED,
-						query.getID()));
-				assertion.getAttributeStatements().add(buildAttributeStatement(user));
-				samlResponse.getAssertions().add(assertion);
+			if (!spEntity.getGenericStore().containsKey("aq_resolve_user_scipt"))
+				throw new SamlAuthenticationException(
+						"NameId Resolver not configured, cannot resolve account. This is a server side error, contact the server administrator");
+			String resolveUserScript = spEntity.getGenericStore().get("aq_resolve_user_scipt");
+			ScriptEntity script = scriptDao.findByName(resolveUserScript);
+			if (script == null)
+				throw new SamlAuthenticationException("NameId Resolver not configured correctly. Script not found: " + resolveUserScript);
+
+			try {
+				ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(script.getScriptEngine());
+				engine.eval(script.getScript());
+				Invocable invocable = (Invocable) engine;
+
+				String nameIdValue = query.getSubject().getNameID().getValue();
+				String nameIdFormat = query.getSubject().getNameID().getFormat();
+
+				UserEntity user = (UserEntity) invocable.invokeFunction("resolveUser", scriptingEnv, nameIdFormat, nameIdValue, logger,
+						spEntity, aaConfig);
+				if (user != null) {
+					Assertion assertion = samlHelper.create(Assertion.class, Assertion.DEFAULT_ELEMENT_NAME);
+					assertion.setIssueInstant(Instant.now());
+					assertion.setIssuer(ssoHelper.buildIssuser(aaConfig.getEntityId()));
+					assertion.setSubject(
+							ssoHelper.buildAQSubject(aaConfig, spEntity, nameIdValue, NameID.UNSPECIFIED, query.getID()));
+					assertion.getAttributeStatements().add(buildAttributeStatement(user));
+					samlResponse.getAssertions().add(assertion);
+				}
+			} catch (NoSuchMethodException e) {
+				logger.warn("Method is missing in script: {}", e.getMessage());
+				throw new SamlAuthenticationException("NameId Resolver not configured correctly. Method resolveUser not found in " + resolveUserScript);
+			} catch (ScriptException e) {
+				logger.warn("Script contains errors: {}", e.getMessage());
+				throw new SamlAuthenticationException("NameId Resolver "+ resolveUserScript + " contains errors");
 			}
+		} else {
+			throw new SamlAuthenticationException("Subject or Subject Name ID is missing in request");
 		}
 
 		return buildSoapEnvelope(samlResponse);
 	}
-	
+
 	public Envelope buildErrorResponse(String statusCodeString, String messageString) {
 		Response samlResponse = buildSamlRespone(statusCodeString, messageString);
 		return buildSoapEnvelope(samlResponse);
 	}
-	
+
 	private Response buildSamlRespone(String statusCodeString, String messageString) {
 		Response samlResponse = samlHelper.create(Response.class, Response.DEFAULT_ELEMENT_NAME);
 		samlResponse.setStatus(buildSamlStatus(statusCodeString, messageString));

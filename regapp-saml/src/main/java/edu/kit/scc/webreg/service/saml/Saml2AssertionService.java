@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -62,6 +60,8 @@ import edu.kit.scc.webreg.entity.SamlUserEntity_;
 import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.service.saml.exc.NoAssertionException;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class Saml2AssertionService {
@@ -100,7 +100,7 @@ public class Saml2AssertionService {
 		}
 
 		saml2ValidationService.verifyStatus(samlResponse);
-		saml2ValidationService.verifyIssuer((SamlIdpMetadataEntity) idpEntity, samlResponse);
+		saml2ValidationService.verifyIssuer(idpEntity, samlResponse);
 		saml2ValidationService.verifyExpiration(samlResponse, 1000L * 60L * 10L);
 
 		Boolean responseSignatureValid = false;

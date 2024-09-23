@@ -39,7 +39,6 @@ import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngine;
 import org.slf4j.Logger;
 
-import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
@@ -86,12 +85,12 @@ public class Saml2ResponseValidationService {
 
 	}
 
-	public void verifyIssuer(SamlIdpMetadataEntity metadataEntity,
+	public void verifyIssuer(SamlMetadataEntity metadataEntity,
 			Response samlResponse) throws SamlAuthenticationException {
 		verifyIssuer(metadataEntity, samlResponse.getIssuer());
 	}
 
-	public void verifyIssuer(SamlIdpMetadataEntity metadataEntity,
+	public void verifyIssuer(SamlMetadataEntity metadataEntity,
 			Issuer issuer) throws SamlAuthenticationException {
 
 		if (issuer == null)
