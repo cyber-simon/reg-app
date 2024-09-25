@@ -16,6 +16,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Entity(name = "ValueEntity")
 @Table(name = "value")
@@ -42,6 +43,9 @@ public class ValueEntity extends AbstractBaseEntity {
 
 	@ManyToMany(mappedBy = "nextValues")
 	private Set<ValueEntity> prevValues = new HashSet<>();
+	
+	@Transient
+	private Boolean changed;
 
 	public AttributeEntity getAttribute() {
 		return attribute;
@@ -89,5 +93,13 @@ public class ValueEntity extends AbstractBaseEntity {
 
 	public void setEndValue(Boolean endValue) {
 		this.endValue = endValue;
+	}
+
+	public Boolean getChanged() {
+		return changed;
+	}
+
+	public void setChanged(Boolean changed) {
+		this.changed = changed;
 	}
 }

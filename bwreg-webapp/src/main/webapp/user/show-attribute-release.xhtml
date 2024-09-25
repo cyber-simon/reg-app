@@ -41,6 +41,9 @@
 			<p:outputPanel rendered="#{showAttributeReleaseBean.release.attributeConsumer.class.simpleName == 'ProjectOidcClientConfigurationEntity'}">
 				<b><h:outputText value="#{showAttributeReleaseBean.release.attributeConsumer.displayName}" /></b>
 			</p:outputPanel>
+			<p:outputPanel rendered="#{showAttributeReleaseBean.release.attributeConsumer.class.simpleName == 'SamlSpMetadataEntity'}">
+				<b><h:outputText value="#{showAttributeReleaseBean.release.attributeConsumer.entityId}" /></b>
+			</p:outputPanel>
 
 			<h:outputText value="#{messages['attribute_release.actual_release_status']}: " />
 			<p:outputPanel>

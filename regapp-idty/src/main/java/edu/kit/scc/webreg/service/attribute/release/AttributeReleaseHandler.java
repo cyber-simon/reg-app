@@ -13,16 +13,12 @@ import java.util.UUID;
 import org.slf4j.Logger;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
-import edu.kit.scc.webreg.dao.jpa.attribute.AttributeReleaseDao;
 import edu.kit.scc.webreg.dao.jpa.attribute.OutgoingAttributeDao;
 import edu.kit.scc.webreg.dao.jpa.attribute.ValueDao;
-import edu.kit.scc.webreg.entity.attribute.AttributeConsumerEntity;
 import edu.kit.scc.webreg.entity.attribute.AttributeEntity;
 import edu.kit.scc.webreg.entity.attribute.AttributeReleaseEntity;
-import edu.kit.scc.webreg.entity.attribute.AttributeReleaseEntity_;
 import edu.kit.scc.webreg.entity.attribute.OutgoingAttributeEntity;
 import edu.kit.scc.webreg.entity.attribute.OutgoingAttributeEntity_;
-import edu.kit.scc.webreg.entity.attribute.ReleaseStatusType;
 import edu.kit.scc.webreg.entity.attribute.value.PairwiseIdentifierValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.StringListValueEntity;
 import edu.kit.scc.webreg.entity.attribute.value.StringValueEntity;
@@ -42,7 +38,7 @@ public class AttributeReleaseHandler {
 	private Logger logger;
 
 	@Inject
-	private AttributeReleaseDao attributeReleaseDao;
+	private AttributeBuilder attributeBuilder;
 
 	@Inject
 	private OutgoingAttributeDao outgoingAttributeDao;
@@ -137,29 +133,6 @@ public class AttributeReleaseHandler {
 			((StringValueEntity) value).setValueString(valueString);
 			return true;
 		}
-	}
-
-	public AttributeReleaseEntity requestAttributeRelease(AttributeConsumerEntity attributeConsumer,
-			IdentityEntity identity) {
-		final AttributeReleaseEntity attributeRelease = resolveAttributeRelease(attributeConsumer, identity);
-		return attributeRelease;
-	}
-
-	private AttributeReleaseEntity resolveAttributeRelease(AttributeConsumerEntity attributeConsumer,
-			IdentityEntity identity) {
-		AttributeReleaseEntity attributeRelease = attributeReleaseDao
-				.find(and(equal(AttributeReleaseEntity_.attributeConsumer, attributeConsumer),
-						equal(AttributeReleaseEntity_.identity, identity)));
-
-		if (attributeRelease == null) {
-			attributeRelease = attributeReleaseDao.createNew();
-			attributeRelease.setIdentity(identity);
-			attributeRelease.setAttributeConsumer(attributeConsumer);
-			attributeRelease.setReleaseStatus(ReleaseStatusType.NEW);
-			attributeRelease = attributeReleaseDao.persist(attributeRelease);
-		}
-
-		return attributeRelease;
 	}
 
 	private ValueEntity resolveValue(AttributeReleaseEntity attributeRelease, AttributeEntity attribute,

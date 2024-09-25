@@ -24,6 +24,7 @@ import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.ProjectOidcClientConfigurationEntity;
 import edu.kit.scc.webreg.entity.project.ProjectEntity;
 import edu.kit.scc.webreg.entity.project.ProjectMembershipEntity;
+import edu.kit.scc.webreg.service.attribute.release.AttributeBuilder;
 import edu.kit.scc.webreg.service.attribute.release.AttributeReleaseHandler;
 import edu.kit.scc.webreg.service.saml.exc.OidcAuthenticationException;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -41,6 +42,9 @@ public class OidcOpScopeLoginProcessor extends AbstractOidcOpLoginProcessor {
 
 	@Inject
 	private AttributeReleaseHandler attributeReleaseHandler;
+
+	@Inject
+	private AttributeBuilder attributeBuilder;
 
 	@Inject
 	private ProjectDao projectDao;
@@ -79,7 +83,7 @@ public class OidcOpScopeLoginProcessor extends AbstractOidcOpLoginProcessor {
 			}
 		}
 		
-		AttributeReleaseEntity attributeRelease = attributeReleaseHandler.requestAttributeRelease(clientConfig,
+		AttributeReleaseEntity attributeRelease = attributeBuilder.requestAttributeRelease(clientConfig,
 				identity);
 		flowState.setAttributeRelease(attributeRelease);
 		flowState.setIdentity(identity);
@@ -143,7 +147,7 @@ public class OidcOpScopeLoginProcessor extends AbstractOidcOpLoginProcessor {
 	public JSONObject buildUserInfo(OidcFlowStateEntity flowState, OidcOpConfigurationEntity opConfig,
 			OidcClientConsumerEntity clientConfig, HttpServletResponse response) throws OidcAuthenticationException {
 		IdentityEntity identity = flowState.getIdentity();
-		AttributeReleaseEntity attributeRelease = attributeReleaseHandler.requestAttributeRelease(clientConfig,
+		AttributeReleaseEntity attributeRelease = attributeBuilder.requestAttributeRelease(clientConfig,
 				identity);
 
 		if (! ReleaseStatusType.GOOD.equals(attributeRelease.getReleaseStatus())) {

@@ -1,6 +1,7 @@
 package edu.kit.scc.webreg.saml.idp;
 
 import java.time.Instant;
+import java.util.HashSet;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -32,7 +33,10 @@ import edu.kit.scc.webreg.entity.SamlAAConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
 import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.attribute.AttributeReleaseEntity;
 import edu.kit.scc.webreg.script.ScriptingEnv;
+import edu.kit.scc.webreg.service.attribute.release.AttributeBuilder;
+import edu.kit.scc.webreg.service.identity.IdentityAttributeResolver;
 import edu.kit.scc.webreg.service.saml.Saml2ResponseValidationService;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
 import edu.kit.scc.webreg.service.saml.SsoHelper;
@@ -54,15 +58,24 @@ public class AttributeAuthorityService {
 
 	@Inject
 	private ScriptDao scriptDao;
-	
+
 	@Inject
 	private ScriptingEnv scriptingEnv;
-	
+
 	@Inject
 	private SamlHelper samlHelper;
 
 	@Inject
 	private SsoHelper ssoHelper;
+
+	@Inject
+	private AttributeBuilder attributeBuilder;
+
+	@Inject
+	private IdentityAttributeResolver attributeResolver;
+
+	@Inject
+	private SamlAttributeTranscoder attributeTranscoder;
 
 	public Envelope processAttributeQuery(SamlAAConfigurationEntity aaConfig, AttributeQuery query)
 			throws SamlAuthenticationException {
@@ -101,9 +114,16 @@ public class AttributeAuthorityService {
 				throw new SamlAuthenticationException(
 						"NameId Resolver not configured, cannot resolve account. This is a server side error, contact the server administrator");
 			String resolveUserScript = spEntity.getGenericStore().get("aq_resolve_user_scipt");
+
+			if (!spEntity.getGenericStore().containsKey("aq_resolve_attribute_scipt"))
+				throw new SamlAuthenticationException(
+						"Attribute Resolver not configured, cannot resolve attributes. This is a server side error, contact the server administrator");
+			String resolveAttributeScript = spEntity.getGenericStore().get("aq_resolve_attribute_scipt");
+
 			ScriptEntity script = scriptDao.findByName(resolveUserScript);
 			if (script == null)
-				throw new SamlAuthenticationException("NameId Resolver not configured correctly. Script not found: " + resolveUserScript);
+				throw new SamlAuthenticationException(
+						"NameId Resolver not configured correctly. Script not found: " + resolveUserScript);
 
 			try {
 				ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(script.getScriptEngine());
@@ -113,23 +133,38 @@ public class AttributeAuthorityService {
 				String nameIdValue = query.getSubject().getNameID().getValue();
 				String nameIdFormat = query.getSubject().getNameID().getFormat();
 
-				UserEntity user = (UserEntity) invocable.invokeFunction("resolveUser", scriptingEnv, nameIdFormat, nameIdValue, logger,
-						spEntity, aaConfig);
+				UserEntity user = (UserEntity) invocable.invokeFunction("resolveUser", scriptingEnv, nameIdFormat,
+						nameIdValue, logger, spEntity, aaConfig);
 				if (user != null) {
-					Assertion assertion = samlHelper.create(Assertion.class, Assertion.DEFAULT_ELEMENT_NAME);
-					assertion.setIssueInstant(Instant.now());
-					assertion.setIssuer(ssoHelper.buildIssuser(aaConfig.getEntityId()));
-					assertion.setSubject(
-							ssoHelper.buildAQSubject(aaConfig, spEntity, nameIdValue, NameID.UNSPECIFIED, query.getID()));
-					assertion.getAttributeStatements().add(buildAttributeStatement(user));
+
+					AttributeReleaseEntity attributeRelease = attributeBuilder.requestAttributeRelease(spEntity,
+							user.getIdentity());
+
+					script = scriptDao.findByName(resolveAttributeScript);
+					if (script == null)
+						throw new SamlAuthenticationException(
+								"Attribute Resolver not configured correctly. Script not found: " + resolveUserScript);
+					engine = (new ScriptEngineManager()).getEngineByName(script.getScriptEngine());
+					engine.eval(script.getScript());
+					invocable = (Invocable) engine;
+
+					attributeRelease.setValuesToDelete(new HashSet<>(attributeRelease.getValues()));
+					invocable.invokeFunction("resolveAttributes", scriptingEnv, attributeBuilder, attributeResolver,
+							attributeRelease, user.getIdentity(), logger, spEntity, aaConfig);
+					attributeRelease.getValuesToDelete().stream().forEach(v -> attributeBuilder.deleteValue(v));
+
+					Assertion assertion = attributeTranscoder.convertAttributes(attributeRelease, aaConfig, spEntity,
+							query);
 					samlResponse.getAssertions().add(assertion);
 				}
 			} catch (NoSuchMethodException e) {
 				logger.warn("Method is missing in script: {}", e.getMessage());
-				throw new SamlAuthenticationException("NameId Resolver not configured correctly. Method resolveUser not found in " + resolveUserScript);
+				throw new SamlAuthenticationException(
+						"NameId Resolver not configured correctly. Method resolveUser not found in "
+								+ resolveUserScript);
 			} catch (ScriptException e) {
 				logger.warn("Script contains errors: {}", e.getMessage());
-				throw new SamlAuthenticationException("NameId Resolver "+ resolveUserScript + " contains errors");
+				throw new SamlAuthenticationException("NameId Resolver " + resolveUserScript + " contains errors");
 			}
 		} else {
 			throw new SamlAuthenticationException("Subject or Subject Name ID is missing in request");

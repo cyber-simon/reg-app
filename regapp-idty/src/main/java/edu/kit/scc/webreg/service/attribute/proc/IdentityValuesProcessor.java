@@ -29,6 +29,7 @@ public class IdentityValuesProcessor {
 				new StringListMergeValueProcessor("voperson_external_affiliation", "eduperson_affiliation"),
 				new StringListMergeValueProcessor("eduperson_assurance", "eduperson_assurance"),
 				new StringListMergeAuthorityValueProcessor("eduperson_entitlement", "eduperson_entitlement"),
+				new SingleStringMergeValueProcessor("eduperson_principal_name", "eduperson_principal_name"),
 				new SingleStringMergeValueProcessor("family_name", "family_name"),
 				new SingleStringMergeValueProcessor("given_name", "given_name"));
 	}

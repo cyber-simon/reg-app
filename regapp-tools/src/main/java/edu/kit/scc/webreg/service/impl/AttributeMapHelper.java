@@ -36,7 +36,10 @@ public class AttributeMapHelper implements Serializable {
 		if (o instanceof String) {
 			return (String) o;
 		} else {
-			return o.toString();
+			if (o == null)
+				return null;
+			else
+				return o.toString();
 		}
 	}
 
