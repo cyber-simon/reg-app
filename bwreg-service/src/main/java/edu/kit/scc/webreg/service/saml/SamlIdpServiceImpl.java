@@ -10,6 +10,7 @@ import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.script.Invocable;
@@ -86,7 +87,11 @@ import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceSamlSpEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.attribute.AttributeReleaseEntity;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+import edu.kit.scc.webreg.saml.idp.SamlAttributeTranscoder;
+import edu.kit.scc.webreg.service.attribute.release.AttributeBuilder;
+import edu.kit.scc.webreg.service.identity.IdentityAttributeResolver;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.session.SessionManager;
 import jakarta.ejb.Stateless;
@@ -147,6 +152,15 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 
 	@Inject
 	private ApplicationConfig appConfig;
+	
+	@Inject
+	private AttributeBuilder attributeBuilder;
+
+	@Inject
+	private IdentityAttributeResolver attributeResolver;
+
+	@Inject
+	private SamlAttributeTranscoder attributeTranscoder;
 
 	@Override
 	@RetryTransaction
@@ -549,14 +563,19 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 		return false;
 	}
 
-	private void buildAttributeStatement(SamlIdpConfigurationEntity idpConfig, SamlSpMetadataEntity spMetadata,
-			AuthnRequest authnRequest, Assertion assertion, UserEntity user,
-			List<ServiceSamlSpEntity> serviceSamlSpEntityList, RegistryEntity registry)
+	private void buildAttributeStatement(final SamlIdpConfigurationEntity idpConfig, final SamlSpMetadataEntity spMetadata,
+			final AuthnRequest authnRequest, final Assertion assertion, final UserEntity user,
+			final List<ServiceSamlSpEntity> serviceSamlSpEntityList, final RegistryEntity registry)
 			throws SamlAuthenticationException {
 
 		List<Attribute> attributeList = new ArrayList<>();
 		Boolean subjectOverride = false;
 
+		final IdentityEntity identity = user.getIdentity();
+		final AttributeReleaseEntity attributeRelease = attributeBuilder.requestAttributeRelease(spMetadata,
+				identity);
+		attributeRelease.setValuesToDelete(new HashSet<>(attributeRelease.getValues()));
+		
 		for (ServiceSamlSpEntity serviceSamlSp : serviceSamlSpEntityList) {
 			ScriptEntity scriptEntity = serviceSamlSp.getScript();
 			if (scriptEntity.getScriptType().equalsIgnoreCase("javascript")) {
@@ -571,8 +590,19 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 
 					Invocable invocable = (Invocable) engine;
 
-					invocable.invokeFunction("buildAttributeStatement", scriptingEnv, user, registry,
-							serviceSamlSp.getService(), attributeList, logger);
+					try {
+						invocable.invokeFunction("buildAttributeStatement", scriptingEnv, user, registry,
+								serviceSamlSp.getService(), attributeList, logger);
+					} catch (NoSuchMethodException e) {
+						// Ignore, if this method is missing
+					}
+
+					try {
+						invocable.invokeFunction("resolveAttributes", scriptingEnv, attributeBuilder, attributeResolver,
+								attributeRelease, identity, user, registry, logger, spMetadata, idpConfig);
+					} catch (NoSuchMethodException e) {
+						// Ignore, if this method is missing
+					}
 
 					try {
 						Object o = invocable.invokeFunction("buildNameId", scriptingEnv, user, registry,
@@ -585,7 +615,7 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 					} catch (NoSuchMethodException e) {
 						// Ignore, if this method is missing
 					}
-				} catch (NoSuchMethodException | ScriptException e) {
+				} catch (ScriptException e) {
 					logger.warn("Script execution failed. Continue with other scripts.", e);
 				}
 			} else {
@@ -593,8 +623,10 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 			}
 
 		}
-		AttributeStatement attributeStatement = samlHelper.create(AttributeStatement.class,
-				AttributeStatement.DEFAULT_ELEMENT_NAME);
+		attributeRelease.getValuesToDelete().stream().forEach(v -> attributeBuilder.deleteValue(v));
+
+		final AttributeStatement attributeStatement = attributeTranscoder.convertAttributeStatement(attributeRelease, idpConfig, spMetadata);
+
 		for (Attribute attribute : attributeList) {
 			attributeStatement.getAttributes().add(attribute);
 		}

@@ -173,7 +173,7 @@ public class AttributeAuthorityService {
 
 					attributeRelease.setValuesToDelete(new HashSet<>(attributeRelease.getValues()));
 					invocable.invokeFunction("resolveAttributes", scriptingEnv, attributeBuilder, attributeResolver,
-							attributeRelease, user.getIdentity(), logger, spEntity, aaConfig);
+							attributeRelease, identity, logger, spEntity, aaConfig);
 					attributeRelease.getValuesToDelete().stream().forEach(v -> attributeBuilder.deleteValue(v));
 
 					Assertion assertion = attributeTranscoder.convertAttributes(attributeRelease, aaConfig, spEntity,
