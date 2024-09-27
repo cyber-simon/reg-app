@@ -31,12 +31,20 @@ import edu.kit.scc.webreg.dao.SamlSpMetadataDao;
 import edu.kit.scc.webreg.dao.ScriptDao;
 import edu.kit.scc.webreg.entity.SamlAAConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlSpMetadataEntity;
+import edu.kit.scc.webreg.entity.SamlUserEntity;
 import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
 import edu.kit.scc.webreg.entity.attribute.AttributeReleaseEntity;
+import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+import edu.kit.scc.webreg.entity.oauth.OAuthUserEntity;
+import edu.kit.scc.webreg.entity.oidc.OidcUserEntity;
+import edu.kit.scc.webreg.exc.UserUpdateException;
 import edu.kit.scc.webreg.script.ScriptingEnv;
 import edu.kit.scc.webreg.service.attribute.release.AttributeBuilder;
 import edu.kit.scc.webreg.service.identity.IdentityAttributeResolver;
+import edu.kit.scc.webreg.service.impl.OAuthUserUpdater;
+import edu.kit.scc.webreg.service.impl.OidcUserUpdater;
+import edu.kit.scc.webreg.service.impl.SamlUserUpdater;
 import edu.kit.scc.webreg.service.saml.Saml2ResponseValidationService;
 import edu.kit.scc.webreg.service.saml.SamlHelper;
 import edu.kit.scc.webreg.service.saml.SsoHelper;
@@ -76,6 +84,15 @@ public class AttributeAuthorityService {
 
 	@Inject
 	private SamlAttributeTranscoder attributeTranscoder;
+
+	@Inject
+	private SamlUserUpdater samlUserUpdater;
+
+	@Inject
+	private OidcUserUpdater oidcUserUpdater;
+
+	@Inject
+	private OAuthUserUpdater oauthUserUpdater;
 
 	public Envelope processAttributeQuery(SamlAAConfigurationEntity aaConfig, AttributeQuery query)
 			throws SamlAuthenticationException {
@@ -133,12 +150,18 @@ public class AttributeAuthorityService {
 				String nameIdValue = query.getSubject().getNameID().getValue();
 				String nameIdFormat = query.getSubject().getNameID().getFormat();
 
-				UserEntity user = (UserEntity) invocable.invokeFunction("resolveUser", scriptingEnv, nameIdFormat,
-						nameIdValue, logger, spEntity, aaConfig);
-				if (user != null) {
+				final UserEntity user = resolveUser(invocable, nameIdFormat, nameIdValue, spEntity, aaConfig);
+				final IdentityEntity identity = resolveIdentity(user, invocable, nameIdFormat, nameIdValue, spEntity,
+						aaConfig);
+				if (identity != null) {
+
+					// only update all user objects when configured, because this can take some time
+					if (spEntity.getGenericStore().containsKey("update_identity")
+							&& spEntity.getGenericStore().get("update_identity").equalsIgnoreCase("true"))
+						identity.getUsers().stream().forEach(u -> updateUser(u));
 
 					AttributeReleaseEntity attributeRelease = attributeBuilder.requestAttributeRelease(spEntity,
-							user.getIdentity());
+							identity);
 
 					script = scriptDao.findByName(resolveAttributeScript);
 					if (script == null)
@@ -210,26 +233,44 @@ public class AttributeAuthorityService {
 		return envelope;
 	}
 
-	private AttributeStatement buildAttributeStatement(UserEntity user) {
-		AttributeStatement attributeStatement = samlHelper.create(AttributeStatement.class,
-				AttributeStatement.DEFAULT_ELEMENT_NAME);
-		attributeStatement.getAttributes().add(buildAttribute("urn:oid:1.3.6.1.4.1.5923.1.1.1.6",
-				"eduPersonPrincipalName", Attribute.URI_REFERENCE, user.getEppn()));
-		return attributeStatement;
-	}
-
-	private Attribute buildAttribute(String name, String friendlyName, String nameFormat, String... values) {
-		Attribute attribute = samlHelper.create(Attribute.class, Attribute.DEFAULT_ELEMENT_NAME);
-		attribute.setName(name);
-		attribute.setFriendlyName(friendlyName);
-		attribute.setNameFormat(nameFormat);
-
-		for (String value : values) {
-			XSString xsany = samlHelper.create(XSString.class, XSString.TYPE_NAME, AttributeValue.DEFAULT_ELEMENT_NAME);
-			xsany.setValue(value);
-			attribute.getAttributeValues().add(xsany);
+	private IdentityEntity resolveIdentity(UserEntity user, Invocable invocable, String nameIdFormat,
+			String nameIdValue, SamlSpMetadataEntity spEntity, SamlAAConfigurationEntity aaConfig)
+			throws ScriptException {
+		if (user != null) {
+			return user.getIdentity();
 		}
 
-		return attribute;
+		try {
+			return (IdentityEntity) invocable.invokeFunction("resolveIdentity", scriptingEnv, nameIdFormat, nameIdValue,
+					logger, spEntity, aaConfig);
+		} catch (NoSuchMethodException e) {
+			// Ignore exception. Better would be a check for method existance
+			return null;
+		}
+
+	}
+
+	private UserEntity resolveUser(Invocable invocable, String nameIdFormat, String nameIdValue,
+			SamlSpMetadataEntity spEntity, SamlAAConfigurationEntity aaConfig) throws ScriptException {
+		try {
+			return (UserEntity) invocable.invokeFunction("resolveUser", scriptingEnv, nameIdFormat, nameIdValue, logger,
+					spEntity, aaConfig);
+		} catch (NoSuchMethodException e) {
+			// Ignore exception. Better would be a check for method existance
+			return null;
+		}
+
+	}
+
+	private void updateUser(UserEntity user) {
+		try {
+			if (user instanceof SamlUserEntity)
+				samlUserUpdater.updateUserFromHomeOrg((SamlUserEntity) user, null, "attribue-query", null);
+			else if (user instanceof OidcUserEntity)
+				oidcUserUpdater.updateUserFromHomeOrg((OidcUserEntity) user, null, "attribue-query", null);
+			else if (user instanceof OAuthUserEntity)
+				oauthUserUpdater.updateUserFromHomeOrg((OAuthUserEntity) user, null, "attribue-query", null);
+		} catch (UserUpdateException e) {
+		}
 	}
 }

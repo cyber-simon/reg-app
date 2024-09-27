@@ -1,5 +1,6 @@
 package edu.kit.scc.webreg.entity.attribute.value;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -44,6 +45,9 @@ public class ValueEntity extends AbstractBaseEntity {
 	@ManyToMany(mappedBy = "nextValues")
 	private Set<ValueEntity> prevValues = new HashSet<>();
 	
+	@Column(name = "last_update")
+	protected Date lastUpdate;
+
 	@Transient
 	private Boolean changed;
 
@@ -101,5 +105,13 @@ public class ValueEntity extends AbstractBaseEntity {
 
 	public void setChanged(Boolean changed) {
 		this.changed = changed;
+	}
+
+	public Date getLastUpdate() {
+		return lastUpdate;
+	}
+
+	public void setLastUpdate(Date lastUpdate) {
+		this.lastUpdate = lastUpdate;
 	}
 }

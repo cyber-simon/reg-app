@@ -43,10 +43,16 @@ public class SamlAttributeTranscoder {
 				new SingleStringValueTranscoder(samlHelper, "urn:oid:2.5.4.4", "sn", Attribute.BASIC));
 		transcoderMap.put("given_name",
 				new SingleStringValueTranscoder(samlHelper, "urn:oid:2.5.4.42", "givenName", Attribute.BASIC));
+		transcoderMap.put("email",
+				new SingleStringValueTranscoder(samlHelper, "urn:oid:0.9.2342.19200300.100.1.3", "email", Attribute.BASIC));
 		transcoderMap.put("eduperson_principal_name", new SingleStringValueTranscoder(samlHelper,
 				"urn:oid:1.3.6.1.4.1.5923.1.1.1.6", "eduPersonPrincipalName", Attribute.URI_REFERENCE));
 		transcoderMap.put("eduperson_entitlement", new SingleStringValueTranscoder(samlHelper,
 				"urn:oid:1.3.6.1.4.1.5923.1.1.1.7", "eduPersonEntitlement", Attribute.BASIC));
+		transcoderMap.put("eduperson_assurance", new SingleStringValueTranscoder(samlHelper,
+				"urn:oid:1.3.6.1.4.1.5923.1.1.1.11", "edupersonAssurance", Attribute.BASIC));
+		transcoderMap.put("voperson_external_affiliation", new SingleStringValueTranscoder(samlHelper,
+				"urn:oid:1.3.6.1.4.1.25178.4.1.11", "voPersonExternalAffiliation", Attribute.BASIC));
 	}
 
 	public Assertion convertAttributes(AttributeReleaseEntity attributeRelease, SamlAAConfigurationEntity aaConfig,

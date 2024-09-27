@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +58,7 @@ public class SingleStringMergeValueProcessor extends AbstractListProcessor {
 		
 		if (valueMap.isEmpty()) {
 			NullValueEntity targetValue = (NullValueEntity) getValueUpdater().resolveValue(attribute, attributeSet, NullValueEntity.class);
+			targetValue.setLastUpdate(new Date());
 			targetValue.setEndValue(true);
 		}
 		else {
@@ -65,6 +67,7 @@ public class SingleStringMergeValueProcessor extends AbstractListProcessor {
 			StringValueEntity targetValue = (StringValueEntity) getValueUpdater().resolveValue(attribute, attributeSet, StringValueEntity.class);
 			targetValue.setValueString(name);
 			valueMap.get(name).stream().forEach(v -> v.getNextValues().add(targetValue));
+			targetValue.setLastUpdate(new Date());
 			targetValue.setEndValue(true);
 		}
 	}

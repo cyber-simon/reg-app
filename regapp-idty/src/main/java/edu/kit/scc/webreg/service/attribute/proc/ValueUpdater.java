@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -65,6 +66,7 @@ public class ValueUpdater {
 			targetValue.setValueList(new ArrayList<>());
 		targetValue.getValueList().clear();
 		targetValue.getValueList().addAll(values);
+		targetValue.setLastUpdate(new Date());
 		targetValue.setEndValue(true);
 	}
 
@@ -119,6 +121,7 @@ public class ValueUpdater {
 			value.getNextValues().add(targetValue);
 		}
 		targetValue.setValueList(new ArrayList<>(values));
+		targetValue.setLastUpdate(new Date());
 		targetValue.setEndValue(true);
 	}
 
@@ -169,7 +172,7 @@ public class ValueUpdater {
 			copyStringListValue((StringListValueEntity) in, (StringListValueEntity) out);
 		else if (in instanceof LongValueEntity)
 			((LongValueEntity) out).setValueLong(((LongValueEntity) in).getValueLong());
-
+		out.setLastUpdate(in.getLastUpdate());
 	}
 
 	private void copyStringValue(StringValueEntity in, StringValueEntity out) {
