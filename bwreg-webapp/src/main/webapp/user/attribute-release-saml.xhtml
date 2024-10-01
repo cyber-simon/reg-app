@@ -30,22 +30,22 @@
 
 		<h:outputText value="#{messages['attribute_release.intro']}" />
 		<p:panel>
-		<p:panelGrid id="dataGrid" style="margin-top:1em;" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
-			<h:outputText value="#{messages['attribute_release.release_to_service']}: " />
-			<h:panelGroup>
-				<b><h:outputText value="#{samlAttributeReleaseBean.authnRequest.spMetadata.displayName}" styleClass="full" rendered="#{samlAttributeReleaseBean.authnRequest.spMetadata.displayName != null}"/></b>
-				<b><h:outputText value="#{samlAttributeReleaseBean.authnRequest.spMetadata.entityId}" styleClass="full" rendered="#{samlAttributeReleaseBean.authnRequest.spMetadata.displayName == null}"/></b>
-			</h:panelGroup>
-
-			<h:outputText value="#{messages['attribute_release.actual_release_status']}: " />
-			<h:panelGroup styleClass="full">
-				<h:outputText value="#{messages['attribute_release.status_new']}" rendered="#{samlAttributeReleaseBean.attributeRelease.releaseStatus == 'NEW'}" />
-				<h:outputText value="#{messages['attribute_release.status_dirty']}" rendered="#{samlAttributeReleaseBean.attributeRelease.releaseStatus == 'DIRTY'}" />
-				<h:outputText value="#{messages['attribute_release.status_rejected']}" rendered="#{samlAttributeReleaseBean.attributeRelease.releaseStatus == 'REJECTED'}" />
-				<h:outputText value="#{messages['attribute_release.status_revoked']}" rendered="#{samlAttributeReleaseBean.attributeRelease.releaseStatus == 'REVOKED'}" />
-			</h:panelGroup>
-		</p:panelGrid>
-</p:panel>				
+			<p:panelGrid id="dataGrid" style="margin-top:1em;" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
+				<h:outputText value="#{messages['attribute_release.release_to_service']}: " />
+				<h:panelGroup>
+					<b><h:outputText value="#{samlAttributeReleaseBean.authnRequest.spMetadata.displayName}" styleClass="full" rendered="#{samlAttributeReleaseBean.authnRequest.spMetadata.displayName != null}"/></b>
+					<b><h:outputText value="#{samlAttributeReleaseBean.authnRequest.spMetadata.entityId}" styleClass="full" rendered="#{samlAttributeReleaseBean.authnRequest.spMetadata.displayName == null}"/></b>
+				</h:panelGroup>
+	
+				<h:outputText value="#{messages['attribute_release.actual_release_status']}: " />
+				<h:panelGroup styleClass="full">
+					<h:outputText value="#{messages['attribute_release.status_new']}" rendered="#{samlAttributeReleaseBean.attributeRelease.releaseStatus == 'NEW'}" />
+					<h:outputText value="#{messages['attribute_release.status_dirty']}" rendered="#{samlAttributeReleaseBean.attributeRelease.releaseStatus == 'DIRTY'}" />
+					<h:outputText value="#{messages['attribute_release.status_rejected']}" rendered="#{samlAttributeReleaseBean.attributeRelease.releaseStatus == 'REJECTED'}" />
+					<h:outputText value="#{messages['attribute_release.status_revoked']}" rendered="#{samlAttributeReleaseBean.attributeRelease.releaseStatus == 'REVOKED'}" />
+				</h:panelGroup>
+			</p:panelGrid>
+		</p:panel>				
 		<p:dataTable var="value" value="#{samlAttributeReleaseBean.valueList}">
 			<p:column width="30%">
 				<f:facet name="header">
@@ -68,10 +68,10 @@
 		
 		</p:dataTable>
 		
-		<p:panel>
-			<p:commandButton action="#{samlAttributeReleaseBean.reject()}" value="#{messages.deny}" rendered="false"/>
+		<h:panelGroup id="btnPanel" layout="block" styleClass="form">
+			<p:commandButton action="#{samlAttributeReleaseBean.reject()}" value="#{messages.deny}" rendered="false" />
 			<p:commandButton action="#{samlAttributeReleaseBean.accept()}" value="#{messages.accept}" />
-		</p:panel>
+		</h:panelGroup>
 	</h:form>
 	</ui:define>
 </ui:composition>
