@@ -35,14 +35,10 @@ public class AttributeReleaseService extends BaseServiceImpl<AttributeReleaseEnt
 	}
 	
 	public AttributeReleaseEntity accept(AttributeReleaseEntity attributeRelease, OidcFlowStateEntity flowState, IdentityEntity identity) {
-		attributeRelease = dao.fetch(attributeRelease.getId());
-		attributeRelease.setReleaseStatus(ReleaseStatusType.GOOD);
-		attributeRelease.setIssuedAt(new Date());
-		
 		flowState = flowStateDao.fetch(flowState.getId());
 		flowState.setValidUntil(new Date(System.currentTimeMillis() + (10L * 60L * 1000L)));
 		
-		return attributeRelease;
+		return accept(attributeRelease);
 	}
 	
 	public AttributeReleaseEntity accept(AttributeReleaseEntity attributeRelease) {
@@ -59,15 +55,19 @@ public class AttributeReleaseService extends BaseServiceImpl<AttributeReleaseEnt
 		return attributeRelease;
 	}
 
-	public AttributeReleaseEntity reject(AttributeReleaseEntity attributeRelease, OidcFlowStateEntity flowState, IdentityEntity identity) {
+	public AttributeReleaseEntity reject(AttributeReleaseEntity attributeRelease) {
 		attributeRelease = dao.fetch(attributeRelease.getId());
 		attributeRelease.setReleaseStatus(ReleaseStatusType.REJECTED);
 		attributeRelease.setIssuedAt(new Date());
 		
+		return attributeRelease;
+	}
+
+	public AttributeReleaseEntity reject(AttributeReleaseEntity attributeRelease, OidcFlowStateEntity flowState, IdentityEntity identity) {
 		flowState = flowStateDao.fetch(flowState.getId());
 		flowState.setValidUntil(new Date(System.currentTimeMillis() + (10L * 60L * 1000L)));
 		
-		return attributeRelease;
+		return reject(attributeRelease);
 	}
 	
 	@Override

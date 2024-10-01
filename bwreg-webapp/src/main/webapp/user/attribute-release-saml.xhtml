@@ -1,0 +1,80 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="jakarta.faces.core"
+	xmlns:h="jakarta.faces.html"
+	xmlns:ui="jakarta.faces.facelets"
+	xmlns:bw="http://www.scc.kit.edu/bwfacelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions">
+<head>
+<title></title>
+</head>
+<body>
+
+<f:view>
+<f:metadata>
+	<f:viewParam name="id" value="#{samlAttributeReleaseBean.id}"/>
+	<f:event type="jakarta.faces.event.PreRenderViewEvent"
+           listener="#{samlAttributeReleaseBean.preRenderView}" />
+</f:metadata>
+
+<ui:composition template="/template/default.xhtml">
+	<ui:param name="title" value="#{messages.title}"/>
+
+	<ui:define name="content">
+	<h:form id="form" prependId="false" class="full">
+	
+		<h3><h:outputText value="#{messages['attribute_release.header']}" /></h3>
+
+		<h:outputText value="#{messages['attribute_release.intro']}" />
+		<p:panel>
+		<p:panelGrid id="dataGrid" style="margin-top:1em;" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
+			<h:outputText value="#{messages['attribute_release.release_to_service']}: " />
+			<h:panelGroup>
+				<b><h:outputText value="#{samlAttributeReleaseBean.authnRequest.spMetadata.displayName}" styleClass="full" rendered="#{samlAttributeReleaseBean.authnRequest.spMetadata.displayName != null}"/></b>
+				<b><h:outputText value="#{samlAttributeReleaseBean.authnRequest.spMetadata.entityId}" styleClass="full" rendered="#{samlAttributeReleaseBean.authnRequest.spMetadata.displayName == null}"/></b>
+			</h:panelGroup>
+
+			<h:outputText value="#{messages['attribute_release.actual_release_status']}: " />
+			<h:panelGroup styleClass="full">
+				<h:outputText value="#{messages['attribute_release.status_new']}" rendered="#{samlAttributeReleaseBean.attributeRelease.releaseStatus == 'NEW'}" />
+				<h:outputText value="#{messages['attribute_release.status_dirty']}" rendered="#{samlAttributeReleaseBean.attributeRelease.releaseStatus == 'DIRTY'}" />
+				<h:outputText value="#{messages['attribute_release.status_rejected']}" rendered="#{samlAttributeReleaseBean.attributeRelease.releaseStatus == 'REJECTED'}" />
+				<h:outputText value="#{messages['attribute_release.status_revoked']}" rendered="#{samlAttributeReleaseBean.attributeRelease.releaseStatus == 'REVOKED'}" />
+			</h:panelGroup>
+		</p:panelGrid>
+</p:panel>				
+		<p:dataTable var="value" value="#{samlAttributeReleaseBean.valueList}">
+			<p:column width="30%">
+				<f:facet name="header">
+					<h:outputText value="#{messages.name}" />
+				</f:facet>
+				<h:outputText value="#{value.attribute.name}" />
+			</p:column>
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.value}" />
+				</f:facet>
+				<h:outputText value="#{value.valueString} " rendered="#{value.class.simpleName == 'StringValueEntity'}" />
+				<h:outputText value="#{value.valueIdentifier}@#{value.valueScope} " rendered="#{value.class.simpleName == 'PairwiseIdentifierValueEntity'}" />
+				<p:outputPanel rendered="#{value.class.simpleName == 'StringListValueEntity'}">
+					<ul><ui:repeat value="#{value.valueList}" var="item">
+						<li><h:outputText value="#{item}"/></li>
+					</ui:repeat></ul>
+				</p:outputPanel>
+			</p:column>
+		
+		</p:dataTable>
+		
+		<p:panel>
+			<p:commandButton action="#{samlAttributeReleaseBean.reject()}" value="#{messages.deny}" rendered="false"/>
+			<p:commandButton action="#{samlAttributeReleaseBean.accept()}" value="#{messages.accept}" />
+		</p:panel>
+	</h:form>
+	</ui:define>
+</ui:composition>
+</f:view>
+</body>
+</html>

@@ -24,19 +24,22 @@
 	<ui:param name="title" value="#{messages.title}"/>
 
 	<ui:define name="content">
-	<h:form id="form" prependId="false" class="full form">
+	<h:form id="form" prependId="false" class="full">
 
 		<p:messages id="msgbox" />
 
 		<p:panel id="arPanel">
 			<h3><h:outputText value="#{messages['attribute_release.show_ar.heading']}"/></h3>
-			<div><h:outputText value="#{messages['attribute_release.show_ar.intro']}"/></div>
+			<h:outputText value="#{messages['attribute_release.show_ar.intro']}"/>
 
 			<p:panelGrid id="dataGrid" style="margin-top:1em;" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 
 			<h:outputText value="#{messages['attribute_release.release_to_service']}: " />
 			<p:outputPanel rendered="#{showAttributeReleaseBean.release.attributeConsumer.class.simpleName == 'OidcClientConfigurationEntity'}">
-				<b><h:outputText value="#{showAttributeReleaseBean.release.attributeConsumer.displayName}" /></b>
+				<h:panelGroup>
+					<b><h:outputText value="#{showAttributeReleaseBean.release.attributeConsumer.displayName}" styleClass="full" rendered="#{showAttributeReleaseBean.release.attributeConsumer.displayName != null}"/></b>
+					<b><h:outputText value="#{showAttributeReleaseBean.release.attributeConsumer.entityId}" styleClass="full" rendered="#{showAttributeReleaseBean.release.attributeConsumer.displayName == null}"/></b>
+				</h:panelGroup>
 			</p:outputPanel>
 			<p:outputPanel rendered="#{showAttributeReleaseBean.release.attributeConsumer.class.simpleName == 'ProjectOidcClientConfigurationEntity'}">
 				<b><h:outputText value="#{showAttributeReleaseBean.release.attributeConsumer.displayName}" /></b>
