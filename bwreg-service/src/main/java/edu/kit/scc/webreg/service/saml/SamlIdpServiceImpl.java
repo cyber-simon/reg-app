@@ -184,11 +184,13 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 		IdentityEntity identity = identityDao.fetch(identityId);
 		logger.debug("Identity loaded: {}", identity.getId());
 
-		// First user object picked for now
+		// User pref user
 		// TODO Change to something more correct. Script must choose user from identity
 		// ie.
 		List<UserEntity> userList = userDao.findByIdentity(identity);
-		UserEntity user = userList.get(0);
+		UserEntity user = identity.getPrefUser();
+		if (user == null)
+			user = userList.get(0);
 
 		SamlAuthnRequestEntity authnRequestEntity = samlAuthnRequestDao.fetch(authnRequestId);
 		AuthnRequest authnRequest = samlHelper.unmarshal(authnRequestEntity.getAuthnrequestData(), AuthnRequest.class);
