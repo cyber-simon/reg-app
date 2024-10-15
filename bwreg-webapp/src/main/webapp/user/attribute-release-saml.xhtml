@@ -15,9 +15,9 @@
 
 <f:view>
 <f:metadata>
-	<f:viewParam name="id" value="#{oidcAttributeReleaseBean.id}"/>
+	<f:viewParam name="id" value="#{samlAttributeReleaseBean.id}"/>
 	<f:event type="jakarta.faces.event.PreRenderViewEvent"
-           listener="#{oidcAttributeReleaseBean.preRenderView}" />
+           listener="#{samlAttributeReleaseBean.preRenderView}" />
 </f:metadata>
 
 <ui:composition template="/template/default.xhtml">
@@ -26,27 +26,27 @@
 	<ui:define name="content">
 	<h:form id="form" prependId="false" class="full">
 	
-		<h3><h:outputText value="#{messages['attribute_release.show_ar.heading']}"/></h3>
-		<h:outputText value="#{messages['attribute_release.show_ar.intro']}"/>
+		<h3><h:outputText value="#{messages['attribute_release.header']}" /></h3>
 
+		<h:outputText value="#{messages['attribute_release.intro']}" />
 		<p:panel>
 			<p:panelGrid id="dataGrid" style="margin-top:1em;" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
 				<h:outputText value="#{messages['attribute_release.release_to_service']}: " />
-				<p:outputPanel>
-					<b><h:outputText value="#{oidcAttributeReleaseBean.flowState.clientConsumer.displayName}" /></b>
-				</p:outputPanel>
-
+				<h:panelGroup>
+					<b><h:outputText value="#{samlAttributeReleaseBean.authnRequest.spMetadata.displayName}" styleClass="full" rendered="#{samlAttributeReleaseBean.authnRequest.spMetadata.displayName != null}"/></b>
+					<b><h:outputText value="#{samlAttributeReleaseBean.authnRequest.spMetadata.entityId}" styleClass="full" rendered="#{samlAttributeReleaseBean.authnRequest.spMetadata.displayName == null}"/></b>
+				</h:panelGroup>
+	
 				<h:outputText value="#{messages['attribute_release.actual_release_status']}: " />
-				<p:outputPanel>
-					<h:outputText value="#{messages['attribute_release.status_new']}" rendered="#{oidcAttributeReleaseBean.attributeRelease.releaseStatus == 'NEW'}" />
-					<h:outputText value="#{messages['attribute_release.status_dirty']}" rendered="#{oidcAttributeReleaseBean.attributeRelease.releaseStatus == 'DIRTY'}" />
-					<h:outputText value="#{messages['attribute_release.status_rejected']}" rendered="#{oidcAttributeReleaseBean.attributeRelease.releaseStatus == 'REJECTED'}" />
-					<h:outputText value="#{messages['attribute_release.status_revoked']}" rendered="#{oidcAttributeReleaseBean.attributeRelease.releaseStatus == 'REVOKED'}" />
-				</p:outputPanel>
+				<h:panelGroup styleClass="full">
+					<h:outputText value="#{messages['attribute_release.status_new']}" rendered="#{samlAttributeReleaseBean.attributeRelease.releaseStatus == 'NEW'}" />
+					<h:outputText value="#{messages['attribute_release.status_dirty']}" rendered="#{samlAttributeReleaseBean.attributeRelease.releaseStatus == 'DIRTY'}" />
+					<h:outputText value="#{messages['attribute_release.status_rejected']}" rendered="#{samlAttributeReleaseBean.attributeRelease.releaseStatus == 'REJECTED'}" />
+					<h:outputText value="#{messages['attribute_release.status_revoked']}" rendered="#{samlAttributeReleaseBean.attributeRelease.releaseStatus == 'REVOKED'}" />
+				</h:panelGroup>
 			</p:panelGrid>
 		</p:panel>				
-
-		<p:dataTable var="value" value="#{oidcAttributeReleaseBean.valueList}">
+		<p:dataTable var="value" value="#{samlAttributeReleaseBean.valueList}">
 			<p:column width="30%">
 				<f:facet name="header">
 					<h:outputText value="#{messages.name}" />
@@ -69,8 +69,8 @@
 		</p:dataTable>
 		
 		<h:panelGroup id="btnPanel" layout="block" styleClass="form">
-			<p:commandButton action="#{oidcAttributeReleaseBean.accept()}" value="#{messages.accept}" />
-			<p:commandButton action="#{oidcAttributeReleaseBean.reject()}" value="#{messages.deny}" style="margin-left: 1em;"/>
+			<p:commandButton action="#{samlAttributeReleaseBean.reject()}" value="#{messages.deny}" rendered="false" />
+			<p:commandButton action="#{samlAttributeReleaseBean.accept()}" value="#{messages.accept}" />
 		</h:panelGroup>
 	</h:form>
 	</ui:define>

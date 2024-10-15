@@ -10,6 +10,7 @@ import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.script.Invocable;
@@ -86,7 +87,12 @@ import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.ServiceSamlSpEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.attribute.AttributeReleaseEntity;
+import edu.kit.scc.webreg.entity.attribute.ReleaseStatusType;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
+import edu.kit.scc.webreg.saml.idp.SamlAttributeTranscoder;
+import edu.kit.scc.webreg.service.attribute.release.AttributeBuilder;
+import edu.kit.scc.webreg.service.identity.IdentityAttributeResolver;
 import edu.kit.scc.webreg.service.saml.exc.SamlAuthenticationException;
 import edu.kit.scc.webreg.session.SessionManager;
 import jakarta.ejb.Stateless;
@@ -148,6 +154,15 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 	@Inject
 	private ApplicationConfig appConfig;
 
+	@Inject
+	private AttributeBuilder attributeBuilder;
+
+	@Inject
+	private IdentityAttributeResolver attributeResolver;
+
+	@Inject
+	private SamlAttributeTranscoder attributeTranscoder;
+
 	@Override
 	@RetryTransaction
 	public long registerAuthnRequest(AuthnRequest authnRequest) {
@@ -169,11 +184,13 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 		IdentityEntity identity = identityDao.fetch(identityId);
 		logger.debug("Identity loaded: {}", identity.getId());
 
-		// First user object picked for now
+		// User pref user
 		// TODO Change to something more correct. Script must choose user from identity
 		// ie.
 		List<UserEntity> userList = userDao.findByIdentity(identity);
-		UserEntity user = userList.get(0);
+		UserEntity user = identity.getPrefUser();
+		if (user == null)
+			user = userList.get(0);
 
 		SamlAuthnRequestEntity authnRequestEntity = samlAuthnRequestDao.fetch(authnRequestId);
 		AuthnRequest authnRequest = samlHelper.unmarshal(authnRequestEntity.getAuthnrequestData(), AuthnRequest.class);
@@ -182,7 +199,8 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 
 		SamlSpMetadataEntity spMetadata = spDao.findByEntityId(authnRequest.getIssuer().getValue());
 		logger.debug("Corresponding SP found in Metadata: {}", spMetadata.getEntityId());
-
+		authnRequestEntity.setSpMetadata(spMetadata);
+		
 		List<ServiceSamlSpEntity> serviceSamlSpEntityList = serviceSamlSpDao.findBySamlSp(spMetadata);
 
 		if (serviceSamlSpEntityList.size() == 0) {
@@ -268,10 +286,11 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 						 * There is no service set for this sp idp connection
 						 */
 						filteredServiceSamlSpEntityList.add(serviceSamlSpEntity);
-						List<String> unauthorizedList = knowledgeSessionService.checkScriptAccess(serviceSamlSpEntity.getScript(), identity);
+						List<String> unauthorizedList = knowledgeSessionService
+								.checkScriptAccess(serviceSamlSpEntity.getScript(), identity);
 						if (unauthorizedList.size() > 0) {
 							return "/user/saml-access-denied.xhtml?soidc=" + serviceSamlSpEntity.getId();
-						}						
+						}
 					}
 				} else {
 					logger.debug("serviceSamlSpEntity no match: {}", serviceSamlSpEntity.getId());
@@ -302,8 +321,10 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 		assertion.setIssuer(ssoHelper.buildIssuser(idpConfig.getEntityId()));
 		assertion.setConditions(ssoHelper.buildConditions(spMetadata));
 
-		buildAttributeStatement(idpConfig, spMetadata, authnRequest, assertion, user, filteredServiceSamlSpEntityList,
-				registry);
+		String returnUrl = buildAttributeStatement(idpConfig, spMetadata, authnRequest, assertion, user,
+				filteredServiceSamlSpEntityList, registry, authnRequestEntity);
+		if (returnUrl != null)
+			return returnUrl;
 
 		long validity = 30L * 60L * 1000L;
 		if (spMetadata.getGenericStore().containsKey("session_validity")) {
@@ -549,13 +570,18 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 		return false;
 	}
 
-	private void buildAttributeStatement(SamlIdpConfigurationEntity idpConfig, SamlSpMetadataEntity spMetadata,
-			AuthnRequest authnRequest, Assertion assertion, UserEntity user,
-			List<ServiceSamlSpEntity> serviceSamlSpEntityList, RegistryEntity registry)
-			throws SamlAuthenticationException {
+	private String buildAttributeStatement(final SamlIdpConfigurationEntity idpConfig,
+			final SamlSpMetadataEntity spMetadata, final AuthnRequest authnRequest, final Assertion assertion,
+			final UserEntity user, final List<ServiceSamlSpEntity> serviceSamlSpEntityList,
+			final RegistryEntity registry, final SamlAuthnRequestEntity authnRequestEntity) throws SamlAuthenticationException {
 
 		List<Attribute> attributeList = new ArrayList<>();
 		Boolean subjectOverride = false;
+
+		final IdentityEntity identity = user.getIdentity();
+		final AttributeReleaseEntity attributeRelease = attributeBuilder.requestAttributeRelease(spMetadata, identity);
+		authnRequestEntity.setAttributeRelease(attributeRelease);
+		attributeRelease.setValuesToDelete(new HashSet<>(attributeRelease.getValues()));
 
 		for (ServiceSamlSpEntity serviceSamlSp : serviceSamlSpEntityList) {
 			ScriptEntity scriptEntity = serviceSamlSp.getScript();
@@ -571,8 +597,19 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 
 					Invocable invocable = (Invocable) engine;
 
-					invocable.invokeFunction("buildAttributeStatement", scriptingEnv, user, registry,
-							serviceSamlSp.getService(), attributeList, logger);
+					try {
+						invocable.invokeFunction("buildAttributeStatement", scriptingEnv, user, registry,
+								serviceSamlSp.getService(), attributeList, logger);
+					} catch (NoSuchMethodException e) {
+						// Ignore, if this method is missing
+					}
+
+					try {
+						invocable.invokeFunction("resolveAttributes", scriptingEnv, attributeBuilder, attributeResolver,
+								attributeRelease, identity, user, registry, logger, spMetadata, idpConfig);
+					} catch (NoSuchMethodException e) {
+						// Ignore, if this method is missing
+					}
 
 					try {
 						Object o = invocable.invokeFunction("buildNameId", scriptingEnv, user, registry,
@@ -585,7 +622,7 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 					} catch (NoSuchMethodException e) {
 						// Ignore, if this method is missing
 					}
-				} catch (NoSuchMethodException | ScriptException e) {
+				} catch (ScriptException e) {
 					logger.warn("Script execution failed. Continue with other scripts.", e);
 				}
 			} else {
@@ -593,8 +630,11 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 			}
 
 		}
-		AttributeStatement attributeStatement = samlHelper.create(AttributeStatement.class,
-				AttributeStatement.DEFAULT_ELEMENT_NAME);
+		attributeRelease.getValuesToDelete().stream().forEach(v -> attributeBuilder.deleteValue(v));
+
+		final AttributeStatement attributeStatement = attributeTranscoder.convertAttributeStatement(attributeRelease,
+				idpConfig, spMetadata);
+
 		for (Attribute attribute : attributeList) {
 			attributeStatement.getAttributes().add(attribute);
 		}
@@ -604,7 +644,19 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 					NameID.TRANSIENT, authnRequest.getID(), authnRequest.getAssertionConsumerServiceURL()));
 		}
 
+		if (spMetadata.getGenericStore().containsKey("show_consent")
+				&& spMetadata.getGenericStore().get("show_consent").equalsIgnoreCase("true")) {
+			if (!ReleaseStatusType.GOOD.equals(attributeRelease.getReleaseStatus())) {
+				// send client to attribute release page
+				logger.debug("Attribute Release is not good, sending user to constent page");
+				return "/user/attribute-release-saml.xhtml?id=" + attributeRelease.getId();
+			}
+		} else {
+			attributeRelease.setReleaseStatus(null);
+		}
+
 		assertion.getAttributeStatements().add(attributeStatement);
+		return null;
 	}
 
 	private List<Object> checkRules(UserEntity user, ServiceEntity service, RegistryEntity registry) {

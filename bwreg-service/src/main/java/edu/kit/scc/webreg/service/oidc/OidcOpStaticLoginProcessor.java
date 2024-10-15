@@ -2,6 +2,7 @@ package edu.kit.scc.webreg.service.oidc;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.script.Invocable;
@@ -17,6 +18,7 @@ import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.dao.RegistryDao;
+import edu.kit.scc.webreg.dao.UserDao;
 import edu.kit.scc.webreg.dao.oidc.ServiceOidcClientDao;
 import edu.kit.scc.webreg.drools.OverrideAccess;
 import edu.kit.scc.webreg.drools.UnauthorizedUser;
@@ -27,6 +29,8 @@ import edu.kit.scc.webreg.entity.RegistryStatus;
 import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.ServiceEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
+import edu.kit.scc.webreg.entity.attribute.AttributeReleaseEntity;
+import edu.kit.scc.webreg.entity.attribute.ReleaseStatusType;
 import edu.kit.scc.webreg.entity.identity.IdentityEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcClientConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcClientConsumerEntity;
@@ -34,6 +38,8 @@ import edu.kit.scc.webreg.entity.oidc.OidcFlowStateEntity;
 import edu.kit.scc.webreg.entity.oidc.OidcOpConfigurationEntity;
 import edu.kit.scc.webreg.entity.oidc.ServiceOidcClientEntity;
 import edu.kit.scc.webreg.script.ScriptingEnv;
+import edu.kit.scc.webreg.service.attribute.release.AttributeBuilder;
+import edu.kit.scc.webreg.service.identity.IdentityAttributeResolver;
 import edu.kit.scc.webreg.service.saml.exc.OidcAuthenticationException;
 import edu.kit.scc.webreg.session.SessionManager;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -59,7 +65,16 @@ public class OidcOpStaticLoginProcessor extends AbstractOidcOpLoginProcessor {
 	private RegistryDao registryDao;
 
 	@Inject
+	private UserDao userDao;
+	
+	@Inject
 	private ServiceOidcClientDao serviceOidcClientDao;
+
+	@Inject
+	private AttributeBuilder attributeBuilder;
+
+	@Inject
+	private IdentityAttributeResolver attributeResolver;
 
 	@Inject
 	private ApplicationConfig appConfig;
@@ -80,6 +95,14 @@ public class OidcOpStaticLoginProcessor extends AbstractOidcOpLoginProcessor {
 		if (serviceOidcClientList.size() == 0) {
 			throw new OidcAuthenticationException("no script is connected to client configuration");
 		}
+
+		// User pref user
+		// TODO Change to something more correct. Script must choose user from identity
+		// ie.
+		List<UserEntity> userList = userDao.findByIdentity(identity);
+		UserEntity user = identity.getPrefUser();
+		if (user == null)
+			user = userList.get(0);
 
 		Boolean wantsElevation = false;
 		RegistryEntity registry = null;
@@ -130,8 +153,8 @@ public class OidcOpStaticLoginProcessor extends AbstractOidcOpLoginProcessor {
 						logger.info(
 								"No active registration for identity {} and service {}, redirecting to register page",
 								identity.getId(), service.getName());
-						session.setOriginalRequestPath(
-								"/oidc/realms/" + flowState.getOpConfiguration().getRealm() + "/protocol/openid-connect/auth/return");
+						session.setOriginalRequestPath("/oidc/realms/" + flowState.getOpConfiguration().getRealm()
+								+ "/protocol/openid-connect/auth/return");
 						return "/user/register-service.xhtml?serviceId=" + service.getId();
 					}
 				}
@@ -173,43 +196,66 @@ public class OidcOpStaticLoginProcessor extends AbstractOidcOpLoginProcessor {
 					|| (System.currentTimeMillis() - session.getTwoFaElevation().toEpochMilli()) > elevationTime) {
 				// second factor is active for this service and web login
 				// and user is not elevated yet
-				session.setOriginalRequestPath(
-						"/oidc/realms/" + flowState.getOpConfiguration().getRealm() + "/protocol/openid-connect/auth/return");
+				session.setOriginalRequestPath("/oidc/realms/" + flowState.getOpConfiguration().getRealm()
+						+ "/protocol/openid-connect/auth/return");
 				return "/user/twofa-login.xhtml";
 			}
 
 		}
 
+		/*
+		 * need to calculate attributes here to show release data
+		 */
+
+		if (registry != null) {
+			// Redefine user to match registry
+			user = registry.getUser();
+		}
+
+		final AttributeReleaseEntity attributeRelease = attributeBuilder.requestAttributeRelease(clientConfig, identity);
+
 		flowState.setValidUntil(new Date(System.currentTimeMillis() + (10L * 60L * 1000L)));
 		flowState.setIdentity(identity);
 		flowState.setRegistry(registry);
+		flowState.setAttributeRelease(attributeRelease);
 
+		resolveAttributes(attributeRelease, serviceOidcClientList, identity, user, registry, flowState, flowState.getOpConfiguration(), clientConfig);
+		if (clientConfig.getGenericStore().containsKey("show_consent")
+				&& clientConfig.getGenericStore().get("show_consent").equalsIgnoreCase("true")) {
+			if (!ReleaseStatusType.GOOD.equals(attributeRelease.getReleaseStatus())) {
+				// send client to attribute release page
+				logger.debug("Attribute Release is not good, sending user to constent page");
+				return "/user/attribute-release-oidc.xhtml?id=" + attributeRelease.getId();
+			}
+		} else {
+			attributeRelease.setReleaseStatus(null);
+		}
+		
 		String red = flowState.getRedirectUri() + "?code=" + flowState.getCode() + "&state=" + flowState.getState();
 		logger.debug("Sending client to {}", red);
-		return red;			
+		return red;
 	}
-	
+
 	public JSONObject buildAccessToken(OidcFlowStateEntity flowState, OidcOpConfigurationEntity opConfig,
 			OidcClientConsumerEntity consumerConfig, HttpServletResponse response) throws OidcAuthenticationException {
 
 		if (!(consumerConfig instanceof OidcClientConfigurationEntity))
 			throw new OidcAuthenticationException("This flow only supports legacy OidcClientConfigurationEntity");
-		
+
 		OidcClientConfigurationEntity clientConfig = (OidcClientConfigurationEntity) consumerConfig;
 
-		IdentityEntity identity = flowState.getIdentity();
+		final IdentityEntity identity = flowState.getIdentity();
+		final AttributeReleaseEntity attributeRelease = flowState.getAttributeRelease();
 
 		if (identity == null) {
 			throw new OidcAuthenticationException("No identity attached to flow state.");
 		}
 
-		UserEntity user;
-		if (identity.getUsers().size() == 1) {
+		UserEntity user = identity.getPrefUser();
+		if (user == null) {
 			user = identity.getUsers().iterator().next();
-		} else {
-			user = identity.getPrefUser();
-		}
-
+		} 
+		
 		RegistryEntity registry = flowState.getRegistry();
 
 		/*
@@ -222,10 +268,12 @@ public class OidcOpStaticLoginProcessor extends AbstractOidcOpLoginProcessor {
 		List<ServiceOidcClientEntity> serviceOidcClientList = serviceOidcClientDao.findByClientConfig(clientConfig);
 
 		JWTClaimsSet.Builder claimsBuilder = initClaimsBuilder(flowState).subject(user.getEppn());
-
+		
 		if (flowState.getScope() != null) {
 			claimsBuilder.claim("scope", flowState.getScope());
 		}
+
+		buildStatement(claimsBuilder, "buildTokenStatement", serviceOidcClientList, identity, user, registry);
 
 		for (ServiceOidcClientEntity serviceOidcClient : serviceOidcClientList) {
 			ScriptEntity scriptEntity = serviceOidcClient.getScript();
@@ -257,7 +305,7 @@ public class OidcOpStaticLoginProcessor extends AbstractOidcOpLoginProcessor {
 
 		Boolean shortIdTokenHeader = Boolean.TRUE;
 		if (clientConfig.getGenericStore().containsKey("short_id_token_header"))
-				shortIdTokenHeader = Boolean.parseBoolean(clientConfig.getGenericStore().get("long_access_token"));
+			shortIdTokenHeader = Boolean.parseBoolean(clientConfig.getGenericStore().get("long_access_token"));
 
 		SignedJWT jwt = signClaims(opConfig, clientConfig, claims, shortIdTokenHeader);
 
@@ -268,7 +316,7 @@ public class OidcOpStaticLoginProcessor extends AbstractOidcOpLoginProcessor {
 			OidcClientConsumerEntity consumerConfig, HttpServletResponse response) throws OidcAuthenticationException {
 		if (!(consumerConfig instanceof OidcClientConfigurationEntity))
 			throw new OidcAuthenticationException("This flow only supports legacy OidcClientConfigurationEntity");
-		
+
 		OidcClientConfigurationEntity clientConfig = (OidcClientConfigurationEntity) consumerConfig;
 		List<ServiceOidcClientEntity> serviceOidcClientList = serviceOidcClientDao.findByClientConfig(clientConfig);
 
@@ -288,6 +336,19 @@ public class OidcOpStaticLoginProcessor extends AbstractOidcOpLoginProcessor {
 		RegistryEntity registry = flowState.getRegistry();
 
 		JWTClaimsSet.Builder claimsBuilder = new JWTClaimsSet.Builder();
+		buildStatement(claimsBuilder, "buildClaimsStatement", serviceOidcClientList, identity, user, registry);
+
+		UserInfo userInfo = new UserInfo(claimsBuilder.build());
+		logger.debug("[OidcOpStaticLoginProcessor] userInfo Response: " + userInfo.toJSONObject());
+		return userInfo.toJSONObject();
+	}
+
+	private void resolveAttributes(AttributeReleaseEntity attributeRelease,
+			List<ServiceOidcClientEntity> serviceOidcClientList, IdentityEntity identity, UserEntity user,
+			RegistryEntity registry, OidcFlowStateEntity flowState, OidcOpConfigurationEntity opConfig,
+			OidcClientConsumerEntity consumerConfig) throws OidcAuthenticationException {
+
+		attributeRelease.setValuesToDelete(new HashSet<>(attributeRelease.getValues()));
 
 		for (ServiceOidcClientEntity serviceOidcClient : serviceOidcClientList) {
 			ScriptEntity scriptEntity = serviceOidcClient.getScript();
@@ -303,7 +364,38 @@ public class OidcOpStaticLoginProcessor extends AbstractOidcOpLoginProcessor {
 
 					Invocable invocable = (Invocable) engine;
 
-					invocable.invokeFunction("buildClaimsStatement", scriptingEnv, claimsBuilder, user, registry,
+					invocable.invokeFunction("resolveAttributes", scriptingEnv, attributeBuilder, attributeResolver,
+							attributeRelease, identity, user, registry, logger, flowState, consumerConfig, opConfig);
+				} catch (NoSuchMethodException | ScriptException e) {
+					logger.warn("Script execution failed. Continue with other scripts.", e);
+				}
+			} else {
+				throw new OidcAuthenticationException("unkown script type: " + scriptEntity.getScriptType());
+			}
+		}
+
+		attributeRelease.getValuesToDelete().stream().forEach(v -> attributeBuilder.deleteValue(v));
+	}
+
+	private void buildStatement(JWTClaimsSet.Builder claimsBuilder, String methodName,
+			List<ServiceOidcClientEntity> serviceOidcClientList, IdentityEntity identity, UserEntity user,
+			RegistryEntity registry) throws OidcAuthenticationException {
+
+		for (ServiceOidcClientEntity serviceOidcClient : serviceOidcClientList) {
+			ScriptEntity scriptEntity = serviceOidcClient.getScript();
+			if (scriptEntity.getScriptType().equalsIgnoreCase("javascript")) {
+				ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
+
+				if (engine == null)
+					throw new OidcAuthenticationException(
+							"service not configured properly. engine not found: " + scriptEntity.getScriptEngine());
+
+				try {
+					engine.eval(scriptEntity.getScript());
+
+					Invocable invocable = (Invocable) engine;
+
+					invocable.invokeFunction(methodName, scriptingEnv, claimsBuilder, user, registry,
 							serviceOidcClient.getService(), logger, identity);
 				} catch (NoSuchMethodException | ScriptException e) {
 					logger.warn("Script execution failed. Continue with other scripts.", e);
@@ -312,11 +404,8 @@ public class OidcOpStaticLoginProcessor extends AbstractOidcOpLoginProcessor {
 				throw new OidcAuthenticationException("unkown script type: " + scriptEntity.getScriptType());
 			}
 		}
-		UserInfo userInfo = new UserInfo(claimsBuilder.build());
-		logger.debug("[OidcOpStaticLoginProcessor] userInfo Response: " + userInfo.toJSONObject());
-		return userInfo.toJSONObject();
 	}
-	
+
 	private List<Object> checkRules(UserEntity user, ServiceEntity service, RegistryEntity registry) {
 		return knowledgeSessionSingleton.checkServiceAccessRule(user, service, registry, "user-self", false);
 	}
@@ -348,7 +437,7 @@ public class OidcOpStaticLoginProcessor extends AbstractOidcOpLoginProcessor {
 
 		return returnList;
 	}
-	
+
 	private boolean evalTwoFa(ScriptEntity scriptEntity, IdentityEntity identity, RegistryEntity registry,
 			OidcFlowStateEntity flowState) {
 		ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
@@ -373,5 +462,5 @@ public class OidcOpStaticLoginProcessor extends AbstractOidcOpLoginProcessor {
 			logger.debug("No evalTwoFa method in script. Assuming match false");
 		}
 		return false;
-	}	
+	}
 }

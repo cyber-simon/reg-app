@@ -15,11 +15,12 @@ import org.opensaml.saml.saml2.core.Response;
 import edu.kit.scc.webreg.as.AbstractAttributeSourceWorkflow;
 import edu.kit.scc.webreg.audit.AttributeSourceAuditor;
 import edu.kit.scc.webreg.dao.GroupDao;
+import edu.kit.scc.webreg.dao.SamlAAMetadataDao;
 import edu.kit.scc.webreg.dao.SamlIdpMetadataDao;
 import edu.kit.scc.webreg.dao.SamlSpConfigurationDao;
 import edu.kit.scc.webreg.dao.ScriptDao;
 import edu.kit.scc.webreg.dao.as.ASUserAttrValueDao;
-import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
+import edu.kit.scc.webreg.entity.SamlMetadataEntity;
 import edu.kit.scc.webreg.entity.SamlSpConfigurationEntity;
 import edu.kit.scc.webreg.entity.ScriptEntity;
 import edu.kit.scc.webreg.entity.UserEntity;
@@ -37,6 +38,7 @@ public class AttributeQueryAttributeSource extends AbstractAttributeSourceWorkfl
 	private static final long serialVersionUID = 1L;
 
 	private SamlIdpMetadataDao idpDao;
+	private SamlAAMetadataDao aaDao;
 	private SamlSpConfigurationDao spDao;
 	private AttributeQueryHelper aqHelper;
 	private Saml2AssertionService saml2AssertionService;
@@ -47,6 +49,7 @@ public class AttributeQueryAttributeSource extends AbstractAttributeSourceWorkfl
 	public AttributeQueryAttributeSource() {
 		super();
 		idpDao = CDI.current().select(SamlIdpMetadataDao.class).get();
+		aaDao = CDI.current().select(SamlAAMetadataDao.class).get();
 		spDao = CDI.current().select(SamlSpConfigurationDao.class).get();
 		saml2AssertionService = CDI.current().select(Saml2AssertionService.class).get();
 		attrHelper = CDI.current().select(AttributeMapHelper.class).get();
@@ -75,7 +78,13 @@ public class AttributeQueryAttributeSource extends AbstractAttributeSourceWorkfl
 		UserEntity user = asUserAttr.getUser();
 
 		SamlSpConfigurationEntity spEntity = spDao.findByEntityId(spEntityId);
-		SamlIdpMetadataEntity idpEntity = idpDao.findByEntityId(aaEntityId);
+		SamlMetadataEntity idpEntity = idpDao.findByEntityId(aaEntityId);
+		if (idpEntity == null) {
+			idpEntity = aaDao.findByEntityId(aaEntityId);
+			
+			if (idpEntity == null) 
+				throw new UserUpdateException("AS is not configured correctly. IDP or AA not found: " + aaEntityId);
+		}
 
 		ScriptEntity script = scriptDao.findByName(nameIdScript);
 		if (script == null)

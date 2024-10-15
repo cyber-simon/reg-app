@@ -3,6 +3,7 @@ package edu.kit.scc.webreg.service.attribute;
 import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -133,6 +134,7 @@ public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntit
 		}
 
 		((StringValueEntity) value).setValueString(attributeValue);
+		value.setLastUpdate(new Date());
 		return ((StringValueEntity) value);
 	}
 
@@ -157,6 +159,7 @@ public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntit
 		}
 
 		((LongValueEntity) value).setValueLong(attributeValue);
+		value.setLastUpdate(new Date());
 		return ((LongValueEntity) value);
 	}
 
@@ -191,6 +194,7 @@ public abstract class IncomingAttributesHandler<T extends IncomingAttributeEntit
 			}
 		}
 
+		value.setLastUpdate(new Date());
 		return listValue;
 	}
 

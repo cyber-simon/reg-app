@@ -30,14 +30,14 @@
 			<div style="margin-top: 4px;">
 				<h:outputText value="#{messages.requirements_unsatisfied}" />
 			</div>
-			<p:messages id="messageBoxReqs" for="reqs" showDetail="true" />
+			<p:messages id="messageBoxReqs" for="reqs" showDetail="true" escape="false" />
 		</p:panel>	
 		<p:panel header="#{messages.access_check}: #{samlAccessDeniedBean.serviceSamlSpEntity.sp.displayName}" rendered="#{not samlAccessDeniedBean.accessProblem}"
 				styleClass="text full">
 			<div style="margin-top: 4px;">
 				<h:outputText value="#{messages.requirements_met}" />
 			</div>
-			<p:messages id="messageBoxReqsMet" for="reqs" showDetail="true" />
+			<p:messages id="messageBoxReqsMet" for="reqs" showDetail="true" escape="false" />
 		</p:panel>	
 		
 	</ui:define>

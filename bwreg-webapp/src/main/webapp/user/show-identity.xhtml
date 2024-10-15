@@ -49,6 +49,7 @@
 						<li><h:outputText value="#{prev.id} (#{prev.attributeSet.user.id})" /></li>
 					</ui:repeat>
 					</ul>
+					<div style="font-size: 0.7rem;"><h:outputText value="#{value.lastUpdate}" /></div>
 				</p:column>
 			</p:dataTable>
 
@@ -73,6 +74,7 @@
 										<li><h:outputText value="#{item}"/></li>
 									</ui:repeat></ul>
 								</p:outputPanel>
+								<div style="font-size: 0.7rem;"><h:outputText value="#{value.lastUpdate}" /></div>
 							</p:column>
 						</p:dataTable>
 					</p:panel>

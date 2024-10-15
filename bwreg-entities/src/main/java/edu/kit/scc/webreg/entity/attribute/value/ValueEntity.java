@@ -1,5 +1,6 @@
 package edu.kit.scc.webreg.entity.attribute.value;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,6 +17,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Entity(name = "ValueEntity")
 @Table(name = "value")
@@ -42,6 +44,12 @@ public class ValueEntity extends AbstractBaseEntity {
 
 	@ManyToMany(mappedBy = "nextValues")
 	private Set<ValueEntity> prevValues = new HashSet<>();
+	
+	@Column(name = "last_update")
+	protected Date lastUpdate;
+
+	@Transient
+	private Boolean changed;
 
 	public AttributeEntity getAttribute() {
 		return attribute;
@@ -89,5 +97,21 @@ public class ValueEntity extends AbstractBaseEntity {
 
 	public void setEndValue(Boolean endValue) {
 		this.endValue = endValue;
+	}
+
+	public Boolean getChanged() {
+		return changed;
+	}
+
+	public void setChanged(Boolean changed) {
+		this.changed = changed;
+	}
+
+	public Date getLastUpdate() {
+		return lastUpdate;
+	}
+
+	public void setLastUpdate(Date lastUpdate) {
+		this.lastUpdate = lastUpdate;
 	}
 }

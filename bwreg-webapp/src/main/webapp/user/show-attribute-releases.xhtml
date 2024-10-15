@@ -49,6 +49,9 @@
 					<p:outputPanel rendered="#{release.attributeConsumer.class.simpleName == 'ProjectOidcClientConfigurationEntity'}">
 						<h:outputText value="#{release.attributeConsumer.displayName}"/>
 					</p:outputPanel>
+					<p:outputPanel rendered="#{release.attributeConsumer.class.simpleName == 'SamlSpMetadataEntity'}">
+						<h:outputText value="#{release.attributeConsumer.entityId}"/>
+					</p:outputPanel>
 				</p:column>
 				<p:column width="10%">
 					<p:link value="#{messages['details']}" href="./show-attribute-release.xhtml">

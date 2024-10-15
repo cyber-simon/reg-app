@@ -14,6 +14,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Entity(name = "AttributeReleaseEntity")
 @Table(name = "attribute_release")
@@ -39,6 +40,12 @@ public class AttributeReleaseEntity extends AbstractBaseEntity {
 
 	@OneToMany(mappedBy = "attributeRelease")
 	private Set<ValueEntity> values = new HashSet<>(); 
+	
+	@Transient
+	private Boolean changed;
+
+	@Transient
+	private Set<ValueEntity> valuesToDelete;
 	
 	public AttributeConsumerEntity getAttributeConsumer() {
 		return attributeConsumer;
@@ -86,5 +93,21 @@ public class AttributeReleaseEntity extends AbstractBaseEntity {
 
 	public void setValues(Set<ValueEntity> values) {
 		this.values = values;
+	}
+
+	public Boolean getChanged() {
+		return changed;
+	}
+
+	public void setChanged(Boolean changed) {
+		this.changed = changed;
+	}
+
+	public Set<ValueEntity> getValuesToDelete() {
+		return valuesToDelete;
+	}
+
+	public void setValuesToDelete(Set<ValueEntity> valuesToDelete) {
+		this.valuesToDelete = valuesToDelete;
 	}
 }
