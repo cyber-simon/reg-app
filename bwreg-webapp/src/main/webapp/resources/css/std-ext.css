@@ -78,3 +78,12 @@ body .ui-selectonelistbox .ui-selectlistbox-listcontainer .ui-selectlistbox-item
 body .ui-commandlink {
 	color: var(--primaryDarkColor);
 }
+
+body a {
+	color: var(--primaryDarkColor);
+	font-weight: 400;
+}
+
+body a ,body a:hover{
+	color: var(--primaryDarkColor);
+}

@@ -59,24 +59,22 @@
 	        	</ul>
 			</h:panelGroup>
 			
-	        <h:outputText value="#{messages.services}:"/>
-	        <ui:repeat value="#{userShowLocalProjectBean.entity.projectServices}" var="s">
+	        <h:outputText style="font-weight:bold;" value="#{messages.available_services}:"/>
+	        <ui:repeat style="font-weight:bold;" value="#{userShowLocalProjectBean.entity.projectServices}" var="s">
 	        	<div><h:outputText value="#{s.service.name} (#{s.status})"/></div>
 			</ui:repeat>
 		</h:panelGrid>
-
-		<h:panelGrid style="margin-top:1em;" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
-			<h:outputLink value="connect-local-project-to-service.xhtml" >
+		
+		<h:panelGrid style="margin-top:1em;" id="baseData2" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9" rowClasses="white-row">
+			    <h:outputText value=""/>
+			<h:outputLink style="font-weight:bold;" value="connect-local-project-to-service.xhtml" >
 				<h:outputText value="#{messages['project.show_local_project.connect_to_service_link']}"/>
 				<f:param name="id" value="#{userShowLocalProjectBean.entity.id}"/>
 			</h:outputLink>
-			<h:outputText value="#{messages['project.show_local_project.connect_to_service_link_text']}" />
+		</h:panelGrid>
 
-			<h:outputLink value="invite-to-project.xhtml">
-				<h:outputText value="#{messages['project.show_local_project.invite_to_project_link']}"/>
-				<f:param name="id" value="#{userShowLocalProjectBean.entity.id}"/>
-			</h:outputLink>
-			<h:outputText value="#{messages['project.show_local_project.invite_to_project_link_text']}" />
+		<h:panelGrid style="margin-top:1em;" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9"
+		             rendered="#{not empty userShowLocalProjectBean.entity.approved or userShowLocalProjectBean.entity.subProjectsAllowed}">
 
 			<h:outputLink value="oidc/list-clients.xhtml" 
 				rendered="#{userShowLocalProjectBean.entity.approved}">
@@ -91,17 +89,8 @@
 				<f:param name="id" value="#{userShowLocalProjectBean.entity.id}"/>
 			</h:outputLink>
 			<h:outputText value="#{messages['project.show_local_project.create_sub_project_text']}" rendered="#{userShowLocalProjectBean.entity.subProjectsAllowed}"/>	
-			
-			<h:outputLink value="delete-local-project.xhtml" >
-				<h:outputText value="#{messages['project.show_local_project.delete_project_link']}"/>
-				<f:param name="id" value="#{userShowLocalProjectBean.entity.id}"/>
-			</h:outputLink>
-			<h:outputText value="#{messages['project.show_local_project.delete_project_link_text']}" />	
+		
 		</h:panelGrid>
-
-		<div class="text full" style="margin-top: 0.4em;">
-			<a href="index.xhtml"><h:outputText value="#{messages.back}"/></a>
-		</div>		
 
 		<h5 style="margin-top: 1em;"><h:outputText value="#{messages['project.members']}" /></h5>
 		<p:dataTable id="dataTableMember" var="member" value="#{userShowLocalProjectBean.memberList}"
@@ -140,6 +129,11 @@
        		</p:column>
 		</p:dataTable>	
 		
+			<h:outputLink value="invite-to-project.xhtml">
+				<h:outputText value="#{messages['project.show_local_project.invite_to_project_link']}"/>
+				<f:param name="id" value="#{userShowLocalProjectBean.entity.id}"/>
+			</h:outputLink>
+			
 		<h5 style="margin-top: 1em;"><h:outputText value="#{messages['project.admins']}" /></h5>
 		<p:dataTable id="dataTableAdmin" var="a" value="#{userShowLocalProjectBean.adminList}"
 			style="width:auto; font-size: 1.2rem;">
@@ -189,6 +183,15 @@
 	        <p:commandButton value="#{messages.yes}" type="button" styleClass="ui-confirmdialog-yes"/>
 	        <p:commandButton value="#{messages.no}" type="button" styleClass="ui-confirmdialog-no"/>
 	    </p:confirmDialog>    
+	    
+   			<h:outputLink value="delete-local-project.xhtml" >
+				<h:outputText value="#{messages['project.show_local_project.delete_project_link']}"/>
+				<f:param name="id" value="#{userShowLocalProjectBean.entity.id}"/>
+			</h:outputLink>
+			
+			<div class="text full" style="margin-top: 0.4em;">
+				<a href="index.xhtml"><h:outputText value="#{messages.back}"/></a>
+			</div>		
 		
 	</h:form>
 
