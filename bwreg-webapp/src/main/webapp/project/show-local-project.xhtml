@@ -60,14 +60,14 @@
 			</h:panelGroup>
 			
 	        <h:outputText style="font-weight:bold;" value="#{messages.available_services}:"/>
-	        <ui:repeat style="font-weight:bold;" value="#{userShowLocalProjectBean.entity.projectServices}" var="s">
-	        	<div><h:outputText value="#{s.service.name} (#{s.status})"/></div>
+	        <ui:repeat value="#{userShowLocalProjectBean.entity.projectServices}" var="s">
+	        	<div style="font-weight:bold;"><h:outputText value="#{s.service.name} (#{s.status})" style="font-weight:bold;"/></div>
 			</ui:repeat>
 		</h:panelGrid>
 		
-		<h:panelGrid style="margin-top:1em;" id="baseData2" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9" rowClasses="white-row">
+		<h:panelGrid id="baseData2" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9" rowClasses="white-row">
 			    <h:outputText value=""/>
-			<h:outputLink style="font-weight:bold;" value="connect-local-project-to-service.xhtml" >
+			<h:outputLink class="button" value="connect-local-project-to-service.xhtml" >
 				<h:outputText value="#{messages['project.show_local_project.connect_to_service_link']}"/>
 				<f:param name="id" value="#{userShowLocalProjectBean.entity.id}"/>
 			</h:outputLink>
@@ -129,7 +129,7 @@
        		</p:column>
 		</p:dataTable>	
 		
-			<h:outputLink value="invite-to-project.xhtml">
+			<h:outputLink value="invite-to-project.xhtml" class="button" style="margin-top:0.5em;">
 				<h:outputText value="#{messages['project.show_local_project.invite_to_project_link']}"/>
 				<f:param name="id" value="#{userShowLocalProjectBean.entity.id}"/>
 			</h:outputLink>
@@ -162,8 +162,8 @@
 				<h:outputText value="#{a.type}" />
 			</p:column>			
 		</p:dataTable>
-		<div class="text">
-			<h:outputLink value="edit-local-project-admins.xhtml" >
+		<div>
+			<h:outputLink value="edit-local-project-admins.xhtml" class="button" style="margin-top:0.5em;">
 				<h:outputText value="#{messages['project.show_local_project.edit_project_admins_link']}"/>
 				<f:param name="id" value="#{userShowLocalProjectBean.entity.id}"/>
 			</h:outputLink>
@@ -184,7 +184,7 @@
 	        <p:commandButton value="#{messages.no}" type="button" styleClass="ui-confirmdialog-no"/>
 	    </p:confirmDialog>    
 	    
-   			<h:outputLink value="delete-local-project.xhtml" >
+   			<h:outputLink value="delete-local-project.xhtml" class="button" style="margin-top:0.5em;">
 				<h:outputText value="#{messages['project.show_local_project.delete_project_link']}"/>
 				<f:param name="id" value="#{userShowLocalProjectBean.entity.id}"/>
 			</h:outputLink>
