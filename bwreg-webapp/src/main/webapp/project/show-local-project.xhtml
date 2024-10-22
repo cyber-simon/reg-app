@@ -61,7 +61,7 @@
 			
 	        <h:outputText style="font-weight:bold;" value="#{messages.available_services}:"/>
 	        <ui:repeat value="#{userShowLocalProjectBean.entity.projectServices}" var="s">
-	        	<div style="font-weight:bold;"><h:outputText value="#{s.service.name} (#{s.status})" style="font-weight:bold;"/></div>
+	        	<div style="font-weight:bold; margin-top:0.4em;"><h:outputText value="#{s.service.name} (#{s.status})" style="font-weight:bold;"/></div>
 			</ui:repeat>
 		</h:panelGrid>
 		
