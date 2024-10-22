@@ -355,4 +355,9 @@ public class DiscoveryLoginBean implements Serializable {
 	public Boolean getLargeList() {
 		return largeList;
 	}
+	
+	public void clearPanel() {
+	    this.selected = null;
+	}
+
 }

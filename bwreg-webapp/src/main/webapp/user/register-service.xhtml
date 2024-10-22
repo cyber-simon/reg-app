@@ -28,7 +28,7 @@
 		<h2><h:outputText value="#{messages.register}: #{registerServiceBean.service.name}"/></h2>
 
 		<p:panel rendered="#{registerServiceBean.userList.size() gt 1}">
-			<p:outputLabel for="@next" value="Choose account: " />
+			<p:outputLabel for="@next" value="#{messages.choose_account}: " />
 			<p:selectOneListbox id="userSelect" var="u" value="#{registerServiceBean.selectedUserEntity}" converter="#{userConverter}" 
 					class="full">
     	        <f:selectItems value="#{registerServiceBean.userList}" var="user" itemLabel="#{user.eppn}" itemValue="#{user}" />

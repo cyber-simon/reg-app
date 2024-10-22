@@ -1,58 +1,89 @@
 @charset "UTF-8";
 
-.ui-widget .ui-widget {
-	font-size: 1.25rem;
+:root {
+    --primaryColor: #00876c;
+    --primaryLightColor: #d7efea;
+    --primaryDarkColor: #007755;
 }
 
-label.ui-helper-hidden {
-    display: none !important;
+/* ausgewähltes Element in einer Liste */
+body .ui-picklist .ui-picklist-list .ui-picklist-item.ui-state-highlight {
+    background: var(--primaryColor) !important;
+    font-weight: bold;
 }
 
-.col-width-1 {
-	width: 25%;
+/* ausgewähltes Element in einer Menu (z.B LangMenu) */
+body .ui-selectonemenu-panel .ui-selectonemenu-items .ui-selectonemenu-item.ui-state-hover {
+    background: var(--primaryLightColor) !important;
+    color: #000;
+    overflow: auto;
 }
 
-.col-width-2 {
-	width: 75%;
+.ui-chkbox .ui-chkbox-box .ui-chkbox-icon {
+    color: var(--primaryColor) !important;
 }
 
-.ui-state-highlight, .ui-widget-content .ui-state-highlight, .ui-widget-header .ui-state-highlight {
-	background-size: cover;
+.ui-chkbox .ui-chkbox-box.ui-state-active {
+    border-color: var(--primaryColor) !important;
+    color: var(--primaryColor) !important;
 }
 
-/*.ui-selectonelistbox .ui-selectlistbox-item, .ui-selectmanymenu .ui-selectlistbox-item, .ui-multiselectlistbox .ui-multiselectlistbox-item {
-	margin-top: 6px;
+/* SelectList z.B in Data-Komponente*/
+body .ui-selectonelistbox .ui-selectlistbox-listcontainer .ui-selectlistbox-list .ui-selectlistbox-item.ui-state-highlight {
+    background: var(--primaryLightColor) !important;
+    font-weight: bold;
 }
 
-#idpBox .ui-selectlistbox-listcontainer {
-	height: 360px !important;
+/* Box_Shadow des Inputfieldes */
+body .ui-inputfield.ui-state-focus {
+    border-color: var(--primaryColor) !important;
+    box-shadow: none !important;
 }
 
-#idpBox {
-	width: auto;
+/* Panel */
+html body .ui-tabs.ui-tabs-top>.ui-tabs-nav li.ui-tabs-header.ui-state-active a {
+    color: var(--primaryColor) !important;
 }
 
-#opt1 .ui-radiobutton-box {
-	display: none;
-}*/
-
-.page-footer {
-	background-color: #ffffff;
-	border-top: 0px;
+/* AutoComplete */
+html body .ui-autocomplete-panel .ui-autocomplete-items .ui-autocomplete-item.ui-state-highlight {
+    background: var(--primaryLightColor);
 }
 
-#nav_bar_form .ui-state-default {
-	font-size: 1.0rem;
-	font-weight: 300;
-	background: none;
-	border: none;
+/* Tabs*/
+html body .ui-tabs.ui-tabs-top>.ui-tabs-nav li.ui-tabs-header.ui-state-active {
+    border-color: var(--primaryColor);
 }
 
-nav_bar_form .ui-selectonemenu {
-	vertical-align: bottom;
+/* Button deactivated*/
+button:disabled {
+    background-color: var(--primaryLightColor);
+    border: var(--primaryLightColor);
+}
 
- }
- 
-#nav_bar_form .ui-inputfield {
-	padding: 0;
+/* Ausgewähltes Konto-Header */
+.accountHead {
+    background-color: var(--primaryColor);
+}
+
+/* AKTIVES ITEM */
+body .ui-selectonelistbox .ui-selectlistbox-listcontainer .ui-selectlistbox-list .ui-selectlistbox-item.ui-state-highlight::before {
+    border-left: 12px solid var(--primaryColor);
+}
+		
+body .ui-selectonelistbox .ui-selectlistbox-listcontainer .ui-selectlistbox-item::before {
+    border-left: 12px solid grey;
+}
+
+body .ui-commandlink {
+	color: var(--primaryDarkColor);
+}
+
+body a {
+	color: var(--primaryDarkColor);
+	font-weight: 400;
+}
+
+body a ,body a:hover{
+	color: var(--primaryDarkColor);
 }

@@ -1,4 +1,5 @@
 @charset "UTF-8";
+
 @font-face {
     font-family: 'Roboto';
     font-style: normal;
@@ -1529,7 +1530,7 @@ a[href^=http]:not([href*='kit.edu']):after {
     content: "";
     display: inline-block;
     margin-left: 5px;
-    color: #00876c;
+    color: var(--primaryColor) ;
     font-family: "kit-icons";
     font-size: 0.8em;
     font-weight: 300
@@ -1598,7 +1599,7 @@ input[type=date]:focus,input[type=datetime]:focus,input[type=datetime-local]:foc
 .button,button,input[type=submit] {
     padding: 0;
     border: 0;
-    background: #00876c;
+    background: var(--primaryColor) ;
     border-radius: 0;
     -webkit-box-shadow: none;
     box-shadow: none;
@@ -2002,7 +2003,7 @@ main section .sidebar {
     width: 5em;
     max-width: 100%;
     margin-top: 3px;
-    border-bottom: 0.3125rem solid #00876c}
+    border-bottom: 0.3125rem solid var(--primaryColor) }
 
 .h1,.h2,.h3,.h4,.h5,.h6,h1,h2,h3,h4,h5,h6 {
     color: #404040;
@@ -2122,7 +2123,7 @@ body.oe-page main .content-wrap {
 
 .sidebar .sidebar-container-border {
     padding-left: 1.25rem;
-    border-left: 0.625rem solid #00876c}
+    border-left: 0.625rem solid var(--primaryColor) }
 
 .svg-icon {
     display: inline-block
@@ -2301,7 +2302,7 @@ body {
 }
 
 .navigation-search a:hover {
-    color: #00876c}
+    color: var(--primaryColor) }
 
 .navigation-search .search-form {
     width: 0;
@@ -2325,7 +2326,7 @@ body {
 .navigation-search .search-form input {
     width: 10.71429em;
     padding: 0.21429em 0.5em;
-    border: 2px solid #00876c;
+    border: 2px solid var(--primaryColor) ;
     border-right: 0;
     font-size: inherit;
     border-bottom-left-radius: 5px
@@ -2358,14 +2359,14 @@ body {
     padding: 0.14286em 0.35714em 0.14286em 0.5em;
     margin-right: 0.71429em;
     margin-left: -1px;
-    border: 2px solid #00876c;
+    border: 2px solid var(--primaryColor) ;
     border-left: 0;
     -webkit-box-align: center;
     -ms-flex-align: center;
     align-items: center;
     color: #fff;
     font-size: inherit;
-    background-color: #00876c;
+    background-color: var(--primaryColor) ;
     border-top-right-radius: 5px
 }
 
@@ -2375,8 +2376,8 @@ body {
 }
 
 .navigation-search .search-form button:focus,.navigation-search .search-form button:hover {
-    border-color: #007755;
-    background-color: #007755}
+    border-color: var(--primaryDarkColor) ;
+    background-color: var(--primaryDarkColor) }
 
 @media (max-width: 1024px) {
     .navigation-search .search-form {
@@ -2391,7 +2392,7 @@ body {
         left: 0;
         height: 0;
         font-size: 1.25rem;
-        background: #00876c;
+        background: var(--primaryColor) ;
         -webkit-transition: height .2s;
         -o-transition: height .2s;
         transition: height .2s
@@ -2408,7 +2409,7 @@ body {
         border-color: #fff;
         color: #fff;
         font-size: 1em;
-        background-color: #00876c;
+        background-color: var(--primaryColor) ;
         border-bottom-left-radius: 8px
     }
 
@@ -2586,7 +2587,7 @@ body {
     }
 
     .navigation-meta-links a:hover {
-        color: #00876c    }
+        color: var(--primaryColor)     }
 
     .navigation-meta-links a:hover svg {
         fill: currentColor
@@ -2633,10 +2634,10 @@ body {
     }
 
     .navigation-language a:hover {
-        color: #00876c    }
+        color: var(--primaryColor)     }
 
     .navigation-language .active a {
-        color: #00876c;
+        color: var(--primaryColor) ;
         font-weight: bold
     }
 
@@ -2664,10 +2665,10 @@ body {
     }
 
     .navigation-l1>li.active>a,.navigation-l1>li>a:hover {
-        color: #00876c    }
+        color: var(--primaryColor)    }
 
     .navigation-l1>li.active>a {
-        border-bottom: 5px solid #00876c    }
+        border-bottom: 5px solid var(--primaryColor)    }
 
     .navigation-l1>li:first-of-type>a {
         margin-left: 0
@@ -2746,7 +2747,7 @@ body {
     }
 
     .navigation .flyout:hover .dropdown,.navigation .single:hover .dropdown {
-        border-color: #00876c;
+        border-color: var(--primaryColor);
         -webkit-transform: translateZ(0);
         transform: translateZ(0);
         visibility: visible;
@@ -2795,7 +2796,7 @@ body {
     }
 
     .navigation .single .navigation-l2>li>a:hover {
-        color: #007755    }
+        color: var(--primaryDarkColor)     }
 
     .navigation .single .navigation-l3 {
         padding-left: 1.25em
@@ -2842,7 +2843,7 @@ body {
     }
 
     .navigation .flyout .navigation-l3>li>a:hover {
-        color: #007755    }
+        color: var(--primaryDarkColor)     }
 
     .navigation .flyout .navigation-l4 a {
         font-weight: normal
@@ -2916,7 +2917,7 @@ body {
     }
 
     .flyout .navigation-l2>li>a {
-        color: #007755;
+        color: var(--primaryDarkColor) ;
         font-weight: bold
     }
 
@@ -2926,7 +2927,7 @@ body {
         width: 5em;
         max-width: 100%;
         margin-top: 3px;
-        border-bottom: 0.3125rem solid #00876c    }
+        border-bottom: 0.3125rem solid var(--primaryColor)     }
 
     .single .navigation-l2>li>a {
         font-weight: bold
@@ -3000,10 +3001,10 @@ body {
     }
 
     .no-js .navigation-language a:hover {
-        color: #00876c    }
+        color: var(--primaryColor)     }
 
     .no-js .navigation-language .active a {
-        color: #00876c;
+        color: var(--primaryColor) ;
         font-weight: bold
     }
 
@@ -3031,7 +3032,7 @@ body {
         width: 3em;
         padding: 0.7em;
         margin-left: 1.1em;
-        background: #00876c;
+        background: var(--primaryColor) ;
         -webkit-tap-highlight-color: rgba(0, 135, 108, 0.3)
     }
 
@@ -3091,7 +3092,7 @@ body {
     }
 
     .navigation a.active {
-        color: #00876c    }
+        color: var(--primaryColor)     }
 
     .navigation .dropdown>.parent {
         text-transform: uppercase
@@ -3140,10 +3141,10 @@ body {
         display: none;
         padding: 1.25rem 1.375rem;
         color: #fff;
-        background-color: #00876c    }
+        background-color: var(--primaryColor)     }
 
     .navigation-language.active:before {
-        color: #00876c    }
+        color: var(--primaryColor)     }
 
     .navigation-language.active ul {
         display: block
@@ -3235,7 +3236,7 @@ body {
     }
 
     .navigation-main li.active>a {
-        color: #00876c    }
+        color: var(--primaryColor)     }
 
     .navigation-main li.flyout:after,.navigation-main li.has-submenu:after,.navigation-main li.single:after {
         content: "";
@@ -3399,7 +3400,7 @@ body {
         -o-text-overflow: ellipsis;
         text-overflow: ellipsis;
         white-space: nowrap;
-        background-color: #00876c    }
+        background-color: var(--primaryColor)     }
 
     .dropdown>.navigation-breadcrumb button,.dropdown>.navigation-breadcrumb span {
         max-width: none
@@ -3504,7 +3505,7 @@ body {
         border-right: 0;
         color: #fff;
         font-size: inherit;
-        background: #00876c;
+        background: var(--primaryColor) ;
         border-bottom-left-radius: 5px;
         opacity: 1
     }
@@ -3547,7 +3548,7 @@ body {
         align-items: center;
         color: #fff;
         font-size: inherit;
-        background-color: #00876c;
+        background-color: var(--primaryColor) ;
         border-top-right-radius: 5px
     }
 
@@ -3579,7 +3580,7 @@ body {
     }
 
     .side-widgets .search-form button:focus,.side-widgets .search-form button:hover {
-        background-color: #007755    }
+        background-color: var(--primaryDarkColor)     }
 
     .side-widgets li {
         position: relative;
@@ -3597,7 +3598,7 @@ body {
     }
 
     .side-widgets li.search:focus-within {
-        background-color: #00876c    }
+        background-color: var(--primaryColor)     }
 
     .side-widgets li.search:focus-within .search-form,.side-widgets li.search:focus-within .title {
         -webkit-transform: translateX(-100%) translateX(1px);
@@ -3606,7 +3607,7 @@ body {
     }
 
     .side-widgets li:hover {
-        background-color: #00876c    }
+        background-color: var(--primaryColor)     }
 
     .side-widgets li:hover .search-form,.side-widgets li:hover .title {
         -webkit-transform: translateX(-100%) translateX(1px);
@@ -3673,7 +3674,7 @@ body {
     }
 
     .side-widgets .search:hover {
-        background-color: #00876c    }
+        background-color: var(--primaryColor)     }
 
     .side-widgets .meta {
         display: none
@@ -3694,7 +3695,7 @@ body {
         -ms-flex-wrap: wrap;
         flex-wrap: wrap;
         color: #fff;
-        background: #00876c;
+        background: var(--primaryColor) ;
         -webkit-transition: -webkit-transform .3s;
         transition: -webkit-transform .3s;
         -o-transition: transform .3s;
@@ -3941,12 +3942,12 @@ body {
 
 .page-footer a {
     /* color: #404040; */
-    color: #007755;
+    color: var(--primaryDarkColor) ;
     text-decoration: none;
 }
 
 .page-footer a:hover {
-    color: #007755;
+    color: var(--primaryDarkColor) ;
 }
 
 .page-footer .button.icon {
@@ -3964,7 +3965,7 @@ body {
     color: #fff;
     font-size: 1.375em;
     text-decoration: none;
-    background: #00876c;
+    background: var(--primaryColor) ;
     border-top-right-radius: 0.45455em;
     border-bottom-left-radius: 0.45455em;
     -webkit-transition: background-color .2s;
@@ -3974,7 +3975,7 @@ body {
 
 .page-footer .button.icon:hover {
     color: #fff;
-    background-color: #007755}
+    background-color: var(--primaryDarkColor) }
 
 .page-footer .button.icon span {
     padding: 0.5em 0 0.5em
@@ -4016,7 +4017,7 @@ body {
 }
 
 .page-footer .form button,.page-footer .form input[type=email],.page-footer .form input[type=number],.page-footer .form input[type=search],.page-footer .form input[type=submit],.page-footer .form input[type=text],.page-footer .form input[type=url],.page-footer .form select,.page-footer .form textarea {
-    border: 1px solid #00876c;
+    border: 1px solid var(--primaryColor) ;
     border-top-right-radius: 0.625rem;
     border-bottom-left-radius: 0.625rem
 }
@@ -4329,7 +4330,7 @@ body {
 }
 
 .breadcrumbs a:hover {
-    color: #00876c}
+    color: var(--primaryColor) }
 
 .breadcrumbs-big {
     margin-top: 1.25rem
@@ -4355,7 +4356,7 @@ body {
 }
 
 .breadcrumbs-big .list:last-child>a {
-    border-bottom-color: #00876c}
+    border-bottom-color: var(--primaryColor) }
 
 .breadcrumbs-big .list>a {
     position: relative;
@@ -4498,11 +4499,11 @@ body {
 .search-form-container .search-form button {
     padding: 0.28em 0.6em 0.28em 0.72em;
     margin-left: -1px;
-    border: 3px solid #00876c;
+    border: 3px solid var(--primaryColor) ;
     border-left: 0;
     color: #fff;
     font-size: 1.75em;
-    background-color: #00876c;
+    background-color: var(--primaryColor) ;
     border-top-right-radius: 8px
 }
 
@@ -4511,12 +4512,12 @@ body {
 }
 
 .search-form-container .search-form button:focus,.search-form-container .search-form button:hover {
-    background-color: #007755}
+    background-color: var(--primaryDarkColor) }
 
 .search-form-container .search-form input {
     width: 100%;
     padding: 0.8em 0.92em;
-    border: 3px solid #00876c;
+    border: 3px solid var(--primaryColor) ;
     border-right: 0;
     color: #fff;
     font-size: 1.5625rem;
@@ -4553,7 +4554,7 @@ body {
         display:block;
         height: 5.625rem;
         padding: .8em 0;
-        background: #00876c    }
+        background: var(--primaryColor)     }
 
     .search-form-container .search-form {
         display: block;
@@ -4673,13 +4674,13 @@ main .content-sitemap a span {
 
 .form button,.form input[type=date],.form input[type=datetime],.form input[type=datetime-local],.form input[type=email],.form input[type=number],.form input[type=password],.form input[type=search],.form input[type=submit],.form input[type=tel],.form input[type=text],.form input[type=url],.form select,.form textarea {
     padding: 0.5em 0.85714em;
-    border: 3px solid #00876c;
+    border: 3px solid var(--primaryColor) ;
     font-size: 0.875rem;
     line-height: 1.35714
 }
 
 .form button:focus,.form input[type=date]:focus,.form input[type=datetime]:focus,.form input[type=datetime-local]:focus,.form input[type=email]:focus,.form input[type=number]:focus,.form input[type=password]:focus,.form input[type=search]:focus,.form input[type=submit]:focus,.form input[type=tel]:focus,.form input[type=text]:focus,.form input[type=url]:focus,.form select:focus,.form textarea:focus {
-    border-color: #007755;
+    border-color: var(--primaryDarkColor) ;
     outline: 0;
     -webkit-box-shadow: 0;
     box-shadow: 0
@@ -4729,7 +4730,7 @@ main .content-sitemap a span {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.03571em;
-    background-color: #00876c;
+    background-color: var(--primaryColor) ;
     border-radius: 0;
     -webkit-transition: border-color .2s, background-color .2s;
     -o-transition: border-color .2s, background-color .2s;
@@ -4737,11 +4738,11 @@ main .content-sitemap a span {
 }
 
 .form button:hover,.form input[type=submit]:hover {
-    border-color: #007755;
-    background-color: #007755}
+    border-color: var(--primaryDarkColor) ;
+    background-color: var(--primaryDarkColor) }
 
 .form button:focus,.form input[type=submit]:focus {
-    background-color: #007755}
+    background-color: var(--primaryDarkColor) }
 
 .form button[type=reset] {
     border-color: #404040;
@@ -4888,10 +4889,10 @@ main .content-sitemap a span {
 }
 
 .form .input-option label>span:hover:before {
-    border-color: #00876c}
+    border-color: var(--primaryColor) }
 
 .form .input-option label input:focus+span:before {
-    border-color: #007755}
+    border-color: var(--primaryDarkColor) }
 
 .form .input-option.radio label span:before {
     padding: 2px;
@@ -4899,11 +4900,11 @@ main .content-sitemap a span {
 }
 
 .form .input-option.radio label :checked+span:before {
-    background-color: #00876c}
+    background-color: var(--primaryColor) }
 
 .form .input-option.checkbox label span:before {
     padding: 2px 0;
-    color: #00876c;
+    color: var(--primaryColor) ;
     text-indent: -.5px;
     border-radius: 2px
 }
@@ -4976,7 +4977,7 @@ main .content-sitemap a span {
 .form .required-fields:before {
     content: '*';
     margin-right: .25em;
-    color: #00876c}
+    color: var(--primaryColor) }
 
 .form form {
     display: -webkit-box;
@@ -5074,11 +5075,11 @@ main .content-sitemap a span {
 }
 
 .form .input-file-drop-area input[type=file]:focus+.input-file-button {
-    border-color: #007755;
-    background-color: #007755}
+    border-color: var(--primaryDarkColor) ;
+    background-color: var(--primaryDarkColor) }
 
 .form .input-file-drop-area input[type=file]:focus~.input-file-hint {
-    border-color: #007755}
+    border-color: var(--primaryDarkColor) }
 
 .form .input-file-drop-area.active {
     background-color: rgba(0, 20, 20, 0.03)
@@ -5093,7 +5094,7 @@ main .content-sitemap a span {
     display: inline-block;
     padding-right: 0.71429em;
     padding-left: 0.71429em;
-    border: 3px solid #00876c;
+    border: 3px solid var(--primaryColor) ;
     border-left: 0;
     -webkit-box-flex: 1;
     -ms-flex: 1;
@@ -5131,7 +5132,7 @@ main .content-sitemap a span {
     border-color: #c50410}
 
 .no-js .form input[type=file] {
-    border: 3px solid #00876c;
+    border: 3px solid var(--primaryColor) ;
     opacity: 1
 }
 
@@ -5158,7 +5159,7 @@ main .content-sitemap a span {
     width: 6.25rem;
     max-width: 100%;
     margin-top: 0.15em;
-    border-bottom: 0.3125rem solid #00876c;
+    border-bottom: 0.3125rem solid var(--primaryColor) ;
     overflow: hidden;
 }
 
@@ -5204,7 +5205,7 @@ main .content-sitemap a span {
 }
 
 .text a,figure figcaption a {
-    color: #007755;
+    color: var(--primaryDarkColor) ;
     -webkit-transition: color .3s;
     -o-transition: color .3s;
     transition: color .3s;
@@ -5212,7 +5213,7 @@ main .content-sitemap a span {
 }
 
 .text a:hover,figure figcaption a:hover {
-    color: #007755}
+    color: var(--primaryDarkColor) }
 
 figure .container {
     position: relative;
@@ -5298,7 +5299,7 @@ figure.watermark span.watermark:before {
     width: 10em;
     max-width: 100%;
     margin-top: 0.1em;
-    border-bottom: 0.3125rem solid #00876c}
+    border-bottom: 0.3125rem solid var(--primaryColor) }
 
 @media (max-width: 1024px) {
     .stage-slider .swiper-slide .h1.underline,.stage-slider .swiper-slide .h2.underline,.stage-slider .swiper-slide .h3.underline,.stage-slider .swiper-slide h1.underline,.stage-slider .swiper-slide h2.underline,.stage-slider .swiper-slide h3.underline {
@@ -5578,7 +5579,7 @@ figure.watermark span.watermark:before {
     }
 
     .stage-slider .swiper-pagination-bullet-active {
-        background: #00876c    }
+        background: var(--primaryColor)     }
 
     .stage-slider-tiles {
         width: 100%;
@@ -5925,7 +5926,7 @@ body.oe-page .stage-small .logo {
 }
 
 .to-top-button:hover {
-    background-color: #00876c}
+    background-color: var(--primaryColor) }
 
 .to-top-button:before {
     content: "";
@@ -6212,7 +6213,7 @@ main .target-groups form button:after {
     display: inline-block;
     width: 0.625rem;
     height: 3px;
-    background-color: #00876c}
+    background-color: var(--primaryColor) }
 
 .text ol>li,ol.list>li {
     counter-increment: section
@@ -6250,7 +6251,7 @@ main .target-groups form button:after {
     position: absolute;
     top: 0;
     left: -2.25rem;
-    color: #00876c;
+    color: var(--primaryColor) ;
     font-weight: 700
 }
 
@@ -6263,23 +6264,23 @@ main .target-groups form button:after {
     top: 0.3125rem;
     width: 0;
     height: 0;
-    color: #00876c;
+    color: var(--primaryColor) ;
     font-family: "kit-icons";
     font-size: 0.7em
 }
 
 .list .link a {
-    color: #00876c;
+    color: var(--primaryColor) ;
     text-decoration: none
 }
 
 .list .link a:hover {
-    color: #007755;
+    color: var(--primaryDarkColor) ;
     text-decoration: underline
 }
 
 .list .link a:hover span {
-    color: #007755}
+    color: var(--primaryDarkColor) }
 
 .list .link a span {
     color: #000;
@@ -6300,7 +6301,7 @@ main .target-groups form button:after {
 }
 
 .quote-element.primary {
-    background-color: #00876c}
+    background-color: var(--primaryColor) }
 
 .quote-element.secondary {
     background-color: #404040}
@@ -6420,14 +6421,14 @@ table {
 }
 
 table a {
-    color: #007755;
+    color: var(--primaryDarkColor) ;
     -webkit-transition: color .3s;
     -o-transition: color .3s;
     transition: color .3s
 }
 
 table a:hover {
-    color: #007755}
+    color: var(--primaryDarkColor) }
 
 table td,table th {
     padding: 0.625rem 0.625rem;
@@ -6478,7 +6479,7 @@ table th.desc:after {
 
 table thead {
     color: #fff;
-    background-color: #00876c}
+    background-color: var(--primaryColor) }
 
 table thead th {
     text-align: left
@@ -6492,10 +6493,10 @@ table tbody tr:nth-child(odd) {
 }
 
 .toggle.active .toggle-head {
-    border-bottom-color: #00876c}
+    border-bottom-color: var(--primaryColor) }
 
 .toggle.active .toggle-head .heading {
-    color: #00876c}
+    color: var(--primaryColor) }
 
 .toggle.active .toggle-head .heading:after {
     -webkit-transform: rotate(-90deg);
@@ -6513,10 +6514,10 @@ table tbody tr:nth-child(odd) {
 }
 
 .toggle-head:hover {
-    border-color: #00876c}
+    border-color: var(--primaryColor) }
 
 .toggle-head:hover .heading {
-    color: #00876c}
+    color: var(--primaryColor) }
 
 .toggle-head .heading {
     position: relative;
@@ -6597,10 +6598,10 @@ table tbody tr:nth-child(odd) {
     border: 5px solid #e6e6e6}
 
 .info-container a {
-    color: #00876c}
+    color: var(--primaryColor) }
 
 .info-container a:hover {
-    color: #007755}
+    color: var(--primaryDarkColor) }
 
 .info-container figure {
     margin-right: 1.25rem;
@@ -6783,16 +6784,16 @@ table tbody tr:nth-child(odd) {
 
 .event:hover .date {
     color: #fff;
-    background-color: #00876c}
+    background-color: var(--primaryColor) }
 
 .event:hover .info .h4,.event:hover .info span {
-    color: #00876c}
+    color: var(--primaryColor) }
 
 .event:hover .info p:after {
     -webkit-transform: translateX(50%);
     -ms-transform: translateX(50%);
     transform: translateX(50%);
-    color: #00876c}
+    color: var(--primaryColor) }
 
 .event-content {
     display: -webkit-box;
@@ -6806,7 +6807,7 @@ table tbody tr:nth-child(odd) {
     display: inline-block;
     padding: 0.375rem 1.25rem 0.375rem 0.625rem;
     margin-bottom: 10px;
-    border-left: 10px solid #00876c;
+    border-left: 10px solid var(--primaryColor) ;
     color: #404040;
     font-weight: 700;
     line-height: 1.2;
@@ -6944,7 +6945,7 @@ table tbody tr:nth-child(odd) {
 }
 
 .button:hover {
-    background-color: #007755}
+    background-color: var(--primaryDarkColor) }
 
 .tab-navigation {
     margin-bottom: 0.125rem
@@ -6985,8 +6986,8 @@ table tbody tr:nth-child(odd) {
 }
 
 .tab-navigation-item.active a,.tab-navigation-item a:hover {
-    border-color: #00876c;
-    color: #00876c}
+    border-color: var(--primaryColor) ;
+    color: var(--primaryColor) }
 
 .tab-panel-container {
     position: relative;
@@ -7115,7 +7116,7 @@ table tbody tr:nth-child(odd) {
 }
 
 .sidebar-contact .name a {
-    color: #00876c;
+    color: var(--primaryColor) ;
     font-weight: 700;
     -webkit-transition: color .2s;
     -o-transition: color .2s;
@@ -7123,7 +7124,7 @@ table tbody tr:nth-child(odd) {
 }
 
 .sidebar-contact .name a:hover {
-    color: #007755}
+    color: var(--primaryDarkColor) }
 
 .sidebar-contact p {
     width: 100%
@@ -7140,7 +7141,7 @@ table tbody tr:nth-child(odd) {
 }
 
 .sidebar-contact .phone:hover {
-    color: #00876c}
+    color: var(--primaryColor) }
 
 .sidebar-contact .phone:before {
     content: "";
@@ -7375,7 +7376,7 @@ table tbody tr:nth-child(odd) {
 }
 
 .contact-oe .phone a:hover {
-    color: #00876c}
+    color: var(--primaryColor) }
 
 @media (max-width: 900px) {
     .contact-oe .container {
@@ -7442,8 +7443,8 @@ table tbody tr:nth-child(odd) {
     display: block;
     padding-bottom: 5px;
     margin-top: 2.8125rem;
-    border-bottom: 3px solid #00876c;
-    color: #007755;
+    border-bottom: 3px solid var(--primaryColor) ;
+    color: var(--primaryDarkColor) ;
     font-weight: 700;
     text-decoration: none;
     -webkit-transition: color .3s;
@@ -7452,7 +7453,7 @@ table tbody tr:nth-child(odd) {
 }
 
 .news-element .link:hover {
-    color: #007755}
+    color: var(--primaryDarkColor) }
 
 .news-element .link:hover:after {
     -webkit-transform: translateX(0);
@@ -7547,7 +7548,7 @@ table tbody tr:nth-child(odd) {
     position: absolute;
     right: 0;
     bottom: calc(100% + 0.9375rem);
-    color: #00876c;
+    color: var(--primaryColor) ;
     font-size: 1.125rem;
     font-weight: 700;
     text-decoration: none;
@@ -7558,7 +7559,7 @@ table tbody tr:nth-child(odd) {
 }
 
 .event-calendar .link-more:hover {
-    color: #00876c}
+    color: var(--primaryColor) }
 
 .event-calendar .link-more:after {
     content: "";
@@ -7583,7 +7584,7 @@ table tbody tr:nth-child(odd) {
 
 .event-calendar li a:hover .time {
     color: #fff;
-    background-color: #00876c}
+    background-color: var(--primaryColor) }
 
 .event-calendar li .time {
     display: -webkit-box;
@@ -7592,7 +7593,7 @@ table tbody tr:nth-child(odd) {
     width: 7.5rem;
     padding: 0.9375rem 0.875rem;
     margin-right: 5px;
-    border-left: 10px solid #00876c;
+    border-left: 10px solid var(--primaryColor) ;
     -webkit-box-orient: vertical;
     -webkit-box-direction: normal;
     -ms-flex-direction: column;
@@ -7670,7 +7671,7 @@ table tbody tr:nth-child(odd) {
 }
 
 .mediathek-teaser .link-more:hover {
-    color: #00876c}
+    color: var(--primaryColor) }
 
 .mediathek-teaser .link-more:after {
     content: "";
@@ -7688,7 +7689,7 @@ table tbody tr:nth-child(odd) {
 }
 
 .mediathek-teaser .teaser-element:hover .title {
-    color: #00876c}
+    color: var(--primaryColor) }
 
 .mediathek-teaser .teaser-element .title {
     display: inline-block;
@@ -7863,7 +7864,7 @@ body.oe-page .mediathek-teaser .teaser-element.download picture:after,body.oe-pa
     margin-top: 3.75rem
 }
 .banner .textcontent p a {
-    color: #007755;
+    color: var(--primaryDarkColor) ;
 }
 .banner .textcontent .button {
     margin-top: 1.875rem
@@ -7928,8 +7929,8 @@ body.oe-page .mediathek-teaser .teaser-element.download picture:after,body.oe-pa
 }
 
 .teaser a:hover {
-    border-bottom-color: #00876c;
-    color: #00876c}
+    border-bottom-color: var(--primaryColor) ;
+    color: var(--primaryColor) }
 
 .teaser a:after {
     content: "";
@@ -8158,7 +8159,7 @@ body.oe-page .mediathek-teaser .teaser-element.download picture:after,body.oe-pa
 }
 
 .instagram-feed .link-more:hover {
-    color: #00876c}
+    color: var(--primaryColor) }
 
 .instagram-feed .link-more:after {
     content: "";
@@ -8414,7 +8415,7 @@ figure.person_portrait figcaption {
 	font-weight: 700;
 }
 .news-element a {
-    color: #007755;
+    color: var(--primaryDarkColor) ;
     font-weight: 400;
 }
 .header_copyright {
@@ -8473,7 +8474,7 @@ body.oe-page .stage-big .content-wrap .logo_oe img {
     margin-left: 1.5rem;
 }
 .sprungmarken ul a {
-    color: #007755;
+    color: var(--primaryDarkColor) ;
 }
 
 .event .event-content>a {
@@ -8765,11 +8766,11 @@ a:not([href]):empty {
 }
 .formular input, .formular textarea {
     background-color: transparent !important;
-    border: 2px solid #00876c;
+    border: 2px solid var(--primaryColor) ;
     margin-bottom: 6px;
 }
 .formular input[type="submit"], .preview input[type="submit"] {
-	background: #00876c !important;
+	background: var(--primaryColor)  !important;
     border-radius: 0 !important;
     border: none;
 }
@@ -8790,7 +8791,7 @@ table.table_style_2 thead {
 	vertical-align: middle;
 	padding: 2px 4px !important;
 	font-weight: normal;
-	border: 2px solid #00876c;
+	border: 2px solid var(--primaryColor) ;
 }
 table caption input.filter {
 	width: 100px !important;
@@ -8799,7 +8800,7 @@ table caption input.filter {
 	vertical-align: middle;
 	padding: 2px 4px !important;
 	font-weight: normal;
-	border: 2px solid #00876c;
+	border: 2px solid var(--primaryColor) ;
 }
 table.table_style_2 caption input.filter {
     border: 2px solid #868686;
@@ -8879,7 +8880,7 @@ legend {
 	*/
 }
 .breadcrumbs-big .list:last-child>a {
-    color: #00876c;
+    color: var(--primaryColor) ;
 }
 .firstline {
     font-weight: bold;
@@ -8993,7 +8994,7 @@ th a:hover .fas {
 }
 .homepagecontainer_bezeichner {
     color: #fff;
-    background-color: #00876c;
+    background-color: var(--primaryColor) ;
     font-weight: bold;
     padding: 0.5rem 1rem;
 }
@@ -9050,7 +9051,7 @@ figure .container,
     display: none !important;
 }
 .infobox a {
-	color: #007755;
+	color: var(--primaryDarkColor) ;
 }
 .infobox ul ul{
 	margin-left: 1em;
@@ -9068,7 +9069,7 @@ figure .container,
 .faq_question {
     margin-bottom: 4px;
     padding-right:10px;
-    color:#00876c;
+    color:var(--primaryColor) ;
     display: inline-block;
     background-image:url(/img/intern/faq.png);
     background-repeat: no-repeat;
@@ -9504,7 +9505,7 @@ div.kalender_frame ul li{
 @media (min-width: 1025px) {
 	.navigation .dropdown {
 		scrollbar-width: thin;
-		scrollbar-color: #00876c #e6e6e6;
+		scrollbar-color: var(--primaryColor)  #e6e6e6;
 	}
 	.navigation .dropdown::-webkit-scrollbar {
 		width: 11px;
@@ -9513,7 +9514,7 @@ div.kalender_frame ul li{
 		background: #e6e6e6;
 	}
 	.navigation .dropdown::-webkit-scrollbar-thumb {
-		background-color: #00876c;
+		background-color: var(--primaryColor) ;
 		border-radius: 6px;
 		border: 3px solid #e6e6e6;
 	}

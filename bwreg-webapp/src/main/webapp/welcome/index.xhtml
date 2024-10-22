@@ -13,7 +13,6 @@
 		<f:event type="jakarta.faces.event.PreRenderViewEvent"
             listener="#{discoveryLoginBean.preRenderView}" />
 	</f:metadata>
-
 <ui:composition template="/template/default.xhtml">
 	<ui:param name="title" value="#{messages.title}"/>
 
@@ -24,7 +23,7 @@
 	<ui:define name="content">
 
 	<h:form id="form" prependId="false" class="full">
-		<h3><h:outputText value="#{messages.welcome}"/></h3>
+		<h3 class="margin-bottom"><h:outputText value="#{messages.welcome}"/></h3>
 
 		<h:panelGroup layout="block" styleClass="text-danger text" rendered="#{sessionManager.originalRequestPath != null and sessionManager.originalRequestPath.startsWith('/idp-debug-login/')}">
 			Login debugging is on. You will see a full log of your login process.
@@ -54,17 +53,85 @@
 
 		<div class="grid" style="margin-top: 1em;">
 			<div class="col-12 xs:col-12 sm:col-12 md:col-6 lg:col-6 xl:col-6">
-				<h:panelGroup rendered="#{discoveryLoginBean.largeList}">
+				<h:panelGroup rendered="#{discoveryLoginBean.largeList}" class="autocomplete-container">
 					<p:focus conext="baseData" for="searchAutocompl" />
 					<span class="ui-float-label">
 		                <p:autoComplete id="searchAutocompl" multiple="false" value="#{discoveryLoginBean.selected}" converter="#{userProvisionerCachedEntryConverter}" 
 		                                var="idp" itemLabel="#{idp.displayName}" itemValue="#{idp}" cache="true" minQueryLength="2"
 		                                completeMethod="#{discoveryLoginBean.search}" maxResults="10" 
-		                                forceSelection="true" style="width: 100%;" onfocus="this.select();">
-							<p:column><p:graphicImage style="max-width: 48px; max-height: 32px;" value="#{request.contextPath}/rest/icon-cache/async/small/#{idp.iconId}" rendered="#{not empty idp.iconId}" /></p:column>
+		                                forceSelection="true" style="width: 100%; min-width: 100%; box-sizing: border-box;" onfocus="this.select();" update="infoPnl">
+		                            
+							<p:column style="background-color: white; padding: 0.5rem 0.5rem; text-align: center; vertical-align: middle; width: 4rem">
+								<p:graphicImage style="max-width: 48px; max-height: 32px; transform: scale(1.4)"
+							              		value="#{request.contextPath}/rest/icon-cache/async/small/#{idp.iconId}" rendered="#{not empty idp.iconId}"
+							            	    onerror="this.style.display='none'" />
+							</p:column>
 							<p:column style="font-size: 1.2rem; color: black;">#{idp.displayName}</p:column>
-							<p:ajax update=":form" />
+							<p:ajax update=":form" oncomplete="updateClearButtonVisibility();" />
+						    <p:ajax event="itemSelect" update="infoPnl login" oncomplete="updateClearButtonVisibility();" />
+						    <p:ajax event="clear" update="infoPnl login" oncomplete="updateClearButtonVisibility();" />
+						    <p:ajax event="change" update="infoPnl" oncomplete="updateClearButtonVisibility();" />
+                            <p:ajax event="blur" oncomplete="updateClearButtonVisibility();" />
 						</p:autoComplete>
+		                <button type="button" 
+								class="autocomplete-clear-button"
+		                        onclick="clearAutocomplete(); clearPanelAction()"
+		                        >&#10006;</button>
+		                        
+		                <p:remoteCommand name="clearPanelAction" action="#{discoveryLoginBean.clearPanel}" update="infoPnl" />
+		                        
+						<h:outputScript target="body">
+						    window.clearAutocomplete = function() {
+						        var autoCompleteInput = document.getElementById('searchAutocompl_input');
+						        
+						        if (autoCompleteInput) {
+						            autoCompleteInput.value = ''; 
+						            var autoCompleteWidget = PF('searchAutocompl'); 
+						            
+						            if (autoCompleteWidget) {
+						                autoCompleteWidget.reset(); 
+						            }
+						            document.querySelector('.autocomplete-clear-button').style.display = 'none';
+						            document.getElementById('login').disabled = true;
+						        }
+						    }
+						
+						    function updateClearButtonVisibility() {
+						          var autoCompleteInput = document.getElementById('searchAutocompl_input');
+						          var clearButton = document.querySelector('.autocomplete-clear-button');
+						          var loginButton = document.getElementById('login');
+						          
+						          if (autoCompleteInput) {
+						            if(clearButton){
+						                    var inputLength = autoCompleteInput.value.trim().length;
+						                    if (inputLength >= 1) {
+						                        clearButton.style.display = 'block';
+						                    } else {
+						                        clearButton.style.display = 'none';
+						                    }
+						            }
+						            
+					                if (loginButton) {
+						                if (inputLength >= 3) {
+						                    loginButton.disabled = false;  
+							            } else {
+							                loginButton.disabled = true;
+							            }
+					                }
+								}
+					        }
+					
+					        document.addEventListener('DOMContentLoaded', function() {
+					            var autoCompleteInput = document.getElementById('searchAutocompl_input');
+					            
+					            if (autoCompleteInput) {
+					                autoCompleteInput.addEventListener('input', updateClearButtonVisibility);
+					                autoCompleteInput.addEventListener('blur', updateClearButtonVisibility);
+					                autoCompleteInput.addEventListener('change', updateClearButtonVisibility);
+					                updateClearButtonVisibility();
+					            }
+					        });
+						</h:outputScript>
 						<p:outputLabel for="@previous" value="#{messages['search_filter']}" />
 					</span>
 				</h:panelGroup>
@@ -82,33 +149,38 @@
 			</div>
 			<div style="margin-top: 0em;" class="col-12 xs:col-12 sm:col-12 md:col-6 lg:col-6 xl:col-6">
 			</div>
-			<div style="margin-top: 0em;" class="col-12 xs:col-6 sm:col-6 md:col-3 lg:col-3 xl:col-3">
-				<h:panelGroup id="btnPanel" layout="block" styleClass="form">
-					<p:commandButton id="login" style="width:100%;" action="#{discoveryLoginBean.login}" value="#{messages.proceed}" disabled="#{empty discoveryLoginBean.selected}"
+			<div style="display: flex; align-items: center; justify-content: space-between;" >
+			<div style="margin-top: 0em; width: 100%;" class="col-12 xs:col-6 sm:col-6">
+				<h:panelGroup id="btnPanel" styleClass="form">
+					<p:commandButton id="login" style="margin-top: 0em; width:100%;" action="#{discoveryLoginBean.login}" 
+					value="#{messages.proceed}" disabled="#{empty discoveryLoginBean.selected}"
 						update=":form" />
 				</h:panelGroup>
+					                 
 			</div>
-			<div style="margin-top: 0em;" class="col-12 xs:col-6 sm:col-6 md:col-3 lg:col-3 xl:col-3">
+			<div style="margin-top: 0em;" class="col-12 xs:col-6 sm:col-6">
 				<h:panelGroup id="infoPnl">
 					<p:panel style="margin:0.5em;" rendered="#{not empty discoveryLoginBean.selected}">
 						<p:commandLink action="#{discoveryLoginBean.login(discoveryLoginBean.selected.id)}">
 							<div style="text-align: left;">
-								<p:graphicImage style="max-width: 320px; max-height: 3em;" value="#{request.contextPath}/rest/icon-cache/sync/small/#{discoveryLoginBean.selected.iconLargeId}" />
+								<p:graphicImage style="max-width: 320px; max-height: 2.8em;"
+								 value="#{request.contextPath}/rest/icon-cache/sync/small/#{discoveryLoginBean.selected.iconLargeId}" alt="Organization logo"/>
 							</div> 
 						</p:commandLink> 
 					</p:panel>
 				</h:panelGroup>
+			</div>	
 			</div>
 		</div>
 
 		<h:panelGroup rendered="#{discoveryLoginBean.extraList.size() > 0}">
-			<div style="margin-top: 2em;"><h:outputText value="#{messages['discovery.alternatives']}:" /></div>
+			<div style="margin-top: 3.5em;"><h:outputText value="#{messages['discovery.alternatives']}:" /></div>
 			<div style="margin-top: 0.5em;" class="grid">
 				<ui:repeat var="extra" value="#{discoveryLoginBean.extraList}">
-					<div class="col-12 md:col-6 lg:col-3 xl:col-2" style="text-align:center; margin: 0.5em; border: 1px solid #eeeeee;">
+					<div class="col-12 md:col-6 lg:col-2 xl:col-2" style="text-align:center; margin: 0.5em; border: 1px solid #eeeeee;">
 						<p:commandLink action="#{discoveryLoginBean.login(extra.id)}">
 							<div>
-								<p:graphicImage style="max-width: 160px; max-height: 36px;" value="#{request.contextPath}/rest/icon-cache/sync/small/#{extra.iconLargeId}" />
+								<p:graphicImage style="max-width: 160px; max-height: 24px;" value="#{request.contextPath}/rest/icon-cache/sync/small/#{extra.iconLargeId}" alt="Organization logo"/>
 							</div>
 							<div>#{extra.displayName}</div>
 						</p:commandLink>
@@ -120,5 +192,7 @@
 	
 	</ui:define>
 </ui:composition>
+
+ 
 </body>
 </html>

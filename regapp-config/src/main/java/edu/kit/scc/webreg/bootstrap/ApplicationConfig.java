@@ -59,7 +59,7 @@ public class ApplicationConfig implements Serializable {
 		localeMap = new HashMap<String, String>();
 		localeMap.put("en", "English");
 		localeMap.put("de", "Deutsch");
-		localeMap.put("fr", "Francais");
+		localeMap.put("fr", "Fran\u00E7ais");
 	}
 
 	public boolean reload() {

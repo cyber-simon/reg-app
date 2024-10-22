@@ -21,9 +21,9 @@
 
 	<ui:define name="content">
 	<h:form id="form" class="full">
-
+	
 		<h2><h:outputText value="#{messages['project.connect_to_service']}: #{connectLocalProjectToServiceBean.entity.name}"/></h2>
-
+		
 		<p:messages id="messageBox" showDetail="true" />
 		
 		<h:panelGrid id="baseData" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9">
@@ -57,7 +57,6 @@
 			<h:outputText value="#{messages['project.connect_to_service_connect_text']}" />
 		</div>
 
-
 		<p:panel id="policyHolderList">
   		  <p:panel style="margin: 1.5em 0.5em;" rendered="#{connectLocalProjectToServiceBean.policyHolderList.size() != 0}">
 			<ui:repeat var="policyHolder" value="#{connectLocalProjectToServiceBean.policyHolderList}">
@@ -66,8 +65,8 @@
 					<h:outputText value="#{bbCodeConverter.convert(policyHolder.policy.actualAgreement.agreement)}" escape="false"/>
 				</div>
 				<p:outputPanel rendered="#{not policyHolder.policy.showOnly}" style="margin-top: 1em;">
-					<h:selectBooleanCheckbox value="#{policyHolder.checked}" />
-					<h:outputText value="#{messages.accept_tou}" />
+						<p:selectBooleanCheckbox value="#{policyHolder.checked}" />
+							<h:outputText style="font-weight: bold; margin-left: 0.7em; padding-top: 0.4em;" value="#{messages.accept_tou}" />
 				</p:outputPanel>
 			</ui:repeat>
   		  </p:panel>

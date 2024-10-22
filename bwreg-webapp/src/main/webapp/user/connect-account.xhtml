@@ -94,7 +94,7 @@
 					<p:panel style="margin:0.5em;" rendered="#{not empty connectAccountBean.selected}">
 						<p:commandLink action="#{connectAccountBean.login(connectAccountBean.selected.id)}">
 							<div style="text-align: left;">
-								<p:graphicImage style="max-width: 320px; max-height: 3em;" value="#{request.contextPath}/rest/icon-cache/sync/small/#{connectAccountBean.selected.iconLargeId}" />
+								<p:graphicImage style="max-width: 320px; max-height: 3em;" value="#{request.contextPath}/rest/icon-cache/sync/small/#{connectAccountBean.selected.iconLargeId}" alt="Organization logo"/>
 							</div> 
 						</p:commandLink> 
 					</p:panel>
@@ -110,7 +110,7 @@
 					<div class="col-12 md:col-6 lg:col-3 xl:col-2" style="text-align:center; margin: 0.5em; border: 1px solid #eeeeee;">
 						<p:commandLink action="#{discoveryLoginBean.login(extra.id)}">
 							<div>
-								<p:graphicImage style="max-width: 160px; max-height: 36px;" value="#{request.contextPath}/rest/icon-cache/sync/small/#{extra.iconLargeId}" />
+								<p:graphicImage style="max-width: 160px; max-height: 36px;" value="#{request.contextPath}/rest/icon-cache/sync/small/#{extra.iconLargeId}" alt="Organization logo"/>
 							</div>
 							<div>#{extra.displayName}</div>
 						</p:commandLink>
