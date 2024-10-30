@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+
 import edu.kit.scc.webreg.bootstrap.ApplicationConfig;
 import edu.kit.scc.webreg.entity.SamlIdpConfigurationEntity;
 import edu.kit.scc.webreg.entity.SamlIdpMetadataEntity;
@@ -33,6 +35,7 @@ import edu.kit.scc.webreg.service.SamlIdpConfigurationService;
 import edu.kit.scc.webreg.service.SamlIdpMetadataService;
 import edu.kit.scc.webreg.service.SamlSpConfigurationService;
 import edu.kit.scc.webreg.service.SamlSpMetadataService;
+import edu.kit.scc.webreg.service.ScriptService;
 import edu.kit.scc.webreg.service.disco.DiscoveryCacheService;
 import edu.kit.scc.webreg.service.disco.UserProvisionerCachedEntry;
 import edu.kit.scc.webreg.service.identity.UserProvisionerService;
@@ -51,12 +54,16 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Named
 @ViewScoped
 public class DiscoveryLoginBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+
+	@Inject
+	private Logger logger;
 
 	@Inject
 	private SamlIdpMetadataService idpService;
@@ -102,6 +109,12 @@ public class DiscoveryLoginBean implements Serializable {
 
 	@Inject
 	private UserProvisionerService userProvisionerService;
+
+	@Inject
+	private ScriptService scriptService;
+
+	@Inject
+	private HttpServletRequest request;
 
 	// private Object selectedIdp;
 	private UserProvisionerCachedEntry selected;
@@ -208,6 +221,20 @@ public class DiscoveryLoginBean implements Serializable {
 					if (serviceSaml.getScript() != null) {
 						filterScriptList.add(serviceSaml.getScript());
 					}
+				}
+			}
+
+			/*
+			 * filter home orgs based on hostname
+			 */
+			if (appConfig.getConfigValue(request.getServerName() + "_ds_filter") != null) {
+				ScriptEntity script = scriptService.findByAttr("name",
+						appConfig.getConfigValue(request.getServerName() + "_ds_filter"));
+				if (script != null) {
+					filterScriptList.add(script);
+				} else {
+					logger.warn("Script for filtering is set ({}), but missing",
+							appConfig.getConfigValue(request.getServerName() + "_ds_filter"));
 				}
 			}
 
@@ -355,9 +382,9 @@ public class DiscoveryLoginBean implements Serializable {
 	public Boolean getLargeList() {
 		return largeList;
 	}
-	
+
 	public void clearPanel() {
-	    this.selected = null;
+		this.selected = null;
 	}
 
 }

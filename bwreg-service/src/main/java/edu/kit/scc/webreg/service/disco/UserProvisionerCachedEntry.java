@@ -8,7 +8,7 @@ public class UserProvisionerCachedEntry implements Serializable {
 	
 	private Long id;
 	private String name;
-	// for backwards compatibility in filterIdp scipts
+	// for backwards compatibility in filterIdp scripts
 	private String entityId;
 	private String displayName;
 	private String orgName;
