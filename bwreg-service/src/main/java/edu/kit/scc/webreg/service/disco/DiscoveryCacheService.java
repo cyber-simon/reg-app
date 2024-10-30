@@ -5,7 +5,6 @@ import static edu.kit.scc.webreg.dao.ops.RqlExpressions.equal;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -141,30 +140,31 @@ public class DiscoveryCacheService implements Serializable {
 	}
 
 	public List<UserProvisionerCachedEntry> getExtraEntryList(List<ScriptEntity> filterScriptList) {
-		return filterAllEntries(filterScriptList, singleton.getExtraEntryList());
+		return filterExtraEntries(filterScriptList, singleton.getExtraEntryList(), singleton.getAllEntryList());
 	}
 
 	private List<UserProvisionerCachedEntry> filterAllEntries(List<ScriptEntity> filterScriptList,
 			List<UserProvisionerCachedEntry> entryList) {
 		if (filterScriptList != null && filterScriptList.size() > 0) {
-			Comparator<UserProvisionerCachedEntry> comparator = new Comparator<UserProvisionerCachedEntry>() {
-
-				@Override
-				public int compare(UserProvisionerCachedEntry e1, UserProvisionerCachedEntry e2) {
-					if (e1.getDisplayName() != null)
-						return e1.getDisplayName().compareTo(e2.getDisplayName());
-					else 
-						return 0;
-				}
-			};
-
-			Set<UserProvisionerCachedEntry> returnList = new TreeSet<>(comparator);
+			Set<UserProvisionerCachedEntry> returnList = new TreeSet<>(new UserProvisionerComparator());
 			for (ScriptEntity script : filterScriptList) {
 				returnList.addAll(filterEntries(script, entryList));
 			}
 			return new ArrayList<>(returnList);
 		} else
 			return entryList;
+	}
+
+	private List<UserProvisionerCachedEntry> filterExtraEntries(List<ScriptEntity> filterScriptList,
+			List<UserProvisionerCachedEntry> extraEntryList, List<UserProvisionerCachedEntry> allEntryList) {
+		if (filterScriptList != null && filterScriptList.size() > 0) {
+			Set<UserProvisionerCachedEntry> returnList = new TreeSet<>(new UserProvisionerComparator());
+			for (ScriptEntity script : filterScriptList) {
+				returnList.addAll(filterExtraEntries(script, extraEntryList, allEntryList));
+			}
+			return new ArrayList<>(returnList);
+		} else
+			return extraEntryList;
 	}
 
 	private List<UserProvisionerCachedEntry> filterEntries(ScriptEntity scriptEntity,
@@ -209,6 +209,33 @@ public class DiscoveryCacheService implements Serializable {
 		} catch (ScriptException e) {
 			logger.warn("Script execution failed.", e);
 			return entryList;
+		}
+	}
+	
+	private List<UserProvisionerCachedEntry> filterExtraEntries(ScriptEntity scriptEntity,
+			List<UserProvisionerCachedEntry> extraEntryList, List<UserProvisionerCachedEntry> allEntryList) {
+		ScriptEngine engine = (new ScriptEngineManager()).getEngineByName(scriptEntity.getScriptEngine());
+
+		if (engine == null) {
+			logger.warn("No engine set for script {}. Returning all IDPs", scriptEntity.getName());
+			return extraEntryList;
+		}
+
+		try {
+			engine.eval(scriptEntity.getScript());
+			Invocable invocable = (Invocable) engine;
+
+			try {
+				List<UserProvisionerCachedEntry> extraList = new ArrayList<>();
+				invocable.invokeFunction("filterExtra", extraEntryList, extraList, allEntryList, logger);
+				return extraList;
+			} catch (NoSuchMethodException e) {
+			}
+
+			return extraEntryList;
+		} catch (ScriptException e) {
+			logger.warn("Script execution failed.", e);
+			return extraEntryList;
 		}
 	}
 }
