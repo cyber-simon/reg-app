@@ -34,16 +34,18 @@
     	        <f:selectItems value="#{registerServiceBean.userList}" var="user" itemLabel="#{user.eppn}" itemValue="#{user}" />
     	        <p:column>
     	        	<p:outputPanel rendered="#{u.class.simpleName eq 'SamlUserEntity'}">
-    	        		<h:outputText value="#{u.eppn} - " rendered="#{u.eppn != null}"/>
-	    	        	<h:outputText value="#{u.email} - " rendered="#{u.eppn == null and u.email != null}"/>
-	    	        	<h:outputText value="#{u.persistentId} - " rendered="#{u.eppn == null and u.email == null}"/>
-	    	        	<h:outputText value="#{u.idp.displayName}" />
+    	        		<h:outputText value="#{u.idp.displayName} " />
+    	        		<h:outputText value="(#{u.eppn})" rendered="#{u.eppn != null}"/>
+	    	        	<h:outputText value="(#{u.email})" rendered="#{u.eppn == null and u.email != null}"/>
+	    	        	<h:outputText value="()#{u.persistentId})" rendered="#{u.eppn == null and u.email == null}"/>
+	    	        
     	        	</p:outputPanel>
     	        	<p:outputPanel rendered="#{u.class.simpleName eq 'OidcUserEntity'}">
-    	        		<h:outputText value="#{u.eppn} - " rendered="#{u.eppn != null}"/>
-	    	        	<h:outputText value="#{u.email} - " rendered="#{u.eppn == null and u.email != null}"/>
-	    	        	<h:outputText value="#{u.subjectId} - " rendered="#{u.eppn == null and u.email == null}"/>
-	    	        	<h:outputText value="#{u.issuer.displayName}" />
+    	        	 	<h:outputText value="#{u.issuer.displayName} " />
+    	        		<h:outputText value="(#{u.eppn})" rendered="#{u.eppn != null}"/>
+	    	        	<h:outputText value="(#{u.email})" rendered="#{u.eppn == null and u.email != null}"/>
+	    	        	<h:outputText value="(#{u.subjectId})" rendered="#{u.eppn == null and u.email == null}"/>
+	    	       
     	        	</p:outputPanel>
     	        </p:column>
     	        <p:ajax listener="#{registerServiceBean.checkUserAccess()}" update="mboxReq" />
@@ -73,7 +75,7 @@
 
 				<p:messages id="messageBox" for="need_check" showDetail="true" escape="false" />
 			
-				<div style="margin: 1.5em 0.5em;">
+				<div>
 					<ui:repeat var="policyHolder" value="#{registerServiceBean.policyHolderList}">
 						<b><h:outputText value="#{policyHolder.policy.name} - #{policyHolder.policy.actualAgreement.name}" /></b>
 						<div style="margin-top: 1em;">
@@ -97,9 +99,9 @@
 			</p:blockUI>					
 		</p:outputPanel>
 		
-	<div class="text full" style="margin-top: 0.4em;">
-		<a href="../index.xhtml"><h:outputText value="#{messages.back}"/></a>
-	</div>		
+		<div class="text full" style="margin-top: 0.4em;">
+			<a href="../index.xhtml"><h:outputText value="#{messages.back}"/></a>
+		</div>		
 		
 	</h:form>
 

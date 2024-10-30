@@ -38,15 +38,6 @@
 			
 		</h:panelGrid>
 
-		<div class="text" style="margin-top: 0.4em;">
-			<h:panelGroup rendered="#{userEditLocalProjectAdminsBean.entity.class.simpleName == 'LocalProjectEntity'}">
-				<a href="show-local-project.xhtml?id=#{userEditLocalProjectAdminsBean.entity.id}"><h:outputText value="#{messages.back}"/></a>
-			</h:panelGroup>
-			<h:panelGroup rendered="#{userEditLocalProjectAdminsBean.entity.class.simpleName == 'AttributeSourceProjectEntity'}">
-				<a href="show-as-project.xhtml?id=#{userEditLocalProjectAdminsBean.entity.id}"><h:outputText value="#{messages.back}"/></a>
-			</h:panelGroup>		
-		</div>
-
 		<h6 style="margin-top: 1em;"><h:outputText value="#{messages['project.edit_admins.make_member_to_admin']}"/></h6>
 		<div class="text"><h:outputText value="#{messages['project.edit_admins.make_member_to_admin_text']}"/></div>
 		<p:outputPanel>
@@ -90,8 +81,10 @@
 				<h:outputText value="#{member.prefUser.userStatus}" />
 			</p:column>			
 			<p:column>
-				<p:commandLink action="#{userEditLocalProjectAdminsBean.addAdmin(member)}" value="#{messages.add}"
-							update=":form:dataTableAdmins"/>
+				<p:commandLink action="#{userEditLocalProjectAdminsBean.addAdmin(member)}" title="#{messages.add}"
+							update=":form:dataTableAdmins" class="button icon">
+							 <i class="fa fa-fw fa-plus" style="font-size: 1em;"></i>
+				</p:commandLink>
 			</p:column>	
 		</p:dataTable>
 
@@ -119,10 +112,22 @@
 				<h:outputText value="#{a.type}" />
 			</p:column>			
 			<p:column>
-				<p:commandLink action="#{userEditLocalProjectAdminsBean.removeAdmin(a)}" value="#{messages.remove}"
-							update=":form:dataTableAdmins :form:messageBox"/>
+				<p:commandLink action="#{userEditLocalProjectAdminsBean.removeAdmin(a)}"
+							update=":form:dataTableAdmins :form:messageBox" class="button icon" title="#{messages.remove}">
+							    <i class="fa fa-fw fa-trash" style="font-size: 1em;"></i>
+				</p:commandLink>
+						
 			</p:column>	
-		</p:dataTable>		
+		</p:dataTable>
+		
+		<div class="text" style="margin-top: 0.4em;">
+			<h:panelGroup rendered="#{userEditLocalProjectAdminsBean.entity.class.simpleName == 'LocalProjectEntity'}">
+				<a href="show-local-project.xhtml?id=#{userEditLocalProjectAdminsBean.entity.id}"><h:outputText value="#{messages.back}"/></a>
+			</h:panelGroup>
+			<h:panelGroup rendered="#{userEditLocalProjectAdminsBean.entity.class.simpleName == 'AttributeSourceProjectEntity'}">
+				<a href="show-as-project.xhtml?id=#{userEditLocalProjectAdminsBean.entity.id}"><h:outputText value="#{messages.back}"/></a>
+			</h:panelGroup>		
+		</div>	
 		
 	</h:form>
 

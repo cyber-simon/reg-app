@@ -60,23 +60,7 @@
 		</p:outputPanel>
 	</p:panel>
 
-	<h:panelGroup rendered="#{registryDetailBean.entity.registryStatus == 'ACTIVE' || registryDetailBean.entity.registryStatus == 'LOST_ACCESS'}">
-		<h3 class="full" style="margin-top: 1em;"><h:outputText value="#{messages.deregister}: #{registryDetailBean.entity.service.name}" /></h3>
-		<div class="firstline full" style="margin-top: 1em;">
-			<h:outputText value="#{messages.deregister_desc}" />
-		</div>
-		<div class="text full">
-			<h:link outcome="/user/deregister-service.xhtml" value="#{messages.deregister}">
-				<f:param name="regId" value="#{registryDetailBean.entity.id}" />
-			</h:link>
-		</div>
-	</h:panelGroup>
-	
-	<div class="text full" style="margin-top: 2em;">
-		<a href="../index.xhtml"><h:outputText value="#{messages.back}"/></a>
-	</div>		
-
-	<p:panel collapsed="true" toggleable="true" style="margin-top: 2em;">
+	<p:panel collapsed="true" toggleable="true" style="margin-top: 1em;">
 		<f:facet name="header">#{messages.registry_details_nerds}</f:facet>
 		<p:dataTable id="attrData" style="margin-top: 1em;" 
 					value="#{registryDetailBean.entity.registryValues.keySet().toArray()}" var="key">
@@ -114,6 +98,21 @@
 		</p:treeTable>		
 	</p:panel>
 
+	<h:panelGroup rendered="#{registryDetailBean.entity.registryStatus == 'ACTIVE' || registryDetailBean.entity.registryStatus == 'LOST_ACCESS'}">
+		<h3 class="full" style="margin-top: 1em;"><h:outputText value="#{messages.deregister}: #{registryDetailBean.entity.service.name}" /></h3>
+		<div class="firstline full" style="margin-top: 1em;">
+			<h:outputText value="#{messages.deregister_desc}" />
+		</div>
+		<div class="full">
+			<h:link class="button delete-btn" outcome="/user/deregister-service.xhtml" value="#{messages.deregister}">
+				<f:param name="regId" value="#{registryDetailBean.entity.id}" />
+			</h:link>
+		</div>
+	</h:panelGroup>
+	
+	<div class="text full" style="margin-top: 1em;">
+		<a href="../index.xhtml"><h:outputText value="#{messages.back}"/></a>
+	</div>		
 	
 	
 	</h:form>

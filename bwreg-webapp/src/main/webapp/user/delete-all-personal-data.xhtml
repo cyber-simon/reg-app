@@ -52,7 +52,7 @@
 				<p:commandButton id="cancel" action="#{deleteAllPersonalDataBean.cancel}" 
 					value="#{messages.cancel}"/>
 				<p:commandButton id="save" oncomplete="PF('confirmDlg').show();"  
-					value="#{messages['my_data.delete_all.commit']}" style="margin-left: 1em;"/>
+					value="#{messages['my_data.delete_all.commit']}" class="delete-btn"/>
 			</div>		
 		
 			<p:dialog header="#{messages['my_data.delete_all.confirm_header']}" 
@@ -65,7 +65,7 @@
 					<p:commandButton id="cancel2" action="#{deleteAllPersonalDataBean.cancel}" 
 						value="#{messages.cancel}"/>
 					<p:commandButton id="save2" action="#{deleteAllPersonalDataBean.commit}" 
-						value="#{messages['my_data.delete_all.commit2']}" class="text-danger" style="margin-left: 1em;"/>
+						value="#{messages['my_data.delete_all.commit2']}" class="text-danger delete-btn"/>
 				</div>		
 			</p:dialog>
 			<p:blockUI block="confirmDlgId" trigger="save2">  

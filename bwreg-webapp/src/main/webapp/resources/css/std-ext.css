@@ -84,6 +84,17 @@ body a {
 	font-weight: 400;
 }
 
-body a ,body a:hover{
+body a, body a:hover{
 	color: var(--primaryDarkColor);
 }
+
+body .ui-button {
+	background: var(--primaryColor);
+	border-color: var(--primaryColor);
+}
+
+body .ui-button.ui-state-hover {
+	background: var(--primaryDarkColor);
+    border-color: var(--primaryDarkColor);
+}
+

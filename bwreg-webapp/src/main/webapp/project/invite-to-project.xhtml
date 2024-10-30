@@ -30,42 +30,6 @@
 			<h:outputText value="#{messages['project.invite_project.members_text']}"/>
 		</div>
 
-		<p:dataTable id="dataTable" var="t" value="#{inviteToProjectBean.tokenList}"
-				style="margin-top: 1em; width:auto; font-size: 1.2rem;">
-			<p:column>
-				<f:facet name="header">
-					<h:outputText value="#{messages.token}" />
-				</f:facet>
-				<h:outputText value="#{t.token}" />
-			</p:column>			
-			<p:column>
-				<f:facet name="header">
-					<h:outputText value="#{messages.email_address}" />
-				</f:facet>
-				<h:outputText value="#{t.rcptMail}" />
-			</p:column>			
-			<p:column>
-				<f:facet name="header">
-					<h:outputText value="#{messages.valid_to}" />
-				</f:facet>
-				<h:outputText value="#{t.validUntil}" />
-			</p:column>			
-			<p:column>
-				<f:facet name="header">
-					<h:outputText value="#{messages.status}" />
-				</f:facet>
-				<h:outputText value="#{t.status}" />
-			</p:column>			
-			<p:column width="12%">
-   				<p:tooltip for="@next" value="#{messages.delete}" position="top"/>
-       			<p:commandButton action="#{inviteToProjectBean.deleteToken(t)}" immediate="true" update=":form:messageBox, :form:dataTable"
-       				icon="fa fa-fw fa-trash" style="font-size: 0.6em;">
-       				<p:confirm header="#{messages.confirm_header}" escape="false"
-       					message="#{messages['project.invite_project.delete_token_confirm']}" />
-       			</p:commandButton>
-       		</p:column>
-		</p:dataTable>
-
 		<h6 style="margin-top: 1em;"><h:outputText value="#{messages['project.invite_project.members_with_email']}"/></h6>
 		<h:outputText value="#{messages['project.invite_project.members_with_email_text']}"/>
 		
@@ -93,14 +57,44 @@
 			<p:commandButton action="#{inviteToProjectBean.sendToken()}" value="#{messages['project.invite_project.send_invitation']}" update="@form"/>
 		</div>
 		
-		<div class="text full" style="margin-top: 0.4em;">
-			<p:outputPanel rendered="#{inviteToProjectBean.entity.class.simpleName == 'LocalProjectEntity'}">
-				<a href="show-local-project.xhtml?id=#{inviteToProjectBean.entity.id}"><h:outputText value="#{messages.back}"/></a>
-			</p:outputPanel>
-			<p:outputPanel rendered="#{inviteToProjectBean.entity.class.simpleName == 'AttributeSourceProjectEntity'}">
-				<a href="show-as-project.xhtml?id=#{inviteToProjectBean.entity.id}"><h:outputText value="#{messages.back}"/></a>
-			</p:outputPanel>		
-		</div>		
+		<p:dataTable id="dataTable" var="t" value="#{inviteToProjectBean.tokenList}"
+				style="margin-top: 1em; width:auto; font-size: 1.2rem;">
+							<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.email}" />
+				</f:facet>
+				<h:outputText value="#{t.rcptMail}" />
+			</p:column>	
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.token}" />
+				</f:facet>
+				<h:outputText value="#{t.token}" />
+			</p:column>					
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.valid_until}" />
+				</f:facet>
+				<h:outputText value="#{t.validUntil}" />
+			</p:column>			
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages.status}" />
+				</f:facet>
+				<h:outputText value="#{t.status}" />
+			</p:column>			
+			<p:column width="12%">
+							<f:facet name="header">
+					<h:outputText value="#{messages.action}" />
+				</f:facet>
+   				<p:tooltip for="@next" value="#{messages.delete}" position="top"/>
+       			<p:commandButton action="#{inviteToProjectBean.deleteToken(t)}" immediate="true" update=":form:messageBox, :form:dataTable"
+       				icon="fa fa-fw fa-trash" style="font-size: 0.6em;">
+       				<p:confirm header="#{messages.confirm_header}" escape="false"
+       					message="#{messages['project.invite_project.delete_token_confirm']}" />
+       			</p:commandButton>
+       		</p:column>
+		</p:dataTable>
 
 	    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" closable="false" 
 	    	closeOnEscape="true" width="320">
@@ -111,6 +105,14 @@
 	    </p:confirmDialog>    
 
 	</h:form>
+		<div class="text full" style="margin-top: 0.4em;">
+			<p:outputPanel rendered="#{inviteToProjectBean.entity.class.simpleName == 'LocalProjectEntity'}">
+				<a href="show-local-project.xhtml?id=#{inviteToProjectBean.entity.id}"><h:outputText value="#{messages.back}"/></a>
+			</p:outputPanel>
+			<p:outputPanel rendered="#{inviteToProjectBean.entity.class.simpleName == 'AttributeSourceProjectEntity'}">
+				<a href="show-as-project.xhtml?id=#{inviteToProjectBean.entity.id}"><h:outputText value="#{messages.back}"/></a>
+			</p:outputPanel>		
+		</div>		
 
 	</ui:define>
 </ui:composition>

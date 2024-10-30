@@ -73,34 +73,27 @@
 			</h:outputLink>
 		</h:panelGrid>
 
-		<h:panelGrid style="margin-top:1em;" columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9"
+		<h:panelGrid columns="2" layout="flex" columnClasses="col-12 md:col-3 xl:col-3, col-12 md:col-9 xl:col-9"
 		             rendered="#{not empty userShowLocalProjectBean.entity.approved or userShowLocalProjectBean.entity.subProjectsAllowed}">
 
-			<h:outputLink value="oidc/list-clients.xhtml" 
+			<h:outputText value="#{messages['project.show_local_project.manage_oidc_credentials_text']}" rendered="#{userShowLocalProjectBean.entity.approved}"/>	
+			<h:outputLink class="button" value="oidc/list-clients.xhtml" 
 				rendered="#{userShowLocalProjectBean.entity.approved}">
 				<h:outputText value="#{messages['project.show_local_project.manage_oidc_credentials']}"/>
 				<f:param name="id" value="#{userShowLocalProjectBean.entity.id}"/>
 			</h:outputLink>
-			<h:outputText value="#{messages['project.show_local_project.manage_oidc_credentials_text']}" rendered="#{userShowLocalProjectBean.entity.approved}"/>	
 
-			<h:outputLink value="create-new-subproject.xhtml" 
+			<h:outputText value="#{messages['project.show_local_project.create_sub_project_text']}" rendered="#{userShowLocalProjectBean.entity.subProjectsAllowed}"/>	
+			<h:outputLink class="button" value="create-new-subproject.xhtml" 
 				rendered="#{userShowLocalProjectBean.entity.subProjectsAllowed}">
 				<h:outputText value="#{messages['project.show_local_project.create_sub_project']}"/>
 				<f:param name="id" value="#{userShowLocalProjectBean.entity.id}"/>
 			</h:outputLink>
-			<h:outputText value="#{messages['project.show_local_project.create_sub_project_text']}" rendered="#{userShowLocalProjectBean.entity.subProjectsAllowed}"/>	
-		
 		</h:panelGrid>
 
 		<h5 style="margin-top: 1em;"><h:outputText value="#{messages['project.members']}" /></h5>
 		<p:dataTable id="dataTableMember" var="member" value="#{userShowLocalProjectBean.memberList}"
 			style="width:auto; font-size: 1.2rem;">
-			<p:column sortBy="#{member.identity.prefUser.eppn}" filterBy="#{member.identity.prefUser.eppn}" filterMatchMode="contains">
-				<f:facet name="header">
-					<h:outputText value="#{messages.name}" />
-				</f:facet>
-				<h:outputText value="#{member.identity.prefUser.eppn}" />
-			</p:column>			
 			<p:column sortBy="#{member.identity.prefUser.surName}" filterBy="#{member.identity.prefUser.surName}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.sur_name}" />
@@ -112,6 +105,12 @@
 					<h:outputText value="#{messages.given_name}" />
 				</f:facet>
 				<h:outputText value="#{member.identity.prefUser.givenName}" />
+			</p:column>	
+						<p:column sortBy="#{member.identity.prefUser.eppn}" filterBy="#{member.identity.prefUser.eppn}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.account}" />
+				</f:facet>
+				<h:outputText value="#{member.identity.prefUser.eppn}" />
 			</p:column>			
 			<p:column>
 				<f:facet name="header">
@@ -120,8 +119,11 @@
 				<h:outputText value="#{member.membershipType}" />
 			</p:column>			
 			<p:column width="12%">
+				<f:facet name="header">
+					<h:outputText value="#{messages.action}" />
+				</f:facet>
    				<p:tooltip for="@next" value="#{messages.delete}" position="top"/>
-       			<p:commandButton action="#{userShowLocalProjectBean.deleteMember(member)}" immediate="true" update="@form"
+       			<p:commandButton action="#{userShowLocalProjectBean.deleteMember(member)}" class="button icon" immediate="true" update="@form"
        				icon="fa fa-fw fa-trash" style="font-size: 0.6em;">
        				<p:confirm header="#{messages.confirm_header}" escape="false"
        					message="#{messages['project.show_local_project.delete_member_confirm']}" />
@@ -137,12 +139,6 @@
 		<h5 style="margin-top: 1em;"><h:outputText value="#{messages['project.admins']}" /></h5>
 		<p:dataTable id="dataTableAdmin" var="a" value="#{userShowLocalProjectBean.adminList}"
 			style="width:auto; font-size: 1.2rem;">
-			<p:column sortBy="#{a.identity.prefUser.eppn}" filterBy="#{a.identity.prefUser.eppn}" filterMatchMode="contains">
-				<f:facet name="header">
-					<h:outputText value="#{messages.name}" />
-				</f:facet>
-				<h:outputText value="#{a.identity.prefUser.eppn}" />
-			</p:column>			
 			<p:column sortBy="#{a.identity.prefUser.surName}" filterBy="#{a.identity.prefUser.surName}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.sur_name}" />
@@ -154,6 +150,12 @@
 					<h:outputText value="#{messages.given_name}" />
 				</f:facet>
 				<h:outputText value="#{a.identity.prefUser.givenName}" />
+			</p:column>	
+			<p:column sortBy="#{a.identity.prefUser.eppn}" filterBy="#{a.identity.prefUser.eppn}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.account}" />
+				</f:facet>
+				<h:outputText value="#{a.identity.prefUser.eppn}" />
 			</p:column>			
 			<p:column>
 				<f:facet name="header">
@@ -184,7 +186,7 @@
 	        <p:commandButton value="#{messages.no}" type="button" styleClass="ui-confirmdialog-no"/>
 	    </p:confirmDialog>    
 	    
-   			<h:outputLink value="delete-local-project.xhtml" class="button" style="margin-top:0.5em;">
+   			<h:outputLink value="delete-local-project.xhtml" class="button delete-btn" style="margin-top:0.5em;">
 				<h:outputText value="#{messages['project.show_local_project.delete_project_link']}"/>
 				<f:param name="id" value="#{userShowLocalProjectBean.entity.id}"/>
 			</h:outputLink>

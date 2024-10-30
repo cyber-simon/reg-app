@@ -53,24 +53,21 @@
 							</h:link>
 						</div>
 					</h:panelGroup>
-					<div style="margin-top: 1.5em;">
-						<span class="pi pi-arrow-right" style="margin-right: 0.2em;"></span>
-						<h:link outcome="/service/registry-detail.xhtml" value="#{messages.registry_details}">
+					<div>
+						<h:link style="position: sticky;" class="link" outcome="/service/registry-detail.xhtml" value="#{messages.registry_details}">
 							<f:param name="regId" value="#{registry.id}" />
 						</h:link>
 					</div>
 					<h:panelGroup rendered="#{authorizationBean.isPasswordCapable(registry.service)}">
 						<div>
-						<span class="pi pi-arrow-right" style="margin-right: 0.2em;"></span>
-						<h:link outcome="/service/set-password.xhtml" value="#{messages.set_password}">
+						<h:link style="position: sticky;" class="link" outcome="/service/set-password.xhtml" value="#{messages.set_password}">
 							<f:param name="registryId" value="#{registry.id}" />
 						</h:link>
 						</div>
 					</h:panelGroup>
 					<h:panelGroup rendered="#{authorizationBean.isSshPubKeyCapable(registry.service)}">
 						<div>
-						<span class="pi pi-arrow-right" style="margin-right: 0.2em;"></span>
-						<h:link outcome="/service/set-sshkey.xhtml" value="#{messages.set_ssh_pub_key}">
+						<h:link style="position: sticky;" class="link" outcome="/service/set-sshkey.xhtml" value="#{messages.set_ssh_pub_key}">
 							<f:param name="registryId" value="#{registry.id}" />
 						</h:link>
 						</div>
@@ -82,12 +79,10 @@
 		<h:panelGroup rendered="#{empty userIndexBean.userRegistryList}">
 			<h:outputText value="#{messages.no_registered_services}" styleClass="full"/>
 		</h:panelGroup>
-	
-		<h:outputText value="#{messages.index_text2}" class="full" />
 			
 		<h:panelGroup rendered="#{not empty userIndexBean.pendingRegistryList}">
 	
-			<h5 class="full"><h:outputText value="#{messages.index_text5}" styleClass="full"/></h5>
+			<h5 class="full"><h:outputText value="#{messages.index_text3}" styleClass="full"/></h5>
 	
 			<ui:repeat var="registry" value="#{userIndexBean.pendingRegistryList}">
 				<div class="news-element third">
@@ -114,14 +109,12 @@
 					</h:panelGroup>
 	
 					<div style="margin-top: 1.5em;">
-						<span class="pi pi-arrow-right" style="margin-right: 0.2em;"></span>
-						<h:link outcome="/service/index.xhtml" value="#{messages.service_desc}">
+						<h:link style="position: sticky;" class="link" outcome="/service/index.xhtml" value="#{messages.service_desc}">
 							<f:param name="serviceId" value="#{registry.service.id}" />
 						</h:link>
 					</div>
 					<div>
-						<span class="pi pi-arrow-right" style="margin-right: 0.2em;"></span>
-						<h:link outcome="/service/registry-detail.xhtml" value="#{messages.registry_details}">
+						<h:link style="position: sticky;" class="link" outcome="/service/registry-detail.xhtml" value="#{messages.registry_details}">
 							<f:param name="regId" value="#{registry.id}" />
 						</h:link>
 					</div>
@@ -129,7 +122,7 @@
 			</ui:repeat>
 		</h:panelGroup>		
 			
-		<h5 class="full"><h:outputText value="#{messages.index_text3}" /></h5>
+		<h5 class="full"><h:outputText value="#{messages.index_text2}" /></h5>
 
 		<ui:repeat var="service" value="#{authorizationBean.unregisteredServiceList}">
 			<div class="news-element third">
@@ -146,22 +139,19 @@
 					<br />
 					<h:outputText value="#{userIndexBean.getServiceAccessStatus(registry.service)}" />
 				</p>
-				<div style="margin-top: 1.5em;">
-					<span class="pi pi-arrow-right" style="margin-right: 0.2em;"></span>
-					<h:link outcome="/service/index.xhtml" value="#{messages.service_desc}">
+
+				<div>
+					<h:link style="position: sticky;" class="link" outcome="/service/index.xhtml" value="#{messages.service_desc}">
 						<f:param name="serviceId" value="#{service.id}" />
 					</h:link>							
 				</div>
 				<div>
-					<span class="pi pi-arrow-right" style="margin-right: 0.2em;"></span>
-					<h:link outcome="/user/register-service.xhtml" value="#{messages.register}">
+					<h:link style="position: sticky;" class="link" outcome="/user/register-service.xhtml" value="#{messages.register}">
 						<f:param name="serviceId" value="#{service.id}" />
 					</h:link>
 				</div>
 			</div>
 		</ui:repeat>				
-				
-		<h:outputText value="#{messages.index_text4}" class="full" />
 			
 	</ui:define>
 </ui:composition>
