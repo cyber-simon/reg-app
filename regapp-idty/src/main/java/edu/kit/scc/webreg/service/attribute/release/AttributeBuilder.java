@@ -67,6 +67,10 @@ public class AttributeBuilder {
 		setStringListValue(attributeRelease, name, attributeResolver.resolveStringListValue(identity, name));
 	}
 
+	public void addStringListAttribute(AttributeReleaseEntity attributeRelease, String name, List<String> stringList) {
+		setStringListValue(attributeRelease, name, stringList);
+	}
+
 	public void deleteValue(ValueEntity value) {
 		value.getAttributeRelease().setChanged(true);
 		value.getAttributeRelease().getValues().remove(value);
