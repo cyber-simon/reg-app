@@ -200,7 +200,7 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 		SamlSpMetadataEntity spMetadata = spDao.findByEntityId(authnRequest.getIssuer().getValue());
 		logger.debug("Corresponding SP found in Metadata: {}", spMetadata.getEntityId());
 		authnRequestEntity.setSpMetadata(spMetadata);
-		
+
 		List<ServiceSamlSpEntity> serviceSamlSpEntityList = serviceSamlSpDao.findBySamlSp(spMetadata);
 
 		if (serviceSamlSpEntityList.size() == 0) {
@@ -461,7 +461,12 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 		X509Data x509Data = keyInfo.getX509Datas().get(0);
 		org.opensaml.xmlsec.signature.X509Certificate x509cert = x509Data.getX509Certificates().get(0);
 		String cert = x509cert.getValue();
-		Encrypter enc = buildEncrypter(cert, messageContext, spMetadata.getEntityId());
+
+		final String dataEncAlgo = spMetadata.getGenericStore().getOrDefault("enc_algo",
+				EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES128);
+		final String keyTransAlgo = spMetadata.getGenericStore().getOrDefault("key_transport_algo",
+				EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSAOAEP);
+		Encrypter enc = buildEncrypter(cert, messageContext, spMetadata.getEntityId(), dataEncAlgo, keyTransAlgo);
 		try {
 			return enc.encrypt(assertion);
 		} catch (EncryptionException e) {
@@ -469,8 +474,8 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 		}
 	}
 
-	private Encrypter buildEncrypter(String cert, MessageContext messageContext, String spEntityId)
-			throws SamlAuthenticationException {
+	private Encrypter buildEncrypter(String cert, MessageContext messageContext, String spEntityId, String dataEncAlgo,
+			String keyTransAlgo) throws SamlAuthenticationException {
 		try {
 			byte[] decodedCert = Base64.decodeBase64(cert);
 			CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
@@ -483,9 +488,9 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 			generator.setEmitPublicKeyValue(true);
 
 			EncryptionParameters encParams = new EncryptionParameters();
-			encParams.setDataEncryptionAlgorithm(EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES128);
+			encParams.setDataEncryptionAlgorithm(dataEncAlgo);
 			encParams.setDataKeyInfoGenerator(generator.newInstance());
-			encParams.setKeyTransportEncryptionAlgorithm(EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSAOAEP);
+			encParams.setKeyTransportEncryptionAlgorithm(keyTransAlgo);
 			encParams.setKeyTransportEncryptionCredential(encryptCredential);
 			encParams.setKeyTransportKeyInfoGenerator(generator.newInstance());
 
@@ -573,7 +578,8 @@ public class SamlIdpServiceImpl implements SamlIdpService {
 	private String buildAttributeStatement(final SamlIdpConfigurationEntity idpConfig,
 			final SamlSpMetadataEntity spMetadata, final AuthnRequest authnRequest, final Assertion assertion,
 			final UserEntity user, final List<ServiceSamlSpEntity> serviceSamlSpEntityList,
-			final RegistryEntity registry, final SamlAuthnRequestEntity authnRequestEntity) throws SamlAuthenticationException {
+			final RegistryEntity registry, final SamlAuthnRequestEntity authnRequestEntity)
+			throws SamlAuthenticationException {
 
 		List<Attribute> attributeList = new ArrayList<>();
 		Boolean subjectOverride = false;
