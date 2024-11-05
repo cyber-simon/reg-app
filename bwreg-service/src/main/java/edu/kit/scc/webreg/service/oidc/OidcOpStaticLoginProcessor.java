@@ -366,7 +366,9 @@ public class OidcOpStaticLoginProcessor extends AbstractOidcOpLoginProcessor {
 
 					invocable.invokeFunction("resolveAttributes", scriptingEnv, attributeBuilder, attributeResolver,
 							attributeRelease, identity, user, registry, logger, flowState, consumerConfig, opConfig);
-				} catch (NoSuchMethodException | ScriptException e) {
+				} catch (NoSuchMethodException e) {
+					logger.info("Skipping resolveAttributes method. It's not defined.");
+				} catch (ScriptException e) {
 					logger.warn("Script execution failed. Continue with other scripts.", e);
 				}
 			} else {
@@ -397,7 +399,9 @@ public class OidcOpStaticLoginProcessor extends AbstractOidcOpLoginProcessor {
 
 					invocable.invokeFunction(methodName, scriptingEnv, claimsBuilder, user, registry,
 							serviceOidcClient.getService(), logger, identity);
-				} catch (NoSuchMethodException | ScriptException e) {
+				} catch (NoSuchMethodException e) {
+					logger.info("Skipping " + methodName + " method. It's not defined.");
+				} catch (ScriptException e) {
 					logger.warn("Script execution failed. Continue with other scripts.", e);
 				}
 			} else {

@@ -73,6 +73,11 @@ public class AttributeSourceUpdater implements Serializable {
 
 		ASUserAttrEntity asUserAttr = findASUserAttr(user, attributeSource);
 
+		if (attributeSource.getAsProps() != null && attributeSource.getAsProps().containsKey("disabled")
+				&& attributeSource.getAsProps().get("disabled").equalsIgnoreCase("true")) {
+			return changed;
+		}
+
 		// Default expiry Time after for Attribute Update
 		Long expireTime = 30000L;
 
