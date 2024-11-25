@@ -122,7 +122,7 @@
 							<p:confirm header="#{messages.confirm_header}" message="#{messages.confirm}" />
 						</p:commandButton>
 						<p:commandButton action="#{twoFaUserBean.getBackupTanList(token.serial)}" value="#{messages.token_get_tanlist_values}" 
-							update="@form" rendered="#{token.isactive and token.tokenType == 'HMAC'}"
+							update="@form" rendered="#{token.isactive and token.class.simpleName == 'HmacToken' and token.canGenerateOtps}"
 							oncomplete="PF('showBackupTanDlg').show();"/>
 					</p:outputPanel>
 				</h:panelGrid>

@@ -328,6 +328,8 @@ public class LinotpTokenManager extends AbstractTwoFaManager {
 		}
 		else if (linotpToken.getTokenType().equals("HMAC")) {
 			token = new HmacToken();
+			//LinOTP can repeatedly generate HMAC token
+			((HmacToken) token).setCanGenerateOtps(true);
 		}
 		else {
 			logger.warn("Unknown Tokentype {}. Ingoring.", linotpToken.getTokenType());
