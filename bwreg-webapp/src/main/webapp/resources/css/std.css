@@ -1525,24 +1525,6 @@ a:active,a:hover {
     text-decoration: underline;
 }
 
-/* a[target=_blank][href^=http]:not([href*='kit.edu']):after { */
-a[href^=http]:not([href*='kit.edu']):after {
-    content: "";
-    display: inline-block;
-    margin-left: 5px;
-    color: var(--primaryColor) ;
-    font-family: "kit-icons";
-    font-size: 0.8em;
-    font-weight: 300
-}
-
-/* a[target=_blank][href^=http]:not([href*='kit.edu']).button:after { */
-a[href^=http]:not([href*='kit.edu']).button:after {
-    -webkit-transform: translateY(-1px);
-    -ms-transform: translateY(-1px);
-    transform: translateY(-1px);
-    color: #fff}
-
 b,strong {
     font-weight: 700
 }
@@ -8227,10 +8209,6 @@ body.oe-page .mediathek-teaser .teaser-element.download picture:after,body.oe-pa
 
 /* EIGENE STYLES */
 /* !important bei .social [.youtube, etc.] hinzugefügt */
-
-.news-element a[href^=http]:not([href*='kit.edu']):after, figure a[href^=http]:not([href*='kit.edu']):after {
-    display:none
-}
 
 input[type=date], input[type=datetime], input[type=datetime-local], input[type=email], input[type=number], input[type=password], input[type=search], input[type=tel], input[type=text], input[type=url], textarea {
 	border: 1px solid #868686;
