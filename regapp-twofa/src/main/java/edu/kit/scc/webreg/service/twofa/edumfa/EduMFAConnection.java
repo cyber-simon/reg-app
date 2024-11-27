@@ -246,6 +246,7 @@ public class EduMFAConnection {
 			List<NameValuePair> nvps = new ArrayList <NameValuePair>();
 			nvps.add(new BasicNameValuePair("type", "paper"));
 			nvps.add(new BasicNameValuePair("description", "This is a description"));
+			nvps.add(new BasicNameValuePair("otplen", "8"));
 
 			if (configMap.containsKey("userId"))
 			    nvps.add(new BasicNameValuePair("user", configMap.get("userId")));
@@ -254,7 +255,6 @@ public class EduMFAConnection {
 
 			if (configMap.containsKey("realm"))
 				nvps.add(new BasicNameValuePair("realm", configMap.get("realm")));
-			
 			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 			
 			CloseableHttpResponse response = httpClient.execute(targetHost, httpPost, context);
