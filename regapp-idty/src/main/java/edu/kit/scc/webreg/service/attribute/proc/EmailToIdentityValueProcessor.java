@@ -61,7 +61,7 @@ public class EmailToIdentityValueProcessor extends StringListMergeValueProcessor
 	
 	private void deleteIdentityEmailAddress(IdentityEntity identity, IdentityEmailAddressEntity email) {
 		IdentityEmailAddressHandler handler = getIdentityEmailAddressHandler();
-		if (identity.getPrimaryEmail().equals(email))
+		if (identity.getPrimaryEmail() != null && identity.getPrimaryEmail().equals(email))
 			identity.setPrimaryEmail(null);
 		handler.deleteEmailAddress(email, "idty-" + identity.getId());
 	}
