@@ -33,13 +33,13 @@
 				</f:facet>
 				<h:outputText value="#{pia.project.id}" />
 			</p:column>
-			<p:column>
+			<p:column sortBy="#{pia.project.shortName}" filterBy="#{pia.project.shortName}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.short_name}" />
 				</f:facet>
 				<h:outputText value="#{pia.project.shortName}" />
 			</p:column>
-			<p:column sortBy="#{pia.project.name}" filterBy="#{pia.project.name}">
+			<p:column sortBy="#{pia.project.name}" filterBy="#{pia.project.name}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.name}" />
 				</f:facet>
@@ -48,13 +48,13 @@
 		      		<f:param name="sid" value="#{pia.service.id}"/>
 				</h:link>
 			</p:column>			
-			<p:column>
+			<p:column sortBy="#{pia.type}">
 				<f:facet name="header">
 					<h:outputText value="#{messages.type}" />
 				</f:facet>
 				<h:outputText value="#{pia.type}" />
 			</p:column>
-			<p:column>
+			<p:column sortBy="#{pia.status}">
 				<f:facet name="header">
 					<h:outputText value="#{messages.status}" />
 				</f:facet>
@@ -62,10 +62,6 @@
 			</p:column>
 		</p:dataTable>
 		
-		<div class="text full" style="margin-top: 0.4em;">
-			<h:link outcome="add-project.xhtml" value="#{messages['project.add']}" />
-		</div>
-
 	</h:form>
 	</ui:define>
 </ui:composition>

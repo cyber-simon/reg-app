@@ -74,6 +74,12 @@
 				</f:facet>
 				<h:outputText value="#{member.primaryEmail != null ? member.primaryEmail.emailAddress : 'nicht gesetzt'}" />
 			</p:column>
+			<p:column sortBy="#{member.prefUser.eppn}" filterBy="#{member.prefUser.eppn}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.account}" />
+				</f:facet>
+				<h:outputText value="#{member.prefUser.eppn}" />
+			</p:column>
 			<p:column sortBy="#{member.prefUser.userStatus}" style="width:96px;">
 				<f:facet name="header">
 					<h:outputText value="#{messages.status}" />
@@ -99,12 +105,30 @@
 				</f:facet>
 				<h:outputText value="#{a.identity.id}" />
 			</p:column>			
+			<p:column sortBy="#{a.identity.prefUser.surName}" filterBy="#{a.identity.prefUser.surName}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.sur_name}" />
+				</f:facet>
+				<h:outputText value="#{a.identity.prefUser.surName}" />
+			</p:column>			
+			<p:column sortBy="#{a.identity.prefUser.givenName}" filterBy="#{a.identity.prefUser.givenName}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.given_name}" />
+				</f:facet>
+				<h:outputText value="#{a.identity.prefUser.givenName}" />
+			</p:column>	
+			<p:column sortBy="#{a.identity.primaryEmail.emailAddress}" filterBy="#{a.identity.primaryEmail.emailAddress}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.email}" />
+				</f:facet>
+				<h:outputText value="#{a.identity.primaryEmail.emailAddress}" />
+			</p:column>			
 			<p:column sortBy="#{a.identity.prefUser.eppn}" filterBy="#{a.identity.prefUser.eppn}" filterMatchMode="contains">
 				<f:facet name="header">
-					<h:outputText value="#{messages.name}" />
+					<h:outputText value="#{messages.account}" />
 				</f:facet>
 				<h:outputText value="#{a.identity.prefUser.eppn}" />
-			</p:column>
+			</p:column>			
 			<p:column>
 				<f:facet name="header">
 					<h:outputText value="#{messages.type}" />

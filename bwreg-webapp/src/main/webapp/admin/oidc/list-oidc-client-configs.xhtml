@@ -26,7 +26,7 @@
 				</f:facet>
 				<h:outputText value="#{entity.id}" />
 			</p:column>
-			<p:column>
+			<p:column sortBy="#{entity.name}" filterBy="#{entity.name}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.entity_id}" />
 				</f:facet>
@@ -34,7 +34,7 @@
       				<f:param name="id" value="#{entity.id}"/>
     			</h:link>
 			</p:column>		
-			<p:column>
+			<p:column sortBy="#{entity.displayName}" filterBy="#{entity.displayName}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.display_name}" />
 				</f:facet>

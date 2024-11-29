@@ -92,17 +92,17 @@
 
 		<h5 style="margin-top: 1em;"><h:outputText value="#{messages['project.admins']}" /></h5>
 		<p:dataTable id="dataTableAdmin" var="a" value="#{serviceProjectAdminShowProjectBean.adminList}">
-			<p:column>
-				<f:facet name="header">
-					<h:outputText value="#{messages.id}" />
-				</f:facet>
-				<h:outputText value="#{a.identity.id}" />
-			</p:column>			
 			<p:column sortBy="#{a.identity.prefUser.eppn}" filterBy="#{a.identity.prefUser.eppn}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.name}" />
 				</f:facet>
 				<h:outputText value="#{a.identity.prefUser.eppn}" />
+			</p:column>			
+			<p:column sortBy="#{a.identity.primaryEmail.emailAddress}" filterBy="#{a.identity.primaryEmail.emailAddress}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.email}" />
+				</f:facet>
+				<h:outputText value="#{a.identity.primaryEmail.emailAddress}" />
 			</p:column>			
 			<p:column sortBy="#{a.identity.prefUser.surName}" filterBy="#{a.identity.prefUser.surName}" filterMatchMode="contains">
 				<f:facet name="header">
@@ -126,18 +126,18 @@
 		
 		<h5 style="margin-top: 1em;"><h:outputText value="#{messages['project.members']}" /></h5>
 		<p:dataTable id="dataTableMember" var="member" value="#{serviceProjectAdminShowProjectBean.memberList}">
-			<p:column>
-				<f:facet name="header">
-					<h:outputText value="#{messages.id}" />
-				</f:facet>
-				<h:outputText value="#{member.identity.id}" />
-			</p:column>			
 			<p:column sortBy="#{member.identity.prefUser.eppn}" filterBy="#{member.identity.prefUser.eppn}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.name}" />
 				</f:facet>
 				<h:outputText value="#{member.identity.prefUser.eppn}" />
 			</p:column>			
+			<p:column sortBy="#{member.identity.primaryEmail.emailAddress}" filterBy="#{member.identity.primaryEmail.emailAddress}" filterMatchMode="contains">
+				<f:facet name="header">
+					<h:outputText value="#{messages.email}" />
+				</f:facet>
+				<h:outputText value="#{member.identity.primaryEmail.emailAddress}" />
+			</p:column>	
 			<p:column sortBy="#{member.identity.prefUser.surName}" filterBy="#{member.identity.prefUser.surName}" filterMatchMode="contains">
 				<f:facet name="header">
 					<h:outputText value="#{messages.sur_name}" />
