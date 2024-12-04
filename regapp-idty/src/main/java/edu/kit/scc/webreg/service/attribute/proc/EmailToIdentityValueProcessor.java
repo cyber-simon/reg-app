@@ -1,5 +1,6 @@
 package edu.kit.scc.webreg.service.attribute.proc;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -39,8 +40,29 @@ public class EmailToIdentityValueProcessor extends StringListMergeValueProcessor
 		}
 
 		IdentityEntity identity = attributeSet.getIdentity();
-		Map<String, IdentityEmailAddressEntity> emailMap = identity.getEmailAddresses().stream()
-				.collect(Collectors.toMap(IdentityEmailAddressEntity::getEmailAddress, Function.identity()));
+		Map<String, IdentityEmailAddressEntity> emailMap =  new HashMap<>();
+		for (IdentityEmailAddressEntity email : identity.getEmailAddresses()) {
+			if (! emailMap.containsKey(email.getEmailAddress())) {
+				emailMap.put(email.getEmailAddress(), email);
+			}
+			else {
+				// We have a duplicate email address.
+				// Prefer Verified Email Addresses over unverified, i.e. update the email map
+				// if the actual element ist verified.
+				if (EmailAddressStatus.FROM_ATTRIBUTE_VERIFIED.equals(email.getEmailStatus()) ||
+						EmailAddressStatus.VERIFIED.equals(email.getEmailStatus())) {
+					emailMap.put(email.getEmailAddress(), email);
+				}
+				else {
+					IdentityEmailAddressEntity oldEmail = emailMap.get(email.getEmailAddress());
+					if (EmailAddressStatus.FROM_ATTRIBUTE_UNVERIFIED.equals(email.getEmailStatus()) &&
+							EmailAddressStatus.UNVERIFIED.equals(oldEmail.getEmailStatus())) {
+						// prefer the attribute unverified email over the local unverified
+						emailMap.put(email.getEmailAddress(), email);
+					}
+				}
+			}
+		}
 		
 		for (String email : emailAddresses) {
 			// Add email addresses from attribute sources to identity
