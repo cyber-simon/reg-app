@@ -120,6 +120,11 @@ public class UserSshKeyManagementBean implements Serializable {
 				expireTime = Long.parseLong(appConfig.getConfigValue("sshpubkey_expire_time"));
 			}
 
+			if (sshPubKeyEntity.getKeyType() != null && sshPubKeyEntity.getKeyType().equals("sk-ssh-ed25519@openssh.com") && 
+					appConfig.getConfigValue("sshpubkey_fido_expire_time") != null) {
+				expireTime = Long.parseLong(appConfig.getConfigValue("sshpubkey_fido_expire_time"));
+			}
+			
 			if (expireTime != -1) {
 				sshPubKeyEntity.setExpiresAt(new Date(System.currentTimeMillis() + expireTime));
 			}

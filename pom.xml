@@ -23,7 +23,7 @@
 		<org.apache.velocity>1.7</org.apache.velocity>
 		<vt-ldap.version>3.3.9</vt-ldap.version>
 		<org.slf4j.version>1.7.2</org.slf4j.version>
-		<org.bouncycastle.version>1.77</org.bouncycastle.version>
+		<org.bouncycastle.version>1.79</org.bouncycastle.version>
 		<org.primefaces.version>13.0.3</org.primefaces.version>
 		<org.primefaces.extensions.version>13.0.3</org.primefaces.extensions.version>
 		<org.primefaces.themes.version>1.0.10</org.primefaces.themes.version>
@@ -38,7 +38,7 @@
 		<commons-beanutils.version>1.9.4</commons-beanutils.version>
 		<jakarta.xml.bind>3.0.0</jakarta.xml.bind>
 		<ch.ethz.ganymed.version>262</ch.ethz.ganymed.version>
-                <com.hierynomus.version>0.32.0</com.hierynomus.version>
+        <com.hierynomus.version>0.32.0</com.hierynomus.version>
 		<com.fasterxml.jackson.version>2.2.3</com.fasterxml.jackson.version>
 		<jcifs.version>1.3.17</jcifs.version>
 		<org.eclipse.jdt.version>4.3.1</org.eclipse.jdt.version>
